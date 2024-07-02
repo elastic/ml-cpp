@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::prepareDataFrameForEncode" name="ml::maths::analytics::CBoostedTreeFactory::prepareDataFrameForEncode">
+<area shape="rect" id="Node000001" title="Initialize data frame information required for encoding." alt="" coords="5,31,206,87"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#ab6875fb65c5381470b1d4bbad83418a4" title="Write the column names." alt="" coords="254,39,405,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,56,238,56,238,62,206,62"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a3117ea048fe8bbc3dfe9180a40bc1a8b" title=" " alt="" coords="468,5,619,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,45,452,37,453,42,406,50"/>
+<area shape="rect" id="Node000004" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="453,71,633,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="406,68,438,73,437,78,405,73"/>
+</map>

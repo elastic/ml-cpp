@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,202,56"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="253,5,403,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,30,237,26,238,31,202,35"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#aa149ae928ff4027fe76ff18ba37829d2" title="Split a string based on a regex." alt="" coords="250,55,406,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,51,235,55,234,60,202,57"/>
+<area shape="rect" id="Node000004" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="454,55,601,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="407,65,439,65,439,70,407,70"/>
+</map>

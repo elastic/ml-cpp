@@ -1,0 +1,34 @@
+<map id="ml::maths::common::CBasicStatistics::maximumLikelihoodCovariances" name="ml::maths::common::CBasicStatistics::maximumLikelihoodCovariances">
+<area shape="rect" id="Node000001" title=" " alt="" coords="992,265,1234,321"/>
+<area shape="rect" id="Node000002" href="$d2/d17/_c_x_means_online_test_8cc.html#adf48b585c1602cf4d19a57a36db15dc6" title=" " alt="" coords="733,5,930,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1091,252,1067,205,1034,151,992,98,942,52,905,34,907,29,945,48,996,94,1038,148,1072,202,1096,249"/>
+<area shape="rect" id="Node000003" href="$d8/dfa/_c_basic_statistics_test_8cc.html#a5ea1badddfda2f6aa36a2b05a01c68d9" title=" " alt="" coords="230,145,426,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1089,253,1064,213,1031,169,991,128,942,97,903,81,862,70,778,59,692,60,608,71,530,89,460,109,359,147,358,142,459,104,529,84,607,66,692,55,778,53,863,65,905,76,945,92,994,124,1035,165,1069,210,1093,250"/>
+<area shape="rect" id="Node000004" href="$d2/d17/_c_x_means_online_test_8cc.html#a4d34852194df3559a1ef01cbac95a7da" title=" " alt="" coords="733,107,930,132"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1076,255,1017,198,981,169,942,146,916,135,918,131,945,141,984,165,1021,194,1080,251"/>
+<area shape="rect" id="Node000005" href="$d6/d26/_c_linear_algebra_test_8cc.html#af2dce9c3ea2d44267307d89a1778b0a6" title=" " alt="" coords="733,156,930,182"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1059,258,1004,225,943,195,909,185,911,180,945,190,1007,220,1061,254"/>
+<area shape="rect" id="Node000006" href="$d7/dff/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf.html#ae279c75f55598280f6df675efe188b66" title=" " alt="" coords="745,206,918,276"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="976,270,918,259,919,254,977,265"/>
+<area shape="rect" id="Node000010" href="$d9/da3/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf_3_01_c_anbe712cdfdefc5a17046f288495b42801.html#ad66a68080cb46129377b0fd5c537f4c0" title=" " alt="" coords="719,301,944,386"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="977,320,945,326,944,321,976,315"/>
+<area shape="rect" id="Node000011" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ab1ce171c6e823625bdeed7122d12a071" title="Compute the log of the determinant of covariance." alt="" coords="753,410,910,466"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="1061,332,1006,367,945,401,912,415,910,410,942,396,1004,362,1058,327"/>
+<area shape="rect" id="Node000013" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a8b6d8d9016db551d87c786ccd00d51bd" title="Get the likelihood that x is from this cluster." alt="" coords="743,490,920,546"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="1086,335,1026,408,988,447,945,480,921,494,919,489,942,476,984,443,1023,405,1082,332"/>
+<area shape="rect" id="Node000014" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#abf7a110e46df45b4fe07a4fa65123143" title="Get the closest (in Mahalanobis distance) cluster to x." alt="" coords="485,518,661,574"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="1101,336,1081,391,1048,454,1027,485,1003,514,976,540,945,560,911,576,875,586,837,591,799,593,726,588,661,576,662,570,727,583,799,588,837,586,873,581,909,571,942,556,973,535,1000,510,1023,482,1044,451,1076,389,1097,335"/>
+<area shape="rect" id="Node000015" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a773ac4e01f2bfffc8ed418cd1fb0a4f1" title=" " alt="" coords="743,621,920,677"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="1101,337,1079,396,1046,467,1002,540,975,574,945,604,919,623,916,618,942,600,971,570,998,537,1042,464,1074,394,1096,335"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a869474414e0d0ea31da714ee41adee91" title=" " alt="" coords="474,213,671,269"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="730,244,672,244,672,238,730,238"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="473,210,368,174,369,169,474,205"/>
+<area shape="rect" id="Node000008" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a9b3a8d896fbb5c2059d2014523b5c8f6" title=" " alt="" coords="240,297,416,353"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="476,277,412,299,410,294,474,272"/>
+<area shape="rect" id="Node000009" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a810d7b339ac2d556dbad39f33378bd06" title=" " alt="" coords="5,297,182,353"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="224,328,182,328,182,322,224,322"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="131,285,117,278,93,276,73,278,59,282,53,289,53,297,48,296,48,286,57,278,72,272,94,270,118,273,133,280"/>
+<area shape="rect" id="Node000012" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ac492dcff81db9652ae12665e68fa2bed" title="Update the sufficient statistics for computing info content." alt="" coords="480,418,666,459"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="737,441,666,441,666,436,737,436"/>
+<area shape="poly" id="edge16_Node000014_Node000008" title=" " alt="" coords="519,511,472,472,407,410,354,355,357,351,411,407,476,468,523,507"/>
+</map>

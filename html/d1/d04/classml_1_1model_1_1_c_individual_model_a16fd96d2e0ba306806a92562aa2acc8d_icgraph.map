@@ -1,0 +1,25 @@
+<map id="ml::model::CIndividualModel::lastBucketTimes" name="ml::model::CIndividualModel::lastBucketTimes">
+<area shape="rect" id="Node000001" title="Get the last time each persion was seen." alt="" coords="747,136,934,177"/>
+<area shape="rect" id="Node000002" href="$d1/dd7/classml_1_1model_1_1_c_event_rate_model_details_view.html#a43ecf1b625a961315f07415d2c196431" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="497,5,693,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="801,128,753,94,698,61,669,49,671,44,701,57,756,89,804,124"/>
+<area shape="rect" id="Node000003" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#ad145f1cd1c6b0e41b1f3531b22e995ee" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="491,71,699,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="746,134,674,115,675,109,747,129"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4cdec68d47c3fc48c1f9bcc497561dc6" title="Restore the model reading state from the supplied traverser." alt="" coords="502,136,688,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="731,159,689,159,689,154,731,154"/>
+<area shape="rect" id="Node000009" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="499,201,692,242"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="747,184,675,203,674,198,746,179"/>
+<area shape="rect" id="Node000011" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="512,267,679,307"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="804,189,756,223,701,256,671,269,669,264,698,251,753,219,801,184"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6f8f5dc995a35c2935947e846e5e82ff" title="Restore reading state from traverser." alt="" coords="248,75,442,115"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="494,134,430,119,431,113,495,129"/>
+<area shape="rect" id="Node000007" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a2a17aefca31ae55eb498c8b09f8c64bc" title="Restore reading state from traverser." alt="" coords="260,140,430,181"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="487,161,430,162,430,156,487,155"/>
+<area shape="rect" id="Node000006" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7c8373ba03a89e9dc49a6ab803b7625d" title=" " alt="" coords="5,75,199,115"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="232,98,199,98,199,92,232,92"/>
+<area shape="rect" id="Node000008" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#af612a9f6e4723891cf536bf1c97229f3" title=" " alt="" coords="18,140,186,181"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="244,163,186,163,186,158,244,158"/>
+<area shape="rect" id="Node000010" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="247,209,443,235"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="483,224,443,224,443,219,483,219"/>
+<area shape="rect" id="Node000012" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="247,274,443,300"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="496,290,443,290,443,284,496,284"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CPrior::CApplyOffset::operator()" name="ml::maths::common::CPrior::CApplyOffset::operator()">
+<area shape="rect" id="Node000001" title="Apply the offset." alt="" coords="5,31,151,87"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="199,5,344,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,44,183,38,183,44,151,49"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ac140caa598e0575d986708f724d8adc5" title="Get the current sample offset." alt="" coords="199,71,344,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,68,183,74,183,79,150,74"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="ml::maths::time_series::CExpandingWindow::doInflate" name="ml::maths::time_series::CExpandingWindow::doInflate">
+<area shape="rect" id="Node000001" title="Implements inflate." alt="" coords="530,222,735,263"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ae802d099e2030617bed1722767aa5df7" title="Extract from the compressed representation." alt="" coords="292,222,482,263"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="515,245,482,245,482,240,515,240"/>
+<area shape="rect" id="Node000003" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a152598095dd8b49232561278550d2a9f" title="Persist state by passing information to inserter." alt="" coords="7,5,242,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="363,210,313,142,280,106,242,75,222,64,225,59,245,71,283,102,317,139,367,207"/>
+<area shape="rect" id="Node000004" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a783a4d2e34d8f9e29c418056480e58c3" title="Add value at time." alt="" coords="36,85,213,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="349,214,300,176,242,141,212,128,214,123,245,136,303,172,353,210"/>
+<area shape="rect" id="Node000005" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#aa65c954ee9ef626726bbb48881a6bf63" title="Get a checksum for this object." alt="" coords="17,150,232,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="296,220,243,205,202,194,204,189,244,200,298,215"/>
+<area shape="rect" id="Node000006" href="$d9/dca/classml_1_1maths_1_1time__series_1_1_c_expanding_window_1_1_c_scope_inflate.html#a32b9b4c149e108b0a0b704762f70eaf8" title=" " alt="" coords="5,215,244,270"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="276,245,244,245,244,240,276,240"/>
+<area shape="rect" id="Node000007" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ac140372c133c54ce4b47aeeea08da0bb" title="Apply at time shift of shift at time." alt="" coords="20,294,229,335"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="298,270,244,285,204,296,202,291,243,280,296,265"/>
+<area shape="rect" id="Node000008" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ac43a025d2d80b915cd8449352acb6d71" title="Get the bucket values." alt="" coords="28,360,221,400"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="353,275,303,313,245,349,214,361,212,356,242,344,300,309,349,271"/>
+<area shape="rect" id="Node000009" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#acd0596e7131569b51a26f01bc3acc53b" title="Get the bucket values minus the predictions of predictor." alt="" coords="10,448,239,504"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="365,277,314,344,281,381,245,414,190,450,187,445,242,410,278,377,310,341,361,274"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="167,436,151,429,124,427,101,429,86,433,79,440,79,448,73,447,74,437,83,429,100,423,125,421,152,424,169,431"/>
+</map>

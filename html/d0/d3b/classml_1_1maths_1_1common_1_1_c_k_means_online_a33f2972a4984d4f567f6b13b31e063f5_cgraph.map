@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CKMeansOnline::checkSplit" name="ml::maths::common::CKMeansOnline::checkSplit">
+<area shape="rect" id="Node000001" title="Sanity check split." alt="" coords="5,63,191,103"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#ae901e0099147c0cc81d4b3951148bd07" title=" " alt="" coords="239,63,387,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,89,223,89,223,95,191,95"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="238,77,206,77,206,71,238,72"/>
+<area shape="poly" id="edge6_Node000002_Node000002" title=" " alt="" coords="273,63,272,53,278,44,292,38,313,36,335,38,349,45,346,49,334,44,313,41,293,43,281,48,277,54,279,61"/>
+<area shape="rect" id="Node000003" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#af7c398f7831388042299dd9641929fb6" title="Get the clusters being maintained." alt="" coords="435,29,605,70"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="387,68,419,63,420,68,388,74"/>
+<area shape="rect" id="Node000004" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#ae7ee84774392d4487874ad3faa92d8fc" title="Get the total number of clusters." alt="" coords="446,95,594,135"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="388,92,431,99,430,104,387,97"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="481,29,479,19,485,10,499,5,520,3,543,5,556,11,554,16,541,10,520,8,501,10,489,15,484,20,486,28"/>
+</map>

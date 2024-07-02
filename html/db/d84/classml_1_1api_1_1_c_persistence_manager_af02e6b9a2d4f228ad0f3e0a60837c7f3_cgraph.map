@@ -1,0 +1,18 @@
+<map id="ml::api::CPersistenceManager::startPersistIfAppropriate" name="ml::api::CPersistenceManager::startPersistIfAppropriate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,203,133"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a0c1ba61de9599d565cd6f8bd595aa23f" title="Is background persistence currently in progress?" alt="" coords="251,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,89,250,55,268,49,270,54,252,60,160,94"/>
+<area shape="rect" id="Node000003" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="262,70,437,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,98,246,93,247,98,203,103"/>
+<area shape="rect" id="Node000004" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#af8ce46e168e18cbf699967f69d758d32" title="Execute the registered persistence functions now." alt="" coords="251,120,448,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,121,235,125,235,130,203,126"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#ab273d6897c63c489378700214227a618" title=" " alt="" coords="278,185,421,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="154,131,252,170,272,177,270,182,250,175,152,136"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="496,185,638,226"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="421,203,481,203,481,208,421,208"/>
+<area shape="rect" id="Node000007" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="686,152,830,193"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="638,191,670,185,671,190,639,196"/>
+<area shape="rect" id="Node000008" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="688,217,828,258"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="639,215,673,221,672,226,638,220"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="722,152,720,142,726,133,739,127,758,125,779,128,791,134,789,139,777,133,758,131,740,133,729,137,725,143,727,151"/>
+</map>

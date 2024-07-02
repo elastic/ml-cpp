@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,68,202,94"/>
+<area shape="rect" id="Node000002" href="$d2/dbc/classanonymous__namespace_02_c_seasonal_component_test_8cc_03_1_1_c_test_seasonal_component.html#a6ac0020e7549461d539a0a337077a0c4" title=" " alt="" coords="250,5,461,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,65,234,57,235,62,189,70"/>
+<area shape="rect" id="Node000003" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a78cfc2faf4e0dd4b44e149da97f8925d" title="Extract the time of time in the current regression." alt="" coords="260,100,451,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,92,245,100,244,106,188,97"/>
+<area shape="rect" id="Node000004" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#ac8e0f47422c355d948c2884b5afcca4a" title="Get the scale to apply when computing the regression time." alt="" coords="509,100,761,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="451,118,493,118,493,123,451,123"/>
+</map>

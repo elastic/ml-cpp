@@ -1,0 +1,40 @@
+<map id="ml::api::CDataFrameAnalysisInstrumentation::updateMemoryUsage" name="ml::api::CDataFrameAnalysisInstrumentation::updateMemoryUsage">
+<area shape="rect" id="Node000001" title="Adds delta to the memory usage statistics." alt="" coords="5,288,249,329"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="1146,29,1334,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,286,205,221,248,185,295,155,404,103,499,65,586,39,669,24,755,17,847,17,1072,28,1131,33,1130,38,1071,34,847,23,755,23,670,29,587,44,500,70,406,108,298,160,251,190,209,225,147,290"/>
+<area shape="rect" id="Node000003" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#ac3fce8ac4a7482b764ee05d46589e681" title=" " alt="" coords="317,169,510,210"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="171,285,296,230,338,213,340,218,298,235,173,290"/>
+<area shape="rect" id="Node000013" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#a901b351eff5064f87dcd311cfe8bac04" title=" " alt="" coords="1120,137,1360,178"/>
+<area shape="poly" id="edge18_Node000001_Node000013" title=" " alt="" coords="227,285,296,274,414,262,515,258,686,261,769,262,857,257,955,246,1071,223,1130,205,1183,182,1185,187,1132,210,1072,228,956,251,857,263,769,267,686,266,515,264,415,267,297,279,228,290"/>
+<area shape="rect" id="Node000014" href="$dd/d73/classml_1_1core_1_1_c_program_counters_1_1_c_counter.html#abc38b4b17c7778dabd5f021d880886b3" title=" " alt="" coords="319,288,508,329"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="249,306,304,306,304,311,249,311"/>
+<area shape="rect" id="Node000015" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#adbe1453f46c1fb915d0c225d37e678ad" title=" " alt="" coords="317,353,510,394"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="220,327,307,347,306,352,219,332"/>
+<area shape="rect" id="Node000016" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#af0c063c28e174610e78104723c191e68" title=" " alt="" coords="297,443,530,483"/>
+<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="164,327,298,403,356,433,353,438,295,408,161,331"/>
+<area shape="rect" id="Node000017" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#a38631e1d2a3b5644c5374a0bee23cc60" title=" " alt="" coords="311,508,516,549"/>
+<area shape="poly" id="edge21_Node000001_Node000017" title=" " alt="" coords="144,328,168,364,204,408,248,454,298,493,309,499,306,503,295,497,244,458,200,412,164,367,139,331"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="1191,29,1189,19,1197,10,1214,5,1240,3,1268,5,1284,11,1282,16,1267,10,1240,8,1215,10,1200,15,1194,21,1196,28"/>
+<area shape="rect" id="Node000004" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#ad468a34d6678c35a5ef466e11ae26686" title=" " alt="" coords="578,158,795,214"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="510,186,562,185,562,190,511,191"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#ad866aed0c9880f80b8531fd518d491f6" title="Current time in milliseconds since the epoch." alt="" coords="886,43,1029,83"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="729,155,782,124,842,94,871,83,872,88,844,99,785,128,732,160"/>
+<area shape="rect" id="Node000006" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html#ae308c1ff681335d376672f2550cbaa36" title="Overwrites the Writer::onObjectBegin in order to count nested objects." alt="" coords="871,288,1044,329"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="751,212,898,279,896,284,749,217"/>
+<area shape="rect" id="Node000011" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#a37c57929cc60677fa7c910a42e19c43f" title=" " alt="" coords="843,173,1072,214"/>
+<area shape="poly" id="edge12_Node000004_Node000011" title=" " alt="" coords="796,186,828,187,828,193,796,192"/>
+<area shape="rect" id="Node000012" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#acbe6404a281a08095a409f625636383b" title=" " alt="" coords="860,108,1055,149"/>
+<area shape="poly" id="edge13_Node000004_Node000012" title=" " alt="" coords="795,160,844,149,846,155,796,165"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a0bfaf41d409565d4b091676c48750501" title=" " alt="" coords="1149,296,1331,337"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="1044,308,1133,311,1133,316,1044,313"/>
+<area shape="rect" id="Node000009" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a688d4dc1c2cdab063e0bc24f22b7ce9f" title=" " alt="" coords="1149,231,1331,271"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="1044,288,1133,270,1134,275,1045,293"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="1408,296,1590,337"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="1332,314,1392,314,1392,319,1332,319"/>
+<area shape="poly" id="edge10_Node000009_Node000008" title=" " alt="" coords="1324,269,1401,289,1400,294,1323,275"/>
+<area shape="rect" id="Node000010" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="1408,231,1590,271"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1332,248,1392,248,1392,254,1332,254"/>
+<area shape="poly" id="edge14_Node000012_Node000002" title=" " alt="" coords="1033,105,1149,72,1150,77,1034,110"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="1055,136,1104,141,1104,146,1055,141"/>
+<area shape="poly" id="edge20_Node000016_Node000016" title=" " alt="" coords="362,443,360,433,368,424,386,418,413,416,443,418,460,425,458,430,442,424,413,421,387,423,371,428,365,434,367,441"/>
+</map>

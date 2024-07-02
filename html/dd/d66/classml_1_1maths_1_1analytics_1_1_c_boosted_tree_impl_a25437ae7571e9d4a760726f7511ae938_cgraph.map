@@ -1,0 +1,12 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::trainTree" name="ml::maths::analytics::CBoostedTreeImpl::trainTree">
+<area shape="rect" id="Node000001" title="Train one tree on the rows of frame in the mask trainingRowMask." alt="" coords="5,133,203,174"/>
+<area shape="rect" id="Node000002" href="$d2/d97/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_workspace.html#a6763f65364dc79d6e7063af3b81ea533" title="Get a list of features which must be included in training." alt="" coords="251,5,475,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,130,190,101,250,71,263,65,265,70,252,76,193,105,141,135"/>
+<area shape="rect" id="Node000003" href="$d2/d97/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_workspace.html#a2b0fd2d30dcd3fb7f6f643d7b62e9f96" title="Get the minimum leaf gain which will generate a split." alt="" coords="251,85,475,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,135,235,130,236,136,204,141"/>
+<area shape="rect" id="Node000004" href="$d2/d97/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_workspace.html#a1f2e8e29d165294ad7350e3037b133ea" title="Re&#45;initialize the masks and derivatives." alt="" coords="251,165,475,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="204,166,236,171,235,176,203,171"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="324,270,402,295"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="143,172,252,231,317,261,315,266,249,236,140,176"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="322,272,312,262,316,252,334,245,363,243,398,247,412,255,410,260,396,252,363,248,335,250,320,255,317,261,325,268"/>
+</map>

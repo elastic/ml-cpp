@@ -1,0 +1,5 @@
+<map id="ml::api::CTrainedModel::targetType" name="ml::api::CTrainedModel::targetType">
+<area shape="rect" id="Node000001" title="Sets target type (regression or classification)." alt="" coords="5,5,162,46"/>
+<area shape="rect" id="Node000002" href="$da/d46/classml_1_1api_1_1_c_ensemble.html#a7b381fe2a7e3e2ffb7c6eb629476bbaf" title="Returns target type (regression or classification)." alt="" coords="210,5,346,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,23,194,23,194,28,162,28"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,232,202,258"/>
+<area shape="rect" id="Node000002" href="$dc/dcc/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer_1_1_c_node.html#a9826b03e569bc25c2f29502fa2ed082e" title="Add a child node and update connectivity." alt="" coords="264,5,432,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,231,162,157,202,111,248,71,254,67,257,72,251,75,206,115,167,160,115,234"/>
+<area shape="rect" id="Node000003" href="$dc/dcc/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer_1_1_c_node.html#a2b168eb5cfb5cedf3b8e3dbb7e351a13" title="Get the unique index of this node." alt="" coords="264,85,432,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="122,230,177,192,248,151,259,146,261,150,251,156,180,197,125,234"/>
+<area shape="rect" id="Node000004" href="$de/da2/classanonymous__namespace_02_c_agglomerative_clusterer_test_8cc_03_1_1_c_cluster.html#a5cd15a69f6aa8a8230e62e327e5ce463" title=" " alt="" coords="250,165,446,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,229,234,215,235,220,168,234"/>
+<area shape="rect" id="Node000005" href="$dc/dcc/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer_1_1_c_node.html#a0acdedf1cc4693881bec479d3de408b3" title="Get the points in this node&#39;s cluster." alt="" coords="264,269,432,325"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="168,256,249,274,248,279,167,261"/>
+<area shape="rect" id="Node000006" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="258,349,438,390"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="124,256,179,294,251,335,263,340,261,345,248,340,177,299,121,261"/>
+<area shape="rect" id="Node000007" href="$dc/dcc/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer_1_1_c_node.html#a5861b9e7c6892b4bf973696f9e414e50" title=" " alt="" coords="264,413,432,469"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="116,257,169,323,208,363,251,399,258,403,255,408,248,403,204,367,165,327,112,260"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="300,269,301,259,309,250,325,245,348,243,373,245,389,252,387,257,372,250,348,248,326,250,312,255,306,261,305,269"/>
+</map>

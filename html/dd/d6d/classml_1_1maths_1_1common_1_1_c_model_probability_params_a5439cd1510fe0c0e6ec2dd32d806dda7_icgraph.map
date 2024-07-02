@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CModelProbabilityParams::calculation" name="ml::maths::common::CModelProbabilityParams::calculation">
+<area shape="rect" id="Node000001" title="Get the i&#39;th coordinate&#39;s calculation style." alt="" coords="785,5,958,61"/>
+<area shape="rect" id="Node000002" href="$dd/d6d/classml_1_1maths_1_1common_1_1_c_model_probability_params.html#acb640c951eadf29ba67c75c3aa06fcd8" title="Add a coordinate&#39;s calculation style." alt="" coords="565,5,737,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="770,36,738,36,738,31,770,31"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_probability_and_influence_calculator_test_8cc.html#adacf1c21ee64f9bdf5b1c4471078449a" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="549,29,517,28,383,25,250,28,202,30,202,24,250,23,383,20,517,23,549,24"/>
+<area shape="rect" id="Node000004" href="$da/d82/namespaceanonymous__namespace_02_c_probability_and_influence_calculator_test_8cc_03.html#a219259c6d79d4b107831957ec59d7950" title=" " alt="" coords="250,37,517,93"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="550,48,518,52,517,46,549,43"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="234,51,202,47,202,42,234,45"/>
+</map>

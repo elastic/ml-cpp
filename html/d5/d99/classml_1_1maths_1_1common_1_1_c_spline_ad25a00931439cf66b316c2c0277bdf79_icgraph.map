@@ -1,0 +1,55 @@
+<map id="ml::maths::common::CSpline::curvaturesRef" name="ml::maths::common::CSpline::curvaturesRef">
+<area shape="rect" id="Node000001" title="Get the curvatures at the knot points of the spline." alt="" coords="1518,283,1676,324"/>
+<area shape="rect" id="Node000002" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#af4bf1651e095225c608d21e2a4e97cd6" title=" " alt="" coords="1325,250,1470,290"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1503,290,1470,285,1471,279,1504,285"/>
+<area shape="rect" id="Node000003" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ae81530bc1b51ba278741144ca256650d" title=" " alt="" coords="1325,315,1470,356"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1504,321,1471,326,1470,321,1503,316"/>
+<area shape="rect" id="Node000004" href="$d1/dfe/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble_1_1_c_scorer.html#a357f026d42bf518f4c9d9cb32f2a6152" title=" " alt="" coords="1086,5,1268,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1325,306,1323,304,1305,275,1298,247,1296,221,1298,195,1300,169,1299,143,1292,116,1275,89,1265,79,1269,75,1279,86,1297,114,1304,142,1306,169,1304,195,1302,221,1303,247,1310,273,1327,300,1329,303"/>
+<area shape="rect" id="Node000005" href="$d1/dde/_c_forecast_test_8cc.html#ac5244255d805b8786c91de68a100d864" title=" " alt="" coords="1079,100,1275,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="1326,307,1323,304,1309,282,1302,260,1300,217,1298,177,1291,158,1275,139,1261,128,1264,124,1279,135,1295,155,1303,176,1306,217,1307,259,1313,279,1327,300,1330,303"/>
+<area shape="rect" id="Node000006" href="$d1/dde/_c_forecast_test_8cc.html#aebbba6b66b5780a3175c8a4bef99b84e" title=" " alt="" coords="1079,149,1275,175"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="1327,307,1323,304,1311,288,1305,273,1300,243,1294,215,1287,201,1275,188,1259,178,1262,173,1279,184,1292,198,1299,213,1305,242,1310,271,1316,286,1327,300,1330,304"/>
+<area shape="rect" id="Node000007" href="$d9/d1f/_c_spline_test_8cc.html#a6865b70af8b50e47435c49ed5153a1f0" title=" " alt="" coords="1079,199,1275,224"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="1329,309,1323,304,1308,286,1299,269,1291,253,1275,238,1255,227,1258,222,1279,233,1295,249,1304,266,1312,283,1327,300,1333,304"/>
+<area shape="rect" id="Node000008" href="$d9/d1f/_c_spline_test_8cc.html#afa32ab3aad35e1e66dba8695ed444d36" title=" " alt="" coords="1079,248,1275,274"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="1338,311,1276,287,1240,277,1241,272,1278,282,1340,306"/>
+<area shape="rect" id="Node000009" href="$d9/d1f/_c_spline_test_8cc.html#afef50064dbe8053a67e4eec97f79b597" title=" " alt="" coords="1079,297,1275,323"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="1309,328,1275,324,1276,319,1310,323"/>
+<area shape="rect" id="Node000010" href="$d9/d1f/_c_spline_test_8cc.html#a30532aefc011937aa0b7253eb6f544d4" title=" " alt="" coords="1079,347,1275,372"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="1310,348,1276,351,1275,346,1310,342"/>
+<area shape="rect" id="Node000011" href="$d9/d1f/_c_spline_test_8cc.html#aa3bf8f49bc6585f458f5bcfed17a2bf7" title=" " alt="" coords="1079,396,1275,422"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="1338,365,1278,387,1240,398,1239,393,1276,382,1336,360"/>
+<area shape="rect" id="Node000012" href="$d9/d1f/_c_spline_test_8cc.html#a7a2446117e41608ffd09eb34186757f3" title=" " alt="" coords="1079,445,1275,471"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="1368,369,1328,404,1278,436,1251,447,1249,442,1276,432,1324,400,1365,365"/>
+<area shape="rect" id="Node000013" href="$d9/d1f/_c_spline_test_8cc.html#af22ccb34feebd9be7f1256986ede2531" title=" " alt="" coords="1079,495,1275,520"/>
+<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="1380,371,1339,430,1311,460,1278,486,1256,496,1254,492,1276,481,1307,456,1335,427,1376,368"/>
+<area shape="rect" id="Node000014" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a31f04f29bd67ffac6ab4602ff28ef663" title="Correct from worst case memory usage to a more realistic estimate." alt="" coords="1077,545,1277,601"/>
+<area shape="poly" id="edge13_Node000003_Node000014" title=" " alt="" coords="1386,371,1369,409,1345,452,1315,496,1279,535,1262,547,1259,542,1275,531,1311,493,1341,450,1364,406,1381,369"/>
+<area shape="rect" id="Node000017" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a82cbea1547e547aa9b9cd7015545c068" title="Interpolate the value and variance functions on knots." alt="" coords="1080,641,1274,697"/>
+<area shape="poly" id="edge16_Node000003_Node000017" title=" " alt="" coords="1391,372,1377,424,1354,487,1322,554,1302,585,1279,615,1244,643,1241,638,1275,611,1298,582,1317,551,1350,485,1372,422,1386,370"/>
+<area shape="rect" id="Node000015" href="$d2/d6c/class_c_boosted_tree_impl_for_test.html#a770cc938f0c66c46b78d45ace70c025b" title=" " alt="" coords="845,548,1019,589"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="1061,573,1020,573,1020,567,1061,568"/>
+<area shape="rect" id="Node000016" href="$d2/d06/_c_boosted_tree_test_8cc.html#a217d4a99d3f9bdbad2736762f852e86d" title=" " alt="" coords="552,551,748,576"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="829,569,749,568,749,563,829,564"/>
+<area shape="rect" id="Node000018" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a2e79661e7f008e30903bcf3a46fbda24" title=" " alt="" coords="835,673,1029,729"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="1064,686,1029,691,1029,685,1064,681"/>
+<area shape="rect" id="Node000019" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a57c1d91b46f038f7e40a2664e9b2d088" title="Create by traversing a state document." alt="" coords="513,601,787,657"/>
+<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="820,675,761,660,763,655,821,670"/>
+<area shape="rect" id="Node000020" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a52413b96720bac163a882f8bd99127c8" title=" " alt="" coords="567,681,733,737"/>
+<area shape="poly" id="edge19_Node000018_Node000020" title=" " alt="" coords="820,707,734,709,733,704,820,701"/>
+<area shape="rect" id="Node000023" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a5928687b847c2441307221b88e60df35" title=" " alt="" coords="566,761,734,817"/>
+<area shape="poly" id="edge22_Node000018_Node000023" title=" " alt="" coords="834,736,788,751,736,767,734,762,787,746,832,731"/>
+<area shape="rect" id="Node000021" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a00a981aefb89b1fbd233341a369106f1" title="Linearly scale the component&#39;s by scale." alt="" coords="298,681,464,737"/>
+<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="552,711,465,711,465,706,552,706"/>
+<area shape="rect" id="Node000022" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#aaeef51dd980bf63d603f1b9123229039" title=" " alt="" coords="50,688,204,729"/>
+<area shape="poly" id="edge21_Node000021_Node000022" title=" " alt="" coords="282,711,205,711,205,706,282,706"/>
+<area shape="rect" id="Node000024" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aba0b2f1de40ae81b63d2916ced7c15e3" title="Initialize the adaptive bucketing." alt="" coords="297,761,465,817"/>
+<area shape="poly" id="edge23_Node000023_Node000024" title=" " alt="" coords="550,791,465,791,465,786,550,786"/>
+<area shape="rect" id="Node000026" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ac4bc65a11d95ba4e8449f4b8fe997aac" title="Linearly scale the component&#39;s by scale." alt="" coords="297,841,465,897"/>
+<area shape="poly" id="edge25_Node000023_Node000026" title=" " alt="" coords="552,821,466,846,465,841,550,815"/>
+<area shape="rect" id="Node000025" href="$de/da5/classml_1_1maths_1_1time__series_1_1_c_new_seasonal_component_summary.html#a4f24706e33caadc86c16b5ad00d7d6c1" title="Create a seasonal component from the initial values." alt="" coords="5,761,249,817"/>
+<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="281,791,249,791,249,786,281,786"/>
+<area shape="rect" id="Node000027" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#a466e04eb941540e537a5b5dd3d48433b" title=" " alt="" coords="50,848,204,889"/>
+<area shape="poly" id="edge26_Node000026_Node000027" title=" " alt="" coords="281,871,205,871,205,866,281,866"/>
+</map>

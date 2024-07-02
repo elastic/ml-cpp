@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="257,5,443,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,43,242,38,242,43,203,48"/>
+<area shape="rect" id="Node000004" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#ad9a1d86370d3f76b2f412eb9d268f6de" title="Get the memory used by this object." alt="" coords="250,71,450,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,69,235,73,234,79,202,74"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="498,5,683,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="443,23,482,23,482,28,443,28"/>
+</map>

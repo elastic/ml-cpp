@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::checksum" name="ml::maths::time_series::CAdaptiveBucketing::checksum">
+<area shape="rect" id="Node000001" title="Get a checksum for this object." alt="" coords="5,34,162,90"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="245,5,399,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,47,229,37,230,42,162,53"/>
+<area shape="rect" id="Node000003" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="210,70,434,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,71,195,76,194,81,162,76"/>
+</map>

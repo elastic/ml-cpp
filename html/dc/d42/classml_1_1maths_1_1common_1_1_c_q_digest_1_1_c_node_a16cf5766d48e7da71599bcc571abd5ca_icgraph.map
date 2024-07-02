@@ -1,0 +1,24 @@
+<map id="ml::maths::common::CQDigest::CNode::min" name="ml::maths::common::CQDigest::CNode::min">
+<area shape="rect" id="Node000001" title="Get the minimum value covered by the node." alt="" coords="975,130,1132,171"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ad1e528d7b18413e5be4abcf02cbdb0b7" title="Get the sibling of node if it exists in the q&#45;digest." alt="" coords="753,130,927,171"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="959,153,927,153,927,148,959,148"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#aafa527c8a1f6fc35bc28de3c0072362b" title="Check the node invariants in the q&#45;digest rooted at this node." alt="" coords="477,97,705,137"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="738,139,705,135,706,130,738,134"/>
+<area shape="rect" id="Node000010" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ace3b6509ca106dd32a4eb2e6370d3c16" title=" " alt="" coords="495,162,688,203"/>
+<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="738,166,689,172,688,167,738,161"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#aa4ed385ed17d45bfe2b94f95ecaa3e8e" title="Check the digest invariants." alt="" coords="250,97,429,137"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="461,128,429,128,429,123,461,123"/>
+<area shape="poly" id="edge9_Node000004_Node000003" title=" " alt="" coords="445,105,477,105,477,111,445,111"/>
+<area shape="rect" id="Node000005" href="$db/d32/_c_q_digest_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="291,91,248,66,201,45,168,34,170,29,203,40,251,62,294,86"/>
+<area shape="rect" id="Node000006" href="$db/d32/_c_q_digest_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="234,98,168,84,169,78,235,92"/>
+<area shape="rect" id="Node000007" href="$db/d32/_c_q_digest_test_8cc.html#afeec754f0da6511188570bb040d8a231" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="234,120,202,120,202,114,234,114"/>
+<area shape="rect" id="Node000008" href="$db/d32/_c_q_digest_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="235,141,169,155,168,150,234,136"/>
+<area shape="rect" id="Node000009" href="$db/d32/_c_q_digest_test_8cc.html#a5cbafdc07efaf526c2d772259395c248" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="262,147,251,152,237,163,228,173,218,184,203,194,177,205,175,200,200,189,215,180,224,170,234,159,248,148,259,142"/>
+<area shape="rect" id="Node000011" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a273fa405a3bd161da23532d0863b6798" title=" " alt="" coords="267,162,412,203"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="479,185,413,185,413,180,479,180"/>
+</map>

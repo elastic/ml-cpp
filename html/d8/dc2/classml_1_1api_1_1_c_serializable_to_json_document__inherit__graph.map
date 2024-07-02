@@ -1,0 +1,19 @@
+<map id="ml::api::CSerializableToJsonDocument" name="ml::api::CSerializableToJsonDocument">
+<area shape="rect" id="Node000001" title="Interface for adding all elements of an inference model definition to a JSON writer." alt="" coords="5,136,165,177"/>
+<area shape="rect" id="Node000002" href="$d7/d88/classml_1_1api_1_1_c_encoding_1_1_c_size_info.html" title=" " alt="" coords="230,71,363,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,129,229,109,231,114,168,134"/>
+<area shape="rect" id="Node000006" href="$da/d68/classml_1_1api_1_1_c_inference_model_definition_1_1_c_size_info.html" title=" " alt="" coords="213,136,380,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="181,154,212,154,212,159,181,159"/>
+<area shape="rect" id="Node000007" href="$d6/d83/classml_1_1api_1_1_c_trained_model_1_1_c_size_info.html" title="A measure of the model complexity." alt="" coords="218,201,375,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="168,179,229,198,227,203,166,184"/>
+<area shape="rect" id="Node000003" href="$d2/d3c/classml_1_1api_1_1_c_frequency_encoding_1_1_c_size_info.html" title=" " alt="" coords="432,5,625,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="377,66,453,44,454,49,378,71"/>
+<area shape="rect" id="Node000004" href="$dd/d10/classml_1_1api_1_1_c_one_hot_encoding_1_1_c_size_info.html" title=" " alt="" coords="440,71,617,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="378,88,439,88,439,94,378,94"/>
+<area shape="rect" id="Node000005" href="$dd/db4/classml_1_1api_1_1_c_target_mean_encoding_1_1_c_size_info.html" title=" " alt="" coords="428,136,628,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="378,111,454,133,453,138,377,116"/>
+<area shape="rect" id="Node000008" href="$d8/d79/classml_1_1api_1_1_c_ensemble_1_1_c_size_info.html" title=" " alt="" coords="460,201,596,242"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="390,219,460,219,460,224,390,224"/>
+<area shape="rect" id="Node000009" href="$d1/df7/classml_1_1api_1_1_c_tree_1_1_c_size_info.html" title=" " alt="" coords="443,266,613,292"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="390,242,474,263,472,268,389,247"/>
+</map>

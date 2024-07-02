@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl" name="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl">
+<area shape="rect" id="Node000001" title="Finds the value to add to a set of predicted log&#45;odds which minimises regularised cross entropy loss ..." alt="" coords="196,13,424,69"/>
+<area shape="rect" id="Node000003" href="$d9/dec/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_incremental_impl.html" title="Finds the value to add to a set of predicted log&#45;odds which minimises adjusted regularised cross entr..." alt="" coords="472,5,675,76"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="440,38,471,38,471,43,440,43"/>
+<area shape="rect" id="Node000002" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html" title=" " alt="" coords="5,13,148,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,38,195,38,195,43,164,43"/>
+</map>

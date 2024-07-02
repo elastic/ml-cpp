@@ -1,0 +1,11 @@
+<map id="ml::core::CBoostJsonWriterBase::addDoubleDoublePrArrayFieldToObj" name="ml::core::CBoostJsonWriterBase::addDoubleDoublePrArrayFieldToObj">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,104,274,145"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="332,5,515,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,101,321,56,343,49,345,54,323,62,199,106"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a011a9816a0d40454f8c5939dab75fa23" title="Log a message if we&#39;re trying to add nan/infinity to a JSON array." alt="" coords="322,71,525,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="274,106,306,102,307,107,274,111"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1be4161314de57fc4dfd54336d37329b" title="Return a new boost::json array." alt="" coords="332,136,515,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="274,137,317,142,317,147,274,142"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abf4d06b98db199c538b352f260909019" title=" " alt="" coords="332,201,515,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="200,143,323,186,345,193,343,198,321,191,198,148"/>
+</map>

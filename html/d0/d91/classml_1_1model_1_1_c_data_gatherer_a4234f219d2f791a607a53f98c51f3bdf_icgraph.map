@@ -1,0 +1,28 @@
+<map id="ml::model::CDataGatherer::fieldsOfInterest" name="ml::model::CDataGatherer::fieldsOfInterest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="493,369,667,409"/>
+<area shape="rect" id="Node000002" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a4cd48ff34bb6af0d1f6cc1ac85b467f0" title=" " alt="" coords="271,262,445,318"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="517,364,421,321,423,316,520,359"/>
+<area shape="rect" id="Node000013" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#af03c8c4688e95f566f81d0c2b11708ff" title=" " alt="" coords="5,499,223,524"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="494,416,223,490,179,501,177,495,222,485,492,411"/>
+<area shape="rect" id="Node000003" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a399227aa07dda23e37d26f9e38036a00" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="343,248,326,200,301,144,266,90,245,65,221,44,203,34,206,29,224,40,249,62,271,87,306,142,331,198,348,247"/>
+<area shape="rect" id="Node000004" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#ae0fdf33f58fb6e5b83c3fea6910a3550" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="337,249,318,211,292,169,260,128,221,94,201,83,204,79,224,89,264,124,297,166,323,208,342,247"/>
+<area shape="rect" id="Node000005" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#ad1ac434a57a5bb8168f0161efbc3ac44" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="329,252,283,194,254,166,221,143,198,133,200,128,224,139,257,162,287,191,333,248"/>
+<area shape="rect" id="Node000006" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a7742f9f284a6075815376cf8bb3fa7f6" title=" " alt="" coords="5,153,223,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="313,254,271,221,222,193,193,182,194,177,224,188,274,217,317,250"/>
+<area shape="rect" id="Node000007" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a6219c8a32588389c87f7c0afb2295281" title=" " alt="" coords="5,203,223,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="272,259,222,242,181,231,183,226,223,237,274,254"/>
+<area shape="rect" id="Node000008" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a6568e04b32117ce398351bf2df0bdeee" title=" " alt="" coords="5,252,223,278"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="255,282,223,279,223,273,255,277"/>
+<area shape="rect" id="Node000009" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#acfe4168d39a9a850c6dbefda5fdc9270" title=" " alt="" coords="5,301,223,327"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="255,303,223,306,223,301,255,298"/>
+<area shape="rect" id="Node000010" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a870470ad3f01bd8345aaddfa633c41da" title=" " alt="" coords="5,351,223,376"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="271,326,223,342,183,353,181,347,222,337,270,321"/>
+<area shape="rect" id="Node000011" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a2b753746ccc5071c4b0414e6569279c8" title=" " alt="" coords="5,400,223,426"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="316,331,273,363,224,391,194,402,192,397,222,386,270,358,313,326"/>
+<area shape="rect" id="Node000012" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html#a30d0774a056c4d33200ac102a5ae88b1" title=" " alt="" coords="5,449,223,475"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="333,332,287,389,257,417,224,440,200,451,198,446,221,436,254,413,283,385,328,329"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="326,332,273,404,260,428,253,450,244,470,224,490,205,500,203,496,221,485,239,467,248,448,256,426,268,401,322,328"/>
+</map>

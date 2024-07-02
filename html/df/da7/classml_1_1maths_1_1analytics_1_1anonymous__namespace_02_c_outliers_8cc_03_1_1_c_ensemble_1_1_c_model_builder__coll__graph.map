@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers.cc}::CEnsemble&lt; POINT &gt;::CModelBuilder" name="ml::maths::analytics::anonymous_namespace{COutliers.cc}::CEnsemble&lt; POINT &gt;::CModelBuilder">
+<area shape="rect" id="Node000001" title="Builds (online) one model of the points for the ensemble." alt="" coords="873,55,1052,126"/>
+<area shape="rect" id="Node000002" href="$d0/d73/classml_1_1maths_1_1common_1_1_c_sampling_1_1_c_reservoir_sampler.html" title=" " alt="" coords="537,5,745,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="760,52,872,72,872,77,760,57"/>
+<area shape="rect" id="Node000003" href="$db/d56/classml_1_1maths_1_1common_1_1_c_sampling_1_1_c_stream_sampler.html" title=" " alt="" coords="295,5,488,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="504,31,537,31,537,36,504,36"/>
+<area shape="rect" id="Node000004" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="5,13,201,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="216,31,294,31,294,36,216,36"/>
+<area shape="rect" id="Node000005" href="$d9/ded/structml_1_1maths_1_1common_1_1_s_conformable_matrix.html" title=" " alt="" coords="567,85,715,141"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="730,104,872,94,873,99,731,110"/>
+</map>

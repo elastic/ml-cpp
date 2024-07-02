@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CEncodedDataFrameRowRef::numberColumns" name="ml::maths::analytics::CEncodedDataFrameRowRef::numberColumns">
+<area shape="rect" id="Node000001" title="Get the number of columns." alt="" coords="5,5,209,61"/>
+<area shape="rect" id="Node000002" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#ae862577f0ccd9aeb8955c6583ff89a27" title="Get the dimension of the encoded feature vector." alt="" coords="257,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,31,241,31,241,36,209,36"/>
+</map>

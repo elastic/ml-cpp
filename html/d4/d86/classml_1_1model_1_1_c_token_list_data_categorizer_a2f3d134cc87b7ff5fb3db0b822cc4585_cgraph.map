@@ -1,0 +1,16 @@
+<map id="ml::model::CTokenListDataCategorizer::considerToken" name="ml::model::CTokenListDataCategorizer::considerToken">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,186,169"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a22d889a0f2629eb58466141a29a975e0" title=" " alt="" coords="271,95,413,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,133,255,124,255,129,187,139"/>
+<area shape="rect" id="Node000005" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html#aeee98a6c439a6f81394723565461d03a" title=" " alt="" coords="234,160,450,201"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="187,157,219,162,218,167,186,163"/>
+<area shape="rect" id="Node000003" href="$da/deb/classml_1_1core_1_1_c_time_utils_1_1_c_date_word_cache.html#a5796a889746d3f40136871e8b4a42059" title="Get the singleton instance." alt="" coords="508,29,700,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,95,504,72,505,77,414,100"/>
+<area shape="rect" id="Node000004" href="$da/deb/classml_1_1core_1_1_c_time_utils_1_1_c_date_word_cache.html#a455efc161dcba8d27b17a639c4773568" title="Check if a word is a date word." alt="" coords="498,95,709,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="414,112,483,112,483,118,414,118"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="555,29,552,19,560,10,578,5,604,3,632,5,649,11,647,16,631,10,604,8,579,10,563,15,557,21,560,28"/>
+<area shape="rect" id="Node000006" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a2808256424bb55efee70bd81b1b8ae6c" title=" " alt="" coords="509,160,699,201"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="450,178,493,178,493,183,450,183"/>
+<area shape="rect" id="Node000007" href="$da/de9/classml_1_1core_1_1_c_word_dictionary.html#a6febde37add40cd4fb7357b6b7571daf" title=" " alt="" coords="516,225,691,266"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="427,199,505,218,504,224,426,204"/>
+</map>

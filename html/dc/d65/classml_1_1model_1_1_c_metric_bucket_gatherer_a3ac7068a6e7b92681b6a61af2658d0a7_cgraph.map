@@ -1,0 +1,31 @@
+<map id="ml::model::CMetricBucketGatherer::featureData" name="ml::model::CMetricBucketGatherer::featureData">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,245,179,286"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#abdb61d2ba82e5d05fa4133ef95d1521d" title="Get the length of the bucketing time interval." alt="" coords="697,137,885,178"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,243,165,209,195,193,226,180,285,165,346,153,468,141,584,139,682,144,682,149,584,145,468,147,346,159,286,170,227,185,197,198,168,213,119,247"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a8e7d4c860df9ac287703bc9d3260549c" title="Get the start of the current bucketing time interval." alt="" coords="697,22,885,63"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="98,244,114,204,140,154,177,105,200,83,225,66,281,40,340,22,401,11,463,5,581,6,682,18,682,23,580,12,463,10,402,16,341,27,283,45,228,70,203,87,181,108,145,157,119,206,103,246"/>
+<area shape="rect" id="Node000005" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43989a5e695ec681148be575458e3ee3" title="Check if data is available at time." alt="" coords="227,80,414,120"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="109,243,158,191,191,162,225,137,245,125,248,130,228,141,194,166,162,195,113,246"/>
+<area shape="rect" id="Node000007" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="242,195,399,221"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="175,242,251,223,252,228,176,247"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afc30339d764263f530006b40a5174e66" title=" " alt="" coords="233,245,408,286"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="179,263,217,263,217,268,179,268"/>
+<area shape="rect" id="Node000009" href="$df/d9c/namespaceml_1_1model__t.html#a1482559951b2d7c70f5c33ffc3248342" title=" " alt="" coords="227,310,414,336"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="176,284,252,303,251,308,175,289"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#adbf8d74377322ccce1e9e4ff281a1da7" title="Get the number of features on which this is gathering data." alt="" coords="233,360,408,400"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="124,284,172,315,228,346,240,351,238,356,225,351,169,319,121,288"/>
+<area shape="rect" id="Node000011" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="259,425,382,450"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="109,285,157,347,190,381,228,410,246,419,244,424,225,414,187,385,152,351,104,288"/>
+<area shape="rect" id="Node000013" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a4e27857d129a6ac4261c2f72d81a3933" title="Print the current bucket." alt="" coords="462,468,649,508"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="103,285,119,325,145,373,182,422,203,443,228,460,280,483,336,496,393,501,446,500,447,505,393,506,336,501,278,488,225,465,200,447,178,426,141,376,114,327,98,287"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="933,109,1107,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="885,143,917,139,917,145,885,149"/>
+<area shape="rect" id="Node000006" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a29ecbfa8bd97b9689233e3ea918111d5" title="The earliest time for which data can still arrive." alt="" coords="462,80,649,120"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="415,97,446,97,446,103,415,103"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="642,118,691,130,689,136,641,124"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="650,103,917,120,917,126,650,109"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="641,77,689,65,691,70,642,82"/>
+<area shape="rect" id="Node000012" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="533,418,579,444"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="382,433,517,429,517,435,382,438"/>
+<area shape="poly" id="edge16_Node000013_Node000002" title=" " alt="" coords="632,465,648,454,676,425,700,392,738,320,764,249,780,192,785,194,769,251,743,322,704,395,680,428,651,458,635,469"/>
+</map>

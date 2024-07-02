@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::equalTolerance" name="ml::maths::common::CLogNormalMeanPrecConjugate::equalTolerance">
+<area shape="rect" id="Node000001" title="Check if two priors are equal to the specified tolerance." alt="" coords="250,65,462,121"/>
+<area shape="rect" id="Node000002" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#af162eb99ecd0ec522c40c28d057ff799" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,62,201,45,162,34,163,29,202,40,259,57"/>
+<area shape="rect" id="Node000003" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,83,202,80,203,75,235,78"/>
+<area shape="rect" id="Node000004" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a2b4217c715aa6a2bab8967004072d2ae" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,107,203,110,202,105,234,102"/>
+<area shape="rect" id="Node000005" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a77f1f759557467d97e8fb0d39da3db95" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="257,128,202,145,163,155,161,150,201,140,255,123"/>
+</map>

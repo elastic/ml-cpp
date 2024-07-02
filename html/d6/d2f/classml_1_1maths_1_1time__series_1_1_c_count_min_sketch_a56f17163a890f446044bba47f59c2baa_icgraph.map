@@ -1,0 +1,55 @@
+<map id="ml::maths::time_series::CCountMinSketch::sketch" name="ml::maths::time_series::CCountMinSketch::sketch">
+<area shape="rect" id="Node000001" title="Maybe switch to sketching the counts." alt="" coords="837,423,1021,463"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#ab22355de63224ad4634f3d027645ef02" title="Convert to a node tree." alt="" coords="545,91,769,147"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="914,409,896,360,869,301,833,239,787,185,763,165,735,150,738,145,766,161,791,181,837,236,874,298,901,358,919,407"/>
+<area shape="rect" id="Node000007" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a0a39726e69a8cfd275007004320abebf" title="Create by traversing a state document." alt="" coords="543,545,772,600"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="890,475,843,506,790,535,762,546,760,541,788,530,840,501,887,471"/>
+<area shape="rect" id="Node000008" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="292,221,458,262"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="873,416,832,391,788,368,699,333,606,305,447,265,448,260,608,300,700,328,790,363,835,386,876,412"/>
+<area shape="rect" id="Node000011" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a8f5e8372f47a510321f59a454f5561be" title="Age the counts forwards time." alt="" coords="292,480,458,521"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="822,448,680,455,525,471,459,483,458,478,525,466,680,450,821,443"/>
+<area shape="rect" id="Node000012" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a94cd8731f55917f0fd93f676c7230886" title="Get a checksum for the sketch." alt="" coords="273,156,477,197"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="906,411,858,345,825,311,788,283,712,244,630,217,550,198,477,187,478,182,551,193,631,212,714,239,791,278,829,307,862,342,911,408"/>
+<area shape="rect" id="Node000013" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="569,365,745,406"/>
+<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="822,423,745,407,746,402,823,418"/>
+<area shape="rect" id="Node000019" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#ac503cbfac3e5be20aa7cb684f5a6ffa0" title="Get the memory used by this sketch." alt="" coords="525,624,789,665"/>
+<area shape="poly" id="edge26_Node000001_Node000019" title=" " alt="" coords="911,479,863,548,829,584,791,615,769,626,767,621,788,610,826,580,859,545,907,475"/>
+<area shape="rect" id="Node000020" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#ad3277ab01a12f1fbf521711794983ffb" title="Get the &#160;probability." alt="" coords="571,689,743,730"/>
+<area shape="poly" id="edge27_Node000001_Node000020" title=" " alt="" coords="919,479,901,525,874,579,838,633,815,657,791,678,769,692,745,701,743,696,766,687,788,674,812,653,833,629,869,576,896,523,914,477"/>
+<area shape="rect" id="Node000021" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a431cdf7989b9383ddc3a37de5a204137" title="Get the memory used by this sketch." alt="" coords="543,755,772,795"/>
+<area shape="poly" id="edge28_Node000001_Node000021" title=" " alt="" coords="924,479,910,537,884,609,867,646,846,682,820,715,791,744,772,756,769,752,788,740,816,711,841,679,862,643,879,607,905,536,919,478"/>
+<area shape="rect" id="Node000022" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a38291fd67c2e7c86ac1e17f1a72341a5" title="Get the &#160;error." alt="" coords="528,480,787,521"/>
+<area shape="poly" id="edge29_Node000001_Node000022" title=" " alt="" coords="823,468,757,482,756,477,822,463"/>
+<area shape="rect" id="Node000003" href="$d3/d2c/_c_count_min_sketch_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="17,164,213,189"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="529,126,405,133,273,147,173,165,172,160,272,142,405,128,529,120"/>
+<area shape="rect" id="Node000004" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3782a8ef83638949ff680eed01b25271" title="Persist state by passing information to the supplied inserter." alt="" coords="279,41,471,82"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="529,96,471,84,472,79,530,91"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b15945e4bed81aef355a0cea18a60b9" title="Persist state by passing information to the supplied inserter." alt="" coords="5,71,225,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="263,77,225,81,225,76,263,72"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aea710498b24a82acd1aeaea7f69b2154" title="Persist state by passing information to the supplied inserter." alt="" coords="18,5,212,46"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="263,49,212,42,212,36,264,44"/>
+<area shape="poly" id="edge11_Node000008_Node000001" title=" " alt="" coords="473,247,544,261,625,281,709,307,790,339,860,379,913,420,910,424,857,383,788,344,707,312,624,286,543,266,472,252"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="276,220,169,192,170,187,278,215"/>
+<area shape="rect" id="Node000009" href="$d3/d2c/_c_count_min_sketch_test_8cc.html#a9ee3bfde69219a653f33ba26d5232d8c" title=" " alt="" coords="17,430,213,456"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="282,271,274,276,225,314,183,358,127,431,123,428,179,354,222,310,271,271,279,267"/>
+<area shape="rect" id="Node000010" href="$d3/d2c/_c_count_min_sketch_test_8cc.html#a9d63d724a22497ecdc14720985d34e5a" title=" " alt="" coords="17,221,213,247"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="277,241,214,239,214,234,277,236"/>
+<area shape="poly" id="edge14_Node000012_Node000003" title=" " alt="" coords="257,179,214,179,214,174,257,174"/>
+<area shape="poly" id="edge15_Node000012_Node000010" title=" " alt="" coords="265,203,177,223,176,218,264,198"/>
+<area shape="poly" id="edge18_Node000013_Node000008" title=" " alt="" coords="576,361,523,332,508,317,499,303,490,289,475,276,455,265,458,260,479,271,494,286,504,300,512,314,527,328,579,357"/>
+<area shape="poly" id="edge20_Node000013_Node000009" title=" " alt="" coords="554,409,477,420,340,434,214,442,214,436,339,428,477,415,553,403"/>
+<area shape="poly" id="edge19_Node000013_Node000011" title=" " alt="" coords="555,414,526,427,502,445,478,464,440,482,438,477,476,459,499,441,524,422,553,409"/>
+<area shape="rect" id="Node000014" href="$df/d46/structml_1_1maths_1_1time__series_1_1_c_count_min_sketch_1_1_s_sketch.html#a55c4f6fb814545df08d8b6983b073bf1" title="Convert to a node tree." alt="" coords="278,286,472,342"/>
+<area shape="poly" id="edge17_Node000013_Node000014" title=" " alt="" coords="559,364,472,341,473,336,561,358"/>
+<area shape="rect" id="Node000015" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a63fdf8b5b62e759f735978df3473778c" title="Get the fraction of category category." alt="" coords="281,365,469,406"/>
+<area shape="poly" id="edge21_Node000013_Node000015" title=" " alt="" coords="553,388,469,388,469,383,553,383"/>
+<area shape="rect" id="Node000016" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a7e3f0ac26799580475964c55e0d9b297" title=" " alt="" coords="279,595,471,635"/>
+<area shape="poly" id="edge22_Node000013_Node000016" title=" " alt="" coords="603,416,564,441,527,470,512,487,503,501,479,534,442,568,407,596,403,592,439,564,475,531,498,498,508,483,523,466,561,436,600,412"/>
+<area shape="rect" id="Node000017" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="5,627,225,667"/>
+<area shape="poly" id="edge23_Node000016_Node000017" title=" " alt="" coords="263,631,225,636,225,631,263,626"/>
+<area shape="rect" id="Node000018" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="18,561,212,602"/>
+<area shape="poly" id="edge24_Node000016_Node000018" title=" " alt="" coords="263,603,212,597,212,591,264,598"/>
+<area shape="poly" id="edge25_Node000018_Node000018" title=" " alt="" coords="158,548,142,542,115,540,90,542,75,547,69,553,72,560,66,561,64,551,72,542,89,537,115,535,143,537,160,543"/>
+<area shape="poly" id="edge30_Node000022_Node000009" title=" " alt="" coords="543,526,477,535,374,547,329,546,272,535,230,520,191,499,131,459,134,454,193,494,232,515,273,530,329,541,374,541,477,530,542,521"/>
+<area shape="poly" id="edge31_Node000022_Node000016" title=" " alt="" coords="537,529,526,535,512,545,503,555,493,567,478,579,443,597,440,592,476,574,489,563,499,552,508,541,524,530,535,525"/>
+</map>

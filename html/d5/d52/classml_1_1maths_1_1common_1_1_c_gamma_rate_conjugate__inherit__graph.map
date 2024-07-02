@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CGammaRateConjugate" name="ml::maths::common::CGammaRateConjugate">
+<area shape="rect" id="Node000001" title="A conjugate prior distribution for a stationary gamma variable." alt="" coords="5,94,170,135"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="15,5,160,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,62,90,94,85,94,85,62"/>
+</map>

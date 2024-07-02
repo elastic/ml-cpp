@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html" title="Hierarchy for running a specific core::CDataFrame analyses." alt="" coords="5,55,199,96"/>
+<area shape="rect" id="Node000001" href="$d4/db2/class_c_data_frame_mock_analysis_runner.html" title=" " alt="" coords="247,5,467,31"/>
+<area shape="poly" id="edge104_Node000000_Node000001" title=" " alt="" coords="210,49,296,29,297,34,211,54"/>
+<area shape="rect" id="Node000002" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html" title="Runs outlier detection on a core::CDataFrame." alt="" coords="263,55,451,96"/>
+<area shape="poly" id="edge105_Node000000_Node000002" title=" " alt="" coords="214,73,262,73,262,78,214,78"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html" title="Runs boosted tree regression on a core::CDataFrame." alt="" coords="271,121,443,161"/>
+<area shape="poly" id="edge106_Node000000_Node000003" title=" " alt="" coords="199,98,275,117,274,122,198,103"/>
+<area shape="rect" id="Node000004" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html" title="Runs boosted tree classification on a core::CDataFrame." alt="" coords="521,87,713,128"/>
+<area shape="poly" id="edge107_Node000003_Node000004" title=" " alt="" coords="458,125,520,117,520,122,458,131"/>
+<area shape="rect" id="Node000005" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html" title="Runs boosted tree regression on a core::CDataFrame." alt="" coords="515,153,718,193"/>
+<area shape="poly" id="edge108_Node000003_Node000005" title=" " alt="" coords="459,151,515,158,514,163,458,156"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CMetricPopulationModel::clearPrunedResources" name="ml::model::CMetricPopulationModel::clearPrunedResources">
+<area shape="rect" id="Node000001" title="Clear out large state objects for people/attributes that are pruned." alt="" coords="247,5,443,46"/>
+<area shape="rect" id="Node000002" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a85882ed6b58e6c5fd11cb647dbc77b86" title=" " alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,28,199,28,199,23,231,23"/>
+</map>

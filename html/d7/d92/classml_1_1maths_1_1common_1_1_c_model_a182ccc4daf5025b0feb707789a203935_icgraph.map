@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CModel::modelCorrelations" name="ml::maths::common::CModel::modelCorrelations">
+<area shape="rect" id="Node000001" title="Tell this to model correlations." alt="" coords="553,39,732,79"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1ac375cfadf9ff01f2ab44b97245eea6" title="Add to the contents of the object." alt="" coords="286,5,505,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="537,48,505,43,506,38,538,42"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a8e8476792d09c0f2fcbe18a1d579af4e" title="Add to the contents of the object." alt="" coords="293,71,498,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="538,75,498,80,498,75,537,70"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a2a67d73faab6ff54655e058738c44d21" title=" " alt="" coords="5,5,238,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="270,28,238,28,238,23,270,23"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a457145bf09b5ea76f7b8174152355d1d" title=" " alt="" coords="18,71,225,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="277,94,225,94,225,88,277,88"/>
+</map>

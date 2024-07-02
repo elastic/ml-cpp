@@ -1,0 +1,27 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::updateTrend" name="ml::maths::time_series::CMultivariateTimeSeriesModel::updateTrend">
+<area shape="rect" id="Node000001" title="Update the trend with samples." alt="" coords="5,77,213,133"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="555,5,762,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,89,539,46,540,51,214,94"/>
+<area shape="rect" id="Node000003" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="586,85,731,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,103,570,103,570,108,213,108"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a72f05e1a21ee909104337288657b148a" title=" " alt="" coords="261,221,507,277"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="165,131,317,211,314,216,163,136"/>
+<area shape="poly" id="edge8_Node000004_Node000002" title=" " alt="" coords="404,219,466,147,508,106,553,71,561,66,564,71,557,75,511,111,470,150,408,223"/>
+<area shape="poly" id="edge13_Node000004_Node000003" title=" " alt="" coords="420,219,481,176,554,135,570,128,572,133,556,140,484,181,423,223"/>
+<area shape="rect" id="Node000005" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a778e7d713bf18370b53e14ee183aa7f4" title="Set the proportion of non&#45;empty buckets." alt="" coords="566,149,751,205"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="492,218,550,203,552,208,493,223"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="579,229,738,270"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="507,247,564,247,564,252,507,252"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="574,294,744,319"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="508,272,579,287,578,292,507,278"/>
+<area shape="rect" id="Node000009" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#aaf6ef5243e0533d64e9a30fe7c6b086f" title=" " alt="" coords="563,344,754,384"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="439,275,556,329,573,336,571,341,554,334,437,280"/>
+<area shape="rect" id="Node000011" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#af075461933550e88a2fe27fca3da944c" title="Get the model learn rate." alt="" coords="571,409,746,450"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="413,275,475,335,514,366,556,394,569,400,566,405,554,398,511,370,471,339,409,279"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="579,474,738,515"/>
+<area shape="poly" id="edge12_Node000004_Node000012" title=" " alt="" coords="403,276,428,317,463,366,506,416,557,459,566,465,563,470,553,463,502,420,459,369,423,320,398,279"/>
+<area shape="rect" id="Node000008" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="810,282,990,323"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="744,302,795,302,795,307,745,308"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="827,348,973,388"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="755,363,812,364,812,369,755,368"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="430,71,562,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,85,250,84,382,84,415,85,414,90,382,90,250,90,202,91"/>
+<area shape="rect" id="Node000007" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a31a129ca64e498ea1efccc3ef6f6c12e" title="Get the name of function." alt="" coords="250,99,382,139"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="203,101,234,106,234,111,202,107"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="610,5,743,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="562,73,623,50,625,55,564,78"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="610,71,743,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="563,97,595,97,595,103,563,102"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="615,136,738,161"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="563,109,620,128,618,133,561,114"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="611,44,549,67,547,62,609,39"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="610,85,578,85,578,79,610,80"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="791,136,837,161"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="738,146,775,146,775,151,738,151"/>
+<area shape="poly" id="edge9_Node000007_Node000002" title=" " alt="" coords="382,106,414,101,415,106,383,111"/>
+</map>

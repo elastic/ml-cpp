@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::reducedDerivatives" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::reducedDerivatives">
+<area shape="rect" id="Node000001" title="Get the reduction of the per thread aggregate derivatives." alt="" coords="5,5,230,61"/>
+<area shape="rect" id="Node000002" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#aae5dcac40487d56035b8d2e6a9037656" title="Compute the accumulation of both collections of per split derivatives." alt="" coords="278,5,502,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,31,262,31,262,36,230,36"/>
+</map>

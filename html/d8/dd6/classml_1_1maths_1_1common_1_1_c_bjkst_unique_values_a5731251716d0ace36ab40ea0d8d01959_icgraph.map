@@ -1,0 +1,53 @@
+<map id="ml::maths::common::CBjkstUniqueValues::sketch" name="ml::maths::common::CBjkstUniqueValues::sketch">
+<area shape="rect" id="Node000001" title="Maybe switch to sketching the distinct value set." alt="" coords="735,303,885,359"/>
+<area shape="rect" id="Node000002" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a675689cf1261d0e41890219c524ad188" title="Convert to a node tree." alt="" coords="528,39,677,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="792,289,776,248,752,200,722,152,685,109,671,98,674,93,689,105,727,149,757,197,780,245,797,287"/>
+<area shape="rect" id="Node000007" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad94f2c52b1f84d270c6d9b0a623a7854" title="Create by traversing a state document." alt="" coords="290,455,452,511"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="793,374,775,406,752,439,723,470,689,493,660,505,629,513,567,519,506,516,452,507,452,502,507,511,567,514,628,508,658,500,686,489,720,466,748,436,771,403,788,372"/>
+<area shape="rect" id="Node000008" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="517,199,687,239"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="740,297,686,265,634,242,636,237,689,261,743,292"/>
+<area shape="rect" id="Node000013" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a14968d19fdb12ec3fb88c23d6d401939" title=" " alt="" coords="519,423,685,479"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="757,370,689,413,667,425,664,420,686,409,755,366"/>
+<area shape="rect" id="Node000014" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ac4840f48933d59dc70558cf4bcca3c5c" title="Get a checksum for the sketch." alt="" coords="528,119,677,175"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="780,292,739,240,686,189,669,178,672,173,689,185,742,236,784,289"/>
+<area shape="rect" id="Node000015" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad7240ab6f2d4f3945ae8bed1d1eb3376" title="Get the memory used by this sketch." alt="" coords="528,554,677,610"/>
+<area shape="poly" id="edge19_Node000001_Node000015" title=" " alt="" coords="794,374,752,455,723,498,689,537,666,555,662,551,686,533,719,495,748,452,789,372"/>
+<area shape="rect" id="Node000016" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#af347a2f7ef75efaa72c9f89e8cbda5b2" title="Get the memory used by this sketch." alt="" coords="528,634,677,690"/>
+<area shape="poly" id="edge20_Node000001_Node000016" title=" " alt="" coords="803,375,789,430,767,496,734,563,713,595,689,624,675,635,672,631,685,620,709,592,729,560,762,494,784,428,798,374"/>
+<area shape="rect" id="Node000017" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a9871b9d6493b805fd6373d1d1850d171" title="Get an estimate of the number of unique values added." alt="" coords="528,263,677,319"/>
+<area shape="poly" id="edge21_Node000001_Node000017" title=" " alt="" coords="720,316,677,308,678,303,721,311"/>
+<area shape="rect" id="Node000021" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a858906189c1d7e4a0411c21892202f01" title="Remove a value." alt="" coords="528,343,677,399"/>
+<area shape="poly" id="edge29_Node000001_Node000021" title=" " alt="" coords="721,351,678,359,677,354,720,346"/>
+<area shape="rect" id="Node000003" href="$de/d8a/_c_bjkst_unique_values_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="273,102,469,128"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="513,88,437,104,436,99,512,83"/>
+<area shape="rect" id="Node000004" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3782a8ef83638949ff680eed01b25271" title="Persist state by passing information to the supplied inserter." alt="" coords="275,37,467,78"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="512,66,467,64,467,59,512,61"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b15945e4bed81aef355a0cea18a60b9" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="259,46,225,42,226,37,259,41"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aea710498b24a82acd1aeaea7f69b2154" title="Persist state by passing information to the supplied inserter." alt="" coords="18,71,212,111"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="260,75,212,81,212,76,259,70"/>
+<area shape="poly" id="edge13_Node000008_Node000001" title=" " alt="" coords="702,244,748,272,785,301,782,305,745,277,699,249"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="522,193,515,189,501,176,491,164,482,152,468,141,444,131,446,126,470,137,486,149,495,161,504,173,519,185,525,189"/>
+<area shape="rect" id="Node000009" href="$de/d8a/_c_bjkst_unique_values_test_8cc.html#a054c853d4abd4ea7a352cf8ca0a6df46" title=" " alt="" coords="273,201,469,227"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="501,219,469,219,470,213,501,214"/>
+<area shape="rect" id="Node000010" href="$de/d8a/_c_bjkst_unique_values_test_8cc.html#ae9284a33e71d07d3e2306cbbbeea3d7f" title=" " alt="" coords="273,365,469,391"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="522,250,519,253,508,265,502,278,496,303,490,329,483,342,471,354,451,367,448,362,467,350,478,339,485,327,491,302,497,276,504,262,515,249,518,246"/>
+<area shape="rect" id="Node000011" href="$de/d8a/_c_bjkst_unique_values_test_8cc.html#a973c32e012df6834d1c9147a7d4cfd95" title=" " alt="" coords="273,250,469,276"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="502,241,443,252,442,247,501,235"/>
+<area shape="rect" id="Node000012" href="$de/d8a/_c_bjkst_unique_values_test_8cc.html#a9d63d724a22497ecdc14720985d34e5a" title=" " alt="" coords="273,152,469,177"/>
+<area shape="poly" id="edge12_Node000008_Node000012" title=" " alt="" coords="501,198,428,180,429,175,502,193"/>
+<area shape="poly" id="edge15_Node000013_Node000007" title=" " alt="" coords="504,467,452,474,452,469,504,462"/>
+<area shape="poly" id="edge17_Node000014_Node000003" title=" " alt="" coords="512,137,468,131,469,126,512,132"/>
+<area shape="poly" id="edge18_Node000014_Node000012" title=" " alt="" coords="512,156,470,160,469,154,512,151"/>
+<area shape="poly" id="edge22_Node000017_Node000009" title=" " alt="" coords="521,259,468,240,431,230,433,225,470,235,523,254"/>
+<area shape="poly" id="edge23_Node000017_Node000010" title=" " alt="" coords="529,328,470,355,431,367,430,362,468,350,526,323"/>
+<area shape="poly" id="edge24_Node000017_Node000011" title=" " alt="" coords="512,283,469,278,470,272,513,278"/>
+<area shape="rect" id="Node000018" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a7e3f0ac26799580475964c55e0d9b297" title=" " alt="" coords="275,300,467,341"/>
+<area shape="poly" id="edge25_Node000017_Node000018" title=" " alt="" coords="513,305,468,311,467,305,512,300"/>
+<area shape="rect" id="Node000019" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="5,255,225,295"/>
+<area shape="poly" id="edge26_Node000018_Node000019" title=" " alt="" coords="259,303,225,297,226,292,260,298"/>
+<area shape="rect" id="Node000020" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="18,344,212,385"/>
+<area shape="poly" id="edge27_Node000018_Node000020" title=" " alt="" coords="260,342,212,350,212,345,259,337"/>
+<area shape="poly" id="edge28_Node000020_Node000020" title=" " alt="" coords="157,331,141,325,115,323,90,325,76,329,70,335,72,343,67,344,65,334,73,325,89,319,115,317,143,320,159,326"/>
+<area shape="poly" id="edge30_Node000021_Node000010" title=" " alt="" coords="512,376,470,377,469,372,512,371"/>
+</map>

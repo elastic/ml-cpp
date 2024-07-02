@@ -1,0 +1,21 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::countWeights" name="ml::maths::time_series::CMultivariateTimeSeriesModel::countWeights">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,171,213,226"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="516,5,723,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,169,184,112,220,84,260,61,319,41,381,29,443,23,500,22,500,27,443,29,382,34,320,46,262,66,223,88,188,116,134,172"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#afbf17c0561f4fbd513896f3450c00bfc" title="Fill in the seasonal variance scale at time." alt="" coords="261,76,468,132"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,168,272,135,274,140,187,173"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#aea37ff2381c8daf8bd351ffb7ee6a5d0" title="Set the count weight in weights to weight." alt="" coords="289,156,440,182"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="213,184,273,177,273,182,213,189"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#ae2ff578b5be677ada1f09d21d92ba335" title="Set the count variance scale weight in weights to weight." alt="" coords="264,206,465,247"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="213,207,248,211,248,216,213,213"/>
+<area shape="rect" id="Node000008" href="$d6/d52/namespaceml_1_1maths__t.html#a35cfe081b501dde3d8c2f4df534e1224" title="Set the outlier weight in weights to weight." alt="" coords="267,271,462,297"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="177,224,262,256,289,264,288,269,260,261,175,229"/>
+<area shape="rect" id="Node000009" href="$d6/d52/namespaceml_1_1maths__t.html#a4e2ff9d2a64df68ffeb890db05b17709" title="Set the seasonal variance scale weight in weights to weight." alt="" coords="279,321,450,362"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="144,225,197,267,262,307,274,312,271,317,259,312,194,271,141,229"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="467,73,501,63,503,68,468,78"/>
+<area shape="rect" id="Node000004" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="547,85,692,126"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="468,102,531,102,531,107,468,107"/>
+<area shape="rect" id="Node000005" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="583,174,657,199"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="453,130,568,167,567,172,452,135"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="580,177,570,166,573,156,591,149,620,147,656,151,666,156,670,162,665,165,663,160,655,156,620,152,592,155,577,160,575,165,584,173"/>
+</map>

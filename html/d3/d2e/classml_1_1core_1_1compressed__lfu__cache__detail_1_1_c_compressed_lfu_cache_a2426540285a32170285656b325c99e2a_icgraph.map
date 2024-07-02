@@ -1,0 +1,16 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::stats" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::stats">
+<area shape="rect" id="Node000001" title=" " alt="" coords="793,73,1008,128"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ac3a5941ead340061066b84687333cde7" title=" " alt="" coords="242,41,467,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="844,67,797,42,745,23,681,11,631,9,580,14,516,23,434,43,433,38,514,18,579,8,631,3,682,6,746,18,799,37,847,62"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ae5366a0e63bc6526118ef0f27782b9e7" title=" " alt="" coords="523,33,737,88"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="778,85,738,79,738,74,778,80"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a085b91e0915b1583369aa522b43e9b8c" title=" " alt="" coords="515,113,745,168"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="778,121,746,126,746,121,778,116"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a301b74d8a1d051c4bae1dc8179a8d2e6" title=" " alt="" coords="523,193,737,248"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="837,139,746,183,718,195,716,190,744,178,835,134"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="506,111,463,100,464,95,507,106"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a590cb09f1ad2568b1e3d0ae0ac24b108" title=" " alt="" coords="247,193,462,248"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="507,223,462,223,462,218,507,218"/>
+<area shape="rect" id="Node000007" href="$d2/d0f/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache.html#a1342e839d333ad8ded7d709c9e6ff750" title=" " alt="" coords="5,200,194,241"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="232,223,194,223,194,218,232,218"/>
+</map>

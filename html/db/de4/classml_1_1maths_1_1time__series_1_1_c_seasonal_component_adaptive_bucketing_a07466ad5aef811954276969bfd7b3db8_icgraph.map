@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::name" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::name">
+<area shape="rect" id="Node000001" title="Name of component." alt="" coords="339,85,550,141"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#aa432fd9519f6e2ad7d0c13b985438569" title="Restore by traversing a state document." alt="" coords="34,5,262,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="324,83,253,64,255,59,325,78"/>
+<area shape="rect" id="Node000003" href="$d5/d06/structml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing_1_1_s_bucket.html#a477a2debcf3acc7ca96a9c98a82cdee8" title=" " alt="" coords="5,85,291,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="323,116,291,116,291,111,323,111"/>
+<area shape="rect" id="Node000004" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a169584770e162d9f835e600247c7bf04" title=" " alt="" coords="50,166,246,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="325,148,291,156,231,168,230,162,290,151,324,143"/>
+</map>

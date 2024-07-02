@@ -1,0 +1,46 @@
+<map id="CModelTestFixtureBase::generateOrderedAnomalies" name="CModelTestFixtureBase::generateOrderedAnomalies">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,258,192,299"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="240,5,464,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,257,125,218,154,168,192,116,238,71,243,68,246,72,241,75,196,120,158,171,130,220,111,259"/>
+<area shape="rect" id="Node000003" href="$dc/dec/class_c_model_test_fixture_base.html#ae3cd867a5eff5a596683b8e1b509e86a" title=" " alt="" coords="271,85,433,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="113,256,164,197,199,164,238,136,256,127,258,132,241,141,203,168,168,200,117,259"/>
+<area shape="rect" id="Node000009" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a85fbddcfc8390f53b94b003f24d63810" title=" " alt="" coords="253,150,451,191"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="132,255,181,227,239,200,255,194,257,199,241,205,184,232,135,260"/>
+<area shape="rect" id="Node000010" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7720639ebcdc5446b370dbf9f2c0019c" title="Get the number of statistics." alt="" coords="240,215,464,270"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="192,263,224,258,225,263,192,268"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7e062309a949de4c9d61ae904a16c65f" title=" " alt="" coords="253,294,451,335"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="192,289,238,296,237,301,192,294"/>
+<area shape="rect" id="Node000014" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="262,360,442,400"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="139,297,241,344,261,352,259,357,239,349,137,302"/>
+<area shape="rect" id="Node000015" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a59ec72fccddaef8b489f7eedc032d310" title=" " alt="" coords="253,425,451,466"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="118,297,169,353,203,384,241,410,253,416,251,421,238,414,200,388,166,357,114,301"/>
+<area shape="rect" id="Node000022" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#ab1ecb15dfd581db7ce7b1147f462b411" title=" " alt="" coords="240,489,464,545"/>
+<area shape="poly" id="edge22_Node000001_Node000022" title=" " alt="" coords="111,298,131,335,159,383,196,432,241,475,247,479,244,483,238,479,192,436,155,386,126,338,107,300"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="532,28,690,68"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="433,85,516,66,517,71,434,90"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="771,118,918,159"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="433,108,756,130,755,135,433,113"/>
+<area shape="rect" id="Node000008" href="$dc/dec/class_c_model_test_fixture_base.html#a17713a8059f8b48c2fc9d2ecc33a2be8" title=" " alt="" coords="530,142,691,183"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="434,120,515,139,514,144,433,126"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="765,28,924,68"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="690,45,750,45,750,51,690,51"/>
+<area shape="rect" id="Node000007" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="980,118,1118,159"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="919,136,964,136,964,141,919,141"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="691,152,755,145,756,150,692,157"/>
+<area shape="rect" id="Node000012" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="537,261,684,302"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="451,299,522,290,522,295,451,304"/>
+<area shape="rect" id="Node000013" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="821,268,868,294"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="685,279,806,279,806,284,685,284"/>
+<area shape="rect" id="Node000016" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a012f78d23867a0b9a48f8402d2308034" title=" " alt="" coords="524,326,698,367"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="432,422,463,409,487,394,511,378,526,371,528,375,513,382,490,398,465,414,434,427"/>
+<area shape="rect" id="Node000017" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="512,392,709,432"/>
+<area shape="poly" id="edge17_Node000015_Node000017" title=" " alt="" coords="451,430,496,424,497,429,451,435"/>
+<area shape="rect" id="Node000019" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="512,457,709,498"/>
+<area shape="poly" id="edge19_Node000015_Node000019" title=" " alt="" coords="451,455,497,460,496,466,451,460"/>
+<area shape="rect" id="Node000020" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaa2f42f2be5d74bd04fa6567fe95860c" title="Extract the person identifier from a tuple." alt="" coords="524,522,698,563"/>
+<area shape="poly" id="edge20_Node000015_Node000020" title=" " alt="" coords="437,464,465,475,490,491,513,507,528,514,526,518,511,511,487,495,463,480,435,468"/>
+<area shape="rect" id="Node000021" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="512,588,709,628"/>
+<area shape="poly" id="edge21_Node000015_Node000021" title=" " alt="" coords="449,464,466,475,477,487,484,500,491,525,497,549,503,561,514,573,519,577,516,581,510,576,499,564,492,551,486,526,480,502,473,491,462,479,446,468"/>
+<area shape="rect" id="Node000018" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="757,392,932,432"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="710,409,741,409,741,415,710,415"/>
+</map>

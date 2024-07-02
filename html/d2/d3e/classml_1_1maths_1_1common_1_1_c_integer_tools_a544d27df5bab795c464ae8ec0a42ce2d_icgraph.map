@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CIntegerTools::aligned" name="ml::maths::common::CIntegerTools::aligned">
+<area shape="rect" id="Node000001" title="Check if value is alignment aligned." alt="" coords="488,72,639,113"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43784d519db9888cbf7799677939e3f4" title=" " alt="" coords="253,39,440,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="473,81,440,76,441,71,473,76"/>
+<area shape="rect" id="Node000005" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a78efdf211d82c13e39669b489a895ed8" title=" " alt="" coords="253,104,440,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="473,108,441,113,440,108,473,103"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ab0d59a6b6336b0fc2ad87a70c8ccf6d4" title="Reset bucket and return true if bucket was successfully reset or false otherwise." alt="" coords="5,5,205,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,47,205,42,205,37,237,41"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a1dd2d544b77a79ab83cfd6adc5903da7" title="Reset bucket and return true if bucket was successfully reset or false otherwise." alt="" coords="18,71,192,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="237,76,192,82,192,77,237,71"/>
+</map>

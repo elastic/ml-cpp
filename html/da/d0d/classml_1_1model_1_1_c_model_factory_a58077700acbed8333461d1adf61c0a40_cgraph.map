@@ -1,0 +1,22 @@
+<map id="ml::model::CModelFactory::defaultDecomposition" name="ml::model::CModelFactory::defaultDecomposition">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,136,181,177"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#abf3f523003ad85c6d6698b72e06d1b0d" title="Set the decay rate used for initializing the models." alt="" coords="240,29,415,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,133,174,106,228,79,241,73,244,78,230,84,176,111,129,138"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#a5cb06e59ebd2f51812cfd4357eeda4eb" title=" " alt="" coords="241,94,414,120"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="181,135,248,121,249,126,182,140"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a3e8b4899466756ed85a5fb2bcda946ae" title=" " alt="" coords="247,144,408,169"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="181,154,232,154,232,159,181,159"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#a6c18445fef48c42f02bbf130c2405704" title="Check if feature is modeling time of day or week." alt="" coords="253,193,402,219"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="182,172,249,187,248,192,181,177"/>
+<area shape="rect" id="Node000006" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#abec77981754bf46c664dc4fee8bd134e" title=" " alt="" coords="229,243,426,283"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="129,175,176,202,230,229,244,234,241,239,228,233,174,207,126,180"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="283,29,281,19,288,10,304,5,327,3,353,5,368,11,366,16,351,10,327,8,305,10,291,15,286,21,288,28"/>
+<area shape="rect" id="Node000007" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a928bc41c16aebf4138d3bb3c8d27e256" title="Get the bucket length." alt="" coords="486,147,683,187"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="399,240,425,229,448,213,473,197,487,191,489,196,475,201,451,217,427,233,401,245"/>
+<area shape="rect" id="Node000008" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a2d8f7017909a6d10f11f815b33211c5c" title=" " alt="" coords="474,235,695,291"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="426,260,458,260,458,266,426,266"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="548,340,622,365"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="389,281,534,332,532,337,387,286"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="535,235,535,225,544,216,561,210,585,209,612,211,628,218,626,223,610,216,585,214,562,216,547,221,540,227,540,235"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="545,343,534,332,538,322,555,315,585,313,622,317,632,322,635,328,631,331,628,326,620,322,585,318,556,320,542,325,539,331,549,339"/>
+</map>

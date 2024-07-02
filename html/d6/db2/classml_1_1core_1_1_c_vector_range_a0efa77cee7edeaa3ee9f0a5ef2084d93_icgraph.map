@@ -1,0 +1,11 @@
+<map id="ml::core::CVectorRange::operator[]" name="ml::core::CVectorRange::operator[]">
+<area shape="rect" id="Node000001" title="Get writable element at pos." alt="" coords="216,104,378,145"/>
+<area shape="rect" id="Node000002" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a06199237bce75e9bbd8015c464a2b8c1" title="Get writable last element." alt="" coords="5,5,168,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,99,167,61,139,49,141,44,169,57,245,94"/>
+<area shape="rect" id="Node000003" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a77de510b24e5a82dc9fbdfe930a78cbe" title="Get read&#45;only last element." alt="" coords="5,71,168,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,112,168,107,169,101,201,106"/>
+<area shape="rect" id="Node000004" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a19b0d8d129e6f4002e8a77bbdc29e926" title="Get writable first element." alt="" coords="5,136,168,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,142,169,147,168,141,200,136"/>
+<area shape="rect" id="Node000005" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a540f1d2cda5ba6509cec0052babefcd2" title="Get read&#45;only first element." alt="" coords="5,201,168,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="243,155,169,191,140,203,138,198,167,186,241,150"/>
+</map>

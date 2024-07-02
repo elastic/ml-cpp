@@ -1,0 +1,9 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::persistAttributePeopleData" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::persistAttributePeopleData">
+<area shape="rect" id="Node000001" title="Serialize data." alt="" coords="5,46,267,102"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="81,45,82,35,92,27,110,21,136,19,166,22,184,29,183,34,165,27,136,24,111,26,94,31,86,38,86,46"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="320,5,522,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="267,49,304,43,305,48,268,54"/>
+<area shape="rect" id="Node000003" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#a8533554b25b22512d96609e2c9e27212" title=" " alt="" coords="315,94,527,150"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="268,93,300,99,299,104,267,98"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="366,93,366,83,376,75,395,69,421,67,451,70,469,77,467,82,450,75,421,72,395,74,379,79,371,86,371,94"/>
+</map>

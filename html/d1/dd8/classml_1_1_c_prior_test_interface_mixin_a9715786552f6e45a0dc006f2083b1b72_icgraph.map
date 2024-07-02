@@ -1,0 +1,13 @@
+<map id="ml::CPriorTestInterfaceMixin::CPriorTestInterfaceMixin" name="ml::CPriorTestInterfaceMixin::CPriorTestInterfaceMixin">
+<area shape="rect" id="Node000001" title=" " alt="" coords="695,47,883,88"/>
+<area shape="rect" id="Node000002" href="$d1/dd8/classml_1_1_c_prior_test_interface_mixin.html#a8f9027d2b3f3b8cd16ce3faded412d48" title="Clone the object." alt="" coords="460,47,647,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="679,70,648,70,648,65,679,65"/>
+<area shape="rect" id="Node000003" href="$da/d2c/namespaceanonymous__namespace_02_c_multimodal_prior_test_8cc_03.html#aedc48afe9523124fd7a2bbe2875a667f" title="Make the default mode prior." alt="" coords="250,40,412,95"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="444,70,413,70,413,65,444,65"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,49,165,34,167,29,235,44"/>
+<area shape="rect" id="Node000005" href="$df/d0f/_c_multimodal_prior_test_8cc.html#af133468c156efe4d950954c80ef77729" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000006" href="$da/d2c/namespaceanonymous__namespace_02_c_multimodal_prior_test_8cc_03.html#a0078132d1b7f197b662dfa6231318857" title="Make a vanilla multimodal prior." alt="" coords="22,105,185,161"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="235,98,186,112,184,107,234,93"/>
+</map>

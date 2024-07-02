@@ -1,0 +1,5 @@
+<map id="ml::api::CAnomalyJob::timeNow" name="ml::api::CAnomalyJob::timeNow">
+<area shape="rect" id="Node000001" title="Roll time forward to time." alt="" coords="5,5,156,46"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#af83ddb8afa158089a19a44ad6ee6cc42" title="Roll time forwards to time." alt="" coords="204,5,401,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,23,188,23,188,28,156,28"/>
+</map>

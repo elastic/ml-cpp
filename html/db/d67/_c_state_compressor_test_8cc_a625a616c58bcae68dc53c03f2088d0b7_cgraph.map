@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,93,202,119"/>
+<area shape="rect" id="Node000002" href="$d1/d30/classml_1_1core_1_1_c_state_compressor.html#a74e38d151b96b4a2301e05925e0b6d7e" title=" " alt="" coords="257,5,445,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,90,249,55,269,49,270,54,250,60,146,95"/>
+<area shape="rect" id="Node000004" href="$dc/de8/classanonymous__namespace_02_c_state_compressor_test_8cc_03_1_1_c_mock_data_searcher.html#a6062742b4b1327af732cbab41ec95d52" title=" " alt="" coords="262,70,440,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,103,246,103,246,108,202,108"/>
+<area shape="rect" id="Node000005" href="$d5/da5/classml_1_1core_1_1_c_state_decompressor.html#a360e0ae9cabd91b6e0b3fcc611f59b8d" title=" " alt="" coords="250,165,452,206"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="147,117,272,157,270,163,145,122"/>
+<area shape="rect" id="Node000003" href="$d7/de1/classml_1_1core_1_1_c_state_compressor_1_1_c_chunk_filter.html#a8e5ff45f0a831e2fb7c7cb44a8800fa5" title="Set the base ID to use in searches." alt="" coords="500,5,688,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="446,23,484,23,484,28,446,28"/>
+</map>

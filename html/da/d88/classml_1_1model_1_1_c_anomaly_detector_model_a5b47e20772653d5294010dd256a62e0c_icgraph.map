@@ -1,0 +1,21 @@
+<map id="ml::model::CAnomalyDetectorModel::windowBucketCount" name="ml::model::CAnomalyDetectorModel::windowBucketCount">
+<area shape="rect" id="Node000001" title="Get the total count of buckets in the window." alt="" coords="518,136,715,177"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a1c8e2c60519557cc94d52ae88fc5d07e" title="Persist state by passing information to the supplied inserter." alt="" coords="280,5,463,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="575,129,526,94,469,61,440,49,442,44,471,57,528,90,578,124"/>
+<area shape="rect" id="Node000003" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a446c3501833fac0c13e6de1416aae494" title="Add to the contents of the object." alt="" coords="280,71,463,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="522,134,450,115,451,109,524,129"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#acd4e0a8b4659d0cb1302ebb17778f847" title="Persist state by passing information to the supplied inserter." alt="" coords="278,136,465,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="502,159,465,159,465,154,502,154"/>
+<area shape="rect" id="Node000007" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3782a8ef83638949ff680eed01b25271" title="Persist state by passing information to the supplied inserter." alt="" coords="275,201,468,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="524,184,451,203,450,198,522,179"/>
+<area shape="rect" id="Node000010" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a1c3e4f6f1dd7a645a582d8b2606aa379" title="Set the total count of buckets in the window." alt="" coords="273,267,470,307"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="578,189,528,223,471,256,442,269,440,264,469,251,526,218,575,184"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#afeb022f8b17e8546a8f8855842b0da3a" title="Persist state by passing information to inserter." alt="" coords="18,71,212,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="273,134,197,115,198,109,275,129"/>
+<area shape="rect" id="Node000006" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#ad0e493f420c13f8723b82632b345e448" title="Persist state by passing information to inserter." alt="" coords="31,136,199,177"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="262,159,199,159,199,154,262,154"/>
+<area shape="rect" id="Node000008" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b15945e4bed81aef355a0cea18a60b9" title="Persist state by passing information to the supplied inserter." alt="" coords="5,201,225,242"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="259,224,225,224,225,219,259,219"/>
+<area shape="rect" id="Node000009" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aea710498b24a82acd1aeaea7f69b2154" title="Persist state by passing information to the supplied inserter." alt="" coords="18,267,212,307"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="275,249,198,269,197,263,273,244"/>
+</map>

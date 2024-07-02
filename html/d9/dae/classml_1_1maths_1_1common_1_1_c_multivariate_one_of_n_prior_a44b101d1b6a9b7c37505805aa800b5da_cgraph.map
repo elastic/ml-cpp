@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::setToNonInformative" name="ml::maths::common::CMultivariateOneOfNPrior::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,45,179,101"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="227,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,55,211,49,212,54,180,60"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="241,85,386,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,86,226,95,225,100,179,91"/>
+</map>

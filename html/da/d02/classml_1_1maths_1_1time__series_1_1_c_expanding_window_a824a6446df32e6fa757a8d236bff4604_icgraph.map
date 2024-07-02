@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CExpandingWindow::bucketLength" name="ml::maths::time_series::CExpandingWindow::bucketLength">
+<area shape="rect" id="Node000001" title="Get the current bucket length." alt="" coords="856,84,1090,125"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a275cf950c6a539e4c71d115b25537843" title="Get the time of the first window value." alt="" coords="299,55,554,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="841,100,554,84,554,79,841,95"/>
+<area shape="rect" id="Node000003" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a92b7f88f795b12951bebc4a636095827" title="Get the end time of the windows&#39; values." alt="" coords="5,5,250,46"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="861,83,808,74,658,54,507,42,250,30,250,25,508,36,659,49,809,68,862,78"/>
+<area shape="rect" id="Node000004" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a109070f4aa5296505647f64748ac97fa" title="Get the bucket values in bucketValues minus the predictions of predictor." alt="" coords="13,77,242,132"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="841,108,298,110,242,109,242,104,298,104,841,103"/>
+<area shape="rect" id="Node000005" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab8000e6b7e7cb9ec3e9ac86ea5881230" title="Get the end time of the window." alt="" coords="603,169,808,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="893,132,773,171,771,166,891,127"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="284,54,250,48,250,43,285,49"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="284,92,242,96,242,90,283,86"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="639,166,477,98,479,94,641,161"/>
+<area shape="rect" id="Node000006" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a4bcb82fc11f9cd78ca1fd9b7b4eaeab8" title="Check if we need to compress by increasing the bucket span." alt="" coords="298,169,555,210"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="587,192,556,192,556,187,587,187"/>
+<area shape="rect" id="Node000007" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a783a4d2e34d8f9e29c418056480e58c3" title="Add value at time." alt="" coords="39,169,216,210"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="282,192,216,192,216,187,282,187"/>
+</map>

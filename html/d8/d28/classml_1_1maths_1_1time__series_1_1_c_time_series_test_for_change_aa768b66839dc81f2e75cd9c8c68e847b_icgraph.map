@@ -1,0 +1,29 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForChange::removePredictions" name="ml::maths::time_series::CTimeSeriesTestForChange::removePredictions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1046,85,1240,141"/>
+<area shape="rect" id="Node000002" href="$d8/d28/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_change.html#ae62a46d036aaaff53a6d34b45e839e0c" title=" " alt="" coords="803,5,998,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1041,82,986,64,988,59,1043,77"/>
+<area shape="rect" id="Node000012" href="$d8/d28/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_change.html#a41fb115ee11a54f15c709cb98c584ae8" title=" " alt="" coords="803,85,998,141"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1030,116,998,116,998,111,1030,111"/>
+<area shape="rect" id="Node000013" href="$d8/d28/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_change.html#a6e0920a203671463604162715fd09b69" title=" " alt="" coords="803,165,998,221"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="1043,149,988,167,986,162,1041,144"/>
+<area shape="rect" id="Node000003" href="$d8/d28/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_change.html#a739d7ad91aa888034285fc7903df6643" title="Test the values supplied to the constructor for a change." alt="" coords="531,93,755,134"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="795,69,712,95,710,90,793,64"/>
+<area shape="rect" id="Node000004" href="$d2/d85/_c_time_series_test_for_change_test_8cc.html#a7687efc632ac0382834527645aebe55c" title=" " alt="" coords="268,18,465,43"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="576,89,482,57,440,47,441,41,484,52,578,84"/>
+<area shape="rect" id="Node000005" href="$d2/d85/_c_time_series_test_for_change_test_8cc.html#a4cf09c4e0e0b99325e2e6453a3847972" title=" " alt="" coords="268,67,465,93"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="515,100,465,94,465,89,516,95"/>
+<area shape="rect" id="Node000006" href="$d1/d4d/namespaceanonymous__namespace_02_c_time_series_test_for_change_test_8cc_03.html#a44d64a063431230fe03fe7dc78328d1a" title=" " alt="" coords="259,117,474,173"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="516,131,475,135,474,130,516,125"/>
+<area shape="rect" id="Node000011" href="$df/d6c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_change_point_test.html#a2e593b9384968118cb512cce427d54ce" title="Test if any change has occurred." alt="" coords="250,197,483,253"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="586,143,484,188,453,199,451,194,482,183,584,138"/>
+<area shape="rect" id="Node000007" href="$d2/d85/_c_time_series_test_for_change_test_8cc.html#ab6fd2880b4cf5ca8aa9b60c77b33e8f6" title=" " alt="" coords="5,59,202,85"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="258,115,201,98,161,88,162,83,202,93,260,110"/>
+<area shape="rect" id="Node000008" href="$d2/d85/_c_time_series_test_for_change_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,108,202,134"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="243,137,202,133,202,127,243,131"/>
+<area shape="rect" id="Node000009" href="$d2/d85/_c_time_series_test_for_change_test_8cc.html#a68ba6c4d1a4147f2ccf8975f72868b24" title=" " alt="" coords="5,158,202,183"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="243,160,202,164,202,158,243,154"/>
+<area shape="rect" id="Node000010" href="$d2/d85/_c_time_series_test_for_change_test_8cc.html#ae231a7e77a423df4baa386431c6f6971" title=" " alt="" coords="5,207,202,233"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="263,181,202,198,162,209,161,204,201,193,262,175"/>
+<area shape="poly" id="edge12_Node000012_Node000003" title=" " alt="" coords="788,116,756,116,756,111,788,111"/>
+<area shape="poly" id="edge14_Node000013_Node000003" title=" " alt="" coords="793,163,710,137,712,132,795,158"/>
+</map>

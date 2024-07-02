@@ -1,0 +1,9 @@
+<map id="ml::maths::common::COneOfNPrior" name="ml::maths::common::COneOfNPrior">
+<area shape="rect" id="Node000001" title="Interface for a prior distribution which assumes data are from one of N models." alt="" coords="709,70,854,110"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="362,15,508,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="524,46,685,71,709,75,708,80,685,77,523,51"/>
+<area shape="rect" id="Node000003" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,23,166,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="181,33,362,33,362,38,181,38"/>
+<area shape="rect" id="Node000004" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="329,80,541,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="556,99,708,91,709,96,556,104"/>
+</map>

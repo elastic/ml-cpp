@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CNaiveBayes::classProbability" name="ml::maths::common::CNaiveBayes::classProbability">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,87,208,127"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#ad984c04ffabf66710aef1a7461201b84" title=" " alt="" coords="256,87,468,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,104,240,104,240,110,208,110"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="521,5,666,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="421,84,518,49,520,54,423,89"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="557,94,631,120"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="468,104,541,104,541,110,468,110"/>
+<area shape="rect" id="Node000005" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#a89b03e0c4ace9a4b645fdb2801736b8f" title="Validate x." alt="" coords="516,144,671,185"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="447,125,501,139,500,144,446,130"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="555,95,548,86,552,76,568,70,594,68,622,70,636,77,634,82,621,75,594,73,569,75,556,80,553,85,559,92"/>
+</map>

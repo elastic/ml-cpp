@@ -1,0 +1,9 @@
+<map id="ml::torch::CThreadSettings::CThreadSettings" name="ml::torch::CThreadSettings::CThreadSettings">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,184,79"/>
+<area shape="rect" id="Node000002" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#aae8e6e20b3236d38e12c03da67f15fb3" title=" " alt="" coords="232,39,430,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,56,216,56,216,62,184,62"/>
+<area shape="rect" id="Node000003" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#a9284cbf250a27a2f491340114abf7fe8" title=" " alt="" coords="478,5,656,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,42,462,38,463,43,431,48"/>
+<area shape="rect" id="Node000004" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#ab06d94edc14231e1f47c8de8a71652a6" title=" " alt="" coords="478,71,656,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="431,70,463,74,462,80,430,75"/>
+</map>

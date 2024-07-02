@@ -1,0 +1,7 @@
+<map id="ml::api::CDataFrameOutliersRunner::numberExtraColumns" name="ml::api::CDataFrameOutliersRunner::numberExtraColumns">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a44c16e88bb1cd971b27f46fc9a86bb22" title=" " alt="" coords="251,5,450,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,43,235,39,235,44,203,48"/>
+<area shape="rect" id="Node000003" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="254,71,447,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,69,239,74,238,79,203,74"/>
+</map>

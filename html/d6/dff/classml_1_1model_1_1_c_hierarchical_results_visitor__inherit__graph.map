@@ -1,0 +1,53 @@
+<map id="ml::model::CHierarchicalResultsVisitor" name="ml::model::CHierarchicalResultsVisitor">
+<area shape="rect" id="Node000001" title="Interface for visiting the results." alt="" coords="5,790,171,830"/>
+<area shape="rect" id="Node000002" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="243,31,450,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,774,99,627,122,424,138,321,160,226,185,148,200,117,217,94,231,80,248,70,250,74,234,84,221,97,205,120,190,150,165,228,144,322,127,425,104,628,94,774"/>
+<area shape="rect" id="Node000004" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="220,107,473,148"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="89,774,100,639,124,455,141,362,162,277,187,207,201,180,217,159,232,146,235,150,221,163,206,183,192,209,167,278,146,363,129,456,106,640,94,774"/>
+<area shape="rect" id="Node000006" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="219,172,474,213"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="90,774,103,652,128,487,145,404,165,329,189,267,217,224,232,212,236,216,221,228,194,269,170,330,150,405,133,488,108,652,95,775"/>
+<area shape="rect" id="Node000008" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="249,237,444,308"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="86,774,89,684,95,626,105,563,121,498,145,433,176,372,217,317,247,295,250,299,221,321,181,375,150,435,127,499,110,564,100,627,94,685,91,774"/>
+<area shape="rect" id="Node000010" href="$d1/d77/class_c_result_writer.html" title=" " alt="" coords="295,332,398,358"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="86,774,89,690,96,637,106,581,123,523,146,466,177,414,217,368,234,356,254,348,294,340,295,346,255,353,237,361,220,372,181,417,151,468,128,524,112,582,101,638,95,691,91,774"/>
+<area shape="rect" id="Node000011" href="$de/df1/classanonymous__namespace_02_c_anomaly_job_test_8cc_03_1_1_c_multi_result_visitor.html" title=" " alt="" coords="265,382,428,438"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="89,774,99,705,120,618,137,572,158,527,185,485,217,448,239,432,264,421,266,426,242,437,220,452,189,488,163,530,142,574,125,620,104,706,95,774"/>
+<area shape="rect" id="Node000012" href="$da/de3/classanonymous__namespace_02_c_anomaly_job_test_8cc_03_1_1_c_results_score_visitor.html" title=" " alt="" coords="265,462,428,518"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="93,774,108,720,132,654,167,586,190,555,217,528,239,513,264,502,266,507,242,517,220,532,194,559,172,589,136,656,113,722,99,775"/>
+<area shape="rect" id="Node000013" href="$d1/d1f/classanonymous__namespace_02_c_anomaly_job_test_8cc_03_1_1_c_single_result_visitor.html" title="Mock object for unit tests." alt="" coords="265,542,428,598"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="101,774,119,736,144,691,177,646,217,608,239,594,264,584,266,589,242,599,220,612,181,650,149,694,123,738,105,776"/>
+<area shape="rect" id="Node000014" href="$d1/d56/classanonymous__namespace_02_c_event_rate_anomaly_detector_test_8cc_03_1_1_c_result_writer.html" title=" " alt="" coords="247,622,446,678"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="114,776,160,731,217,688,245,674,248,679,220,692,163,735,118,780"/>
+<area shape="rect" id="Node000015" href="$da/d1a/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_breadth_first_check.html" title="Checks that we visit the nodes in decreasing depth order." alt="" coords="248,702,445,758"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="170,782,253,756,255,761,171,787"/>
+<area shape="rect" id="Node000016" href="$d4/d9f/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_check_scores.html" title="Checks our anomaly scores are correct post scoring." alt="" coords="248,782,445,838"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="186,807,248,807,248,813,186,813"/>
+<area shape="rect" id="Node000017" href="$d5/d0d/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_depth_first_check.html" title="Checks that we visit all a nodes children immediately before visiting it." alt="" coords="248,862,445,918"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="171,833,255,859,253,864,170,838"/>
+<area shape="rect" id="Node000018" href="$d7/ded/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_node_extractor.html" title="Gets the various types of nodes." alt="" coords="248,942,445,998"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="118,840,163,885,220,928,249,942,247,947,217,932,160,889,114,844"/>
+<area shape="rect" id="Node000019" href="$de/db5/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_printer.html" title="A pretty print of the hierarchical results." alt="" coords="248,1022,445,1078"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="105,844,123,882,149,926,181,970,220,1008,249,1025,246,1029,217,1012,177,974,144,929,119,884,101,846"/>
+<area shape="rect" id="Node000020" href="$da/d0d/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_write_consistency_checker.html" title="Checks that if we write a result for a node, we also write one for its parent (if there is one) and o..." alt="" coords="248,1102,445,1158"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="99,845,113,898,136,964,172,1031,194,1061,220,1088,249,1107,247,1111,217,1092,190,1065,167,1034,132,966,108,900,93,846"/>
+<area shape="rect" id="Node000021" href="$d9/d46/classanonymous__namespace_02_c_metric_anomaly_detector_test_8cc_03_1_1_c_result_writer.html" title=" " alt="" coords="237,1182,456,1238"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="95,846,104,914,125,1000,142,1046,163,1090,189,1132,220,1168,238,1181,235,1186,217,1172,185,1135,158,1093,137,1048,120,1002,99,915,89,846"/>
+<area shape="rect" id="Node000022" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html" title="Writes out hierarchical results using a callback to write individual results." alt="" coords="250,1262,443,1302"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="91,845,96,928,102,980,113,1037,129,1094,152,1150,182,1202,220,1248,251,1267,248,1272,217,1252,178,1206,147,1153,124,1096,108,1038,97,981,90,928,86,846"/>
+<area shape="rect" id="Node000023" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title="Defines a set of objects with one set for each distinct level in the hierarchical results." alt="" coords="264,1327,429,1368"/>
+<area shape="poly" id="edge22_Node000001_Node000023" title=" " alt="" coords="96,845,112,952,139,1093,156,1163,175,1226,197,1277,221,1312,241,1327,264,1337,262,1342,238,1332,217,1316,192,1280,170,1228,151,1164,134,1094,107,953,91,846"/>
+<area shape="rect" id="Node000024" href="$d7/d62/classml_1_1model_1_1_c_hierarchical_results_populator.html" title="FIXME." alt="" coords="264,1392,429,1433"/>
+<area shape="poly" id="edge23_Node000001_Node000024" title=" " alt="" coords="95,845,109,965,134,1125,151,1205,171,1278,195,1337,221,1378,241,1392,264,1402,262,1407,238,1397,217,1381,190,1340,166,1280,146,1207,129,1126,104,966,90,846"/>
+<area shape="rect" id="Node000025" href="$df/d2a/classml_1_1model_1_1_c_hierarchical_results_probability_finalizer.html" title="Ensures that all probabilities are equal to the inverse deviation of the anomaly scores." alt="" coords="258,1458,435,1498"/>
+<area shape="poly" id="edge24_Node000001_Node000025" title=" " alt="" coords="94,846,106,978,130,1158,147,1248,168,1330,192,1398,206,1423,221,1443,238,1457,259,1466,257,1471,235,1461,217,1447,201,1426,187,1400,162,1332,142,1249,125,1158,101,979,89,846"/>
+<area shape="rect" id="Node000026" href="$d9/d6c/classml_1_1model_1_1hierarchical__results__detail_1_1anonymous__namespace_02_c_hierarchical_resub790aa2ba1c5e4c740c7cecb26ca36a9.html" title="Propagates influences to the appropriate point in the hierarchical results." alt="" coords="224,1523,469,1593"/>
+<area shape="poly" id="edge25_Node000001_Node000026" title=" " alt="" coords="94,846,105,989,128,1187,145,1288,166,1380,191,1456,205,1486,221,1508,233,1520,229,1524,217,1512,201,1488,186,1458,161,1381,140,1289,123,1188,100,989,89,846"/>
+<area shape="rect" id="Node000003" href="$d5/d27/classanonymous__namespace_02_c_hierarchical_results_level_set_test_8cc_03_1_1_c_concrete_hierarchical_results_level_set.html" title=" " alt="" coords="522,5,750,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="465,44,522,42,522,48,465,50"/>
+<area shape="rect" id="Node000005" href="$d4/d13/classanonymous__namespace_02_c_hierarchical_results_test_8cc_03_1_1_c_probability_gatherer.html" title="Gathers up detector probabilities by level." alt="" coords="538,100,734,155"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="488,125,538,125,538,130,488,130"/>
+<area shape="rect" id="Node000007" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html" title="Aggregates the probabilities up a collection hierarchical results." alt="" coords="554,179,719,220"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="490,193,553,195,553,200,489,199"/>
+<area shape="rect" id="Node000009" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html" title="A collection of normalizers for some hierarchical results." alt="" coords="554,252,719,293"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="460,270,553,270,553,275,460,275"/>
+</map>

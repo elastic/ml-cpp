@@ -1,0 +1,7 @@
+<map id="CMockModelInterface" name="CMockModelInterface">
+<area shape="rect" id="Node000001" title=" " alt="" coords="96,5,246,31"/>
+<area shape="rect" id="Node000002" href="$d6/dcc/class_c_mock_event_rate_model.html" title=" " alt="" coords="5,79,166,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,43,101,81,98,77,143,39"/>
+<area shape="rect" id="Node000003" href="$d2/d1d/class_c_mock_metric_model.html" title=" " alt="" coords="190,79,325,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,39,245,77,241,81,196,43"/>
+</map>

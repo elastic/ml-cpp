@@ -1,0 +1,28 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,180,202,206"/>
+<area shape="rect" id="Node000002" href="$d2/dbc/classanonymous__namespace_02_c_seasonal_component_test_8cc_03_1_1_c_test_seasonal_component.html#a6ac0020e7549461d539a0a337077a0c4" title=" " alt="" coords="250,5,461,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,177,175,135,248,86,258,81,260,86,251,91,178,139,123,182"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a404ada1c9b84c0049e143865cb425e2f" title=" " alt="" coords="263,100,448,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,177,266,143,268,148,152,182"/>
+<area shape="rect" id="Node000006" href="$d3/d91/namespaceanonymous__namespace_02_c_seasonal_component_test_8cc_03.html#a52764b93efca5ba2950a24ed6775b919" title=" " alt="" coords="256,165,455,221"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="202,190,241,190,241,195,202,195"/>
+<area shape="rect" id="Node000009" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="265,244,446,285"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="152,203,268,237,266,242,150,209"/>
+<area shape="rect" id="Node000012" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="268,334,443,374"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="123,204,179,245,251,294,301,324,299,328,248,299,176,250,120,208"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="744,92,930,133"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="422,97,460,85,484,76,508,69,561,61,603,59,697,69,765,85,763,90,696,74,603,65,562,67,510,74,486,81,462,90,423,102"/>
+<area shape="rect" id="Node000005" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="566,108,640,134"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="448,118,550,118,550,123,448,123"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="564,109,556,99,561,89,577,83,603,81,631,84,646,91,644,95,630,89,603,86,578,89,564,93,562,99,568,106"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="510,158,695,198"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="455,184,494,182,494,187,455,189"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="530,223,675,264"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="456,210,515,223,514,228,455,216"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="677,155,746,135,747,140,679,160"/>
+<area shape="rect" id="Node000010" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="509,288,696,329"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="447,278,494,287,493,292,446,283"/>
+<area shape="rect" id="Node000011" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="746,288,928,329"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="697,306,731,306,731,311,697,311"/>
+<area shape="poly" id="edge14_Node000012_Node000012" title=" " alt="" coords="309,334,307,324,314,315,331,309,355,307,382,309,398,316,396,321,381,315,355,312,332,314,317,319,312,325,314,332"/>
+</map>

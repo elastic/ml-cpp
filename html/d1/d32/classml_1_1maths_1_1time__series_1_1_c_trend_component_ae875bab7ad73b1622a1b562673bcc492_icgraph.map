@@ -1,0 +1,31 @@
+<map id="ml::maths::time_series::CTrendComponent::value" name="ml::maths::time_series::CTrendComponent::value">
+<area shape="rect" id="Node000001" title=" " alt="" coords="840,261,1019,302"/>
+<area shape="rect" id="Node000002" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#af51df02d289cbd45a69e4aebe328fff8" title=" " alt="" coords="593,93,761,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="900,251,852,200,823,175,791,153,757,136,759,132,794,148,826,171,856,197,904,247"/>
+<area shape="rect" id="Node000005" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a5ee58b509fac4df96fec22338c68b924" title=" " alt="" coords="562,162,792,203"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="869,257,791,224,742,206,744,201,793,219,871,252"/>
+<area shape="rect" id="Node000006" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#af37c85788b0d77c420855df96c3f02c7" title=" " alt="" coords="297,165,501,206"/>
+<area shape="poly" id="edge14_Node000001_Node000006" title=" " alt="" coords="825,265,501,206,501,201,826,260"/>
+<area shape="rect" id="Node000007" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#aa4b75825be26f2bb67a42a7fce3f1ade" title=" " alt="" coords="580,301,774,342"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="825,300,775,308,774,303,824,295"/>
+<area shape="rect" id="Node000012" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a5e6d2c8fd3a1b551dd5a7f86340eda02" title="Apply a linear scale by scale." alt="" coords="572,366,783,407"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="881,312,793,356,758,368,757,363,791,351,879,307"/>
+<area shape="rect" id="Node000014" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a7c9c47d84853c0a9529cafc5d3cd38bf" title="Get the predicted value of the time series at time." alt="" coords="581,431,773,486"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="905,315,857,369,827,397,794,421,772,432,770,428,791,416,823,392,853,365,901,312"/>
+<area shape="rect" id="Node000003" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#ab310e94c211f7c164d413348e89515e7" title=" " alt="" coords="284,5,514,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="588,91,498,64,499,59,590,85"/>
+<area shape="rect" id="Node000004" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a4e714db14171a8177051d639a423ce90" title="Fit the trend component component to values." alt="" coords="286,85,512,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="577,116,512,116,512,111,577,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="547,186,501,187,501,182,546,181"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="719,288,703,282,677,279,653,281,638,286,633,292,635,299,630,301,628,291,635,282,652,276,677,274,704,277,720,283"/>
+<area shape="rect" id="Node000008" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#af48fad15657dd25f7f13c1e16b319e3d" title=" " alt="" coords="303,229,495,285"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="570,299,495,282,496,277,571,294"/>
+<area shape="rect" id="Node000009" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#aef4f07aa6b56ffa8b24ac2ca9d46e893" title=" " alt="" coords="318,309,480,365"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="565,330,481,335,480,330,564,325"/>
+<area shape="rect" id="Node000010" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#a00bf6a87699dd2fc2b849cdd664344d3" title=" " alt="" coords="5,269,236,325"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="302,326,236,316,237,311,302,321"/>
+<area shape="rect" id="Node000011" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#a78423d558b292ff5faa9f81b792a0458" title=" " alt="" coords="5,349,236,405"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="302,354,237,363,236,358,302,348"/>
+<area shape="rect" id="Node000013" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#a526c3c31890f53a641409be508af0983" title=" " alt="" coords="322,389,476,430"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="557,399,477,406,476,400,556,394"/>
+</map>

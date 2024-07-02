@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::memoryUsage" name="ml::maths::common::CMultivariateMultimodalPrior::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this component." alt="" coords="5,77,194,133"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="242,92,448,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,103,226,103,226,108,194,108"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="496,5,667,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="389,89,480,61,482,66,390,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="498,85,665,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="449,103,482,103,482,108,449,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="715,107,901,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="397,116,496,135,582,138,667,135,699,134,700,139,667,140,582,143,496,140,396,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="666,113,700,118,700,123,665,119"/>
+</map>

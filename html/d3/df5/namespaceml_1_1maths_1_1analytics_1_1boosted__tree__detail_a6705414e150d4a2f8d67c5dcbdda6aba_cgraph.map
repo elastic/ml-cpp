@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree_detail::beginSplits" name="ml::maths::analytics::boosted_tree_detail::beginSplits">
+<area shape="rect" id="Node000001" title="Get a writable pointer to the start of the row split indices." alt="" coords="5,5,148,61"/>
+<area shape="rect" id="Node000002" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="196,13,354,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,31,180,31,180,36,148,36"/>
+</map>

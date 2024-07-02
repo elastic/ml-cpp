@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariatePrior::scaledDecayRate" name="ml::maths::common::CMultivariatePrior::scaledDecayRate">
+<area shape="rect" id="Node000001" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="5,45,151,101"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="199,5,344,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,56,183,49,184,54,151,61"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="199,85,344,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,86,184,92,183,98,150,91"/>
+</map>

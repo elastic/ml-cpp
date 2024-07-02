@@ -1,0 +1,42 @@
+<map id="anonymous_namespace{CEventRateDataGathererTest::cc}::testPersistence" name="anonymous_namespace{CEventRateDataGathererTest::cc}::testPersistence">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,354,206,410"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a2fab62dee801121410863305a92829d0" title="Persist state by passing information to the supplied inserter." alt="" coords="267,143,441,183"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,352,316,192,320,196,140,356"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a20388c0cda0e54f73b61ede357a1aa03" title="Get the checksum of this gatherer." alt="" coords="267,289,441,330"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="203,351,266,332,267,337,205,356"/>
+<area shape="rect" id="Node000014" href="$dd/de0/namespaceanonymous__namespace_02_c_event_rate_data_gatherer_test_8cc_03.html#af4c91491709b1f0e64a30013264aa699" title=" " alt="" coords="254,354,454,410"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="206,379,238,379,238,384,206,384"/>
+<area shape="rect" id="Node000015" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="263,433,445,474"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="205,408,267,426,266,431,203,413"/>
+<area shape="rect" id="Node000018" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="267,523,441,563"/>
+<area shape="poly" id="edge21_Node000001_Node000018" title=" " alt="" coords="146,408,255,483,303,512,300,517,252,488,143,412"/>
+<area shape="rect" id="Node000003" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a993506ec963cd3d649c9ea71ea0be288" title=" " alt="" coords="502,48,715,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,140,501,99,523,91,525,96,503,104,403,144"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="763,5,966,46"/>
+<area shape="poly" id="edge8_Node000002_Node000004" title=" " alt="" coords="369,141,423,84,460,56,501,34,563,16,627,7,690,5,748,7,748,12,690,10,627,12,564,21,503,39,462,60,426,88,373,144"/>
+<area shape="rect" id="Node000006" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#ad4901379e36f4bc802c66e84c25fbec7" title="Persist the sample counts to a state document." alt="" coords="518,113,700,154"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="441,150,502,143,502,149,442,156"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="763,167,966,207"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="441,164,748,179,748,184,441,170"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ade6028073a50c65aef70fc39b8fe0c91" title=" " alt="" coords="522,228,696,269"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="418,181,532,220,530,225,416,186"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="715,48,748,42,748,48,716,53"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="787,81,942,122"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="716,80,772,87,772,92,716,85"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="700,120,771,111,772,116,701,125"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="696,225,761,209,763,214,697,230"/>
+<area shape="rect" id="Node000009" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43e3bdd9e7807bfb67e5970e21ee9bfc" title="Persist state by passing information inserter." alt="" coords="771,232,958,273"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="696,247,755,248,755,253,696,252"/>
+<area shape="rect" id="Node000011" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="787,297,942,338"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="441,308,772,314,772,319,441,314"/>
+<area shape="rect" id="Node000012" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a34b5240e4c7eb5582ce35df95b1007df" title="Get the checksum of this registry." alt="" coords="518,347,700,387"/>
+<area shape="poly" id="edge14_Node000010_Node000012" title=" " alt="" coords="442,327,503,341,502,346,441,332"/>
+<area shape="poly" id="edge15_Node000012_Node000011" title=" " alt="" coords="700,347,771,333,772,338,701,352"/>
+<area shape="rect" id="Node000013" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="773,363,956,403"/>
+<area shape="poly" id="edge16_Node000012_Node000013" title=" " alt="" coords="700,370,758,374,758,379,700,375"/>
+<area shape="rect" id="Node000016" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="515,433,702,474"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="445,451,499,451,499,456,445,456"/>
+<area shape="rect" id="Node000017" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="774,433,955,474"/>
+<area shape="poly" id="edge20_Node000016_Node000017" title=" " alt="" coords="703,451,758,451,758,456,703,456"/>
+<area shape="poly" id="edge22_Node000018_Node000018" title=" " alt="" coords="307,523,305,513,313,504,329,498,354,496,381,498,396,505,395,510,379,504,354,501,330,503,316,508,310,514,312,521"/>
+</map>

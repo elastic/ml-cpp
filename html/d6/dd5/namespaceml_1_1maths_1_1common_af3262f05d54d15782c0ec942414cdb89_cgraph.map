@@ -1,0 +1,18 @@
+<map id="ml::maths::common::sampleGaussian" name="ml::maths::common::sampleGaussian">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,118,151,159"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="411,126,588,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,130,199,128,363,128,396,129,396,134,363,133,199,133,151,136"/>
+<area shape="rect" id="Node000008" href="$d6/d1b/namespaceml_1_1maths_1_1common_1_1linear__algebra__tools__detail.html#aa6705f8255aa8a933960294fff3caa56" title=" " alt="" coords="199,143,363,198"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="151,147,183,152,183,158,151,153"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="636,126,814,151"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="588,136,621,136,621,141,588,141"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="862,5,1042,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="753,123,861,71,872,66,874,70,863,76,755,127"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="862,85,1042,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="814,123,846,118,847,123,815,128"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="879,150,1025,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="815,148,864,156,864,161,814,154"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="869,216,1035,256"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="754,149,863,200,880,207,878,212,861,205,752,154"/>
+<area shape="poly" id="edge8_Node000008_Node000002" title=" " alt="" coords="363,156,395,151,396,156,364,161"/>
+</map>

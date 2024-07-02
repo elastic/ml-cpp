@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyDetector::numberActiveAttributes" name="ml::model::CAnomalyDetector::numberActiveAttributes">
+<area shape="rect" id="Node000001" title="Get the total number of attributes which this is modeling." alt="" coords="271,5,468,46"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a6bb07ad8d39d1fba2ed618f80ab16c54" title=" " alt="" coords="5,13,223,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,28,223,28,223,23,255,23"/>
+</map>

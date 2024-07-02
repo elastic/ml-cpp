@@ -1,0 +1,7 @@
+<map id="ml::api::CSerializableFromCompressedChunkedJson" name="ml::api::CSerializableFromCompressedChunkedJson">
+<area shape="rect" id="Node000001" title="Utility for reading the inference model and training data summarization JSON descriptions from a stre..." alt="" coords="5,49,181,90"/>
+<area shape="rect" id="Node000002" href="$de/d1d/classanonymous__namespace_02_c_serializable_to_json_test_8cc_03_1_1_c_serializable_vector.html" title=" " alt="" coords="229,5,420,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,51,228,45,228,51,196,56"/>
+<area shape="rect" id="Node000003" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html" title="Reads a compressed, base64 encoded chunked JSON representation of a data summarisation and an inferen..." alt="" coords="235,85,414,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,82,235,89,234,94,195,88"/>
+</map>

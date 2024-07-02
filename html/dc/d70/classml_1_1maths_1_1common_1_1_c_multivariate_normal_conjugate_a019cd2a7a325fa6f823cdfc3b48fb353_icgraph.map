@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::propagateForwardsByTime" name="ml::maths::common::CMultivariateNormalConjugate::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Update the prior for the specified elapsed time." alt="" coords="250,40,449,95"/>
+<area shape="rect" id="Node000002" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a52d38ad1a8f1b294f4b166e4c5b88fe9" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,47,171,34,172,29,235,42"/>
+<area shape="rect" id="Node000003" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7713d2e9c0cc33ac218648f23444bfc5" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,93,172,106,171,101,234,88"/>
+</map>

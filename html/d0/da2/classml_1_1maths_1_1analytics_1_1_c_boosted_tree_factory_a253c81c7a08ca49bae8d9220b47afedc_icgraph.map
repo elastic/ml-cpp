@@ -1,0 +1,6 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::maximumDeployedSize" name="ml::maths::analytics::CBoostedTreeFactory::maximumDeployedSize">
+<area shape="rect" id="Node000001" title="Set the maximum supported size for deploying a model." alt="" coords="250,29,417,85"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="370,17,356,10,333,8,313,10,300,15,294,21,294,29,288,29,289,19,297,10,312,5,333,3,358,5,372,12"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a33ee623ea1c59b4d9a4cd0e77c128eb2" title=" " alt="" coords="5,44,202,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,60,202,60,202,55,234,55"/>
+</map>

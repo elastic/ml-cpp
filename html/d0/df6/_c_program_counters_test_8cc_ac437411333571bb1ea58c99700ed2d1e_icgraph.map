@@ -1,0 +1,9 @@
+<map id="persist" name="persist">
+<area shape="rect" id="Node000001" title=" " alt="" coords="271,55,331,80"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a0236b39f67cc28f8ec947ab5462c2e1b" title=" " alt="" coords="16,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,55,222,45,180,34,181,29,223,40,256,50"/>
+<area shape="rect" id="Node000003" href="$d0/df6/_c_program_counters_test_8cc.html#a4dc66c5549c3e564446badfeaff2cf9a" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,70,223,70,223,65,255,65"/>
+<area shape="rect" id="Node000004" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html#ac6218e362f5a895d49dd36b8845e0229" title="Persist by passing information to inserter." alt="" coords="39,105,189,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="257,85,191,109,189,104,255,80"/>
+</map>

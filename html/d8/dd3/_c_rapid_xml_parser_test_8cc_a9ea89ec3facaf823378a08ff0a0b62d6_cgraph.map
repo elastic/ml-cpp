@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,202,88"/>
+<area shape="rect" id="Node000002" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3aeabebeacfe1261741df6083720583f" title=" " alt="" coords="297,5,384,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,59,281,30,282,35,160,65"/>
+<area shape="rect" id="Node000003" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a46c7e571a9a2cbc6ee7f6e4a887aea55" title="Parse XML stored in a string." alt="" coords="250,55,431,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,73,234,73,234,78,202,78"/>
+<area shape="rect" id="Node000006" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3efc29603d66ba90bd2ee29bb292f0a9" title=" " alt="" coords="283,124,398,150"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="157,86,274,117,272,122,156,92"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="479,51,666,92"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="431,71,463,71,463,76,431,77"/>
+<area shape="rect" id="Node000005" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="714,51,896,92"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="667,69,699,69,699,74,667,74"/>
+<area shape="rect" id="Node000007" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#acdae3fb1fad228ee370274d600291860" title="Return the root element name (empty string if not parsed yet)" alt="" coords="482,117,663,157"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="398,134,466,134,466,140,398,140"/>
+<area shape="rect" id="Node000008" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ae00a5157623ddcab7acce9a3ea56ae54" title=" " alt="" coords="482,206,663,247"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="377,148,505,197,503,202,375,153"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="529,206,527,196,534,187,549,181,573,179,598,182,613,188,611,193,596,187,573,184,550,186,537,191,532,197,534,205"/>
+</map>

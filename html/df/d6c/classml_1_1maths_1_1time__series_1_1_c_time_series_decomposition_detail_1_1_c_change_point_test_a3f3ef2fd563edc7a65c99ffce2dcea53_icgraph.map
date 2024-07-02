@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest::acceptPersistInserter" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="517,24,788,79"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a266da8fdce06bc0c55bd531e9a8b0b06" title="Persist state by passing information to the supplied inserter." alt="" coords="277,24,469,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="501,54,470,54,470,49,501,49"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#ab0a31e21f435b37dcee576008dcc5d43" title=" " alt="" coords="8,5,226,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="261,40,220,34,221,29,261,34"/>
+<area shape="rect" id="Node000004" href="$df/d12/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_state_serialiser.html#aa3ba4622b4b86be539ebc55f8043ee44" title="Persist state by passing information to the supplied inserter." alt="" coords="5,56,229,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="261,68,229,72,229,67,261,63"/>
+</map>

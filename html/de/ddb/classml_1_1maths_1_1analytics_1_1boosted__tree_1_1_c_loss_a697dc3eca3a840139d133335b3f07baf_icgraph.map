@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree::CLoss::type" name="ml::maths::analytics::boosted_tree::CLoss::type">
+<area shape="rect" id="Node000001" title="Get the type of prediction problem to which this loss applies." alt="" coords="257,5,440,46"/>
+<area shape="rect" id="Node000002" href="$d1/dbd/classml_1_1api_1_1_c_regression_inference_model_builder.html#a7b69af8357419ea8767c917800c9188e" title=" " alt="" coords="5,5,209,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,28,209,28,209,23,241,23"/>
+</map>

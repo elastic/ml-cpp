@@ -1,0 +1,34 @@
+<map id="ml::api::CFieldDataCategorizer::computeAndUpdateCategory" name="ml::api::CFieldDataCategorizer::computeAndUpdateCategory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,301,207,341"/>
+<area shape="rect" id="Node000002" href="$d9/de8/classml_1_1core_1_1_c_regex_filter.html#a50a0b3dedff9e869f9d22ba689f9801c" title="Applies the filter to target." alt="" coords="279,47,432,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,299,133,257,163,203,203,147,227,121,253,99,263,92,266,96,256,103,231,125,207,151,167,206,138,259,118,301"/>
+<area shape="rect" id="Node000006" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a52f731283a172ede22376557eea42542" title="Get categorizer allocation failures." alt="" coords="257,113,454,153"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="120,299,173,233,211,196,253,164,263,158,266,163,256,168,215,200,177,236,124,302"/>
+<area shape="rect" id="Node000007" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a3d3ecebfd27a28912a1a23d4f7e5612e" title="Get the appropriate categorizer key from the given input record." alt="" coords="255,178,456,219"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="136,298,190,264,254,229,270,222,272,227,256,234,192,268,139,302"/>
+<area shape="rect" id="Node000008" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af0512e7af8b366ddbd6ff3ba5d57d855" title=" " alt="" coords="255,243,456,284"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="197,297,248,285,249,291,198,302"/>
+<area shape="rect" id="Node000011" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="539,305,670,345"/>
+<area shape="poly" id="edge17_Node000001_Node000011" title=" " alt="" coords="207,319,524,322,523,327,207,324"/>
+<area shape="rect" id="Node000012" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html#a9542c8050decedb6f02cc2f6f3f0c0ed" title=" " alt="" coords="273,358,438,399"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="198,339,258,353,257,358,197,344"/>
+<area shape="rect" id="Node000013" href="$d9/de8/classml_1_1core_1_1_c_regex_filter.html#adaa527b59a5a697837f745fa40a16dfc" title="Returns true if the filter is empty." alt="" coords="279,423,432,464"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="139,339,192,374,256,408,272,415,270,420,254,413,190,378,136,344"/>
+<area shape="rect" id="Node000014" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#a47d2a8a553847d7724f0e9abf46bcbcf" title="Get an object representing a hard failure." alt="" coords="271,489,440,529"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="124,340,177,405,215,442,256,473,266,479,263,484,253,478,211,446,173,409,120,343"/>
+<area shape="rect" id="Node000015" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#a63aef96d7d74072f7cc80d1439bed3d8" title="Does the object represent a valid category?" alt="" coords="271,554,440,595"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="118,341,138,382,167,436,207,491,231,516,256,539,263,544,260,548,253,543,227,520,203,494,163,438,133,385,113,343"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a025ebeb4a7c43e0932719c071061734e" title="Find the position within a string at which this regex first matches." alt="" coords="519,55,690,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,65,504,65,504,70,432,70"/>
+<area shape="rect" id="Node000004" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="753,29,936,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="691,56,738,51,738,56,691,61"/>
+<area shape="rect" id="Node000005" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="984,55,1131,80"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="691,65,968,65,968,70,691,70"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="809,31,802,21,806,11,821,5,845,3,871,5,884,12,881,17,869,10,844,8,822,10,810,15,807,20,813,27"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="937,50,969,54,968,60,936,56"/>
+<area shape="rect" id="Node000009" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="507,174,702,215"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="431,240,514,217,515,222,432,245"/>
+<area shape="rect" id="Node000010" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#adf2efcf213f98449915ad0847c9352b0" title=" " alt="" coords="504,239,705,280"/>
+<area shape="poly" id="edge11_Node000008_Node000010" title=" " alt="" coords="457,259,489,259,489,264,457,265"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="442,282,524,302,523,308,440,287"/>
+</map>

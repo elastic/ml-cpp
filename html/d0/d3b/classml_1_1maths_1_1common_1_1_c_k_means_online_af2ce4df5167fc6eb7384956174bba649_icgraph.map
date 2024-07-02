@@ -1,0 +1,18 @@
+<map id="ml::maths::common::CKMeansOnline::swap" name="ml::maths::common::CKMeansOnline::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of this and other." alt="" coords="945,50,1100,91"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a7b58e64686a80231a4cf9c54e1db6f60" title="Construct with clusters." alt="" coords="677,17,897,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="929,60,897,55,897,50,929,55"/>
+<area shape="rect" id="Node000003" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#aeba267495161b86033bef1e5a7002645" title="Efficiently swap the contents of this and other." alt="" coords="679,82,895,123"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="929,86,895,90,895,85,929,80"/>
+<area shape="rect" id="Node000004" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a6e8712bba1acc8cbf86b7a27d90e8607" title="Remove any clusters which are effectively dead." alt="" coords="468,49,624,90"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="663,88,624,83,625,77,664,83"/>
+<area shape="rect" id="Node000008" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a5ef2ff9d66b1783cef4733ddccd5a9ea" title="Remove the cluster with index." alt="" coords="462,114,629,155"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="664,121,630,126,629,121,663,116"/>
+<area shape="poly" id="edge7_Node000004_Node000004" title=" " alt="" coords="579,36,566,30,546,27,526,29,515,34,510,40,512,48,507,49,505,39,511,30,525,24,546,22,568,25,581,31"/>
+<area shape="rect" id="Node000005" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a0614699098b1f7a97a048c241df4260f" title=" " alt="" coords="269,49,414,90"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="452,72,414,72,414,67,452,67"/>
+<area shape="rect" id="Node000006" href="$d0/dcd/classanonymous__namespace_02_c_x_means_online_test_8cc_03_1_1_c_x_means_online_for_test.html#a5525fbbb11d9b7c96f5069cdfd36d6dd" title=" " alt="" coords="5,5,221,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="253,58,221,53,222,48,254,53"/>
+<area shape="rect" id="Node000007" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a0c74e5722793ab9d23410917d38c3bae" title="Update the clustering with points." alt="" coords="40,85,186,126"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="254,86,186,96,186,91,253,80"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRunner" name="ml::api::CDataFrameTrainBoostedTreeRunner">
+<area shape="rect" id="Node000001" title="Runs boosted tree regression on a core::CDataFrame." alt="" coords="960,39,1132,79"/>
+<area shape="rect" id="Node000002" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html" title="Hierarchy for running a specific core::CDataFrame analyses." alt="" coords="606,5,800,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="815,34,960,48,959,53,815,39"/>
+<area shape="rect" id="Node000003" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html" title="Parses a complete specification for running a core::CDataFrame analysis and supports launching that a..." alt="" coords="306,5,499,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="515,23,606,23,606,28,515,28"/>
+<area shape="rect" id="Node000004" href="$d4/d83/classml_1_1api_1_1_c_data_frame_train_boosted_tree_instrumentation.html" title="Instrumentation class for Supervised Learning jobs." alt="" coords="610,71,796,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="811,78,959,64,959,70,811,84"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html" title="Instrumentation class for collecting data frame analysis job statistics." alt="" coords="306,71,499,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="515,88,610,88,610,94,515,94"/>
+<area shape="rect" id="Node000006" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,101,250,156"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="264,107,305,101,306,107,265,112"/>
+<area shape="rect" id="Node000007" href="$dc/d4d/classml_1_1maths_1_1analytics_1_1_c_data_frame_train_boosted_tree_instrumentation_interface.html" title="Instrumentation interface for Supervised Learning jobs." alt="" coords="299,135,506,191"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="265,143,299,147,298,153,264,148"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="521,132,614,109,616,115,522,137"/>
+</map>

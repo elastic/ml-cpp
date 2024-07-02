@@ -1,0 +1,12 @@
+<map id="ml::maths::common::COneOfNPrior::COneOfNPrior" name="ml::maths::common::COneOfNPrior::COneOfNPrior">
+<area shape="rect" id="Node000001" title="Implements value semantics for copy construction." alt="" coords="5,63,205,103"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="260,29,406,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,66,244,60,245,65,205,71"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="253,95,413,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="205,94,238,99,237,104,205,100"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="291,29,288,19,295,10,310,5,333,3,357,5,371,11,369,16,356,10,333,8,312,10,299,15,294,21,296,28"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="461,9,652,35"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="406,38,445,33,446,38,406,43"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="480,59,633,99"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="406,57,465,64,465,70,406,62"/>
+</map>

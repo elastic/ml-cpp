@@ -1,0 +1,11 @@
+<map id="ml::core::CCompressOStream::~CCompressOStream" name="ml::core::CCompressOStream::~CCompressOStream">
+<area shape="rect" id="Node000001" title="Destructor will close the stream." alt="" coords="5,35,204,75"/>
+<area shape="rect" id="Node000002" href="$d1/db3/classml_1_1core_1_1_c_compress_o_stream.html#a1b121fee8277e968db7fc7d93a4fca97" title="Close the stream." alt="" coords="252,35,450,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,52,236,52,236,58,204,58"/>
+<area shape="rect" id="Node000003" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="511,5,645,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="450,39,495,34,496,39,451,45"/>
+<area shape="rect" id="Node000004" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a814dcabc28a39c3896ba170f7a5aa14c" title=" " alt="" coords="498,70,657,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="451,65,483,69,482,74,450,70"/>
+<area shape="rect" id="Node000005" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a2370f39be11cf3fa7913562e93983659" title=" " alt="" coords="705,63,840,103"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="658,80,690,80,690,86,658,86"/>
+</map>

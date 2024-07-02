@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::CMultivariateOneOfNPrior" name="ml::maths::common::CMultivariateOneOfNPrior::CMultivariateOneOfNPrior">
+<area shape="rect" id="Node000001" title="Implements value semantics for copy construction." alt="" coords="5,96,187,151"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ada6573abab2048e3c536ce7c226a2fb9" title=" " alt="" coords="235,56,380,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,104,219,97,220,103,188,109"/>
+<area shape="rect" id="Node000006" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="235,136,380,191"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="188,138,220,144,219,150,187,143"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="266,55,266,45,274,37,288,31,307,29,330,32,343,38,341,43,328,37,307,34,289,36,277,41,271,47,271,55"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="428,5,619,31"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="380,56,427,41,455,33,457,38,429,46,381,61"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="451,56,596,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="380,81,435,81,435,86,380,86"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a27608c97cfbc7931a896cd1bfbaca9c8" title="Get the smallest component of x." alt="" coords="451,136,596,191"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="381,108,437,129,435,134,379,113"/>
+</map>

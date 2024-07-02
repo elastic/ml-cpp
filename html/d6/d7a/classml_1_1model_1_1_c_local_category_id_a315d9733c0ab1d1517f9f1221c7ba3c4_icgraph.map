@@ -1,0 +1,13 @@
+<map id="ml::model::CLocalCategoryId::fromString" name="ml::model::CLocalCategoryId::fromString">
+<area shape="rect" id="Node000001" title="Parse from string. Returns false if unsuccessful." alt="" coords="832,27,1013,68"/>
+<area shape="rect" id="Node000002" href="$d6/dbc/_c_local_category_id_test_8cc.html#a1766f0acbad9f4d07578479c82669d8e" title=" " alt="" coords="583,5,779,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="816,37,779,33,780,27,817,32"/>
+<area shape="rect" id="Node000003" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aa35d1589ba432a9c8c8f7e06c93be177" title=" " alt="" coords="577,55,784,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="817,62,785,66,785,61,816,57"/>
+<area shape="rect" id="Node000004" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a0aa3dafbc782fc2d9b03222411c673be" title="Populate the object from part of a state document." alt="" coords="308,55,529,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="562,78,530,78,530,73,562,73"/>
+<area shape="rect" id="Node000005" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#adeddcbc7c7aeb0e0ddd0c918099cce10" title=" " alt="" coords="5,22,260,63"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="292,63,260,60,260,54,293,58"/>
+<area shape="rect" id="Node000006" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#a1281aeeeeb296788314aa524c62cf5bb" title="Restore the examples collector." alt="" coords="37,87,228,128"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="293,92,229,99,228,94,292,87"/>
+</map>

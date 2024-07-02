@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CModel::memoryUsage" name="ml::maths::common::CModel::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this object." alt="" coords="251,5,410,46"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a2f020f888c58e97fdb815fab7d474097" title="Generate ForecastPrerequistes, e.g. memory requirements." alt="" coords="5,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,28,203,28,203,23,235,23"/>
+</map>

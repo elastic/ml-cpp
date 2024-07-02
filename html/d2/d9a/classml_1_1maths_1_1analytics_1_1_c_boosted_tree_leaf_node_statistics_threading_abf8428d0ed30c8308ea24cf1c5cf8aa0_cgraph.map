@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForSubtractSplitsDerivatives" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForSubtractSplitsDerivatives">
+<area shape="rect" id="Node000001" title="Get the number of threads to use to subtract split derivatives." alt="" coords="5,70,250,141"/>
+<area shape="rect" id="Node000002" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#ac3655115eca3b48b782edffc3e21b29b" title="Compute the number of threads which optimises throughput given totalWork." alt="" coords="298,5,599,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,75,306,62,308,67,251,80"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0295b14d14ac6541c7910087c144a374" title="Compute the minimum of first, second and third." alt="" coords="374,85,523,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="250,103,359,103,359,108,250,108"/>
+<area shape="rect" id="Node000005" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#a4f30cad888efac503762c14164e507bc" title=" " alt="" coords="332,150,565,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="251,133,318,150,317,155,249,138"/>
+<area shape="rect" id="Node000003" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#afc6b2e1c24405a7f9674a8cc2c7ea796" title="Get the overhead of using numberThreads." alt="" coords="647,5,871,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="599,31,631,31,631,36,599,36"/>
+</map>

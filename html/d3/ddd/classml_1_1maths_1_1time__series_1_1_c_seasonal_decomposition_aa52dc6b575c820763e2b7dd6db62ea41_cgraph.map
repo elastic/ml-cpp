@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CSeasonalDecomposition::add" name="ml::maths::time_series::CSeasonalDecomposition::add">
+<area shape="rect" id="Node000001" title="Add a mask of any seasonal components which should be removed." alt="" coords="5,13,215,54"/>
+<area shape="rect" id="Node000002" href="$d3/ddd/classml_1_1maths_1_1time__series_1_1_c_seasonal_decomposition.html#a8f6024cdd2b3b6a55fb5c2500454c4ef" title="A mask of any currently modelled components to remove." alt="" coords="263,5,443,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,31,247,31,247,36,215,36"/>
+</map>

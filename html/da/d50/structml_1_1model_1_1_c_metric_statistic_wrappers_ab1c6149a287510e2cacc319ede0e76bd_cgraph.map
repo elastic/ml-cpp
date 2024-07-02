@@ -1,0 +1,7 @@
+<map id="ml::model::CMetricStatisticWrappers::restore" name="ml::model::CMetricStatisticWrappers::restore">
+<area shape="rect" id="Node000001" title="Restore an order statistic." alt="" coords="5,49,186,90"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a778d5edbde8da8c1d509c5142188fd85" title="Create a member function template so this class works with CPersistUtils::restore." alt="" coords="234,5,458,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,54,218,49,218,54,187,59"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="237,85,455,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,80,222,85,221,90,186,85"/>
+</map>

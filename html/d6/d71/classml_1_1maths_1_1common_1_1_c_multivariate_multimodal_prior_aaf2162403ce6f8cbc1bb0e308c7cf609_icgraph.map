@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::numberModes" name="ml::maths::common::CMultivariateMultimodalPrior::numberModes">
+<area shape="rect" id="Node000001" title="Get the current number of modes." alt="" coords="250,40,438,95"/>
+<area shape="rect" id="Node000002" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,48,169,34,170,29,235,43"/>
+<area shape="rect" id="Node000003" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#af133468c156efe4d950954c80ef77729" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,92,170,106,169,101,234,87"/>
+</map>

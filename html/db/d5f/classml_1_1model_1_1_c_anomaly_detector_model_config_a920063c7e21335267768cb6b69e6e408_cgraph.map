@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::bucketNormalizationFactor" name="ml::model::CAnomalyDetectorModelConfig::bucketNormalizationFactor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,227,61"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a928bc41c16aebf4138d3bb3c8d27e256" title="Get the bucket length." alt="" coords="275,13,472,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,31,259,31,259,36,227,36"/>
+</map>

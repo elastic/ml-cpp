@@ -1,0 +1,15 @@
+<map id="ml::model::CAnomalyScore::CNormalizer" name="ml::model::CAnomalyScore::CNormalizer">
+<area shape="rect" id="Node000001" title="Manages the normalization of aggregate anomaly scores based on historic values percentiles." alt="" coords="849,65,1030,105"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="12,5,178,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,11,320,10,478,13,652,24,826,46,883,61,882,66,824,51,651,29,478,18,320,15,193,17"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html" title="This class implements the q&#45;digest quantile approximation." alt="" coords="389,65,535,105"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="177,32,209,38,389,70,388,75,208,43,176,37"/>
+<area shape="rect" id="Node000003" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title=" " alt="" coords="337,129,587,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="602,128,825,103,848,99,849,104,825,108,603,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="550,82,849,82,849,88,550,88"/>
+<area shape="rect" id="Node000005" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html" title=" " alt="" coords="22,94,168,135"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="183,104,388,88,389,93,184,110"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="66,76,77,70,95,67,112,69,123,75,129,84,127,94,122,93,123,85,120,79,110,74,95,72,78,75,69,81"/>
+<area shape="rect" id="Node000006" href="$d0/d9b/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node_allocator.html" title="Manages the creation and recycling of nodes." alt="" coords="5,159,185,200"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="199,153,312,123,336,114,388,100,390,105,337,119,313,128,200,158"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::isUpgradable" name="ml::model::CAnomalyScore::CNormalizer::isUpgradable">
+<area shape="rect" id="Node000001" title=" " alt="" coords="235,5,421,46"/>
+<area shape="rect" id="Node000002" href="$d6/d78/classml_1_1model_1_1_c_anomaly_score.html#a92a299246cf1f1e065770b4023f1d9d1" title="Populate normalizer from the restore traverser." alt="" coords="5,5,187,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,28,187,28,187,23,219,23"/>
+</map>

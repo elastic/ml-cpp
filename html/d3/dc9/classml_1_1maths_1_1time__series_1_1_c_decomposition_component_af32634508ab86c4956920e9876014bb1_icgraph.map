@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CDecompositionComponent::variance" name="ml::maths::time_series::CDecompositionComponent::variance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="438,45,631,101"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a69adf86045fdad694f3d52a8d8280ff2" title=" " alt="" coords="223,5,389,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="422,56,389,50,390,45,423,51"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ae7962814f01dd61874300bf7ef0bfc1d" title=" " alt="" coords="222,85,390,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="423,95,391,101,390,96,422,90"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#af62d3ae87e1071e261473d27958fc9ca" title=" " alt="" coords="5,85,174,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="206,116,174,116,174,111,206,111"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CEventRateModel::interimValueCorrector" name="ml::model::CEventRateModel::interimValueCorrector">
+<area shape="rect" id="Node000001" title="Get the object which calculates corrections for interim buckets." alt="" coords="488,39,681,79"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6ab02a238c5ad4ffdcd811c520ce1a03" title=" " alt="" coords="247,5,440,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="472,46,440,42,441,36,473,41"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7f47e57e3eba38ccdfb4924902dd8af8" title=" " alt="" coords="247,71,440,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="473,76,441,81,440,76,472,71"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="5,71,199,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="231,94,199,94,199,88,231,88"/>
+</map>

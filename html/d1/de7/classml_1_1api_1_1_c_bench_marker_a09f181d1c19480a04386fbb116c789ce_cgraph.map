@@ -1,0 +1,11 @@
+<map id="ml::api::CBenchMarker::addResult" name="ml::api::CBenchMarker::addResult">
+<area shape="rect" id="Node000001" title="Add a message together with the category ML assigned to it." alt="" coords="5,47,161,88"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a025ebeb4a7c43e0932719c071061734e" title="Find the position within a string at which this regex first matches." alt="" coords="209,55,380,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,65,193,65,193,70,161,70"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="428,29,610,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="380,55,412,52,413,57,381,60"/>
+<area shape="rect" id="Node000004" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="658,55,806,80"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="381,65,643,65,643,70,381,70"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="484,31,477,21,481,11,495,5,519,3,545,5,559,12,556,17,544,10,519,8,497,10,485,15,482,20,488,27"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="611,50,644,54,643,60,611,56"/>
+</map>

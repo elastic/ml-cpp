@@ -1,0 +1,33 @@
+<map id="ml::api::CSingleFieldDataCategorizer::forceResourceRefresh" name="ml::api::CSingleFieldDataCategorizer::forceResourceRefresh">
+<area shape="rect" id="Node000001" title="Force an update of the resource monitor." alt="" coords="5,245,233,286"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1fe23e430ce7a98d9ce61fd19e7446b5" title="Recalculate the memory usage regardless of whether there is a memory limit." alt="" coords="281,245,476,286"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,263,265,263,265,268,233,268"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#ab98d5a5316283e47e262b02400df076c" title="Update the given model and recalculate the total usage." alt="" coords="524,161,719,202"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,242,545,204,547,210,441,247"/>
+<area shape="rect" id="Node000008" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1cf1c108bb07110b0d95c2e5b9e99ad5" title=" " alt="" coords="524,277,719,318"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="477,275,509,280,508,285,476,281"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="767,100,974,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="698,158,805,128,807,133,700,163"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1051,5,1223,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="915,97,1035,61,1037,66,917,102"/>
+<area shape="rect" id="Node000006" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1053,85,1221,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="974,107,1038,105,1038,111,974,113"/>
+<area shape="rect" id="Node000007" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1300,107,1485,162"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="942,124,1022,135,1137,138,1252,135,1284,134,1284,139,1252,140,1137,143,1021,140,941,129"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1221,112,1285,119,1284,125,1221,117"/>
+<area shape="rect" id="Node000009" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a666a89154a86726709e80b1800861a8f" title=" " alt="" coords="773,190,968,231"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="682,274,794,234,796,239,683,279"/>
+<area shape="rect" id="Node000011" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="1043,358,1231,399"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="720,280,778,276,842,275,909,279,974,291,1008,301,1040,315,1096,347,1093,352,1037,320,1006,306,973,296,908,284,842,280,778,281,720,286"/>
+<area shape="rect" id="Node000012" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#adaa0f7f080ef8046ac0829817b886a3e" title="Get the high memory limit with margin applied." alt="" coords="773,305,968,346"/>
+<area shape="poly" id="edge14_Node000008_Node000012" title=" " alt="" coords="720,306,758,310,757,315,720,311"/>
+<area shape="rect" id="Node000013" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a0b836618d7b75d94a8adf9669d8be908" title="Get the low memory limit with margin applied." alt="" coords="773,370,968,411"/>
+<area shape="poly" id="edge15_Node000008_Node000013" title=" " alt="" coords="672,316,768,355,789,362,787,367,766,360,670,321"/>
+<area shape="rect" id="Node000014" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="773,436,968,476"/>
+<area shape="poly" id="edge16_Node000008_Node000014" title=" " alt="" coords="643,316,697,368,731,396,769,420,781,427,779,431,766,425,728,400,693,372,640,320"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="824,190,822,180,829,171,846,166,871,164,897,166,913,172,911,177,896,171,870,169,847,171,832,176,827,181,829,189"/>
+<area shape="rect" id="Node000010" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="1022,200,1252,240"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="969,211,1007,213,1006,218,968,217"/>
+<area shape="poly" id="edge13_Node000011_Node000011" title=" " alt="" coords="1089,358,1087,348,1094,339,1111,333,1137,332,1164,334,1181,340,1179,345,1163,339,1137,337,1112,339,1097,344,1092,349,1094,357"/>
+<area shape="poly" id="edge17_Node000014_Node000011" title=" " alt="" coords="942,432,1049,401,1050,406,944,437"/>
+</map>

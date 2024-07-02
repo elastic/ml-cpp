@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::anonymous_namespace{CTimeSeriesModel::cc}::aggregateFeatureProbabilities" name="ml::maths::time_series::anonymous_namespace{CTimeSeriesModel::cc}::aggregateFeatureProbabilities">
+<area shape="rect" id="Node000001" title="Aggregate one or more feature probabilities." alt="" coords="5,29,207,100"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="57,28,60,18,69,10,85,5,106,3,131,5,147,13,145,18,130,11,106,8,86,10,72,15,64,21,62,29"/>
+<area shape="rect" id="Node000002" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#ab4b2064beb54ae4b32a13dd4969f21bd" title="Add probability." alt="" coords="255,37,451,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,62,239,62,239,67,207,67"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="499,44,679,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,62,483,62,483,67,452,67"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CLbfgs::reinitialize" name="ml::maths::common::CLbfgs::reinitialize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="438,45,583,86"/>
+<area shape="rect" id="Node000002" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a6b37cb16a1dc73e6bdb8883589cad86a" title=" " alt="" coords="245,45,390,86"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="423,68,391,68,391,63,423,63"/>
+<area shape="rect" id="Node000003" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a8093e6557824f11b1ea97be1d64b1d4d" title=" " alt="" coords="6,5,196,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="229,52,196,46,197,41,230,47"/>
+<area shape="rect" id="Node000004" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="5,70,197,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="230,84,198,91,197,85,229,79"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::core::persist_utils_detail::restore" name="ml::core::persist_utils_detail::restore">
+<area shape="rect" id="Node000001" title="Convenience function to call the appropriate restore implementation." alt="" coords="238,53,384,94"/>
+<area shape="rect" id="Node000002" href="$d3/d80/classml_1_1core_1_1persist__utils__detail_1_1_c_restorer_impl_3_01_basic_restore_01_4.html#a768f592b5cdc297fd9eb4936c62cab1c" title=" " alt="" coords="7,5,188,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,59,188,53,189,48,223,54"/>
+<area shape="rect" id="Node000003" href="$d3/d80/classml_1_1core_1_1persist__utils__detail_1_1_c_restorer_impl_3_01_basic_restore_01_4.html#a44d5873fd4339d5a1a70adb697662e08" title=" " alt="" coords="5,85,190,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,92,191,98,190,93,222,87"/>
+</map>

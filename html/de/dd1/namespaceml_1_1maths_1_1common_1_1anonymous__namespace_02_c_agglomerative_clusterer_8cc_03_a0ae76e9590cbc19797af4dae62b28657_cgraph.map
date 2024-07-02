@@ -1,0 +1,9 @@
+<map id="ml::maths::common::anonymous_namespace{CAgglomerativeClusterer::cc}::buildTree" name="ml::maths::common::anonymous_namespace{CAgglomerativeClusterer::cc}::buildTree">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,54,177,125"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="47,53,50,43,58,34,72,29,91,27,113,30,127,37,125,42,112,35,91,32,73,34,61,39,54,45,53,54"/>
+<area shape="rect" id="Node000002" href="$dc/dcc/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer_1_1_c_node.html#a9826b03e569bc25c2f29502fa2ed082e" title="Add a child node and update connectivity." alt="" coords="227,5,394,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,65,211,56,212,61,177,70"/>
+<area shape="rect" id="Node000003" href="$de/dd1/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_agglomerative_clusterer_8cc_03.html#ae4bbc8eb7738ed11bdf282b1bbb2b676" title="Add a node to the end of the tree with height height." alt="" coords="225,109,396,179"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,108,210,116,209,121,176,113"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="267,107,269,98,277,89,291,84,310,82,332,85,346,92,344,96,331,90,310,87,292,89,280,94,274,100,272,109"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::core::CWordDictionary::partOfSpeech" name="ml::core::CWordDictionary::partOfSpeech">
+<area shape="rect" id="Node000001" title=" " alt="" coords="726,55,902,96"/>
+<area shape="rect" id="Node000002" href="$dc/d54/_c_word_dictionary_test_8cc.html#aa815411e4b1e517c2b4566eccecc54a6" title=" " alt="" coords="472,5,668,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="711,54,678,46,627,34,629,29,679,41,712,49"/>
+<area shape="rect" id="Node000003" href="$da/de9/classml_1_1core_1_1_c_word_dictionary.html#a0f9ab94f5fcab00bfa92da527944c9d0" title="Constructor for a singleton is private." alt="" coords="483,55,658,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="711,78,658,78,658,73,711,73"/>
+<area shape="rect" id="Node000004" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html#aeee98a6c439a6f81394723565461d03a" title=" " alt="" coords="462,121,678,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="722,103,650,122,648,117,720,98"/>
+<area shape="rect" id="Node000005" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html#a2f3d134cc87b7ff5fb3db0b822cc4585" title=" " alt="" coords="234,121,414,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="446,144,415,144,415,138,446,138"/>
+<area shape="rect" id="Node000006" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html#a9a6057147fd8200a0ff9705f9e55618a" title=" " alt="" coords="5,121,186,161"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="218,144,186,144,186,138,218,138"/>
+</map>

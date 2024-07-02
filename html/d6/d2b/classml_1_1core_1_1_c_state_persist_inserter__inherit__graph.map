@@ -1,0 +1,17 @@
+<map id="ml::core::CStatePersistInserter" name="ml::core::CStatePersistInserter">
+<area shape="rect" id="Node000001" title="Abstract interface for persisting state." alt="" coords="219,159,421,184"/>
+<area shape="rect" id="Node000003" href="$de/d50/classml_1_1core_1_1_c_json_state_persist_inserter.html" title="For persisting state in JSON format." alt="" coords="469,107,655,148"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="408,153,468,142,469,147,409,158"/>
+<area shape="rect" id="Node000006" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html" title="For persisting state in XML format." alt="" coords="475,194,649,234"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="412,185,475,196,474,201,411,190"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,159,171,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,169,218,169,218,174,186,174"/>
+<area shape="rect" id="Node000004" href="$dc/d40/classanonymous__namespace_02_c_json_state_persist_inserter_test_8cc_03_1_1_c_readable_json_state_persist_inserter.html" title="Persist state as JSON with meaningful tag names." alt="" coords="703,5,945,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="640,99,715,74,716,79,641,104"/>
+<area shape="rect" id="Node000005" href="$d7/d57/classml_1_1api_1_1anonymous__namespace_02_c_anomaly_job_8cc_03_1_1_c_readable_json_state_persist_inserter.html" title="Persist state as JSON with meaningful tag names." alt="" coords="705,100,943,155"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="671,125,704,125,704,130,671,130"/>
+<area shape="rect" id="Node000007" href="$d8/d67/classanonymous__namespace_02_c_rapid_xml_state_persist_inserter_test_8cc_03_1_1_c_readable_xml_state_persist_inserter.html" title="Persist state as XML with meaningful tag names." alt="" coords="706,179,942,249"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="665,211,705,211,705,217,665,217"/>
+<area shape="rect" id="Node000008" href="$d7/d37/classml_1_1api_1_1anonymous__namespace_02_c_anomaly_job_8cc_03_1_1_c_readable_rapid_xml_state_persist_inserter.html" title="Persist state as XML (wrapped in a JSON object) with meaningful tag names." alt="" coords="712,273,936,344"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="636,238,725,270,723,275,634,243"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="include/api/CCmdSkeleton.h" name="include/api/CCmdSkeleton.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="151,5,338,31"/>
+<area shape="rect" id="Node000002" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="5,79,156,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,34,123,75,121,70,216,29"/>
+<area shape="rect" id="Node000004" href="$d9/dd6/api_2_import_export_8h.html" title=" " alt="" coords="180,79,309,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="247,31,247,63,242,63,242,31"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="333,79,386,105"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="265,29,328,68,325,73,263,34"/>
+<area shape="rect" id="Node000003" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="12,153,149,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="83,105,83,137,78,137,78,105"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="ml::api::CSingleFieldDataCategorizer::acceptPersistInserter" name="ml::api::CSingleFieldDataCategorizer::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Used by deferred persistence functions." alt="" coords="5,63,226,103"/>
+<area shape="rect" id="Node000002" href="$d4/d9e/classml_1_1api_1_1_c_category_id_mapper.html#a1465a9f6ff8a304c5dfe918f438cc7a1" title="Persist the mapper passing information to inserter." alt="" coords="285,5,470,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,59,269,47,270,52,212,65"/>
+<area shape="rect" id="Node000003" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#ac50c7a872afade137518ba5b65e57928" title="Persist state by passing information to the supplied inserter." alt="" coords="274,120,481,161"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,101,267,114,266,119,211,107"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="532,63,734,103"/>
+<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="226,80,516,80,516,86,226,86"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="470,117,524,105,525,110,472,122"/>
+<area shape="rect" id="Node000005" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a75ad47809bafe3252076857394f8db44" title=" " alt="" coords="529,128,736,169"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="482,141,514,142,513,147,481,146"/>
+<area shape="rect" id="Node000006" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aacd44abd96032a41d0c29327e15fc2a9" title=" " alt="" coords="784,63,992,103"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="714,125,790,105,792,110,716,130"/>
+<area shape="rect" id="Node000007" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a21aa072b091f702f29c77caca5018d50" title="Accessor for numeric ID." alt="" coords="798,128,978,169"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="737,146,782,146,782,151,737,151"/>
+<area shape="rect" id="Node000008" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="787,193,989,234"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="716,167,792,186,790,192,714,172"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="include/api/CBoostedTreeInferenceModelBuilder.h" name="include/api/CBoostedTreeInferenceModelBuilder.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="482,5,654,46"/>
+<area shape="rect" id="Node000002" href="$d1/d26/_c_boosted_tree_inference_model_builder_8cc.html" title=" " alt="" coords="5,94,203,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="468,48,203,97,203,92,467,43"/>
+<area shape="rect" id="Node000003" href="$dd/d47/_c_data_frame_train_boosted_tree_classifier_runner_8cc.html" title=" " alt="" coords="226,94,438,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="501,54,387,96,385,91,500,49"/>
+<area shape="rect" id="Node000004" href="$df/d91/_c_data_frame_train_boosted_tree_regression_runner_8cc.html" title=" " alt="" coords="462,94,674,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="571,62,571,94,565,94,565,62"/>
+<area shape="rect" id="Node000005" href="$d9/d3a/_c_data_frame_train_boosted_tree_runner_8cc.html" title=" " alt="" coords="698,94,910,135"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="636,49,751,91,749,96,635,54"/>
+<area shape="rect" id="Node000006" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html" title=" " alt="" coords="934,94,1154,135"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="669,43,936,91,935,96,668,48"/>
+</map>

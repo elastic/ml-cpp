@@ -1,0 +1,9 @@
+<map id="ml::core::CRegex::search" name="ml::core::CRegex::search">
+<area shape="rect" id="Node000001" title="Find the position within a string at which this regex first matches." alt="" coords="5,55,177,80"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="225,29,407,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,55,209,52,209,57,177,60"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="455,55,602,80"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="177,65,439,65,439,70,177,70"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="280,31,273,21,278,11,292,5,316,3,342,5,355,12,353,17,340,10,316,8,293,10,281,15,279,20,285,27"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="408,50,440,54,440,60,407,56"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CPrior::COffsetCost::computeCost" name="ml::maths::common::CPrior::COffsetCost::computeCost">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,43,151,99"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ac140caa598e0575d986708f724d8adc5" title="Get the current sample offset." alt="" coords="199,5,344,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,51,183,44,184,49,151,57"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a7ad6d9aa51f51d8efadaa7cccd727b55" title="Get a human readable description of the prior." alt="" coords="199,95,344,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,85,184,92,183,98,150,90"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="234,95,233,85,239,76,252,70,271,68,292,70,305,77,303,81,291,76,271,73,253,75,242,80,238,86,240,93"/>
+</map>

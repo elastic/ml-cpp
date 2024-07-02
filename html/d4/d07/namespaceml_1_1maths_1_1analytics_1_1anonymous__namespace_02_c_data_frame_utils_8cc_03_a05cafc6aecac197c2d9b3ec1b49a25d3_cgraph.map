@@ -1,0 +1,85 @@
+<map id="ml::maths::analytics::anonymous_namespace{CDataFrameUtils::cc}::regressionStratifiedCrossValidationRowSampler" name="ml::maths::analytics::anonymous_namespace{CDataFrameUtils::cc}::regressionStratifiedCrossValidationRowSampler">
+<area shape="rect" id="Node000001" title="Get a regression stratified row sampler for cross fold validation." alt="" coords="5,299,238,385"/>
+<area shape="poly" id="edge48_Node000001_Node000001" title=" " alt="" coords="66,298,70,288,81,279,98,274,122,272,150,275,168,283,166,288,149,280,121,277,99,279,84,284,75,291,71,300"/>
+<area shape="rect" id="Node000002" href="$db/dc5/namespaceml_1_1core.html#a431b4fea7f6773cde688df54f64ae210" title=" " alt="" coords="590,91,756,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,296,223,255,284,218,358,186,434,161,574,126,575,131,436,166,360,191,287,223,226,260,173,300"/>
+<area shape="rect" id="Node000003" href="$df/df6/classml_1_1maths_1_1analytics_1_1_c_data_frame_utils.html#ab2a0d5dce18624fda335e7cdb1eb7dee" title=" " alt="" coords="286,232,522,273"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,302,322,275,323,280,239,307"/>
+<area shape="rect" id="Node000007" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="597,300,748,341"/>
+<area shape="poly" id="edge46_Node000001_Node000007" title=" " alt="" coords="238,335,581,321,581,326,238,340"/>
+<area shape="rect" id="Node000008" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a9f9f9277e64c219f9561a6438ad5f3be" title=" " alt="" coords="597,365,748,406"/>
+<area shape="poly" id="edge47_Node000001_Node000008" title=" " alt="" coords="238,348,582,376,581,381,238,354"/>
+<area shape="rect" id="Node000033" href="$d4/d07/namespaceml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_data_frame_utils_8cc_03.html#a486535093add5897a768dabedba4a26d" title=" " alt="" coords="319,429,489,500"/>
+<area shape="poly" id="edge44_Node000001_Node000033" title=" " alt="" coords="223,383,308,420,306,425,221,388"/>
+<area shape="rect" id="Node000034" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a9ce168c59defc3b6cd3f0566a100e9b6" title=" " alt="" coords="309,524,499,565"/>
+<area shape="poly" id="edge49_Node000001_Node000034" title=" " alt="" coords="155,383,212,449,248,482,287,510,296,515,294,520,284,515,244,486,208,453,151,387"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="430,229,492,186,569,142,585,135,587,140,571,147,495,191,433,234"/>
+<area shape="rect" id="Node000004" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#ae66e195c5cec9b28a80617541fd9ffff" title="Get a row reference which encodes the categories in row." alt="" coords="570,221,775,276"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="522,248,555,247,555,253,522,253"/>
+<area shape="rect" id="Node000005" href="$df/df6/classml_1_1maths_1_1analytics_1_1_c_data_frame_utils.html#aa4695c1863c12e673abe74b375fd5fde" title="Check if a data frame value is missing." alt="" coords="576,156,770,197"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="478,229,583,199,584,204,479,234"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="488,271,582,295,581,300,487,276"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="436,271,497,310,571,350,588,357,586,362,569,355,495,315,434,276"/>
+<area shape="rect" id="Node000006" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a5167693f695b2c245f3eeb8ebb99e6f1" title="Check if value is missing." alt="" coords="840,156,991,197"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="770,174,824,174,824,179,770,179"/>
+<area shape="rect" id="Node000009" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a61b7f9cc6010f520d36ee15ca9dd1094" title=" " alt="" coords="832,332,999,373"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="748,373,817,363,818,368,749,378"/>
+<area shape="rect" id="Node000031" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aae8a400eff3abab0858bebe322ecddee" title=" " alt="" coords="823,397,1008,438"/>
+<area shape="poly" id="edge31_Node000008_Node000031" title=" " alt="" coords="749,393,808,401,808,406,748,398"/>
+<area shape="rect" id="Node000010" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a52527beb0e9d8a14ff76c320b6836b60" title=" " alt="" coords="1072,332,1247,373"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="999,350,1056,350,1056,355,999,355"/>
+<area shape="rect" id="Node000014" href="$df/db1/classml_1_1core_1_1_c_data_frame_row_slice_handle.html#aeeab2f5df58c93d6ad4c29d816a0ed42" title="Return true if the slice couldn&#39;t be read." alt="" coords="1056,201,1263,242"/>
+<area shape="poly" id="edge14_Node000009_Node000014" title=" " alt="" coords="940,329,991,291,1054,253,1070,246,1072,250,1057,257,994,295,943,334"/>
+<area shape="rect" id="Node000015" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab4c5b9e980d1ccc59096d549bc0f0f6c" title="Get an iterator over the one bits of the collection." alt="" coords="1067,267,1252,307"/>
+<area shape="poly" id="edge15_Node000009_Node000015" title=" " alt="" coords="993,329,1065,309,1067,315,995,334"/>
+<area shape="rect" id="Node000016" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a303a0328e37f429536d69b6eddfed746" title=" " alt="" coords="1084,397,1235,438"/>
+<area shape="poly" id="edge16_Node000009_Node000016" title=" " alt="" coords="995,371,1069,391,1068,396,993,376"/>
+<area shape="rect" id="Node000017" href="$df/db1/classml_1_1core_1_1_c_data_frame_row_slice_handle.html#aabcc0bdc5ab3ee9d8d2ed807b92ab6d7" title="The document hashes of all the rows in the slice." alt="" coords="1056,463,1263,503"/>
+<area shape="poly" id="edge17_Node000009_Node000017" title=" " alt="" coords="988,371,1009,384,1025,400,1034,417,1042,432,1057,448,1066,453,1063,457,1054,452,1038,436,1029,419,1021,403,1006,388,986,376"/>
+<area shape="rect" id="Node000018" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a236a682cfe3278b5e79c8c8208dff2aa" title="Get an iterator for the end of the collection of one bits." alt="" coords="1067,528,1252,569"/>
+<area shape="poly" id="edge18_Node000009_Node000018" title=" " alt="" coords="993,371,1010,384,1023,401,1030,417,1034,450,1038,482,1045,498,1058,513,1062,517,1058,521,1054,517,1040,500,1033,484,1029,451,1025,419,1018,403,1006,388,989,375"/>
+<area shape="rect" id="Node000019" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a4431703f8ced578bf334552bf7f35abb" title=" " alt="" coords="1084,593,1235,634"/>
+<area shape="poly" id="edge19_Node000009_Node000019" title=" " alt="" coords="994,371,1010,384,1027,409,1034,434,1036,459,1034,484,1032,508,1034,531,1041,555,1058,579,1072,590,1069,594,1054,582,1036,557,1028,532,1027,508,1029,483,1030,459,1029,435,1022,412,1006,387,991,375"/>
+<area shape="rect" id="Node000020" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#ac36e33e9f3dba456919816f1c364a7f5" title=" " alt="" coords="1084,71,1235,111"/>
+<area shape="poly" id="edge20_Node000009_Node000020" title=" " alt="" coords="928,330,1005,207,1017,182,1025,162,1035,142,1054,122,1068,113,1071,117,1057,126,1039,145,1030,164,1022,185,1010,210,933,333"/>
+<area shape="rect" id="Node000021" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="1101,5,1218,46"/>
+<area shape="poly" id="edge21_Node000009_Node000021" title=" " alt="" coords="930,330,967,276,1005,207,1018,165,1022,128,1029,93,1038,76,1054,57,1084,37,1087,42,1057,61,1043,78,1034,95,1027,129,1023,166,1010,209,972,278,935,333"/>
+<area shape="rect" id="Node000030" href="$df/db1/classml_1_1core_1_1_c_data_frame_row_slice_handle.html#a78bdd53b1c4a1b3ed661eefe144c4711" title="All the rows in the slice." alt="" coords="1056,136,1263,177"/>
+<area shape="poly" id="edge30_Node000009_Node000030" title=" " alt="" coords="927,330,977,261,1013,221,1054,187,1064,182,1066,186,1057,192,1016,225,981,264,931,333"/>
+<area shape="rect" id="Node000011" href="$df/db1/classml_1_1core_1_1_c_data_frame_row_slice_handle.html#a9f9c2c536e96cb2d644fe09a16e7663c" title="An iterator over the document hashes of the rows in the slice." alt="" coords="1312,267,1519,307"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="1241,329,1317,309,1319,314,1242,334"/>
+<area shape="rect" id="Node000012" href="$df/db1/classml_1_1core_1_1_c_data_frame_row_slice_handle.html#a537ecc7059df47949457138d10777eeb" title="An iterator over the rows in the slice." alt="" coords="1312,332,1519,373"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="1247,350,1296,350,1296,355,1247,355"/>
+<area shape="rect" id="Node000013" href="$df/db1/classml_1_1core_1_1_c_data_frame_row_slice_handle.html#a6dd550c7d632ea6a554563bf144b07d0" title="The index of the first row in the slice." alt="" coords="1312,397,1519,438"/>
+<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="1242,371,1319,390,1317,396,1241,376"/>
+<area shape="rect" id="Node000022" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="1333,64,1498,105"/>
+<area shape="poly" id="edge22_Node000021_Node000022" title=" " alt="" coords="1219,36,1318,59,1317,65,1218,42"/>
+<area shape="rect" id="Node000029" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="1311,129,1519,184"/>
+<area shape="poly" id="edge29_Node000021_Node000029" title=" " alt="" coords="1220,36,1264,57,1280,71,1289,86,1298,100,1313,114,1319,118,1316,123,1309,118,1294,103,1285,89,1276,75,1262,61,1217,41"/>
+<area shape="rect" id="Node000023" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="1614,597,1725,623"/>
+<area shape="poly" id="edge23_Node000022_Node000023" title=" " alt="" coords="1500,99,1521,114,1538,135,1549,155,1558,193,1561,234,1570,284,1662,581,1657,583,1565,285,1555,235,1553,194,1544,157,1534,138,1518,118,1497,103"/>
+<area shape="rect" id="Node000026" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="1567,246,1772,272"/>
+<area shape="poly" id="edge26_Node000022_Node000026" title=" " alt="" coords="1498,103,1521,114,1560,142,1596,173,1651,232,1647,236,1592,177,1557,146,1518,119,1496,108"/>
+<area shape="rect" id="Node000028" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="1586,64,1753,105"/>
+<area shape="poly" id="edge28_Node000022_Node000028" title=" " alt="" coords="1498,82,1571,82,1571,87,1498,87"/>
+<area shape="rect" id="Node000024" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="1820,546,2016,602"/>
+<area shape="poly" id="edge24_Node000023_Node000024" title=" " alt="" coords="1725,599,1804,588,1804,593,1726,604"/>
+<area shape="rect" id="Node000025" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="1849,625,1987,666"/>
+<area shape="poly" id="edge25_Node000023_Node000025" title=" " alt="" coords="1726,615,1834,631,1833,636,1725,620"/>
+<area shape="rect" id="Node000027" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="1827,231,2009,287"/>
+<area shape="poly" id="edge27_Node000026_Node000027" title=" " alt="" coords="1772,256,1812,256,1812,262,1772,262"/>
+<area shape="poly" id="edge32_Node000031_Node000010" title=" " alt="" coords="993,394,1065,375,1067,380,995,399"/>
+<area shape="poly" id="edge34_Node000031_Node000014" title=" " alt="" coords="989,395,1006,382,1018,367,1025,351,1029,319,1033,286,1040,270,1054,253,1058,249,1062,253,1058,257,1045,272,1038,288,1034,320,1030,353,1023,369,1010,386,993,399"/>
+<area shape="poly" id="edge35_Node000031_Node000015" title=" " alt="" coords="986,394,1006,382,1021,367,1029,351,1038,334,1054,318,1063,313,1066,317,1057,322,1042,338,1034,353,1025,370,1009,386,988,399"/>
+<area shape="poly" id="edge36_Node000031_Node000016" title=" " alt="" coords="1008,415,1068,415,1068,420,1008,420"/>
+<area shape="poly" id="edge38_Node000031_Node000017" title=" " alt="" coords="995,436,1067,455,1065,461,993,441"/>
+<area shape="poly" id="edge39_Node000031_Node000018" title=" " alt="" coords="943,436,994,475,1057,513,1072,520,1070,524,1054,517,991,479,940,441"/>
+<area shape="poly" id="edge40_Node000031_Node000019" title=" " alt="" coords="931,437,981,506,1016,545,1057,578,1071,586,1068,591,1054,583,1013,549,977,509,927,440"/>
+<area shape="poly" id="edge41_Node000031_Node000020" title=" " alt="" coords="992,395,1006,383,1026,350,1034,318,1033,286,1028,254,1024,222,1024,189,1032,156,1054,123,1068,110,1072,114,1058,126,1037,158,1029,190,1029,222,1034,253,1038,286,1039,319,1031,352,1010,386,995,399"/>
+<area shape="poly" id="edge33_Node000031_Node000023" title=" " alt="" coords="920,438,928,504,949,593,966,640,989,685,1020,725,1057,758,1094,779,1133,792,1174,800,1215,802,1257,799,1300,792,1384,768,1463,734,1534,697,1637,630,1640,634,1536,701,1465,739,1385,773,1301,797,1258,805,1215,807,1173,805,1132,798,1092,784,1054,763,1016,729,985,688,961,642,943,595,923,504,915,439"/>
+<area shape="poly" id="edge37_Node000031_Node000026" title=" " alt="" coords="925,438,940,483,966,541,983,571,1004,599,1029,624,1057,643,1110,666,1134,671,1156,671,1204,662,1262,643,1332,612,1397,570,1457,521,1511,467,1558,414,1597,363,1650,284,1655,287,1601,366,1562,417,1515,471,1461,525,1401,574,1335,617,1264,648,1206,667,1157,676,1133,676,1109,671,1054,648,1025,628,1000,602,979,574,961,544,935,485,920,439"/>
+<area shape="poly" id="edge42_Node000031_Node000030" title=" " alt="" coords="991,395,1006,383,1022,358,1029,335,1030,311,1029,287,1027,262,1028,238,1036,213,1054,188,1057,185,1061,188,1058,191,1041,215,1034,239,1032,262,1034,286,1036,311,1034,336,1027,361,1010,386,994,399"/>
+<area shape="rect" id="Node000032" href="$db/dc5/namespaceml_1_1core.html#a3bd410013c1e617808fc6b113cbd0f5f" title="Wait for a valid future to be available otherwise return immediately." alt="" coords="1098,708,1221,749"/>
+<area shape="poly" id="edge43_Node000031_Node000032" title=" " alt="" coords="924,438,940,488,966,555,1005,626,1029,659,1057,688,1085,706,1082,710,1054,692,1025,662,1001,629,961,557,935,490,919,439"/>
+<area shape="poly" id="edge45_Node000033_Node000033" title=" " alt="" coords="351,428,354,418,364,410,381,404,404,402,431,405,448,412,446,417,430,410,404,408,382,409,367,414,358,421,356,429"/>
+</map>

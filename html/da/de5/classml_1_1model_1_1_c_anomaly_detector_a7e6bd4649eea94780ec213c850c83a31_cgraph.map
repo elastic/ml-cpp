@@ -1,0 +1,13 @@
+<map id="ml::model::CAnomalyDetector::getForecastModels" name="ml::model::CAnomalyDetector::getForecastModels">
+<area shape="rect" id="Node000001" title="Generate maths models for forecasting." alt="" coords="5,109,203,150"/>
+<area shape="rect" id="Node000002" href="$d0/dc2/classml_1_1model_1_1_c_forecast_model_persist_1_1_c_persist.html#a6293fd6bfd61cdf7f7bc3de3b2140346" title="add a model to persist" alt="" coords="264,37,449,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,106,267,80,268,85,179,111"/>
+<area shape="rect" id="Node000005" href="$d0/dc2/classml_1_1model_1_1_c_forecast_model_persist_1_1_c_persist.html#a8439f1d8581e3c38db95c8b75c02e824" title="close the output file stream" alt="" coords="251,102,462,158"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="203,127,235,127,235,132,203,132"/>
+<area shape="rect" id="Node000006" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#afcce69e80126cf611e47c9af2c111400" title=" " alt="" coords="258,181,455,222"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="179,148,268,174,267,179,177,153"/>
+<area shape="rect" id="Node000003" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a1ead688a94b754ebfc81f4bbd3912bc8" title="Get the type of data being modeled." alt="" coords="539,5,684,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="449,43,522,34,523,39,450,49"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="510,71,712,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="450,67,495,73,494,78,449,72"/>
+</map>

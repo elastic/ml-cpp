@@ -1,0 +1,20 @@
+<map id="ml::model::CInterimBucketCorrector::calcBucketMidPoint" name="ml::model::CInterimBucketCorrector::calcBucketMidPoint">
+<area shape="rect" id="Node000001" title="Returns the mid point in the bucket that contains time." alt="" coords="803,65,1003,105"/>
+<area shape="rect" id="Node000002" href="$da/d78/classml_1_1model_1_1_c_interim_bucket_corrector.html#abe9d3f9130d7a7ec00bf8f72ee1cd350" title=" " alt="" coords="497,93,755,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="788,99,756,102,756,97,787,94"/>
+<area shape="rect" id="Node000008" href="$da/d78/classml_1_1model_1_1_c_interim_bucket_corrector.html#a03fc1e48c67cd5ca1f1dcd1b0dc88229" title="Updates the bucket count model with a new bucket count." alt="" coords="258,31,441,72"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="788,81,441,60,442,54,789,75"/>
+<area shape="rect" id="Node000003" href="$da/d78/classml_1_1model_1_1_c_interim_bucket_corrector.html#a855652769684962d96e28a346873cc62" title="Updates the current count in the bucket." alt="" coords="250,97,449,137"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,118,449,118,449,113,481,112"/>
+<area shape="rect" id="Node000004" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#a3dde9e525df70d3a611f319ed3251ae1" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="261,92,248,86,234,75,224,64,215,54,200,45,175,34,177,29,203,40,218,50,228,61,237,71,251,81,263,88"/>
+<area shape="rect" id="Node000005" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#a4d42adb12f48cdff9f1c16577ca3680b" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="234,96,171,84,172,78,235,91"/>
+<area shape="rect" id="Node000006" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#add24f9ee4127b1fb3ec9b0904a4aaadf" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="235,143,172,155,171,150,234,137"/>
+<area shape="rect" id="Node000007" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="234,120,202,120,202,114,234,114"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="242,40,202,34,202,29,243,34"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="242,61,202,64,202,58,242,56"/>
+<area shape="poly" id="edge10_Node000008_Node000007" title=" " alt="" coords="262,79,202,95,161,106,160,101,201,90,260,74"/>
+</map>

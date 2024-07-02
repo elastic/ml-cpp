@@ -1,0 +1,9 @@
+<map id="ml::maths::common::anonymous_namespace{CKMeansOnline1d::cc}::detail::SNormalMeanLess::operator()" name="ml::maths::common::anonymous_namespace{CKMeansOnline1d::cc}::detail::SNormalMeanLess::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,185,102"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a06f43db6da759e71f00c4953c054205e" title="Get the mean of the marginal likelihood function." alt="" coords="233,31,424,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,56,217,56,217,62,185,62"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="515,5,660,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,44,499,34,500,40,425,49"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="472,71,703,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="425,68,457,72,456,77,424,73"/>
+</map>

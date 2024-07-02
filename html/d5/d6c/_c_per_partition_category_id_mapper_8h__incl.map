@@ -1,0 +1,30 @@
+<map id="include/api/CPerPartitionCategoryIdMapper.h" name="include/api/CPerPartitionCategoryIdMapper.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="423,5,588,46"/>
+<area shape="rect" id="Node000002" href="$d5/d3d/_c_category_id_mapper_8h.html" title=" " alt="" coords="360,94,529,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="492,48,465,83,461,80,488,45"/>
+<area shape="rect" id="Node000008" href="$d9/dd6/api_2_import_export_8h.html" title=" " alt="" coords="5,241,134,267"/>
+<area shape="poly" id="edge15_Node000001_Node000008" title=" " alt="" coords="431,49,368,69,296,96,222,129,152,170,117,200,89,231,85,227,114,196,149,165,220,125,294,91,366,64,429,44"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="601,168,658,193"/>
+<area shape="poly" id="edge17_Node000001_Node000010" title=" " alt="" coords="523,45,612,154,608,157,519,48"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="604,94,682,120"/>
+<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="541,44,610,84,608,88,538,49"/>
+<area shape="rect" id="Node000003" href="$d1/dfd/_c_local_category_id_8h.html" title=" " alt="" coords="208,241,384,267"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,121,422,156,393,195,365,218,336,236,334,231,362,214,389,191,418,153,437,119"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="395,315,448,341"/>
+<area shape="poly" id="edge13_Node000002_Node000006" title=" " alt="" coords="446,120,427,300,422,299,440,120"/>
+<area shape="rect" id="Node000007" href="$de/ddb/_c_global_category_id_8h.html" title=" " alt="" coords="214,168,378,193"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="420,123,336,163,334,158,418,118"/>
+<area shape="poly" id="edge11_Node000002_Node000008" title=" " alt="" coords="368,123,287,141,203,170,145,201,98,234,95,229,143,196,200,165,285,136,367,118"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="509,168,577,193"/>
+<area shape="poly" id="edge12_Node000002_Node000009" title=" " alt="" coords="462,118,516,156,513,161,459,122"/>
+<area shape="poly" id="edge14_Node000002_Node000010" title=" " alt="" coords="477,118,587,160,585,165,475,123"/>
+<area shape="rect" id="Node000004" href="$de/d8d/model_2_import_export_8h.html" title=" " alt="" coords="224,315,371,341"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="299,267,300,299,294,299,294,267"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="141,315,201,341"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="276,270,206,309,204,305,274,265"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="319,265,388,305,386,309,316,270"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="299,194,299,226,294,226,294,194"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="265,196,230,215,198,243,184,271,176,301,171,299,179,269,194,240,226,211,262,192"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="330,192,366,211,398,240,414,269,421,299,416,301,409,271,394,243,363,215,328,196"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="259,196,123,239,122,234,257,191"/>
+</map>

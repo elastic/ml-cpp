@@ -1,0 +1,7 @@
+<map id="ml::api::CNdInputParser" name="ml::api::CNdInputParser">
+<area shape="rect" id="Node000001" title="Base class to parse lines containing nested documents from a stream." alt="" coords="19,79,182,105"/>
+<area shape="rect" id="Node000003" href="$db/d97/classml_1_1api_1_1_c_nd_json_input_parser.html" title="Parse JSON input where each line is a separate JSON document." alt="" coords="5,153,196,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,120,103,152,98,152,98,120"/>
+<area shape="rect" id="Node000002" href="$db/d1a/classml_1_1api_1_1_c_input_parser.html" title="Input parser interface." alt="" coords="28,5,173,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,46,103,79,98,79,98,46"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="ml::maths::time_series::CTrendComponent::swap" name="ml::maths::time_series::CTrendComponent::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the state of this and other." alt="" coords="5,63,184,103"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#ae8f6d410bca7dd0c1affc585bb0da6c2" title="Efficiently swap the contents of this and other." alt="" coords="232,5,377,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,60,216,47,217,52,172,65"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="425,70,503,96"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="184,80,409,80,409,86,184,86"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4ef6e7ff28c4e5a1c85a17a841b373fb" title="Swap the contents of this prior and other." alt="" coords="232,120,377,161"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="172,101,217,114,216,119,171,106"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,44,413,62,411,67,362,49"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="437,71,432,62,435,52,446,46,464,44,484,46,494,53,491,57,482,51,464,49,448,51,439,55,437,61,441,68"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="362,117,411,99,413,104,364,122"/>
+</map>

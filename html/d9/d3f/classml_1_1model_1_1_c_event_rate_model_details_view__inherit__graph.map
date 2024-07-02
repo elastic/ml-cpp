@@ -1,0 +1,5 @@
+<map id="ml::model::CEventRateModelDetailsView" name="ml::model::CEventRateModelDetailsView">
+<area shape="rect" id="Node000001" title="A view into the details of a CEventRateModel object." alt="" coords="9,79,203,120"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html" title="A view into the model details." alt="" coords="5,5,207,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,46,109,79,103,79,103,46"/>
+</map>

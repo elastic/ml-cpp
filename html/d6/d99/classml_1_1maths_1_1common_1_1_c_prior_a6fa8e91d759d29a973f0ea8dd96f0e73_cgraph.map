@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CPrior::printMarginalLikelihoodFunction" name="ml::maths::common::CPrior::printMarginalLikelihoodFunction">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,204,119"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4caba9df4d9a692798410795bf1f8e56" title=" " alt="" coords="252,71,448,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,88,236,88,236,94,204,94"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="523,5,688,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="431,67,508,48,509,53,433,73"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a98b6f04128cfad47070cbc826cba4c91" title=" " alt="" coords="496,71,714,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="448,88,480,88,480,94,448,94"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c4f72902c27c46005cd085d824c1364" title=" " alt="" coords="498,136,713,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="433,109,509,129,508,134,431,115"/>
+</map>

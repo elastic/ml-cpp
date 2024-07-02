@@ -1,0 +1,9 @@
+<map id="include/core/CCrashHandler.h" name="include/core/CCrashHandler.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="184,5,380,31"/>
+<area shape="rect" id="Node000002" href="$d6/d8d/_c_crash_handler_8cc.html" title=" " alt="" coords="5,87,180,112"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,40,122,88,120,84,238,35"/>
+<area shape="rect" id="Node000003" href="$d1/de8/_c_crash_handler___linux_8cc.html" title=" " alt="" coords="203,79,361,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="285,46,285,79,279,79,279,46"/>
+<area shape="rect" id="Node000004" href="$d3/d58/_c_logger_8cc.html" title=" " alt="" coords="385,87,518,112"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="323,36,426,84,424,88,321,40"/>
+</map>

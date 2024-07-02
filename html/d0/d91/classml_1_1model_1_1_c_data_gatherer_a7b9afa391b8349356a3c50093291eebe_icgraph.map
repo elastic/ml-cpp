@@ -1,0 +1,7 @@
+<map id="ml::model::CDataGatherer::clear" name="ml::model::CDataGatherer::clear">
+<area shape="rect" id="Node000001" title="Clear this data gatherer." alt="" coords="450,5,624,46"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4466baf24e54c548b985f6768e740ed3" title="Restore state from supplied traverser." alt="" coords="228,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="435,28,402,28,402,23,435,23"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a9b2048cbba78065b47fa4cb1fe1263e0" title="Construct from a state document." alt="" coords="5,5,180,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="212,28,180,28,180,23,212,23"/>
+</map>

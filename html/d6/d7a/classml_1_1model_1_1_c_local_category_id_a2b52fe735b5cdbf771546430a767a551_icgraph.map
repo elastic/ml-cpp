@@ -1,0 +1,9 @@
+<map id="ml::model::CLocalCategoryId::hardFailure" name="ml::model::CLocalCategoryId::hardFailure">
+<area shape="rect" id="Node000001" title="Get an object representing a hard failure." alt="" coords="283,47,463,88"/>
+<area shape="rect" id="Node000002" href="$d6/dbc/_c_local_category_id_test_8cc.html#a30a0c754cd721a045698917d942ef9a6" title=" " alt="" coords="22,5,218,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="267,50,189,34,190,29,268,44"/>
+<area shape="rect" id="Node000003" href="$d8/d4d/_c_per_partition_category_id_mapper_test_8cc.html#a1f4c74d7fe40b7d88f386eda70bcdf50" title=" " alt="" coords="22,55,218,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="267,70,219,70,219,65,267,65"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ad81f82c8a9a9bfc499ede4bade76cf1c" title=" " alt="" coords="5,105,235,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="268,94,213,107,212,101,267,89"/>
+</map>

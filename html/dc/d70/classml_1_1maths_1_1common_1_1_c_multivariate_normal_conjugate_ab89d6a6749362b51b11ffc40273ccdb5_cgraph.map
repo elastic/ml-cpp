@@ -1,0 +1,30 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::randomSampleMeanPrior" name="ml::maths::common::CMultivariateNormalConjugate::randomSampleMeanPrior">
+<area shape="rect" id="Node000001" title="Randomly sample from the marginal over the mean." alt="" coords="5,142,205,198"/>
+<area shape="rect" id="Node000002" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#aafa64b0571cf954cecd05e1a7fa2947b" title=" " alt="" coords="271,5,474,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,139,187,96,251,55,264,50,266,54,254,60,190,100,138,143"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a282358c48df9393af90423cf34979d4f" title="Check if this is a non&#45;informative prior." alt="" coords="273,70,472,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,140,257,126,258,131,206,145"/>
+<area shape="rect" id="Node000004" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a443affb1b42ac877baaaf89fa2da457f" title="Get the expected mean of the marginal likelihood." alt="" coords="253,149,492,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="205,167,237,167,237,172,205,172"/>
+<area shape="rect" id="Node000006" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a9766663c718e0b142891d20ccd3e3873" title=" " alt="" coords="271,214,474,270"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="206,194,257,208,255,213,205,199"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="300,293,445,334"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="138,196,190,239,254,279,286,292,284,297,251,284,187,243,134,200"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a1cdd59c83e4751618dd40701b33e56c2" title="Check if the prior is being used to model integer data." alt="" coords="556,142,701,198"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="492,167,540,167,540,172,492,172"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="540,228,717,253"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="474,238,525,238,525,244,474,244"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="765,228,943,253"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="717,238,750,238,750,243,717,243"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="991,107,1171,163"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="882,224,990,173,1001,167,1003,172,992,177,884,229"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="991,187,1171,227"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="943,225,975,220,976,225,944,230"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1008,252,1154,293"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="944,250,993,257,993,263,943,256"/>
+<area shape="rect" id="Node000012" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="998,317,1164,358"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="883,251,992,302,1009,309,1007,314,990,307,881,256"/>
+<area shape="rect" id="Node000014" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="592,301,666,327"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="445,311,576,311,576,316,445,316"/>
+<area shape="poly" id="edge14_Node000014_Node000014" title=" " alt="" coords="591,302,584,292,588,282,604,276,629,274,656,277,670,284,668,288,655,282,629,279,605,282,592,286,589,292,595,299"/>
+</map>

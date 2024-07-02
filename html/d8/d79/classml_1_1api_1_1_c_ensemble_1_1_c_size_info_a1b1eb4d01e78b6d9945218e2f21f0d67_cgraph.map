@@ -1,0 +1,16 @@
+<map id="ml::api::CEnsemble::CSizeInfo::addToJsonDocument" name="ml::api::CEnsemble::CSizeInfo::addToJsonDocument">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,101,224,142"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="538,8,720,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,98,196,57,232,36,271,21,335,8,401,3,464,4,523,9,522,14,464,9,401,9,336,14,272,27,234,41,198,61,141,103"/>
+<area shape="rect" id="Node000003" href="$d6/d83/classml_1_1api_1_1_c_trained_model_1_1_c_size_info.html#a006120b68c06db59ef1d98dde3d8f32f" title=" " alt="" coords="272,36,490,76"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,98,280,78,281,83,201,103"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1be4161314de57fc4dfd54336d37329b" title="Return a new boost::json array." alt="" coords="290,101,472,142"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="224,119,274,119,274,124,224,124"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a058a018ccc5053ea3dca56b878fc3ce8" title="Return a new boost::json object." alt="" coords="290,166,472,207"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="201,140,281,160,280,165,200,145"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ae797de3cab0d65432a6032f1be02e10c" title=" " alt="" coords="296,232,466,272"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="145,140,203,178,273,216,290,224,288,228,271,221,200,183,142,144"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="490,41,522,37,523,43,491,46"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ab2eb099dd240ff6f226480c258e65854" title=" " alt="" coords="556,232,703,272"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="466,249,540,249,540,255,466,255"/>
+</map>

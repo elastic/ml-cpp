@@ -1,0 +1,9 @@
+<map id="include/maths/common/CMultivariateOneOfNPriorFactory.h" name="include/maths/common/CMultivariateOneOfNPriorFactory.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="224,5,455,46"/>
+<area shape="rect" id="Node000002" href="$d7/d8e/_c_multivariate_one_of_n_prior_factory_8cc.html" title=" " alt="" coords="5,94,215,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="274,54,163,96,161,91,272,49"/>
+<area shape="rect" id="Node000003" href="$da/dbe/_c_prior_state_serialiser_8cc.html" title=" " alt="" coords="239,94,440,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="342,62,342,94,337,94,337,62"/>
+<area shape="rect" id="Node000004" href="$d2/d5e/_c_model_factory_8cc.html" title=" " alt="" coords="464,102,647,127"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="403,50,526,99,524,103,401,55"/>
+</map>

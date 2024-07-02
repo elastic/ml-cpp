@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CEncodedDataFrameRowRef::operator[]" name="ml::maths::analytics::CEncodedDataFrameRowRef::operator[]">
+<area shape="rect" id="Node000001" title="Get column i value." alt="" coords="5,45,209,101"/>
+<area shape="rect" id="Node000002" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#ae2d94ea3bb888ea6e06f5e50a06b3498" title="Encode value." alt="" coords="257,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,54,241,49,242,54,210,60"/>
+<area shape="rect" id="Node000003" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#a54d4f939dcc443a52d0c9052357a41b2" title="Get the encoded feature at position encodedColumnIndex." alt="" coords="257,85,462,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,87,242,92,241,97,209,92"/>
+</map>

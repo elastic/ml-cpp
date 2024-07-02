@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::value" name="ml::maths::analytics::CBoostedTreeNode::value">
+<area shape="rect" id="Node000001" title="Get the value of this node." alt="" coords="533,39,716,79"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a9263c3eadfeda8e21a61b3d07d7f3c66" title="Check if we should assign row to the left leaf." alt="" coords="259,39,485,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="517,62,485,62,485,56,517,56"/>
+<area shape="rect" id="Node000003" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a7c3c0d20e62bfdeeb9ae85084198ccec" title="Get the leaf index for row." alt="" coords="5,5,211,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="243,45,211,41,212,36,243,40"/>
+<area shape="rect" id="Node000004" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a429c4a774dff2df846f76aab14f935a9" title="Get the leaf index for row." alt="" coords="5,71,211,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="243,77,212,81,211,76,243,72"/>
+</map>

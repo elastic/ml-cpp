@@ -1,0 +1,11 @@
+<map id="CTestFixture::CTestFixture" name="CTestFixture::CTestFixture">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,66,185,92"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="424,29,567,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,70,409,53,409,59,185,75"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#aa4953c57f3aa6ce92b37a50d9148cb49" title="Convenience wrapper around the setter for timezone name." alt="" coords="233,87,376,127"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="186,88,218,93,217,98,185,94"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="459,29,457,19,463,10,476,5,496,3,517,5,529,11,527,16,515,10,496,8,478,10,467,15,463,20,464,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="374,84,410,73,412,78,375,89"/>
+<area shape="rect" id="Node000004" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a9c7f8f529afaf758d76c8888c1391fad" title=" " alt="" coords="424,95,567,135"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="377,107,409,109,409,114,376,113"/>
+</map>

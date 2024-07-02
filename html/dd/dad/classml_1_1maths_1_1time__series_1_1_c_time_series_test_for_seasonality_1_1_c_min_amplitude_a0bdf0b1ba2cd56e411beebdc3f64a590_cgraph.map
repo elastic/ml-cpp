@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::CMinAmplitude::significance" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::CMinAmplitude::significance">
+<area shape="rect" id="Node000001" title="Compute the significance of the amplitude given residual distribution normal." alt="" coords="5,31,223,87"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3b1d398255cd218c09ddfe9f75cfa829" title=" " alt="" coords="293,5,439,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,42,277,35,278,40,224,47"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ac3ef2df2cd1470db6ff9be51a0ea071b" title=" " alt="" coords="271,71,461,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,70,256,74,255,80,223,75"/>
+</map>

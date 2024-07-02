@@ -1,0 +1,10 @@
+<map id="ml::model::CTokenListDataCategorizerBase::acceptPersistInserter" name="ml::model::CTokenListDataCategorizerBase::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Used by deferred persistence functions." alt="" coords="5,55,212,111"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a6ab13ef3e7676cfc9ac9a21b4b5150c7" title="Persist state by passing information to the supplied inserter." alt="" coords="260,5,465,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,57,254,47,255,53,213,62"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="513,35,715,75"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="212,75,497,59,498,64,212,80"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="261,120,464,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="213,104,255,113,254,119,211,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="466,35,498,39,497,44,465,40"/>
+</map>

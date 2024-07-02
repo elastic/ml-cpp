@@ -1,0 +1,16 @@
+<map id="ml::api::CDataFrameAnalysisConfigReader::addParameter" name="ml::api::CDataFrameAnalysisConfigReader::addParameter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="819,77,1013,118"/>
+<area shape="rect" id="Node000002" href="$d5/da4/namespaceml_1_1api_1_1anonymous__namespace_02_c_data_frame_outliers_runner_8cc_03.html#a054aba60e51cb9707239eeeaa92ede7a" title=" " alt="" coords="552,29,771,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="803,82,771,77,772,72,804,77"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a3b9f0a4e0602073ab6607c5b7ee93c93" title=" " alt="" coords="560,109,763,165"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="804,117,764,124,763,119,803,112"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="702,17,687,10,662,8,639,10,624,15,618,21,617,29,612,29,613,19,622,10,638,5,662,3,688,5,705,12"/>
+<area shape="rect" id="Node000004" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a071264fdd6f7aac975bce5ae80026cf2" title="Get the runner&#39;s configuration parameter reader." alt="" coords="306,69,499,125"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="544,122,499,115,499,109,545,116"/>
+<area shape="rect" id="Node000006" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a6732ea16b92ea16d0d176c7b07b69fa3" title=" " alt="" coords="301,149,504,205"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="545,158,505,164,504,159,544,153"/>
+<area shape="rect" id="Node000005" href="$d4/d9a/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner_factory.html#a6e9900deba9acb3792a9370afbcf4c17" title=" " alt="" coords="11,69,247,125"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="290,100,248,100,248,95,290,95"/>
+<area shape="rect" id="Node000007" href="$da/d22/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner_factory.html#a7ab35b2ea7c354ba5f964a0ad35b6086" title=" " alt="" coords="5,149,253,205"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="285,180,253,180,253,175,285,175"/>
+</map>

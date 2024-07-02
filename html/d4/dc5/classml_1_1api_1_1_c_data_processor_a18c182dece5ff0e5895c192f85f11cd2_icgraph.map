@@ -1,0 +1,9 @@
+<map id="ml::api::CDataProcessor::periodicPersistStateInBackground" name="ml::api::CDataProcessor::periodicPersistStateInBackground">
+<area shape="rect" id="Node000001" title="Persist current state in the background due to the periodic persistence being triggered." alt="" coords="377,27,603,68"/>
+<area shape="rect" id="Node000002" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="191,5,241,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="361,36,241,23,241,18,362,31"/>
+<area shape="rect" id="Node000003" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a01adb279c7fd317365425df860a58701" title="Persist current state due to the periodic persistence being triggered." alt="" coords="103,55,329,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="362,63,330,67,329,61,361,58"/>
+<area shape="rect" id="Node000004" href="$de/d5e/bin_2categorize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Group machine generated messages into categories by similarity." alt="" coords="5,63,55,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="87,78,55,78,55,73,87,73"/>
+</map>

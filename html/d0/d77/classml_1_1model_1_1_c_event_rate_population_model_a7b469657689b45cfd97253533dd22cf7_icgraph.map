@@ -1,0 +1,5 @@
+<map id="ml::model::CEventRatePopulationModel::memoryUsage" name="ml::model::CEventRatePopulationModel::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this model." alt="" coords="273,5,492,46"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a4e7fae88f2658ec19770fa01c5d1472b" title="Update the correlation models." alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,28,225,28,225,23,257,23"/>
+</map>

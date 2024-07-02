@@ -1,0 +1,20 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::reducedMask" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::reducedMask">
+<area shape="rect" id="Node000001" title="Get the reduction of the per thread masks." alt="" coords="5,41,230,97"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a0b807215ff3ca99c07f7d3ed36d7acf7" title=" " alt="" coords="278,49,462,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,66,262,66,262,72,230,72"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab39be1dbb91f842590eb8a91b1a7febd" title=" " alt="" coords="510,15,694,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="462,53,494,49,495,54,463,58"/>
+<area shape="rect" id="Node000006" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a02e4ff5fc304cf133650ce5802cfdfae" title=" " alt="" coords="510,81,694,121"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="463,79,495,84,494,89,462,84"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="975,23,1159,64"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="694,15,742,9,835,3,927,9,974,17,973,22,926,14,835,8,743,14,695,20"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a495d71889bdd3fa04554c3a69bfe4140" title=" " alt="" coords="742,23,927,64"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="695,36,726,37,726,43,695,42"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="927,41,959,41,959,46,927,46"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="695,95,806,87,926,73,969,65,970,70,927,78,806,92,695,100"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="686,78,734,66,735,71,688,83"/>
+<area shape="rect" id="Node000007" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a40946f8d81f39c2c7f724d906ebbebe5" title=" " alt="" coords="742,138,927,179"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="688,119,735,131,734,136,686,124"/>
+<area shape="rect" id="Node000008" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae6d9c61f436a57a38691bb19b4054e73" title=" " alt="" coords="975,138,1159,179"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="927,156,959,156,959,161,927,161"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::api::CClassificationInferenceModelBuilder::addClassificationWeights" name="ml::api::CClassificationInferenceModelBuilder::addClassificationWeights">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,182,87"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a938fb9750ada23deafa5b16ab5315c43" title=" " alt="" coords="230,5,436,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,44,214,40,214,45,183,49"/>
+<area shape="rect" id="Node000003" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a72052c57e93733e1e75ec20604df916b" title=" " alt="" coords="249,71,417,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,68,234,75,234,80,182,73"/>
+</map>

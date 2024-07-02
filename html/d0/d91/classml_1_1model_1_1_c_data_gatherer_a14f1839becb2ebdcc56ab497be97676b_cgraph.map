@@ -1,0 +1,9 @@
+<map id="ml::model::CDataGatherer::addArrival" name="ml::model::CDataGatherer::addArrival">
+<area shape="rect" id="Node000001" title="Record the arrival of data at time." alt="" coords="5,39,180,79"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="228,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,43,212,38,213,44,180,49"/>
+<area shape="rect" id="Node000003" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="236,71,394,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,69,221,75,220,80,180,74"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="450,71,608,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="394,88,435,88,435,94,394,94"/>
+</map>

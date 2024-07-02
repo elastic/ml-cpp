@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::appendPredictionErrors" name="ml::maths::time_series::CMultivariateTimeSeriesModel::appendPredictionErrors">
+<area shape="rect" id="Node000001" title="Compute the prediction errors for sample." alt="" coords="5,5,213,61"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#aaafe76700ed595185e9cd64224b71fae" title="Get the error in the trend prediction for sample." alt="" coords="261,13,419,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,31,245,31,245,36,213,36"/>
+</map>

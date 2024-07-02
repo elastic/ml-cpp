@@ -1,0 +1,11 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss" name="ml::api::CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,191,152"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="244,5,427,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,94,238,57,256,49,258,54,240,61,157,98"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1be4161314de57fc4dfd54336d37329b" title="Return a new boost::json array." alt="" coords="244,71,427,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,109,228,103,229,109,191,114"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a058a018ccc5053ea3dca56b878fc3ce8" title="Return a new boost::json object." alt="" coords="244,136,427,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="191,134,229,139,228,145,191,139"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#a360add64494012fba9cb743452aafbb8" title=" " alt="" coords="239,201,432,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="159,150,240,186,259,193,257,198,238,191,157,155"/>
+</map>

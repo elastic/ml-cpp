@@ -1,0 +1,38 @@
+<map id="ml::maths::common::CNaturalBreaksClassifier::categories" name="ml::maths::common::CNaturalBreaksClassifier::categories">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,214,175,269"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="1153,101,1312,142"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,212,153,150,185,118,221,90,300,44,366,18,437,6,527,3,757,3,814,5,872,12,984,35,1086,64,1167,92,1165,97,1084,69,983,40,871,17,814,10,757,8,527,8,437,11,368,23,302,49,224,94,189,122,157,154,111,215"/>
+<area shape="rect" id="Node000003" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a41b03b9aa43852d910b1e291f3b8f335" title=" " alt="" coords="444,94,613,149"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="140,211,179,192,222,175,328,147,428,130,429,135,329,152,223,180,181,196,142,215"/>
+<area shape="rect" id="Node000006" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#af0937b5e417657ae571dc1f9422b49b3" title="Print this classifier for debug." alt="" coords="444,384,613,440"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="136,267,178,292,224,315,329,355,430,385,428,390,327,360,222,320,175,297,133,272"/>
+<area shape="rect" id="Node000008" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a70aadff7ed11ca66ff3e0b2c17b02233" title="Reduce the number of tuples until we satisfy the space constraint." alt="" coords="444,304,613,360"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="176,266,223,279,329,300,429,316,428,322,328,305,222,284,175,271"/>
+<area shape="rect" id="Node000013" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#aec6a5530e7aa5c6ddc4a99c21209264b" title=" " alt="" coords="223,214,392,269"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="175,247,207,248,207,253,175,253"/>
+<area shape="rect" id="Node000004" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#ae8b7fc7ef242e4c130467aa40a509851" title=" " alt="" coords="671,68,840,124"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="613,109,655,105,656,110,614,115"/>
+<area shape="poly" id="edge4_Node000004_Node000001" title=" " alt="" coords="670,88,617,84,503,78,413,80,371,86,327,98,279,116,224,141,175,171,133,205,130,201,172,167,221,136,277,111,326,93,370,81,413,74,503,73,618,79,671,83"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="840,83,893,79,978,74,1063,79,1145,94,1144,99,1063,84,978,79,894,84,841,88"/>
+<area shape="rect" id="Node000005" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a183a03ccaeb5624e18d1309b787b2af1" title="Wrapper to evaluate the specified object function." alt="" coords="894,94,1063,149"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="841,103,878,107,878,113,840,108"/>
+<area shape="rect" id="Node000007" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="665,392,846,432"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="613,409,650,409,650,415,613,415"/>
+<area shape="rect" id="Node000009" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a6c65badb9cba6c03fdde185b4ab8f501" title="Get the indices of the closest categories." alt="" coords="671,296,840,352"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="613,326,655,325,655,330,614,332"/>
+<area shape="rect" id="Node000010" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a0c0ba018ea39b0e44381d376369b9e89" title="Get the total deviation of the specified class." alt="" coords="894,296,1063,352"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="841,321,878,321,878,327,841,327"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="899,232,1058,272"/>
+<area shape="poly" id="edge14_Node000009_Node000012" title=" " alt="" coords="840,294,898,275,900,280,842,299"/>
+<area shape="poly" id="edge12_Node000010_Node000002" title=" " alt="" coords="1043,293,1061,282,1102,250,1140,216,1201,152,1205,155,1144,220,1105,254,1065,286,1046,298"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="1111,296,1353,352"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1064,321,1095,321,1095,327,1064,327"/>
+<area shape="poly" id="edge16_Node000013_Node000001" title=" " alt="" coords="222,235,190,235,190,230,222,230"/>
+<area shape="poly" id="edge18_Node000013_Node000002" title=" " alt="" coords="392,218,440,209,534,197,614,190,752,185,888,179,968,172,1063,159,1139,143,1140,148,1063,164,969,177,889,184,752,190,615,195,535,202,440,215,393,223"/>
+<area shape="poly" id="edge19_Node000013_Node000003" title=" " alt="" coords="358,211,439,166,459,155,462,159,441,170,360,215"/>
+<area shape="poly" id="edge20_Node000013_Node000006" title=" " alt="" coords="334,268,381,319,442,370,448,374,445,378,438,374,377,322,330,272"/>
+<area shape="poly" id="edge21_Node000013_Node000008" title=" " alt="" coords="378,267,446,295,444,300,376,272"/>
+<area shape="poly" id="edge22_Node000013_Node000013" title=" " alt="" coords="265,213,265,203,273,194,287,189,307,187,330,189,344,196,342,201,329,195,307,192,288,194,276,199,270,205,270,213"/>
+<area shape="rect" id="Node000014" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#affc74ff36afc321ddf3dc8a5e2a7d1de" title=" " alt="" coords="440,224,617,280"/>
+<area shape="poly" id="edge17_Node000013_Node000014" title=" " alt="" coords="393,243,425,244,424,250,392,248"/>
+</map>

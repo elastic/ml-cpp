@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CPersistUtilsTest::cc}::testPersistRestore" name="anonymous_namespace{CPersistUtilsTest::cc}::testPersistRestore">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,118,168,174"/>
+<area shape="rect" id="Node000002" href="$dc/d31/namespaceanonymous__namespace_02_c_persist_utils_test_8cc_03.html#a21b9c74ea22419bccad7c83911f58970" title="Convenience function to select implementation." alt="" coords="225,13,387,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,115,214,78,226,73,228,78,217,83,143,120"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="229,92,383,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,131,213,124,214,129,168,136"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="216,158,396,198"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="168,155,201,160,200,165,168,160"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="229,223,383,264"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="143,172,217,208,233,215,231,219,215,212,140,177"/>
+<area shape="rect" id="Node000003" href="$dc/d98/classanonymous__namespace_02_c_persist_utils_test_8cc_03_1_1_c_compare_impl_3_01_basic_compare_01_4.html#aa492bae48a44d799461b9dabb6b18697" title=" " alt="" coords="444,5,659,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="387,38,429,38,429,43,387,43"/>
+</map>

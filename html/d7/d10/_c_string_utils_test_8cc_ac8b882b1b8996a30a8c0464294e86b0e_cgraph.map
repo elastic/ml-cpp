@@ -1,0 +1,10 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,202,57"/>
+<area shape="rect" id="Node000002" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="445,28,583,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,28,249,9,323,3,397,9,444,20,442,25,397,15,323,8,250,15,154,33"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="250,24,397,64"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,41,234,41,234,47,202,47"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="250,89,397,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="150,55,239,81,237,87,149,60"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="388,86,434,71,435,76,390,91"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::api::CFieldDataCategorizer::periodicPersistStateInBackground" name="ml::api::CFieldDataCategorizer::periodicPersistStateInBackground">
+<area shape="rect" id="Node000001" title="Persist current state due to the periodic persistence being triggered." alt="" coords="103,5,329,46"/>
+<area shape="rect" id="Node000002" href="$de/d5e/bin_2categorize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Group machine generated messages into categories by similarity." alt="" coords="5,13,55,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,28,55,28,55,23,87,23"/>
+</map>

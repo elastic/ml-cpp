@@ -1,0 +1,10 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeInstrumentation" name="ml::api::CDataFrameTrainBoostedTreeInstrumentation">
+<area shape="rect" id="Node000001" title="Instrumentation class for Supervised Learning jobs." alt="" coords="553,41,738,82"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html" title="Instrumentation class for collecting data frame analysis job statistics." alt="" coords="305,5,498,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="514,40,553,45,552,51,513,45"/>
+<area shape="rect" id="Node000003" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,34,250,90"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="265,41,304,36,304,41,265,46"/>
+<area shape="rect" id="Node000004" href="$dc/d4d/classml_1_1maths_1_1analytics_1_1_c_data_frame_train_boosted_tree_instrumentation_interface.html" title="Instrumentation interface for Supervised Learning jobs." alt="" coords="298,70,505,126"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="266,77,297,81,297,87,265,82"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="520,77,552,73,553,78,521,83"/>
+</map>

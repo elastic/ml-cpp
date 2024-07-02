@@ -1,0 +1,16 @@
+<map id="ml::maths::common::mixture_detail::CPdfAdpater::operator()" name="ml::maths::common::mixture_detail::CPdfAdpater::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,191,198"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac476b9273936034b5333b76fd6e8a7de" title="Compute the p.d.f. at x for distribution." alt="" coords="239,158,402,183"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,168,223,168,223,173,191,173"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="450,5,630,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="335,155,384,115,449,71,457,66,460,71,451,75,387,120,338,159"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="451,85,630,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="365,155,454,128,455,133,367,160"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="468,150,613,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="403,168,452,168,452,173,403,173"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="458,216,623,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="367,181,455,208,454,213,365,186"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="503,304,577,330"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="339,182,389,221,451,266,501,295,498,299,449,270,385,225,336,186"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="504,306,496,296,501,286,516,280,540,278,567,280,581,287,578,292,566,285,540,283,517,285,504,290,502,295,508,302"/>
+</map>

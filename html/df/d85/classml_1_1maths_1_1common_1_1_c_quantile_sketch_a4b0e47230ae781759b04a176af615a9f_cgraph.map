@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CQuantileSketch::acceptPersistInserter" name="ml::maths::common::CQuantileSketch::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Write a description to inserter." alt="" coords="5,31,214,87"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="262,5,464,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,43,246,38,247,44,215,48"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="286,71,440,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,70,270,77,270,82,214,75"/>
+</map>

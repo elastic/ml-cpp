@@ -1,0 +1,67 @@
+<map id="ml::api::CResultNormalizer::handleRecord" name="ml::api::CResultNormalizer::handleRecord">
+<area shape="rect" id="Node000001" title="Handle a record to be normalized." alt="" coords="5,460,185,501"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a9954774ced7b4e70fd5e029934d59af9" title=" " alt="" coords="299,9,452,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,460,100,386,119,281,137,223,160,167,191,114,231,68,255,50,283,39,285,44,258,55,234,72,196,117,165,169,142,225,125,282,105,387,99,460"/>
+<area shape="rect" id="Node000004" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#aecae5c41467ef51a653de7da2c908ac4" title="Access to the root normalizer." alt="" coords="256,81,495,122"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="95,459,105,395,127,307,144,260,167,213,196,170,231,133,240,126,244,130,234,137,200,174,172,216,149,262,132,309,110,396,101,460"/>
+<area shape="rect" id="Node000006" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#aacb73784258ee0a57b7cb8586a3ee661" title=" " alt="" coords="280,147,471,187"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="98,459,111,406,135,335,153,298,175,261,201,227,231,198,264,180,266,184,234,202,205,231,179,264,158,300,140,337,116,408,103,460"/>
+<area shape="rect" id="Node000007" href="$df/d34/classml_1_1api_1_1_c_simple_output_writer.html#a9656bcc124079c98ebc27788e92f97e9" title="Set field names &#45; this must only be called once per output file." alt="" coords="280,236,471,277"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="102,459,121,421,148,374,185,326,231,286,264,270,266,275,234,291,189,330,153,377,125,424,107,461"/>
+<area shape="rect" id="Node000008" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#af6d56315ded1a5c2e5f5a5132a772617" title=" " alt="" coords="279,301,472,356"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="114,458,165,412,197,387,231,366,263,352,265,357,234,371,200,391,168,416,118,461"/>
+<area shape="rect" id="Node000010" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#a71c82f4b7682e708f40e36dbf32408f2" title=" " alt="" coords="279,381,472,436"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="176,457,263,434,265,439,178,462"/>
+<area shape="rect" id="Node000012" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#aaf90ff853c4c24c5eb5a47c15248f0a5" title=" " alt="" coords="265,460,486,501"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="185,478,249,478,249,483,185,483"/>
+<area shape="rect" id="Node000014" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a9b1d57a801d6c7e3d004e2f09cd46f74" title="Set the maximum anomalous probability." alt="" coords="233,525,518,566"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="186,499,271,519,269,524,184,504"/>
+<area shape="rect" id="Node000016" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#ae130e54ae625378127bfb16d3ca047a9" title=" " alt="" coords="285,591,466,631"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="121,499,171,538,234,575,270,589,268,594,232,580,168,542,118,503"/>
+<area shape="rect" id="Node000025" href="$d0/d02/classml_1_1api_1_1_c_result_normalizer.html#a49fbe8046a3d4e1ae70417cc8144644b" title=" " alt="" coords="286,656,465,697"/>
+<area shape="poly" id="edge29_Node000001_Node000025" title=" " alt="" coords="110,500,130,531,158,570,193,608,234,641,272,658,270,663,231,645,189,612,154,573,125,534,105,502"/>
+<area shape="rect" id="Node000027" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#ac862d8bc0e43cbf298d7dd81efa26ace" title=" " alt="" coords="284,721,467,776"/>
+<area shape="poly" id="edge31_Node000001_Node000027" title=" " alt="" coords="105,500,122,544,149,599,186,657,209,683,234,706,270,726,268,731,231,711,205,687,182,660,144,602,117,546,100,502"/>
+<area shape="rect" id="Node000029" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="302,800,449,841"/>
+<area shape="poly" id="edge33_Node000001_Node000029" title=" " alt="" coords="102,500,113,558,136,636,154,677,176,717,202,754,234,786,259,801,287,811,286,816,257,806,231,790,198,758,171,720,149,679,131,638,108,559,96,502"/>
+<area shape="rect" id="Node000030" href="$df/d34/classml_1_1api_1_1_c_simple_output_writer.html#a347ff6f1e7062fb3060fc151777ac749" title=" " alt="" coords="280,889,471,930"/>
+<area shape="poly" id="edge34_Node000001_Node000030" title=" " alt="" coords="101,501,110,567,133,660,150,711,172,761,200,808,235,850,255,867,278,880,275,885,252,872,231,854,196,811,168,763,145,713,127,662,105,568,96,501"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="617,5,797,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,26,601,24,601,30,453,31"/>
+<area shape="rect" id="Node000005" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#af97deb1cbf8d020443c9c55eacc6e8a0" title=" " alt="" coords="603,70,811,141"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="495,100,587,102,587,107,495,106"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="323,236,320,226,329,217,347,211,375,209,405,212,423,218,421,223,404,217,375,215,348,217,332,221,326,227,328,235"/>
+<area shape="rect" id="Node000009" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#af1e073fa7c47ced047df4f58bd2233f8" title=" " alt="" coords="574,241,840,312"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="472,311,558,297,559,302,473,316"/>
+<area shape="rect" id="Node000011" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#ae4184282bf601040dfda4fb2566c9fa8" title=" " alt="" coords="594,336,819,406"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="472,395,578,383,579,388,473,400"/>
+<area shape="rect" id="Node000013" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#a9686e8d0cadce35fe6c74f7020a38b60" title=" " alt="" coords="609,430,804,501"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="486,473,594,468,594,473,487,478"/>
+<area shape="rect" id="Node000015" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="634,525,779,566"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="518,543,619,543,619,548,518,548"/>
+<area shape="poly" id="edge28_Node000016_Node000015" title=" " alt="" coords="466,591,618,560,620,565,467,596"/>
+<area shape="rect" id="Node000017" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="621,591,793,631"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="466,608,605,608,605,614,466,614"/>
+<area shape="rect" id="Node000018" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="946,609,1025,635"/>
+<area shape="poly" id="edge27_Node000016_Node000018" title=" " alt="" coords="467,627,566,640,707,648,847,640,931,629,931,635,848,646,707,653,566,646,466,632"/>
+<area shape="rect" id="Node000019" href="$d0/dc8/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer_1_1_c_maximum_score_scope.html#aa285b04d09b059cf51060f417afcf5c2" title="Get a human readable description of the scope." alt="" coords="566,705,847,746"/>
+<area shape="poly" id="edge20_Node000016_Node000019" title=" " alt="" coords="467,623,519,642,534,653,544,664,553,674,567,685,595,697,592,702,565,689,550,678,540,667,531,657,517,647,466,628"/>
+<area shape="rect" id="Node000020" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a4895b044355daad6067187c66cc4212f" title="Compute the q&#39;th quantile for distribution." alt="" coords="634,771,779,811"/>
+<area shape="poly" id="edge21_Node000016_Node000020" title=" " alt="" coords="467,616,495,627,520,642,533,656,540,671,545,701,549,729,556,743,568,756,592,771,620,781,618,786,590,776,564,760,551,746,544,731,539,701,535,673,528,659,516,646,492,631,465,621"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="794,612,931,617,931,622,793,617"/>
+<area shape="poly" id="edge19_Node000018_Node000018" title=" " alt="" coords="944,613,931,602,935,591,953,585,986,582,1029,587,1039,594,1040,601,1034,602,1034,597,1027,592,985,587,954,590,939,595,937,601,948,608"/>
+<area shape="rect" id="Node000021" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="895,681,1076,736"/>
+<area shape="poly" id="edge22_Node000020_Node000021" title=" " alt="" coords="779,773,847,755,895,739,896,744,848,760,780,778"/>
+<area shape="rect" id="Node000022" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="896,760,1075,801"/>
+<area shape="poly" id="edge23_Node000020_Node000022" title=" " alt="" coords="780,786,880,782,880,787,780,791"/>
+<area shape="rect" id="Node000023" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="903,825,1068,866"/>
+<area shape="poly" id="edge24_Node000020_Node000023" title=" " alt="" coords="780,803,888,824,887,829,779,808"/>
+<area shape="rect" id="Node000024" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="948,914,1023,940"/>
+<area shape="poly" id="edge25_Node000020_Node000024" title=" " alt="" coords="781,797,815,807,849,822,865,835,874,848,883,862,897,876,943,905,940,909,894,880,879,865,870,851,861,839,846,827,814,812,779,802"/>
+<area shape="poly" id="edge26_Node000024_Node000024" title=" " alt="" coords="946,919,932,908,934,897,953,890,986,888,1030,893,1040,901,1038,909,1033,908,1035,903,1028,898,985,893,954,895,938,901,937,906,949,915"/>
+<area shape="rect" id="Node000026" href="$d0/d02/classml_1_1api_1_1_c_result_normalizer.html#acb9a7840460fa4d7cecd93c320bc153a" title=" " alt="" coords="617,836,796,877"/>
+<area shape="poly" id="edge30_Node000025_Node000026" title=" " alt="" coords="466,681,494,690,520,706,533,720,540,735,545,765,549,794,556,808,568,821,603,841,601,846,564,825,551,811,544,796,539,766,535,737,528,723,516,710,492,695,465,686"/>
+<area shape="rect" id="Node000028" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#af9723fcb979f88b50fb3997a9c2f6b98" title=" " alt="" coords="599,901,814,972"/>
+<area shape="poly" id="edge32_Node000027_Node000028" title=" " alt="" coords="469,759,495,770,520,786,532,799,539,812,545,837,551,862,557,874,568,886,587,900,583,904,564,890,553,877,546,864,540,839,534,814,527,802,516,790,493,775,466,764"/>
+<area shape="poly" id="edge35_Node000030_Node000030" title=" " alt="" coords="323,889,320,879,329,870,347,865,375,863,405,865,423,871,421,876,404,870,375,868,348,870,332,875,326,881,328,888"/>
+</map>

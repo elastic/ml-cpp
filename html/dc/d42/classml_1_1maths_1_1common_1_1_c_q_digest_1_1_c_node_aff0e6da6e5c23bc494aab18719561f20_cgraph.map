@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CQDigest::CNode::persistRecursive" name="ml::maths::common::CQDigest::CNode::persistRecursive">
+<area shape="rect" id="Node000001" title="Persist this node and descendents." alt="" coords="5,5,240,46"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a65c068db8cb05d9f80320d7df943f85b" title="Persist state by passing information to the supplied inserter." alt="" coords="288,5,499,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,32,272,32,272,37,240,37"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="292,71,495,111"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="210,44,292,64,291,69,209,49"/>
+<area shape="poly" id="edge3_Node000002_Node000001" title=" " alt="" coords="287,20,255,19,255,14,287,14"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="547,5,749,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="499,23,531,23,531,28,499,28"/>
+</map>

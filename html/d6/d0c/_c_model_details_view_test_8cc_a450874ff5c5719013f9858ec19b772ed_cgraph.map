@@ -1,0 +1,19 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,223,118"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#ab60097869a0681c7ca99536c374884f4" title="Get the category of analysis to which feature belongs." alt="" coords="277,5,476,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,89,202,65,270,41,298,33,299,38,271,46,204,70,147,94"/>
+<area shape="rect" id="Node000003" href="$df/d22/classml_1_1model_1_1_c_model_plot_data.html#a1a214a93608ff2d6caf97a57da71bef2" title=" " alt="" coords="285,55,468,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,90,269,85,270,90,223,95"/>
+<area shape="rect" id="Node000004" href="$df/d22/classml_1_1model_1_1_c_model_plot_data.html#aa2f1a604ccf0d4bf2ac61e38b5884828" title=" " alt="" coords="271,120,482,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,114,256,117,255,123,223,119"/>
+<area shape="rect" id="Node000005" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="281,170,472,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="153,116,283,162,281,167,152,121"/>
+<area shape="rect" id="Node000006" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="530,98,729,154"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="472,168,514,156,516,161,473,174"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="557,178,702,219"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="472,196,541,196,541,201,472,201"/>
+<area shape="rect" id="Node000009" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="557,243,702,284"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="473,220,543,238,541,244,472,225"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="777,106,938,147"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="730,124,762,124,762,129,730,129"/>
+</map>

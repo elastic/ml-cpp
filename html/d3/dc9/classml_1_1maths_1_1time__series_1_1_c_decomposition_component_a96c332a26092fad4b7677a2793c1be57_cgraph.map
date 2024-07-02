@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CDecompositionComponent::acceptPersistInserter" name="ml::maths::time_series::CDecompositionComponent::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="5,143,199,198"/>
+<area shape="rect" id="Node000002" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a1f3ab39ebbea8c24fb7415199d4fef34" title="Persist state by passing information to inserter." alt="" coords="247,77,505,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,145,241,135,242,140,200,150"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="553,150,755,191"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="199,168,538,168,538,173,199,173"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="275,208,477,248"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="200,188,261,201,260,206,199,193"/>
+<area shape="rect" id="Node000003" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a97df4201d641144adf5b18796772b2f8" title="Check if the seasonal component has been estimated." alt="" coords="558,5,751,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="485,74,542,59,543,65,487,79"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="498,131,550,143,549,149,497,136"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="577,85,731,126"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="505,103,562,103,562,108,505,108"/>
+<area shape="rect" id="Node000004" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a638a84f6600ed79cb6063c02dd83b38b" title="Check if the splines have been initialized." alt="" coords="803,5,997,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="751,31,788,31,788,36,751,36"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="ml::model::CSampleGatherer::COptionalStrStatUMapSerializer::operator()" name="ml::model::CSampleGatherer::COptionalStrStatUMapSerializer::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,223,83"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="510,5,712,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,46,495,30,495,35,223,51"/>
+<area shape="rect" id="Node000003" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#acdd2eb762845cbbe86d18fcd6ce357f0" title="Persist an order statistic." alt="" coords="271,63,451,103"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,65,256,68,255,74,223,70"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="451,60,504,47,505,53,452,65"/>
+<area shape="rect" id="Node000004" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="499,70,723,126"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="452,86,484,88,483,93,451,91"/>
+</map>

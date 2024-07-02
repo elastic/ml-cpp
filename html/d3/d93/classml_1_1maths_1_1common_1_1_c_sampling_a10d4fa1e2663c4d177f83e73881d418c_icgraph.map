@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CSampling::multinomialSampleFast" name="ml::maths::common::CSampling::multinomialSampleFast">
+<area shape="rect" id="Node000001" title=" " alt="" coords="257,63,486,104"/>
+<area shape="rect" id="Node000002" href="$d2/d9c/_c_sampling_test_8cc.html#a25e09a9833be165cea8fdda217ba1060" title=" " alt="" coords="9,5,205,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="271,62,161,34,163,29,272,56"/>
+<area shape="rect" id="Node000003" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a8b1cccc72a484b74fe457d5f1dd0d7c5" title=" " alt="" coords="5,56,209,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,86,209,86,209,81,241,81"/>
+<area shape="rect" id="Node000004" href="$d7/d45/classml_1_1maths_1_1common_1_1_c_categorical_tools.html#a7d6ca8f4657609d63b2be75ae5150395" title=" " alt="" coords="9,136,205,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="288,111,202,138,201,132,286,106"/>
+</map>

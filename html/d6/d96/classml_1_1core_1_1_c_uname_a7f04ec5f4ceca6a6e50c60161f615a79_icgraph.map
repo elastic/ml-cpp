@@ -1,0 +1,12 @@
+<map id="ml::core::CUname::all" name="ml::core::CUname::all">
+<area shape="rect" id="Node000001" title="uname &#45;a (or possibly a cut down version on some platforms)" alt="" coords="615,35,765,60"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="728,22,716,16,690,13,667,15,654,20,651,25,658,33,653,36,646,26,650,16,665,10,690,8,717,11,731,18"/>
+<area shape="rect" id="Node000002" href="$d3/da2/_c_uname_test_8cc.html#aa5ed0ab7a54ef382cc3ad92a43501087" title=" " alt="" coords="371,5,567,31"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="599,38,568,34,568,29,600,33"/>
+<area shape="rect" id="Node000003" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a87cb3473ef9f7e5ae4a372be02f056d8" title="Helper for other reconfiguration methods." alt="" coords="388,55,551,96"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="600,62,552,68,551,62,599,56"/>
+<area shape="rect" id="Node000004" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a184001083a9acfc742e5fc48c92b70c0" title=" " alt="" coords="187,55,323,96"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="372,78,323,78,323,73,372,73"/>
+<area shape="rect" id="Node000005" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a51c7c58bb9b9355b36f79d0881658c82" title=" " alt="" coords="5,55,139,96"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="171,78,139,78,139,73,171,73"/>
+</map>

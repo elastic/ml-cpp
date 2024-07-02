@@ -1,0 +1,44 @@
+<map id="ml::maths::analytics::outliers_detail::CLof::compute" name="ml::maths::analytics::outliers_detail::CLof::compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,222,151,278"/>
+<area shape="rect" id="Node000002" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a727de73e65ab0e0ccd23c257ab23e8e5" title=" " alt="" coords="223,154,416,210"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,227,207,210,209,216,152,232"/>
+<area shape="rect" id="Node000014" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#ae5acf4ec33cc84c4ee71f263752268a2" title=" " alt="" coords="199,262,440,318"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="151,259,184,264,183,270,151,264"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="488,34,710,90"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,151,487,99,502,93,504,98,489,104,378,156"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="520,113,679,154"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="416,163,504,147,505,152,417,168"/>
+<area shape="rect" id="Node000005" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="541,179,658,219"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="416,185,525,192,524,197,416,190"/>
+<area shape="rect" id="Node000006" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="780,143,945,183"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="658,188,764,174,765,179,659,194"/>
+<area shape="rect" id="Node000013" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="758,207,967,263"/>
+<area shape="poly" id="edge12_Node000005_Node000013" title=" " alt="" coords="659,204,743,216,743,221,658,210"/>
+<area shape="rect" id="Node000007" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="1061,85,1173,111"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="944,139,1048,112,1050,117,945,145"/>
+<area shape="rect" id="Node000010" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="1015,150,1219,176"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="946,160,999,160,999,166,946,166"/>
+<area shape="rect" id="Node000012" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="1033,200,1201,241"/>
+<area shape="poly" id="edge11_Node000006_Node000012" title=" " alt="" coords="946,179,1019,196,1018,201,945,184"/>
+<area shape="rect" id="Node000008" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="1267,70,1463,126"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1173,95,1251,95,1251,100,1173,100"/>
+<area shape="rect" id="Node000009" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="1296,5,1434,46"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1163,82,1280,47,1282,52,1165,87"/>
+<area shape="rect" id="Node000011" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="1275,150,1456,206"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1220,166,1259,169,1259,174,1219,172"/>
+<area shape="poly" id="edge14_Node000014_Node000003" title=" " alt="" coords="387,259,414,242,438,220,449,204,455,190,460,160,466,130,473,115,486,100,489,97,493,101,490,104,478,118,471,132,465,161,460,191,454,207,442,223,417,246,390,264"/>
+<area shape="poly" id="edge19_Node000014_Node000004" title=" " alt="" coords="378,259,438,220,452,205,461,192,471,178,486,165,504,155,507,160,490,169,475,182,465,195,456,209,442,224,380,264"/>
+<area shape="poly" id="edge21_Node000014_Node000005" title=" " alt="" coords="398,259,487,228,525,217,526,222,489,234,400,264"/>
+<area shape="rect" id="Node000015" href="$db/dc5/namespaceml_1_1core.html#a431b4fea7f6773cde688df54f64ae210" title=" " alt="" coords="516,453,682,494"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="346,316,407,378,447,411,489,439,503,446,501,451,487,444,443,415,404,382,342,320"/>
+<area shape="rect" id="Node000016" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#aaf3b721c70432ebd1a989949ad8e77ed" title=" " alt="" coords="527,518,672,574"/>
+<area shape="poly" id="edge16_Node000014_Node000016" title=" " alt="" coords="338,317,362,358,397,408,440,459,490,504,514,518,511,522,486,508,436,463,393,411,358,361,333,319"/>
+<area shape="rect" id="Node000017" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#acc93291a41d61f74d48314abbc068acc" title="The number of nearest neighbours." alt="" coords="513,598,686,654"/>
+<area shape="poly" id="edge17_Node000014_Node000017" title=" " alt="" coords="332,317,352,373,385,444,431,519,459,553,490,584,501,592,498,596,486,588,455,557,426,522,380,447,347,375,327,319"/>
+<area shape="rect" id="Node000018" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a3faf298daeab7c0de080e6e333de7a11" title=" " alt="" coords="527,243,672,299"/>
+<area shape="poly" id="edge18_Node000014_Node000018" title=" " alt="" coords="440,279,511,274,511,280,441,284"/>
+<area shape="rect" id="Node000019" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="516,324,682,349"/>
+<area shape="poly" id="edge20_Node000014_Node000019" title=" " alt="" coords="441,307,503,318,502,323,440,312"/>
+<area shape="rect" id="Node000020" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a34111bfa86033271942f331dfb5e1ecc" title=" " alt="" coords="526,374,673,430"/>
+<area shape="poly" id="edge22_Node000014_Node000020" title=" " alt="" coords="385,316,489,359,512,368,510,373,487,364,383,321"/>
+</map>

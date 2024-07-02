@@ -1,0 +1,65 @@
+<map id="ml::core::CTimeUtils::nowMs" name="ml::core::CTimeUtils::nowMs">
+<area shape="rect" id="Node000001" title="Current time in milliseconds since the epoch." alt="" coords="1926,229,2068,269"/>
+<area shape="rect" id="Node000002" href="$dd/d9a/_c_time_utils_test_8cc.html#ad2be6ea2aabef9079998b2bd8135abdd" title=" " alt="" coords="1671,5,1868,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1982,215,1966,176,1943,133,1913,89,1876,52,1842,34,1844,29,1880,48,1917,86,1948,130,1971,174,1987,213"/>
+<area shape="rect" id="Node000003" href="$d8/dc0/_c_json_output_writer_test_8cc.html#a01d74040343c34f8a3f78ee4c9fa04a4" title=" " alt="" coords="860,56,1056,82"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1963,220,1924,188,1877,162,1768,125,1655,97,1540,78,1426,66,1318,60,1218,58,1057,64,1057,58,1218,53,1318,55,1427,61,1540,73,1656,92,1770,120,1879,157,1927,184,1966,216"/>
+<area shape="rect" id="Node000004" href="$d8/dc0/_c_json_output_writer_test_8cc.html#ad309cbf124642fa90fc05b5706c52e34" title=" " alt="" coords="860,284,1056,310"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1910,250,1558,253,1332,261,1104,277,1034,286,1033,281,1104,272,1332,256,1558,248,1910,245"/>
+<area shape="rect" id="Node000005" href="$d9/db1/classml_1_1api_1_1_c_annotation_json_writer.html#a9175f665d2bd0dcc90081b0e495daf90" title=" " alt="" coords="1663,293,1876,333"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1912,275,1845,294,1844,289,1911,270"/>
+<area shape="rect" id="Node000015" href="$da/dc2/classml_1_1core_1_1_c_logger_throttler_1_1_c_impl.html#abbd8d83ccdb4a10cb2a5f83d2d1748a0" title=" " alt="" coords="1683,373,1856,413"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="1965,281,1925,315,1879,347,1826,374,1823,370,1877,343,1922,310,1961,277"/>
+<area shape="rect" id="Node000019" href="$dd/d2d/classml_1_1api_1_1_c_model_size_stats_json_writer.html#a7e0a9695e05596ab285f82a5c5eb1ac8" title=" " alt="" coords="1666,171,1873,212"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="1911,230,1852,215,1854,210,1912,225"/>
+<area shape="rect" id="Node000028" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#ad468a34d6678c35a5ef466e11ae26686" title=" " alt="" coords="1661,466,1878,522"/>
+<area shape="poly" id="edge31_Node000001_Node000028" title=" " alt="" coords="1981,284,1939,354,1911,392,1880,427,1853,449,1825,468,1822,464,1850,445,1876,423,1907,388,1935,351,1976,282"/>
+<area shape="rect" id="Node000006" href="$d9/db1/classml_1_1api_1_1_c_annotation_json_writer.html#a5a5e3069ab80838c7b831501e9753a0b" title=" " alt="" coords="1420,351,1588,392"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1660,340,1589,356,1588,350,1659,335"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af1614d5a6c697d9ac40f95eb36d1d303" title="Write the annotations to the output stream." alt="" coords="1151,351,1301,392"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1404,374,1301,374,1301,369,1404,369"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a13e6b57c735a0fbab0c720e3f82b6f7d" title="Write out the results for the bucket starting at bucketStartTime." alt="" coords="883,351,1033,392"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1135,374,1033,374,1033,369,1135,369"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="630,318,808,359"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="867,362,808,353,809,348,868,356"/>
+<area shape="rect" id="Node000013" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9f65dd0e424bca17de0073ad974fa819" title=" " alt="" coords="626,383,812,424"/>
+<area shape="poly" id="edge13_Node000008_Node000013" title=" " alt="" coords="868,386,812,394,812,388,867,381"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="421,318,571,359"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="614,341,572,341,572,336,614,336"/>
+<area shape="rect" id="Node000012" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,290,156,331"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="625,317,578,309,463,300,348,299,156,307,156,301,348,294,463,295,579,304,626,311"/>
+<area shape="rect" id="Node000011" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,318,366,359"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="406,341,366,341,366,336,406,336"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="188,328,156,323,156,318,188,322"/>
+<area shape="rect" id="Node000014" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,383,578,424"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="611,406,579,406,579,401,611,401"/>
+<area shape="poly" id="edge15_Node000014_Node000011" title=" " alt="" coords="413,381,352,362,354,357,415,376"/>
+<area shape="rect" id="Node000016" href="$d4/dc4/classml_1_1core_1_1_c_logger_throttler.html#a828b6f22543b35b04043c47eb77c0ddf" title=" " alt="" coords="1417,417,1591,457"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="1668,412,1592,425,1591,420,1667,407"/>
+<area shape="rect" id="Node000017" href="$dc/df6/_c_logger_throttler_test_8cc.html#a875a420b6a634ab9080c6cdbce2c5abe" title=" " alt="" coords="1128,416,1324,442"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="1402,437,1324,434,1324,429,1402,431"/>
+<area shape="rect" id="Node000018" href="$dc/df6/_c_logger_throttler_test_8cc.html#a5186cd971d52daa36fda6764fb2e185a" title=" " alt="" coords="1128,465,1324,491"/>
+<area shape="poly" id="edge19_Node000016_Node000018" title=" " alt="" coords="1402,455,1317,467,1317,462,1401,449"/>
+<area shape="rect" id="Node000020" href="$dd/d2d/classml_1_1api_1_1_c_model_size_stats_json_writer.html#af9cacd1636c09355e1a21fd6798b8699" title="Writes the model size stats in the results in JSON format." alt="" coords="1419,171,1589,212"/>
+<area shape="poly" id="edge21_Node000019_Node000020" title=" " alt="" coords="1651,194,1590,194,1590,189,1651,189"/>
+<area shape="rect" id="Node000026" href="$dd/d2d/classml_1_1api_1_1_c_model_size_stats_json_writer.html#a72dca423165fb133e6435af93bafb0f1" title="Writes the categorizer stats in JSON format." alt="" coords="1395,286,1613,327"/>
+<area shape="poly" id="edge28_Node000019_Node000026" title=" " alt="" coords="1708,221,1555,288,1552,283,1705,216"/>
+<area shape="rect" id="Node000021" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a2cecb37653e65b35ed15f2a1ceea6b52" title=" " alt="" coords="1136,106,1315,147"/>
+<area shape="poly" id="edge22_Node000020_Node000021" title=" " alt="" coords="1403,171,1315,150,1316,145,1404,165"/>
+<area shape="rect" id="Node000023" href="$d4/d18/classml_1_1api_1_1_c_model_snapshot_json_writer.html#a1c2bc163fc12e0f34558d55789c149fd" title="Writes the given model snapshot in JSON format." alt="" coords="1128,171,1324,212"/>
+<area shape="poly" id="edge25_Node000020_Node000023" title=" " alt="" coords="1403,194,1324,194,1324,189,1403,189"/>
+<area shape="poly" id="edge23_Node000021_Node000003" title=" " alt="" coords="1120,106,1021,85,1022,80,1122,101"/>
+<area shape="rect" id="Node000022" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2e4b68625f7ef27e4dcce8a0377d1511" title=" " alt="" coords="883,106,1033,147"/>
+<area shape="poly" id="edge24_Node000021_Node000022" title=" " alt="" coords="1121,129,1034,129,1034,124,1121,124"/>
+<area shape="rect" id="Node000024" href="$d0/da3/_c_model_snapshot_json_writer_test_8cc.html#a0d6de50cd7f9e4c3769edafff9c39a9c" title=" " alt="" coords="860,175,1056,200"/>
+<area shape="poly" id="edge26_Node000023_Node000024" title=" " alt="" coords="1112,192,1056,192,1056,186,1112,187"/>
+<area shape="rect" id="Node000025" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="933,224,983,250"/>
+<area shape="poly" id="edge27_Node000023_Node000025" title=" " alt="" coords="1113,213,983,235,982,230,1112,208"/>
+<area shape="rect" id="Node000027" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a52befc192e062add058f29a428bf554c" title="Write categorizer stats." alt="" coords="1136,286,1315,327"/>
+<area shape="poly" id="edge29_Node000026_Node000027" title=" " alt="" coords="1380,309,1316,309,1316,304,1380,304"/>
+<area shape="poly" id="edge30_Node000027_Node000004" title=" " alt="" coords="1120,305,1056,303,1057,298,1121,300"/>
+<area shape="rect" id="Node000029" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#ac3fce8ac4a7482b764ee05d46589e681" title=" " alt="" coords="1407,498,1601,539"/>
+<area shape="poly" id="edge32_Node000028_Node000029" title=" " alt="" coords="1645,508,1601,512,1601,507,1645,503"/>
+<area shape="rect" id="Node000030" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#a0d90929ce7f99928dab9f03afdef543f" title="Adds delta to the memory usage statistics." alt="" coords="1104,515,1347,556"/>
+<area shape="poly" id="edge33_Node000029_Node000030" title=" " alt="" coords="1392,528,1348,531,1348,525,1392,522"/>
+</map>

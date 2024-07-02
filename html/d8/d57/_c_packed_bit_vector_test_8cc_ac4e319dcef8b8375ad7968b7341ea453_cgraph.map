@@ -1,0 +1,36 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,213,202,239"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a0b807215ff3ca99c07f7d3ed36d7acf7" title=" " alt="" coords="250,87,435,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,210,285,132,287,137,133,215"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,271,435,312"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="154,237,251,264,250,269,152,242"/>
+<area shape="rect" id="Node000011" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab185b65c26283d2e2e16fd5d25b812b3" title="Inner product." alt="" coords="250,206,435,246"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="202,223,235,223,235,229,202,229"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab39be1dbb91f842590eb8a91b1a7febd" title=" " alt="" coords="484,22,668,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,84,485,65,486,70,418,89"/>
+<area shape="rect" id="Node000006" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a02e4ff5fc304cf133650ce5802cfdfae" title=" " alt="" coords="484,87,668,128"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="435,105,468,105,468,110,435,110"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="949,43,1133,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="668,18,716,11,809,3,849,4,901,11,942,21,981,34,979,40,940,26,900,17,849,10,809,8,717,17,668,24"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a495d71889bdd3fa04554c3a69bfe4140" title=" " alt="" coords="716,26,901,66"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="668,41,701,41,700,47,668,46"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="901,50,933,53,933,58,901,56"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="668,97,900,75,933,72,933,77,901,81,669,102"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="655,84,713,68,715,73,656,89"/>
+<area shape="rect" id="Node000007" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a40946f8d81f39c2c7f724d906ebbebe5" title=" " alt="" coords="716,140,901,181"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="668,126,703,134,702,139,667,131"/>
+<area shape="rect" id="Node000008" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae6d9c61f436a57a38691bb19b4054e73" title=" " alt="" coords="949,132,1133,173"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="901,155,933,154,933,159,901,160"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,271,668,312"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="435,289,467,289,467,294,435,294"/>
+<area shape="rect" id="Node000012" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ac0eebb5df26a9562043d149bbfb20ab8" title=" " alt="" coords="484,206,668,246"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="435,223,468,223,468,229,435,229"/>
+<area shape="rect" id="Node000013" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#aae429f3ade684c422d9f25ec88301131" title="Get the dimension." alt="" coords="716,271,901,312"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="651,244,719,264,718,269,650,249"/>
+<area shape="rect" id="Node000014" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a1fd3c1271bf4d576ec2e62b2645b9177" title=" " alt="" coords="716,206,901,246"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="668,223,700,223,700,229,668,229"/>
+<area shape="poly" id="edge17_Node000014_Node000004" title=" " alt="" coords="879,203,899,191,915,174,923,157,932,138,947,119,984,90,987,94,951,123,936,141,928,159,919,177,902,195,882,207"/>
+<area shape="rect" id="Node000015" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="1004,221,1078,247"/>
+<area shape="poly" id="edge18_Node000014_Node000015" title=" " alt="" coords="901,226,988,230,988,235,901,232"/>
+<area shape="poly" id="edge19_Node000015_Node000015" title=" " alt="" coords="1002,222,995,213,999,203,1015,197,1041,194,1069,197,1084,204,1081,209,1068,202,1041,200,1016,202,1003,207,1000,212,1007,219"/>
+</map>

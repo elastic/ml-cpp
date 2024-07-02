@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CLbfgs::minimumStepSize" name="ml::maths::common::CLbfgs::minimumStepSize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1084,22,1261,63"/>
+<area shape="rect" id="Node000002" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a34f44a505f17699fc9e75a088e638443" title=" " alt="" coords="660,14,814,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1081,21,1036,13,963,8,891,13,814,23,814,17,890,8,963,3,1036,8,1082,15"/>
+<area shape="rect" id="Node000007" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a3a758665e1abdc93e7b1a1f63ec17f5d" title=" " alt="" coords="891,22,1036,63"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1068,45,1036,45,1036,40,1068,40"/>
+<area shape="rect" id="Node000008" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#ab596a2f2835e1f8490466c370d7c06b1" title=" " alt="" coords="631,79,843,120"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="1077,69,1036,77,937,89,843,97,843,92,937,84,1036,72,1076,64"/>
+<area shape="rect" id="Node000003" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a7cbb2bc0d2144a8c258cf88dc62ad91e" title=" " alt="" coords="438,17,583,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="645,38,584,39,584,33,645,33"/>
+<area shape="rect" id="Node000004" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a6b37cb16a1dc73e6bdb8883589cad86a" title=" " alt="" coords="245,47,390,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="423,54,391,59,390,53,422,48"/>
+<area shape="rect" id="Node000005" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a8093e6557824f11b1ea97be1d64b1d4d" title=" " alt="" coords="6,7,196,48"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="229,54,196,48,197,43,230,49"/>
+<area shape="rect" id="Node000006" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="5,72,197,143"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="230,86,198,93,197,87,229,81"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="875,42,814,40,814,34,876,37"/>
+<area shape="poly" id="edge9_Node000008_Node000004" title=" " alt="" coords="616,93,390,76,391,71,616,88"/>
+</map>

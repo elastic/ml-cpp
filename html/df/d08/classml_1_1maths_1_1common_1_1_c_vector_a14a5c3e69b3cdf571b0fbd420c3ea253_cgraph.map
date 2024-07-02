@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CVector::inner" name="ml::maths::common::CVector::inner">
+<area shape="rect" id="Node000001" title="Inner product." alt="" coords="5,57,151,98"/>
+<area shape="rect" id="Node000002" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a252e1dd81510f22188bf63b322fa96fc" title="Inner product." alt="" coords="199,57,344,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,75,183,75,183,80,151,80"/>
+<area shape="rect" id="Node000003" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a20d1bb135682b5741deae937d92e6dc2" title="Get read only reference." alt="" coords="395,5,540,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="344,58,378,50,380,56,345,63"/>
+<area shape="rect" id="Node000004" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a58169b3ce034b25724b509f49069311f" title=" " alt="" coords="392,85,542,155"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="345,90,378,98,377,103,344,96"/>
+</map>

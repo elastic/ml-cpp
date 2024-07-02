@@ -1,0 +1,19 @@
+<map id="ml::core::CJsonStateRestoreTraverser::advance" name="ml::core::CJsonStateRestoreTraverser::advance">
+<area shape="rect" id="Node000001" title="Get the next token." alt="" coords="5,128,197,169"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a5edc44a999e2965a2cb2bc3312963f67" title="Is the state document unintelligible?" alt="" coords="245,5,463,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,125,181,91,244,57,261,49,263,54,246,61,184,95,132,130"/>
+<area shape="rect" id="Node000003" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a559b4975a9c0c0accddfaf2c2f37126b" title="Is the traverser at the end of the inputstream?" alt="" coords="258,71,450,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,125,246,113,247,118,194,130"/>
+<area shape="rect" id="Node000004" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ae8f1d09343a533cc2a3cba46e85bfb6c" title="Log an error that the JSON parser has detected." alt="" coords="750,181,942,222"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="197,150,427,163,703,183,735,186,735,191,702,188,427,168,197,155"/>
+<area shape="rect" id="Node000006" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a91e307b74b7d1a0328b29353bb8b16a6" title="Continue parsing the JSON structure." alt="" coords="511,239,702,279"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="128,167,180,204,212,221,245,235,308,251,373,260,437,264,495,264,495,269,437,269,373,265,307,256,244,240,210,226,177,208,125,171"/>
+<area shape="rect" id="Node000007" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a48c44137828bad85049a2eaade8ba64f" title="Skip the (JSON) array until it ends." alt="" coords="258,185,450,226"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="194,167,247,179,246,184,193,172"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="990,211,1208,251"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="943,210,974,214,974,219,942,215"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="694,235,743,224,744,229,695,241"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="703,251,974,235,974,241,703,256"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="450,202,735,200,735,205,450,208"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="451,223,496,233,495,238,450,229"/>
+</map>

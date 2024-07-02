@@ -1,0 +1,33 @@
+<map id="ml::test::CRandomNumbers::discard" name="ml::test::CRandomNumbers::discard">
+<area shape="rect" id="Node000001" title="Throw away n random numbers." alt="" coords="562,113,747,153"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/_c_data_frame_category_encoder_test_8cc.html#a2b45ed8f1bd47443863550589b29f964" title=" " alt="" coords="284,5,480,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="615,105,568,73,513,45,480,34,481,29,515,40,571,68,618,101"/>
+<area shape="rect" id="Node000003" href="$de/d99/_c_event_rate_model_test_8cc.html#afa37d45b2aa4442676b7289f17a01f5e" title=" " alt="" coords="273,55,491,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="570,110,513,95,458,84,459,78,515,90,571,105"/>
+<area shape="rect" id="Node000004" href="$d3/db0/namespaceanonymous__namespace_02_c_boosted_tree_inference_model_builder_test_8cc_03.html#a72c9c91738ed1428679ae8faa2706464" title=" " alt="" coords="250,105,514,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="546,136,515,136,515,130,546,130"/>
+<area shape="rect" id="Node000008" href="$de/daf/namespaceanonymous__namespace_02_c_data_frame_analyzer_training_test_8cc_03.html#aa4dce89c1d08111fc54938f38a35421e" title=" " alt="" coords="270,185,494,241"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="569,161,480,187,479,182,568,155"/>
+<area shape="rect" id="Node000010" href="$d6/d94/namespaceanonymous__namespace_02_c_data_frame_utils_test_8cc_03.html#af6ca9f4aecf50784fa3e5076c05e5fb7" title=" " alt="" coords="282,333,482,389"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="620,166,516,255,419,335,416,331,512,251,616,162"/>
+<area shape="rect" id="Node000005" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#a7457959642a67bc7fe2aab2788c7574a" title=" " alt="" coords="5,52,202,78"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="250,103,159,81,160,76,251,98"/>
+<area shape="rect" id="Node000006" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#ac00ee3f474b4f39e90268a2b094f2f61" title=" " alt="" coords="5,101,202,127"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="234,126,202,123,202,118,234,120"/>
+<area shape="rect" id="Node000007" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#a7d26a31d92fcea71cca18d683f4dcf58" title=" " alt="" coords="5,151,202,176"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="234,152,202,155,202,150,234,146"/>
+<area shape="rect" id="Node000009" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a72fb80de220e07ebd45e708815909576" title=" " alt="" coords="5,200,202,226"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="254,216,202,216,202,210,254,210"/>
+<area shape="rect" id="Node000011" href="$de/de4/_c_data_frame_utils_test_8cc.html#a038d2ab0314ddc27080837cf9dc029ad" title=" " alt="" coords="5,249,202,275"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="304,329,201,289,164,278,166,273,203,284,306,324"/>
+<area shape="rect" id="Node000012" href="$de/de4/_c_data_frame_utils_test_8cc.html#adc5d8b87c123c3c0158411df3f77e28f" title=" " alt="" coords="5,299,202,324"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="267,343,179,328,180,322,268,338"/>
+<area shape="rect" id="Node000013" href="$de/de4/_c_data_frame_utils_test_8cc.html#a831dc6a8155f6556293e90fa6b72c49c" title=" " alt="" coords="5,348,202,374"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="267,364,202,364,202,358,267,358"/>
+<area shape="rect" id="Node000014" href="$de/de4/_c_data_frame_utils_test_8cc.html#ab8f8e3bae6b237b58b24748aa25ba6e7" title=" " alt="" coords="5,397,202,423"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="268,384,180,399,179,394,267,379"/>
+<area shape="rect" id="Node000015" href="$de/de4/_c_data_frame_utils_test_8cc.html#a1417b6139416c03f968ce00cc2f8a957" title=" " alt="" coords="5,447,202,472"/>
+<area shape="poly" id="edge14_Node000010_Node000015" title=" " alt="" coords="306,398,203,438,166,449,164,443,201,433,304,393"/>
+<area shape="rect" id="Node000016" href="$de/de4/_c_data_frame_utils_test_8cc.html#a0b4649e4ba5a76effeb8c776a11bd9ac" title=" " alt="" coords="5,496,202,522"/>
+<area shape="poly" id="edge15_Node000010_Node000016" title=" " alt="" coords="338,401,276,446,203,487,173,498,172,493,201,482,273,441,335,396"/>
+</map>

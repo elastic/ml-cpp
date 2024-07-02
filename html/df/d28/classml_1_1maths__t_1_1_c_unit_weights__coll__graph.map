@@ -1,0 +1,7 @@
+<map id="ml::maths_t::CUnitWeights" name="ml::maths_t::CUnitWeights">
+<area shape="rect" id="Node000001" title="A collection of weight styles and weights." alt="" coords="5,199,185,225"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="16,95,174,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,151,98,199,92,199,92,151"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="18,5,172,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="98,62,98,95,92,95,92,62"/>
+</map>

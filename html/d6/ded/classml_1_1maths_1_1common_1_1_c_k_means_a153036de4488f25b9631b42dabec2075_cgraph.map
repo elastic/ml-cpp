@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CKMeans::closest" name="ml::maths::common::CKMeans::closest">
+<area shape="rect" id="Node000001" title="Get the closest filtered centre to point." alt="" coords="5,39,151,79"/>
+<area shape="rect" id="Node000002" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a982a4cbb6af5d653b1de13107214a6bc" title="Get the cluster centres." alt="" coords="199,5,344,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,44,183,38,183,44,151,49"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="199,71,344,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,68,183,74,183,79,150,74"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="392,71,537,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="344,88,376,88,376,94,344,94"/>
+</map>

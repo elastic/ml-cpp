@@ -1,0 +1,11 @@
+<map id="ml::model::CDataGatherer::determineMetricCategory" name="ml::model::CDataGatherer::determineMetricCategory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="791,39,967,79"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a4875cb579bf9e797cc0fa06e500006a3" title=" " alt="" coords="516,39,743,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="776,62,744,62,744,56,776,56"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa56151076ac089b82ccaa49b1823a15b" title="Construct from a state document." alt="" coords="252,5,468,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="500,46,468,42,469,36,501,40"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a4a041ddc13ae2df86910a60d47ede95d" title=" " alt="" coords="252,71,468,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="501,77,469,81,468,75,500,72"/>
+<area shape="rect" id="Node000005" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#abc07cc1160846092f4e464d33806598e" title=" " alt="" coords="5,71,204,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="236,94,204,94,204,88,236,88"/>
+</map>

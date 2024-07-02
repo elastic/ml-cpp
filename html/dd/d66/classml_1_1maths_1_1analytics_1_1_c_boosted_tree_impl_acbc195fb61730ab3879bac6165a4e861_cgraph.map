@@ -1,0 +1,22 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::candidateSplits" name="ml::maths::analytics::CBoostedTreeImpl::candidateSplits">
+<area shape="rect" id="Node000001" title="Get the candidate splits values for each feature." alt="" coords="5,143,208,198"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a8099c4cbd9ef3dc7ee8b611290f2b701" title="Manhattan norm." alt="" coords="256,85,440,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,141,255,128,256,133,209,146"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a4895b044355daad6067187c66cc4212f" title="Compute the q&#39;th quantile for distribution." alt="" coords="275,150,421,191"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,168,259,168,259,173,208,173"/>
+<area shape="rect" id="Node000008" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#aec94047991e4d01476ce8b1ca67370bb" title="Read the loss flat column major Hessian from row." alt="" coords="277,281,419,337"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="158,197,286,271,283,276,155,201"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="502,5,682,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="418,147,438,135,453,120,462,104,470,88,486,71,492,67,495,71,490,75,475,91,466,107,458,123,442,139,421,152"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="503,85,682,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="420,149,498,127,500,133,422,154"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="510,150,675,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="421,168,494,168,494,173,421,173"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="555,239,629,265"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="412,189,541,232,539,237,411,194"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="553,241,544,231,548,221,565,215,592,212,624,216,638,224,636,228,622,221,592,218,566,220,552,225,549,230,556,237"/>
+<area shape="rect" id="Node000009" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="513,289,671,330"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="419,307,497,307,497,312,419,312"/>
+<area shape="rect" id="Node000010" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#aa1634782613c2cf419bab42c6df47e33" title="Get the size of upper triangle of the loss Hessain." alt="" coords="488,353,696,409"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="420,327,482,346,480,351,418,333"/>
+</map>

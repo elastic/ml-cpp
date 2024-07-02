@@ -1,0 +1,15 @@
+<map id="ml::model::CMetricModelDetailsView" name="ml::model::CMetricModelDetailsView">
+<area shape="rect" id="Node000001" title="A view into the details of a CMetricModel object." alt="" coords="59,301,296,327"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html" title="A view into the model details." alt="" coords="55,213,257,238"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,253,177,300,172,302,160,254"/>
+<area shape="rect" id="Node000003" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html" title="The metric model common functionality." alt="" coords="280,213,448,238"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="325,248,205,303,202,298,323,243"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html" title="The most basic individual model interface." alt="" coords="131,117,317,142"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="256,149,347,210,344,214,253,153"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="5,5,203,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="140,54,211,114,208,118,137,58"/>
+<area shape="rect" id="Node000006" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html" title="Estimate memory usage based on previous model parameters." alt="" coords="227,13,464,39"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="321,51,240,118,237,114,317,47"/>
+<area shape="rect" id="Node000007" href="$db/d25/structml_1_1model_1_1_c_metric_model_1_1_s_bucket_stats.html" title="The statistics we maintain about a bucketing interval." alt="" coords="342,109,509,150"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="407,164,374,214,369,211,402,161"/>
+</map>

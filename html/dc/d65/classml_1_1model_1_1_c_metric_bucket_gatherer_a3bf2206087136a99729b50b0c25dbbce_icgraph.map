@@ -1,0 +1,7 @@
+<map id="ml::model::CMetricBucketGatherer::acceptRestoreTraverserInternal" name="ml::model::CMetricBucketGatherer::acceptRestoreTraverserInternal">
+<area shape="rect" id="Node000001" title="Internal restore function." alt="" coords="537,5,756,61"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ab60939b8735a07e8c2db1b54768e8e83" title="Fill in the state from traverser." alt="" coords="270,13,489,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="521,36,489,36,489,31,521,31"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa56151076ac089b82ccaa49b1823a15b" title="Construct from a state document." alt="" coords="5,13,222,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="254,36,222,36,222,31,254,31"/>
+</map>

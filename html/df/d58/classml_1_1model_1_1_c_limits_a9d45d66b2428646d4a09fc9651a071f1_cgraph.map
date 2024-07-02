@@ -1,0 +1,13 @@
+<map id="ml::model::CLimits::init" name="ml::model::CLimits::init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,137,111"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a525baae0430affe818c37cff796c78bb" title="Set the internal memory limit, as specified in a limits config file." alt="" coords="185,5,380,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,68,199,49,201,54,138,73"/>
+<area shape="rect" id="Node000005" href="$df/d58/classml_1_1model_1_1_c_limits.html#a422c4b4d72e672d799b0b592abf5bae5" title="Helper method for init()." alt="" coords="217,71,348,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="137,88,201,88,201,94,137,94"/>
+<area shape="rect" id="Node000006" href="$d3/dd3/classml_1_1core_1_1_c_stream_utils.html#a64780e60962d1236c7c9335721e46e8a" title=" " alt="" coords="205,136,360,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="138,109,201,128,199,133,136,114"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a48617536e82f59b14f00cde169e2d3d4" title=" " alt="" coords="428,5,692,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="380,23,412,23,412,28,380,28"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="740,5,971,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="693,23,724,23,724,28,693,28"/>
+</map>

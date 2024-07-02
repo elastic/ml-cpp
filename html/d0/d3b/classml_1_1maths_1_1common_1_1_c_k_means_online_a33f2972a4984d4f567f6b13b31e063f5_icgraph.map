@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CKMeansOnline::checkSplit" name="ml::maths::common::CKMeansOnline::checkSplit">
+<area shape="rect" id="Node000001" title="Sanity check split." alt="" coords="446,43,631,84"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#ae901e0099147c0cc81d4b3951148bd07" title=" " alt="" coords="250,43,398,84"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="430,75,399,75,399,69,430,70"/>
+<area shape="poly" id="edge3_Node000002_Node000001" title=" " alt="" coords="414,52,446,52,446,57,414,57"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="359,30,346,24,324,22,303,24,291,28,286,34,288,42,283,43,281,33,288,24,302,19,324,17,347,19,361,25"/>
+<area shape="rect" id="Node000003" href="$d8/dd1/_c_k_means_online_test_8cc.html#aa95a6a0155244d4095e389b6ceef4c86" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,48,169,34,170,29,235,43"/>
+<area shape="rect" id="Node000004" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a810d7b339ac2d556dbad39f33378bd06" title=" " alt="" coords="15,80,192,135"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="235,84,193,92,192,87,234,79"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="139,67,125,61,103,58,84,60,72,65,66,71,65,79,60,79,61,69,69,61,83,55,104,53,127,56,141,62"/>
+</map>

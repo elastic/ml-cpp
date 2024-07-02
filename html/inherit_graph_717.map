@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$dd/d03/classml_1_1maths_1_1common_1_1mixture__detail_1_1_c_mixture_mode_impl.html" title="Implements the &quot;polymorphic&quot; mixture mode." alt="" coords="5,39,226,79"/>
+<area shape="rect" id="Node000001" href="$d6/d52/classml_1_1maths_1_1common_1_1_c_mixture_mode_3_01false_01_4.html" title="A wrapper around one of the standard mode distributions." alt="" coords="274,5,432,46"/>
+<area shape="poly" id="edge475_Node000000_Node000001" title=" " alt="" coords="241,39,273,34,273,39,242,44"/>
+<area shape="rect" id="Node000002" href="$d1/ddc/classml_1_1maths_1_1common_1_1_c_mixture_mode_3_01true_01_4.html" title="A wrapper around the complement of one of the standard mode distributions." alt="" coords="277,71,429,111"/>
+<area shape="poly" id="edge476_Node000000_Node000002" title=" " alt="" coords="242,73,276,78,276,83,241,79"/>
+</map>

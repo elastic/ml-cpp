@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CModelWeight::acceptRestoreTraverser" name="ml::maths::common::CModelWeight::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore state from part of a state document." alt="" coords="784,81,984,137"/>
+<area shape="rect" id="Node000002" href="$de/d5a/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_multivariate_one_of_n_prior_8cc_03.html#a30e852f12bb92cdc266cff16d8e2ed2d" title="Add a model vector entry reading parameters from traverser." alt="" coords="502,29,734,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="769,92,734,87,735,81,770,87"/>
+<area shape="rect" id="Node000004" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1e0a55c15c6afd876d14a317934350ad" title="Add a model vector entry reading parameters from traverser." alt="" coords="500,124,736,179"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="769,130,737,135,737,130,769,124"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="660,18,644,11,618,8,596,10,581,15,573,21,571,29,566,28,569,18,579,10,595,5,618,3,645,5,662,13"/>
+<area shape="rect" id="Node000003" href="$de/d5a/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_multivariate_one_of_n_prior_8cc_03.html#aa2af837864cfad961259235133795047" title="Read the models, decay rate and number of samples from the supplied traverser." alt="" coords="255,29,450,100"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="486,67,451,67,451,62,486,62"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="391,18,376,11,352,8,332,10,318,15,311,21,309,29,303,28,306,18,316,10,331,5,352,3,378,5,393,13"/>
+<area shape="rect" id="Node000005" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a226c797db7aa6a87e010b021959952a8" title="Read parameters from traverser." alt="" coords="253,124,452,179"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="484,154,452,154,452,149,484,149"/>
+<area shape="rect" id="Node000006" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ab4c9f531f6dafab42a9e723b6b1a2f71" title="Construct from part of a state document." alt="" coords="5,131,205,172"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="237,154,205,154,205,149,237,149"/>
+</map>

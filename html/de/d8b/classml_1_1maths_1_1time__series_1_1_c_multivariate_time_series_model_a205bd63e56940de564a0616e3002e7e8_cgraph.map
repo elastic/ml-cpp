@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel" name="ml::maths::time_series::CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,213,101"/>
+<area shape="rect" id="Node000002" href="$d0/d56/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_interface.html#ac2dbae79770e7304516e7d46811ae30e" title="Clone this decomposition." alt="" coords="261,5,504,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,55,245,51,245,56,213,61"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="279,85,486,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,86,264,93,263,98,213,91"/>
+</map>

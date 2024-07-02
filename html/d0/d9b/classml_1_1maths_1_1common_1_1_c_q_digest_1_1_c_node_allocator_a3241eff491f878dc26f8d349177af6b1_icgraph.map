@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CQDigest::CNodeAllocator::release" name="ml::maths::common::CQDigest::CNodeAllocator::release">
+<area shape="rect" id="Node000001" title="Recycle node." alt="" coords="663,5,843,61"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ab9793b4bd47bda1b3d3b033649a2ce21" title="Detach this node from the q&#45;digest." alt="" coords="440,13,615,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="648,36,616,36,616,31,648,31"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ace3b6509ca106dd32a4eb2e6370d3c16" title=" " alt="" coords="199,13,392,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,36,392,36,392,31,424,31"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a273fa405a3bd161da23532d0863b6798" title=" " alt="" coords="5,13,151,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="183,36,151,36,151,31,183,31"/>
+</map>

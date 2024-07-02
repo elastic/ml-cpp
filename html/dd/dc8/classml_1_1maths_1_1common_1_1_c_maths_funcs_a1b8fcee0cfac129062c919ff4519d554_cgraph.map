@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMathsFuncs::isNan" name="ml::maths::common::CMathsFuncs::isNan">
+<area shape="rect" id="Node000001" title="Check if any of the elements are NaN." alt="" coords="5,39,151,79"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a3590b38929ab9c27e80a72ba1c4c05a1" title="Check if any of the elements return true for f." alt="" coords="199,5,372,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,45,183,39,184,45,151,50"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="213,71,358,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,68,197,75,197,80,151,73"/>
+</map>

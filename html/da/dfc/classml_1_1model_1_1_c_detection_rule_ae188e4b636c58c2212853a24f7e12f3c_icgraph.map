@@ -1,0 +1,9 @@
+<map id="ml::model::CDetectionRule::excludeScope" name="ml::model::CDetectionRule::excludeScope">
+<area shape="rect" id="Node000001" title="Adds a requirement for field not to be in filter for the rule to apply." alt="" coords="487,27,666,68"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/_c_detection_rule_test_8cc.html#ad55f30d621848ecaa77f9260b71b6af3" title=" " alt="" coords="222,5,439,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="471,38,439,34,440,28,472,32"/>
+<area shape="rect" id="Node000003" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#ab78ec78c6c5c42dc5d69986bbde2f1ae" title=" " alt="" coords="235,55,426,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="472,62,427,67,426,62,471,57"/>
+<area shape="rect" id="Node000004" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#aeda936c0be5b391da129009db4c67891" title=" " alt="" coords="5,55,174,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="219,78,174,78,174,73,219,73"/>
+</map>

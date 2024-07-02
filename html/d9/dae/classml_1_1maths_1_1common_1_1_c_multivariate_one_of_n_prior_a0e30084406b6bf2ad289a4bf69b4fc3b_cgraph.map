@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::print" name="ml::maths::common::CMultivariateOneOfNPrior::print">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,179,141"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#af9944273e2c93044b65797f87cabef56" title="Check if this is a non&#45;informative prior." alt="" coords="227,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,82,219,64,221,69,172,87"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="241,85,386,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,111,225,111,225,116,179,116"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="240,165,387,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,139,235,157,233,162,178,144"/>
+</map>

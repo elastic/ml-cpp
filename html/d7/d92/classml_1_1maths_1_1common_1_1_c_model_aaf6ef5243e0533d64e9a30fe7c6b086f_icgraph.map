@@ -1,0 +1,46 @@
+<map id="ml::maths::common::CModel::emptyBucketWeight" name="ml::maths::common::CModel::emptyBucketWeight">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1299,143,1490,183"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ae40251353894b100d0450a6fc9b80224" title=" " alt="" coords="1035,71,1221,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1305,141,1250,126,1209,115,1211,109,1252,120,1306,136"/>
+<area shape="rect" id="Node000007" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a72f05e1a21ee909104337288657b148a" title=" " alt="" coords="1005,135,1251,191"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1283,166,1251,166,1251,160,1283,160"/>
+<area shape="rect" id="Node000011" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#af70ae3b7e35842307abe81d11676369e" title=" " alt="" coords="1005,215,1251,271"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1311,191,1224,217,1222,212,1309,186"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="756,5,950,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1024,69,941,49,942,44,1025,64"/>
+<area shape="rect" id="Node000005" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="769,71,937,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1019,94,937,94,937,88,1019,88"/>
+<area shape="rect" id="Node000004" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="500,13,696,39"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="741,28,696,28,696,23,741,23"/>
+<area shape="rect" id="Node000006" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="500,78,696,104"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="754,94,696,94,696,88,754,88"/>
+<area shape="rect" id="Node000008" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abf9f4648dfe56cf1076407a088ab24f6" title="Update the trend with samples." alt="" coords="749,135,957,191"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="989,166,957,166,957,160,989,160"/>
+<area shape="rect" id="Node000009" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="494,131,701,187"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="734,164,702,163,702,158,734,158"/>
+<area shape="rect" id="Node000010" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="250,141,446,167"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="478,159,446,158,446,153,479,154"/>
+<area shape="rect" id="Node000012" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa7c97f17985bf16b0f1b937ab0f2e73b" title="Update the trend with samples." alt="" coords="753,219,953,275"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="989,248,953,248,953,243,989,242"/>
+<area shape="rect" id="Node000013" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#abbc951e2c02da8dc7291c1e137066120" title="Update the model with new samples." alt="" coords="498,225,697,280"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="738,252,698,253,698,248,738,247"/>
+<area shape="poly" id="edge13_Node000013_Node000010" title=" " alt="" coords="528,219,445,180,411,170,413,165,447,175,530,215"/>
+<area shape="rect" id="Node000014" href="$d1/dde/_c_forecast_test_8cc.html#ad42e086bd0f9327a48da0ca36b1f8a92" title=" " alt="" coords="250,190,446,216"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="482,232,416,219,417,214,483,227"/>
+<area shape="rect" id="Node000015" href="$d1/dde/_c_forecast_test_8cc.html#a70cc70fe7d81a6f242ec06a81071f5bd" title=" " alt="" coords="250,240,446,265"/>
+<area shape="poly" id="edge15_Node000013_Node000015" title=" " alt="" coords="482,255,447,255,447,250,482,250"/>
+<area shape="rect" id="Node000016" href="$d1/dde/_c_forecast_test_8cc.html#a0208c9401947e7d3e4e1b46c59f26337" title=" " alt="" coords="250,289,446,315"/>
+<area shape="poly" id="edge16_Node000013_Node000016" title=" " alt="" coords="483,278,417,291,416,286,482,272"/>
+<area shape="rect" id="Node000017" href="$d9/d15/_c_time_series_model_test_8cc.html#ad5ee31f31475c4d41301af0340450ba9" title=" " alt="" coords="250,338,446,364"/>
+<area shape="poly" id="edge17_Node000013_Node000017" title=" " alt="" coords="534,290,447,329,413,340,411,335,445,325,532,285"/>
+<area shape="rect" id="Node000018" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#a6ede2ad9f3a7a40577da81f22f10d7bf" title=" " alt="" coords="267,389,429,444"/>
+<area shape="poly" id="edge18_Node000013_Node000018" title=" " alt="" coords="558,293,507,336,447,379,426,390,423,386,445,374,504,332,555,289"/>
+<area shape="rect" id="Node000019" href="$d1/dde/_c_forecast_test_8cc.html#a28992938b93647afb83a53246e509905" title=" " alt="" coords="5,329,202,355"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="255,386,201,368,162,358,164,353,202,363,256,380"/>
+<area shape="rect" id="Node000020" href="$d1/dde/_c_forecast_test_8cc.html#a19e2174c93ee23be6129488081463518" title=" " alt="" coords="5,378,202,404"/>
+<area shape="poly" id="edge20_Node000018_Node000020" title=" " alt="" coords="251,409,202,404,202,399,251,404"/>
+<area shape="rect" id="Node000021" href="$d1/dde/_c_forecast_test_8cc.html#a6f0a097737936cba7ec32a5bce60ca3d" title=" " alt="" coords="5,428,202,453"/>
+<area shape="poly" id="edge21_Node000018_Node000021" title=" " alt="" coords="251,428,202,433,202,428,251,423"/>
+<area shape="rect" id="Node000022" href="$d1/dde/_c_forecast_test_8cc.html#a3bf9a5986a59219078bac60c69302d4b" title=" " alt="" coords="5,477,202,503"/>
+<area shape="poly" id="edge22_Node000018_Node000022" title=" " alt="" coords="254,452,202,468,163,479,162,474,201,463,252,447"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CInfluenceCalculator" name="ml::model::CInfluenceCalculator">
+<area shape="rect" id="Node000001" title="Interface for influence calculations." alt="" coords="5,79,214,105"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="27,5,192,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,46,112,79,107,79,107,46"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="anonymous_namespace{CXMeansOnlineTest.cc}::CXMeansOnlineForTest&lt; T, N &gt;" name="anonymous_namespace{CXMeansOnlineTest.cc}::CXMeansOnlineForTest&lt; T, N &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,286,174,357"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html" title="A single pass online clusterer based on the x&#45;means algorithm of Pelleg and Moore." alt="" coords="7,198,172,238"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,254,92,286,87,286,87,254"/>
+<area shape="rect" id="Node000003" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html" title=" " alt="" coords="5,94,174,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,165,92,197,87,197,87,165"/>
+<area shape="rect" id="Node000004" href="$d3/d5e/classml_1_1maths_1_1common_1_1_c_clusterer_types.html" title="Factors out the non&#45;template part of CClusterer for improved compile times." alt="" coords="17,5,162,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,61,92,93,87,93,87,61"/>
+</map>

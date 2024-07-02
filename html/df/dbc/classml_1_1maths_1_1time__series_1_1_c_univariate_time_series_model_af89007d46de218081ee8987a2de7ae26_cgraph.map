@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::acceptRestoreTraverser" name="ml::maths::time_series::CUnivariateTimeSeriesModel::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Initialize reading state from traverser." alt="" coords="5,143,205,198"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a9da2f891a018480281201b06cd8b0c4d" title=" " alt="" coords="262,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,140,193,105,251,71,263,65,265,70,254,76,196,110,145,145"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="253,85,471,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,142,264,127,265,132,206,148"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="253,150,471,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="205,168,237,168,237,173,205,173"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="285,216,439,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="206,193,270,210,269,215,205,199"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="253,281,471,322"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="144,197,195,232,254,265,270,273,268,277,251,270,192,236,141,201"/>
+</map>

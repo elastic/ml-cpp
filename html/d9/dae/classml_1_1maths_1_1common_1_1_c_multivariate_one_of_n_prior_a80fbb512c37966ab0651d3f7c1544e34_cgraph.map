@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::probabilityOfLessLikelySamples" name="ml::maths::common::CMultivariateOneOfNPrior::probabilityOfLessLikelySamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,221,126"/>
+<area shape="rect" id="Node000002" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#ab4b2064beb54ae4b32a13dd4969f21bd" title="Add probability." alt="" coords="274,5,471,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,69,258,59,260,64,222,74"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="752,121,898,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="221,103,737,140,737,146,221,109"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a80fbb512c37966ab0651d3f7c1544e34" title=" " alt="" coords="269,179,476,234"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="183,124,291,170,289,175,181,129"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="524,13,704,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="471,31,508,31,508,36,471,36"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="476,180,524,172,634,159,737,151,737,156,635,164,524,177,477,185"/>
+<area shape="rect" id="Node000006" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2a751263a75df701648d4bb541c15168" title="Check that the samples and weights are consistent." alt="" coords="530,186,698,227"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="476,204,514,204,514,209,476,209"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0bb62f633064d92cb861da6463a0766" title="Check if this is a non&#45;informative prior." alt="" coords="542,251,687,306"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="469,232,528,250,526,255,467,238"/>
+<area shape="rect" id="Node000008" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a9fdab6c3e31a14edec4f0dafa68334af" title=" " alt="" coords="542,331,687,386"/>
+<area shape="poly" id="edge9_Node000005_Node000008" title=" " alt="" coords="409,233,462,274,525,316,534,321,531,325,523,321,459,279,406,237"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="691,183,737,170,738,176,692,188"/>
+</map>

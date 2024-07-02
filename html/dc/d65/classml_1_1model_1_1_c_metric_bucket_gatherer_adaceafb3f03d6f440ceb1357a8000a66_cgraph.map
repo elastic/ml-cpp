@@ -1,0 +1,14 @@
+<map id="ml::model::CMetricBucketGatherer::recycleAttributes" name="ml::model::CMetricBucketGatherer::recycleAttributes">
+<area shape="rect" id="Node000001" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="5,71,183,111"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="237,5,412,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,68,235,48,236,53,169,73"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a5aa5b28fbf86b461353d5844764afa89" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="231,71,418,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,88,215,88,215,94,183,94"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ab27631f14f5ae505aeb401f3d56f57a9" title=" " alt="" coords="466,100,653,141"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="171,109,231,120,344,127,450,125,451,131,344,132,230,126,170,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="419,100,451,104,450,109,418,105"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aaac5e7883124c0e9e52148da200bf513" title=" " alt="" coords="716,71,891,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="654,106,700,101,700,106,654,112"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a9ec72fa26aac807ff6f7f2df6a6aea47" title="Returns an iterator pointing to the end of the queue." alt="" coords="701,136,906,161"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="654,128,686,132,686,137,654,134"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CXMeansOnline::nearest" name="ml::maths::common::CXMeansOnline::nearest">
+<area shape="rect" id="Node000001" title="Get the cluster closest to cluster." alt="" coords="5,133,173,174"/>
+<area shape="rect" id="Node000002" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a92f7c5ed55e96822af506dcfcf10d784" title=" " alt="" coords="221,29,397,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,130,228,89,230,94,139,135"/>
+<area shape="rect" id="Node000003" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a064fa6dd7a75362d732046a98332c4d6" title=" " alt="" coords="227,133,391,174"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="173,151,212,151,212,156,173,156"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="226,198,392,223"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="170,171,243,191,241,196,169,177"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="267,29,267,19,275,10,289,5,309,3,331,5,345,12,343,17,330,10,309,8,290,10,278,15,272,21,272,29"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="268,133,266,123,273,114,287,108,309,106,332,109,346,115,344,120,331,114,309,111,288,113,276,118,271,124,273,132"/>
+<area shape="rect" id="Node000004" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a3596fdd65798421a6755966082b8d22f" title="The total count of points." alt="" coords="445,133,601,174"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="391,159,430,159,430,165,391,165"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="445,147,406,147,406,142,445,142"/>
+<area shape="poly" id="edge7_Node000004_Node000004" title=" " alt="" coords="483,133,481,123,487,114,502,108,523,106,546,109,560,115,558,120,545,114,523,111,503,113,490,118,486,124,488,132"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,223,118"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#acdfe6bc38f68ac9feb1533852df71517" title=" " alt="" coords="271,77,480,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,103,255,103,255,108,223,108"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#aee4b961577250cd3b17e0cc93e50d922" title=" " alt="" coords="544,5,700,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="472,74,528,58,529,63,474,79"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a83bf2ff948fc0a5e9dbd5079a9ad3918" title="Get the number of buckets." alt="" coords="532,85,712,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="480,103,516,103,516,108,480,108"/>
+<area shape="rect" id="Node000005" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a383db66bf90ea9dd68ac211166aad5af" title="Get this feature&#39;s window." alt="" coords="528,150,715,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="481,130,528,143,527,148,480,136"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::winsorise" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::winsorise">
+<area shape="rect" id="Node000001" title="Truncate large, i.e. more than 6 sigma, errors." alt="" coords="5,56,239,126"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="290,5,450,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,58,275,48,276,53,240,63"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="290,71,450,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,88,275,88,275,94,239,94"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="287,136,453,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="240,115,297,129,296,134,238,121"/>
+</map>

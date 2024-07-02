@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree_detail::readLossCurvature" name="ml::maths::analytics::boosted_tree_detail::readLossCurvature">
+<area shape="rect" id="Node000001" title="Read the loss flat column major Hessian from row." alt="" coords="256,5,398,61"/>
+<area shape="rect" id="Node000002" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#acbc195fb61730ab3879bac6165a4e861" title="Get the candidate splits values for each feature." alt="" coords="5,5,208,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,36,208,36,208,31,240,31"/>
+</map>

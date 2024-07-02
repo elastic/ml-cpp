@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultimodalPrior::CModeMergeCallback::operator()" name="ml::maths::common::CMultimodalPrior::CModeMergeCallback::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,213,61"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="261,20,431,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,31,245,31,245,36,213,36"/>
+<area shape="rect" id="Node000003" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="479,13,658,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,31,464,31,464,36,432,36"/>
+</map>

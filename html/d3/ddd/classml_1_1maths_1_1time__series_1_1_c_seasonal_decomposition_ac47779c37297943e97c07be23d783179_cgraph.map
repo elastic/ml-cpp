@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CSeasonalDecomposition::add" name="ml::maths::time_series::CSeasonalDecomposition::add">
+<area shape="rect" id="Node000001" title="Add the new trend summary." alt="" coords="5,13,215,54"/>
+<area shape="rect" id="Node000002" href="$d3/ddd/classml_1_1maths_1_1time__series_1_1_c_seasonal_decomposition.html#aca13850ba5e15bc91bfccb511ad4a76e" title="Get the summary of any trend component." alt="" coords="263,5,443,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,31,247,31,247,36,215,36"/>
+</map>

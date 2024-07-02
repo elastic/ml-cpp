@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::decayRate" name="ml::maths::common::CMultivariateMultimodalPrior::decayRate">
+<area shape="rect" id="Node000001" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="486,205,674,261"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a66527e0acfb84f8e9ce1dfe44b26b797" title="Persist state by passing information to the supplied inserter." alt="" coords="250,5,438,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="549,194,500,134,470,103,436,75,418,64,421,59,440,71,473,99,504,130,553,191"/>
+<area shape="rect" id="Node000004" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ab273d5ac4e405a2bfd632e54204c708e" title="Read parameters from traverser." alt="" coords="250,85,438,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="517,199,437,156,412,144,415,139,439,151,520,195"/>
+<area shape="rect" id="Node000005" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a546c4e48f4691fe453a52fb9ae497801" title="Set the rate at which the prior returns to non&#45;informative." alt="" coords="250,165,438,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="470,217,438,212,439,206,471,212"/>
+<area shape="rect" id="Node000006" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a02790fa2ead779d1ed7ff62c896ac1da" title=" " alt="" coords="250,245,438,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="471,254,439,260,438,255,470,249"/>
+<area shape="rect" id="Node000008" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ad96865b6d2c5352bb55f00d355f62938" title="Reset the prior to non&#45;informative." alt="" coords="250,325,438,381"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="520,272,439,316,415,327,412,322,437,311,517,267"/>
+<area shape="rect" id="Node000009" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a2b4f9112a4d5e57fb39718fa33b03029" title=" " alt="" coords="250,405,438,461"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="553,275,504,336,473,367,440,395,421,407,418,403,436,391,470,363,500,332,549,272"/>
+<area shape="rect" id="Node000003" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+<area shape="rect" id="Node000007" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="5,260,202,286"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="234,276,202,276,202,271,234,271"/>
+</map>

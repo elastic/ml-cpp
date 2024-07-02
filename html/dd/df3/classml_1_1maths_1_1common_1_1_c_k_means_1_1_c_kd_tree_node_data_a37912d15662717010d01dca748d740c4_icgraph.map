@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CKMeans::CKdTreeNodeData::initialize" name="ml::maths::common::CKMeans::CKdTreeNodeData::initialize">
+<area shape="rect" id="Node000001" title="Initialize the centroid if it is null." alt="" coords="281,34,479,90"/>
+<area shape="rect" id="Node000002" href="$dd/df3/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_kd_tree_node_data.html#a460298b3dad83dc62eb072d3a1f661ee" title="Add x to the bounding box and centroid." alt="" coords="5,5,233,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="265,49,233,44,233,39,266,43"/>
+<area shape="rect" id="Node000003" href="$dd/df3/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_kd_tree_node_data.html#a1e1b2059431eb6758ccebe24a02c61dd" title=" " alt="" coords="20,70,218,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="266,80,219,87,218,81,265,75"/>
+</map>

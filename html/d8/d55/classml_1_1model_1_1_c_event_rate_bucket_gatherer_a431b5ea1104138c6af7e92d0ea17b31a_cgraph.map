@@ -1,0 +1,17 @@
+<map id="ml::model::CEventRateBucketGatherer::removePeople" name="ml::model::CEventRateBucketGatherer::removePeople">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,205,97"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a7764c1ec39238f2f60c456948093f84b" title=" " alt="" coords="495,5,669,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,53,252,42,370,30,479,25,479,30,370,35,253,47,192,58"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ab27631f14f5ae505aeb401f3d56f57a9" title=" " alt="" coords="488,89,675,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="188,95,253,106,366,113,472,112,473,118,366,118,252,111,187,100"/>
+<area shape="rect" id="Node000007" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ae6d21714b6e8d2ee23d4a064c04d1da2" title=" " alt="" coords="253,56,440,97"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="205,74,237,74,237,79,205,79"/>
+<area shape="rect" id="Node000003" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a48738901bb6e09e5ec631806d8e6215c" title=" " alt="" coords="734,5,917,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="669,23,719,23,719,28,669,28"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aaac5e7883124c0e9e52148da200bf513" title=" " alt="" coords="738,77,913,118"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="676,102,722,100,722,105,676,108"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a9ec72fa26aac807ff6f7f2df6a6aea47" title="Returns an iterator pointing to the end of the queue." alt="" coords="723,142,928,168"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="676,125,738,136,737,141,675,130"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="440,53,479,45,480,50,441,59"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="441,87,473,92,472,97,440,92"/>
+</map>

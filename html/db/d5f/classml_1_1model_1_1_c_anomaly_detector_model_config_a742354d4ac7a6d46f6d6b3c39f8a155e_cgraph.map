@@ -1,0 +1,8 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::bucketLength" name="ml::model::CAnomalyDetectorModelConfig::bucketLength">
+<area shape="rect" id="Node000001" title="Set the data bucketing interval." alt="" coords="5,29,203,70"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="251,29,448,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,47,235,47,235,52,203,52"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="307,29,304,19,311,10,327,5,349,3,374,5,388,11,386,16,373,10,349,8,328,10,315,15,310,21,312,28"/>
+<area shape="rect" id="Node000003" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="496,29,656,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,47,480,47,480,52,448,52"/>
+</map>

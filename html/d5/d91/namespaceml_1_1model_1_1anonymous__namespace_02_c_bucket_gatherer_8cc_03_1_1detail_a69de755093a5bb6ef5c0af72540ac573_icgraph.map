@@ -1,0 +1,24 @@
+<map id="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::PERSON_UID_TAG" name="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::PERSON_UID_TAG">
+<area shape="rect" id="Node000001" title=" " alt="" coords="564,216,779,271"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="715,204,699,197,672,194,648,196,632,201,625,207,625,215,620,215,620,205,630,196,647,191,672,189,700,192,717,199"/>
+<area shape="rect" id="Node000002" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#ae7c5777a2d9b78252c8bfe196a5dd552" title="Persist a collection of influencer person and attribute counts." alt="" coords="292,29,516,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="630,207,577,159,515,114,495,103,498,98,517,109,581,155,634,203"/>
+<area shape="rect" id="Node000004" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#a262c786c42eef18287da581cae64af7e" title="Persist a person, attribute and count tuple." alt="" coords="296,148,512,219"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="548,218,512,210,513,205,549,213"/>
+<area shape="rect" id="Node000006" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#a380ebdf8b2bf6e16e557d2a37d554b66" title="Restore a collection of influencer person and attribute counts." alt="" coords="304,267,504,337"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="549,273,505,283,504,277,548,268"/>
+<area shape="rect" id="Node000008" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#ac0bd3bc3e7d3e70239e09c89066ff4e9" title="Restore a person, attribute and count." alt="" coords="292,385,516,456"/>
+<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="618,283,517,351,462,387,459,383,515,346,615,278"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="446,18,430,11,404,8,382,10,367,15,358,21,356,29,351,28,354,18,364,10,381,5,404,3,431,5,448,13"/>
+<area shape="rect" id="Node000003" href="$dc/d1a/structml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail_1_1_s_influencer_counts_persister.html#aedd4875ff83b5e62698adbcddeb5c533" title=" " alt="" coords="23,29,226,100"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="276,67,226,67,226,62,276,62"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="446,136,430,129,404,127,382,128,367,133,358,140,356,148,351,147,354,137,364,129,381,123,404,121,431,124,448,131"/>
+<area shape="rect" id="Node000005" href="$d9/dc0/structml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail_1_1_s_bucket_counts_persister.html#a52c230c2024223dde5edae1a7f605b0e" title=" " alt="" coords="5,148,244,219"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="280,186,244,186,244,181,280,181"/>
+<area shape="poly" id="edge10_Node000006_Node000006" title=" " alt="" coords="446,255,430,248,404,245,382,247,367,252,358,258,356,267,351,265,354,256,364,247,381,242,404,240,431,243,448,250"/>
+<area shape="rect" id="Node000007" href="$dc/d1a/structml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail_1_1_s_influencer_counts_persister.html#a356586dba733c2afa5a99be2b3da9c8d" title=" " alt="" coords="23,267,226,337"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="288,305,226,305,226,299,288,299"/>
+<area shape="poly" id="edge13_Node000008_Node000008" title=" " alt="" coords="446,374,430,367,404,364,382,366,367,371,358,377,356,385,351,384,354,374,364,366,381,361,404,359,431,361,448,369"/>
+<area shape="rect" id="Node000009" href="$d9/dc0/structml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail_1_1_s_bucket_counts_persister.html#a7f9fe0d7501b7eae179ae9e2846b8057" title=" " alt="" coords="5,385,244,456"/>
+<area shape="poly" id="edge12_Node000008_Node000009" title=" " alt="" coords="276,423,244,423,244,418,276,418"/>
+</map>

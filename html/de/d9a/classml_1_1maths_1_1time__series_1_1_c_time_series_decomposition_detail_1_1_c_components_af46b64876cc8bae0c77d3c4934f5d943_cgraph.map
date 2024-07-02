@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::acceptPersistInserter" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="5,31,251,87"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="299,5,501,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,41,283,37,284,43,252,47"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="299,71,501,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="252,71,284,75,283,80,251,76"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::model::CDataGatherer::sampleCounts" name="ml::model::CDataGatherer::sampleCounts">
+<area shape="rect" id="Node000001" title="Get the sample counts." alt="" coords="448,103,622,143"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a1f23dca013c0e6dc3accb4e18f3c0fb4" title=" " alt="" coords="5,29,179,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="494,96,450,69,399,48,343,38,285,34,179,39,179,34,286,28,344,32,401,43,452,64,496,91"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#adb7d99a7d48f15aad41d32bf5faa69c5" title=" " alt="" coords="227,57,400,98"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="433,105,400,98,401,93,434,100"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#af002c7e0590474dbb30082ae5434e351" title="Create samples if possible for the bucket pointed out by time." alt="" coords="227,147,400,187"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="434,146,401,152,400,147,433,141"/>
+<area shape="rect" id="Node000005" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a913845fb0b570d71229a85c9ce664e53" title="Start a new bucket." alt="" coords="227,236,400,277"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="488,154,350,238,348,233,485,149"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="128,16,115,10,92,8,71,10,58,15,53,21,55,28,50,29,48,19,55,10,70,5,92,3,116,5,130,11"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="211,67,179,63,180,58,212,62"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="349,134,336,128,313,125,292,127,279,132,275,138,277,145,272,147,269,137,276,128,291,122,313,120,337,122,352,129"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="349,223,336,217,313,215,292,217,279,221,275,227,277,235,272,236,269,226,276,217,291,211,313,209,337,212,352,218"/>
+</map>

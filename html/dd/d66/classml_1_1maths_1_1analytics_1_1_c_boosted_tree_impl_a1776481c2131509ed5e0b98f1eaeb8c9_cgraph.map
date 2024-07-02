@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::meanNumberTrainingRowsPerFold" name="ml::maths::analytics::CBoostedTreeImpl::meanNumberTrainingRowsPerFold">
+<area shape="rect" id="Node000001" title="Get the mean number of training examples which are used in each fold." alt="" coords="5,5,230,61"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="278,5,500,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,31,262,31,262,36,230,36"/>
+</map>

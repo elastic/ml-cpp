@@ -1,0 +1,6 @@
+<map id="ml::maths::common::CKdTree::postorderDepthFirst" name="ml::maths::common::CKdTree::postorderDepthFirst">
+<area shape="rect" id="Node000001" title="Visit the branch rooted at node with f in post&#45;order." alt="" coords="5,29,202,70"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a2edb4631ca5869b569b972d0a4b3365e" title=" " alt="" coords="250,29,446,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,47,234,47,234,52,202,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="302,29,300,19,307,10,323,5,348,3,374,5,390,11,388,16,373,10,348,8,324,10,310,15,305,21,307,28"/>
+</map>

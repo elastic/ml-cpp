@@ -1,0 +1,17 @@
+<map id="ml::model::CEventRateModel::currentBucketInterimCorrections" name="ml::model::CEventRateModel::currentBucketInterimCorrections">
+<area shape="rect" id="Node000001" title="Get the interim corrections of the current bucket." alt="" coords="491,136,708,177"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#af2bc7b92e10c479ae661af0b5c51ebae" title=" " alt="" coords="250,5,443,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="556,129,503,95,442,61,413,49,415,44,444,57,505,90,559,125"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6ab02a238c5ad4ffdcd811c520ce1a03" title=" " alt="" coords="250,71,443,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="503,134,427,115,429,109,504,129"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7f47e57e3eba38ccdfb4924902dd8af8" title=" " alt="" coords="250,136,443,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="475,159,443,159,443,154,475,154"/>
+<area shape="rect" id="Node000006" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="250,201,443,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="504,184,429,203,427,198,503,179"/>
+<area shape="rect" id="Node000008" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a60955fb365980cd8c47e2e6eb16dc746" title=" " alt="" coords="250,267,443,307"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="559,188,505,222,444,256,415,269,413,264,442,251,503,218,556,183"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="7,136,200,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,159,201,159,201,154,234,154"/>
+<area shape="rect" id="Node000007" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,209,202,235"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="234,224,202,224,202,219,234,219"/>
+</map>

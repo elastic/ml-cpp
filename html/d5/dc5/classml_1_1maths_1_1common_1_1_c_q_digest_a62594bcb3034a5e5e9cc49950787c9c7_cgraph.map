@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CQDigest::summary" name="ml::maths::common::CQDigest::summary">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,151,103"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a8d3456c45ef060449b8bdb9ac37cfcec" title="Get the maximum value covered by the node." alt="" coords="215,5,376,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,61,200,48,202,53,152,66"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="210,70,381,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,80,195,80,195,86,151,86"/>
+<area shape="rect" id="Node000004" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a65a4eff2aae40127d3488ba474404c8f" title="Fill in nodes with q&#45;digest nodes in post&#45;order." alt="" coords="199,120,392,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,100,202,113,200,118,150,105"/>
+</map>

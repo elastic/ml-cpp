@@ -1,0 +1,9 @@
+<map id="ml::model::CBucketQueue::CSerializer::operator()" name="ml::model::CBucketQueue::CSerializer::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,181,79"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a1f56d99d55debbd29018b5e27817a344" title="Persist the buckets in the queue using bucketPersist." alt="" coords="229,39,404,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,56,213,56,213,62,181,62"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="452,5,654,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,44,436,39,437,45,405,49"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="452,71,654,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="405,68,437,73,436,78,404,73"/>
+</map>

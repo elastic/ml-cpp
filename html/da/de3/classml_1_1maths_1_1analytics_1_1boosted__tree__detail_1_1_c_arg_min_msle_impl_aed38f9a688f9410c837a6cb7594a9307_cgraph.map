@@ -1,0 +1,21 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinMsleImpl::objective" name="ml::maths::analytics::boosted_tree_detail::CArgMinMsleImpl::objective">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,287,199,342"/>
+<area shape="rect" id="Node000002" href="$da/de3/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_msle_impl.html#a7ce7b28aae94fff6ddec412d708c1dda" title=" " alt="" coords="248,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,285,129,239,158,182,196,123,219,95,245,71,249,68,253,72,248,75,223,99,201,126,162,184,134,241,115,287"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="275,85,435,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,285,168,211,204,171,245,136,260,128,262,132,248,141,207,175,172,214,121,288"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="282,150,428,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="131,284,182,241,245,200,267,191,269,195,248,205,185,246,134,288"/>
+<area shape="rect" id="Node000005" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html#a4573c44bdd35101f2e847c3bc416d5cf" title=" " alt="" coords="263,215,447,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="198,284,248,270,249,275,200,290"/>
+<area shape="rect" id="Node000006" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ac3b874ba2fe9ae9649a0023833e14ff2" title="Get the maximum value." alt="" coords="247,294,463,335"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="199,312,231,312,231,317,199,317"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="275,360,435,400"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="200,337,261,353,260,358,198,342"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="282,425,428,466"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="140,341,190,376,248,409,269,418,267,423,245,414,187,380,137,345"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="282,490,428,531"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="123,341,174,409,209,444,248,475,269,486,266,491,245,479,205,448,170,412,119,345"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="267,556,443,596"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="116,342,135,386,163,439,201,494,224,519,248,540,256,545,253,550,245,545,220,522,197,497,159,442,130,388,111,344"/>
+</map>

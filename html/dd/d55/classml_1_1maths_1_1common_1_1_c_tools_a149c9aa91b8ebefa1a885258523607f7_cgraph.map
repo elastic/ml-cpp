@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CTools::differentialEntropy" name="ml::maths::common::CTools::differentialEntropy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,149,181,190"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="229,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,147,162,101,227,55,237,50,239,55,230,60,166,106,116,151"/>
+<area shape="rect" id="Node000003" href="$da/d92/classml_1_1maths_1_1common_1_1_c_mixture_distribution.html#a773d02af49f1db3d212788c09df7bc4d" title=" " alt="" coords="250,70,396,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,146,234,122,236,128,161,151"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a4895b044355daad6067187c66cc4212f" title="Compute the q&#39;th quantile for distribution." alt="" coords="250,149,396,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="181,167,234,167,234,172,181,172"/>
+<area shape="rect" id="Node000009" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="284,238,362,264"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="154,188,271,230,269,235,152,193"/>
+<area shape="rect" id="Node000010" href="$da/d92/classml_1_1maths_1_1common_1_1_c_mixture_distribution.html#ae5e759e025d6747e8a2b87d8a2d318c2" title=" " alt="" coords="250,289,396,344"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="118,189,168,230,230,274,238,278,235,283,227,279,165,235,115,193"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="465,37,645,92"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="391,146,416,135,440,119,464,102,473,97,475,102,466,107,443,124,418,140,393,151"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="466,116,645,157"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="395,157,450,149,451,154,396,162"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="473,181,638,222"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="396,177,458,186,457,191,395,182"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="518,270,592,296"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="393,188,418,199,443,215,466,231,517,260,514,265,464,236,440,219,416,204,390,193"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="517,271,509,262,514,252,529,246,555,244,584,246,598,253,596,258,582,251,555,249,531,251,517,256,514,261,521,268"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="285,239,277,230,282,220,297,214,323,212,351,214,365,221,363,226,349,219,323,217,298,219,285,224,283,229,289,236"/>
+</map>

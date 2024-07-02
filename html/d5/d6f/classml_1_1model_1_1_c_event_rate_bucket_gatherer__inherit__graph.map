@@ -1,0 +1,5 @@
+<map id="ml::model::CEventRateBucketGatherer" name="ml::model::CEventRateBucketGatherer">
+<area shape="rect" id="Node000001" title="Event rate data gathering class." alt="" coords="5,79,205,120"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html" title="Time series data gathering interface." alt="" coords="11,5,199,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,46,108,79,102,79,102,46"/>
+</map>

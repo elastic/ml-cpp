@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinPseudoHuberImpl" name="ml::maths::analytics::boosted_tree_detail::CArgMinPseudoHuberImpl">
+<area shape="rect" id="Node000001" title="Finds the value to add to a set of predictions which approximately minimises the pseudo&#45;Huber loss fu..." alt="" coords="5,109,190,165"/>
+<area shape="rect" id="Node000002" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html" title=" " alt="" coords="26,5,169,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,77,100,108,95,108,95,77"/>
+</map>

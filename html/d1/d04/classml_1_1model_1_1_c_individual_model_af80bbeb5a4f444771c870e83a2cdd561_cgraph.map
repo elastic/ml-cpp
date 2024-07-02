@@ -1,0 +1,8 @@
+<map id="ml::model::CIndividualModel::CIndividualModel" name="ml::model::CIndividualModel::CIndividualModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,192,103"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a5f74bd0ea087594ff5a842bcd6950874" title="Get a read only model corresponding to feature of the person pid." alt="" coords="245,29,432,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,67,229,62,230,67,193,73"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="240,95,437,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="193,93,225,97,224,102,192,98"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="293,29,291,19,298,10,314,5,338,3,364,5,380,11,378,16,363,10,338,8,315,10,301,15,296,21,298,28"/>
+</map>

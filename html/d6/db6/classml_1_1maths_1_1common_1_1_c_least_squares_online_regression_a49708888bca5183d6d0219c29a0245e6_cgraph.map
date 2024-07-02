@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::predict" name="ml::maths::common::CLeastSquaresOnlineRegression::predict">
+<area shape="rect" id="Node000001" title="Get the predicted value at x for the order n model." alt="" coords="5,45,220,101"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b7faad96d97de516da6d0bb3e363123" title=" " alt="" coords="268,5,482,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,54,252,49,253,54,221,59"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="268,85,482,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,87,253,92,252,97,220,92"/>
+</map>

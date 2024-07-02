@@ -1,0 +1,35 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,393,223,419"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="324,49,403,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,392,129,335,157,253,177,207,202,163,233,121,269,85,287,73,307,66,309,71,290,78,272,89,237,124,207,165,182,210,162,255,134,337,120,393"/>
+<area shape="rect" id="Node000007" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a6069f744afeaaad434dd793f35d7a22e" title="Set the first value time." alt="" coords="271,99,456,155"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="118,391,137,349,170,289,214,224,240,193,269,165,273,162,276,166,272,169,244,196,218,227,174,292,142,351,123,393"/>
+<area shape="rect" id="Node000008" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#ae340fc652546dfe3a3520e02b1612a57" title="Set whether or not the data are integer valued." alt="" coords="271,203,456,259"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="126,390,185,334,226,300,269,269,277,264,279,269,272,273,229,304,189,338,130,394"/>
+<area shape="rect" id="Node000009" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#aae2b9c4c0cabe5b459ddf7a5e7bc765f" title="Set whether or not the data are non&#45;negative." alt="" coords="271,283,456,339"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="149,390,273,342,275,347,151,395"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#a93bcdc8ec5834bac60be504a29341a09" title=" " alt="" coords="292,364,435,389"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="223,390,276,384,277,389,223,395"/>
+<area shape="rect" id="Node000012" href="$df/d9c/namespaceml_1_1model__t.html#a1f18453bbc8ddb255e00279217d2fb73" title="Offset count features so that their range starts at zero." alt="" coords="281,413,446,454"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="223,415,266,420,265,425,223,421"/>
+<area shape="rect" id="Node000013" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#ae3d9cd673353c4c7f71ee85bd954de0b" title="Set the prior samples weights." alt="" coords="271,478,456,534"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="150,417,279,469,277,474,148,422"/>
+<area shape="rect" id="Node000014" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#acfa63b650770acc58f497da8de78f4a5" title="Set the model propagation interval." alt="" coords="271,558,456,614"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="129,417,187,476,228,511,272,543,279,548,277,552,269,548,225,515,184,480,125,421"/>
+<area shape="rect" id="Node000015" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a57663db65e06f57e6a26c180c99edd94" title="Set the trend samples weights." alt="" coords="271,638,456,694"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="124,418,144,457,177,512,220,571,272,624,277,627,274,631,269,628,216,574,172,515,139,460,119,420"/>
+<area shape="rect" id="Node000016" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="274,717,453,758"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="121,418,136,470,165,547,186,589,210,631,239,670,272,704,276,706,272,710,269,708,235,673,206,634,181,592,160,549,131,472,116,419"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="510,13,684,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,54,494,43,494,49,404,60"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="745,71,904,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="404,61,730,82,729,88,403,67"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="737,5,912,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="684,28,722,27,722,32,685,33"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="681,52,731,65,730,70,679,57"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="960,71,1118,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="904,88,944,88,944,94,904,94"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="318,203,318,193,327,184,342,178,363,177,388,179,403,186,401,191,386,184,363,182,343,184,329,188,323,195,323,203"/>
+<area shape="rect" id="Node000010" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a9f5bfdfc5f2a3419380ae3e8d34e8d82" title="Get the whether the data are non&#45;negative." alt="" coords="504,283,689,339"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="456,308,488,308,488,314,456,314"/>
+</map>

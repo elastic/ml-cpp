@@ -1,0 +1,9 @@
+<map id="ml::model::CDetectorEqualizer::add" name="ml::model::CDetectorEqualizer::add">
+<area shape="rect" id="Node000001" title="Add probability to the detector&#39;s quantile sketch." alt="" coords="250,55,479,80"/>
+<area shape="rect" id="Node000002" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a363628554e093dfa91de613a8214f4d8" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="277,54,175,34,176,29,278,49"/>
+<area shape="rect" id="Node000003" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a15a2aef056cea23154cfeb07b8b1a390" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="278,86,176,106,175,101,277,81"/>
+</map>

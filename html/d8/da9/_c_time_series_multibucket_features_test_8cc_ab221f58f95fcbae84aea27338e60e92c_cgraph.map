@@ -1,0 +1,49 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,276,202,302"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="257,5,449,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,275,122,230,150,167,192,99,218,68,248,41,256,36,259,41,251,46,222,72,196,102,154,169,126,232,111,277"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="263,55,443,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="109,274,129,241,160,196,200,148,248,107,257,101,260,106,251,111,204,152,164,199,134,244,114,277"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#ada4a548a75926941dd80046eefa40d2c" title="Get a weights array with count variance scale weight." alt="" coords="263,186,443,227"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="141,273,249,236,269,229,271,234,251,241,143,278"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="268,251,438,276"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,276,252,271,252,276,203,281"/>
+<area shape="rect" id="Node000007" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="250,300,456,326"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="203,296,234,299,234,304,202,301"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="264,349,442,375"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="142,300,250,336,276,343,275,348,249,341,140,305"/>
+<area shape="rect" id="Node000017" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="262,465,444,505"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="115,300,167,371,206,413,251,449,261,455,258,460,248,454,202,417,163,374,111,303"/>
+<area shape="rect" id="Node000020" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="253,399,453,440"/>
+<area shape="poly" id="edge21_Node000001_Node000020" title=" " alt="" coords="122,300,177,341,251,385,263,391,261,395,248,390,174,346,119,304"/>
+<area shape="rect" id="Node000021" href="$d6/d52/namespaceml_1_1maths__t.html#a12dee901580c43334316b37a5d113eb3" title="Get a weights array with seasonal variance scale weight." alt="" coords="253,121,453,161"/>
+<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="116,274,171,225,208,197,248,172,262,165,264,170,251,176,211,201,174,229,120,278"/>
+<area shape="rect" id="Node000022" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="266,554,440,595"/>
+<area shape="poly" id="edge24_Node000001_Node000022" title=" " alt="" coords="113,301,132,341,162,397,202,459,251,515,292,544,289,548,248,519,198,462,157,400,127,343,108,303"/>
+<area shape="rect" id="Node000005" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="508,135,687,176"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="443,185,492,175,493,180,444,190"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="428,248,455,236,469,224,478,212,487,199,502,185,510,181,513,185,506,190,491,202,482,215,473,228,457,240,430,253"/>
+<area shape="rect" id="Node000008" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="512,200,683,255"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="419,297,455,286,503,265,516,259,518,264,505,270,457,291,420,302"/>
+<area shape="rect" id="Node000009" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="514,279,681,320"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="456,305,498,302,498,308,457,310"/>
+<area shape="rect" id="Node000010" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="739,245,925,301"/>
+<area shape="poly" id="edge11_Node000007_Node000010" title=" " alt="" coords="421,324,479,332,547,338,619,338,691,329,750,305,752,310,692,334,620,343,547,343,478,337,420,329"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="682,287,723,282,724,288,682,293"/>
+<area shape="rect" id="Node000012" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="509,397,686,423"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="423,373,514,391,513,396,422,378"/>
+<area shape="rect" id="Node000013" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="742,454,922,510"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="643,421,728,447,726,452,641,426"/>
+<area shape="rect" id="Node000014" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="742,534,922,575"/>
+<area shape="poly" id="edge15_Node000012_Node000014" title=" " alt="" coords="614,421,667,469,703,496,741,520,750,525,748,529,738,524,700,500,664,473,610,425"/>
+<area shape="rect" id="Node000015" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="759,325,905,365"/>
+<area shape="poly" id="edge16_Node000012_Node000015" title=" " alt="" coords="646,394,744,367,745,372,647,399"/>
+<area shape="rect" id="Node000016" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="749,390,915,431"/>
+<area shape="poly" id="edge17_Node000012_Node000016" title=" " alt="" coords="687,408,733,408,733,413,687,413"/>
+<area shape="rect" id="Node000018" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="504,538,691,579"/>
+<area shape="poly" id="edge19_Node000017_Node000018" title=" " alt="" coords="424,503,513,530,512,535,422,508"/>
+<area shape="rect" id="Node000019" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="741,599,923,640"/>
+<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="679,577,738,592,736,597,677,582"/>
+<area shape="poly" id="edge23_Node000021_Node000005" title=" " alt="" coords="454,144,493,147,492,152,453,150"/>
+<area shape="poly" id="edge25_Node000022_Node000022" title=" " alt="" coords="307,554,305,544,312,535,328,529,353,527,379,530,395,536,393,541,378,535,353,532,329,534,315,539,310,545,312,553"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="ml::api::CPersistenceManager::startPersistIfAppropriate" name="ml::api::CPersistenceManager::startPersistIfAppropriate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="862,39,1059,79"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad9934d581fe7465d1317a23c0664ca82" title=" " alt="" coords="612,5,814,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="846,46,814,42,815,37,847,41"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="624,71,802,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="847,76,803,82,802,77,846,71"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="414,41,564,82"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="608,80,564,74,565,69,609,75"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,71,156,111"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="608,96,564,96,204,96,156,96,156,90,204,91,564,91,608,90"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,41,366,82"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="399,64,367,64,367,59,399,59"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="188,78,156,83,156,78,188,73"/>
+</map>

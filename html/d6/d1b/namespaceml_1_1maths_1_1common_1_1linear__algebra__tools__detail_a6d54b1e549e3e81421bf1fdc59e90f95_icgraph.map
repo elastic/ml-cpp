@@ -1,0 +1,14 @@
+<map id="ml::maths::common::linear_algebra_tools_detail::inverseQuadraticProduct" name="ml::maths::common::linear_algebra_tools_detail::inverseQuadraticProduct">
+<area shape="rect" id="Node000001" title=" " alt="" coords="876,31,1086,87"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a28042b9ef8c5f30dfe3212373d8f0363" title=" " alt="" coords="678,5,828,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="860,44,827,39,828,34,861,39"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a7f2aa40421fc71663386416f1ae4a9a6" title=" " alt="" coords="678,71,828,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="861,79,828,83,827,78,860,73"/>
+<area shape="rect" id="Node000004" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#abf7a110e46df45b4fe07a4fa65123143" title="Get the closest (in Mahalanobis distance) cluster to x." alt="" coords="454,63,630,119"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="662,94,631,94,631,88,662,88"/>
+<area shape="rect" id="Node000005" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a9b3a8d896fbb5c2059d2014523b5c8f6" title=" " alt="" coords="230,63,406,119"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="439,94,407,94,407,88,439,88"/>
+<area shape="rect" id="Node000006" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a810d7b339ac2d556dbad39f33378bd06" title=" " alt="" coords="5,63,182,119"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="214,94,182,94,182,88,214,88"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="129,51,116,44,93,42,74,44,61,48,55,55,55,63,49,63,50,53,58,44,73,38,94,37,117,39,132,46"/>
+</map>

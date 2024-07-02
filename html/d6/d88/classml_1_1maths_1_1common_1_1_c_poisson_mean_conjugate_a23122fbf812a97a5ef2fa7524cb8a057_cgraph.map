@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::marginalLikelihoodVariance" name="ml::maths::common::CPoissonMeanConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="5,121,192,176"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="250,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,118,238,62,265,50,267,55,241,67,144,122"/>
+<area shape="rect" id="Node000003" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="488,121,657,176"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,117,239,106,340,96,384,98,440,106,477,113,476,118,440,111,384,104,340,101,240,111,186,122"/>
+<area shape="rect" id="Node000004" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#ac3bed1d65b91e2e6e83607592a7b5014" title="Compute the mean of the prior distribution." alt="" coords="255,121,425,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,146,240,146,240,151,192,151"/>
+<area shape="rect" id="Node000005" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a89cebe7fa9b569c2bebfbd2e98719c45" title="Compute the variance of the prior distribution." alt="" coords="255,201,425,256"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="185,174,242,193,240,198,184,179"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="240,280,440,321"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="128,175,178,221,209,245,241,266,251,271,248,276,238,271,206,250,175,225,124,179"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="425,146,473,146,473,151,425,151"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="422,197,474,179,476,184,424,202"/>
+</map>

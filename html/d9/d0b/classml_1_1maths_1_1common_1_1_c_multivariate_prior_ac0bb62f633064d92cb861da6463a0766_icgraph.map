@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CMultivariatePrior::isNonInformative" name="ml::maths::common::CMultivariatePrior::isNonInformative">
+<area shape="rect" id="Node000001" title="Check if this is a non&#45;informative prior." alt="" coords="768,96,914,151"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a80fbb512c37966ab0651d3f7c1544e34" title=" " alt="" coords="513,56,720,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="752,110,720,105,721,99,753,105"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ad1c4e8a55e4e592614f69041b2a1c7d8" title=" " alt="" coords="513,136,720,191"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="753,142,721,148,720,142,752,137"/>
+<area shape="rect" id="Node000003" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="259,5,456,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="497,55,464,46,415,34,417,29,466,41,499,49"/>
+<area shape="rect" id="Node000004" href="$df/ddb/namespaceanonymous__namespace_02_c_multivariate_normal_conjugate_test_8cc_03.html#a8069fc4bca3e3eff8577b0f6242d9864" title=" " alt="" coords="255,56,460,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="497,86,460,86,460,81,497,81"/>
+<area shape="rect" id="Node000005" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a80fbb512c37966ab0651d3f7c1544e34" title=" " alt="" coords="250,136,465,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="511,119,451,138,449,132,509,114"/>
+<area shape="rect" id="Node000006" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="5,151,202,176"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,166,202,166,202,161,234,161"/>
+</map>

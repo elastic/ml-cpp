@@ -1,0 +1,9 @@
+<map id="ml::model::CHierarchicalResultsAggregator::hash" name="ml::model::CHierarchicalResultsAggregator::hash">
+<area shape="rect" id="Node000001" title="Compute a hash of node for gathering up related results." alt="" coords="723,13,889,54"/>
+<area shape="rect" id="Node000002" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#abdf276717ead6fea332a08efb0db04a8" title="Partition the child probabilities into groups to aggregate together." alt="" coords="492,5,675,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="708,36,676,36,676,31,708,31"/>
+<area shape="rect" id="Node000003" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a7cdca7a4e250095934a9b812eb3ea7a7" title="Aggregate at internal node." alt="" coords="219,13,444,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,36,444,36,444,31,476,31"/>
+<area shape="rect" id="Node000004" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#aaaf9f722a5855913332ae94c8364d178" title="Compute the aggregate probability for node." alt="" coords="5,13,171,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="203,36,171,36,171,31,203,31"/>
+</map>

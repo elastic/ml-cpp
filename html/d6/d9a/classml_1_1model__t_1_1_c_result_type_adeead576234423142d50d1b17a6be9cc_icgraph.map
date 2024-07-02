@@ -1,0 +1,19 @@
+<map id="ml::model_t::CResultType::asInterimOrFinal" name="ml::model_t::CResultType::asInterimOrFinal">
+<area shape="rect" id="Node000001" title="Get as interim or final enumeration." alt="" coords="1021,129,1194,170"/>
+<area shape="rect" id="Node000002" href="$d4/d51/classml_1_1model_1_1_c_annotated_probability_builder.html#a240b8e852d46704ffa316e37b32c99e0" title=" " alt="" coords="756,129,973,170"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1005,152,973,152,973,147,1005,147"/>
+<area shape="rect" id="Node000003" href="$d2/d53/classml_1_1model_1_1_c_probability_and_influence_calculator.html#a9a84ecc588fa4717cc71118936d49759" title=" " alt="" coords="493,5,704,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="809,124,707,76,679,64,681,59,709,71,811,119"/>
+<area shape="rect" id="Node000004" href="$d2/d53/classml_1_1model_1_1_c_probability_and_influence_calculator.html#a12fd9f9f1a0d48556e100f76f45b544b" title=" " alt="" coords="493,85,704,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="740,135,705,130,705,125,741,130"/>
+<area shape="rect" id="Node000008" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="489,165,708,206"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="741,169,709,173,708,168,740,163"/>
+<area shape="rect" id="Node000009" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="502,230,695,271"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="807,179,709,220,673,232,671,227,707,215,805,174"/>
+<area shape="rect" id="Node000005" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#acd96aa5241e5efb725477291262713dd" title="Add the probability and influences for feature and pid." alt="" coords="247,93,441,134"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="477,116,442,116,442,111,477,111"/>
+<area shape="rect" id="Node000006" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="5,60,199,100"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="231,100,199,96,199,91,232,95"/>
+<area shape="rect" id="Node000007" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a730885952a2719bff06c7134ea5459a8" title=" " alt="" coords="18,125,186,166"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="232,131,187,137,186,131,231,125"/>
+</map>

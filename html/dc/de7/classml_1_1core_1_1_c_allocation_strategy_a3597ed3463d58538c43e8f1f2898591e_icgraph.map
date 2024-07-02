@@ -1,0 +1,73 @@
+<map id="ml::core::CAllocationStrategy::resize" name="ml::core::CAllocationStrategy::resize">
+<area shape="rect" id="Node000001" title="Resize a container using a 10% capacity increase." alt="" coords="1309,209,1501,249"/>
+<area shape="rect" id="Node000002" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a4b70d61717917cfc540fb743131f4ee5" title="Add the time series identified by id." alt="" coords="816,36,991,91"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1379,197,1329,140,1296,113,1260,91,1193,69,1122,57,1053,54,992,56,992,51,1053,49,1123,52,1194,64,1262,86,1299,108,1333,136,1383,194"/>
+<area shape="rect" id="Node000006" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a0f8191b28305e28b28ca335cb2e705bc" title="Resize the relevant statistics to accommodate up to n variables." alt="" coords="1050,101,1261,141"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="1355,203,1260,155,1230,144,1232,139,1262,150,1357,198"/>
+<area shape="rect" id="Node000008" href="$d6/dac/_c_allocation_strategy_test_8cc.html#aa44b30d2486baac0b4cac391dd6025e9" title=" " alt="" coords="1057,165,1254,191"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="1293,209,1222,194,1223,189,1294,204"/>
+<area shape="rect" id="Node000009" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aeac745eb145b2477f1d698c76973955c" title=" " alt="" coords="1057,317,1254,357"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="1351,259,1262,301,1217,318,1215,313,1260,296,1349,254"/>
+<area shape="rect" id="Node000010" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#afbf81cf61f6e48f349e6d12a10e14281" title="Create the mean counts for &quot;n&quot; newly observed people." alt="" coords="812,209,995,249"/>
+<area shape="poly" id="edge36_Node000001_Node000010" title=" " alt="" coords="1294,232,996,232,996,226,1294,226"/>
+<area shape="rect" id="Node000016" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a737b177ab23785892b160740e0f6d48d" title="Create the time series models for &quot;n&quot; newly observed people." alt="" coords="810,307,997,348"/>
+<area shape="poly" id="edge37_Node000001_Node000016" title=" " alt="" coords="1295,253,997,312,996,307,1294,248"/>
+<area shape="rect" id="Node000026" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a5581d57905795519fd9bd5b509aea2d8" title=" " alt="" coords="807,374,1000,415"/>
+<area shape="poly" id="edge38_Node000001_Node000026" title=" " alt="" coords="1383,264,1333,321,1299,349,1262,371,1197,393,1128,405,1061,409,1000,407,1000,402,1061,403,1127,400,1195,388,1260,366,1296,345,1329,317,1379,260"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa5c469f1d8992080fa91d0dde65006ff" title="Tell this to model correlations." alt="" coords="548,36,747,91"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="800,66,748,66,748,61,800,61"/>
+<area shape="rect" id="Node000004" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="16,5,212,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="535,34,490,26,418,19,345,16,213,16,213,11,345,10,418,14,490,21,535,29"/>
+<area shape="rect" id="Node000005" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4dcb6e76bfaa4811ea44f62c01851e3d" title="Create a copy of this model passing ownership to the caller." alt="" coords="281,36,480,91"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="532,66,480,66,480,61,532,61"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="265,47,193,34,194,29,266,41"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="1048,99,991,86,992,81,1049,94"/>
+<area shape="rect" id="Node000007" href="$db/de9/_c_k_most_correlated_test_8cc.html#a198486660676a176453a9cfe2c6324c6" title=" " alt="" coords="805,116,1002,142"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="1034,127,1002,128,1002,123,1034,122"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1091,312,952,252,954,247,1093,307"/>
+<area shape="poly" id="edge17_Node000009_Node000016" title=" " alt="" coords="1041,335,997,334,997,328,1041,330"/>
+<area shape="poly" id="edge27_Node000009_Node000026" title=" " alt="" coords="1049,364,997,376,995,371,1048,359"/>
+<area shape="rect" id="Node000011" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#ac45480d17b69a2253c6d84c966809776" title="Monitor the resource usage while creating new models." alt="" coords="556,162,739,203"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="796,212,739,202,740,196,797,207"/>
+<area shape="rect" id="Node000012" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a588af24e4a97df7554e795002c741ddc" title=" " alt="" coords="289,117,472,157"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="540,167,472,155,473,150,541,161"/>
+<area shape="rect" id="Node000013" href="$d7/d26/_c_counting_model_test_8cc.html#a41316982f546b1f08a56adff44df03f4" title=" " alt="" coords="5,75,223,100"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="273,120,187,104,188,98,274,114"/>
+<area shape="rect" id="Node000014" href="$de/d99/_c_event_rate_model_test_8cc.html#a3ea0d03f40a2fc72250572411eb0b77a" title=" " alt="" coords="5,124,223,150"/>
+<area shape="poly" id="edge15_Node000012_Node000014" title=" " alt="" coords="273,140,223,140,223,134,273,134"/>
+<area shape="rect" id="Node000015" href="$de/d77/_c_metric_model_test_8cc.html#a99a02491bdf3a9c3d44f7dfeb59a59c1" title=" " alt="" coords="5,173,223,199"/>
+<area shape="poly" id="edge16_Node000012_Node000015" title=" " alt="" coords="274,159,188,175,187,170,273,154"/>
+<area shape="rect" id="Node000017" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a20af83aaaf5b28ed588570cb82f5d938" title="Monitor the resource usage while creating new models." alt="" coords="555,307,741,348"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="795,330,741,330,741,325,795,325"/>
+<area shape="rect" id="Node000018" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="284,362,477,403"/>
+<area shape="poly" id="edge19_Node000017_Node000018" title=" " alt="" coords="540,352,478,365,477,360,539,347"/>
+<area shape="rect" id="Node000020" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="297,427,464,468"/>
+<area shape="poly" id="edge21_Node000017_Node000020" title=" " alt="" coords="550,357,540,363,525,376,516,389,507,403,491,416,465,430,463,425,489,412,503,399,512,386,521,372,536,359,547,352"/>
+<area shape="rect" id="Node000022" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a60955fb365980cd8c47e2e6eb16dc746" title=" " alt="" coords="284,493,477,533"/>
+<area shape="poly" id="edge23_Node000017_Node000022" title=" " alt="" coords="545,359,540,363,528,377,521,391,517,421,512,451,505,466,492,481,474,494,471,490,488,478,500,463,507,449,511,420,516,389,523,374,536,359,541,355"/>
+<area shape="rect" id="Node000023" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#acdd3555393b6e886576132bd820d28d3" title=" " alt="" coords="297,182,464,223"/>
+<area shape="poly" id="edge24_Node000017_Node000023" title=" " alt="" coords="602,301,549,268,489,238,457,226,459,221,491,233,551,264,604,296"/>
+<area shape="rect" id="Node000024" href="$d6/dcc/class_c_mock_event_rate_model.html#a1a960d16ae03344d6108bbdf4a572263" title=" " alt="" coords="300,247,461,288"/>
+<area shape="poly" id="edge25_Node000017_Node000024" title=" " alt="" coords="539,306,460,288,461,283,540,301"/>
+<area shape="rect" id="Node000025" href="$d2/d1d/class_c_mock_metric_model.html#a79bf681efe8f6169bf4b7b6d10d902ac" title=" " alt="" coords="298,312,463,338"/>
+<area shape="poly" id="edge26_Node000017_Node000025" title=" " alt="" coords="539,329,463,328,463,323,539,324"/>
+<area shape="rect" id="Node000019" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="16,369,212,395"/>
+<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="268,385,213,385,213,380,268,380"/>
+<area shape="rect" id="Node000021" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="16,435,212,460"/>
+<area shape="poly" id="edge22_Node000020_Node000021" title=" " alt="" coords="281,450,213,450,213,445,281,445"/>
+<area shape="rect" id="Node000027" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#aca1d635e1513df23460a5bac6db49645" title=" " alt="" coords="538,373,757,413"/>
+<area shape="poly" id="edge28_Node000026_Node000027" title=" " alt="" coords="792,396,758,396,758,391,792,391"/>
+<area shape="rect" id="Node000028" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a2d322f5d2ad2d97a1b67acb3ffaeb25e" title=" " alt="" coords="551,438,744,479"/>
+<area shape="poly" id="edge29_Node000026_Node000028" title=" " alt="" coords="805,421,732,440,731,435,804,416"/>
+<area shape="rect" id="Node000029" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a6bd28fb1538ffd56b46d06329df30bdb" title="Monitor the resource usage while creating new models." alt="" coords="552,647,744,688"/>
+<area shape="poly" id="edge30_Node000026_Node000029" title=" " alt="" coords="874,428,670,649,666,645,870,425"/>
+<area shape="rect" id="Node000030" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="271,778,490,819"/>
+<area shape="poly" id="edge31_Node000029_Node000030" title=" " alt="" coords="607,699,553,734,491,767,459,780,457,775,489,762,551,729,604,694"/>
+<area shape="rect" id="Node000031" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="284,582,477,623"/>
+<area shape="poly" id="edge32_Node000029_Node000031" title=" " alt="" coords="546,645,466,626,467,621,547,640"/>
+<area shape="rect" id="Node000032" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af772818e59f98fba772923915e6e0d32" title=" " alt="" coords="271,647,490,688"/>
+<area shape="poly" id="edge34_Node000029_Node000032" title=" " alt="" coords="536,670,490,670,490,665,536,665"/>
+<area shape="rect" id="Node000033" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aab1df5b44c7137345d39ea37dc476eda" title=" " alt="" coords="279,713,482,753"/>
+<area shape="poly" id="edge35_Node000029_Node000033" title=" " alt="" coords="547,695,467,714,466,709,546,690"/>
+<area shape="poly" id="edge33_Node000031_Node000031" title=" " alt="" coords="424,569,408,563,380,560,355,562,339,567,333,573,336,580,331,582,328,572,336,563,354,557,380,555,409,558,426,564"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::api::CDataSummarizationJsonWriter::addCompressedToJsonStream" name="ml::api::CDataSummarizationJsonWriter::addCompressedToJsonStream">
+<area shape="rect" id="Node000001" title="Write a compressed and chunked JSON data summarisation." alt="" coords="5,5,234,61"/>
+<area shape="rect" id="Node000002" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html#a9d451ffea89c51e296e9b799bfd4b0d4" title=" " alt="" coords="282,5,490,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,31,266,31,266,36,234,36"/>
+</map>

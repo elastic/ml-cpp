@@ -1,0 +1,30 @@
+<map id="ml::test::CRandomNumbers::generateRandomMultivariateNormals" name="ml::test::CRandomNumbers::generateRandomMultivariateNormals">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,250,138"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a34bef9485ad1614fd6e15739fb080937" title=" " alt="" coords="345,10,490,51"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,94,331,53,333,58,199,99"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a7b7c5297d5d1c8a68a14ed170f69a7bc" title=" " alt="" coords="298,125,537,166"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="250,126,283,129,282,135,250,132"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="822,126,1000,151"/>
+<area shape="poly" id="edge15_Node000001_Node000007" title=" " alt="" coords="250,111,298,111,534,108,638,111,771,120,807,123,807,128,770,125,638,117,534,113,298,116,250,117"/>
+<area shape="rect" id="Node000013" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="585,241,770,282"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="183,136,298,175,440,211,570,239,569,244,438,216,297,180,181,141"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="655,18,701,43"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,28,639,28,639,33,490,33"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="585,176,770,216"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="526,164,570,172,569,177,525,169"/>
+<area shape="poly" id="edge12_Node000004_Node000007" title=" " alt="" coords="537,141,807,137,807,143,538,146"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="818,208,1004,248"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="771,206,803,210,802,216,770,211"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="762,172,840,153,841,158,764,178"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="1052,126,1229,151"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1000,136,1036,136,1036,141,1000,141"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1277,5,1457,61"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1168,123,1276,71,1287,66,1289,70,1278,76,1170,127"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1278,85,1457,126"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="1229,123,1261,118,1262,123,1230,128"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1295,150,1440,191"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="1230,148,1280,156,1279,161,1229,154"/>
+<area shape="rect" id="Node000012" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1285,216,1450,256"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="1169,149,1278,200,1295,207,1293,212,1276,205,1167,154"/>
+<area shape="poly" id="edge14_Node000013_Node000006" title=" " alt="" coords="770,245,802,241,803,246,771,251"/>
+</map>

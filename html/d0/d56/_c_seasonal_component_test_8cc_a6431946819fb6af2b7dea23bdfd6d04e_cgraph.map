@@ -1,0 +1,21 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,202,170"/>
+<area shape="rect" id="Node000002" href="$d2/dbc/classanonymous__namespace_02_c_seasonal_component_test_8cc_03_1_1_c_test_seasonal_component.html#a6ac0020e7549461d539a0a337077a0c4" title=" " alt="" coords="250,5,461,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,141,249,86,261,80,263,85,251,91,134,146"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a404ada1c9b84c0049e143865cb425e2f" title=" " alt="" coords="263,100,448,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,141,247,133,248,139,198,146"/>
+<area shape="rect" id="Node000006" href="$d3/d91/namespaceanonymous__namespace_02_c_seasonal_component_test_8cc_03.html#a52764b93efca5ba2950a24ed6775b919" title=" " alt="" coords="256,165,455,221"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="198,167,241,174,240,179,198,173"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="276,244,435,285"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="129,168,183,198,251,230,266,236,265,241,249,235,181,203,126,172"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="742,100,928,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="418,97,462,85,509,77,602,68,695,77,763,93,761,98,694,82,602,73,509,82,463,91,420,102"/>
+<area shape="rect" id="Node000005" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="565,116,639,142"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="449,121,549,124,549,130,448,126"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="563,117,555,107,560,97,576,91,602,89,630,92,645,99,642,103,629,97,602,94,577,97,564,101,561,107,567,114"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="509,166,694,206"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="455,187,494,186,494,192,455,193"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="529,231,674,272"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="456,214,514,228,513,233,454,219"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="676,163,744,143,746,148,677,168"/>
+</map>

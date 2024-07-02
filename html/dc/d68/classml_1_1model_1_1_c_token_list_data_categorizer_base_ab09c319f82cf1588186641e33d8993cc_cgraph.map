@@ -1,0 +1,19 @@
+<map id="ml::model::CTokenListDataCategorizerBase::acceptRestoreTraverser" name="ml::model::CTokenListDataCategorizerBase::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Populate the object from part of a state document." alt="" coords="5,162,217,218"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#af76a6f9a170d56b50222cb8883a501c4" title="Is the category considered rare?" alt="" coords="270,5,523,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,159,191,107,226,80,263,57,279,50,281,54,266,61,229,84,194,111,139,163"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="287,71,506,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,159,264,122,290,113,292,119,266,127,174,164"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="287,136,506,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="217,175,271,168,272,174,217,180"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="323,201,470,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="217,199,307,209,307,214,217,204"/>
+<area shape="rect" id="Node000006" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a76f97a0d2d236185eb029bf46b2fca56" title="Update categorizer stats with information from this categorizer." alt="" coords="265,267,528,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="175,216,266,251,292,259,291,265,264,256,173,221"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="287,332,506,373"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="139,216,194,268,229,294,266,317,281,324,279,328,263,321,226,298,191,272,136,220"/>
+<area shape="rect" id="Node000007" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a127a7eb38f807d9bf13d88accce4a68e" title=" " alt="" coords="576,219,838,275"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="528,267,560,263,561,269,529,273"/>
+<area shape="rect" id="Node000008" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#acd213f32ffb92b9feec1f2cf4d60f1cf" title="Is the category considered frequent?" alt="" coords="595,299,819,355"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="529,301,580,308,579,313,528,307"/>
+</map>

@@ -1,0 +1,52 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::testLossLineSearch" name="ml::maths::analytics::CBoostedTreeHyperparameters::testLossLineSearch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,585,219,640"/>
+<area shape="rect" id="Node000002" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a8193c8124e3939444e85ec20890601b4" title=" " alt="" coords="267,422,480,478"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,582,313,484,316,488,160,586"/>
+<area shape="rect" id="Node000015" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a38674757af5e3c9ae5a40f00be84d388" title=" " alt="" coords="267,585,480,640"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="219,610,251,610,251,615,219,615"/>
+<area shape="rect" id="Node000017" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ab4139112aff33ac838606f2291238688" title=" " alt="" coords="267,819,480,875"/>
+<area shape="poly" id="edge22_Node000001_Node000017" title=" " alt="" coords="146,639,331,806,328,810,143,643"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a190204fda0cf33bb6f25ae12ba584977" title=" " alt="" coords="557,168,744,209"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="384,420,406,377,437,325,477,271,526,225,545,213,548,218,530,229,481,275,441,327,410,380,389,422"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="869,345,1028,386"/>
+<area shape="poly" id="edge12_Node000002_Node000006" title=" " alt="" coords="386,420,408,383,439,340,479,300,502,282,527,269,594,242,623,236,651,233,679,235,708,242,775,269,792,283,801,300,808,316,823,332,855,347,853,352,820,336,804,319,796,302,788,286,772,273,707,247,678,240,651,238,624,241,595,248,529,273,505,287,483,304,444,344,413,386,391,423"/>
+<area shape="rect" id="Node000010" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a3b86fb3b47a82c945bd3ab0654721ffe" title=" " alt="" coords="544,284,757,354"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="421,419,527,363,538,358,540,363,529,368,424,424"/>
+<area shape="rect" id="Node000011" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a55d5abed49a9f3c02718403e47e3b437" title=" " alt="" coords="528,551,773,607"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="419,476,471,507,529,537,543,543,541,548,527,541,468,511,416,480"/>
+<area shape="rect" id="Node000012" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a06c888a44035bc3baac323959040943c" title="Get the maximum number of iterations used in testLossLineSearch." alt="" coords="544,682,757,738"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="399,476,456,542,530,617,597,670,593,675,526,621,452,546,395,479"/>
+<area shape="rect" id="Node000013" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a793e574592c519413539fde43d755da4" title=" " alt="" coords="534,378,768,434"/>
+<area shape="poly" id="edge13_Node000002_Node000013" title=" " alt="" coords="480,430,518,424,519,429,481,435"/>
+<area shape="rect" id="Node000014" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a422f805721a2bc6cb5e67e4d492e92ce" title=" " alt="" coords="544,457,757,528"/>
+<area shape="poly" id="edge14_Node000002_Node000014" title=" " alt="" coords="481,463,529,471,528,476,480,469"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="872,201,1025,242"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="745,196,857,209,856,214,745,201"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="827,266,1070,322"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="726,207,774,225,822,251,838,258,836,262,820,256,772,229,724,212"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="746,206,775,225,787,239,794,253,800,280,805,307,812,319,823,332,856,350,853,355,820,336,807,322,800,309,794,281,789,254,783,242,772,229,743,211"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="821,5,1076,46"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="671,166,735,111,776,82,820,57,837,49,839,54,823,61,779,86,738,116,675,170"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="876,71,1021,111"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="702,165,820,122,860,110,862,115,822,127,704,170"/>
+<area shape="rect" id="Node000009" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a6fbf2cd8167040e143f95af1658cd535" title=" " alt="" coords="853,136,1044,177"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="745,176,837,166,838,171,745,181"/>
+<area shape="poly" id="edge19_Node000015_Node000006" title=" " alt="" coords="481,638,549,648,625,651,701,642,737,632,772,617,803,597,831,572,856,543,877,513,911,451,933,400,938,402,916,454,882,515,860,546,835,575,806,601,775,621,739,637,702,647,625,656,549,654,480,643"/>
+<area shape="poly" id="edge16_Node000015_Node000011" title=" " alt="" coords="480,597,512,593,513,598,481,602"/>
+<area shape="poly" id="edge18_Node000015_Node000012" title=" " alt="" coords="456,638,556,674,554,679,454,643"/>
+<area shape="poly" id="edge20_Node000015_Node000013" title=" " alt="" coords="397,582,470,499,526,442,532,439,535,443,530,446,474,503,401,586"/>
+<area shape="poly" id="edge21_Node000015_Node000014" title=" " alt="" coords="430,581,527,537,538,532,541,537,529,541,432,586"/>
+<area shape="rect" id="Node000016" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#a9b77c187faebd23b4036400146d8b5a7" title="Increment the progress by i." alt="" coords="568,761,734,802"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="400,638,456,694,491,723,529,747,554,758,551,763,527,752,488,727,452,698,396,642"/>
+<area shape="poly" id="edge25_Node000017_Node000012" title=" " alt="" coords="412,816,465,781,527,747,541,741,543,746,529,752,468,786,415,821"/>
+<area shape="rect" id="Node000018" href="$d7/d00/classml_1_1maths_1_1common_1_1_c_lowess.html#a01b2b0828b484ca062787787d410b325" title=" " alt="" coords="578,827,723,867"/>
+<area shape="poly" id="edge23_Node000017_Node000018" title=" " alt="" coords="480,844,563,844,563,850,480,850"/>
+<area shape="rect" id="Node000020" href="$d7/d00/classml_1_1maths_1_1common_1_1_c_lowess.html#abe079d22a30e77a744b8fa7f37459012" title=" " alt="" coords="578,957,723,998"/>
+<area shape="poly" id="edge26_Node000017_Node000020" title=" " alt="" coords="413,873,467,909,529,942,564,955,562,960,527,947,464,913,410,877"/>
+<area shape="rect" id="Node000022" href="$d7/d00/classml_1_1maths_1_1common_1_1_c_lowess.html#a2ee8b2d715bf6cd47d058ca0bc531460" title=" " alt="" coords="578,892,723,933"/>
+<area shape="poly" id="edge28_Node000017_Node000022" title=" " alt="" coords="481,870,564,889,562,894,480,875"/>
+<area shape="rect" id="Node000019" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a58173787139a551ae479da334d8f2a5d" title=" " alt="" coords="862,827,1035,867"/>
+<area shape="poly" id="edge24_Node000018_Node000019" title=" " alt="" coords="724,844,846,844,846,850,724,850"/>
+<area shape="rect" id="Node000021" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a6991aa4d28fbb05caccfa0a0ba81af6b" title=" " alt="" coords="864,957,1033,998"/>
+<area shape="poly" id="edge27_Node000020_Node000021" title=" " alt="" coords="724,975,848,975,848,980,724,980"/>
+</map>

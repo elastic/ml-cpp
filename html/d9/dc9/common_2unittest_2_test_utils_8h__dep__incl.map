@@ -1,0 +1,29 @@
+<map id="lib/maths/common/unittest/TestUtils.h" name="lib/maths/common/unittest/TestUtils.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1497,5,1672,46"/>
+<area shape="rect" id="Node000002" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html" title=" " alt="" coords="5,94,217,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1481,31,1255,36,945,47,590,66,230,97,217,98,217,93,229,91,589,61,945,42,1255,31,1481,26"/>
+<area shape="rect" id="Node000003" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html" title=" " alt="" coords="241,94,501,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1481,34,1058,55,787,73,513,97,501,98,501,93,512,91,786,68,1058,50,1481,28"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html" title=" " alt="" coords="525,94,700,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1481,34,1139,54,926,72,713,97,701,98,700,93,712,91,926,67,1139,49,1481,29"/>
+<area shape="rect" id="Node000005" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html" title=" " alt="" coords="724,94,927,135"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1482,38,1234,62,939,97,928,98,927,93,939,91,1234,57,1481,33"/>
+<area shape="rect" id="Node000006" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html" title=" " alt="" coords="952,94,1177,135"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1482,47,1178,97,1177,92,1481,41"/>
+<area shape="rect" id="Node000007" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html" title=" " alt="" coords="1201,94,1437,135"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1511,54,1380,96,1379,91,1509,49"/>
+<area shape="rect" id="Node000008" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html" title=" " alt="" coords="1461,94,1708,135"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1587,62,1587,94,1582,94,1582,62"/>
+<area shape="rect" id="Node000009" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html" title=" " alt="" coords="1732,94,1952,135"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1658,49,1784,91,1782,96,1656,54"/>
+<area shape="rect" id="Node000010" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html" title=" " alt="" coords="1976,94,2214,135"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1687,42,1979,91,1978,96,1686,47"/>
+<area shape="rect" id="Node000011" href="$d7/d56/_c_one_of_n_prior_test_8cc.html" title=" " alt="" coords="2238,94,2413,135"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1688,32,1933,55,2226,91,2238,93,2237,98,2225,97,1933,61,1687,38"/>
+<area shape="rect" id="Node000012" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html" title=" " alt="" coords="2438,94,2654,135"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1687,30,2017,52,2221,70,2426,91,2437,93,2437,98,2425,97,2220,75,2016,58,1687,35"/>
+<area shape="rect" id="Node000013" href="$d1/d27/_c_prior_test_8cc.html" title=" " alt="" coords="2678,94,2853,135"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="1688,26,1872,32,2115,44,2390,63,2666,91,2678,93,2677,98,2665,97,2389,68,2115,49,1872,38,1688,32"/>
+<area shape="rect" id="Node000014" href="$de/dd6/common_2unittest_2_test_utils_8cc.html" title=" " alt="" coords="2878,94,3053,135"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="1688,25,1903,29,2195,39,2529,59,2699,74,2866,91,2878,93,2877,98,2865,97,2699,79,2528,64,2195,45,1902,34,1688,30"/>
+</map>

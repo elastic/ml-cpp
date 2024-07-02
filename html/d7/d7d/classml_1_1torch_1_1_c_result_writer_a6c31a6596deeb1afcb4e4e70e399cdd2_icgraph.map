@@ -1,0 +1,9 @@
+<map id="ml::torch::CResultWriter::wrapAndWriteInnerResponse" name="ml::torch::CResultWriter::wrapAndWriteInnerResponse">
+<area shape="rect" id="Node000001" title=" " alt="" coords="347,23,545,64"/>
+<area shape="rect" id="Node000002" href="$dd/d97/_c_result_writer_test_8cc.html#afa6fa85a6c8d811d0d70047988f3c581" title=" " alt="" coords="103,5,299,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="331,34,299,31,300,26,332,29"/>
+<area shape="rect" id="Node000003" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3b30d4583627b6e9c54794197a465ce0" title=" " alt="" coords="147,55,255,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="332,57,256,65,255,60,331,52"/>
+<area shape="rect" id="Node000004" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,55,55,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="131,70,55,70,55,65,131,65"/>
+</map>

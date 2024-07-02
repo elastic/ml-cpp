@@ -1,0 +1,27 @@
+<map id="ml::controller::CCommandProcessor" name="ml::controller::CCommandProcessor">
+<area shape="rect" id="Node000001" title="Processes commands received on a C++ stream." alt="" coords="1789,52,1963,93"/>
+<area shape="rect" id="Node000002" href="$d7/d93/classml_1_1core_1_1_c_detached_process_spawner.html" title="Spawn detached processes." alt="" coords="1436,20,1626,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1642,48,1789,62,1788,67,1641,53"/>
+<area shape="rect" id="Node000003" href="$d4/db4/classml_1_1controller_1_1_c_response_json_writer.html" title="Write a response to a controller command in JSON format." alt="" coords="1444,85,1618,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1632,93,1765,81,1788,78,1789,84,1765,86,1633,99"/>
+<area shape="rect" id="Node000004" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html" title="A wrapper around a shared output stream for concurrent writes, handling writes." alt="" coords="725,107,920,147"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="936,122,1332,111,1444,107,1444,112,1332,117,936,127"/>
+<area shape="rect" id="Node000009" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html" title="A Json line writer for concurrently writing to a shared output stream." alt="" coords="1119,47,1332,87"/>
+<area shape="poly" id="edge13_Node000009_Node000004" title=" " alt="" coords="935,107,944,106,1119,80,1120,85,945,111,936,112"/>
+<area shape="rect" id="Node000005" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="19,72,185,97"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="200,83,429,90,701,107,725,110,725,115,701,112,429,95,200,88"/>
+<area shape="rect" id="Node000007" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html" title=" " alt="" coords="309,113,508,154"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="201,97,309,115,308,120,200,103"/>
+<area shape="rect" id="Node000006" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="314,179,503,219"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="518,180,701,150,725,145,726,151,701,155,519,186"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="523,129,724,126,724,131,523,134"/>
+<area shape="rect" id="Node000008" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="8,124,196,165"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="212,142,283,141,308,139,309,145,283,146,212,148"/>
+<area shape="poly" id="edge9_Node000003_Node000009" title=" " alt="" coords="1348,80,1444,92,1444,97,1347,85"/>
+<area shape="rect" id="Node000010" href="$d8/dab/classml_1_1core_1_1_c_string_buf_writer.html" title=" " alt="" coords="736,25,910,51"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="926,42,1119,57,1119,62,925,48"/>
+<area shape="rect" id="Node000011" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="307,13,510,39"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="526,26,735,32,735,38,526,32"/>
+<area shape="rect" id="Node000012" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="214,23,306,23,306,28,214,28"/>
+</map>

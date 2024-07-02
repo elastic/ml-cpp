@@ -1,0 +1,64 @@
+<map id="ml::maths::time_series::CDecompositionComponent::interpolate" name="ml::maths::time_series::CDecompositionComponent::interpolate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,559,199,614"/>
+<area shape="rect" id="Node000002" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a82cbea1547e547aa9b9cd7015545c068" title="Interpolate the value and variance functions on knots." alt="" coords="247,525,441,581"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,570,231,566,232,571,200,576"/>
+<area shape="rect" id="Node000020" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#af8299f80413e15ef9efd31aaedb8052d" title="Get the value spline." alt="" coords="509,591,702,646"/>
+<area shape="poly" id="edge38_Node000001_Node000020" title=" " alt="" coords="199,590,493,609,493,614,199,595"/>
+<area shape="rect" id="Node000022" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a3577f924b3f733c1f709efee2a826be7" title="Get the variance spline." alt="" coords="509,671,702,726"/>
+<area shape="poly" id="edge39_Node000001_Node000022" title=" " alt="" coords="200,605,494,671,493,676,199,611"/>
+<area shape="rect" id="Node000023" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ab75f964bbc0b792374dcf6c30c2da123" title="Get the mean value of the spline." alt="" coords="533,273,678,314"/>
+<area shape="poly" id="edge32_Node000001_Node000023" title=" " alt="" coords="150,556,554,319,557,324,153,560"/>
+<area shape="rect" id="Node000003" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ae81530bc1b51ba278741144ca256650d" title=" " alt="" coords="533,526,678,567"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,548,517,546,517,551,442,553"/>
+<area shape="rect" id="Node000017" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a55a66bcc4dc09c4d2894daeb9f87984b" title="An efficient swap of the contents of two components." alt="" coords="489,78,721,119"/>
+<area shape="poly" id="edge23_Node000002_Node000017" title=" " alt="" coords="355,524,409,407,487,260,533,189,576,130,580,133,537,192,491,263,413,409,360,526"/>
+<area shape="poly" id="edge28_Node000002_Node000020" title=" " alt="" coords="442,575,494,588,493,593,441,580"/>
+<area shape="poly" id="edge30_Node000002_Node000022" title=" " alt="" coords="379,579,430,618,490,656,501,662,499,666,488,661,427,623,376,583"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="769,301,992,357"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="619,524,680,452,721,411,768,374,787,362,789,367,771,378,725,415,684,456,624,528"/>
+<area shape="rect" id="Node000005" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ad25a00931439cf66b316c2c0277bdf79" title="Get the curvatures at the knot points of the spline." alt="" coords="1040,829,1197,870"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="679,551,703,561,723,577,744,607,751,638,750,669,745,700,741,730,741,759,750,787,771,814,798,834,828,849,860,859,893,866,961,870,1024,865,1024,871,961,875,893,871,859,864,826,854,795,838,767,818,745,789,736,760,736,730,740,699,745,669,746,639,739,609,719,580,700,566,677,556"/>
+<area shape="rect" id="Node000007" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a39e53abd1d0c2de07a44a358db269622" title="Get the knot points of the spline." alt="" coords="1046,558,1191,599"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="639,523,707,489,750,471,797,456,847,447,897,444,946,450,993,468,1012,485,1020,504,1027,524,1042,543,1047,548,1044,552,1038,547,1022,527,1015,506,1007,488,990,473,945,455,897,449,848,452,799,462,752,476,709,493,641,528"/>
+<area shape="rect" id="Node000008" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a0a27ad6088318c0c6b7404200931ca3b" title="Get the knot points of the spline." alt="" coords="1046,493,1191,534"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="627,524,687,477,727,454,768,437,830,421,881,414,932,419,993,437,1008,446,1019,456,1028,467,1041,478,1051,483,1048,488,1038,482,1024,471,1015,460,1005,450,991,442,931,424,881,419,831,426,770,442,729,459,690,482,630,528"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="801,237,960,278"/>
+<area shape="poly" id="edge10_Node000003_Node000009" title=" " alt="" coords="611,525,631,476,664,412,709,345,737,314,768,287,785,276,788,281,771,291,741,318,714,348,669,414,636,478,616,527"/>
+<area shape="rect" id="Node000010" href="$df/dcd/namespaceml_1_1maths_1_1common_1_1spline__detail.html#ac562223a504021d606aadecdbc435390" title=" " alt="" coords="788,483,973,538"/>
+<area shape="poly" id="edge11_Node000003_Node000010" title=" " alt="" coords="678,534,773,522,773,527,679,540"/>
+<area shape="rect" id="Node000011" href="$df/dcd/namespaceml_1_1maths_1_1common_1_1spline__detail.html#a909ec7415245a8ba89e5a3fa669fb1ad" title=" " alt="" coords="783,562,978,603"/>
+<area shape="poly" id="edge12_Node000003_Node000011" title=" " alt="" coords="679,553,768,565,767,570,678,559"/>
+<area shape="rect" id="Node000012" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ad30fb657633042521274a54322d0ee30" title=" " alt="" coords="808,628,953,668"/>
+<area shape="poly" id="edge13_Node000003_Node000012" title=" " alt="" coords="679,560,723,576,747,594,771,612,794,623,792,627,768,617,744,599,720,581,678,565"/>
+<area shape="rect" id="Node000015" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#af9d9ce19eea5bed22ade0c33c4d922d7" title="Get the values at the knot points of the spline." alt="" coords="1046,689,1191,730"/>
+<area shape="poly" id="edge20_Node000003_Node000015" title=" " alt="" coords="679,553,703,562,723,577,738,595,744,615,746,654,748,690,756,707,771,722,803,740,838,751,874,757,912,758,985,749,1049,732,1050,737,986,754,912,763,874,762,836,756,801,745,768,726,751,710,743,692,740,654,739,616,733,598,719,580,700,567,677,558"/>
+<area shape="rect" id="Node000016" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a79562d5d268d5702d2f1f8459ab32a1d" title="Get the values at the knot points of the spline." alt="" coords="1046,757,1191,798"/>
+<area shape="poly" id="edge21_Node000003_Node000016" title=" " alt="" coords="679,552,703,561,723,577,740,601,747,626,748,650,745,675,743,699,745,721,753,743,771,763,799,782,831,795,864,803,898,808,967,807,1030,798,1031,803,967,812,898,813,863,809,829,800,797,786,768,767,748,746,739,723,738,699,740,674,743,650,742,626,735,603,719,580,700,566,677,557"/>
+<area shape="rect" id="Node000006" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="1245,631,1385,657"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1167,826,1195,807,1228,774,1257,736,1298,669,1303,672,1261,739,1232,777,1199,811,1170,830"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="1182,597,1260,623,1259,628,1181,602"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="1175,532,1198,544,1250,581,1292,618,1288,622,1246,586,1196,549,1172,536"/>
+<area shape="poly" id="edge16_Node000012_Node000007" title=" " alt="" coords="952,624,1031,601,1032,606,954,629"/>
+<area shape="rect" id="Node000013" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a89db4cff0eb3da52e08292f255fd20f7" title="Get the curvatures at the knot points of the spline." alt="" coords="1046,428,1191,468"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="953,634,973,625,990,613,1003,597,1010,581,1014,548,1018,515,1025,497,1038,479,1041,476,1045,480,1042,483,1029,500,1023,516,1019,549,1015,583,1007,600,993,616,975,630,955,639"/>
+<area shape="rect" id="Node000014" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="1046,624,1191,664"/>
+<area shape="poly" id="edge17_Node000012_Node000014" title=" " alt="" coords="954,644,1030,643,1030,648,954,649"/>
+<area shape="poly" id="edge18_Node000012_Node000015" title=" " alt="" coords="954,664,1031,684,1030,689,953,669"/>
+<area shape="poly" id="edge15_Node000013_Node000006" title=" " alt="" coords="1179,466,1199,479,1233,512,1262,549,1303,616,1298,619,1258,552,1229,515,1195,483,1176,471"/>
+<area shape="poly" id="edge19_Node000015_Node000006" title=" " alt="" coords="1181,686,1259,660,1260,665,1182,691"/>
+<area shape="poly" id="edge22_Node000016_Node000006" title=" " alt="" coords="1168,754,1196,739,1246,702,1288,665,1292,669,1250,706,1198,743,1171,759"/>
+<area shape="rect" id="Node000018" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#ae70cc278752f70d13e962e8aba9bd6de" title="An efficient swap of the contents of two packed splines." alt="" coords="784,5,977,61"/>
+<area shape="poly" id="edge24_Node000017_Node000018" title=" " alt="" coords="693,75,768,57,769,62,695,80"/>
+<area shape="rect" id="Node000019" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1079,54,1158,79"/>
+<area shape="poly" id="edge27_Node000017_Node000019" title=" " alt="" coords="722,89,1064,67,1064,73,722,94"/>
+<area shape="poly" id="edge25_Node000018_Node000019" title=" " alt="" coords="978,44,1064,56,1064,62,977,49"/>
+<area shape="poly" id="edge26_Node000019_Node000019" title=" " alt="" coords="1085,55,1079,45,1083,35,1096,29,1118,27,1143,30,1155,37,1152,41,1141,35,1118,32,1098,34,1087,39,1084,44,1090,52"/>
+<area shape="rect" id="Node000021" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#af06ce53f8fd739ff1f611b52cdc0bf42" title="Get a constant spline reference." alt="" coords="784,895,977,950"/>
+<area shape="poly" id="edge29_Node000020_Node000021" title=" " alt="" coords="704,641,723,657,742,685,750,713,751,740,749,767,746,793,747,820,754,847,771,874,780,883,777,887,767,877,749,849,742,821,741,793,744,766,746,740,745,713,737,687,719,660,701,645"/>
+<area shape="poly" id="edge31_Node000022_Node000021" title=" " alt="" coords="628,725,688,798,727,838,771,874,789,885,786,889,768,878,724,842,684,801,624,728"/>
+<area shape="poly" id="edge33_Node000023_Node000004" title=" " alt="" coords="679,300,754,310,753,315,678,305"/>
+<area shape="poly" id="edge35_Node000023_Node000007" title=" " alt="" coords="637,270,708,232,754,212,803,196,853,187,903,186,951,197,973,208,993,223,1011,241,1024,260,1032,279,1035,299,1034,338,1026,378,1017,419,1013,460,1019,502,1028,523,1042,544,1044,546,1039,549,1038,547,1024,525,1014,503,1008,460,1012,418,1021,377,1029,337,1030,299,1026,281,1019,262,1007,245,990,227,970,213,949,202,903,192,854,192,804,202,756,217,711,236,640,275"/>
+<area shape="poly" id="edge36_Node000023_Node000009" title=" " alt="" coords="678,281,785,267,786,272,679,286"/>
+<area shape="poly" id="edge34_Node000023_Node000013" title=" " alt="" coords="626,270,686,221,726,197,768,179,831,159,884,148,910,148,936,152,963,162,993,179,1022,201,1045,229,1065,260,1081,292,1103,357,1115,412,1110,413,1098,359,1076,294,1061,262,1041,232,1018,205,990,183,961,167,934,157,909,153,885,153,833,164,770,184,728,202,689,226,629,275"/>
+<area shape="poly" id="edge37_Node000023_Node000015" title=" " alt="" coords="621,313,670,399,724,514,732,539,735,563,736,605,738,624,743,642,754,660,771,678,789,688,814,696,881,706,957,710,1030,710,1030,715,957,715,880,711,813,701,787,693,768,682,749,663,738,645,733,625,731,606,730,564,727,541,719,515,665,401,617,315"/>
+</map>

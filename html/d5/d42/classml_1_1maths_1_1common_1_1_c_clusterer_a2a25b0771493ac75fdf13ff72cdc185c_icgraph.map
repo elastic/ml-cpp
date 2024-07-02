@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CClusterer::persistenceTag" name="ml::maths::common::CClusterer::persistenceTag">
+<area shape="rect" id="Node000001" title="Get the tag name for this clusterer." alt="" coords="223,13,403,54"/>
+<area shape="rect" id="Node000002" href="$d0/d4d/classml_1_1maths_1_1common_1_1_c_clusterer_state_serialiser.html#a05746dc9adae47eab226fb0a67ec71c7" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,175,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,36,175,36,175,31,207,31"/>
+</map>

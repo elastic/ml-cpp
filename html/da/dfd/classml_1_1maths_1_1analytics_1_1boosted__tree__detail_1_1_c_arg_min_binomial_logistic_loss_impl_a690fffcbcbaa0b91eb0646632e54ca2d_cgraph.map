@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl::add" name="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,30,209,101"/>
+<area shape="rect" id="Node000002" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a86fe66601db1049b6d8ec0555b1299b1" title="Update the statistic with the collection x." alt="" coords="257,5,469,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,47,241,42,241,47,210,52"/>
+<area shape="rect" id="Node000003" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a79b89ebcbddce019cf305e424d2f5914" title=" " alt="" coords="261,70,465,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,79,246,85,245,90,209,84"/>
+<area shape="rect" id="Node000004" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ad95b6f7fc8146f0e12e9791b03ec6027" title="Get the minimum value." alt="" coords="517,85,729,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="465,103,501,103,501,108,465,108"/>
+</map>

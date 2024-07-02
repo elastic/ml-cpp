@@ -1,0 +1,16 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,150,202,175"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a419a7e8a44b8a68977aed448b017b7b4" title=" " alt="" coords="250,28,424,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,147,248,84,273,73,275,77,251,89,130,152"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="504,85,663,126"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="157,146,249,128,373,114,488,106,488,111,374,119,250,133,158,152"/>
+<area shape="rect" id="Node000005" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="264,142,410,183"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,160,248,160,248,165,202,165"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#aba5996a8941137932bca43d6c6f7d5ea" title="Smooth daily periodic." alt="" coords="279,207,395,233"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="160,173,267,200,266,205,158,179"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#a8fe17d089c480f0a429cf483332c69d1" title="Spikey daily periodic." alt="" coords="281,256,393,282"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="126,174,181,208,251,243,267,249,266,254,249,248,178,212,123,178"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="472,5,694,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,40,456,38,456,43,425,45"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="425,66,489,81,488,86,424,71"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="ml::core::CLogger::reconfigureLogToNamedPipe" name="ml::core::CLogger::reconfigureLogToNamedPipe">
+<area shape="rect" id="Node000001" title="Tell the logger to log to a named pipe rather than a file." alt="" coords="187,29,375,70"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="315,16,302,10,281,8,261,10,249,15,245,20,246,28,241,29,239,19,246,10,260,5,281,3,304,5,317,11"/>
+<area shape="rect" id="Node000002" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a51c7c58bb9b9355b36f79d0881658c82" title=" " alt="" coords="5,29,139,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,52,139,52,139,47,171,47"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CHierarchicalResultsNormalizer" name="ml::model::CHierarchicalResultsNormalizer">
+<area shape="rect" id="Node000001" title="A collection of normalizers for some hierarchical results." alt="" coords="462,56,627,97"/>
+<area shape="rect" id="Node000002" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="219,5,414,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="429,56,462,61,461,66,429,61"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="5,20,171,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,38,218,38,218,43,186,43"/>
+<area shape="rect" id="Node000004" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="234,100,399,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="414,95,461,87,462,92,415,100"/>
+</map>

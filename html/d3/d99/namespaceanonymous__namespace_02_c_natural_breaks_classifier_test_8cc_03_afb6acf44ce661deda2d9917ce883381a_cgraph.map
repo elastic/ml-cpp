@@ -1,0 +1,9 @@
+<map id="anonymous_namespace{CNaturalBreaksClassifierTest::cc}::naturalBreaksBranchAndBound" name="anonymous_namespace{CNaturalBreaksClassifierTest::cc}::naturalBreaksBranchAndBound">
+<area shape="rect" id="Node000001" title="Branch and bound exhaustive search for the optimum split." alt="" coords="5,31,242,87"/>
+<area shape="rect" id="Node000002" href="$d3/d99/namespaceanonymous__namespace_02_c_natural_breaks_classifier_test_8cc_03.html#a528bec1f9e9ab2c3bf9a81ed7d54b84b" title="Computes the deviation of a category.mac1Password." alt="" coords="290,31,488,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,56,274,56,274,62,242,62"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="545,5,704,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="488,42,529,36,529,42,489,48"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="536,71,712,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="489,70,521,74,520,80,488,75"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::name" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::name">
+<area shape="rect" id="Node000001" title="Name of component." alt="" coords="5,45,215,101"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a259b158f8ed05aa83b21cc6bdbf2b64a" title="Get the rate at which the bucketing loses information." alt="" coords="263,5,419,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,52,247,47,248,52,215,58"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a32605235cceb5f6493ac0f9c7cdf78b0" title="Get the minimum permitted bucket length." alt="" coords="263,85,419,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,89,248,94,247,100,214,94"/>
+</map>

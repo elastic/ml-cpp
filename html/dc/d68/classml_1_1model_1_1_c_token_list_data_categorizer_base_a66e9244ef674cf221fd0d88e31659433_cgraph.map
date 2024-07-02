@@ -1,0 +1,13 @@
+<map id="ml::model::CTokenListDataCategorizerBase::writeChangedCategories" name="ml::model::CTokenListDataCategorizerBase::writeChangedCategories">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,104,275,145"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ac37176cfc2f4e23df1e8216e33d6b980" title=" " alt="" coords="323,104,574,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="275,122,307,122,307,127,275,127"/>
+<area shape="rect" id="Node000003" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a4bff5eacff3ef1466e3983adf84e9d3b" title=" " alt="" coords="622,5,827,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="502,101,621,56,643,49,645,54,623,62,504,106"/>
+<area shape="rect" id="Node000004" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a4f6c7412af5d3b0649a076d7fc1190e9" title=" " alt="" coords="635,71,815,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="574,106,619,101,619,106,575,112"/>
+<area shape="rect" id="Node000005" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a2738e48dceafdad16f35b2dfb3500465" title="Does the object represent a soft failure?" alt="" coords="635,136,815,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="575,136,619,141,619,147,574,142"/>
+<area shape="rect" id="Node000006" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="635,201,815,242"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="505,143,623,186,645,193,643,198,621,191,504,148"/>
+</map>

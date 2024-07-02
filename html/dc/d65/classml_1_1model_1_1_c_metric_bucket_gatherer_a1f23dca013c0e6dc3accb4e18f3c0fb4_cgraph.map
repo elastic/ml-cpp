@@ -1,0 +1,12 @@
+<map id="ml::model::CMetricBucketGatherer::addValue" name="ml::model::CMetricBucketGatherer::addValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,179,90"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="50,49,48,39,55,30,70,25,92,23,116,25,130,31,128,36,115,30,92,28,71,30,58,35,53,41,55,48"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="448,5,622,46"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="169,46,226,35,332,25,432,22,432,27,333,31,227,40,170,51"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#adb7d99a7d48f15aad41d32bf5faa69c5" title=" " alt="" coords="227,49,400,90"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="179,67,211,67,211,72,179,72"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abd172e8c2863d4cac01520e48fe7ed07" title="Get the sample counts." alt="" coords="448,83,622,123"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="168,88,227,99,333,106,432,106,432,111,332,111,226,104,167,93"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="400,50,432,43,433,49,401,55"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="401,80,433,85,432,90,400,85"/>
+</map>

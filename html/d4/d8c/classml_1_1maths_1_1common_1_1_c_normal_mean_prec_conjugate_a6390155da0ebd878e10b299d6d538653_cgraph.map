@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::print" name="ml::maths::common::CNormalMeanPrecConjugate::print">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,197,133"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="265,5,456,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,76,249,61,250,66,198,81"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="245,85,476,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,103,229,103,229,108,197,108"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="261,149,460,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,129,247,143,246,148,196,134"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="524,113,738,169"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="460,161,508,155,509,160,460,167"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="549,193,714,234"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="460,188,534,198,533,203,460,193"/>
+</map>

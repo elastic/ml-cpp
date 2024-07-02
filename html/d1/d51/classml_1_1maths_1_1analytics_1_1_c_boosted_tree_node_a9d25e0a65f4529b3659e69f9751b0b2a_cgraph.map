@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::estimateMemoryUsage" name="ml::maths::analytics::CBoostedTreeNode::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,208,97"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#af31761f480b4be96096e2e31265a2074" title=" " alt="" coords="256,5,466,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,52,240,48,240,53,208,57"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6a3cd00c6fa74f6a65c087dff4dde84b" title=" " alt="" coords="270,85,452,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,81,255,88,255,93,208,86"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="533,49,678,90"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="452,89,517,79,518,85,452,94"/>
+<area shape="rect" id="Node000005" href="$d8/d2a/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_vector_memory_usage.html#a9bc22250998a90f679020a079365bb3a" title=" " alt="" coords="514,113,697,169"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="452,116,499,123,498,128,452,121"/>
+</map>

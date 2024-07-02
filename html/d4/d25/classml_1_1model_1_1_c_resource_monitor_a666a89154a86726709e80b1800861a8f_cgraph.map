@@ -1,0 +1,6 @@
+<map id="ml::model::CResourceMonitor::adjustedUsage" name="ml::model::CResourceMonitor::adjustedUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,201,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="54,29,52,19,60,10,77,5,103,3,131,5,148,11,146,16,130,10,103,8,78,10,63,15,57,21,59,28"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="249,29,479,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="201,47,233,47,233,52,201,52"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,202,137"/>
+<area shape="rect" id="Node000002" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#ac87d12291f45aa564dbb89b35e116a9d" title=" " alt="" coords="269,5,429,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,109,249,57,268,49,270,54,251,61,133,113"/>
+<area shape="rect" id="Node000003" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a088543e25af81956f05f9c04a5fa69e8" title="Static method to get the ID of the currently running thread." alt="" coords="282,71,416,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,108,266,99,267,105,202,114"/>
+<area shape="rect" id="Node000004" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a9f82e8076a5cef16d3bd7ca274a97db0" title="Default path for named pipes." alt="" coords="250,136,448,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,135,235,139,234,144,202,140"/>
+<area shape="rect" id="Node000005" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a1710b622abe2af1f0bdf6ef5e9ba80f2" title=" " alt="" coords="250,201,448,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="134,135,251,186,270,193,268,198,249,191,132,140"/>
+<area shape="rect" id="Node000006" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#aa43125277b181d9dbd4263ff45f8ba75" title=" " alt="" coords="496,201,694,242"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="449,219,480,219,480,224,449,224"/>
+<area shape="rect" id="Node000007" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#ad6c48125c40ec2d7825628445118eac8" title=" " alt="" coords="742,103,903,143"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="641,198,741,154,757,147,759,152,743,159,643,203"/>
+<area shape="rect" id="Node000008" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#acc911f7595fc8451a15ccc6389162721" title=" " alt="" coords="742,168,903,209"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="694,205,726,200,727,205,695,210"/>
+<area shape="rect" id="Node000009" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a0ac6930dbe3831527169f29e1794fa18" title=" " alt="" coords="742,233,903,274"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="695,233,727,238,726,243,694,238"/>
+<area shape="rect" id="Node000010" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a9b938fd4fd923da6d926426fe06c9e14" title=" " alt="" coords="742,299,903,339"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="645,240,743,283,759,290,757,295,741,288,643,245"/>
+</map>

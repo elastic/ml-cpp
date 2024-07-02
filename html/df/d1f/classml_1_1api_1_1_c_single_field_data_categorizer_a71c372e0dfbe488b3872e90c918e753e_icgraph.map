@@ -1,0 +1,7 @@
+<map id="ml::api::CSingleFieldDataCategorizer::forceResourceRefresh" name="ml::api::CSingleFieldDataCategorizer::forceResourceRefresh">
+<area shape="rect" id="Node000001" title="Force an update of the resource monitor." alt="" coords="377,5,604,46"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a01adb279c7fd317365425df860a58701" title="Persist current state due to the periodic persistence being triggered." alt="" coords="103,5,329,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="362,28,329,28,329,23,362,23"/>
+<area shape="rect" id="Node000003" href="$de/d5e/bin_2categorize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Group machine generated messages into categories by similarity." alt="" coords="5,13,55,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="87,28,55,28,55,23,87,23"/>
+</map>

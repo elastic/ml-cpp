@@ -1,0 +1,13 @@
+<map id="ml::model::CDataGatherer::restoreBucketGatherer" name="ml::model::CDataGatherer::restoreBucketGatherer">
+<area shape="rect" id="Node000001" title="Restore a bucket gatherer from the supplied traverser." alt="" coords="5,136,180,177"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abaaeada8d59172f01e365d1167a7d340" title="Get the attribute field name if one exists." alt="" coords="250,5,424,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,133,165,95,226,57,242,50,244,54,229,61,168,99,119,138"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="228,71,446,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,133,243,113,244,119,172,138"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="228,136,446,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,154,212,154,212,159,180,159"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a663b4ffe2c7f28a1f5ce4495b7d1f9d0" title=" " alt="" coords="250,201,424,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="172,175,244,194,243,199,170,180"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a5236067c034227c6106f76b8f929d8cb" title="Get the name of the field containing the metric value." alt="" coords="250,267,424,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="119,175,168,214,229,251,244,258,242,263,226,256,165,218,116,179"/>
+</map>

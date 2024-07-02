@@ -1,0 +1,26 @@
+<map id="ml::core::CProgramCounters::instance" name="ml::core::CProgramCounters::instance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="541,197,729,237"/>
+<area shape="rect" id="Node000002" href="$d8/d33/_c_metric_anomaly_detector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="284,5,480,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="614,185,593,151,565,113,531,75,492,44,470,34,472,29,494,40,535,71,569,109,598,148,619,182"/>
+<area shape="rect" id="Node000003" href="$d0/df6/_c_program_counters_test_8cc.html#ae68d37bc456bb6d076330a161a7f2bb9" title=" " alt="" coords="273,55,491,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="605,187,555,138,525,114,492,94,465,83,467,78,494,89,528,110,559,134,609,183"/>
+<area shape="rect" id="Node000004" href="$d0/df6/_c_program_counters_test_8cc.html#a6726b02390f0db08f8eef28bb55bdd8e" title=" " alt="" coords="273,104,491,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="587,191,542,166,492,143,457,133,459,128,494,138,544,161,590,186"/>
+<area shape="rect" id="Node000005" href="$d0/df6/_c_program_counters_test_8cc.html#adf635acb63ddf908e4c517bd6a600803" title=" " alt="" coords="273,153,491,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="525,198,449,182,450,177,526,192"/>
+<area shape="rect" id="Node000006" href="$d0/df6/_c_program_counters_test_8cc.html#a4dc66c5549c3e564446badfeaff2cf9a" title=" " alt="" coords="5,279,223,304"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="526,220,403,227,271,245,206,261,150,281,148,276,205,256,270,240,402,222,525,215"/>
+<area shape="rect" id="Node000007" href="$d0/df6/_c_program_counters_test_8cc.html#a8f4588c3d076bce15a974c794f97f7cb" title=" " alt="" coords="273,255,491,280"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="526,241,450,257,449,251,525,236"/>
+<area shape="rect" id="Node000008" href="$df/d6b/classml_1_1test_1_1_c_program_counter_clearing_fixture.html#a88a8693d1fe6c8722a596d468bf30a5d" title=" " alt="" coords="271,305,493,361"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="587,248,494,295,466,307,464,302,492,290,584,243"/>
+<area shape="rect" id="Node000009" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="357,385,407,411"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="615,252,565,315,532,348,494,375,449,392,407,399,407,394,448,387,492,370,528,344,561,312,611,249"/>
+<area shape="rect" id="Node000010" href="$d0/df6/_c_program_counters_test_8cc.html#ac437411333571bb1ea58c99700ed2d1e" title=" " alt="" coords="352,435,412,460"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="622,253,603,293,575,340,539,387,495,426,475,436,453,443,413,450,412,444,452,438,473,431,491,421,535,383,571,337,598,291,618,250"/>
+<area shape="poly" id="edge11_Node000010_Node000006" title=" " alt="" coords="336,445,303,438,269,426,206,375,128,307,132,303,209,371,272,421,304,433,337,440"/>
+<area shape="rect" id="Node000011" href="$d2/d06/_c_boosted_tree_test_8cc.html#a0236b39f67cc28f8ec947ab5462c2e1b" title=" " alt="" coords="16,401,212,427"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="336,445,212,429,213,424,337,439"/>
+<area shape="rect" id="Node000012" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html#ac6218e362f5a895d49dd36b8845e0229" title="Persist by passing information to inserter." alt="" coords="39,452,189,507"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="337,455,190,473,189,468,336,450"/>
+</map>

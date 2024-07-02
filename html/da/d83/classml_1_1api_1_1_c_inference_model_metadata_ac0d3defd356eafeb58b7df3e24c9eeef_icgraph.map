@@ -1,0 +1,7 @@
+<map id="ml::api::CInferenceModelMetadata::numDataSummarizationRows" name="ml::api::CInferenceModelMetadata::numDataSummarizationRows">
+<area shape="rect" id="Node000001" title="Set the number of rows in the training data summarization." alt="" coords="257,53,514,94"/>
+<area shape="rect" id="Node000002" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a64a41f746d066bbc38609231cb6d0cf6" title=" " alt="" coords="11,5,203,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,55,203,50,204,44,242,50"/>
+<area shape="rect" id="Node000003" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a7c60d2fbb946ab7e1bc93cf07a7f0d3e" title=" " alt="" coords="5,85,209,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,97,210,101,209,96,241,91"/>
+</map>

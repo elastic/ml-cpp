@@ -1,0 +1,9 @@
+<map id="ml::core::CXmlParserIntf" name="ml::core::CXmlParserIntf">
+<area shape="rect" id="Node000001" title="Polymorphic interface to XML parser classes." alt="" coords="106,79,273,105"/>
+<area shape="rect" id="Node000003" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html" title="Simple C++ wrapper around the RapidXml library." alt="" coords="5,153,187,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="163,117,113,154,110,150,160,112"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html" title="Simple C++ wrapper around the libxml2 library." alt="" coords="210,153,358,178"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="219,112,270,150,267,154,216,117"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="107,5,272,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,46,192,79,187,79,187,46"/>
+</map>

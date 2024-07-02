@@ -1,0 +1,9 @@
+<map id="ml::core::data_frame_row_slice_detail::CDataFrameRowSliceHandleImpl" name="ml::core::data_frame_row_slice_detail::CDataFrameRowSliceHandleImpl">
+<area shape="rect" id="Node000001" title="The implementation backing a data frame row slice handle." alt="" coords="5,85,210,141"/>
+<area shape="rect" id="Node000002" href="$d0/d3f/classml_1_1core_1_1anonymous__namespace_02_c_data_frame_row_slice_8cc_03_1_1_c_bad_data_frame_row_slice_handle.html" title="The implementation of a bad handle." alt="" coords="270,5,522,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,78,292,59,294,64,225,83"/>
+<area shape="rect" id="Node000003" href="$d1/dd8/classml_1_1core_1_1anonymous__namespace_02_c_data_frame_row_slice_8cc_03_1_1_c_main_memory_data_frame_row_slice_handle.html" title="A handle for reading CRawDataFrameRowSlice objects." alt="" coords="258,85,534,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,111,257,111,257,116,225,116"/>
+<area shape="rect" id="Node000004" href="$d7/df2/classml_1_1core_1_1anonymous__namespace_02_c_data_frame_row_slice_8cc_03_1_1_c_on_disk_data_frame_row_slice_handle.html" title="A handle for reading CRawDataFrameRowSlice objects." alt="" coords="270,165,522,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,143,294,162,292,167,224,148"/>
+</map>

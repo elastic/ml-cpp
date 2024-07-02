@@ -1,0 +1,7 @@
+<map id="ml::model_t::learnRate" name="ml::model_t::learnRate">
+<area shape="rect" id="Node000001" title="Get the rate at which feature learns." alt="" coords="5,31,159,56"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#a6c18445fef48c42f02bbf130c2405704" title="Check if feature is modeling time of day or week." alt="" coords="209,5,358,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,31,193,27,194,32,159,36"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#adbffb95389e6a14a3e10385772e24adb" title="Check if feature is modeling latitude and longitude." alt="" coords="207,55,360,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,50,192,54,191,59,159,55"/>
+</map>

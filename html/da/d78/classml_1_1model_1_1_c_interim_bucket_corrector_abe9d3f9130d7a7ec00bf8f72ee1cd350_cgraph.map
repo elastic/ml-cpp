@@ -1,0 +1,24 @@
+<map id="ml::model::CInterimBucketCorrector::estimateBucketCompleteness" name="ml::model::CInterimBucketCorrector::estimateBucketCompleteness">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,183,264,223"/>
+<area shape="rect" id="Node000002" href="$da/d78/classml_1_1model_1_1_c_interim_bucket_corrector.html#a50c102c6ee8d61183bda25633c2cc13d" title="Returns the mid point in the bucket that contains time." alt="" coords="312,5,511,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,180,220,119,263,85,310,55,321,50,323,55,313,60,266,90,223,123,157,184"/>
+<area shape="rect" id="Node000004" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#ad9c482d83e793ddaa2742f058c8196a3" title="Check if the decomposition has any initialized components." alt="" coords="315,70,508,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,180,321,129,323,134,191,185"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="332,149,491,190"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="264,185,316,178,316,184,264,190"/>
+<area shape="rect" id="Node000007" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a6fac916c38208a962dafb549def6bf47" title="Get the mean of the vector components." alt="" coords="339,215,484,255"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="264,215,324,222,323,228,264,221"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="339,280,484,321"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="193,221,313,264,334,272,333,277,311,270,191,226"/>
+<area shape="rect" id="Node000010" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#afdcd8ff75da6b504042205027b9790b8" title=" " alt="" coords="315,369,508,424"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="164,221,313,330,354,357,351,362,310,335,161,226"/>
+<area shape="rect" id="Node000003" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="600,5,745,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="511,23,584,23,584,28,511,28"/>
+<area shape="rect" id="Node000005" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a484f8f20b8acc0e40b845689835786f1" title="Check if the decomposition has any initialized components." alt="" coords="559,70,785,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="508,95,543,95,543,100,508,100"/>
+<area shape="rect" id="Node000008" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#ada04f2e25f36a218828e4742dd9cfafa" title=" " alt="" coords="600,200,745,270"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="485,232,584,232,584,238,485,238"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="361,368,361,358,370,349,387,344,411,342,439,344,455,351,453,356,437,350,411,347,388,349,373,354,366,360,366,368"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="587,384,757,409"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="508,394,572,394,572,399,508,399"/>
+</map>

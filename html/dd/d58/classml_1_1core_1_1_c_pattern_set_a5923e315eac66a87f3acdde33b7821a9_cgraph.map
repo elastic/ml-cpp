@@ -1,0 +1,19 @@
+<map id="ml::core::CPatternSet::initFromPatternList" name="ml::core::CPatternSet::initFromPatternList">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,95,154,135"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac9c0287e7f45f33df1ec6065e6ddd1ec" title=" " alt="" coords="203,61,371,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,100,187,95,188,100,155,106"/>
+<area shape="rect" id="Node000008" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#acd862d4a1264604cb342e91a03817455" title=" " alt="" coords="202,127,372,167"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="155,124,186,129,186,134,154,129"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a3c93c774f1385bee9d579c358ea7462b" title="The recursive building helper." alt="" coords="420,29,588,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="371,67,404,62,405,67,372,72"/>
+<area shape="rect" id="Node000006" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad06d73c85fb99d9a9888376159c88fd4" title="Pretty&#45;prints the tree." alt="" coords="420,95,588,135"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="372,92,405,97,404,102,371,97"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="463,29,461,19,468,10,482,5,504,3,528,5,542,11,540,16,526,10,504,8,484,10,471,15,466,21,468,28"/>
+<area shape="rect" id="Node000004" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="636,29,815,70"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="589,47,621,47,621,52,589,52"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="863,70,909,96"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="815,66,848,73,847,78,814,71"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="652,95,799,135"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="589,112,637,112,637,118,589,118"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="799,98,847,88,848,93,800,103"/>
+</map>

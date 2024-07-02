@@ -1,0 +1,13 @@
+<map id="ml::model::CEventRateBucketGatherer::attributeFieldName" name="ml::model::CEventRateBucketGatherer::attributeFieldName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="790,49,990,90"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a578e7856f8ed7e9012c7f477bfc896ce" title="Construct from a state document." alt="" coords="253,5,495,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="790,48,742,40,615,30,495,27,496,21,615,25,743,35,791,43"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#aac3e03246c0fd7af0bd7c6dd118990b4" title=" " alt="" coords="253,83,495,123"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="793,96,743,104,615,112,495,112,495,106,615,107,742,99,793,91"/>
+<area shape="rect" id="Node000005" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ab75d54bd5b842d5b7207dd23df2b8b50" title="Initialize the field names collection." alt="" coords="543,49,742,90"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="775,72,743,72,743,67,775,67"/>
+<area shape="rect" id="Node000004" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#aca92cd5c048c8eb8383d7c2446dc2023" title=" " alt="" coords="5,83,205,123"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="237,106,205,106,205,100,237,100"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="527,54,495,48,496,43,528,48"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="528,87,496,91,495,85,527,81"/>
+</map>

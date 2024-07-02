@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::reset" name="ml::maths::common::CNormalMeanPrecConjugate::reset">
+<area shape="rect" id="Node000001" title="Reset the prior based on the sample central moments." alt="" coords="253,5,444,61"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a2f8dfff28f38c7098186e3819443b27b" title="Construct from sample central moments." alt="" coords="5,5,205,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,36,205,36,205,31,237,31"/>
+</map>

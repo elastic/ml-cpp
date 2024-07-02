@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::marginalLikelihoodSupport" name="ml::maths::common::CLogNormalMeanPrecConjugate::marginalLikelihoodSupport">
+<area shape="rect" id="Node000001" title="Get the support for the marginal likelihood function." alt="" coords="543,64,755,119"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#ae3ef2decd4c12fca2c86d239e42d5457" title=" " alt="" coords="250,24,495,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="527,77,495,72,496,67,528,71"/>
+<area shape="rect" id="Node000005" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a2206b71f61a09f01f08a91243edd2edf" title=" " alt="" coords="266,104,479,159"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="528,112,479,119,479,113,527,106"/>
+<area shape="rect" id="Node000003" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a55bbf7636623fd2a7f99058f166e8005" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,37,202,33,203,28,234,32"/>
+<area shape="rect" id="Node000004" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="234,62,202,64,202,59,234,57"/>
+<area shape="rect" id="Node000006" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,119,202,144"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="251,134,202,134,202,129,251,129"/>
+</map>

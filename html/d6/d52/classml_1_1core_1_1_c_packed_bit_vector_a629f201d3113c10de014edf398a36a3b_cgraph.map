@@ -1,0 +1,20 @@
+<map id="ml::core::CPackedBitVector::bitwise" name="ml::core::CPackedBitVector::bitwise">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,190,98"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab39be1dbb91f842590eb8a91b1a7febd" title=" " alt="" coords="238,24,422,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,62,222,57,222,62,191,67"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ac0eebb5df26a9562043d149bbfb20ab8" title=" " alt="" coords="238,89,422,130"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="191,88,222,92,222,97,190,93"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="702,24,887,65"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,21,470,10,562,3,655,10,702,17,701,23,654,15,562,8,470,15,409,26"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a495d71889bdd3fa04554c3a69bfe4140" title=" " alt="" coords="470,24,654,65"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,42,454,42,454,47,423,47"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="655,42,686,42,686,47,655,47"/>
+<area shape="rect" id="Node000006" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#aae429f3ade684c422d9f25ec88301131" title="Get the dimension." alt="" coords="470,89,654,130"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="423,107,454,107,454,112,423,112"/>
+<area shape="rect" id="Node000007" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a1fd3c1271bf4d576ec2e62b2645b9177" title=" " alt="" coords="470,155,654,195"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="405,128,473,147,472,152,404,133"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="626,152,653,139,707,106,754,72,757,77,710,111,656,144,628,156"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="757,162,832,188"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="655,172,742,172,742,178,655,178"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="756,163,748,154,753,144,769,138,795,135,823,138,837,145,835,150,821,143,794,141,770,143,757,148,754,153,760,160"/>
+</map>

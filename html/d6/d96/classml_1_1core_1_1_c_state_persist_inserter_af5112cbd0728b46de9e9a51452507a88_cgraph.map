@@ -1,0 +1,9 @@
+<map id="ml::core::CStatePersistInserter::insertValue" name="ml::core::CStatePersistInserter::insertValue">
+<area shape="rect" id="Node000001" title="Store a floating point number with a given level of precision." alt="" coords="5,39,208,79"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="256,5,458,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,43,240,39,241,44,209,48"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="283,71,431,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,69,268,77,267,82,208,75"/>
+<area shape="rect" id="Node000004" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="506,71,644,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="431,88,491,88,491,94,431,94"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::model::CCountingModel::createNewModels" name="ml::model::CCountingModel::createNewModels">
+<area shape="rect" id="Node000001" title="Create the mean counts for &quot;n&quot; newly observed people." alt="" coords="5,35,189,75"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aeac745eb145b2477f1d698c76973955c" title=" " alt="" coords="237,5,434,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,41,221,37,221,42,189,46"/>
+<area shape="rect" id="Node000003" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#a3597ed3463d58538c43e8f1f2898591e" title="Resize a container using a 10% capacity increase." alt="" coords="482,35,674,75"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="189,54,237,55,434,55,466,55,466,60,434,60,237,60,189,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="435,35,467,39,466,44,434,40"/>
+</map>

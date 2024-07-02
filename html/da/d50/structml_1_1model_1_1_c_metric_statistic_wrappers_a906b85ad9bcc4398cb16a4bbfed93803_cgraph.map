@@ -1,0 +1,7 @@
+<map id="ml::model::CMetricStatisticWrappers::count" name="ml::model::CMetricStatisticWrappers::count">
+<area shape="rect" id="Node000001" title="Get the count of a multivariate statistic." alt="" coords="5,5,186,46"/>
+<area shape="rect" id="Node000002" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#a639d596d77b1b342a6cba8a71769ced7" title="Returns the count of all the measurements." alt="" coords="234,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,23,218,23,218,28,186,28"/>
+<area shape="rect" id="Node000003" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a97fd56f20988fde7e7a1981f9ae6bcbc" title="Returns 1.0 since this is not available." alt="" coords="481,5,661,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,23,465,23,465,28,433,28"/>
+</map>

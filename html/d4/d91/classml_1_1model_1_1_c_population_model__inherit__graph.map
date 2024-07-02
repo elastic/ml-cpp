@@ -1,0 +1,9 @@
+<map id="ml::model::CPopulationModel" name="ml::model::CPopulationModel">
+<area shape="rect" id="Node000001" title="The most basic population model interface." alt="" coords="134,94,326,120"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html" title="The model for computing the anomalousness of the rate at which each person in a population generates ..." alt="" coords="5,168,225,208"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,131,145,169,142,165,198,126"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html" title="The model for computing the anomalousness of the values each person in a population generates in a da..." alt="" coords="249,168,442,208"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="261,126,319,165,316,169,258,131"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="131,5,328,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,62,232,93,227,93,227,62"/>
+</map>

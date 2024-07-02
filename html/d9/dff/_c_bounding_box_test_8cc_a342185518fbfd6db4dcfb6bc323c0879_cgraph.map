@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,202,169"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a4e68128aad2c2f7e8a3cfc377e407da3" title=" " alt="" coords="253,37,399,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,141,249,89,262,82,265,87,251,93,135,145"/>
+<area shape="rect" id="Node000006" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a492a6f942d6dfed9bc62a16f715208a1" title="Get the bottom left corner." alt="" coords="253,103,399,143"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="193,140,237,134,238,139,194,146"/>
+<area shape="rect" id="Node000007" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#aa9e78663eefa7e823e9a68d4c5e06284" title="Get the centre of the bounding box." alt="" coords="250,168,402,209"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="198,167,234,173,234,178,197,172"/>
+<area shape="rect" id="Node000008" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#ab6a041f5a8887eecbdff1f8dcf6942a6" title="Get the top right corner." alt="" coords="253,233,399,274"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="136,167,265,224,263,229,134,172"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="450,5,595,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="398,43,434,37,435,43,399,48"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a786f76053e20e60af5ece9d2a221d032" title="In&#45;place minimum, writing to y." alt="" coords="450,71,595,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="399,67,435,74,434,79,398,73"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="643,39,789,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="596,36,628,41,627,46,595,41"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="595,76,627,71,628,76,596,82"/>
+</map>

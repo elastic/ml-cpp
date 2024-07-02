@@ -1,0 +1,7 @@
+<map id="ml::api::anonymous_namespace{CDataSummarizationJsonWriter.cc}::CEncoderNameIndexMapBuilder" name="ml::api::anonymous_namespace{CDataSummarizationJsonWriter.cc}::CEncoderNameIndexMapBuilder">
+<area shape="rect" id="Node000001" title=" " alt="" coords="408,34,645,105"/>
+<area shape="rect" id="Node000002" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html" title="Visits each encoding type." alt="" coords="5,5,211,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,41,407,56,407,62,226,46"/>
+<area shape="rect" id="Node000003" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html" title="Provides feature names." alt="" coords="25,85,191,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,94,407,77,407,82,207,99"/>
+</map>

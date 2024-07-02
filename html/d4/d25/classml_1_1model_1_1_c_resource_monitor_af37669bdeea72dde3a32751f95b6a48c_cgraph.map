@@ -1,0 +1,9 @@
+<map id="ml::model::CResourceMonitor::unRegisterComponent" name="ml::model::CResourceMonitor::unRegisterComponent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,201,70"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="492,29,680,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,44,249,43,444,43,477,44,477,49,444,48,249,48,201,49"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="249,57,444,98"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="201,58,234,62,233,67,201,64"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="541,29,539,19,546,10,562,5,586,3,612,5,627,11,625,16,611,10,586,8,563,10,549,15,544,21,546,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="444,64,476,60,477,65,445,69"/>
+</map>

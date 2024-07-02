@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CCalendarCyclicTest::largeErrorPercentile" name="ml::maths::time_series::CCalendarCyclicTest::largeErrorPercentile">
+<area shape="rect" id="Node000001" title="Get the percentile for errors classified as large." alt="" coords="5,5,160,61"/>
+<area shape="rect" id="Node000002" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a93b605a61cb8d4c6809c4970af423276" title="Adjust percentile thresholds for long bucket lengths." alt="" coords="208,5,425,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,31,192,31,192,36,160,36"/>
+</map>

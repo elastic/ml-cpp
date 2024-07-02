@@ -1,0 +1,38 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,424,202,449"/>
+<area shape="rect" id="Node000002" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#aa48c8b0f344aa3f1bfba315807554e47" title="Persist by passing information to inserter." alt="" coords="261,121,457,176"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,422,125,380,155,321,196,256,221,225,248,197,268,182,271,186,251,201,224,228,200,259,159,323,130,382,112,424"/>
+<area shape="rect" id="Node000006" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#adc908387a7b6214232ccfe3b6d4fe992" title="Get a checksum of this object." alt="" coords="271,211,447,251"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="113,421,166,356,205,317,248,281,290,256,292,261,251,285,209,321,170,360,117,425"/>
+<area shape="rect" id="Node000008" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#af9f29c98c25e47cf53f809d41877faa8" title="Create from a delimited string." alt="" coords="280,295,438,351"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="133,421,249,369,279,355,281,360,251,373,135,425"/>
+<area shape="rect" id="Node000010" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a33ed7fb8aa514c188c8397ea09ddc50a" title="Create from a delimited string." alt="" coords="268,383,450,423"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="202,421,252,414,253,420,203,426"/>
+<area shape="rect" id="Node000012" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="268,448,450,489"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="202,446,253,452,252,458,202,451"/>
+<area shape="rect" id="Node000015" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a30e8c0981b2da4362865b9f8aee9fc13" title="Convert to a delimited string." alt="" coords="280,513,438,568"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="135,447,251,498,266,504,264,509,249,503,132,452"/>
+<area shape="rect" id="Node000017" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="272,616,446,657"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="118,448,172,508,210,544,251,578,298,606,295,611,248,583,206,548,168,512,114,451"/>
+<area shape="rect" id="Node000018" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="250,681,468,722"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="112,449,128,491,157,550,198,612,223,641,251,666,258,671,255,676,248,670,220,645,194,616,153,552,124,493,107,451"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="516,5,718,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,118,455,87,515,57,532,49,534,54,517,61,458,91,405,122"/>
+<area shape="rect" id="Node000004" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#a389bad31c541e617d550a2f2e62d700b" title=" " alt="" coords="545,71,690,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="456,124,529,108,530,113,457,129"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="540,136,694,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="457,149,525,151,524,156,457,154"/>
+<area shape="rect" id="Node000007" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="540,201,694,242"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="447,225,524,222,524,228,447,230"/>
+<area shape="rect" id="Node000009" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a1358153d705f0f06de995c3c28024228" title=" " alt="" coords="534,266,701,351"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="438,316,518,311,518,317,438,321"/>
+<area shape="rect" id="Node000011" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#ab44d251749dc9d37aa90e4919e51334a" title=" " alt="" coords="532,376,702,446"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="451,403,517,405,517,411,451,408"/>
+<area shape="rect" id="Node000013" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="524,471,711,511"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="450,474,509,479,508,484,450,479"/>
+<area shape="rect" id="Node000014" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="766,471,948,511"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="711,488,751,488,751,494,711,494"/>
+<area shape="rect" id="Node000016" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#ad6038db662761b26819741a28add12eb" title=" " alt="" coords="534,535,701,621"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="438,549,519,561,518,566,438,554"/>
+<area shape="poly" id="edge17_Node000017_Node000017" title=" " alt="" coords="311,616,309,606,317,597,333,591,359,589,386,592,403,598,401,603,385,597,359,595,334,597,319,601,314,607,316,615"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CKdTree::estimateMemoryUsage" name="ml::maths::common::CKdTree::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,75,222,115"/>
+<area shape="rect" id="Node000002" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html#a4c16fa5db8d05689da22d5509f156a28" title="Estimate the amount of memory this node will use." alt="" coords="270,67,496,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,92,254,92,254,98,222,98"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6a3cd00c6fa74f6a65c087dff4dde84b" title=" " alt="" coords="544,41,725,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="496,77,528,73,529,78,497,83"/>
+<area shape="rect" id="Node000006" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html#ac6d3a4ec126069dbb47d85ece97aa3a5" title="Copy point into place." alt="" coords="550,107,719,147"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="497,107,535,112,534,117,496,112"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="792,5,938,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="726,45,776,37,777,42,726,50"/>
+<area shape="rect" id="Node000005" href="$d8/d2a/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_vector_memory_usage.html#a9bc22250998a90f679020a079365bb3a" title=" " alt="" coords="773,70,957,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="726,73,758,78,757,84,726,79"/>
+</map>

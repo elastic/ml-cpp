@@ -1,0 +1,5 @@
+<map id="ml::core::CTimezone::dateFields" name="ml::core::CTimezone::dateFields">
+<area shape="rect" id="Node000001" title="Get the date fields." alt="" coords="5,5,149,46"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a105014c82ea43b365e7f7431d81f6dc7" title="Convert a UTC time to local time in the current timezone." alt="" coords="197,5,340,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,23,181,23,181,28,149,28"/>
+</map>

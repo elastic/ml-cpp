@@ -1,0 +1,5 @@
+<map id="ml::core::CStateMachine::expectedNumberMachines" name="ml::core::CStateMachine::expectedNumberMachines">
+<area shape="rect" id="Node000001" title="Set the number of machines we expect the program to use." alt="" coords="5,5,190,46"/>
+<area shape="rect" id="Node000002" href="$df/d93/classml_1_1core_1_1_c_state_machine_1_1_c_machine_deque.html#a1e743f510cdced4c906c7792650c6eec" title="Set the vector capacity to capacity." alt="" coords="238,5,421,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,23,222,23,222,28,190,28"/>
+</map>

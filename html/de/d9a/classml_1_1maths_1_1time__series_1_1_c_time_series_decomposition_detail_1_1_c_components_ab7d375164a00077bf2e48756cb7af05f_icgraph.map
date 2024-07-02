@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::dataType" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::dataType">
+<area shape="rect" id="Node000001" title="Set the data type." alt="" coords="490,29,716,85"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a936f0ee99d1d6e7b99491693de6ee8f6" title="Set the data type." alt="" coords="250,29,442,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="474,60,442,60,442,55,474,55"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="385,17,370,10,346,8,324,10,311,15,304,21,304,29,298,29,299,19,308,10,323,5,346,3,371,5,387,12"/>
+<area shape="rect" id="Node000003" href="$d9/d06/_c_forecast_model_persist_test_8cc.html#a795f3175d2d5797cfe8c035402281353" title=" " alt="" coords="5,44,202,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,60,202,60,202,55,234,55"/>
+</map>

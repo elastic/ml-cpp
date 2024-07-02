@@ -1,0 +1,12 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,102,223,128"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="271,29,459,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,99,268,72,270,77,167,104"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="272,95,458,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="223,112,257,112,257,118,223,118"/>
+<area shape="rect" id="Node000005" href="$dd/d73/classml_1_1core_1_1_c_program_counters_1_1_c_counter.html#abc38b4b17c7778dabd5f021d880886b3" title=" " alt="" coords="271,160,459,201"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="167,126,270,153,268,158,165,131"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="321,29,318,19,326,10,341,5,365,3,390,5,405,11,403,16,389,10,365,8,342,10,329,15,324,21,326,28"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="507,95,692,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="458,112,491,112,491,118,458,118"/>
+</map>

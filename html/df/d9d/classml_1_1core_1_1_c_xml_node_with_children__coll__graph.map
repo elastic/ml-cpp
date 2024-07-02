@@ -1,0 +1,5 @@
+<map id="ml::core::CXmlNodeWithChildren" name="ml::core::CXmlNodeWithChildren">
+<area shape="rect" id="Node000001" title="Representation of a XML node that can model a hierarchy." alt="" coords="5,79,221,105"/>
+<area shape="rect" id="Node000002" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html" title="Simple representation of a XML node." alt="" coords="43,5,183,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,46,116,79,110,79,110,46"/>
+</map>

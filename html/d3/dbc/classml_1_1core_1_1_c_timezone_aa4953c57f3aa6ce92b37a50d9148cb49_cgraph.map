@@ -1,0 +1,8 @@
+<map id="ml::core::CTimezone::setTimezone" name="ml::core::CTimezone::setTimezone">
+<area shape="rect" id="Node000001" title="Convenience wrapper around the setter for timezone name." alt="" coords="5,63,149,103"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="197,29,340,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,68,181,62,182,67,150,73"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a9c7f8f529afaf758d76c8888c1391fad" title=" " alt="" coords="197,95,340,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="150,92,182,98,181,103,149,98"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="232,29,230,19,236,10,249,5,268,3,289,5,302,11,299,16,288,10,268,8,250,10,239,15,235,20,237,28"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="anonymous_namespace{CRandomProjectionClustererTest::cc}::CRandomProjectionClustererForTest::neighbourhoods" name="anonymous_namespace{CRandomProjectionClustererTest::cc}::CRandomProjectionClustererForTest::neighbourhoods">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,60,256,130"/>
+<area shape="rect" id="Node000002" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a63d79ac52fd7396c28ecb05467464756" title=" " alt="" coords="304,67,495,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,92,288,92,288,98,256,98"/>
+<area shape="rect" id="Node000003" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a3ea9eae87751ba58e0d185105ee1b5fe" title=" " alt="" coords="562,29,707,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="495,74,546,64,547,69,496,79"/>
+<area shape="rect" id="Node000004" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a0a5c3c60cd89ac5046fb58f6d10a8b1c" title="Branch and bound search for nearest neighbour of point." alt="" coords="543,119,726,159"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="496,110,528,116,527,122,495,116"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="594,29,592,19,599,10,613,5,635,3,658,5,671,11,669,16,656,10,635,8,615,10,602,15,598,20,600,28"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="594,119,592,109,599,100,613,94,635,92,658,94,671,101,669,105,656,100,635,97,615,99,602,104,598,110,600,117"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="774,119,920,159"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="727,136,759,136,759,142,727,142"/>
+<area shape="rect" id="Node000006" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="968,119,1113,159"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="920,136,952,136,952,142,920,142"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::common::information_criteria_detail::confidence" name="ml::maths::common::information_criteria_detail::confidence">
+<area shape="rect" id="Node000001" title=" " alt="" coords="528,81,673,136"/>
+<area shape="rect" id="Node000002" href="$d4/d65/classml_1_1maths_1_1common_1_1_c_spherical_gaussian_info_criterion.html#af1909d59cbd8dc4341b483b82482fb21" title="Update the sufficient statistics for computing info content." alt="" coords="240,5,480,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="522,77,479,60,444,49,446,44,481,55,524,72"/>
+<area shape="rect" id="Node000003" href="$dd/d6d/_c_information_criteria_test_8cc.html#ae8266460a997d696263a700b5c8b62fe" title=" " alt="" coords="262,70,458,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="512,102,458,96,459,91,513,96"/>
+<area shape="rect" id="Node000004" href="$dd/d6d/_c_information_criteria_test_8cc.html#acb5145a628e8b94d3d332c5062894499" title=" " alt="" coords="262,120,458,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="513,120,459,125,458,120,512,114"/>
+<area shape="rect" id="Node000005" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ab1ce171c6e823625bdeed7122d12a071" title="Compute the log of the determinant of covariance." alt="" coords="281,170,439,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="520,145,481,160,440,175,438,170,479,155,518,140"/>
+<area shape="rect" id="Node000006" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ac492dcff81db9652ae12665e68fa2bed" title="Update the sufficient statistics for computing info content." alt="" coords="5,177,192,218"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="265,200,192,200,192,195,265,195"/>
+</map>

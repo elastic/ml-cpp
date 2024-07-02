@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,98,202,124"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#aa4953c57f3aa6ce92b37a50d9148cb49" title="Convenience wrapper around the setter for timezone name." alt="" coords="250,57,393,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,95,234,88,235,94,192,100"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#ab273d6897c63c489378700214227a618" title=" " alt="" coords="250,123,393,163"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="196,122,235,128,234,133,195,127"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="632,29,776,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="387,54,441,43,532,37,617,39,617,45,532,42,441,48,388,59"/>
+<area shape="rect" id="Node000004" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a9c7f8f529afaf758d76c8888c1391fad" title=" " alt="" coords="441,57,584,98"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="393,75,426,75,426,80,393,80"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="667,29,666,19,672,10,685,5,704,3,725,5,737,11,735,16,723,10,704,8,686,10,675,15,671,20,673,28"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="442,123,584,163"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="393,140,426,140,426,146,393,146"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="558,120,583,107,648,75,650,80,586,112,560,124"/>
+<area shape="rect" id="Node000007" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="634,123,774,163"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="584,140,618,140,618,146,584,146"/>
+</map>

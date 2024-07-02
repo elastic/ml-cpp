@@ -1,0 +1,14 @@
+<map id="ml::maths::common::pdf" name="ml::maths::common::pdf">
+<area shape="rect" id="Node000001" title="Compute the p.d.f. at x for distribution." alt="" coords="5,158,169,183"/>
+<area shape="rect" id="Node000002" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="217,5,397,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,155,151,115,215,71,224,66,226,71,218,75,154,120,105,159"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="217,85,397,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,155,221,128,222,133,134,160"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="234,150,380,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,168,218,168,218,173,169,173"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="224,216,390,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="134,181,222,208,221,213,132,186"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="270,304,344,330"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="106,182,155,221,218,266,268,295,265,299,215,270,152,225,103,186"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="270,306,263,296,267,286,282,280,307,278,334,280,347,287,345,292,332,285,307,283,284,285,271,290,268,295,275,302"/>
+</map>

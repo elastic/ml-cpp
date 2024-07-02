@@ -1,0 +1,13 @@
+<map id="ml::model::function_t::function" name="ml::model::function_t::function">
+<area shape="rect" id="Node000001" title="The inverse mapping from features to function." alt="" coords="5,71,138,111"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="186,5,318,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,73,199,50,201,55,139,78"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="186,71,318,111"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="138,97,170,97,170,103,138,102"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="191,136,313,161"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="138,109,195,128,193,133,137,114"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="186,44,125,67,123,62,184,39"/>
+<area shape="poly" id="edge4_Node000003_Node000001" title=" " alt="" coords="185,85,153,85,153,79,185,80"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="366,136,412,161"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="313,146,350,146,350,151,313,151"/>
+</map>

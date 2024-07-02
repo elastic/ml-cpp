@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CDataFramePredictiveModel::trainingStateRecorder" name="ml::maths::analytics::CDataFramePredictiveModel::trainingStateRecorder">
+<area shape="rect" id="Node000001" title=" " alt="" coords="268,31,465,87"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a8c5d0a4ff76ab13efd176534ec6d76b3" title="Train on the examples in the data frame supplied to the constructor." alt="" coords="39,5,186,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,47,186,38,186,33,253,41"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a81857b7bccad74f14ca973dc954e3d07" title=" " alt="" coords="5,71,220,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="253,76,220,80,220,75,252,71"/>
+</map>

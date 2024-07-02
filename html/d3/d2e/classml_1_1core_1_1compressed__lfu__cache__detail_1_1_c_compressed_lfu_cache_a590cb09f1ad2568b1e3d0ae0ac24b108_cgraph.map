@@ -1,0 +1,39 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::lookup" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::lookup">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,537,220,593"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="832,92,1039,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,536,137,478,168,402,210,320,236,281,266,245,327,183,383,143,446,115,529,89,616,74,703,71,786,77,856,87,856,92,785,82,703,77,616,79,531,94,448,120,386,147,331,187,270,248,241,284,215,322,173,404,142,480,124,538"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a02f4ba692bb6e562d0f4a42030110184" title=" " alt="" coords="268,259,482,314"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="138,535,335,324,339,328,142,539"/>
+<area shape="rect" id="Node000011" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aabbe813ad8ae2be858782aa73b1174cc" title=" " alt="" coords="828,524,1043,580"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="153,535,206,505,267,483,342,469,418,463,495,463,571,469,712,490,828,517,827,522,711,495,570,474,495,468,418,468,342,474,268,488,208,510,156,539"/>
+<area shape="rect" id="Node000012" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a3ccb24c1a4a89a116126c5f66dc5cabe" title=" " alt="" coords="268,497,482,553"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="220,546,252,541,253,546,221,551"/>
+<area shape="rect" id="Node000013" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a496b4af6a4de1fa1004309ea3a0e2fdf" title=" " alt="" coords="268,577,482,633"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="221,579,253,584,252,589,220,584"/>
+<area shape="rect" id="Node000014" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#af9e73f18011fcf51b05daf798ff4ddfd" title=" " alt="" coords="268,657,482,713"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="166,591,269,643,282,649,280,653,267,648,164,596"/>
+<area shape="rect" id="Node000015" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a301b74d8a1d051c4bae1dc8179a8d2e6" title=" " alt="" coords="268,737,482,793"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="136,591,192,657,229,692,269,723,276,727,274,732,266,727,225,696,188,660,132,595"/>
+<area shape="rect" id="Node000017" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a3176234c87513026d34553c32690e7bf" title=" " alt="" coords="268,817,482,873"/>
+<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="127,592,148,638,179,694,220,752,269,803,274,807,271,811,266,807,215,756,174,697,143,640,122,594"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1091,5,1262,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="980,89,1075,61,1076,66,982,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1093,85,1260,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1039,103,1077,103,1077,108,1039,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1310,107,1495,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="989,116,1091,135,1176,138,1262,135,1294,134,1294,139,1262,140,1176,143,1090,140,988,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1261,113,1295,118,1294,123,1260,119"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="392,257,415,225,447,189,485,155,529,128,600,104,675,91,749,87,817,88,816,94,749,92,676,96,602,109,531,133,488,159,451,193,419,228,396,260"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a85e3bd9b4aa4830546108a660532e6dc" title=" " alt="" coords="539,143,771,198"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="428,256,529,208,546,202,548,207,531,213,430,261"/>
+<area shape="rect" id="Node000008" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a7c9999e0cc843311d71b36e16eed79f8" title=" " alt="" coords="530,223,780,278"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="482,270,514,266,515,271,483,275"/>
+<area shape="rect" id="Node000009" href="$d0/d74/namespaceml_1_1core_1_1memory.html#aa14b39eb14704fd1d865d84fe4b4d746" title="Default implementation." alt="" coords="568,302,742,343"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="483,298,553,307,552,312,482,303"/>
+<area shape="rect" id="Node000010" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a680d5ef01b7087952e789e827fa58685" title=" " alt="" coords="540,367,770,422"/>
+<area shape="poly" id="edge11_Node000006_Node000010" title=" " alt="" coords="438,312,531,352,549,359,547,364,529,357,436,317"/>
+<area shape="poly" id="edge12_Node000010_Node000002" title=" " alt="" coords="761,364,779,352,806,328,831,300,872,239,902,179,922,132,927,134,907,182,876,242,835,303,810,332,782,357,764,368"/>
+<area shape="rect" id="Node000016" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a2426540285a32170285656b325c99e2a" title=" " alt="" coords="548,617,762,673"/>
+<area shape="poly" id="edge18_Node000015_Node000016" title=" " alt="" coords="452,734,481,723,581,678,583,683,483,728,454,739"/>
+<area shape="poly" id="edge19_Node000016_Node000011" title=" " alt="" coords="740,614,834,583,836,588,742,619"/>
+</map>

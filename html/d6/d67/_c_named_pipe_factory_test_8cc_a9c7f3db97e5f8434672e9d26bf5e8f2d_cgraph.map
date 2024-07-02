@@ -1,0 +1,15 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,202,137"/>
+<area shape="rect" id="Node000002" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a7e30f7cd05b943c228e92e0ebed9f0a0" title=" " alt="" coords="250,104,448,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,122,234,122,234,127,202,127"/>
+<area shape="rect" id="Node000003" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#aa43125277b181d9dbd4263ff45f8ba75" title=" " alt="" coords="496,104,694,145"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="449,122,480,122,480,127,449,127"/>
+<area shape="rect" id="Node000004" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#ad6c48125c40ec2d7825628445118eac8" title=" " alt="" coords="742,5,903,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="641,101,741,57,757,50,759,55,743,61,643,106"/>
+<area shape="rect" id="Node000005" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#acc911f7595fc8451a15ccc6389162721" title=" " alt="" coords="742,71,903,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="694,107,726,102,727,108,695,112"/>
+<area shape="rect" id="Node000006" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a0ac6930dbe3831527169f29e1794fa18" title=" " alt="" coords="742,136,903,177"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="695,136,727,140,726,146,694,141"/>
+<area shape="rect" id="Node000007" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a9b938fd4fd923da6d926426fe06c9e14" title=" " alt="" coords="742,201,903,242"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="645,143,743,186,759,192,757,197,741,191,643,148"/>
+</map>

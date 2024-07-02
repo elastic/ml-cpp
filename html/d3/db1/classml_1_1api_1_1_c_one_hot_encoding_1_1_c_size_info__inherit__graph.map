@@ -1,0 +1,7 @@
+<map id="ml::api::COneHotEncoding::CSizeInfo" name="ml::api::COneHotEncoding::CSizeInfo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,183,183,223"/>
+<area shape="rect" id="Node000002" href="$d7/d88/classml_1_1api_1_1_c_encoding_1_1_c_size_info.html" title=" " alt="" coords="28,94,160,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,150,97,182,91,182,91,150"/>
+<area shape="rect" id="Node000003" href="$d3/d04/classml_1_1api_1_1_c_serializable_to_json_document.html" title="Interface for adding all elements of an inference model definition to a JSON writer." alt="" coords="14,5,174,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="97,62,97,94,91,94,91,62"/>
+</map>

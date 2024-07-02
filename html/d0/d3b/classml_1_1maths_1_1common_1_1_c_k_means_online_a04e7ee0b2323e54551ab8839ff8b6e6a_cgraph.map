@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CKMeansOnline::variance" name="ml::maths::common::CKMeansOnline::variance">
+<area shape="rect" id="Node000001" title="Get the spherically symmetric variance from moments." alt="" coords="5,71,179,111"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="275,5,421,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,67,259,45,261,51,175,73"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad1c10c15673da0ed43885524eb88b2cd" title="Get the Manhattan norm of one of our internal vector classes." alt="" coords="275,71,421,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,88,260,88,260,94,179,94"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="227,135,469,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,109,233,128,231,133,166,114"/>
+</map>

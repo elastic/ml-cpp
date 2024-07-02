@@ -1,0 +1,12 @@
+<map id="CTestFixture::roundToNearestPersisted" name="CTestFixture::roundToNearestPersisted">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,202,103"/>
+<area shape="rect" id="Node000002" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="257,5,404,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,60,241,45,242,51,187,65"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="459,92,606,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,87,444,104,443,109,202,92"/>
+<area shape="rect" id="Node000005" href="$dc/dec/class_c_model_test_fixture_base.html#a17713a8059f8b48c2fc9d2ecc33a2be8" title=" " alt="" coords="250,120,411,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="187,101,235,114,234,119,186,106"/>
+<area shape="rect" id="Node000004" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="654,92,793,133"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="607,110,639,110,639,115,607,115"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="411,127,443,122,444,127,412,132"/>
+</map>

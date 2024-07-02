@@ -1,0 +1,11 @@
+<map id="anonymous_namespace{CTimeSeriesModelTest::cc}::multivariateNormal" name="anonymous_namespace{CTimeSeriesModelTest::cc}::multivariateNormal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,170,141"/>
+<area shape="rect" id="Node000002" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a1cb6624626b886e1ac0753a4e8120957" title=" " alt="" coords="218,85,417,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,111,202,111,202,116,170,116"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ad1d8ec5f9bd8d6aee3ea1e7e3f6a7820" title=" " alt="" coords="465,5,672,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,82,464,64,465,69,408,87"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a21eabf1d872bdbd8f9d50c20f6757c95" title="Get the data type." alt="" coords="496,85,641,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="418,111,480,111,480,116,418,116"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="496,165,641,221"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="408,139,482,163,480,168,406,144"/>
+</map>

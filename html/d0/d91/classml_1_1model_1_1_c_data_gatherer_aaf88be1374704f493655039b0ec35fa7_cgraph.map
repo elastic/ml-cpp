@@ -1,0 +1,16 @@
+<map id="ml::model::CDataGatherer::cloneForPersistence" name="ml::model::CDataGatherer::cloneForPersistence">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,87,180,127"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad8e677951c8c13cb3eb1c01a564a38a1" title=" " alt="" coords="228,87,402,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,104,212,104,212,110,180,110"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abaaeada8d59172f01e365d1167a7d340" title="Get the attribute field name if one exists." alt="" coords="672,5,847,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="351,84,397,61,449,43,502,32,556,26,657,20,657,26,556,31,503,38,451,48,399,66,353,88"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a49ba26e3d0cfddd003e479d1ea38cc51" title="Create the bucket specific data gatherer." alt="" coords="450,57,624,98"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="402,93,434,89,435,94,403,98"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a663b4ffe2c7f28a1f5ce4495b7d1f9d0" title=" " alt="" coords="672,75,847,115"/>
+<area shape="poly" id="edge7_Node000002_Node000005" title=" " alt="" coords="403,108,509,110,624,107,657,105,657,110,624,112,509,115,403,113"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a5236067c034227c6106f76b8f929d8cb" title="Get the name of the field containing the metric value." alt="" coords="672,148,847,189"/>
+<area shape="poly" id="edge8_Node000002_Node000006" title=" " alt="" coords="403,116,657,152,656,157,402,122"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="624,55,657,47,658,52,625,60"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="625,82,657,84,657,90,624,87"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="590,96,695,139,693,144,588,101"/>
+</map>

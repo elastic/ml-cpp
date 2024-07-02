@@ -1,0 +1,15 @@
+<map id="ml::model::function_t::isAggressivePruningSupported" name="ml::model::function_t::isAggressivePruningSupported">
+<area shape="rect" id="Node000001" title="Is this function for use with aggressive pruning of dead split fields?" alt="" coords="5,71,224,111"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="272,71,404,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,88,256,88,256,94,224,94"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="452,5,584,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,73,465,50,467,55,405,78"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="452,71,584,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="404,97,437,97,437,103,404,102"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="457,136,579,161"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="405,109,461,128,460,133,403,114"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="452,44,391,67,389,62,450,39"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="452,85,419,85,419,79,452,80"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="632,136,679,161"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="580,146,617,146,617,151,580,151"/>
+</map>

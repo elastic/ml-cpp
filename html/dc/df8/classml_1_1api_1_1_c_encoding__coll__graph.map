@@ -1,0 +1,5 @@
+<map id="ml::api::CEncoding" name="ml::api::CEncoding">
+<area shape="rect" id="Node000001" title=" " alt="" coords="19,94,151,120"/>
+<area shape="rect" id="Node000002" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="5,5,165,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,62,88,93,82,93,82,62"/>
+</map>

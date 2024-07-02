@@ -1,0 +1,21 @@
+<map id="ml::model::CHierarchicalResultsVisitor::isPartitioned" name="ml::model::CHierarchicalResultsVisitor::isPartitioned">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1009,128,1192,169"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#acd692c7679e11f68c725ff8009a6a712" title="Check if the node is a named person." alt="" coords="795,128,961,169"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="993,151,961,151,961,146,993,146"/>
+<area shape="rect" id="Node000003" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a3cf25728d7b2cc0735b57d86640dc712" title="Compute the probability for each of the detectors." alt="" coords="492,29,747,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="826,123,746,85,709,73,711,68,748,81,828,118"/>
+<area shape="rect" id="Node000006" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#a0740c5f41f1555d14604e7ed0aff051e" title="Get and possibly add a normalizer for node." alt="" coords="531,95,709,135"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="779,138,709,129,709,124,780,133"/>
+<area shape="rect" id="Node000007" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a9f7b5e71648b4a1912f91c1f2740867d" title=" " alt="" coords="523,160,716,201"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="780,163,717,171,716,166,780,158"/>
+<area shape="rect" id="Node000008" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#ab30d76d999d4bdfebdced4be8f0f6b50" title="Check if the node is an attribute of a person." alt="" coords="535,225,705,266"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="828,179,748,215,706,228,705,223,746,210,825,174"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="662,16,646,10,620,8,595,10,580,15,574,21,576,28,571,29,569,19,577,10,594,5,620,3,647,5,664,11"/>
+<area shape="rect" id="Node000004" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a7cdca7a4e250095934a9b812eb3ea7a7" title="Aggregate at internal node." alt="" coords="219,63,444,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="477,69,445,73,444,67,476,64"/>
+<area shape="rect" id="Node000005" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#aaaf9f722a5855913332ae94c8364d178" title="Compute the aggregate probability for node." alt="" coords="5,128,171,169"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="239,110,167,130,166,125,238,105"/>
+<area shape="rect" id="Node000009" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a1deda1ed5dfa7726f0cd2eb646442dce" title="Aggregate at a leaf node." alt="" coords="222,160,441,201"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="519,226,424,204,425,199,520,220"/>
+<area shape="poly" id="edge10_Node000009_Node000005" title=" " alt="" coords="206,167,171,162,172,157,207,161"/>
+</map>

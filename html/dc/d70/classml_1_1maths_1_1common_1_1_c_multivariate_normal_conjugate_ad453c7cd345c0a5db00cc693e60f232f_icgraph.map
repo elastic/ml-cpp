@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::precision" name="ml::maths::common::CMultivariateNormalConjugate::precision">
+<area shape="rect" id="Node000001" title="Get the expected precision matrix of the marginal likelhood." alt="" coords="531,24,730,79"/>
+<area shape="rect" id="Node000002" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="268,5,465,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="515,40,465,33,465,28,516,34"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ac6fe9c56bac4ebdcf0aa1b22e3c73e71" title="Randomly sample the covariance matrix prior." alt="" coords="250,56,483,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="516,68,484,72,483,67,515,63"/>
+<area shape="rect" id="Node000004" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7713d2e9c0cc33ac218648f23444bfc5" title=" " alt="" coords="5,71,202,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,86,202,86,202,81,234,81"/>
+</map>

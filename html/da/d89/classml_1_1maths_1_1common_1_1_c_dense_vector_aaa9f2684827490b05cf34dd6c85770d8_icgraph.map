@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CDenseVector::fromStdVector" name="ml::maths::common::CDenseVector::fromStdVector">
+<area shape="rect" id="Node000001" title="Convert from a std::vector." alt="" coords="254,13,453,54"/>
+<area shape="rect" id="Node000002" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#aab4c973e32db44a5da28e18dc0b540ae" title="Populate the object from serialized data." alt="" coords="5,5,206,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,36,206,36,206,31,238,31"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CPRNG::CSplitMix64::generate" name="ml::maths::common::CPRNG::CSplitMix64::generate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="285,113,442,169"/>
+<area shape="rect" id="Node000002" href="$d6/d83/_c_p_r_n_g_test_8cc.html#a8c2c9930f4fd3c9b4ebbf2c38ca1118d" title=" " alt="" coords="23,5,219,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="321,105,281,73,236,46,203,34,205,29,238,41,284,69,324,101"/>
+<area shape="rect" id="Node000003" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#ac031da1ea9630a92f7be90383c0e0088" title=" " alt="" coords="5,55,237,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="269,118,199,99,200,94,271,113"/>
+<area shape="rect" id="Node000004" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#a7a8fb2c48f7d273c5da9799c392b820a" title=" " alt="" coords="5,121,237,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="269,144,237,144,237,138,269,138"/>
+<area shape="rect" id="Node000005" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#aeca8188dac8e6ee121c94847c3ed7c43" title=" " alt="" coords="9,186,233,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="271,169,200,188,199,183,269,163"/>
+<area shape="rect" id="Node000006" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a84d6ca8069688e8bd88f956d69e1dce9" title=" " alt="" coords="9,251,233,292"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="323,181,283,213,238,241,208,253,206,248,235,236,280,208,319,177"/>
+</map>

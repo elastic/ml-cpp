@@ -1,0 +1,6 @@
+<map id="ml::maths::analytics::CBoostedTreeParameter::searchRange" name="ml::maths::analytics::CBoostedTreeParameter::searchRange">
+<area shape="rect" id="Node000001" title="Get the value range." alt="" coords="5,29,179,85"/>
+<area shape="rect" id="Node000002" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a75b0ce2554d3b35d9f49556aa932010d" title="Get the unscaled value converted to a search value." alt="" coords="227,29,400,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,55,211,55,211,60,179,60"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="270,29,270,19,278,10,293,5,313,3,337,5,351,12,349,17,335,10,313,8,294,10,281,15,275,21,275,29"/>
+</map>

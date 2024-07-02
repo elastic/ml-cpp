@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::startFineTuneSearch" name="ml::maths::analytics::CBoostedTreeHyperparameters::startFineTuneSearch">
+<area shape="rect" id="Node000001" title="Initialize a search for the best hyperparameters." alt="" coords="293,114,506,170"/>
+<area shape="rect" id="Node000002" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a37fd6cac82a7ddb795e04fba38975a08" title=" " alt="" coords="27,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="349,107,300,74,244,45,211,34,213,29,246,40,302,69,352,102"/>
+<area shape="rect" id="Node000003" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a4e1c0e0de9f626fad962689ed85016bf" title=" " alt="" coords="27,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="303,112,244,94,199,84,200,78,245,89,304,106"/>
+<area shape="rect" id="Node000004" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a2b3a881306243787cf8fd45a756d5977" title=" " alt="" coords="27,104,223,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="277,134,223,129,224,123,277,128"/>
+<area shape="rect" id="Node000005" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#af21c9ddaf2e16d345b7039f29e443fa0" title=" " alt="" coords="27,153,223,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="277,155,224,160,223,155,277,150"/>
+<area shape="rect" id="Node000006" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a9f588347bc5306f084ac12d50d113614" title=" " alt="" coords="27,203,223,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="302,178,245,194,200,205,199,199,244,189,301,173"/>
+<area shape="rect" id="Node000007" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="5,253,245,293"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="351,181,301,214,246,243,216,254,214,250,244,238,299,209,348,177"/>
+</map>

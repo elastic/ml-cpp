@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CKMeans::CKdTreeNodeData::add" name="ml::maths::common::CKMeans::CKdTreeNodeData::add">
+<area shape="rect" id="Node000001" title="Combine the bounding boxes and centroids." alt="" coords="5,39,233,79"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a4e68128aad2c2f7e8a3cfc377e407da3" title=" " alt="" coords="281,39,426,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,56,265,56,265,62,233,62"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="474,5,619,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,44,458,38,459,44,427,49"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a786f76053e20e60af5ece9d2a221d032" title="In&#45;place minimum, writing to y." alt="" coords="474,71,619,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="427,68,459,74,458,79,426,74"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="667,39,813,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="620,36,652,41,651,46,619,41"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="619,76,651,71,652,76,620,82"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::addTimeSeries" name="ml::maths::time_series::CTimeSeriesCorrelations::addTimeSeries">
+<area shape="rect" id="Node000001" title="Add the time series identified by id." alt="" coords="5,27,181,83"/>
+<area shape="rect" id="Node000002" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a0f8191b28305e28b28ca335cb2e705bc" title="Resize the relevant statistics to accommodate up to n variables." alt="" coords="229,5,440,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,42,213,38,213,43,181,47"/>
+<area shape="rect" id="Node000003" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#a3597ed3463d58538c43e8f1f2898591e" title="Resize a container using a 10% capacity increase." alt="" coords="488,35,680,75"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="181,54,229,55,440,55,472,55,472,60,440,60,229,60,181,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,35,473,39,472,45,440,41"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::api::CAnomalyJob::runForegroundPersist" name="ml::api::CAnomalyJob::runForegroundPersist">
+<area shape="rect" id="Node000001" title="This function is called from the persistence manager when foreground persistence is triggered." alt="" coords="276,5,429,46"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7192b0f547cd4fa07df19f3e440c4071" title=" " alt="" coords="5,5,228,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,28,228,28,228,23,260,23"/>
+</map>

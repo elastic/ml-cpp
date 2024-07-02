@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CTreeShapFeatureImportance::baseline" name="ml::maths::analytics::CTreeShapFeatureImportance::baseline">
+<area shape="rect" id="Node000001" title="Get the baseline." alt="" coords="5,5,210,61"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="258,13,403,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,31,242,31,242,36,210,36"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="451,13,596,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,31,435,31,435,36,403,36"/>
+</map>

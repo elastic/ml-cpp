@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::boosted_tree::CMsle::acceptRestoreTraverser" name="ml::maths::analytics::boosted_tree::CMsle::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,175,152"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="223,5,441,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,94,222,57,242,49,244,54,224,61,145,98"/>
+<area shape="rect" id="Node000003" href="$d8/d46/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_msle.html#afaa484dba3a647daa3d02e86991cb920" title=" " alt="" coords="237,71,427,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,110,221,104,221,109,176,115"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="223,136,441,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,133,208,137,207,142,175,138"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="255,201,409,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="146,150,224,186,244,193,242,198,222,191,144,155"/>
+</map>

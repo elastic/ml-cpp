@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl::nextPass" name="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl::nextPass">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,38,209,109"/>
+<area shape="rect" id="Node000002" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#aaffeec53d068c5de175b905aaadbd43a" title=" " alt="" coords="257,38,460,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,71,241,71,241,76,209,76"/>
+<area shape="rect" id="Node000003" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a99cebcc7653a7f75b0a6abc6b87fb270" title="Get the count of statistics." alt="" coords="508,5,691,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,54,492,48,493,54,461,59"/>
+<area shape="rect" id="Node000004" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a5b92ae07b31b41f40fdc93356a2d2666" title="Get the range." alt="" coords="508,85,691,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="461,87,493,93,492,98,460,93"/>
+</map>

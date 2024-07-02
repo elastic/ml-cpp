@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::sample" name="ml::maths::time_series::CTimeSeriesAnomalyModel::sample">
+<area shape="rect" id="Node000001" title="Update the anomaly model with a sample of the current feature vector." alt="" coords="5,5,197,61"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="245,20,415,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,31,229,31,229,36,197,36"/>
+<area shape="rect" id="Node000003" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="463,13,642,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,31,448,31,448,36,416,36"/>
+</map>

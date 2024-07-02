@@ -1,0 +1,44 @@
+<map id="ml::core::CThread" name="ml::core::CThread">
+<area shape="rect" id="Node000001" title="Basic wrapper class around pthread_create etc." alt="" coords="219,671,345,696"/>
+<area shape="rect" id="Node000003" href="$d8/ddf/class_c_program_counters_test_runner.html" title=" " alt="" coords="400,5,600,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="281,655,288,525,305,341,320,247,338,161,362,90,376,63,391,42,407,29,410,34,395,45,380,65,367,92,343,162,325,248,311,342,293,525,287,655"/>
+<area shape="rect" id="Node000004" href="$d3/da3/classanonymous__namespace_02_c_blocking_call_cancelling_stream_monitor_test_8cc_03_1_1_c_eof_thread.html" title=" " alt="" coords="395,56,606,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="283,655,293,540,313,381,328,300,345,226,366,165,391,122,404,110,407,114,395,125,371,167,350,228,333,301,319,382,298,540,288,655"/>
+<area shape="rect" id="Node000005" href="$d8/db4/classanonymous__namespace_02_c_dual_thread_stream_buf_test_8cc_03_1_1_c_input_thread.html" title=" " alt="" coords="395,136,606,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="283,655,296,555,318,420,333,352,350,290,369,238,391,202,404,190,407,194,395,205,374,240,355,291,338,353,323,421,301,556,289,656"/>
+<area shape="rect" id="Node000006" href="$d4/df2/classanonymous__namespace_02_c_named_pipe_factory_test_8cc_03_1_1_c_thread_block_canceller.html" title=" " alt="" coords="403,216,597,271"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="280,655,283,581,298,482,312,429,332,376,358,326,391,282,405,270,408,274,395,285,362,329,336,378,317,431,303,484,289,582,285,655"/>
+<area shape="rect" id="Node000007" href="$d8/d78/classanonymous__namespace_02_c_read_write_lock_test_8cc_03_1_1_c_atomic_adder.html" title=" " alt="" coords="415,296,586,351"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="282,655,290,595,308,517,322,476,340,435,363,396,391,362,413,345,416,349,395,365,367,399,345,437,327,477,313,519,295,596,288,656"/>
+<area shape="rect" id="Node000008" href="$d7/d7e/classanonymous__namespace_02_c_read_write_lock_test_8cc_03_1_1_c_fast_mutex_protected_adder.html" title=" " alt="" coords="405,376,596,431"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="286,655,298,610,319,553,349,494,369,466,391,442,406,430,410,434,395,445,373,469,354,496,323,555,303,611,291,657"/>
+<area shape="rect" id="Node000009" href="$df/d3b/classanonymous__namespace_02_c_read_write_lock_test_8cc_03_1_1_c_mutex_protected_adder.html" title=" " alt="" coords="415,456,586,511"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="293,655,331,589,359,553,391,521,413,508,416,512,395,526,363,556,335,592,298,658"/>
+<area shape="rect" id="Node000010" href="$dc/d63/classanonymous__namespace_02_c_read_write_lock_test_8cc_03_1_1_c_read_lock_protected_reader.html" title=" " alt="" coords="402,536,598,591"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="308,659,347,630,392,601,416,590,418,594,394,606,350,634,312,663"/>
+<area shape="rect" id="Node000011" href="$da/d80/classanonymous__namespace_02_c_read_write_lock_test_8cc_03_1_1_c_unprotected_adder.html" title=" " alt="" coords="415,616,586,671"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="360,667,414,657,415,662,361,672"/>
+<area shape="rect" id="Node000012" href="$d4/df5/classanonymous__namespace_02_c_read_write_lock_test_8cc_03_1_1_c_write_lock_protected_adder.html" title=" " alt="" coords="407,696,594,751"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="361,695,407,704,406,709,360,700"/>
+<area shape="rect" id="Node000013" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html" title=" " alt="" coords="419,776,581,831"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="312,704,350,733,394,761,420,773,417,778,392,766,347,737,308,708"/>
+<area shape="rect" id="Node000014" href="$d5/dba/classml_1_1api_1_1_c_persistence_manager_1_1_c_background_thread.html" title="Implementation of the background thread." alt="" coords="402,855,599,896"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="297,710,335,776,362,811,395,841,413,852,410,857,391,846,358,815,330,779,293,712"/>
+<area shape="rect" id="Node000015" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html" title="Abstract base for classes that cancels blocking IO on some event." alt="" coords="393,921,607,961"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="292,711,304,754,325,806,355,860,373,884,395,905,413,918,410,922,391,910,369,888,350,863,320,808,299,755,287,712"/>
+<area shape="rect" id="Node000018" href="$df/db9/classml_1_1core_1_1_c_compress_o_stream_1_1_c_compress_thread.html" title=" " alt="" coords="401,986,599,1027"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="288,711,297,766,316,836,330,872,347,908,369,942,395,971,411,983,408,987,391,975,365,945,343,911,325,875,311,837,292,767,283,712"/>
+<area shape="rect" id="Node000019" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html" title=" " alt="" coords="416,1051,585,1092"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="286,712,291,780,306,871,320,919,339,966,363,1010,395,1048,417,1064,414,1068,391,1052,359,1013,334,968,315,920,301,872,285,781,281,712"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="286,712,292,776,309,859,323,904,341,947,365,988,395,1024,414,1038,436,1048,434,1053,411,1043,391,1028,361,991,336,950,318,906,304,861,287,776,281,712"/>
+<area shape="rect" id="Node000020" href="$dd/d47/classml_1_1test_1_1_c_thread_data_reader.html" title="Reads a file in a thread." alt="" coords="404,1116,597,1142"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="289,712,303,801,325,918,357,1030,375,1073,395,1102,411,1113,408,1118,391,1105,370,1075,351,1032,320,920,298,802,284,713"/>
+<area shape="rect" id="Node000021" href="$d1/dee/classml_1_1test_1_1_c_thread_data_writer.html" title="Writes to a file in a thread." alt="" coords="408,1165,593,1191"/>
+<area shape="poly" id="edge21_Node000001_Node000021" title=" " alt="" coords="289,712,300,811,322,943,336,1010,353,1070,373,1120,395,1152,408,1163,405,1167,391,1156,368,1122,348,1072,331,1011,316,944,295,811,283,712"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,671,171,696"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,681,218,681,218,686,186,686"/>
+<area shape="rect" id="Node000016" href="$d1/daa/classml_1_1controller_1_1_c_blocking_call_cancelling_stream_monitor.html" title="Cancels blocking IO in one thread if a stream reaches end&#45;of&#45;file." alt="" coords="670,889,861,929"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="623,923,669,918,670,923,623,929"/>
+<area shape="rect" id="Node000017" href="$dd/d78/classml_1_1core_1_1_c_blocking_call_cancelling_timer.html" title="Cancels a blocking IO call after a supplied timeout has elapsed." alt="" coords="655,954,876,995"/>
+<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="623,954,655,958,655,963,623,959"/>
+</map>

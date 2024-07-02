@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CDataFrameUtils::COneHotCategoricalColumnValue" name="ml::maths::analytics::CDataFrameUtils::COneHotCategoricalColumnValue">
+<area shape="rect" id="Node000001" title="Used to extract the value from a one&#45;hot encoded categorical column of the data frame." alt="" coords="5,94,266,150"/>
+<area shape="rect" id="Node000002" href="$db/d09/classml_1_1maths_1_1analytics_1_1_c_data_frame_utils_1_1_c_column_value.html" title="Used to extract the value from a specific column of the data frame." alt="" coords="22,5,249,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,61,138,93,133,93,133,61"/>
+</map>

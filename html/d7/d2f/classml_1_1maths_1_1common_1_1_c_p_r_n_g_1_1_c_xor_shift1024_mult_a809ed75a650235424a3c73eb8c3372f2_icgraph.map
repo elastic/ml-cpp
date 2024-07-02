@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CPRNG::CXorShift1024Mult::min" name="ml::maths::common::CPRNG::CXorShift1024Mult::min">
+<area shape="rect" id="Node000001" title="The minimum value returnable by operator()." alt="" coords="250,5,467,46"/>
+<area shape="rect" id="Node000002" href="$d6/d83/_c_p_r_n_g_test_8cc.html#a7aae59829c615672d62dc9bacc609423" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

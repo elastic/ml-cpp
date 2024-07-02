@@ -1,0 +1,17 @@
+<map id="ml::model::SModelParams::decompositionRestoreParams" name="ml::model::SModelParams::decompositionRestoreParams">
+<area shape="rect" id="Node000001" title="Get the parameters supplied when restoring time series decompositions." alt="" coords="5,87,210,127"/>
+<area shape="rect" id="Node000002" href="$d1/da4/structml_1_1model_1_1_s_model_params.html#a04a9883ada67dec8241269bd39ebed27" title="Get the parameters supplied when restoring distribution models." alt="" coords="265,29,448,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,83,249,72,251,77,199,89"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#abec77981754bf46c664dc4fee8bd134e" title=" " alt="" coords="258,119,455,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="210,118,243,122,242,127,210,123"/>
+<area shape="rect" id="Node000003" href="$d1/da4/structml_1_1model_1_1_s_model_params.html#a31e6c362fffb1aef79ed91bd1c1789d4" title="Get the minimum permitted number of points in a sketched point." alt="" coords="526,5,701,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,38,510,33,511,38,449,44"/>
+<area shape="rect" id="Node000005" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a928bc41c16aebf4138d3bb3c8d27e256" title="Get the bucket length." alt="" coords="515,71,712,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="455,118,499,110,500,115,456,123"/>
+<area shape="rect" id="Node000006" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a2d8f7017909a6d10f11f815b33211c5c" title=" " alt="" coords="503,159,724,215"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="456,155,488,161,487,166,455,160"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="577,264,651,289"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="391,157,504,225,567,255,565,259,502,229,388,162"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="564,159,564,149,573,140,590,134,614,133,641,135,657,142,655,147,639,140,614,138,591,140,576,145,569,151,569,159"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="574,267,563,256,567,246,584,239,614,237,651,241,661,246,664,252,660,255,657,250,649,246,614,242,585,244,571,249,568,255,578,263"/>
+</map>

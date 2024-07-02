@@ -1,0 +1,59 @@
+<map id="CTestFieldDataCategorizer" name="CTestFieldDataCategorizer">
+<area shape="rect" id="Node000001" title="A test convenience wrapper for the ML categorizer." alt="" coords="2162,147,2341,172"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html" title="Categorize input records and add categorization fields before passing down the chain." alt="" coords="1911,147,2112,172"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2128,157,2161,157,2161,162,2128,162"/>
+<area shape="rect" id="Node000003" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html" title="Abstract interface for classes that process data records." alt="" coords="1545,7,1710,32"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1726,4,1807,6,1848,14,1888,28,1928,53,1961,85,1987,118,2005,145,2000,148,1983,121,1957,89,1925,57,1886,33,1847,19,1806,12,1725,9"/>
+<area shape="poly" id="edge6_Node000002_Node000003" title=" " alt="" coords="1694,34,1742,45,1783,52,1816,55,1848,60,1888,73,1920,89,1950,108,1997,144,1994,148,1947,113,1918,94,1886,78,1847,65,1815,60,1782,57,1740,50,1693,39"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="1562,56,1693,82"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1709,82,1888,118,1972,143,1970,149,1886,123,1708,87"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="1145,56,1340,82"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1356,66,1561,66,1561,71,1356,71"/>
+<area shape="rect" id="Node000006" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="725,41,937,97"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="953,66,1144,66,1144,71,953,71"/>
+<area shape="rect" id="Node000007" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html" title="A wrapper around a shared output stream for concurrent writes, handling writes." alt="" coords="734,187,929,228"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="945,209,1290,214,1503,213,1717,205,1802,199,1887,186,1960,170,1961,175,1887,191,1803,204,1717,210,1503,218,1290,220,945,214"/>
+<area shape="rect" id="Node000013" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html" title="A Json line writer for concurrently writing to a shared output stream." alt="" coords="1136,139,1349,180"/>
+<area shape="poly" id="edge18_Node000013_Node000007" title=" " alt="" coords="944,192,1135,169,1136,175,945,197"/>
+<area shape="rect" id="Node000008" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="19,353,185,379"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="151,345,222,322,360,289,499,260,733,219,734,224,500,265,361,294,223,327,153,350"/>
+<area shape="rect" id="Node000010" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html" title=" " alt="" coords="309,122,508,162"/>
+<area shape="poly" id="edge11_Node000010_Node000008" title=" " alt="" coords="121,339,153,302,196,257,248,212,305,173,332,161,334,165,308,178,251,216,200,261,157,306,125,343"/>
+<area shape="rect" id="Node000019" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html" title="Manages the details of persisting data where the data adder may optionally run in a different thread." alt="" coords="733,341,930,367"/>
+<area shape="poly" id="edge23_Node000019_Node000008" title=" " alt="" coords="199,348,222,345,356,331,461,325,567,326,701,334,742,338,741,343,701,339,566,332,462,330,357,336,223,350,200,353"/>
+<area shape="rect" id="Node000020" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html" title="Abstract interface for data adder." alt="" coords="334,403,483,428"/>
+<area shape="poly" id="edge25_Node000020_Node000008" title=" " alt="" coords="201,379,334,401,333,406,200,384"/>
+<area shape="rect" id="Node000021" href="$da/d7d/classml_1_1core_1_1_c_fast_mutex.html" title="Wrapper class around a fast simple mutex." alt="" coords="334,353,483,379"/>
+<area shape="poly" id="edge27_Node000021_Node000008" title=" " alt="" coords="200,363,334,363,334,369,200,369"/>
+<area shape="rect" id="Node000023" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="768,453,894,479"/>
+<area shape="poly" id="edge30_Node000023_Node000008" title=" " alt="" coords="146,383,220,413,307,438,434,457,562,466,677,468,767,466,768,472,677,474,561,471,434,462,306,443,219,418,144,388"/>
+<area shape="rect" id="Node000024" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="347,504,470,530"/>
+<area shape="poly" id="edge32_Node000024_Node000008" title=" " alt="" coords="123,390,166,438,193,463,224,482,254,495,286,504,347,513,346,518,285,509,252,500,221,487,190,467,162,442,119,393"/>
+<area shape="rect" id="Node000009" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="314,187,503,228"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="518,205,733,205,733,210,518,210"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="523,157,734,190,733,195,522,162"/>
+<area shape="rect" id="Node000011" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="8,124,196,165"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="212,141,309,140,309,146,212,147"/>
+<area shape="rect" id="Node000012" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html" title="Write output data in JSON format." alt="" coords="1538,105,1717,131"/>
+<area shape="poly" id="edge13_Node000002_Node000012" title=" " alt="" coords="1726,131,1741,133,1911,150,1910,155,1741,138,1725,136"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="1364,144,1537,125,1537,130,1365,149"/>
+<area shape="rect" id="Node000017" href="$d9/db1/classml_1_1api_1_1_c_annotation_json_writer.html" title="Write annotation result as a JSON document." alt="" coords="1543,155,1712,196"/>
+<area shape="poly" id="edge20_Node000017_Node000013" title=" " alt="" coords="1365,165,1373,165,1543,171,1543,176,1373,170,1364,170"/>
+<area shape="rect" id="Node000014" href="$d8/dab/classml_1_1core_1_1_c_string_buf_writer.html" title=" " alt="" coords="744,127,918,152"/>
+<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="934,142,1136,152,1136,157,934,147"/>
+<area shape="rect" id="Node000015" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="307,68,510,94"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="521,94,744,125,743,130,521,99"/>
+<area shape="rect" id="Node000016" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="5,59,199,100"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="214,77,306,78,306,83,214,83"/>
+<area shape="poly" id="edge19_Node000002_Node000017" title=" " alt="" coords="1727,178,1741,178,1814,181,1887,178,1946,170,1946,176,1887,184,1814,187,1741,184,1727,183"/>
+<area shape="rect" id="Node000018" href="$d9/de8/classml_1_1core_1_1_c_regex_filter.html" title="Filters strings based on a list of regular expressions." alt="" coords="1551,321,1704,347"/>
+<area shape="poly" id="edge21_Node000002_Node000018" title=" " alt="" coords="1720,343,1760,343,1803,340,1846,331,1886,315,1908,301,1928,283,1962,243,1987,203,2002,172,2007,174,1991,205,1966,246,1932,287,1911,305,1888,320,1847,336,1804,345,1761,349,1720,348"/>
+<area shape="poly" id="edge22_Node000002_Node000019" title=" " alt="" coords="945,345,1127,331,1363,306,1625,265,1758,239,1886,208,1938,190,1983,170,1985,175,1940,195,1888,213,1759,244,1626,271,1364,311,1128,337,945,351"/>
+<area shape="rect" id="Node000022" href="$d5/dba/classml_1_1api_1_1_c_persistence_manager_1_1_c_background_thread.html" title="Implementation of the background thread." alt="" coords="1144,379,1341,420"/>
+<area shape="poly" id="edge33_Node000022_Node000019" title=" " alt="" coords="875,371,917,387,962,399,1055,407,1143,406,1143,411,1054,413,961,404,915,392,873,376"/>
+<area shape="poly" id="edge24_Node000019_Node000020" title=" " alt="" coords="498,413,596,409,700,395,752,381,797,365,799,370,753,386,702,400,596,414,498,419"/>
+<area shape="poly" id="edge26_Node000019_Node000021" title=" " alt="" coords="498,361,732,354,732,360,498,366"/>
+<area shape="poly" id="edge28_Node000019_Node000022" title=" " alt="" coords="1128,388,1112,386,930,367,931,361,1113,381,1129,383"/>
+<area shape="poly" id="edge29_Node000022_Node000023" title=" " alt="" coords="909,451,1143,413,1144,418,910,456"/>
+<area shape="poly" id="edge31_Node000023_Node000024" title=" " alt="" coords="485,514,588,509,701,497,787,477,788,482,701,502,588,515,485,519"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::model::CTokenListCategory::isTokenCommon" name="ml::model::CTokenListCategory::isTokenCommon">
+<area shape="rect" id="Node000001" title=" " alt="" coords="810,39,1016,79"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a6de2fddd0f601c6e6d193f64b4ed10ca" title=" " alt="" coords="503,5,762,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="795,48,762,44,763,38,795,42"/>
+<area shape="rect" id="Node000003" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a6e7fb3711d152c16aea5c4634d6afe94" title=" " alt="" coords="523,71,743,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="795,75,744,81,743,76,795,70"/>
+<area shape="rect" id="Node000004" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a4c8d0251185078a61668c0e415990fc4" title=" " alt="" coords="250,71,455,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="507,94,455,94,455,88,507,88"/>
+<area shape="rect" id="Node000005" href="$d1/dd9/_c_token_list_category_test_8cc.html#a5d9b154d7abea093dfe5bdf900583ce3" title=" " alt="" coords="5,53,202,79"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,82,202,78,203,73,234,76"/>
+<area shape="rect" id="Node000006" href="$d1/dd9/_c_token_list_category_test_8cc.html#ada61991dde2b530bcc1599f38743ac33" title=" " alt="" coords="5,102,202,128"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="234,105,203,108,202,103,234,100"/>
+</map>

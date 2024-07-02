@@ -1,0 +1,26 @@
+<map id="ml::model::CBucketGatherer::baseAcceptRestoreTraverser" name="ml::model::CBucketGatherer::baseAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore the state." alt="" coords="5,235,205,275"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ae45f9f12dbf9fcfae14f70c694afda6c" title="Clear this data gatherer." alt="" coords="268,71,456,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,232,176,178,212,148,251,122,264,116,266,120,254,127,216,152,180,182,126,236"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="253,136,471,177"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="148,232,252,187,274,179,275,184,254,192,150,237"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="253,201,471,242"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="205,239,237,235,237,240,206,245"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="275,267,449,307"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="206,265,260,272,259,277,205,270"/>
+<area shape="rect" id="Node000011" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="285,332,439,373"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="152,273,254,317,275,324,274,329,252,321,150,278"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="253,397,471,438"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="126,274,180,328,216,357,254,382,267,389,265,393,251,387,213,361,177,332,123,278"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a2c7e791c52bd0462e846a1c00293758e" title="Get an iterator at the beginning the influencing field names." alt="" coords="519,5,706,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="442,67,517,48,518,53,443,73"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a73f57b0d8fc5ae116d41b19d6a0cd3d8" title=" " alt="" coords="525,71,700,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="456,88,509,88,509,94,456,94"/>
+<area shape="rect" id="Node000007" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ac54d017c129c4452424eaede2a5b7949" title="Get an iterator at the end of the influencing field names." alt="" coords="519,136,706,177"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="443,109,518,129,517,134,442,115"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aee088622de9e7408e1417d8f3c424512" title="Fill the queue with default constructed bucket values." alt="" coords="754,71,930,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="701,88,739,88,739,94,701,94"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="978,71,1153,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="930,88,962,88,962,94,930,94"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="1023,71,1021,61,1028,52,1043,46,1065,44,1090,46,1104,53,1102,58,1088,52,1065,49,1044,51,1031,56,1026,62,1028,69"/>
+</map>

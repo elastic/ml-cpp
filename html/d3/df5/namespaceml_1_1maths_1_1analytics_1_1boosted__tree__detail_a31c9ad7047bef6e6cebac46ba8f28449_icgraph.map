@@ -1,0 +1,10 @@
+<map id="ml::maths::analytics::boosted_tree_detail::readPrediction" name="ml::maths::analytics::boosted_tree_detail::readPrediction">
+<area shape="rect" id="Node000001" title="Read the prediction from row." alt="" coords="515,17,657,73"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a3bdb8fbab2d6d96e1ab525acbe5887be" title=" " alt="" coords="5,29,234,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="499,22,467,16,374,8,282,16,199,31,198,25,281,10,374,3,467,10,500,16"/>
+<area shape="rect" id="Node000003" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#aefda01a97b1b4967dc8b7fa26c755ee0" title=" " alt="" coords="282,25,467,65"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="499,48,468,48,468,42,499,42"/>
+<area shape="rect" id="Node000004" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a58f19231597ee15af4ba5f3a6945e5ca" title="Read the model prediction from row." alt="" coords="286,90,463,131"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="501,74,444,92,442,87,499,69"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="272,88,206,73,208,67,273,83"/>
+</map>

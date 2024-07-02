@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::residualMoments" name="ml::maths::common::CLeastSquaresOnlineRegression::residualMoments">
+<area shape="rect" id="Node000001" title="Compute the residual variance for an order n regression model." alt="" coords="5,149,220,205"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="315,34,475,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,147,207,115,267,85,299,74,301,79,269,90,209,120,157,151"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="315,100,475,140"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="219,153,300,136,301,142,220,158"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="306,164,484,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,175,291,175,291,180,220,180"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="813,216,958,256"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="220,194,268,200,413,213,558,222,797,231,797,237,558,228,413,218,267,205,220,199"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="268,265,522,306"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="173,203,269,244,306,257,305,262,267,249,171,208"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="570,158,747,183"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="484,172,554,170,554,176,484,178"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="795,5,976,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="675,155,727,115,794,71,803,66,805,71,797,75,730,120,678,159"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="796,85,975,126"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="705,155,797,128,798,133,707,160"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="707,181,798,208,797,213,705,186"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="803,150,968,191"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="748,168,787,168,787,173,748,173"/>
+</map>

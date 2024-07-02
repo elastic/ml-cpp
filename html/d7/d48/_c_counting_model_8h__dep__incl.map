@@ -1,0 +1,17 @@
+<map id="include/model/CCountingModel.h" name="include/model/CCountingModel.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="591,5,804,31"/>
+<area shape="rect" id="Node000002" href="$db/d76/_c_counting_model_8cc.html" title=" " alt="" coords="5,94,198,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="576,33,403,53,211,82,147,96,146,91,210,76,402,47,575,28"/>
+<area shape="rect" id="Node000003" href="$d4/dc6/_c_counting_model_factory_8cc.html" title=" " alt="" coords="222,87,397,127"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="618,37,409,82,381,88,380,83,408,76,617,32"/>
+<area shape="rect" id="Node000004" href="$d7/d26/_c_counting_model_test_8cc.html" title=" " alt="" coords="420,87,586,127"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="657,40,548,88,546,84,655,35"/>
+<area shape="rect" id="Node000005" href="$de/d99/_c_event_rate_model_test_8cc.html" title=" " alt="" coords="610,87,785,127"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="700,47,700,86,695,86,695,47"/>
+<area shape="rect" id="Node000006" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html" title=" " alt="" coords="809,79,1002,135"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="742,35,841,76,839,81,740,40"/>
+<area shape="rect" id="Node000007" href="$dc/dfe/_c_hierarchical_results_test_8cc.html" title=" " alt="" coords="1027,87,1219,127"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="784,32,1015,76,1046,83,1044,88,1014,82,783,37"/>
+<area shape="rect" id="Node000008" href="$de/d77/_c_metric_model_test_8cc.html" title=" " alt="" coords="1243,87,1392,127"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="820,24,1014,42,1123,57,1231,76,1259,83,1258,89,1230,82,1123,62,1013,48,819,29"/>
+</map>

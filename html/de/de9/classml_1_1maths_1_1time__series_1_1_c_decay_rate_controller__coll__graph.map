@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CDecayRateController" name="ml::maths::time_series::CDecayRateController">
+<area shape="rect" id="Node000001" title="Manages the decay rate based on the data characteristics." alt="" coords="592,85,754,126"/>
+<area shape="rect" id="Node000002" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="208,5,420,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="436,55,593,86,591,92,435,60"/>
+<area shape="rect" id="Node000003" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="217,85,412,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="427,103,592,103,592,108,427,108"/>
+<area shape="rect" id="Node000004" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="228,176,400,216"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="415,194,491,186,567,168,609,148,645,124,648,128,612,152,569,173,492,191,416,199"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,176,159,216"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="174,193,228,193,228,199,174,199"/>
+</map>

@@ -1,0 +1,47 @@
+<map id="ml::maths::common::COneOfNPrior::COneOfNPrior" name="ml::maths::common::COneOfNPrior::COneOfNPrior">
+<area shape="rect" id="Node000001" title="Construct from part of a state document." alt="" coords="5,769,205,809"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a226c797db7aa6a87e010b021959952a8" title="Read parameters from traverser." alt="" coords="262,400,462,456"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,767,330,467,334,470,123,770"/>
+<area shape="rect" id="Node000015" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="824,646,1042,687"/>
+<area shape="poly" id="edge26_Node000001_Node000015" title=" " alt="" coords="205,781,463,757,618,737,773,711,855,689,856,694,774,716,619,743,464,763,205,786"/>
+<area shape="rect" id="Node000019" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="253,826,471,867"/>
+<area shape="poly" id="edge25_Node000001_Node000019" title=" " alt="" coords="200,807,253,820,252,825,199,813"/>
+<area shape="rect" id="Node000003" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1ca970f775765a617f276528656c7351" title="Lift all overloads of the decayRate into scope." alt="" coords="558,234,735,275"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,398,441,341,478,311,518,285,542,274,544,279,520,290,481,315,445,345,389,402"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#a95c55225fd7be47ce4e6c1db8ed8824d" title="Initialize from a delimited string." alt="" coords="535,89,757,145"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="369,399,388,347,419,281,462,214,488,182,517,155,522,151,525,156,521,159,492,186,466,217,424,284,393,349,374,400"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="1128,65,1276,105"/>
+<area shape="poly" id="edge22_Node000002_Node000006" title=" " alt="" coords="363,399,374,330,400,239,420,192,446,147,478,108,517,75,554,54,593,37,674,14,759,4,844,4,926,12,1003,25,1127,57,1126,62,1002,31,925,17,844,10,759,9,676,19,595,42,557,59,521,79,482,111,450,150,425,195,405,241,380,331,368,400"/>
+<area shape="rect" id="Node000007" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a6ebf8a8f265d7d778b384b44b524f543" title="Check if this is a non&#45;informative prior." alt="" coords="826,350,1040,391"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="462,413,519,406,811,378,811,384,519,412,462,418"/>
+<area shape="rect" id="Node000008" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ac1a53fed77db6f52547a297c492b3ae5" title="Get the mean of the marginal likelihood function." alt="" coords="520,299,773,340"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="421,397,518,356,556,343,558,348,520,361,423,402"/>
+<area shape="rect" id="Node000011" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1e0a55c15c6afd876d14a317934350ad" title="Add a model vector entry reading parameters from traverser." alt="" coords="528,465,764,521"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="463,448,513,460,512,465,461,453"/>
+<area shape="rect" id="Node000013" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="1093,589,1311,629"/>
+<area shape="poly" id="edge19_Node000002_Node000013" title=" " alt="" coords="371,455,387,513,415,584,435,621,459,656,487,686,520,711,591,747,655,768,715,776,773,773,832,761,895,743,1044,696,1106,669,1160,636,1163,641,1109,674,1046,701,897,748,833,766,773,778,714,781,654,773,589,752,518,715,484,690,455,659,430,624,410,587,382,514,366,457"/>
+<area shape="rect" id="Node000014" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="1093,458,1311,499"/>
+<area shape="poly" id="edge20_Node000002_Node000014" title=" " alt="" coords="462,431,1045,465,1077,467,1077,473,1045,470,462,436"/>
+<area shape="poly" id="edge23_Node000002_Node000015" title=" " alt="" coords="398,454,453,494,520,531,557,543,589,550,648,553,706,558,738,566,775,581,790,592,800,603,809,615,823,626,846,637,844,642,820,630,805,618,796,607,786,596,772,586,736,571,705,563,647,558,589,555,556,549,518,536,450,499,395,458"/>
+<area shape="rect" id="Node000016" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="519,595,773,636"/>
+<area shape="poly" id="edge18_Node000002_Node000016" title=" " alt="" coords="387,454,444,515,481,547,520,575,545,587,543,592,518,579,477,551,440,519,384,458"/>
+<area shape="rect" id="Node000017" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="566,661,726,701"/>
+<area shape="poly" id="edge21_Node000002_Node000017" title=" " alt="" coords="378,455,399,498,431,550,471,602,521,646,553,662,551,667,517,650,467,605,426,553,395,500,373,457"/>
+<area shape="rect" id="Node000018" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="537,169,755,209"/>
+<area shape="poly" id="edge24_Node000002_Node000018" title=" " alt="" coords="374,398,397,358,429,310,469,261,517,220,527,215,530,219,521,225,473,265,433,313,401,361,379,401"/>
+<area shape="rect" id="Node000005" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a3dd29272494b917553cb9c44e35ad6f5" title="Function to do conversion from string." alt="" coords="858,89,1008,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="758,114,842,114,842,120,758,120"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1009,106,1112,93,1113,98,1009,111"/>
+<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="766,338,811,346,810,352,765,343"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#adbc1ad64f904bf4aed63803108979a95" title="Get the median of the model means." alt="" coords="821,285,1045,325"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="773,311,806,309,806,314,774,316"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#af85715f6cd6628a014dbe48cbd74da74" title="Compute the sample median." alt="" coords="1117,285,1287,325"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="1045,302,1102,302,1102,308,1045,308"/>
+<area shape="rect" id="Node000012" href="$d0/d4b/classml_1_1maths_1_1common_1_1_c_model_weight.html#ac23fa9c7a3ef69892cfe50730a0516d4" title="Restore state from part of a state document." alt="" coords="833,516,1033,572"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="765,511,819,521,818,526,764,517"/>
+<area shape="poly" id="edge15_Node000011_Node000013" title=" " alt="" coords="739,519,775,538,789,550,799,562,808,572,822,581,885,602,951,614,1016,619,1077,618,1077,624,1016,624,950,619,884,607,820,586,804,576,795,565,786,553,772,542,736,524"/>
+<area shape="poly" id="edge16_Node000011_Node000014" title=" " alt="" coords="765,487,1077,479,1077,484,765,493"/>
+<area shape="poly" id="edge17_Node000011_Node000015" title=" " alt="" coords="747,519,775,538,793,561,800,583,807,605,823,626,838,636,835,641,819,630,802,607,795,585,788,563,772,542,744,524"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="1034,565,1101,582,1100,587,1032,571"/>
+<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="1032,517,1100,500,1101,506,1034,522"/>
+</map>

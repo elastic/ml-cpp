@@ -1,0 +1,7 @@
+<map id="ml::model::CAnomalyDetectorModel::shouldSkipUpdate" name="ml::model::CAnomalyDetectorModel::shouldSkipUpdate">
+<area shape="rect" id="Node000001" title="Should the event be omitted from the quantiles and the results?" alt="" coords="5,5,203,46"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7fadcee4f4940693cb21616f1121753d" title=" " alt="" coords="251,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,23,235,23,235,28,203,28"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="496,5,693,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,23,480,23,480,28,448,28"/>
+</map>

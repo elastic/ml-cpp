@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CSparseVectorIndexIterator&lt; SCALAR, FLAGS &gt;" name="ml::maths::common::CSparseVectorIndexIterator&lt; SCALAR, FLAGS &gt;">
+<area shape="rect" id="Node000001" title="Adapts Eigen::SparseVector::InnerIterator for use with STL." alt="" coords="25,124,209,180"/>
+<area shape="rect" id="Node000002" href="$d4/df4/class_eigen_1_1_sparse_vector.html" title=" " alt="" coords="5,5,229,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,61,120,124,114,124,114,61"/>
+</map>

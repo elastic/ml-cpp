@@ -1,0 +1,21 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::CModel::addOutlierScores" name="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::CModel::addOutlierScores">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,103,188,174"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="243,5,466,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,100,235,71,251,64,253,69,237,76,171,105"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="275,85,434,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,124,259,115,260,120,189,129"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="282,150,427,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="188,147,267,157,266,162,188,152"/>
+<area shape="rect" id="Node000005" href="$d0/d5b/namespaceml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03.html#adcbe20711809bb3c035825b0b9a9d9d7" title=" " alt="" coords="236,239,473,294"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="171,172,284,229,282,234,168,177"/>
+<area shape="poly" id="edge10_Node000005_Node000005" title=" " alt="" coords="304,238,305,228,314,219,330,214,354,212,381,215,398,221,396,226,380,220,354,217,331,219,317,224,310,230,309,238"/>
+<area shape="rect" id="Node000006" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="521,254,727,279"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="474,264,505,264,505,269,474,269"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="775,167,947,222"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="668,251,759,223,761,228,670,256"/>
+<area shape="rect" id="Node000008" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="777,246,945,287"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="728,264,762,264,762,269,728,269"/>
+<area shape="rect" id="Node000009" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="995,268,1180,324"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="676,277,776,296,861,299,947,296,979,295,979,301,947,301,861,304,775,301,675,283"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="945,275,980,279,979,284,945,280"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::mean" name="ml::maths::common::CLeastSquaresOnlineRegression::mean">
+<area shape="rect" id="Node000001" title="Get the mean value of the ordinates." alt="" coords="265,78,519,119"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a7788048c4073d0de15ee0e9bbcb65855" title="Add the function initial value at time." alt="" coords="5,5,217,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="286,77,216,60,218,55,287,72"/>
+<area shape="rect" id="Node000003" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#afa32ab3aad35e1e66dba8695ed444d36" title=" " alt="" coords="13,86,209,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="249,101,210,101,210,96,249,96"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ab4dea84428ee325715624904a2e8bcc3" title="Get the predicted value for bucket at time." alt="" coords="5,136,217,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="287,125,218,142,216,137,286,120"/>
+</map>

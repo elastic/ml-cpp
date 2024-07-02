@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::CDataFrameCategoryEncoder::accept" name="ml::maths::analytics::CDataFrameCategoryEncoder::accept">
+<area shape="rect" id="Node000001" title="Visit the encodings." alt="" coords="5,245,211,301"/>
+<area shape="rect" id="Node000002" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html#ac1313b4784fdddfdc17b0ccad5f28911" title=" " alt="" coords="262,5,483,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,243,143,205,174,159,212,112,257,71,263,67,266,71,260,75,216,116,178,162,148,208,126,246"/>
+<area shape="rect" id="Node000003" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html#a3c9b5732592ba4f4b28d133f2b633eca" title=" " alt="" coords="270,85,475,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="136,243,190,197,257,151,267,146,270,150,260,155,194,201,140,247"/>
+<area shape="rect" id="Node000004" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html#a988cc1739b98688e10f1bcdec8fe91ad" title=" " alt="" coords="270,165,475,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,242,263,224,264,229,203,247"/>
+<area shape="rect" id="Node000005" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html#afe1e0d2b30b90cd1eff2b1d8f4b84b9c" title=" " alt="" coords="259,245,486,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="211,271,243,271,243,276,211,276"/>
+<area shape="rect" id="Node000006" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#a54d4f939dcc443a52d0c9052357a41b2" title="Get the encoded feature at position encodedColumnIndex." alt="" coords="270,325,475,381"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="203,299,264,318,263,323,202,304"/>
+<area shape="rect" id="Node000007" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#a0b7fd8ffd29cb41e55ca60fdfbef022c" title=" " alt="" coords="269,405,476,461"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="140,299,194,345,260,391,270,396,267,401,257,395,190,350,136,303"/>
+<area shape="rect" id="Node000008" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#ab9d21e1aee2145fec3ade983f3f74150" title="Get the encoding type." alt="" coords="270,485,475,541"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="126,300,148,339,178,384,216,431,260,471,266,475,263,479,257,475,212,434,174,387,143,341,121,303"/>
+</map>

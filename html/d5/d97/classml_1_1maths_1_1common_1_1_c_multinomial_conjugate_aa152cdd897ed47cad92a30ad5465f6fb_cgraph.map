@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CMultinomialConjugate::removeCategories" name="ml::maths::common::CMultinomialConjugate::removeCategories">
+<area shape="rect" id="Node000001" title="Remove the categories in categoriesToRemove." alt="" coords="5,39,162,95"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="210,5,370,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,49,194,42,195,47,162,54"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="251,94,329,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,80,236,94,235,99,161,85"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="255,95,249,86,253,76,267,70,290,68,315,70,328,77,326,82,314,75,290,73,268,75,256,80,254,85,260,92"/>
+</map>

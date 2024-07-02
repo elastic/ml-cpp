@@ -1,0 +1,60 @@
+<map id="ml::maths::common::bootstrapCluster" name="ml::maths::common::bootstrapCluster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,148,151,188"/>
+<area shape="rect" id="Node000002" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#aa8c417f49afcfd1c33880c7e2bd4dcfd" title=" " alt="" coords="199,148,365,188"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,165,183,165,183,171,151,171"/>
+<area shape="rect" id="Node000003" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a7c5fe009ccf83f80ee4d5f020b6d8e2b" title=" " alt="" coords="624,5,770,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="346,144,609,59,611,64,348,149"/>
+<area shape="rect" id="Node000004" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a01e9d48f7a694b40df64ba1b443a84ce" title=" " alt="" coords="413,140,558,196"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="366,165,397,165,397,171,366,171"/>
+<area shape="rect" id="Node000008" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a4517878593056f5244b08369013e597f" title=" " alt="" coords="413,260,558,316"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="320,186,425,250,423,254,317,191"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="517,137,557,104,605,71,613,66,615,71,608,75,561,108,520,141"/>
+<area shape="rect" id="Node000005" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#af3ed4ab0f0243d2c3d64112bf4251e39" title=" " alt="" coords="624,240,770,296"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="543,194,607,225,619,231,616,235,605,230,541,199"/>
+<area shape="rect" id="Node000006" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="658,110,736,135"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="558,150,642,131,644,137,559,155"/>
+<area shape="rect" id="Node000007" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#ab7e5fca2b66e6c99a2354ab2970ab6ed" title=" " alt="" coords="624,160,770,216"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="559,172,609,177,608,182,559,177"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="662,111,655,101,659,91,673,85,697,83,723,86,736,93,734,97,721,91,697,88,675,90,663,95,660,100,666,108"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="559,278,608,274,609,279,559,284"/>
+<area shape="rect" id="Node000009" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="606,320,788,376"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="560,306,592,315,591,320,558,311"/>
+<area shape="rect" id="Node000011" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a793c590c4fddad2adbd14e2eab17ed26" title=" " alt="" coords="624,415,770,470"/>
+<area shape="poly" id="edge14_Node000008_Node000011" title=" " alt="" coords="520,314,608,386,635,404,632,409,605,390,516,318"/>
+<area shape="rect" id="Node000010" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="836,305,1017,361"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="788,339,820,337,820,343,788,345"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="885,305,885,295,893,286,907,281,926,279,949,281,962,288,960,293,947,286,926,284,908,286,896,291,890,297,890,305"/>
+<area shape="rect" id="Node000012" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#afe780a759b742b72db9627f1b6895c18" title=" " alt="" coords="838,385,1015,426"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="770,428,823,419,823,425,770,433"/>
+<area shape="rect" id="Node000013" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="836,450,1017,491"/>
+<area shape="poly" id="edge16_Node000011_Node000013" title=" " alt="" coords="770,449,821,455,821,460,770,454"/>
+<area shape="rect" id="Node000014" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#acabb0ba21825f23fc511aef3c58c670e" title=" " alt="" coords="854,515,999,570"/>
+<area shape="poly" id="edge17_Node000011_Node000014" title=" " alt="" coords="764,468,848,505,845,510,762,473"/>
+<area shape="rect" id="Node000015" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#acfb1a182e93775774a86367aed3bb932" title=" " alt="" coords="1065,515,1210,570"/>
+<area shape="poly" id="edge18_Node000014_Node000015" title=" " alt="" coords="999,540,1049,540,1049,545,999,545"/>
+<area shape="rect" id="Node000016" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#a1aaf0a5ea50797aed4e7852f4bb4576f" title="Get the cost of the current cut." alt="" coords="1267,293,1413,349"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="1151,513,1193,442,1223,402,1256,366,1268,356,1272,360,1260,370,1227,406,1198,445,1155,516"/>
+<area shape="rect" id="Node000017" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#aab5616d30edbef4fb82ea5ad850d6cae" title=" " alt="" coords="1267,424,1413,480"/>
+<area shape="poly" id="edge20_Node000015_Node000017" title=" " alt="" coords="1201,512,1261,484,1263,489,1203,516"/>
+<area shape="rect" id="Node000019" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#afc80aaa4e18982d73b5b06810aa2e1d6" title="Get the next vertex to visit." alt="" coords="1493,272,1639,328"/>
+<area shape="poly" id="edge26_Node000015_Node000019" title=" " alt="" coords="1156,513,1198,460,1226,433,1257,410,1300,388,1337,379,1375,372,1421,359,1469,337,1482,332,1484,337,1471,342,1423,364,1376,377,1338,384,1302,393,1260,414,1229,437,1202,464,1160,516"/>
+<area shape="rect" id="Node000021" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a87efa11188385271d6486c8d7342bf5f" title="Check that the subgraph with true parity is connected." alt="" coords="1470,512,1662,568"/>
+<area shape="poly" id="edge28_Node000015_Node000021" title=" " alt="" coords="1211,539,1454,538,1454,543,1211,545"/>
+<area shape="rect" id="Node000022" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#ac0e5fa2bd6f8e07ab0c1a27a14d3c89c" title="Merge any vertices to visit after n." alt="" coords="1485,600,1647,656"/>
+<area shape="poly" id="edge25_Node000015_Node000022" title=" " alt="" coords="1211,551,1422,591,1470,601,1469,607,1421,596,1210,557"/>
+<area shape="rect" id="Node000023" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#a2c2dc8cb447fa2484b4180c1741f0704" title="Get the first right or equal vertex." alt="" coords="1258,605,1422,661"/>
+<area shape="poly" id="edge27_Node000015_Node000023" title=" " alt="" coords="1203,569,1263,596,1261,601,1201,573"/>
+<area shape="rect" id="Node000024" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#a31c9e5a0478b1e18d21ffe78bf8eebb9" title="Check if the vertex is to visit." alt="" coords="1493,720,1639,776"/>
+<area shape="poly" id="edge29_Node000015_Node000024" title=" " alt="" coords="1148,570,1161,613,1183,664,1216,713,1236,734,1260,751,1285,763,1312,772,1369,779,1426,777,1478,769,1479,775,1426,783,1369,785,1311,777,1283,768,1257,755,1233,738,1212,716,1179,666,1156,615,1143,572"/>
+<area shape="rect" id="Node000025" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#acb68e0e48b289172480e682d57936ed4" title=" " alt="" coords="1267,685,1413,741"/>
+<area shape="poly" id="edge31_Node000015_Node000025" title=" " alt="" coords="1162,569,1204,620,1260,671,1265,674,1261,679,1257,675,1201,623,1158,573"/>
+<area shape="rect" id="Node000018" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#a62f48e66ff12610ec01d137f68989603" title="Initialize the priority queue of vertices to visit." alt="" coords="1474,352,1658,408"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="1412,426,1461,410,1463,415,1414,431"/>
+<area shape="poly" id="edge22_Node000017_Node000019" title=" " alt="" coords="1395,421,1420,403,1434,386,1443,371,1452,354,1468,338,1478,331,1481,335,1471,342,1456,358,1447,373,1439,389,1423,407,1399,426"/>
+<area shape="rect" id="Node000020" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#a3a1dc373682ec0491c4a560472b0c9f1" title="Pop the priority queue of vertices to visit." alt="" coords="1487,432,1645,488"/>
+<area shape="poly" id="edge23_Node000017_Node000020" title=" " alt="" coords="1413,452,1472,454,1472,459,1413,457"/>
+<area shape="poly" id="edge24_Node000017_Node000021" title=" " alt="" coords="1414,478,1479,503,1477,508,1412,483"/>
+<area shape="poly" id="edge30_Node000024_Node000024" title=" " alt="" coords="1521,719,1522,710,1530,701,1545,695,1566,693,1590,696,1604,703,1602,708,1588,701,1566,699,1546,701,1533,705,1527,712,1527,720"/>
+<area shape="poly" id="edge32_Node000025_Node000022" title=" " alt="" coords="1412,683,1475,659,1477,664,1414,688"/>
+<area shape="poly" id="edge33_Node000025_Node000024" title=" " alt="" coords="1414,722,1479,732,1478,737,1413,727"/>
+</map>

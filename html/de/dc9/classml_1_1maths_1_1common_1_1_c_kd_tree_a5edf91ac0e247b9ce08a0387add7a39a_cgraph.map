@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CKdTree::nearestNeighbours" name="ml::maths::common::CKdTree::nearestNeighbours">
+<area shape="rect" id="Node000001" title="Branch and bound search for nearest n neighbours of point." alt="" coords="5,29,196,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="60,29,58,19,64,10,79,5,101,3,124,5,138,11,136,16,123,10,100,8,80,10,68,15,63,21,65,28"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="244,29,389,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="196,47,228,47,228,52,196,52"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="437,29,582,70"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="389,47,421,47,421,52,389,52"/>
+</map>

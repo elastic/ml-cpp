@@ -1,0 +1,7 @@
+<map id="ml::model::CDataClassifier::add" name="ml::model::CDataClassifier::add">
+<area shape="rect" id="Node000001" title="Update the classification with value." alt="" coords="273,31,481,56"/>
+<area shape="rect" id="Node000002" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html#a38a1d389128208c9a3d72b1f0eb46c94" title="Update the classification with value." alt="" coords="11,5,219,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,35,219,31,220,26,257,29"/>
+<area shape="rect" id="Node000003" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a7c4736c5e93d96f26ce43a050956013a" title=" " alt="" coords="5,55,225,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,57,225,60,225,55,257,52"/>
+</map>

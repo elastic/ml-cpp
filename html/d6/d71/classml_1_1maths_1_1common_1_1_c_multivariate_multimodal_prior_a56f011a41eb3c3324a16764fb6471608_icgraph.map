@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::marginalLikelihoodCovariance" name="ml::maths::common::CMultivariateMultimodalPrior::marginalLikelihoodCovariance">
+<area shape="rect" id="Node000001" title="Get the covariance matrix for the marginal likelihood." alt="" coords="250,40,452,95"/>
+<area shape="rect" id="Node000002" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,47,171,34,172,29,235,42"/>
+<area shape="rect" id="Node000003" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,93,172,106,171,101,234,88"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CModelProbabilityParams" name="ml::maths::common::CModelProbabilityParams">
+<area shape="rect" id="Node000001" title="The extra parameters needed by CModel::probability." alt="" coords="600,71,773,111"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="208,5,458,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="462,47,601,73,600,78,461,52"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,71,159,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="173,65,251,44,253,49,175,70"/>
+<area shape="rect" id="Node000004" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="255,71,412,111"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="174,88,254,88,254,94,174,94"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="255,136,412,177"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="175,112,255,133,254,139,173,117"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="427,88,600,88,600,94,427,94"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="427,136,576,109,600,104,601,110,577,114,428,142"/>
+</map>

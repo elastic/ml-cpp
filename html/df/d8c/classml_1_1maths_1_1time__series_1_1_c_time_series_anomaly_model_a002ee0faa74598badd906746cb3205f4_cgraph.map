@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::reset" name="ml::maths::time_series::CTimeSeriesAnomalyModel::reset">
+<area shape="rect" id="Node000001" title="Reset the mean error norm." alt="" coords="5,85,197,141"/>
+<area shape="rect" id="Node000002" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a1cb6624626b886e1ac0753a4e8120957" title=" " alt="" coords="245,85,444,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,111,229,111,229,116,197,116"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ad1d8ec5f9bd8d6aee3ea1e7e3f6a7820" title=" " alt="" coords="492,5,699,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,82,491,64,492,69,435,87"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a21eabf1d872bdbd8f9d50c20f6757c95" title="Get the data type." alt="" coords="523,85,668,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="445,111,507,111,507,116,445,116"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="523,165,668,221"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="435,139,509,163,507,168,433,144"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::bucketLargeErrorCountPValue" name="ml::maths::time_series::CAdaptiveBucketing::bucketLargeErrorCountPValue">
+<area shape="rect" id="Node000001" title="Compute the p&#45;value of the large error count for bucket." alt="" coords="5,41,202,97"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="267,5,423,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,52,251,44,251,50,203,57"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ac3ef2df2cd1470db6ff9be51a0ea071b" title=" " alt="" coords="250,85,440,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,81,235,86,234,91,202,86"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="488,5,644,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,31,473,31,473,36,423,36"/>
+</map>

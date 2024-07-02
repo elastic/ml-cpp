@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CGammaRateConjugate::equalTolerance" name="ml::maths::common::CGammaRateConjugate::equalTolerance">
+<area shape="rect" id="Node000001" title="Check if two priors are equal to the specified tolerance." alt="" coords="5,45,170,101"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a04fe7c04ef3a6bdcd7c2d666cbac3ed5" title=" " alt="" coords="218,85,382,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,86,203,92,202,97,169,91"/>
+<area shape="rect" id="Node000005" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af8aace96dd553dc5fd86360da33fbacb" title=" " alt="" coords="218,5,382,61"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="169,55,202,49,203,54,170,60"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="430,21,589,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,82,433,64,435,70,383,87"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="430,93,589,134"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="382,111,415,111,415,116,382,116"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="383,34,415,35,415,40,382,39"/>
+</map>

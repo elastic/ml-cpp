@@ -1,0 +1,17 @@
+<map id="ml::api::CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::determineFunction" name="ml::api::CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::determineFunction">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,239,119"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a59b0355ebf30d06735252e0b476e55c7" title="Is this function for use with the population models?" alt="" coords="287,71,419,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,88,272,88,272,94,239,94"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="467,71,599,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="419,88,452,88,452,94,419,94"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="647,5,780,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="599,73,660,50,662,55,601,78"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="647,71,780,111"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="600,97,632,97,632,103,600,102"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="652,136,775,161"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="600,109,657,128,655,133,598,114"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="648,44,586,67,584,62,646,39"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="647,85,615,85,615,79,647,80"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="828,136,874,161"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="775,146,812,146,812,151,775,151"/>
+</map>

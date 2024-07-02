@@ -1,0 +1,10 @@
+<map id="ml::model::CTokenListDataCategorizerBase::isCategoryCountRare" name="ml::model::CTokenListDataCategorizerBase::isCategoryCountRare">
+<area shape="rect" id="Node000001" title="Is the category considered rare?" alt="" coords="567,85,819,126"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ab09c319f82cf1588186641e33d8993cc" title="Populate the object from part of a state document." alt="" coords="295,5,507,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="592,83,507,62,508,57,594,78"/>
+<area shape="rect" id="Node000003" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#aa05e1d6efc7248cb68b98058f966faef" title="Add a match to an existing category." alt="" coords="283,85,519,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="551,108,519,108,519,103,551,103"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ad81f82c8a9a9bfc499ede4bade76cf1c" title=" " alt="" coords="5,114,235,155"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="582,131,519,140,453,144,401,144,283,140,235,139,235,134,283,135,401,138,453,139,519,135,581,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="268,122,236,125,235,120,267,116"/>
+</map>

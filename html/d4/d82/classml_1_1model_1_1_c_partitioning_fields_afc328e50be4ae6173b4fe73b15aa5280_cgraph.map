@@ -1,0 +1,7 @@
+<map id="ml::model::CPartitioningFields::CPartitioningFields" name="ml::model::CPartitioningFields::CPartitioningFields">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,180,79"/>
+<area shape="rect" id="Node000002" href="$d4/d82/classml_1_1model_1_1_c_partitioning_fields.html#ae091ecfc6abc4ec284fe69c55b4f400b" title="Append the field (name, value) pair (fieldName, fieldValue)." alt="" coords="232,5,394,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,43,217,38,217,43,180,48"/>
+<area shape="rect" id="Node000003" href="$d4/d82/classml_1_1model_1_1_c_partitioning_fields.html#a34a09a2af4ec7afc7f691a8bb6c9dc03" title="Get the partition field value." alt="" coords="228,71,398,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,69,212,74,212,79,179,74"/>
+</map>

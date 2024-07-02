@@ -1,0 +1,13 @@
+<map id="ml::test::CDataFrameAnalysisSpecificationFactory::predictionFieldType" name="ml::test::CDataFrameAnalysisSpecificationFactory::predictionFieldType">
+<area shape="rect" id="Node000001" title=" " alt="" coords="501,65,705,121"/>
+<area shape="rect" id="Node000002" href="$d9/db1/namespaceanonymous__namespace_02_c_data_frame_train_boosted_tree_classifier_runner_test_8cc_03.html#a3222179ed75ad65fdbce0d0c55410109" title=" " alt="" coords="250,58,453,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,96,454,96,454,90,485,90"/>
+<area shape="rect" id="Node000003" href="$dc/dee/_c_data_frame_train_boosted_tree_classifier_runner_test_8cc.html#a6a8dfde8a2f79771ec89910bcf049603" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,55,201,45,162,34,163,29,202,40,235,50"/>
+<area shape="rect" id="Node000004" href="$dc/dee/_c_data_frame_train_boosted_tree_classifier_runner_test_8cc.html#a5ae327771e7a7cdcd1f60bfa5c7e330f" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="234,84,202,80,202,75,234,78"/>
+<area shape="rect" id="Node000005" href="$dc/dee/_c_data_frame_train_boosted_tree_classifier_runner_test_8cc.html#a7a6cf3036c515bf6b623f527ad0799e7" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="234,107,202,110,202,105,234,102"/>
+<area shape="rect" id="Node000006" href="$dc/dee/_c_data_frame_train_boosted_tree_classifier_runner_test_8cc.html#ac13c06e5279e89c38cd749ffbcc345c2" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="236,135,202,145,163,155,162,150,201,140,234,130"/>
+</map>

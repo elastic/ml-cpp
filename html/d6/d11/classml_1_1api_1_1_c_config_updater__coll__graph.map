@@ -1,0 +1,15 @@
+<map id="ml::api::CConfigUpdater" name="ml::api::CConfigUpdater">
+<area shape="rect" id="Node000001" title="Parse a configuration and apply requested configuration updates." alt="" coords="698,146,860,172"/>
+<area shape="rect" id="Node000002" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html" title="A parser to convert JSON configuration of an anomaly job JSON into an object." alt="" coords="362,112,551,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="566,133,698,148,698,153,566,139"/>
+<area shape="rect" id="Node000003" href="$d9/da7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config.html" title=" " alt="" coords="5,5,194,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="209,48,334,80,419,108,418,114,333,86,208,53"/>
+<area shape="rect" id="Node000004" href="$d2/d30/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_data_description.html" title=" " alt="" coords="5,71,194,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="209,99,362,113,362,118,209,104"/>
+<area shape="rect" id="Node000005" href="$dc/dd7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_model_plot_config.html" title=" " alt="" coords="5,136,194,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="209,144,333,133,361,130,362,135,334,138,210,149"/>
+<area shape="rect" id="Node000006" href="$d0/d19/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_limits.html" title=" " alt="" coords="5,201,194,242"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="208,203,271,188,332,165,356,147,388,135,390,140,359,152,335,170,272,193,209,209"/>
+<area shape="rect" id="Node000007" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html" title="Responsible for configuring anomaly detection models." alt="" coords="358,161,555,202"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="570,178,674,173,699,170,699,175,674,178,571,184"/>
+</map>

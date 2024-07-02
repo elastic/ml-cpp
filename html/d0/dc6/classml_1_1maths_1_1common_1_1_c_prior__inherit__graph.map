@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CPrior" name="ml::maths::common::CPrior">
+<area shape="rect" id="Node000001" title="Interface for a prior distribution function." alt="" coords="5,235,151,275"/>
+<area shape="rect" id="Node000002" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html" title="A very lightweight prior for representing data for which expect a single value." alt="" coords="232,5,378,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,219,106,182,129,138,159,94,197,57,231,38,233,43,200,61,163,98,133,141,110,184,94,221"/>
+<area shape="rect" id="Node000003" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html" title="A conjugate prior distribution for a stationary gamma variable." alt="" coords="223,71,387,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="100,220,141,170,168,144,197,122,221,110,224,114,200,127,171,148,145,174,104,224"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html" title="A conjugate prior distribution for a log&#45;normal variable." alt="" coords="199,136,411,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="125,224,198,187,230,175,232,180,200,192,127,229"/>
+<area shape="rect" id="Node000005" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html" title="Implementation for a multimodal prior distribution." alt="" coords="232,201,378,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="165,240,231,230,232,235,166,245"/>
+<area shape="rect" id="Node000006" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html" title="A conjugate prior distribution for a multinomial variable." alt="" coords="227,267,383,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="166,265,226,273,226,279,165,270"/>
+<area shape="rect" id="Node000008" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html" title="A conjugate prior distribution for a normal variable." alt="" coords="209,332,401,373"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="128,281,200,317,233,329,231,334,198,321,126,285"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html" title="Interface for a prior distribution which assumes data are from one of N models." alt="" coords="232,397,378,438"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="104,286,145,336,172,361,200,382,233,398,231,403,197,387,168,365,142,339,100,290"/>
+<area shape="rect" id="Node000010" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html" title="Interface for a conjugate prior distribution for a Poisson variable." alt="" coords="220,463,390,503"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="94,289,111,326,134,369,164,411,200,448,221,460,219,465,197,452,160,415,129,372,106,329,89,291"/>
+<area shape="rect" id="Node000007" href="$d1/dd8/classml_1_1_c_prior_test_interface_mixin.html" title=" " alt="" coords="459,267,741,307"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="399,301,459,302,459,308,398,307"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="398,284,459,284,459,290,398,290"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="398,267,459,266,459,272,399,273"/>
+</map>

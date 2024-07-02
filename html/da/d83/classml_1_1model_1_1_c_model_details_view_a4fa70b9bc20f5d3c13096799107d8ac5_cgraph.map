@@ -1,0 +1,9 @@
+<map id="ml::model::CModelDetailsView::features" name="ml::model::CModelDetailsView::features">
+<area shape="rect" id="Node000001" title="Get the collection of features for which data is being gathered." alt="" coords="5,71,178,111"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a364ae8bdfdd6c0cf18c65181eb40936c" title="Get the underlying model." alt="" coords="238,5,411,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,68,234,48,235,53,167,73"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="226,71,423,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,88,210,88,210,94,178,94"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a0dadbea767f6b210503290bc78a45c18" title="Get the collection of features for which data is being gathered." alt="" coords="237,136,412,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,109,235,129,234,134,166,114"/>
+</map>

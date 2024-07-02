@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CSolvers::minimize" name="ml::maths::common::CSolvers::minimize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="257,114,402,155"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html#a6040ba300ef4ace8895fa7311d243dd1" title=" " alt="" coords="9,5,205,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="294,106,255,73,207,45,180,34,182,29,210,40,258,69,298,101"/>
+<area shape="rect" id="Node000003" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a6c7a7662d9f08d9f7258b4b5d7f934e9" title=" " alt="" coords="5,55,209,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,119,209,113,210,108,242,114"/>
+<area shape="rect" id="Node000004" href="$da/de3/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_msle_impl.html#aa7d86506377f092ec925dda77790234e" title=" " alt="" coords="21,149,193,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,154,194,163,193,158,241,148"/>
+<area shape="rect" id="Node000005" href="$d6/d53/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_pseudo_huber_impl.html#ae628995e21cacc5966d5ebef415d34d6" title=" " alt="" coords="15,228,199,299"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="290,166,210,219,190,230,188,225,207,215,288,161"/>
+</map>

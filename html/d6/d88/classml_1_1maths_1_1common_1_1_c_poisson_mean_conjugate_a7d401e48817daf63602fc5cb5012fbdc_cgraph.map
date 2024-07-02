@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::nonInformativePrior" name="ml::maths::common::CPoissonMeanConjugate::nonInformativePrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,175,133"/>
+<area shape="rect" id="Node000002" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a1ca51c18b4fa7c36441e04e215749ca0" title=" " alt="" coords="223,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,75,209,64,210,69,176,80"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="239,85,384,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,103,223,103,223,108,175,108"/>
+<area shape="rect" id="Node000004" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aeed4fcb0af6e6443e7d66b3375829ceb" title="Get the current offset." alt="" coords="227,149,396,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,130,213,142,211,147,174,135"/>
+</map>

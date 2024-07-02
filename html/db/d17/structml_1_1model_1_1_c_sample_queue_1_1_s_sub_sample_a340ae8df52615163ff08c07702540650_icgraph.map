@@ -1,0 +1,9 @@
+<map id="ml::model::CSampleQueue::SSubSample::acceptPersistInserter" name="ml::model::CSampleQueue::SSubSample::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist to a state document." alt="" coords="476,35,713,75"/>
+<area shape="rect" id="Node000002" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a32f97cf0dc362e2ab1c8e45210a85f6f" title="Persist state by passing information to the supplied inserter." alt="" coords="250,35,428,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,58,428,58,428,52,460,52"/>
+<area shape="rect" id="Node000003" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a999b179d072fdafec1ee8f6a04319b35" title="Persist state by passing information to the supplied inserter." alt="" coords="8,5,199,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,45,199,40,199,35,235,39"/>
+<area shape="rect" id="Node000004" href="$d5/df7/_c_sample_queue_test_8cc.html#a198486660676a176453a9cfe2c6324c6" title=" " alt="" coords="5,70,202,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="235,70,203,74,202,69,234,65"/>
+</map>

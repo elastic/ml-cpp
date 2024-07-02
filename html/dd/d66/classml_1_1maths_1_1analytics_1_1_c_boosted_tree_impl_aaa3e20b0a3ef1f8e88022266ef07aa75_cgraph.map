@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::checkTrainInvariants" name="ml::maths::analytics::CBoostedTreeImpl::checkTrainInvariants">
+<area shape="rect" id="Node000001" title="Check invariants which are assumed to hold in order to train on frame." alt="" coords="5,31,216,87"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="264,5,415,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,41,248,36,249,41,217,46"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="264,71,415,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,71,249,76,248,81,216,76"/>
+</map>

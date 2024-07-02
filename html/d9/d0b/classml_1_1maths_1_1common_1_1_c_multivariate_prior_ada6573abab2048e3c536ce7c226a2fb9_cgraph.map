@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CMultivariatePrior::addSamples" name="ml::maths::common::CMultivariatePrior::addSamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,151,111"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="35,55,36,45,44,37,58,31,78,29,101,32,115,38,112,43,99,37,78,34,59,36,47,41,41,47,41,55"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="199,5,390,31"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="150,56,198,41,226,33,227,38,199,46,152,61"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="222,56,367,111"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="151,81,206,81,206,86,151,86"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a27608c97cfbc7931a896cd1bfbaca9c8" title="Get the smallest component of x." alt="" coords="222,136,367,191"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="152,108,208,129,206,134,150,113"/>
+</map>

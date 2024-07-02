@@ -1,0 +1,38 @@
+<map id="ml::maths::time_series::CTrendComponent::acceptPersistInserter" name="ml::maths::time_series::CTrendComponent::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="5,129,233,184"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#a412efec6eb171a850aa3cf9647319f0a" title="Persist state by passing information to inserter." alt="" coords="297,63,487,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,127,281,115,282,120,234,132"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="566,5,768,46"/>
+<area shape="poly" id="edge14_Node000001_Node000003" title=" " alt="" coords="150,126,208,84,243,64,280,48,348,31,418,20,487,16,550,15,550,21,487,21,419,26,349,36,282,54,245,69,211,89,154,130"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="566,71,768,111"/>
+<area shape="poly" id="edge15_Node000001_Node000004" title=" " alt="" coords="233,151,363,144,503,128,577,113,578,118,503,134,363,149,233,157"/>
+<area shape="rect" id="Node000005" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a8f695febeae598e6c15944717df58e3f" title="Persist state by passing information to the supplied inserter." alt="" coords="296,226,488,282"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="200,182,298,218,296,223,198,187"/>
+<area shape="rect" id="Node000014" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#aaef61f5660b9649997b6fc2879e4bec7" title="Convert to a delimited string." alt="" coords="281,439,503,495"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="147,183,358,425,354,429,143,186"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="487,66,563,48,564,53,488,71"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="488,88,550,88,550,94,488,94"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="435,223,501,173,524,146,534,134,550,122,561,116,564,120,552,127,537,138,528,150,505,177,438,227"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="594,136,739,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="458,223,550,187,578,178,580,183,552,192,460,228"/>
+<area shape="rect" id="Node000007" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="551,201,782,242"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="488,240,536,234,536,240,488,245"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="587,267,747,307"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="488,263,571,273,571,278,488,268"/>
+<area shape="rect" id="Node000009" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="568,331,766,387"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="461,280,552,317,570,323,568,328,550,321,459,285"/>
+<area shape="rect" id="Node000012" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a49e9ed6833f80064eaede19f972f45b2" title="Get whether short or long (readable) tag names are desired for persistence." alt="" coords="566,411,768,451"/>
+<area shape="poly" id="edge12_Node000005_Node000012" title=" " alt="" coords="418,280,476,339,512,370,552,397,562,402,560,407,550,401,509,375,472,343,414,284"/>
+<area shape="rect" id="Node000013" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html#a7c35fbd89f1e059926cccf0d53d6f62f" title="Convert to a string." alt="" coords="587,476,747,517"/>
+<area shape="poly" id="edge13_Node000005_Node000013" title=" " alt="" coords="409,281,432,321,464,370,504,419,553,461,574,473,571,477,549,465,501,423,460,373,427,324,405,283"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="830,295,1045,351"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="766,343,815,337,815,342,767,348"/>
+<area shape="rect" id="Node000011" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="855,375,1020,415"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="767,370,840,379,839,385,766,375"/>
+<area shape="rect" id="Node000015" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="592,541,742,596"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="466,493,552,526,578,535,576,540,550,531,464,498"/>
+<area shape="rect" id="Node000016" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="864,548,1011,589"/>
+<area shape="poly" id="edge18_Node000015_Node000016" title=" " alt="" coords="742,566,849,566,849,571,742,571"/>
+<area shape="rect" id="Node000017" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="1093,548,1231,589"/>
+<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="1011,566,1078,566,1078,571,1011,571"/>
+</map>

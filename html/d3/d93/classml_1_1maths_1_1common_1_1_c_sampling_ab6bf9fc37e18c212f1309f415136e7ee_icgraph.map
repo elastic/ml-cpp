@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CSampling::random_shuffle" name="ml::maths::common::CSampling::random_shuffle">
+<area shape="rect" id="Node000001" title=" " alt="" coords="565,57,747,98"/>
+<area shape="rect" id="Node000002" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a4217e0d42eff535e5747ddef6c068a18" title="Train the forest and compute loss moments on each fold." alt="" coords="293,5,517,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="549,61,517,55,518,50,550,56"/>
+<area shape="rect" id="Node000004" href="$d0/dd4/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble_1_1_c_model_builder.html#ae33481ba2b6acdbb417511d45cae88a1" title=" " alt="" coords="314,85,496,155"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="550,98,497,107,496,102,549,93"/>
+<area shape="rect" id="Node000003" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="5,13,245,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="277,36,245,36,245,31,277,31"/>
+</map>

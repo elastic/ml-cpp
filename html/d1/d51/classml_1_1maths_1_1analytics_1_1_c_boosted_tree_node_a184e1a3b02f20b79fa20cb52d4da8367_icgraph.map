@@ -1,0 +1,18 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::isLeaf" name="ml::maths::analytics::CBoostedTreeNode::isLeaf">
+<area shape="rect" id="Node000001" title="Check if this is a leaf node." alt="" coords="528,136,715,177"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#af5088174c4b8087f24a686aee902bb18" title="Get the memory the node will will use in bytes when deployed." alt="" coords="250,5,480,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="582,128,534,93,479,61,448,49,450,44,481,57,537,89,585,124"/>
+<area shape="rect" id="Node000003" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#ae4b4a11ad2c405178fa8e3dabde22170" title=" " alt="" coords="268,71,462,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="524,134,447,115,448,109,525,129"/>
+<area shape="rect" id="Node000005" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a7c3c0d20e62bfdeeb9ae85084198ccec" title="Get the leaf index for row." alt="" coords="262,136,468,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="512,159,468,159,468,154,512,154"/>
+<area shape="rect" id="Node000006" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a429c4a774dff2df846f76aab14f935a9" title="Get the leaf index for row." alt="" coords="262,201,468,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="525,184,448,203,447,198,524,178"/>
+<area shape="rect" id="Node000007" href="$d0/daf/namespaceanonymous__namespace_02_c_boosted_tree_test_8cc_03.html#a90d5c16c4ae394e04717556a39e1e3a9" title=" " alt="" coords="284,290,446,346"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="581,188,481,256,420,292,418,287,479,251,578,184"/>
+<area shape="rect" id="Node000004" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#ad36c1d64acbd920c050c73133ab5a25b" title="Get a human readable description of this tree." alt="" coords="15,71,192,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="252,94,193,94,193,88,252,88"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="406,277,390,271,365,268,342,270,327,275,320,282,320,290,315,289,315,279,325,271,341,265,365,263,392,266,408,273"/>
+<area shape="rect" id="Node000008" href="$d2/d06/_c_boosted_tree_test_8cc.html#abb120b5b80d1b55e172357eead08327e" title=" " alt="" coords="5,305,202,331"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="268,320,202,320,202,315,268,315"/>
+</map>

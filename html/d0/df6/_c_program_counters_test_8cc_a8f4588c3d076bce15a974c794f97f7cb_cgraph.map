@@ -1,0 +1,25 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,209,223,235"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="271,29,459,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,207,183,147,224,111,269,79,278,74,281,79,272,84,227,115,186,150,128,210"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="290,94,440,120"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="133,206,193,169,270,130,290,122,292,127,272,135,195,174,136,211"/>
+<area shape="rect" id="Node000004" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#acf1a4d893bb267652eda4d3c8f197f7d" title=" " alt="" coords="298,168,432,209"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="215,206,282,197,283,202,216,211"/>
+<area shape="rect" id="Node000005" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#ad956a15161016f02afbf6d16025bb823" title=" " alt="" coords="271,233,459,274"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="220,233,255,237,255,242,220,238"/>
+<area shape="rect" id="Node000006" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="274,322,456,348"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="146,233,321,313,319,318,144,238"/>
+<area shape="rect" id="Node000008" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="298,372,432,413"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="129,233,187,293,227,327,272,358,285,365,283,370,269,363,224,332,183,296,125,237"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="323,29,321,19,328,10,342,5,365,3,389,5,403,11,401,16,388,10,365,8,344,10,331,15,326,21,328,28"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="323,168,321,158,328,149,342,143,365,141,389,144,403,150,401,155,388,149,365,147,344,149,331,153,326,159,328,167"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="328,323,321,314,325,304,340,298,365,296,392,298,406,305,404,310,391,303,365,301,341,303,329,308,326,313,332,320"/>
+<area shape="rect" id="Node000007" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="514,322,661,348"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="456,332,498,332,498,338,456,338"/>
+<area shape="rect" id="Node000009" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="507,372,667,413"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="432,390,491,390,491,395,432,395"/>
+<area shape="rect" id="Node000010" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="520,461,654,502"/>
+<area shape="poly" id="edge12_Node000008_Node000010" title=" " alt="" coords="419,411,521,452,519,457,417,416"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="545,461,543,451,550,442,565,437,587,435,611,437,626,443,623,448,610,442,587,440,566,442,553,447,548,453,550,460"/>
+</map>

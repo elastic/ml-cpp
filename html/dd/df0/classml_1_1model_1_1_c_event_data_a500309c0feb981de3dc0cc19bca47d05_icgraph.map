@@ -1,0 +1,9 @@
+<map id="ml::model::CEventData::isExplicitNull" name="ml::model::CEventData::isExplicitNull">
+<area shape="rect" id="Node000001" title="Is explicit null?" alt="" coords="253,71,411,111"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="11,5,199,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,69,178,49,179,44,246,63"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#aab59d74835388b2ed32bead094f1fe56" title=" " alt="" coords="5,71,205,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,94,205,94,205,88,237,88"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ad476fb6d42cbcdb08069828c6f6dd25b" title=" " alt="" coords="18,136,192,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="246,119,179,138,178,133,244,113"/>
+</map>

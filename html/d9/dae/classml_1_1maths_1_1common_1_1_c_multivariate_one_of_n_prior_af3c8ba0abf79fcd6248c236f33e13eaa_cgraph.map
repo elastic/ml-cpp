@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::marginalLikelihoodSupport" name="ml::maths::common::CMultivariateOneOfNPrior::marginalLikelihoodSupport">
+<area shape="rect" id="Node000001" title="Get the support for the marginal likelihood function." alt="" coords="5,16,187,71"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="235,5,405,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,31,219,27,220,32,188,36"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="237,55,403,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,51,221,54,221,60,187,56"/>
+</map>

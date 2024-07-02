@@ -1,0 +1,39 @@
+<map id="ml::model::CAnomalyDetectorModel::personBucketCounts" name="ml::model::CAnomalyDetectorModel::personBucketCounts">
+<area shape="rect" id="Node000001" title="Get the person bucket counts." alt="" coords="793,169,991,210"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a1c8e2c60519557cc94d52ae88fc5d07e" title="Persist state by passing information to the supplied inserter." alt="" coords="558,5,741,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="860,159,809,109,777,84,744,61,719,49,721,44,747,57,780,80,812,105,864,156"/>
+<area shape="rect" id="Node000003" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a446c3501833fac0c13e6de1416aae494" title="Add to the contents of the object." alt="" coords="558,71,741,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="832,165,744,127,712,114,713,109,746,122,834,160"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#acd4e0a8b4659d0cb1302ebb17778f847" title="Persist state by passing information to the supplied inserter." alt="" coords="556,136,742,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="778,177,742,172,743,166,778,171"/>
+<area shape="rect" id="Node000007" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3782a8ef83638949ff680eed01b25271" title="Persist state by passing information to the supplied inserter." alt="" coords="553,201,745,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="778,207,746,212,745,206,778,202"/>
+<area shape="rect" id="Node000010" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4cdec68d47c3fc48c1f9bcc497561dc6" title="Restore the model reading state from the supplied traverser." alt="" coords="556,299,742,339"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="840,220,691,300,688,296,838,215"/>
+<area shape="rect" id="Node000015" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#adb364e3b8658b4e3bbb2bab8150be8d5" title="Restore the model reading state from the supplied traverser." alt="" coords="553,429,745,470"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="865,223,747,353,673,431,669,427,743,349,861,220"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#afeb022f8b17e8546a8f8855842b0da3a" title="Persist state by passing information to inserter." alt="" coords="299,37,492,78"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="566,132,552,125,528,109,504,93,474,81,476,76,506,89,531,105,554,121,569,127"/>
+<area shape="rect" id="Node000006" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#ad0e493f420c13f8723b82632b345e448" title="Persist state by passing information to inserter." alt="" coords="312,103,479,143"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="540,145,479,137,480,131,541,139"/>
+<area shape="rect" id="Node000008" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b15945e4bed81aef355a0cea18a60b9" title="Persist state by passing information to the supplied inserter." alt="" coords="286,168,505,209"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="537,210,505,205,506,200,538,204"/>
+<area shape="rect" id="Node000009" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aea710498b24a82acd1aeaea7f69b2154" title="Persist state by passing information to the supplied inserter." alt="" coords="299,233,492,274"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="538,238,493,244,492,239,537,233"/>
+<area shape="rect" id="Node000011" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6f8f5dc995a35c2935947e846e5e82ff" title="Restore reading state from traverser." alt="" coords="299,299,492,339"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="540,322,492,322,492,316,540,316"/>
+<area shape="rect" id="Node000013" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a2a17aefca31ae55eb498c8b09f8c64bc" title="Restore reading state from traverser." alt="" coords="311,364,480,405"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="553,346,478,366,476,361,552,341"/>
+<area shape="rect" id="Node000012" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7c8373ba03a89e9dc49a6ab803b7625d" title=" " alt="" coords="25,299,218,339"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="283,322,219,322,219,316,283,316"/>
+<area shape="rect" id="Node000014" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#af612a9f6e4723891cf536bf1c97229f3" title=" " alt="" coords="38,364,205,405"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="295,387,205,387,205,382,295,382"/>
+<area shape="rect" id="Node000016" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1ac375cfadf9ff01f2ab44b97245eea6" title="Add to the contents of the object." alt="" coords="286,429,505,470"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="537,452,505,452,505,447,537,447"/>
+<area shape="rect" id="Node000018" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a8e8476792d09c0f2fcbe18a1d579af4e" title="Add to the contents of the object." alt="" coords="293,495,498,535"/>
+<area shape="poly" id="edge17_Node000015_Node000018" title=" " alt="" coords="553,477,478,497,476,491,552,472"/>
+<area shape="rect" id="Node000017" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a2a67d73faab6ff54655e058738c44d21" title=" " alt="" coords="5,429,238,470"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="270,452,238,452,238,447,270,447"/>
+<area shape="rect" id="Node000019" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a457145bf09b5ea76f7b8174152355d1d" title=" " alt="" coords="18,495,225,535"/>
+<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="277,518,225,518,225,512,277,512"/>
+</map>

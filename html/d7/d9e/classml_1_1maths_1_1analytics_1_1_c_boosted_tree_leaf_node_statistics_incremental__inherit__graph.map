@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental">
+<area shape="rect" id="Node000001" title="Maintains a collection of statistics about a leaf of the regression tree as it is built." alt="" coords="5,94,230,150"/>
+<area shape="rect" id="Node000002" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html" title="Maintains a collection of statistics about a leaf of the regression tree as it is built." alt="" coords="5,5,230,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,61,120,93,115,93,115,61"/>
+</map>

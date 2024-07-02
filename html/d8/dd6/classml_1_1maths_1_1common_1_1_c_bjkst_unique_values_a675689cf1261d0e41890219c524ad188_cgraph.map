@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CBjkstUniqueValues::acceptPersistInserter" name="ml::maths::common::CBjkstUniqueValues::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Convert to a node tree." alt="" coords="5,99,155,155"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="203,5,405,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,96,202,57,219,49,221,54,204,61,128,101"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="203,71,405,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,112,187,107,188,112,155,118"/>
+<area shape="rect" id="Node000004" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="229,135,379,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="155,136,214,146,214,151,155,142"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="227,215,381,255"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="122,153,161,178,204,201,217,206,214,211,202,205,158,182,119,158"/>
+<area shape="rect" id="Node000005" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="453,143,623,183"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="379,169,438,169,438,175,379,174"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="453,157,394,157,394,152,453,152"/>
+</map>

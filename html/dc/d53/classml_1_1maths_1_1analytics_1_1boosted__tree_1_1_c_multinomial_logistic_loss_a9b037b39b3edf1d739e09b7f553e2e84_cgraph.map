@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::boosted_tree::CMultinomialLogisticLoss::difference" name="ml::maths::analytics::boosted_tree::CMultinomialLogisticLoss::difference">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,34,194,90"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad43753f3b69d2a100d832468311d57ba" title="A version of std::log which is stable across platforms." alt="" coords="263,5,409,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,45,247,36,248,42,195,50"/>
+<area shape="rect" id="Node000003" href="$dc/d53/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_loss.html#a53c66a0be9fa73d779107fd9cbfad362" title=" " alt="" coords="242,70,430,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,73,227,78,226,84,194,79"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a1275d8d8cc89529273f1207029ce6bc6" title=" " alt="" coords="478,77,638,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="430,95,462,95,462,100,430,100"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="686,77,832,118"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="639,95,671,95,671,100,639,100"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::api::CFrequencyEncoding" name="ml::api::CFrequencyEncoding">
+<area shape="rect" id="Node000001" title="Mapping from categorical columns to numerical values related to categorical value distribution." alt="" coords="5,168,199,193"/>
+<area shape="rect" id="Node000002" href="$d7/d50/classml_1_1api_1_1_c_encoding.html" title=" " alt="" coords="36,94,168,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,135,105,167,99,167,99,135"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="22,5,182,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="105,62,105,93,99,93,99,62"/>
+</map>

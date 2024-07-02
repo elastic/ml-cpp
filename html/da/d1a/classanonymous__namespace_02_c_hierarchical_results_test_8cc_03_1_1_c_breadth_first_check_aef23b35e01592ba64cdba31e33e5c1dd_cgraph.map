@@ -1,0 +1,14 @@
+<map id="anonymous_namespace{CHierarchicalResultsTest::cc}::CBreadthFirstCheck::layer" name="anonymous_namespace{CHierarchicalResultsTest::cc}::CBreadthFirstCheck::layer">
+<area shape="rect" id="Node000001" title="Get a node&#39;s layer." alt="" coords="5,103,216,159"/>
+<area shape="rect" id="Node000002" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#accd14a9ad3a750c33307afc2323065fa" title="Print of the node for debugging." alt="" coords="264,103,417,159"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,128,248,128,248,134,216,134"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="470,5,650,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,100,464,55,477,50,479,55,466,60,386,105"/>
+<area shape="rect" id="Node000004" href="$d6/de7/structml_1_1model_1_1hierarchical__results__detail_1_1_s_result_spec.html#a625e189aea7a1220b110ebeec8ae8a10" title="Print of the specification for debugging." alt="" coords="465,70,655,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="417,117,449,112,450,117,418,122"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="703,111,851,151"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="417,133,465,135,655,135,688,134,688,139,655,140,465,140,417,138"/>
+<area shape="rect" id="Node000006" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="484,201,637,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="406,157,482,191,480,196,404,162"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="656,110,688,115,688,120,655,115"/>
+</map>

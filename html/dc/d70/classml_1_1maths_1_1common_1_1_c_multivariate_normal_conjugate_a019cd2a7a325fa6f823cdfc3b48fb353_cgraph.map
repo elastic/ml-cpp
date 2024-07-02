@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::propagateForwardsByTime" name="ml::maths::common::CMultivariateNormalConjugate::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Update the prior for the specified elapsed time." alt="" coords="5,110,205,166"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="276,5,429,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,107,252,55,266,49,268,54,254,60,154,112"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a282358c48df9393af90423cf34979d4f" title="Check if this is a non&#45;informative prior." alt="" coords="253,70,452,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,119,237,114,238,119,206,124"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="280,150,425,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="206,151,265,161,264,166,205,156"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a140e632aa40a33b4638b58208af58d19" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="280,230,425,286"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="156,164,254,215,266,221,264,226,251,220,154,168"/>
+<area shape="rect" id="Node000006" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="500,190,645,246"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="425,242,484,231,485,236,426,247"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="500,270,645,326"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="426,268,485,279,484,284,425,273"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CSampleCounts::acceptPersistInserter" name="ml::model::CSampleCounts::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist the sample counts to a state document." alt="" coords="5,5,188,46"/>
+<area shape="rect" id="Node000002" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="236,5,390,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,23,220,23,220,28,188,28"/>
+</map>

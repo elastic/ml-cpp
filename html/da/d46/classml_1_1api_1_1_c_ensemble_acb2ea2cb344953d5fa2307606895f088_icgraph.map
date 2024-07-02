@@ -1,0 +1,5 @@
+<map id="ml::api::CEnsemble::trainedModels" name="ml::api::CEnsemble::trainedModels">
+<area shape="rect" id="Node000001" title="List of trained models withing this ensemble." alt="" coords="260,5,396,46"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#aacfb64394a44bd9cc8835c9c24028578" title=" " alt="" coords="5,5,212,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,28,212,28,212,23,244,23"/>
+</map>

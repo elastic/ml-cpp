@@ -1,0 +1,5 @@
+<map id="ml::model::CBucketQueue::empty" name="ml::model::CBucketQueue::empty">
+<area shape="rect" id="Node000001" title="Is the queue empty?" alt="" coords="244,5,419,46"/>
+<area shape="rect" id="Node000002" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a999b179d072fdafec1ee8f6a04319b35" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,196,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,28,196,28,196,23,228,23"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CProbabilityAndInfluenceCalculator::SParams" name="ml::model::CProbabilityAndInfluenceCalculator::SParams">
+<area shape="rect" id="Node000001" title="Wraps up the parameters to the influence calculation." alt="" coords="5,79,201,120"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="20,5,186,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,46,106,79,100,79,100,46"/>
+</map>

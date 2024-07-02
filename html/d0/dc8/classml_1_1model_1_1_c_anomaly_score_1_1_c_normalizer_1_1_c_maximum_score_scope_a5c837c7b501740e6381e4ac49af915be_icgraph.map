@@ -1,0 +1,28 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::CMaximumScoreScope::key" name="ml::model::CAnomalyScore::CNormalizer::CMaximumScoreScope::key">
+<area shape="rect" id="Node000001" title="Get the maximum score map key for the scope." alt="" coords="502,163,779,204"/>
+<area shape="rect" id="Node000002" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#aad3327a6fc6000d42b0b811335cfa573" title="Retrieve the maximum score for a partition." alt="" coords="261,65,443,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="564,160,413,108,415,103,565,155"/>
+<area shape="rect" id="Node000004" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#a6fc0797d04763081e560e9502b1913c4" title=" " alt="" coords="250,195,454,236"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,203,455,207,454,202,486,198"/>
+<area shape="rect" id="Node000003" href="$db/dcc/_c_anomaly_score_test_8cc.html#ad799547209b7440e472635b30f9c76e7" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="264,62,201,45,160,34,161,29,202,40,265,57"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="313,186,248,118,234,97,226,78,217,61,200,44,181,34,184,29,203,40,221,58,231,76,239,94,252,115,317,182"/>
+<area shape="rect" id="Node000005" href="$db/dcc/_c_anomaly_score_test_8cc.html#ae114264c7ba113ad53554ceb8c0d6160" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="319,186,266,138,234,114,200,94,174,83,176,78,203,89,237,110,270,134,323,182"/>
+<area shape="rect" id="Node000006" href="$db/dcc/_c_anomaly_score_test_8cc.html#a481ea2d7a9a12b38aeb56d775fcc8439" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="300,190,253,166,201,143,167,133,169,128,203,138,255,161,303,185"/>
+<area shape="rect" id="Node000007" href="$db/dcc/_c_anomaly_score_test_8cc.html#ab858b89cfa840c047b0052e6fa11ae92" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="234,195,171,182,172,177,235,190"/>
+<area shape="rect" id="Node000008" href="$db/dcc/_c_anomaly_score_test_8cc.html#ac6f92dfdc2c7155262fbc1fa7a6f9c9b" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="234,218,202,218,202,213,234,213"/>
+<area shape="rect" id="Node000009" href="$db/dcc/_c_anomaly_score_test_8cc.html#a206765bd17937656a77564435f281407" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="235,241,172,254,171,249,234,236"/>
+<area shape="rect" id="Node000010" href="$db/dcc/_c_anomaly_score_test_8cc.html#aee390ef4c32d155058a3b39238cf5a3b" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="303,246,255,270,203,293,169,303,167,298,201,288,253,265,300,241"/>
+<area shape="rect" id="Node000011" href="$db/dcc/_c_anomaly_score_test_8cc.html#a7f4980c7ed547f1d9a03fcc64706f91e" title=" " alt="" coords="5,351,202,376"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="323,249,270,297,237,321,203,342,176,353,174,348,200,337,234,317,266,293,319,245"/>
+<area shape="rect" id="Node000012" href="$db/dcc/_c_anomaly_score_test_8cc.html#a99a610f377a192869df12de832f96767" title=" " alt="" coords="5,400,202,426"/>
+<area shape="poly" id="edge12_Node000004_Node000012" title=" " alt="" coords="333,251,280,322,244,360,203,391,180,402,178,397,200,387,241,356,276,319,329,248"/>
+<area shape="rect" id="Node000013" href="$db/dcc/_c_anomaly_score_test_8cc.html#a3762211201633346d940bcce73429185" title=" " alt="" coords="5,449,202,475"/>
+<area shape="poly" id="edge13_Node000004_Node000013" title=" " alt="" coords="339,252,319,295,289,346,251,397,203,440,183,451,180,447,200,436,247,394,285,343,314,293,334,249"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::CDataFrameCategoryEncoder::acceptPersistInserter" name="ml::maths::analytics::CDataFrameCategoryEncoder::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,49,211,105"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="524,57,726,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,75,508,75,508,80,211,80"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="785,145,940,186"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,46,314,21,380,11,450,5,523,3,597,8,669,21,738,43,770,60,798,83,841,131,837,134,794,86,767,64,736,48,668,26,596,13,523,8,450,10,380,17,315,27,203,51"/>
+<area shape="rect" id="Node000004" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#abc875f502329c500061be2f46274b57c" title=" " alt="" coords="259,121,464,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="209,103,247,114,245,119,208,108"/>
+<area shape="poly" id="edge7_Node000004_Node000002" title=" " alt="" coords="464,118,532,100,534,105,465,124"/>
+<area shape="rect" id="Node000005" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#a6fab83d7abcfc66fdea494149b4a99af" title="Persist by passing information to inserter." alt="" coords="512,281,737,337"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="393,175,447,221,513,267,523,272,521,277,511,271,444,226,390,179"/>
+<area shape="rect" id="Node000006" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#a54d4f939dcc443a52d0c9052357a41b2" title="Get the encoded feature at position encodedColumnIndex." alt="" coords="522,121,727,177"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="465,147,506,147,506,152,465,152"/>
+<area shape="rect" id="Node000007" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#a22867f05adf99fa7d9f24c7360fbf181" title=" " alt="" coords="522,201,727,257"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="456,175,517,194,515,199,455,180"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="713,278,736,267,786,232,828,195,832,199,790,236,739,271,715,283"/>
+</map>

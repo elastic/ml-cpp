@@ -1,0 +1,17 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,90,223,116"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="323,49,402,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,87,307,68,308,73,196,92"/>
+<area shape="rect" id="Node000007" href="$d7/d98/classml_1_1model_1_1_c_counting_model_factory.html#aa99d88aa4f4a3ddf1d5b3251bf52e8dd" title="Set the features which will be modeled." alt="" coords="271,123,454,163"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="199,114,255,123,255,128,198,119"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="502,13,676,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,54,486,44,487,49,403,59"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="732,71,891,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="403,62,717,82,716,88,402,67"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="724,5,899,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="677,28,709,27,709,32,677,33"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="671,52,718,64,716,69,670,57"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="947,71,1105,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="891,88,931,88,931,94,891,94"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="320,123,317,113,324,104,340,98,362,96,387,98,401,105,399,110,386,104,362,101,341,103,328,108,323,114,325,121"/>
+</map>

@@ -1,0 +1,26 @@
+<map id="ml::model::CEventRateBucketGatherer::nonZeroPersonCounts" name="ml::model::CEventRateBucketGatherer::nonZeroPersonCounts">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,189,215,230"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#af336a89e53320767103d8026f068204a" title=" " alt="" coords="263,160,462,201"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,195,247,191,247,196,215,200"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="517,5,691,46"/>
+<area shape="poly" id="edge13_Node000001_Node000003" title=" " alt="" coords="161,186,262,146,509,56,529,49,531,54,511,62,264,151,163,191"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaa2f42f2be5d74bd04fa6567fe95860c" title="Extract the person identifier from a tuple." alt="" coords="517,225,691,266"/>
+<area shape="poly" id="edge14_Node000001_Node000004" title=" " alt="" coords="215,215,501,236,501,241,215,220"/>
+<area shape="rect" id="Node000010" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a90e223289901def64d3ea439b8e55318" title=" " alt="" coords="269,279,456,319"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="171,228,289,271,287,276,169,233"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,158,450,101,509,57,520,51,523,55,511,61,453,105,388,162"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="441,199,512,218,510,223,439,204"/>
+<area shape="rect" id="Node000005" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a171f23cf0b25928c3f79ff0b87a882b7" title=" " alt="" coords="510,71,697,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="417,157,509,122,528,115,530,120,511,127,419,162"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="517,160,691,201"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="462,178,501,178,501,183,462,183"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="745,185,947,211"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="667,109,698,122,808,175,806,180,696,127,665,114"/>
+<area shape="rect" id="Node000007" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="995,177,1170,218"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="947,195,979,195,979,200,947,200"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1040,177,1038,167,1045,158,1060,153,1082,151,1107,153,1121,159,1119,164,1105,158,1082,156,1061,158,1048,163,1043,169,1045,176"/>
+<area shape="rect" id="Node000008" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="1218,177,1393,218"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="1170,195,1203,195,1203,200,1170,200"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="558,160,556,150,564,141,579,135,604,133,630,136,645,142,643,147,628,141,604,139,581,141,567,145,561,151,563,159"/>
+<area shape="poly" id="edge12_Node000010_Node000006" title=" " alt="" coords="456,301,573,297,635,289,697,275,760,249,813,217,815,222,762,253,698,280,636,294,573,302,457,306"/>
+</map>

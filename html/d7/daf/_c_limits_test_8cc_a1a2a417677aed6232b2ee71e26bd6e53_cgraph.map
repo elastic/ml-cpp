@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,202,169"/>
+<area shape="rect" id="Node000002" href="$df/d58/classml_1_1model_1_1_c_limits.html#a4b7a88deb9ad6ceb41d7707c111373e9" title="Access to settings." alt="" coords="256,5,436,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,141,175,101,248,57,263,50,265,55,251,61,178,105,123,145"/>
+<area shape="rect" id="Node000003" href="$df/d58/classml_1_1model_1_1_c_limits.html#a9d45d66b2428646d4a09fc9651a071f1" title=" " alt="" coords="280,71,412,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="153,140,264,110,265,115,155,146"/>
+<area shape="rect" id="Node000009" href="$df/d58/classml_1_1model_1_1_c_limits.html#a2bf5ba08c4de49480b22b15d242029a9" title=" " alt="" coords="280,136,412,177"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="202,154,265,154,265,159,202,159"/>
+<area shape="rect" id="Node000010" href="$df/d58/classml_1_1model_1_1_c_limits.html#a7f93568f738b02e69cea651bf83f14b9" title=" " alt="" coords="280,201,412,242"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="155,167,265,197,264,203,153,172"/>
+<area shape="rect" id="Node000011" href="$df/d58/classml_1_1model_1_1_c_limits.html#ae5282d45eea6a950a429f65294035ead" title=" " alt="" coords="250,267,442,307"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="123,167,178,208,251,251,265,258,263,263,248,256,175,212,120,172"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a525baae0430affe818c37cff796c78bb" title="Set the internal memory limit, as specified in a limits config file." alt="" coords="490,5,685,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="411,71,494,48,496,53,413,76"/>
+<area shape="rect" id="Node000007" href="$df/d58/classml_1_1model_1_1_c_limits.html#a422c4b4d72e672d799b0b592abf5bae5" title="Helper method for init()." alt="" coords="522,71,653,111"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="412,88,506,88,506,94,412,94"/>
+<area shape="rect" id="Node000008" href="$d3/dd3/classml_1_1core_1_1_c_stream_utils.html#a64780e60962d1236c7c9335721e46e8a" title=" " alt="" coords="510,136,665,177"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="413,106,496,129,494,134,411,111"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a48617536e82f59b14f00cde169e2d3d4" title=" " alt="" coords="733,5,998,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="686,23,718,23,718,28,686,28"/>
+<area shape="rect" id="Node000006" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="1046,5,1276,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="998,23,1030,23,1030,28,998,28"/>
+</map>

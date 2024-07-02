@@ -1,0 +1,8 @@
+<map id="ml::model::CTokenListDataCategorizerBase::usurpedCategories" name="ml::model::CTokenListDataCategorizerBase::usurpedCategories">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,241,79"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="75,39,73,29,81,20,97,14,123,12,151,14,167,21,165,26,149,20,123,17,98,19,84,24,78,30,80,37"/>
+<area shape="rect" id="Node000002" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a4f6c7412af5d3b0649a076d7fc1190e9" title=" " alt="" coords="289,5,469,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,41,273,37,273,42,242,46"/>
+<area shape="rect" id="Node000003" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="289,71,469,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,71,273,75,273,80,241,76"/>
+</map>

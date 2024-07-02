@@ -1,0 +1,16 @@
+<map id="ml::model::CHierarchicalResultsAggregator::refresh" name="ml::model::CHierarchicalResultsAggregator::refresh">
+<area shape="rect" id="Node000001" title="Update the parameters to reflect changes to the model configuration." alt="" coords="5,71,183,111"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a9ee866782ea46a3569626abcd6a7e455" title=" " alt="" coords="255,5,492,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,68,230,56,268,48,269,53,231,62,184,73"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a819dba5d77ac67551d1ae04d8b6faabe" title="Set the rate at which the models lose information." alt="" coords="275,71,472,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,88,259,88,259,94,183,94"/>
+<area shape="rect" id="Node000006" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a9b1d57a801d6c7e3d004e2f09cd46f74" title="Set the maximum anomalous probability." alt="" coords="231,136,516,177"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="184,109,231,120,269,129,268,134,230,126,182,114"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="564,71,761,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="473,88,548,88,548,94,473,94"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="620,71,618,61,625,52,640,46,663,44,687,46,702,53,700,58,686,52,663,49,641,51,628,56,623,62,625,69"/>
+<area shape="rect" id="Node000005" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="809,71,970,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="762,88,794,88,794,94,762,94"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="590,136,735,177"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="516,154,574,154,574,159,516,159"/>
+</map>

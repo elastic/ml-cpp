@@ -1,0 +1,27 @@
+<map id="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::SDoSample::operator()" name="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::SDoSample::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,202,242,258"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a92ae7d8205e44f988b79208fb8da93e5" title=" " alt="" coords="296,29,471,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,199,209,140,247,109,288,81,299,75,302,79,291,85,250,113,212,144,152,203"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a90e223289901def64d3ea439b8e55318" title=" " alt="" coords="290,95,477,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="184,199,289,151,316,139,319,144,291,156,186,204"/>
+<area shape="rect" id="Node000007" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a56d90d6c26c79a6018ee984c9243fe5a" title="Get the sample count identified by id." alt="" coords="535,291,717,331"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="216,199,275,186,342,179,411,181,478,195,513,211,545,232,597,277,594,281,542,236,510,216,476,200,410,186,342,185,276,192,217,204"/>
+<area shape="rect" id="Node000008" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a96707bd6d2f781ad546d70db455813cc" title="Get a reference to the owning data gatherer." alt="" coords="290,209,477,250"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="242,227,274,227,274,232,242,232"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="296,275,471,315"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="238,256,286,268,284,273,236,261"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="296,364,471,405"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="173,256,335,353,333,358,171,260"/>
+<area shape="rect" id="Node000011" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a0b5a52bfccdcedeb3fc2bd04dd9e944b" title="Update the effective sample variances to reflect new sample for id." alt="" coords="292,429,475,470"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="145,256,205,334,245,377,291,414,300,420,297,424,288,419,242,381,200,338,141,260"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="338,29,336,19,343,10,359,5,383,3,409,5,425,11,423,16,408,10,383,8,360,10,346,15,341,21,343,28"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="525,102,726,128"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="477,112,509,112,509,118,477,118"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="774,95,950,135"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="727,112,758,112,758,118,727,118"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="820,95,818,85,825,76,840,70,862,68,886,70,901,77,898,82,885,76,862,73,841,75,828,80,823,86,825,93"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="998,95,1173,135"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="950,112,982,112,982,118,950,118"/>
+<area shape="poly" id="edge12_Node000010_Node000010" title=" " alt="" coords="338,364,336,354,343,345,359,339,383,337,409,340,425,346,423,351,408,345,383,343,360,345,346,349,341,355,343,363"/>
+<area shape="poly" id="edge14_Node000011_Node000007" title=" " alt="" coords="449,426,476,414,535,377,586,339,589,344,538,382,478,419,451,431"/>
+</map>

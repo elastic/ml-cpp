@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CLowess::residualVariance" name="ml::maths::common::CLowess::residualVariance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,185,90"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="233,5,455,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,54,217,49,218,54,186,59"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="256,85,432,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,80,241,88,240,93,185,85"/>
+</map>

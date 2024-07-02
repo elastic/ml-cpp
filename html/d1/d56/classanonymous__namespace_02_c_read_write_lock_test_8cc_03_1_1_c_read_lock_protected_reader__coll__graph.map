@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CReadWriteLockTest.cc}::CReadLockProtectedReader" name="anonymous_namespace{CReadWriteLockTest.cc}::CReadLockProtectedReader">
+<area shape="rect" id="Node000001" title=" " alt="" coords="38,255,235,310"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="5,180,132,205"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,216,117,252,113,256,85,220"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="41,5,206,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="88,42,68,60,52,81,46,107,49,134,65,178,60,180,44,135,41,107,47,79,64,56,85,38"/>
+<area shape="rect" id="Node000004" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="62,80,184,106"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="126,46,126,80,121,80,121,46"/>
+<area shape="rect" id="Node000005" href="$dd/dc7/classml_1_1core_1_1_c_read_write_lock.html" title="Wrapper class around pthread rw lock." alt="" coords="145,130,320,156"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="155,39,199,79,217,104,229,128,225,131,212,107,194,82,151,43"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="79,117,66,131,62,143,61,155,66,178,61,180,56,156,57,142,61,129,75,113"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="217,170,157,256,153,253,213,167"/>
+</map>

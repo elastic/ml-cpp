@@ -1,0 +1,15 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::unguardedMemoryUsage" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::unguardedMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="766,45,997,101"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a02f4ba692bb6e562d0f4a42030110184" title=" " alt="" coords="504,5,718,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="750,56,718,52,719,46,751,51"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aa21f5bc3a69e63579bcbe30683abf89b" title="Get the amount of memory the cache is consuming." alt="" coords="504,85,718,141"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="751,95,719,100,718,95,750,90"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a590cb09f1ad2568b1e3d0ae0ac24b108" title=" " alt="" coords="242,5,456,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="488,36,456,36,456,31,488,31"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache.html#a1342e839d333ad8ded7d709c9e6ff750" title=" " alt="" coords="5,13,194,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="226,36,194,36,194,31,226,31"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ae8fa90151254378202c3634ee56c1ba7" title=" " alt="" coords="242,85,456,141"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="488,116,456,116,456,111,488,111"/>
+<area shape="rect" id="Node000007" href="$d2/d0f/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache.html#a25bc17da8d5c095e3aa08c1c989b7949" title=" " alt="" coords="5,93,194,134"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="226,116,194,116,194,111,226,111"/>
+</map>

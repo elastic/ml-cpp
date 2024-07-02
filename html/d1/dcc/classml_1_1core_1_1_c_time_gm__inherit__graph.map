@@ -1,0 +1,5 @@
+<map id="ml::core::CTimeGm" name="ml::core::CTimeGm">
+<area shape="rect" id="Node000001" title="Convert tm into a time_t without making a timezone adjustment. See timegm man page for details." alt="" coords="31,79,168,105"/>
+<area shape="rect" id="Node000002" href="$d1/dfe/classml_1_1core_1_1_c_non_instantiatable.html" title="Similar idea to boost::noncopyable, but for instantiation." alt="" coords="5,5,194,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,46,102,79,97,79,97,46"/>
+</map>

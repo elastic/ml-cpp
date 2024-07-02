@@ -1,0 +1,7 @@
+<map id="ml::model::CEventRatePopulationModelFactory" name="ml::model::CEventRatePopulationModelFactory">
+<area shape="rect" id="Node000001" title="A factory class implementation for CEventRatePopulationModel." alt="" coords="5,169,225,210"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html" title="A factory class interface for the CAnomalyDetectorModel hierarchy." alt="" coords="27,94,203,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,135,118,169,112,169,112,135"/>
+<area shape="rect" id="Node000003" href="$d1/da4/structml_1_1model_1_1_s_model_params.html" title="Wraps up model global parameters." alt="" coords="27,5,203,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="118,47,118,94,112,94,112,47"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CSymmetricMatrixNxN&lt; T, N &gt;" name="ml::maths::common::CSymmetricMatrixNxN&lt; T, N &gt;">
+<area shape="rect" id="Node000001" title="A stack based lightweight dense symmetric matrix class." alt="" coords="411,198,568,254"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,363,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="375,170,428,195,426,200,373,175"/>
+<area shape="rect" id="Node000003" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html" title=" " alt="" coords="98,190,270,261"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="285,223,410,223,410,228,285,228"/>
+<area shape="rect" id="Node000004" href="$de/dc8/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_c_empty.html" title="SFINAE check that N is at least 1." alt="" coords="102,285,266,340"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="281,291,362,270,416,251,418,257,363,275,282,296"/>
+</map>

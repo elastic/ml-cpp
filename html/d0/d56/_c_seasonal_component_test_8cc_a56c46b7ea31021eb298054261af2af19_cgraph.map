@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,107,202,133"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="250,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,104,261,64,263,69,145,109"/>
+<area shape="rect" id="Node000003" href="$d2/dbc/classanonymous__namespace_02_c_seasonal_component_test_8cc_03_1_1_c_test_seasonal_component.html#a6ac0020e7549461d539a0a337077a0c4" title=" " alt="" coords="255,85,467,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,117,239,117,239,123,202,123"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="281,180,441,220"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,131,250,164,276,172,274,177,249,169,145,136"/>
+</map>

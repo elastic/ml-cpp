@@ -1,0 +1,17 @@
+<map id="ml::core::CDualThreadStreamBuf::swapWriteBuffer" name="ml::core::CDualThreadStreamBuf::swapWriteBuffer">
+<area shape="rect" id="Node000001" title=" " alt="" coords="500,130,695,171"/>
+<area shape="rect" id="Node000002" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="257,97,452,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="484,137,452,133,453,128,485,132"/>
+<area shape="rect" id="Node000008" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a1f0f227dfff69eee020af75f12941cdb" title=" " alt="" coords="257,162,452,203"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="485,168,453,172,452,167,484,162"/>
+<area shape="rect" id="Node000003" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a43c67f9d7a9bb5e3525ef9d25213c0fa" title=" " alt="" coords="9,5,205,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="304,91,258,67,208,45,174,34,175,29,210,40,260,62,307,86"/>
+<area shape="rect" id="Node000004" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a8f1c7553cd10918ce4c30da5a1806cbb" title=" " alt="" coords="9,55,205,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="241,97,174,84,175,78,242,92"/>
+<area shape="rect" id="Node000005" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a81f4a96bc254bfee7f76cded942511ec" title=" " alt="" coords="9,104,205,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="241,120,206,120,206,114,241,114"/>
+<area shape="rect" id="Node000006" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a53b5ec34d27fa4199633ea75b7549158" title=" " alt="" coords="9,153,205,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="242,142,175,155,174,150,241,137"/>
+<area shape="rect" id="Node000007" href="$df/db9/classml_1_1core_1_1_c_compress_o_stream_1_1_c_compress_thread.html#ab750e1c6f2841103e47e9265f8ab8874" title=" " alt="" coords="5,203,209,244"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="270,146,258,152,244,163,235,173,225,183,210,194,186,205,184,200,207,189,221,179,231,169,241,159,255,148,268,141"/>
+</map>

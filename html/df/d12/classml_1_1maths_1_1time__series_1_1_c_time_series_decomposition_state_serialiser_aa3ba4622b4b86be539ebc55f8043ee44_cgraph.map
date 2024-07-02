@@ -1,0 +1,28 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionStateSerialiser::operator()" name="ml::maths::time_series::CTimeSeriesDecompositionStateSerialiser::operator()">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,196,229,252"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a266da8fdce06bc0c55bd531e9a8b0b06" title="Persist state by passing information to the supplied inserter." alt="" coords="277,196,469,252"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,221,261,221,261,227,229,227"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="836,124,1039,164"/>
+<area shape="poly" id="edge16_Node000001_Node000004" title=" " alt="" coords="159,194,225,153,311,106,411,61,464,43,516,28,592,11,654,3,715,8,789,28,824,44,857,65,909,110,906,114,854,69,822,49,787,33,714,13,654,9,593,17,518,33,465,48,413,66,314,111,227,158,162,198"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="836,357,1039,398"/>
+<area shape="poly" id="edge17_Node000001_Node000005" title=" " alt="" coords="161,250,226,292,313,340,413,385,465,404,518,419,592,433,652,436,712,430,788,419,865,400,866,406,789,424,712,435,652,441,592,438,516,424,463,409,411,390,311,344,224,296,158,255"/>
+<area shape="rect" id="Node000003" href="$dc/d66/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_calendar_test.html#afef6deac98552698645ddc20ee2e31f7" title="Persist state by passing information to inserter." alt="" coords="529,236,777,292"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,235,513,241,512,247,469,240"/>
+<area shape="poly" id="edge14_Node000002_Node000004" title=" " alt="" coords="387,195,408,162,437,124,473,89,516,62,555,46,589,36,620,32,650,32,713,42,789,62,847,84,897,112,894,117,845,89,788,67,712,47,650,37,621,37,590,42,556,51,518,66,476,93,441,128,412,165,391,198"/>
+<area shape="poly" id="edge15_Node000002_Node000005" title=" " alt="" coords="391,251,412,283,441,320,476,355,518,382,558,396,599,406,684,414,766,409,839,399,840,404,767,415,684,419,598,411,556,401,516,386,473,359,437,324,408,286,387,253"/>
+<area shape="rect" id="Node000006" href="$df/d6c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_change_point_test.html#a3f3ef2fd563edc7a65c99ffce2dcea53" title="Persist state by passing information to inserter." alt="" coords="517,316,788,372"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="420,250,466,277,518,302,534,308,532,313,516,306,464,281,417,255"/>
+<area shape="rect" id="Node000008" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#af46b64876cc8bae0c77d3c4934f5d943" title="Persist state by passing information to inserter." alt="" coords="530,156,775,212"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="469,208,514,201,515,206,470,213"/>
+<area shape="rect" id="Node000009" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_seasonality_test.html#a055b4d2ae266eceafd76ae6864673412" title="Persist state by passing information to inserter." alt="" coords="521,76,785,132"/>
+<area shape="poly" id="edge12_Node000002_Node000009" title=" " alt="" coords="417,194,464,167,516,142,532,135,534,140,518,146,466,171,420,198"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="757,233,787,222,840,197,888,170,891,175,842,201,789,227,758,238"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="764,290,790,302,804,312,814,322,838,342,850,348,848,353,835,346,811,326,801,316,787,306,762,295"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="765,313,787,302,825,273,860,240,912,175,916,178,864,243,829,277,790,306,768,318"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="789,357,821,361,820,366,789,363"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="860,292,1015,332"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="789,326,845,320,845,325,789,331"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="775,164,821,158,822,163,776,169"/>
+<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="774,210,790,222,803,237,810,253,815,283,820,313,826,328,838,342,843,346,839,350,834,346,822,331,815,315,810,284,805,254,799,240,787,226,771,214"/>
+<area shape="poly" id="edge13_Node000009_Node000004" title=" " alt="" coords="786,120,821,125,820,130,785,125"/>
+</map>

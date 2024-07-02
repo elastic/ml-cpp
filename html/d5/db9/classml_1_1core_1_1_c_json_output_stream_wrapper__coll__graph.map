@@ -1,0 +1,12 @@
+<map id="ml::core::CJsonOutputStreamWrapper" name="ml::core::CJsonOutputStreamWrapper">
+<area shape="rect" id="Node000001" title="A wrapper around a shared output stream for concurrent writes, handling writes." alt="" coords="715,50,910,91"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="17,5,182,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,17,424,26,558,35,691,48,715,51,715,56,691,53,557,40,423,31,198,23"/>
+<area shape="rect" id="Node000004" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html" title=" " alt="" coords="302,50,500,91"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="193,32,302,50,301,56,193,37"/>
+<area shape="rect" id="Node000003" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="307,115,495,156"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="510,116,691,88,714,84,715,89,691,93,511,122"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="515,68,714,68,714,73,515,73"/>
+<area shape="rect" id="Node000005" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="5,61,194,101"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="209,79,278,77,301,76,301,81,278,82,209,84"/>
+</map>

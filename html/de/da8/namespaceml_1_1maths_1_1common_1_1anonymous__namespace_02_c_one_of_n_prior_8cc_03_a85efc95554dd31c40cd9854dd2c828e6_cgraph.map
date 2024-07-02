@@ -1,0 +1,9 @@
+<map id="ml::maths::common::anonymous_namespace{COneOfNPrior::cc}::modelAcceptPersistInserter" name="ml::maths::common::anonymous_namespace{COneOfNPrior::cc}::modelAcceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state for a models by passing information to inserter." alt="" coords="5,34,226,105"/>
+<area shape="rect" id="Node000002" href="$d0/d4b/classml_1_1maths_1_1common_1_1_c_model_weight.html#a801827c2e110739d8a3e69dec66db0be" title="Persist state by passing information to the supplied inserter." alt="" coords="278,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,51,262,46,263,51,226,56"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="274,85,476,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="226,82,259,86,258,92,226,87"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="524,13,726,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="473,31,508,31,508,36,473,36"/>
+</map>

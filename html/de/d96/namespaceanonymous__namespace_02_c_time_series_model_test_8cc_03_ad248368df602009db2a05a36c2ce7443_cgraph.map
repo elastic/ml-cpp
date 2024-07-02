@@ -1,0 +1,24 @@
+<map id="anonymous_namespace{CTimeSeriesModelTest::cc}::makeComponentDetectedCallback" name="anonymous_namespace{CTimeSeriesModelTest::cc}::makeComponentDetectedCallback">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,194,213,265"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="299,29,445,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,192,190,135,223,106,259,81,283,69,286,74,262,85,226,110,193,139,140,196"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="292,95,452,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="167,191,260,145,276,138,278,143,262,149,170,196"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="287,160,457,185"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="213,204,294,187,295,192,214,210"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="299,209,445,250"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="213,227,284,227,284,232,213,232"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="292,275,452,315"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="214,253,278,269,276,274,213,258"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a687920d514568bc48610047978688576" title="Update the prior for the specified elapsed time." alt="" coords="261,340,483,381"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="159,263,208,295,262,325,279,332,277,337,260,329,205,300,156,268"/>
+<area shape="rect" id="Node000011" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0d44181a56a30d29d406e00a712f4af3" title="Reset the prior to non&#45;informative." alt="" coords="278,405,466,446"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="137,264,190,329,224,362,262,390,273,396,270,401,259,395,221,366,186,332,133,267"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="324,29,322,19,330,10,346,5,372,3,399,5,416,11,414,16,398,10,372,8,347,10,333,15,327,21,329,28"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="531,9,722,35"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="445,39,515,31,516,37,445,44"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="550,59,703,99"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="445,55,535,66,534,71,445,61"/>
+<area shape="rect" id="Node000007" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="537,152,716,193"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="457,170,521,170,521,175,457,175"/>
+</map>

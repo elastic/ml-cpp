@@ -1,0 +1,7 @@
+<map id="ml::core::CConcurrentQueue::pop" name="ml::core::CConcurrentQueue::pop">
+<area shape="rect" id="Node000001" title="Pop an item out of the queue, this blocks until an item is available." alt="" coords="5,46,223,72"/>
+<area shape="rect" id="Node000002" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#a0ebfa64493246e60dd80b511cccaccae" title=" " alt="" coords="271,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,43,255,38,256,43,216,48"/>
+<area shape="rect" id="Node000003" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#aa293f8977055dfbc599cecc5cc7459b8" title=" " alt="" coords="271,71,459,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,70,255,74,255,80,220,75"/>
+</map>

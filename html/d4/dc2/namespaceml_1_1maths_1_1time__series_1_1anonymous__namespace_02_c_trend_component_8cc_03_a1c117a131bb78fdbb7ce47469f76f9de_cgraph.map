@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::anonymous_namespace{CTrendComponent::cc}::naiveBayesExemplar" name="ml::maths::time_series::anonymous_namespace{CTrendComponent::cc}::naiveBayesExemplar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,176,141"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="45,69,47,59,56,50,71,45,91,43,114,46,129,53,126,58,112,51,90,48,72,50,59,55,52,61,50,70"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="224,77,415,133"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="176,103,208,103,208,108,176,108"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="463,5,662,61"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="415,74,451,63,452,69,416,79"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="490,85,635,126"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="415,103,474,103,474,108,415,108"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="490,150,635,191"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="416,128,476,144,474,150,415,133"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="710,13,871,54"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="663,31,695,31,695,36,663,36"/>
+</map>

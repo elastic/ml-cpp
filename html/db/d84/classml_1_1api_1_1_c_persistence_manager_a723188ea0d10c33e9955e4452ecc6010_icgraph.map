@@ -1,0 +1,16 @@
+<map id="ml::api::CPersistenceManager::addPersistFunc" name="ml::api::CPersistenceManager::addPersistFunc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="554,104,751,145"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad2b28f31d440e533eef48730774bdc45" title="Persist current state in the background." alt="" coords="309,5,477,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="594,99,505,61,468,49,470,44,507,57,596,94"/>
+<area shape="rect" id="Node000004" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a01adb279c7fd317365425df860a58701" title="Persist current state due to the periodic persistence being triggered." alt="" coords="280,71,506,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="538,112,506,108,507,103,539,107"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7192b0f547cd4fa07df19f3e440c4071" title=" " alt="" coords="282,136,504,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="539,141,505,145,504,140,538,136"/>
+<area shape="rect" id="Node000007" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a8871ea9a8d160bfbe974b0f9f2fed247" title=" " alt="" coords="282,201,504,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="595,154,507,191,470,203,468,198,505,186,593,149"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af278b58a62e36a96deadced80d5f37ee" title="Persist current state due to the periodic persistence being triggered." alt="" coords="5,5,232,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="293,28,232,28,232,23,293,23"/>
+<area shape="rect" id="Node000005" href="$de/d5e/bin_2categorize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Group machine generated messages into categories by similarity." alt="" coords="94,144,143,169"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="290,118,144,153,143,148,289,113"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="289,200,143,165,144,159,290,195"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CXMeansOnline1d::CCluster" name="ml::maths::common::CXMeansOnline1d::CCluster">
+<area shape="rect" id="Node000001" title="Represents a cluster." alt="" coords="1024,114,1214,155"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html" title="A conjugate prior distribution for a normal variable." alt="" coords="735,79,927,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="943,110,1024,120,1023,126,942,116"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="373,81,518,121"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="533,98,735,97,735,103,533,103"/>
+<area shape="rect" id="Node000004" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,86,166,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="131,77,189,61,263,52,338,48,487,50,624,63,736,79,735,84,624,68,487,56,338,53,263,57,190,66,132,82"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="181,96,372,98,372,103,181,102"/>
+<area shape="rect" id="Node000005" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html" title="This does online segmentation with fixed space by approximate minimization of the within class total ..." alt="" coords="542,139,711,180"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="130,115,190,134,283,148,378,157,542,160,542,165,378,162,283,154,189,139,129,120"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="727,153,927,144,1023,138,1024,143,927,149,727,159"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CCalendarTest::handle" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CCalendarTest::handle">
+<area shape="rect" id="Node000001" title="Update the test with a new value." alt="" coords="5,27,232,83"/>
+<area shape="rect" id="Node000002" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html#a9e950ac41d6a6316050c7f90dea16c3b" title="Check if we can still allocate any components." alt="" coords="280,5,482,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,40,264,36,265,41,233,45"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="285,70,477,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,64,270,69,270,74,232,70"/>
+</map>

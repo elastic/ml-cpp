@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::currentRound" name="ml::maths::analytics::CBoostedTreeHyperparameters::currentRound">
+<area shape="rect" id="Node000001" title="Get the current round of the search for the best hyperparameters." alt="" coords="293,20,506,75"/>
+<area shape="rect" id="Node000002" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a9f588347bc5306f084ac12d50d113614" title=" " alt="" coords="27,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="277,37,223,31,224,26,277,32"/>
+<area shape="rect" id="Node000003" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="5,55,245,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="277,63,245,66,245,61,277,57"/>
+</map>

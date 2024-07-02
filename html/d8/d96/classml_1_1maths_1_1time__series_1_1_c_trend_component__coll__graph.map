@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CTrendComponent" name="ml::maths::time_series::CTrendComponent">
+<area shape="rect" id="Node000001" title="Models the trend component of a time series." alt="" coords="957,85,1111,126"/>
+<area shape="rect" id="Node000002" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="523,5,736,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="752,39,841,49,933,67,982,82,981,87,932,72,840,55,751,44"/>
+<area shape="rect" id="Node000003" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html" title="Implements a Naive Bayes classifier." alt="" coords="557,85,702,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="718,103,956,103,956,108,718,108"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html" title="A conjugate prior distribution for a normal variable." alt="" coords="534,150,725,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="740,163,834,154,932,138,980,124,982,129,933,143,835,160,741,169"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="329,184,474,224"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="489,188,533,182,534,187,490,194"/>
+<area shape="rect" id="Node000006" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,156,166,182"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="181,153,190,152,281,148,373,149,534,159,533,164,373,155,281,154,190,157,181,158"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="181,181,190,182,329,196,328,201,189,187,181,186"/>
+</map>

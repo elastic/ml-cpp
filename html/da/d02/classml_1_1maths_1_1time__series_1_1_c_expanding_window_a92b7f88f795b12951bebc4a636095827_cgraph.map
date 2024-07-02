@@ -1,0 +1,19 @@
+<map id="ml::maths::time_series::CExpandingWindow::endValuesTime" name="ml::maths::time_series::CExpandingWindow::endValuesTime">
+<area shape="rect" id="Node000001" title="Get the end time of the windows&#39; values." alt="" coords="5,262,250,303"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a275cf950c6a539e4c71d115b25537843" title="Get the time of the first window value." alt="" coords="298,169,552,209"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,259,343,212,344,217,196,264"/>
+<area shape="rect" id="Node000003" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a824a6446df32e6fa757a8d236bff4604" title="Get the current bucket length." alt="" coords="893,201,1127,241"/>
+<area shape="poly" id="edge9_Node000001_Node000003" title=" " alt="" coords="213,301,338,324,497,343,583,346,672,344,759,334,845,316,880,303,913,287,970,249,973,254,916,291,882,308,846,321,760,339,672,349,583,351,496,348,337,330,212,306"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="468,166,529,141,599,121,668,109,723,103,778,106,846,121,882,134,916,151,973,189,970,193,913,156,880,139,845,126,777,112,724,108,669,114,601,126,531,146,470,171"/>
+<area shape="rect" id="Node000004" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a146c7ffc1ffc2d4f1951d2288854bf30" title=" " alt="" coords="650,135,795,176"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="552,172,634,163,635,168,553,178"/>
+<area shape="rect" id="Node000005" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab8000e6b7e7cb9ec3e9ac86ea5881230" title="Get the end time of the window." alt="" coords="620,201,825,241"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="553,200,605,206,604,211,552,206"/>
+<area shape="rect" id="Node000006" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="650,266,795,307"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="480,208,601,251,636,261,635,266,599,256,479,213"/>
+<area shape="rect" id="Node000007" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a56d95bb679296928343f2b9b24bcbb40" title=" " alt="" coords="600,5,845,61"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="454,166,519,123,599,77,626,65,628,70,601,82,522,128,457,171"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="826,218,878,218,878,224,826,224"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="930,13,1090,53"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="846,30,915,30,915,36,846,36"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CBucketQueue::latest" name="ml::model::CBucketQueue::latest">
+<area shape="rect" id="Node000001" title="Returns the item corresponding to the latest bucket." alt="" coords="250,5,425,46"/>
+<area shape="rect" id="Node000002" href="$de/d3c/_c_bucket_queue_test_8cc.html#aa8064fae08456ac35672b535c6faa1f2" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

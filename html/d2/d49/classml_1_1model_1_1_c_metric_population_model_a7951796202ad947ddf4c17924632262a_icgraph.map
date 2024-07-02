@@ -1,0 +1,33 @@
+<map id="ml::model::CMetricPopulationModel::bucketStatsAvailable" name="ml::model::CMetricPopulationModel::bucketStatsAvailable">
+<area shape="rect" id="Node000001" title="Check if bucket statistics are available for the specified time." alt="" coords="1004,249,1197,290"/>
+<area shape="rect" id="Node000002" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a4230fb002083a2394470544adfa51d46" title="Get the feature data corresponding to feature at time." alt="" coords="762,249,956,290"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="988,272,956,272,956,267,988,267"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="265,5,459,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="828,240,777,190,746,165,713,143,663,120,592,95,439,49,441,44,593,90,665,115,716,138,749,160,781,186,831,236"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#ad2fdd6df07e14ca9b0a11821e7314121" title=" " alt="" coords="517,152,710,193"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="791,246,666,196,668,191,793,241"/>
+<area shape="rect" id="Node000008" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a85882ed6b58e6c5fd11cb647dbc77b86" title=" " alt="" coords="12,263,205,303"/>
+<area shape="poly" id="edge14_Node000002_Node000008" title=" " alt="" coords="759,296,715,304,587,323,487,333,387,333,259,322,181,307,182,301,260,316,387,328,487,328,587,317,714,299,758,291"/>
+<area shape="rect" id="Node000011" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a1e270b4e5e4270d00351e90957f63e9f" title=" " alt="" coords="517,249,710,290"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="747,272,710,272,710,267,747,267"/>
+<area shape="rect" id="Node000012" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#ad1b7111685b6d39fa4be3325acbde9e8" title=" " alt="" coords="517,9,710,50"/>
+<area shape="poly" id="edge12_Node000002_Node000012" title=" " alt="" coords="837,237,787,159,752,116,713,78,670,53,673,48,716,74,756,113,791,156,842,234"/>
+<area shape="rect" id="Node000013" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="517,405,710,446"/>
+<area shape="poly" id="edge15_Node000002_Node000013" title=" " alt="" coords="815,301,716,365,649,407,646,403,713,361,812,297"/>
+<area shape="rect" id="Node000014" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aab1df5b44c7137345d39ea37dc476eda" title=" " alt="" coords="512,471,714,511"/>
+<area shape="poly" id="edge17_Node000002_Node000014" title=" " alt="" coords="842,305,792,382,757,424,716,460,694,472,691,468,713,455,753,420,788,379,838,302"/>
+<area shape="poly" id="edge8_Node000004_Node000003" title=" " alt="" coords="555,146,510,116,496,101,487,87,477,74,462,61,439,49,442,44,466,57,481,70,491,84,500,97,514,112,558,142"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a8e8476792d09c0f2fcbe18a1d579af4e" title="Add to the contents of the object." alt="" coords="260,136,464,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="501,168,464,165,464,160,501,163"/>
+<area shape="rect" id="Node000007" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#af6632807d37c6df6ffb2bfcc82638e52" title="Clear out large state objects for people/attributes that are pruned." alt="" coords="264,201,460,242"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="502,197,461,205,460,200,501,192"/>
+<area shape="rect" id="Node000009" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a2d322f5d2ad2d97a1b67acb3ffaeb25e" title=" " alt="" coords="265,267,459,307"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="566,203,465,256,433,269,431,264,463,251,564,198"/>
+<area shape="rect" id="Node000010" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a62ff462ed78c1152687fa12f3a9fbe02" title="Initialize the time series models for recycled attributes and/or people." alt="" coords="262,71,462,111"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="533,149,426,114,428,109,534,144"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a457145bf09b5ea76f7b8174152355d1d" title=" " alt="" coords="5,136,212,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="244,159,212,159,212,154,244,154"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="261,249,196,265,195,259,260,244"/>
+<area shape="poly" id="edge13_Node000012_Node000003" title=" " alt="" coords="501,31,459,30,459,25,501,25"/>
+<area shape="poly" id="edge16_Node000013_Node000013" title=" " alt="" coords="653,392,638,386,613,384,590,386,575,391,570,397,572,404,567,405,565,395,572,386,589,381,613,379,640,381,655,387"/>
+</map>

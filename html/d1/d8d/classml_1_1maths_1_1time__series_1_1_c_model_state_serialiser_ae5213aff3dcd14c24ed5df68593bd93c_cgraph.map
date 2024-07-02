@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CModelStateSerialiser::operator()" name="ml::maths::time_series::CModelStateSerialiser::operator()">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,63,165,119"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#abc7c8ebe995c1d827eddeaa8f70e96fa" title="Persist by passing information to inserter." alt="" coords="215,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,66,225,48,226,53,166,71"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="213,71,415,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,88,197,88,197,94,165,94"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="213,136,415,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="166,111,226,129,225,134,164,116"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRunner::numberExtraColumns" name="ml::api::CDataFrameTrainBoostedTreeRunner::numberExtraColumns">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,165,225,221"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a1e1bf3cc3be96595a8e49502d9bd61cb" title="Estimate the number of columns computing encodings will add to the data frame." alt="" coords="273,5,498,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,163,202,117,271,71,282,66,284,70,274,75,205,121,149,167"/>
+<area shape="rect" id="Node000003" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#afc1100eb0dab127c61adc8ff4b451cbf" title="Estimate the number of columns predicting the model will add to the data frame." alt="" coords="274,85,497,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,162,274,143,275,148,212,167"/>
+<area shape="rect" id="Node000004" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a59da41dbb217927587b688060dc929a5" title="Estimate the number of columns training the model will add to the data frame." alt="" coords="280,165,491,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,191,264,191,264,196,225,196"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a80c6b07df14eab56310d8b229a638455" title="Estimate the number of columns updating the model will add to the data frame." alt="" coords="280,245,491,315"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="205,219,266,239,265,244,204,224"/>
+<area shape="rect" id="Node000006" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="289,340,482,380"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="144,220,201,273,236,300,274,324,287,331,285,336,271,329,233,305,197,277,141,224"/>
+</map>

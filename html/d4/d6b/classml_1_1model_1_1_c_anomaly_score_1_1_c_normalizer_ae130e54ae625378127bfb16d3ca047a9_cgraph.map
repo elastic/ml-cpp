@@ -1,0 +1,24 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::normalize" name="ml::model::CAnomalyScore::CNormalizer::normalize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,126,187,167"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="289,11,462,52"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,123,177,95,234,68,273,54,275,59,236,73,179,100,131,128"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="615,29,693,55"/>
+<area shape="poly" id="edge11_Node000001_Node000003" title=" " alt="" coords="183,123,234,112,436,74,599,48,600,53,437,80,235,117,185,128"/>
+<area shape="rect" id="Node000004" href="$d0/dc8/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer_1_1_c_maximum_score_scope.html#aa285b04d09b059cf51060f417afcf5c2" title="Get a human readable description of the scope." alt="" coords="235,126,516,167"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="187,144,219,144,219,149,187,149"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a4895b044355daad6067187c66cc4212f" title="Compute the q&#39;th quantile for distribution." alt="" coords="303,191,448,232"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="187,165,289,189,287,194,185,170"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="303,257,448,297"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="122,165,172,204,236,241,288,259,286,264,234,246,169,208,119,169"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="462,32,600,37,599,43,462,37"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="613,33,600,23,603,12,622,5,654,3,697,8,707,14,708,22,703,22,703,17,695,13,654,8,623,10,607,16,605,21,616,29"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="564,101,744,157"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="448,193,515,176,563,160,565,165,517,181,449,199"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="565,181,744,221"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="448,206,549,202,549,208,449,211"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="572,246,737,287"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="449,223,557,244,556,250,448,228"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="617,335,691,360"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="449,218,484,227,517,243,533,255,543,269,552,282,566,296,611,325,608,330,562,300,548,285,539,272,530,259,515,247,482,232,448,223"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="615,340,601,329,603,318,621,311,654,308,699,314,708,321,707,330,702,329,703,323,697,319,654,313,622,316,607,321,606,327,618,335"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="ml::model::CAnomalyDetector::buildResultsHelper" name="ml::model::CAnomalyDetector::buildResultsHelper">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,203,111"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a0bd562ebde300c9318a312a9020420fc" title="Get the bucket length." alt="" coords="251,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,67,255,48,256,53,184,73"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="251,71,448,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,88,235,88,235,94,203,94"/>
+<area shape="rect" id="Node000006" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7b72a8daaa40b863b1a3baca51630e9e" title="Get a description of this anomaly detector." alt="" coords="251,136,448,177"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="184,109,256,129,255,134,182,115"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="496,71,693,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="448,88,480,88,480,94,448,94"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="552,71,550,61,557,52,572,46,595,44,619,46,634,53,632,58,618,52,595,49,573,51,560,56,555,62,557,69"/>
+<area shape="rect" id="Node000005" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="741,71,902,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="694,88,726,88,726,94,694,94"/>
+<area shape="rect" id="Node000007" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="505,136,685,177"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="448,154,489,154,489,159,448,159"/>
+</map>

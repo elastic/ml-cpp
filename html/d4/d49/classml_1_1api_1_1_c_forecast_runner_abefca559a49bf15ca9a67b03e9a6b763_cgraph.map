@@ -1,0 +1,5 @@
+<map id="ml::api::CForecastRunner::sendMessage" name="ml::api::CForecastRunner::sendMessage">
+<area shape="rect" id="Node000001" title="send a message using write" alt="" coords="5,5,177,46"/>
+<area shape="rect" id="Node000002" href="$df/d1a/structml_1_1api_1_1_c_forecast_runner_1_1_s_forecast.html#aa0caa37d027af29adc2f4f3e3a8bd19f" title="get the the end time" alt="" coords="225,5,396,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,23,209,23,209,28,177,28"/>
+</map>

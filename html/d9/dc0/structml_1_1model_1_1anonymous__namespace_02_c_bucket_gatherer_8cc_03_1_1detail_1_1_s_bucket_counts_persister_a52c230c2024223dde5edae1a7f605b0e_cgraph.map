@@ -1,0 +1,19 @@
+<map id="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::SBucketCountsPersister::operator()" name="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::SBucketCountsPersister::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,109,244,180"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="307,20,509,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,106,291,70,310,64,312,69,293,75,204,111"/>
+<area shape="rect" id="Node000003" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#a262c786c42eef18287da581cae64af7e" title="Persist a person, attribute and count tuple." alt="" coords="300,109,516,180"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,142,284,142,284,147,244,147"/>
+<area shape="rect" id="Node000007" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#aee91d70b5c0f8aeba042a60077fe0ab9" title=" " alt="" coords="292,228,524,299"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="212,178,309,219,307,224,210,183"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="354,108,357,98,368,90,384,85,408,83,435,85,453,93,451,98,434,91,408,88,385,90,370,95,362,101,359,109"/>
+<area shape="rect" id="Node000004" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#abadd2fddddf3f748dfab7047d466b83c" title=" " alt="" coords="580,29,780,100"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="516,110,564,96,565,101,517,115"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="579,124,781,165"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="516,142,563,142,563,147,516,147"/>
+<area shape="rect" id="Node000006" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#a69de755093a5bb6ef5c0af72540ac573" title=" " alt="" coords="572,213,787,269"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="511,178,585,205,584,210,509,183"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="626,28,629,18,639,10,656,5,680,3,707,5,725,13,723,18,706,11,680,8,657,10,642,15,634,21,631,29"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="627,212,628,202,637,194,655,188,680,186,709,189,726,196,724,201,707,194,680,191,656,193,640,198,632,205,632,213"/>
+<area shape="poly" id="edge10_Node000007_Node000007" title=" " alt="" coords="354,227,357,217,368,209,384,203,408,201,435,204,453,211,451,216,434,209,408,207,385,208,370,213,362,220,359,228"/>
+</map>

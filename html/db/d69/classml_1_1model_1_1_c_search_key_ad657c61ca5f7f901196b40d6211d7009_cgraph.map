@@ -1,0 +1,19 @@
+<map id="ml::model::CSearchKey::acceptRestoreTraverser" name="ml::model::CSearchKey::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Initialise by traversing a state document." alt="" coords="5,235,175,275"/>
+<area shape="rect" id="Node000002" href="$db/d69/classml_1_1model_1_1_c_search_key.html#ab359cd86253f63fe08156cb46216265d" title=" " alt="" coords="245,5,419,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,233,115,196,141,148,177,99,221,57,230,51,233,56,224,61,181,103,146,151,119,198,102,236"/>
+<area shape="rect" id="Node000003" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a88025e63de3d761be459d02fe5b55377" title="Get the ExcludeFrequent setting." alt="" coords="252,71,412,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="105,232,153,178,185,148,221,122,236,114,239,119,224,127,189,152,157,181,109,236"/>
+<area shape="rect" id="Node000004" href="$db/d69/classml_1_1model_1_1_c_search_key.html#ab5eb28997c9d892daf94e5a8a0d289d5" title="Get the function." alt="" coords="252,136,412,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="128,232,222,187,242,180,244,185,224,192,130,237"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="223,201,441,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,241,207,236,208,241,176,246"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="223,267,441,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="176,264,208,268,207,273,175,269"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="258,332,406,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="131,274,224,317,245,324,243,329,222,321,129,278"/>
+<area shape="rect" id="Node000008" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a18710c3df4aff8b5514039182597d9ec" title="Get whether to use null field values." alt="" coords="252,397,412,438"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="109,274,157,328,189,357,224,382,239,390,236,395,221,387,185,361,153,332,105,277"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="223,463,441,503"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="102,274,119,312,146,358,181,406,224,448,232,453,229,457,221,452,177,410,141,361,115,314,97,277"/>
+</map>

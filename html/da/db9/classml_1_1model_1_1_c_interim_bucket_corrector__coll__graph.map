@@ -1,0 +1,14 @@
+<map id="ml::model::CInterimBucketCorrector" name="ml::model::CInterimBucketCorrector">
+<area shape="rect" id="Node000001" title="Calculate prediction&#45;based corrections for interim results." alt="" coords="953,83,1130,123"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html" title="Decomposes a time series into a linear combination of trend and cyclical functions and a stationary r..." alt="" coords="585,33,777,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="793,66,953,88,952,94,792,71"/>
+<area shape="rect" id="Node000003" href="$d0/d56/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_interface.html" title="The interface for decomposing times series into seasonal, calendar cyclical and trend components." alt="" coords="282,5,525,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="541,37,584,41,584,47,541,42"/>
+<area shape="rect" id="Node000004" href="$d5/d9e/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_types.html" title="Type definitions shared by the CTimeSeriesDecompositionInterface hierarchy and CTimeSeriesDecompositi..." alt="" coords="5,39,233,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="248,41,281,37,282,43,248,47"/>
+<area shape="rect" id="Node000005" href="$d0/da4/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail.html" title="Utilities for computing the decomposition." alt="" coords="291,71,517,111"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="248,71,290,76,290,81,248,76"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="532,71,584,64,585,69,533,76"/>
+<area shape="rect" id="Node000006" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="575,98,787,154"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="802,116,929,109,953,107,953,112,929,114,803,122"/>
+</map>

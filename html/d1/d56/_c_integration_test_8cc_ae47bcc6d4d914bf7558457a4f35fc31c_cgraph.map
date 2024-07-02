@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$d8/d5a/namespaceanonymous__namespace_02_c_integration_test_8cc_03.html#a6b8616053098e41bed6d5939e4745017" title=" " alt="" coords="250,63,412,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,88,234,88,234,94,202,94"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="460,5,607,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="412,62,453,49,454,54,413,67"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a504ec34c7321cc8c90aeedb7879bb152" title=" " alt="" coords="460,71,607,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="412,88,445,88,445,94,412,94"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a35b1abce0123c6332e361d19f2c92a04" title="Trim whitespace characters from the beginning and end of a string." alt="" coords="460,136,607,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="413,115,454,128,453,133,412,120"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a735030108b69ffc78cd71c89e6ffe322" title="Trim certain characters from the beginning and end of a string." alt="" coords="655,136,803,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="608,154,639,154,639,159,608,159"/>
+</map>

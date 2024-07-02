@@ -1,0 +1,11 @@
+<map id="ml::api::CJsonOutputWriter::~CJsonOutputWriter" name="ml::api::CJsonOutputWriter::~CJsonOutputWriter">
+<area shape="rect" id="Node000001" title="Destructor flushes the stream." alt="" coords="5,39,185,79"/>
+<area shape="rect" id="Node000002" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#afc722d7c5c58211fb12b30ab3f9ab76e" title=" " alt="" coords="233,39,412,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,56,217,56,217,62,185,62"/>
+<area shape="rect" id="Node000003" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html#ad334ee264d822aad2e5eda619049a72a" title=" " alt="" coords="460,39,672,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="412,56,444,56,444,62,412,62"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a43e84f02ec131b99d4f1844f94634301" title=" " alt="" coords="727,5,909,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="672,42,711,37,712,42,673,48"/>
+<area shape="rect" id="Node000005" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html#a8eedb9769cd12d61a8c647dbbfa890de" title=" " alt="" coords="720,71,916,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="673,70,705,74,705,79,672,75"/>
+</map>

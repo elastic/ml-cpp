@@ -1,0 +1,13 @@
+<map id="ml::model::CModelFactory" name="ml::model::CModelFactory">
+<area shape="rect" id="Node000001" title="A factory class interface for the CAnomalyDetectorModel hierarchy." alt="" coords="5,144,181,169"/>
+<area shape="rect" id="Node000002" href="$d7/d98/classml_1_1model_1_1_c_counting_model_factory.html" title="A factory class implementation for CCountingModel." alt="" coords="247,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,131,168,93,227,57,257,44,259,49,230,61,171,98,122,135"/>
+<area shape="rect" id="Node000003" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html" title="A factory class implementation for CEventRateModel." alt="" coords="242,71,435,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="158,136,258,109,260,115,159,142"/>
+<area shape="rect" id="Node000004" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html" title="A factory class implementation for CEventRatePopulationModel." alt="" coords="229,136,448,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="196,154,228,154,228,159,196,159"/>
+<area shape="rect" id="Node000005" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html" title="A factory class implementation for CMetricModel." alt="" coords="233,201,444,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="166,171,229,186,280,198,278,203,228,191,164,176"/>
+<area shape="rect" id="Node000006" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html" title="A factory class implementation for CMetricPopulationModel." alt="" coords="242,251,435,291"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="127,176,174,207,230,237,258,248,256,253,228,241,171,212,124,181"/>
+</map>

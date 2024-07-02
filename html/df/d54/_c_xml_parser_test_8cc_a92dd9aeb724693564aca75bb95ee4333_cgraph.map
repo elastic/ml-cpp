@@ -1,0 +1,14 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,202,96"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="250,29,404,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,67,234,61,235,66,194,72"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a5fcfffb26dafc67f42f8bf01a2ae9222" title="Parse XML stored in a string." alt="" coords="253,95,401,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="198,94,238,100,237,105,197,99"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="289,29,287,19,293,10,307,5,327,3,348,5,361,11,359,16,347,10,327,8,308,10,297,15,292,20,294,28"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a79c507fe3b080722648fc5f4d219ffdb" title="Parse XML stored in a char buffer." alt="" coords="452,95,599,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="401,112,436,112,436,118,401,118"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="647,61,795,102"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="599,100,631,94,632,100,600,105"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="647,127,795,167"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="600,124,632,130,631,135,599,130"/>
+</map>

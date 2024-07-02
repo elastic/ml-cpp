@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CXMeans::setPoints" name="ml::maths::common::CXMeans::setPoints">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,151,79"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="199,5,358,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,44,183,39,184,44,152,50"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="206,71,351,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,68,191,74,190,80,151,73"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="406,71,551,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="352,88,391,88,391,94,352,94"/>
+</map>

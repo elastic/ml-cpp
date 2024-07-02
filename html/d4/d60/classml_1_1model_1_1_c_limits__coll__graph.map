@@ -1,0 +1,7 @@
+<map id="ml::model::CLimits" name="ml::model::CLimits">
+<area shape="rect" id="Node000001" title="Holds configurable limits for the models." alt="" coords="46,213,177,238"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="14,124,209,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,165,114,212,109,212,109,165"/>
+<area shape="rect" id="Node000003" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="5,5,218,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="114,77,114,123,109,123,109,77"/>
+</map>

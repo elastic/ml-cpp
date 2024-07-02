@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::splitFeature" name="ml::maths::analytics::CBoostedTreeNode::splitFeature">
+<area shape="rect" id="Node000001" title="Get the feature index of the split." alt="" coords="515,49,735,90"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a42e6819a8b46bf371aa44e5d17a7d709" title="Split this node and add its child nodes to tree." alt="" coords="291,49,467,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="499,72,468,72,468,67,499,67"/>
+<area shape="rect" id="Node000003" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a7180b914b18daf5c5a07d20385242bf1" title="Populate the object from serialized data." alt="" coords="5,5,243,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="275,57,243,53,244,47,275,52"/>
+<area shape="rect" id="Node000004" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a6b28455a139daa9876cc1f5e28ad8dea" title="Check if we should assign row to the left leaf." alt="" coords="11,85,237,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="275,86,238,92,237,87,275,81"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="ml::api::CPersistenceManager::CBackgroundThread" name="ml::api::CPersistenceManager::CBackgroundThread">
+<area shape="rect" id="Node000001" title="Implementation of the background thread." alt="" coords="5,283,203,324"/>
+<area shape="rect" id="Node000005" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html" title="Manages the details of persisting data where the data adder may optionally run in a different thread." alt="" coords="172,387,369,413"/>
+<area shape="poly" id="edge11_Node000005_Node000001" title=" " alt="" coords="42,334,30,348,30,354,34,361,54,374,87,384,172,394,171,399,86,389,52,379,30,365,25,355,25,346,38,331"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="41,180,167,205"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,221,107,283,101,283,101,221"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="188,5,353,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,35,133,53,115,66,101,82,91,106,90,133,102,179,96,180,85,133,86,105,96,79,112,62,130,48,172,30"/>
+<area shape="rect" id="Node000004" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="111,80,233,106"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="244,43,190,82,187,78,240,38"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="273,46,273,92,273,305,273,386,268,386,268,305,268,92,268,46"/>
+<area shape="rect" id="Node000006" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html" title="Abstract interface for data adder." alt="" coords="291,130,440,156"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="292,42,358,128,354,131,287,45"/>
+<area shape="rect" id="Node000007" href="$da/d7d/classml_1_1core_1_1_c_fast_mutex.html" title="Wrapper class around a fast simple mutex." alt="" coords="429,232,577,257"/>
+<area shape="poly" id="edge10_Node000007_Node000003" title=" " alt="" coords="317,35,386,72,422,98,454,128,472,154,486,183,502,230,497,232,482,185,468,157,450,132,419,102,383,77,315,40"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="157,120,115,181,110,178,153,117"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="226,383,191,365,130,327,132,322,193,361,228,378"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="350,170,333,198,318,230,308,267,305,296,302,326,292,364,281,388,276,385,287,362,296,326,300,296,303,266,314,228,329,196,346,168"/>
+<area shape="poly" id="edge9_Node000005_Node000007" title=" " alt="" coords="477,269,416,315,341,365,297,389,295,384,339,361,413,311,474,265"/>
+</map>

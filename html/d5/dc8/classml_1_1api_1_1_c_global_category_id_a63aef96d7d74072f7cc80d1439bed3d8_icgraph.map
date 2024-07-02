@@ -1,0 +1,11 @@
+<map id="ml::api::CGlobalCategoryId::isValid" name="ml::api::CGlobalCategoryId::isValid">
+<area shape="rect" id="Node000001" title="Does the object represent a valid category?" alt="" coords="504,55,672,96"/>
+<area shape="rect" id="Node000002" href="$de/ddc/_c_global_category_id_test_8cc.html#a65b4e89d4cbda7efbf781cff2cf1fa8a" title=" " alt="" coords="257,5,454,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,54,410,34,411,29,490,49"/>
+<area shape="rect" id="Node000003" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#afcda3dbd3cd5f5cdef504a1d56289a40" title=" " alt="" coords="271,55,440,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="488,78,440,78,440,73,488,73"/>
+<area shape="rect" id="Node000004" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#aac21b11f7ed43197729993aea4520cda" title=" " alt="" coords="255,121,456,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="500,103,431,122,430,117,498,98"/>
+<area shape="rect" id="Node000005" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad9934d581fe7465d1317a23c0664ca82" title=" " alt="" coords="5,121,207,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="239,144,207,144,207,138,239,138"/>
+</map>

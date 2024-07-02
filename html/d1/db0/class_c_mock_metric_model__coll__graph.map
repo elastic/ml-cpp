@@ -1,0 +1,19 @@
+<map id="CMockMetricModel" name="CMockMetricModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1185,134,1320,160"/>
+<area shape="rect" id="Node000002" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html" title="The metric model common functionality." alt="" coords="835,85,1002,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1018,106,1162,126,1190,131,1189,136,1161,131,1018,111"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html" title="The most basic individual model interface." alt="" coords="429,41,615,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="631,63,835,86,835,91,630,68"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="25,5,223,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="238,31,428,44,428,50,238,36"/>
+<area shape="rect" id="Node000005" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html" title="Estimate memory usage based on previous model parameters." alt="" coords="5,70,243,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="257,72,391,62,428,59,429,64,392,67,258,77"/>
+<area shape="rect" id="Node000006" href="$db/d25/structml_1_1model_1_1_c_metric_model_1_1_s_bucket_stats.html" title="The statistics we maintain about a bucketing interval." alt="" coords="438,91,606,131"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="621,105,834,98,835,103,621,110"/>
+<area shape="rect" id="Node000007" href="$da/d99/class_c_mock_model_interface.html" title=" " alt="" coords="844,134,993,160"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1009,144,1185,144,1185,150,1009,150"/>
+<area shape="rect" id="Node000008" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="821,184,1016,209"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1031,183,1161,165,1195,158,1196,163,1162,170,1032,188"/>
+<area shape="rect" id="Node000009" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="416,169,628,224"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="644,194,821,194,821,199,644,199"/>
+</map>

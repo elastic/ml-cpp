@@ -1,0 +1,7 @@
+<map id="ml::core::CStateDecompressor" name="ml::core::CStateDecompressor">
+<area shape="rect" id="Node000001" title="A CDataSearcher&#45;derived class that decompresses chunked and compressed data." alt="" coords="5,153,208,178"/>
+<area shape="rect" id="Node000002" href="$da/d5c/classml_1_1core_1_1_c_data_searcher.html" title="Interface class for retrieving data by running a search." alt="" coords="23,79,190,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,120,109,152,104,152,104,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="24,5,189,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="109,46,109,79,104,79,104,46"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CTrendComponent::print" name="ml::maths::time_series::CTrendComponent::print">
+<area shape="rect" id="Node000001" title="Get a debug description of this object." alt="" coords="5,49,178,90"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#aea5829471386fcf36915b57aaa2ed20d" title="Get a human readable description of the classifier." alt="" coords="249,13,394,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,53,233,44,234,50,178,58"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a6390155da0ebd878e10b299d6d538653" title=" " alt="" coords="226,77,417,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,80,210,85,210,90,178,85"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="485,5,676,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="417,76,469,61,471,66,418,81"/>
+<area shape="rect" id="Node000005" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="465,85,696,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="418,103,449,103,449,108,418,108"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="482,149,680,205"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="418,129,467,143,466,148,417,134"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="744,113,959,169"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="680,161,729,155,729,160,681,167"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="769,193,934,234"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="681,188,754,198,753,203,680,193"/>
+</map>

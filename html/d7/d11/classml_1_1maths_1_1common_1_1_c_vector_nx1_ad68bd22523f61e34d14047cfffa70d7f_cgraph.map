@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CVectorNx1::operator*=" name="ml::maths::common::CVectorNx1::operator*=">
+<area shape="rect" id="Node000001" title="Componentwise multiplication." alt="" coords="5,57,167,98"/>
+<area shape="rect" id="Node000002" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a20d1bb135682b5741deae937d92e6dc2" title="Get read only reference." alt="" coords="229,5,375,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,58,214,48,215,54,168,63"/>
+<area shape="rect" id="Node000003" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a33b3767302d03086723e2da08e9adcf7" title=" " alt="" coords="215,85,389,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,91,200,97,199,102,167,96"/>
+</map>

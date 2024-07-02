@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples" name="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples">
+<area shape="rect" id="Node000001" title="Computes the probability of seeing the M most extreme samples in a collection of N samples." alt="" coords="655,34,883,90"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="308,5,518,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="534,35,655,48,655,53,533,40"/>
+<area shape="rect" id="Node000003" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title=" " alt="" coords="301,70,525,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="541,82,655,70,655,76,541,87"/>
+<area shape="rect" id="Node000004" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title="Implementation of an accumulator class for order statistics." alt="" coords="16,34,241,90"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="256,75,301,81,300,86,256,80"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,113,252,154"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="267,113,300,109,301,115,268,119"/>
+</map>

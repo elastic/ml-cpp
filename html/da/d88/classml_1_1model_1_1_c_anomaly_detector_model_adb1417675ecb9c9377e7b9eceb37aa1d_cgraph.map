@@ -1,0 +1,9 @@
+<map id="ml::model::CAnomalyDetectorModel::learnRate" name="ml::model::CAnomalyDetectorModel::learnRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,203,64"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#ade7f787cbd62208f284cd2b36c182a5b" title="Get the rate at which feature learns." alt="" coords="251,31,404,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,41,235,41,235,46,203,46"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#a6c18445fef48c42f02bbf130c2405704" title="Check if feature is modeling time of day or week." alt="" coords="455,5,603,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,31,439,27,439,32,405,36"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#adbffb95389e6a14a3e10385772e24adb" title="Check if feature is modeling latitude and longitude." alt="" coords="452,55,605,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="405,50,437,54,436,59,404,55"/>
+</map>

@@ -1,0 +1,41 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,413,202,438"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a2068593eeb992ef731cc737e4ee04da3" title=" " alt="" coords="250,268,490,309"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,410,248,343,309,313,311,318,251,348,129,414"/>
+<area shape="rect" id="Node000007" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a517cc5803783f43e494fd30d67583e29" title=" " alt="" coords="565,340,732,381"/>
+<area shape="poly" id="edge21_Node000001_Node000007" title=" " alt="" coords="157,409,249,391,407,373,549,362,549,367,407,378,250,396,158,415"/>
+<area shape="rect" id="Node000008" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#aa580c5cd7561ab5671b4b82e7b157794" title=" " alt="" coords="259,471,481,511"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="159,436,270,464,269,469,158,442"/>
+<area shape="rect" id="Node000010" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a3b18dd74e39e1bcbd1c8db02551c7fbe" title=" " alt="" coords="258,84,482,125"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="114,410,339,135,344,139,118,414"/>
+<area shape="rect" id="Node000012" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a35f625a159c6ef5f47a3dccba34e9327" title=" " alt="" coords="267,405,473,446"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="202,423,251,423,251,428,202,428"/>
+<area shape="rect" id="Node000017" href="$d7/d76/classml_1_1api_1_1_c_frequency_encoding.html#a36982231b5d58daa0fafe0941c361703" title="Map from the category names to the frequency values." alt="" coords="273,536,467,577"/>
+<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="122,437,177,478,251,521,268,528,266,533,248,525,174,482,119,441"/>
+<area shape="rect" id="Node000018" href="$d9/d6f/classml_1_1api_1_1_c_one_hot_encoding.html#ae96f1a91a52efacecc2719419dbb1a58" title="Map from the category names of the original field to the new field names." alt="" coords="281,601,459,642"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="115,437,166,508,205,550,251,586,269,595,266,600,248,590,202,554,162,512,111,440"/>
+<area shape="rect" id="Node000003" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#aa88b268880444b6217092a117bf7a8b5" title=" " alt="" coords="545,196,751,237"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="451,265,551,239,552,244,452,270"/>
+<area shape="rect" id="Node000005" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a596c51a324ef6639845a80dacfd6fd2c" title=" " alt="" coords="565,116,731,172"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="399,265,461,224,537,182,550,176,552,181,539,187,464,229,402,270"/>
+<area shape="rect" id="Node000006" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a694c0e2b546211f15100cfee6ccbe117" title=" " alt="" coords="561,260,736,316"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="490,286,545,286,545,291,490,291"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="452,307,552,333,551,338,451,312"/>
+<area shape="rect" id="Node000004" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#ad433721d1a63cffcc95be24f81cec7f4" title=" " alt="" coords="806,80,973,136"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="728,193,757,182,832,142,834,147,759,187,730,198"/>
+<area shape="rect" id="Node000009" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#afe7155fb3bdb86d6001a001a2f4781b8" title=" " alt="" coords="565,666,731,721"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="474,510,492,522,505,539,513,555,517,588,521,620,528,636,540,652,554,663,550,667,536,655,523,639,516,622,512,589,508,557,501,541,488,526,471,514"/>
+<area shape="poly" id="edge10_Node000010_Node000004" title=" " alt="" coords="402,81,463,48,500,33,537,22,599,9,649,3,698,7,759,22,805,42,846,69,843,73,803,47,757,27,697,12,649,8,600,14,539,27,501,38,465,53,405,86"/>
+<area shape="poly" id="edge11_Node000010_Node000005" title=" " alt="" coords="483,118,550,128,549,133,482,123"/>
+<area shape="rect" id="Node000011" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a5fab331a1b683b047230438b3ffb5492" title=" " alt="" coords="565,36,731,92"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="482,85,549,76,550,81,483,91"/>
+<area shape="poly" id="edge15_Node000012_Node000007" title=" " alt="" coords="459,402,549,381,550,386,460,407"/>
+<area shape="rect" id="Node000013" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a5a4522a3bc86b9ed38dc9952717a15d0" title=" " alt="" coords="543,405,754,446"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="473,423,527,423,527,428,473,428"/>
+<area shape="rect" id="Node000014" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#ab3ba7a6c24107583e8d935cce0ea0091" title=" " alt="" coords="538,471,758,511"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="460,444,544,464,543,469,459,449"/>
+<area shape="rect" id="Node000015" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a00792a09ea46e29d2255ca63b719ed85" title=" " alt="" coords="545,536,751,577"/>
+<area shape="poly" id="edge17_Node000012_Node000015" title=" " alt="" coords="468,444,492,457,508,473,516,490,525,506,540,521,548,526,545,531,536,525,520,509,512,492,504,476,488,461,466,449"/>
+<area shape="rect" id="Node000016" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a72052c57e93733e1e75ec20604df916b" title=" " alt="" coords="565,601,732,642"/>
+<area shape="poly" id="edge18_Node000012_Node000016" title=" " alt="" coords="474,444,492,457,505,473,513,490,517,523,521,555,527,571,540,586,552,596,549,600,536,590,523,574,515,557,512,524,508,491,501,476,488,461,471,449"/>
+</map>

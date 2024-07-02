@@ -1,0 +1,8 @@
+<map id="ml::model::CBucketQueue::get" name="ml::model::CBucketQueue::get">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,207,63"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="255,29,430,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,47,239,47,239,52,207,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="300,29,298,19,305,10,320,5,342,3,367,5,381,11,379,16,365,10,342,8,321,10,308,15,303,21,305,28"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="478,29,653,70"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="430,47,463,47,463,52,430,52"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CForecastModelPersist::CPersist::addModel" name="ml::model::CForecastModelPersist::CPersist::addModel">
+<area shape="rect" id="Node000001" title="add a model to persist" alt="" coords="5,39,191,79"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a1ead688a94b754ebfc81f4bbd3912bc8" title="Get the type of data being modeled." alt="" coords="267,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,44,251,35,252,40,191,49"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="239,71,441,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,69,223,73,223,78,191,74"/>
+</map>

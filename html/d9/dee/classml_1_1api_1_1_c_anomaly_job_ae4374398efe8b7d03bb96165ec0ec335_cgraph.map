@@ -1,0 +1,16 @@
+<map id="ml::api::CAnomalyJob::updateNormalizerAndNormalizeResults" name="ml::api::CAnomalyJob::updateNormalizerAndNormalizeResults">
+<area shape="rect" id="Node000001" title="Update quantiles if not interim and normalize." alt="" coords="5,99,219,155"/>
+<area shape="rect" id="Node000002" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a19f6a07cbd73c79814a325555675b407" title="Bottom up first visit the tree." alt="" coords="285,5,488,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,96,266,57,290,48,291,54,268,61,173,101"/>
+<area shape="rect" id="Node000004" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a99851358b89d8b115890666d2227d95c" title="Visit all the pivot nodes bottom up first." alt="" coords="267,71,506,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="219,110,251,106,252,111,219,116"/>
+<area shape="rect" id="Node000005" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#a2bc643afc9858272872abbef8f0cf8b4" title="Age the maximum scores and quantile summaries." alt="" coords="289,135,484,191"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="219,138,274,146,273,151,219,144"/>
+<area shape="rect" id="Node000007" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#a3d65fc82945e35e9c93357ab1f6fd2d0" title="Add a job for the subsequent invocations of the normalizer." alt="" coords="298,215,475,255"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="166,153,214,178,268,201,286,207,285,212,266,205,212,182,163,158"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#ac3fe83d076bee348f9169fd64aa6f2e9" title="Visit a node." alt="" coords="569,35,734,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="488,34,554,42,553,47,488,40"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="506,72,553,66,554,71,507,77"/>
+<area shape="rect" id="Node000006" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#af27cf44002a6589026b454858681da21" title=" " alt="" coords="554,128,749,198"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="484,160,539,160,539,166,484,166"/>
+</map>

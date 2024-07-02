@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::skipCheckpointIfAtOrAfter" name="ml::maths::analytics::CBoostedTreeFactory::skipCheckpointIfAtOrAfter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,188,119"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#adfac6ffce38516840c306f329394735c" title="Persist state writing to inserter." alt="" coords="236,63,393,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,88,220,88,220,94,188,94"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="441,5,643,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,66,453,48,455,53,394,71"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="441,71,643,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="393,88,425,88,425,94,393,94"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="465,136,619,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="394,111,455,129,453,134,392,116"/>
+</map>

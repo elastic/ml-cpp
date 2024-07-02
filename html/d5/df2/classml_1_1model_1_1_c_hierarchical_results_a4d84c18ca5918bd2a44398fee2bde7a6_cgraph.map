@@ -1,0 +1,15 @@
+<map id="ml::model::CHierarchicalResults::addSimpleCountResult" name="ml::model::CHierarchicalResults::addSimpleCountResult">
+<area shape="rect" id="Node000001" title="Add a dummy result for a simple count detector." alt="" coords="5,136,214,177"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="278,5,476,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,133,192,95,261,57,278,49,280,54,263,61,195,99,139,138"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="278,71,476,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="195,133,275,113,276,118,196,138"/>
+<area shape="rect" id="Node000005" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#af0c1c424e1387b17b3fc3d3512e24364" title="Create a new leaf node for the simple search simpleSearch." alt="" coords="294,136,460,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="214,154,279,154,279,159,214,159"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aab28b49e2d39f4cf86a9b1712f4c520f" title="Get the descriptions of any occurring scheduled event descriptions for the bucket time." alt="" coords="262,201,492,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="196,175,276,194,275,200,195,180"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4cfa47ec8e427ce644d9c1296c3bb935" title="Have we been configured to use NULL values?" alt="" coords="290,267,464,307"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="139,175,195,213,263,251,280,259,278,263,261,256,192,218,136,179"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="540,5,714,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,23,524,23,524,28,476,28"/>
+</map>

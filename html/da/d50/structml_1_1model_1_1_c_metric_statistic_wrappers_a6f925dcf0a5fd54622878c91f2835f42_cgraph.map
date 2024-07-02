@@ -1,0 +1,5 @@
+<map id="ml::model::CMetricStatisticWrappers::count" name="ml::model::CMetricStatisticWrappers::count">
+<area shape="rect" id="Node000001" title="Get the count of the statistic." alt="" coords="5,5,186,46"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac539b2faba6d25270e8b47730113e59b" title="Get the total count of points added." alt="" coords="234,5,394,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,23,218,23,218,28,186,28"/>
+</map>

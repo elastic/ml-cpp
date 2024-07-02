@@ -1,0 +1,11 @@
+<map id="ml::core::CRapidXmlStateRestoreTraverser" name="ml::core::CRapidXmlStateRestoreTraverser">
+<area shape="rect" id="Node000001" title="For restoring state in XML format." alt="" coords="49,244,223,285"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html" title="Abstract interface for restoring state." alt="" coords="5,155,224,181"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,195,134,243,129,244,118,197"/>
+<area shape="rect" id="Node000003" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html" title="Simple C++ wrapper around the RapidXml library." alt="" coords="248,155,429,181"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="300,190,180,246,177,241,297,185"/>
+<area shape="rect" id="Node000004" href="$d5/da7/classml_1_1core_1_1_c_xml_parser_intf.html" title="Polymorphic interface to XML parser classes." alt="" coords="255,80,422,106"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="341,121,341,155,336,155,336,121"/>
+<area shape="rect" id="Node000005" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="256,5,421,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="341,46,341,80,336,80,336,46"/>
+</map>

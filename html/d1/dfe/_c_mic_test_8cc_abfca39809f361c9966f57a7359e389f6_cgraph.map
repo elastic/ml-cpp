@@ -1,0 +1,57 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,457,202,483"/>
+<area shape="rect" id="Node000002" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a14983d724f72c6f95eae7081e63982e0" title="Add a sample of the random variable (X, Y)." alt="" coords="273,291,412,332"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,455,169,402,207,371,248,343,260,336,262,341,251,347,210,375,173,406,119,459"/>
+<area shape="rect" id="Node000003" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a6a1b3ebe8e310b688863321d206d0ecd" title="Compute MICe for the samples added." alt="" coords="273,357,412,397"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,454,273,401,275,406,140,459"/>
+<area shape="rect" id="Node000016" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="250,515,435,556"/>
+<area shape="poly" id="edge20_Node000001_Node000016" title=" " alt="" coords="154,481,251,508,250,513,152,486"/>
+<area shape="rect" id="Node000024" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,450,435,491"/>
+<area shape="poly" id="edge28_Node000001_Node000024" title=" " alt="" coords="202,468,234,468,234,473,202,473"/>
+<area shape="rect" id="Node000025" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a8cc5a0671d7f77c3fcd26bc3884db28a" title="Reserve space for the number of samples if this known in advance." alt="" coords="273,581,412,621"/>
+<area shape="poly" id="edge30_Node000001_Node000025" title=" " alt="" coords="123,482,179,522,251,565,265,572,263,577,248,570,176,526,120,486"/>
+<area shape="rect" id="Node000004" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a0e95fbea187f79b08e136e87ef7b5a66" title=" " alt="" coords="738,62,903,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="411,358,433,342,447,322,454,302,456,262,458,221,465,200,481,179,507,157,535,138,598,111,662,93,722,84,723,89,663,98,599,116,538,143,510,161,485,183,470,202,463,222,461,262,459,303,452,324,437,346,414,362"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="990,207,1136,248"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="412,371,706,353,846,339,895,331,923,323,939,309,947,293,955,276,971,259,979,254,982,258,974,263,960,279,952,296,943,312,926,327,897,336,847,345,706,359,412,377"/>
+<area shape="rect" id="Node000007" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a3c20cbd0cb24eaac0c33c7f8cdfad38c" title=" " alt="" coords="488,385,663,425"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="413,383,473,390,472,395,412,388"/>
+<area shape="rect" id="Node000009" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1201,147,1279,172"/>
+<area shape="poly" id="edge19_Node000003_Node000009" title=" " alt="" coords="411,359,433,342,451,314,458,286,459,259,455,231,452,203,453,175,461,146,481,118,508,92,534,75,560,64,587,58,645,54,716,48,841,24,941,5,989,3,1039,8,1093,22,1154,48,1179,65,1200,86,1229,131,1224,134,1196,90,1176,69,1152,53,1091,27,1038,13,989,8,942,11,842,29,717,53,645,59,587,64,562,69,537,80,511,97,485,121,466,149,458,176,458,203,461,231,464,259,464,287,456,316,437,345,414,363"/>
+<area shape="rect" id="Node000010" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#afe3f1ca0e85e9f0b71caee5678698b59" title=" " alt="" coords="500,193,652,233"/>
+<area shape="poly" id="edge10_Node000003_Node000010" title=" " alt="" coords="409,354,434,341,466,319,496,293,545,243,549,247,500,297,469,323,436,346,412,359"/>
+<area shape="rect" id="Node000015" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a0bf1e5ae3789c4dd6d393a404a56133d" title=" " alt="" coords="506,450,645,491"/>
+<area shape="poly" id="edge18_Node000003_Node000015" title=" " alt="" coords="392,395,484,435,503,442,501,447,482,439,389,400"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="978,63,1148,88"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="903,77,962,76,963,81,903,83"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="977,273,1149,313"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="664,403,789,394,857,383,924,366,974,345,1018,320,1021,325,976,350,926,372,858,388,789,399,664,408"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1130,270,1151,257,1191,222,1220,184,1224,187,1195,225,1155,262,1132,274"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1210,148,1204,138,1208,129,1220,122,1240,120,1262,123,1273,129,1270,134,1260,128,1240,125,1222,127,1212,132,1210,138,1215,145"/>
+<area shape="poly" id="edge13_Node000010_Node000004" title=" " alt="" coords="600,190,651,152,715,113,731,106,733,111,718,118,654,156,603,194"/>
+<area shape="rect" id="Node000011" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a725c9b8e73dd1244d334f406fe5090ff" title=" " alt="" coords="751,193,890,233"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="652,210,735,210,735,216,652,216"/>
+<area shape="rect" id="Node000012" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a100602bc3b7dd9fdc7a44f94b7c0e44a" title="L1 norm." alt="" coords="748,127,893,168"/>
+<area shape="poly" id="edge14_Node000010_Node000012" title=" " alt="" coords="652,190,732,168,733,174,653,195"/>
+<area shape="rect" id="Node000014" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a39c2eb20f26dffcc31888e0dda5bdd74" title=" " alt="" coords="716,257,925,313"/>
+<area shape="poly" id="edge16_Node000010_Node000014" title=" " alt="" coords="648,231,710,250,708,255,646,236"/>
+<area shape="poly" id="edge12_Node000011_Node000006" title=" " alt="" coords="891,215,975,220,975,225,890,220"/>
+<area shape="rect" id="Node000013" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a4abe9f756785bbf9b4aed04852d005f4" title=" " alt="" coords="988,112,1138,183"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="894,145,972,145,972,150,894,150"/>
+<area shape="poly" id="edge17_Node000014_Node000008" title=" " alt="" coords="925,286,961,287,961,292,925,291"/>
+<area shape="rect" id="Node000017" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,515,668,556"/>
+<area shape="poly" id="edge21_Node000016_Node000017" title=" " alt="" coords="435,533,467,533,467,538,435,538"/>
+<area shape="rect" id="Node000018" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="487,580,664,606"/>
+<area shape="poly" id="edge22_Node000016_Node000018" title=" " alt="" coords="428,554,506,573,505,578,427,559"/>
+<area shape="rect" id="Node000019" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="732,580,909,606"/>
+<area shape="poly" id="edge23_Node000018_Node000019" title=" " alt="" coords="665,590,716,590,716,596,665,596"/>
+<area shape="rect" id="Node000020" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="973,669,1153,725"/>
+<area shape="poly" id="edge24_Node000019_Node000020" title=" " alt="" coords="854,604,983,660,981,665,852,609"/>
+<area shape="rect" id="Node000021" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="973,474,1153,515"/>
+<area shape="poly" id="edge25_Node000019_Node000021" title=" " alt="" coords="851,577,972,525,989,518,991,523,974,530,853,582"/>
+<area shape="rect" id="Node000022" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="990,539,1136,580"/>
+<area shape="poly" id="edge26_Node000019_Node000022" title=" " alt="" coords="909,578,974,569,975,574,910,583"/>
+<area shape="rect" id="Node000023" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="980,605,1146,645"/>
+<area shape="poly" id="edge27_Node000019_Node000023" title=" " alt="" coords="910,602,965,609,964,615,909,607"/>
+<area shape="poly" id="edge29_Node000024_Node000017" title=" " alt="" coords="418,489,486,508,485,513,417,494"/>
+</map>

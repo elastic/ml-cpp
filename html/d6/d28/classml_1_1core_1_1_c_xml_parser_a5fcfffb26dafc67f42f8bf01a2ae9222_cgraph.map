@@ -1,0 +1,9 @@
+<map id="ml::core::CXmlParser::parseString" name="ml::core::CXmlParser::parseString">
+<area shape="rect" id="Node000001" title="Parse XML stored in a string." alt="" coords="5,39,153,79"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a79c507fe3b080722648fc5f4d219ffdb" title="Parse XML stored in a char buffer." alt="" coords="201,39,348,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,56,185,56,185,62,153,62"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="396,5,543,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="348,44,380,38,381,44,349,49"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="396,71,543,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="349,68,381,74,380,79,348,74"/>
+</map>

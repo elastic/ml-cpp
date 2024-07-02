@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CGainController::add" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CGainController::add">
+<area shape="rect" id="Node000001" title="Add the predictions predictions at time." alt="" coords="5,31,249,87"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="297,5,456,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,40,281,36,281,41,249,45"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="297,71,456,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="249,72,281,76,281,81,249,77"/>
+</map>

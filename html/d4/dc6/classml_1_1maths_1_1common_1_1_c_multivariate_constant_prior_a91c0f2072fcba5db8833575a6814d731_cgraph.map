@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::sampleMarginalLikelihood" name="ml::maths::common::CMultivariateConstantPrior::sampleMarginalLikelihood">
+<area shape="rect" id="Node000001" title="Get numberSamples times the constant." alt="" coords="5,45,184,101"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="232,5,410,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,55,216,49,217,54,185,60"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="248,85,394,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,86,233,95,232,100,184,92"/>
+</map>

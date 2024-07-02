@@ -1,0 +1,9 @@
+<map id="ml::model::CResourceMonitor::unRegisterComponent" name="ml::model::CResourceMonitor::unRegisterComponent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="271,55,466,96"/>
+<area shape="rect" id="Node000002" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a6ffc63841436e87d0a410cf7260e8ae2" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,54,174,34,175,29,261,49"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a85008fc2c850c7a4ea97cb382d770150" title=" " alt="" coords="15,55,213,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,78,213,78,213,73,255,73"/>
+<area shape="rect" id="Node000004" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#a2a525ccb5db7d2d4dcf9aa364c36c01a" title=" " alt="" coords="18,121,210,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="272,103,197,122,195,117,271,98"/>
+</map>

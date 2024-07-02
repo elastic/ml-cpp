@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CKMeans::updateCentres" name="ml::maths::common::CKMeans::updateCentres">
+<area shape="rect" id="Node000001" title="Single iteration of Lloyd&#39;s algorithm to update centres." alt="" coords="443,23,615,64"/>
+<area shape="rect" id="Node000002" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a5014dc6590487aef34bf5ffe69813911" title=" " alt="" coords="250,23,395,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="427,46,395,46,395,41,427,41"/>
+<area shape="rect" id="Node000003" href="$d1/db3/_c_k_means_test_8cc.html#a5d51fad51252ec6099fc73f939a93e5b" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,36,202,32,203,27,234,31"/>
+<area shape="rect" id="Node000004" href="$d1/db3/_c_k_means_test_8cc.html#aacc7c4dd73c33d4ccbf3805715cccdce" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="234,56,203,59,202,54,234,51"/>
+</map>

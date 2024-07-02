@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CFastQuantileSketch::debugMemoryUsage" name="ml::maths::common::CFastQuantileSketch::debugMemoryUsage">
+<area shape="rect" id="Node000001" title="Debug the memory used by this object." alt="" coords="5,153,155,209"/>
+<area shape="rect" id="Node000002" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#af9da9b8dc9d9ea16d09112f4ac614c2c" title="Default implementation for non&#45;pointer types." alt="" coords="203,128,368,168"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,166,187,161,187,166,156,172"/>
+<area shape="rect" id="Node000009" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ad63e71bc0bdee23ee7576a74bf40840c" title="Get read only knots." alt="" coords="205,193,366,234"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="155,190,190,196,189,201,155,195"/>
+<area shape="rect" id="Node000003" href="$de/df0/structml_1_1core_1_1memory__detail_1_1_s_debug_memory_dynamic_size.html#a0b0baf0a3d6bf2367e46016e88a0ad32" title=" " alt="" coords="416,83,617,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="368,132,400,127,401,132,369,137"/>
+<area shape="rect" id="Node000008" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aa0a3d5d3341bb51e9df11ef0ea542a6a" title="Check if we expect an overloaded dynamicSize function." alt="" coords="666,188,871,228"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="369,155,651,191,650,196,368,161"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="665,95,872,121"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="618,107,650,106,650,112,618,112"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="920,5,1091,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="811,92,904,62,906,67,813,97"/>
+<area shape="rect" id="Node000006" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="922,85,1089,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="872,104,906,104,906,109,872,109"/>
+<area shape="rect" id="Node000007" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1139,135,1324,190"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="831,119,920,135,1025,146,1124,154,1123,159,1024,152,919,140,830,124"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1089,123,1124,133,1123,138,1087,129"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="871,198,1091,179,1123,175,1124,180,1091,184,872,203"/>
+</map>

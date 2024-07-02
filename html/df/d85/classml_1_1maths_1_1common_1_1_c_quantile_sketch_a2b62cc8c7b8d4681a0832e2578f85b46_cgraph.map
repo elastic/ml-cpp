@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CQuantileSketch::acceptRestoreTraverser" name="ml::maths::common::CQuantileSketch::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Initialize reading state from traverser." alt="" coords="5,97,219,152"/>
+<area shape="rect" id="Node000002" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="299,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,93,266,57,288,49,290,54,268,61,177,98"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="267,71,485,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="219,108,251,104,252,109,220,113"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="267,136,485,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,135,252,139,251,144,219,140"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="267,201,485,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="179,150,268,186,290,194,288,199,266,191,177,155"/>
+</map>

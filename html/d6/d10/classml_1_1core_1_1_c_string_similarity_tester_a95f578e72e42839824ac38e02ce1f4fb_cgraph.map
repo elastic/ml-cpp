@@ -1,0 +1,15 @@
+<map id="ml::core::CStringSimilarityTester::similarity" name="ml::core::CStringSimilarityTester::similarity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,180,103"/>
+<area shape="rect" id="Node000002" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a240386af2c68df5ef40b8bd03aa341bd" title=" " alt="" coords="228,95,394,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,93,213,98,212,103,180,98"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a33a7d0f1d501369f530b5ebbab453406" title=" " alt="" coords="228,29,394,70"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="180,67,212,62,213,67,181,72"/>
+<area shape="rect" id="Node000003" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="442,29,608,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="379,92,440,73,442,78,381,97"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a30fd71d5aa580fa9c13a5ca29e49a107" title=" " alt="" coords="442,95,608,135"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="395,112,427,112,427,118,395,118"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#abbcc2bb82dd761f9674856db5bc59bbb" title="Reset the underlying stream." alt="" coords="656,95,823,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="609,112,641,112,641,118,609,118"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="395,47,427,47,427,52,395,52"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="270,29,268,19,275,10,289,5,311,3,334,5,348,11,346,16,333,10,311,8,290,10,278,15,273,20,275,28"/>
+</map>

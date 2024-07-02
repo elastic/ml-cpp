@@ -1,0 +1,15 @@
+<map id="ml::model::CAnomalyDetectorModel::tinyModel" name="ml::model::CAnomalyDetectorModel::tinyModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="540,72,737,113"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a4176067b2288c5b4649c8ea6a3a7a07e" title="Clear out large state objects for people/attributes that are pruned." alt="" coords="273,23,492,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="524,73,491,67,492,61,525,68"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ae34d8622ccf07c621a8027683ed2d275" title="Clear out large state objects for people that are pruned." alt="" coords="289,104,476,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="525,109,476,115,476,110,524,104"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#ae3cf9891594d7715fcd2916260d665f8" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="257,38,225,35,225,30,257,32"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a10ad810a24ba4aa24174941e0edcfcfa" title="Clear out large state objects for people that are pruned." alt="" coords="18,71,212,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="274,114,212,106,213,100,274,108"/>
+<area shape="rect" id="Node000006" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a32651469a2f6370ab44ef287c53114ad" title="Clear out large state objects for people that are pruned." alt="" coords="31,136,199,177"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="274,140,199,149,199,144,274,135"/>
+<area shape="rect" id="Node000007" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a078f3e3af6507244197534f4af22b82f" title=" " alt="" coords="22,201,208,242"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="320,154,226,191,189,203,187,198,224,186,318,149"/>
+</map>

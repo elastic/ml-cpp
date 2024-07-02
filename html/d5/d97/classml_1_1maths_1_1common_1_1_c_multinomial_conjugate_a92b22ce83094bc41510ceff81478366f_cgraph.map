@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CMultinomialConjugate::setToNonInformative" name="ml::maths::common::CMultinomialConjugate::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,31,162,87"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="424,5,569,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,50,408,30,408,35,162,55"/>
+<area shape="rect" id="Node000003" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a20826b9899bd2bfb06b8ab4e99c3a250" title=" " alt="" coords="210,63,366,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="163,69,195,74,194,79,162,74"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="366,64,414,49,416,54,367,69"/>
+<area shape="rect" id="Node000004" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0cba7f8b12e783f4859d267c8e251b2f" title=" " alt="" coords="414,70,578,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="366,91,398,92,398,97,366,96"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="ml::model::CSampleQueue::SSubSample::acceptPersistInserter" name="ml::model::CSampleQueue::SSubSample::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist to a state document." alt="" coords="5,63,243,103"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="291,5,493,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,59,278,47,279,52,223,65"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="822,99,1025,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="243,86,807,111,807,116,243,91"/>
+<area shape="rect" id="Node000004" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a632ae1f375af21ec9cb82af0ca9bda3f" title="Persist to a state document." alt="" coords="307,145,477,186"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,101,310,138,308,143,192,107"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="477,156,807,126,807,132,477,161"/>
+<area shape="rect" id="Node000005" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#acdd2eb762845cbbe86d18fcd6ce357f0" title="Persist an order statistic." alt="" coords="562,171,742,211"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="477,171,547,178,546,183,477,177"/>
+<area shape="rect" id="Node000007" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#aaef61f5660b9649997b6fc2879e4bec7" title="Convert to a delimited string." alt="" coords="541,239,763,295"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="448,184,565,231,563,235,446,189"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="731,168,828,141,830,147,732,173"/>
+<area shape="rect" id="Node000006" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="811,163,1036,219"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="743,188,796,188,796,194,743,194"/>
+<area shape="rect" id="Node000008" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="848,243,999,299"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="764,266,833,267,833,272,764,271"/>
+<area shape="rect" id="Node000009" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="1084,251,1231,291"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="999,268,1069,268,1069,274,999,274"/>
+<area shape="rect" id="Node000010" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="1279,251,1417,291"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1231,268,1264,268,1264,274,1231,274"/>
+</map>

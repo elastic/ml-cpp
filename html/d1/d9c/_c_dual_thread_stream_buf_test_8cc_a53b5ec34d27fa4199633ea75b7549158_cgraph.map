@@ -1,0 +1,32 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,195,202,221"/>
+<area shape="rect" id="Node000002" href="$d8/db4/classanonymous__namespace_02_c_dual_thread_stream_buf_test_8cc_03_1_1_c_input_thread.html#a2b15bf9b0a5fddff3d9b9b2a6dec3ec4" title=" " alt="" coords="250,5,471,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,193,168,135,206,101,248,71,257,66,259,71,251,75,210,105,172,139,118,196"/>
+<area shape="rect" id="Node000003" href="$db/d94/namespaceanonymous__namespace_02_c_dual_thread_stream_buf_test_8cc_03.html#a24bb9c79e19c5b15692a972a971faf1e" title=" " alt="" coords="266,85,455,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,192,249,151,266,144,268,149,251,156,141,197"/>
+<area shape="rect" id="Node000004" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="273,166,448,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,194,257,188,258,193,202,199"/>
+<area shape="rect" id="Node000005" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="263,216,458,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,216,248,221,247,226,202,221"/>
+<area shape="rect" id="Node000010" href="$d1/dff/_c_container_throughput_test_8cc.html#acb99ee2c1bf9405788d8b79e238fc8a3" title=" " alt="" coords="314,280,407,306"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="134,219,188,242,250,265,300,279,299,284,249,270,186,247,132,224"/>
+<area shape="rect" id="Node000011" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aacc70e4361f1d93fe02f2b30dcf830e8" title=" " alt="" coords="289,346,432,387"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="121,219,177,265,251,316,292,337,289,342,248,321,173,269,118,223"/>
+<area shape="rect" id="Node000006" href="$d1/d57/classml_1_1core_1_1_c_condition.html#adf8ff0b46ed94d5031927e967b854b1b" title="Wake up a single thread that is blocked in wait." alt="" coords="763,134,905,175"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="458,213,519,201,747,164,748,169,519,206,459,218"/>
+<area shape="rect" id="Node000007" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="519,216,714,256"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="459,233,503,233,503,239,459,239"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="672,212,762,178,764,183,674,217"/>
+<area shape="rect" id="Node000008" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="795,223,873,249"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="715,233,780,233,780,239,715,239"/>
+<area shape="rect" id="Node000009" href="$d1/d57/classml_1_1core_1_1_c_condition.html#a3b7521bdef190c38a10e67b14ec0b5d0" title=" " alt="" coords="763,273,905,314"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="697,254,749,268,747,273,695,259"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="798,224,791,214,795,205,810,198,834,196,861,199,874,206,872,211,859,204,834,202,811,204,799,208,796,214,802,221"/>
+<area shape="rect" id="Node000012" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="546,362,688,403"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="432,368,530,374,529,380,432,374"/>
+<area shape="rect" id="Node000013" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="762,362,906,403"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="688,380,747,380,747,385,688,385"/>
+<area shape="rect" id="Node000014" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="764,428,904,468"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="687,401,750,420,749,425,686,406"/>
+<area shape="poly" id="edge15_Node000013_Node000013" title=" " alt="" coords="793,362,791,352,798,343,812,338,834,336,858,338,872,344,869,349,856,343,834,341,813,343,801,347,796,353,798,361"/>
+</map>

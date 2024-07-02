@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CHierarchicalResultsTest::cc}::CCheckScores::visit" name="anonymous_namespace{CHierarchicalResultsTest::cc}::CCheckScores::visit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,182,126"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a9954774ced7b4e70fd5e029934d59af9" title=" " alt="" coords="248,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,68,241,49,243,54,183,73"/>
+<area shape="rect" id="Node000004" href="$d6/de7/structml_1_1model_1_1hierarchical__results__detail_1_1_s_result_spec.html#a625e189aea7a1220b110ebeec8ae8a10" title="Print of the specification for debugging." alt="" coords="230,70,420,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,95,214,95,214,100,182,100"/>
+<area shape="rect" id="Node000006" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="248,150,402,206"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="177,124,234,144,233,149,175,129"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="468,5,648,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,23,453,23,453,28,402,28"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="485,77,632,118"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="421,95,469,95,469,100,421,100"/>
+</map>

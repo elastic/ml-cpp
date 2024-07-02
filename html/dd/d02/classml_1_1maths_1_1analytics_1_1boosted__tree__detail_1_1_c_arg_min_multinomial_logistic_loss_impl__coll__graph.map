@@ -1,0 +1,16 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl" name="ml::maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl">
+<area shape="rect" id="Node000001" title="Finds the value to add to a set of predicted multinomial logit which minimises regularised cross entr..." alt="" coords="960,82,1152,153"/>
+<area shape="rect" id="Node000002" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html" title=" " alt="" coords="618,5,760,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="776,44,937,77,961,84,959,89,936,82,775,49"/>
+<area shape="rect" id="Node000003" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="5,110,201,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,124,295,121,819,115,960,114,960,120,819,120,295,126,216,129"/>
+<area shape="rect" id="Node000007" href="$db/d56/classml_1_1maths_1_1common_1_1_c_sampling_1_1_c_stream_sampler.html" title=" " alt="" coords="295,136,488,192"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="216,141,295,150,294,155,216,146"/>
+<area shape="rect" id="Node000004" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html" title=" " alt="" coords="604,216,773,256"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="788,218,861,202,935,179,995,151,998,156,937,184,862,207,789,224"/>
+<area shape="rect" id="Node000005" href="$d2/d2d/class_eigen_1_1_matrix.html" title=" " alt="" coords="315,216,468,256"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="483,233,604,233,604,239,483,239"/>
+<area shape="rect" id="Node000006" href="$d9/d40/classml_1_1maths_1_1common_1_1_c_sampling_1_1_c_vector_dissimilarity_sampler.html" title=" " alt="" coords="582,136,795,192"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="810,146,960,127,961,132,811,151"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="504,161,581,161,581,167,504,167"/>
+</map>

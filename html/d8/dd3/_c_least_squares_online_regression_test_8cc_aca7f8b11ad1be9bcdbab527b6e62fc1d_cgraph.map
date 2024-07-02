@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,202,111"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#afc80e7cf91ba8533fc744f369404bb6f" title=" " alt="" coords="250,5,493,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,82,249,55,276,48,277,53,250,60,154,87"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a0e771a464507d679cb147c2b8ad39fc1" title=" " alt="" coords="264,70,479,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,95,249,95,249,100,202,100"/>
+<area shape="rect" id="Node000007" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b7faad96d97de516da6d0bb3e363123" title=" " alt="" coords="264,150,479,206"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="150,109,262,142,261,148,148,114"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="803,97,963,138"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="479,70,542,61,612,55,684,54,756,63,794,74,830,88,828,93,792,79,755,68,684,60,612,60,542,66,480,76"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="561,77,735,118"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="479,95,546,95,546,100,479,100"/>
+<area shape="rect" id="Node000006" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a3247311f1446dcfda413dcc02c899f35" title="Scale the statistics&#39; count by scale." alt="" coords="541,166,755,222"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="460,123,494,135,557,158,555,163,492,140,458,129"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="735,163,803,141,805,146,737,168"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="602,165,603,155,611,147,626,141,648,139,673,142,688,149,686,153,671,147,648,144,627,146,614,151,608,157,607,166"/>
+</map>

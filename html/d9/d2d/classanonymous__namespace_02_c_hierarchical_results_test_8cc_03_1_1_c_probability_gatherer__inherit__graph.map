@@ -1,0 +1,7 @@
+<map id="anonymous_namespace{CHierarchicalResultsTest.cc}::CProbabilityGatherer" name="anonymous_namespace{CHierarchicalResultsTest.cc}::CProbabilityGatherer">
+<area shape="rect" id="Node000001" title="Gathers up detector probabilities by level." alt="" coords="33,183,230,238"/>
+<area shape="rect" id="Node000002" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="5,94,258,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,150,134,182,129,182,129,150"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="49,5,214,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="134,62,134,94,129,94,129,62"/>
+</map>

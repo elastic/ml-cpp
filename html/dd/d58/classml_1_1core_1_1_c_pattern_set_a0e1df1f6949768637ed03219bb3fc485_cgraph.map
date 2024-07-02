@@ -1,0 +1,25 @@
+<map id="ml::core::CPatternSet::initFromJson" name="ml::core::CPatternSet::initFromJson">
+<area shape="rect" id="Node000001" title="Initialise the set from JSON that is an array of strings." alt="" coords="5,193,154,234"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac9c0287e7f45f33df1ec6065e6ddd1ec" title=" " alt="" coords="211,95,379,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,190,201,146,217,139,219,144,203,151,117,195"/>
+<area shape="rect" id="Node000008" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#a62424ef1b7965a18841cf83339115a8a" title="Clears the set." alt="" coords="221,160,369,201"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="154,200,205,192,206,197,154,205"/>
+<area shape="rect" id="Node000010" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="202,225,388,266"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="154,222,187,227,186,232,154,227"/>
+<area shape="rect" id="Node000011" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#acd862d4a1264604cb342e91a03817455" title=" " alt="" coords="210,291,380,331"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="118,232,203,275,219,282,217,287,201,280,116,237"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a3c93c774f1385bee9d579c358ea7462b" title="The recursive building helper." alt="" coords="436,29,604,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="366,92,432,72,433,78,368,97"/>
+<area shape="rect" id="Node000006" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad06d73c85fb99d9a9888376159c88fd4" title="Pretty&#45;prints the tree." alt="" coords="436,95,604,135"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="379,112,420,112,420,118,379,118"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="478,29,476,19,483,10,498,5,520,3,544,5,558,11,556,16,543,10,520,8,499,10,486,15,481,21,484,28"/>
+<area shape="rect" id="Node000004" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="652,29,831,70"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="605,47,637,47,637,52,605,52"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="879,70,925,96"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="831,66,864,73,863,78,830,71"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="668,95,815,135"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="605,112,653,112,653,118,605,118"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="815,98,863,88,864,93,816,103"/>
+<area shape="rect" id="Node000009" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac3d4b4ced0b4fa847a0405f2535cf732" title="Clears the tree." alt="" coords="436,160,604,201"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="369,178,421,178,421,183,369,183"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBayesianOptimisation::minusLikelihoodAndGradient" name="ml::maths::common::CBayesianOptimisation::minusLikelihoodAndGradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="500,5,694,61"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5ca70926f9908916ada88324e7249188" title="Compute the maximum likelihood kernel parameters." alt="" coords="271,5,452,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,36,453,36,453,31,485,31"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a105ec0dc8c3e89ea1f038dba5ee36f71" title=" " alt="" coords="5,5,223,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="255,36,223,36,223,31,255,31"/>
+</map>

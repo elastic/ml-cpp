@@ -1,0 +1,5 @@
+<map id="ml::model::CCountingModelFactory" name="ml::model::CCountingModelFactory">
+<area shape="rect" id="Node000001" title="A factory class implementation for CCountingModel." alt="" coords="5,79,189,120"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html" title="A factory class interface for the CAnomalyDetectorModel hierarchy." alt="" coords="9,5,185,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,46,100,79,94,79,94,46"/>
+</map>

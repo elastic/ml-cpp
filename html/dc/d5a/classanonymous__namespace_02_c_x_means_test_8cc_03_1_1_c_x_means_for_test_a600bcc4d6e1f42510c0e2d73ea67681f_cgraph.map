@@ -1,0 +1,19 @@
+<map id="anonymous_namespace{CXMeansTest::cc}::CXMeansForTest::improveParams" name="anonymous_namespace{CXMeansTest::cc}::CXMeansForTest::improveParams">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,133,206,188"/>
+<area shape="rect" id="Node000002" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#ad3ee6beaa15a726b1da19cd972b31fb0" title=" " alt="" coords="254,140,432,181"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,158,238,158,238,163,206,163"/>
+<area shape="rect" id="Node000003" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a00e4e57461187bfdf48cdffd62e02a22" title="Set the cluster centre." alt="" coords="492,29,675,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,137,423,109,479,81,497,73,499,78,481,85,426,114,377,142"/>
+<area shape="rect" id="Node000004" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#afeffde355ed98c884a424d9346c4c954" title="Get the cluster checksum." alt="" coords="480,95,687,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="432,141,464,135,465,140,433,146"/>
+<area shape="rect" id="Node000005" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a4deecdaa2dccab53c345bc67ef614f47" title="Set the cluster cost." alt="" coords="498,184,670,225"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="433,174,482,183,481,188,432,179"/>
+<area shape="rect" id="Node000006" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a07a733602da586b4a54b83fd198b45d1" title="Swap the points into place and recalculate the checksum." alt="" coords="493,249,675,290"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="379,179,426,207,481,234,499,241,497,246,479,239,424,211,376,184"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="538,29,536,19,544,10,560,5,584,3,610,5,625,11,623,16,608,10,584,8,561,10,547,15,541,21,544,28"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="538,184,536,174,544,165,560,159,584,157,610,160,625,166,623,171,608,165,584,163,561,165,547,169,541,175,544,183"/>
+<area shape="rect" id="Node000007" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="749,216,904,257"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="675,254,733,246,734,252,676,260"/>
+<area shape="rect" id="Node000008" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a540fc199679c52ca5154f88fec9970b4" title="Get the cluster points." alt="" coords="735,281,918,322"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="676,279,720,285,719,290,675,284"/>
+</map>

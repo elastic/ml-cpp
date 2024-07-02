@@ -1,0 +1,23 @@
+<map id="include/model/CMemoryUsageEstimator.h" name="include/model/CMemoryUsageEstimator.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="565,5,766,46"/>
+<area shape="rect" id="Node000002" href="$dd/d19/_c_memory_usage_8h.html" title=" " alt="" coords="167,94,324,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="565,48,325,93,324,88,564,43"/>
+<area shape="rect" id="Node000007" href="$de/d8d/model_2_import_export_8h.html" title=" " alt="" coords="348,94,495,120"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="605,49,475,91,473,86,604,44"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="519,94,682,120"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="651,48,622,83,618,80,647,45"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="706,94,756,120"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="684,45,713,80,709,83,680,48"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="780,94,847,120"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="704,44,779,84,776,89,701,49"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="871,94,924,120"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="724,44,858,89,856,94,723,49"/>
+<area shape="rect" id="Node000003" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="5,168,142,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="217,123,118,164,116,159,215,118"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="166,168,234,193"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="240,121,218,156,214,153,236,118"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="258,168,326,193"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="255,118,278,153,274,156,251,121"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="351,168,404,193"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="269,118,343,158,341,162,267,123"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::acceptPersistInserter" name="ml::maths::analytics::CBoostedTreeImpl::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="554,31,780,87"/>
+<area shape="rect" id="Node000002" href="$d2/d6c/class_c_boosted_tree_impl_for_test.html#a2512126792c8dc3ac3c1536a3a1cadeb" title=" " alt="" coords="312,5,487,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="538,46,487,39,487,34,539,40"/>
+<area shape="rect" id="Node000003" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7c4d14d80f72a8788a63da33b52dab85" title="Record the training state using the recordTrainState callback function." alt="" coords="293,71,506,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="539,77,507,81,506,76,538,72"/>
+<area shape="rect" id="Node000004" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="5,71,245,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="277,94,245,94,245,88,277,88"/>
+</map>

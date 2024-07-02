@@ -1,0 +1,8 @@
+<map id="ml::core::CUname::machine" name="ml::core::CUname::machine">
+<area shape="rect" id="Node000001" title="uname &#45;m" alt="" coords="497,5,682,31"/>
+<area shape="rect" id="Node000002" href="$d3/da2/_c_uname_test_8cc.html#aa5ed0ab7a54ef382cc3ad92a43501087" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="482,21,202,21,202,16,482,16"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_uname.html#a6c435e015ea9588eb824fdb46cd420e9" title=" " alt="" coords="250,31,449,56"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="482,32,450,36,449,30,481,27"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="234,34,202,31,202,26,234,29"/>
+</map>

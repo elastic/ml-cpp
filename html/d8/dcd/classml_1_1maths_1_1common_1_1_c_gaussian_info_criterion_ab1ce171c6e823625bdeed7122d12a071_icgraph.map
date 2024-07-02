@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CGaussianInfoCriterion::logDeterminant" name="ml::maths::common::CGaussianInfoCriterion::logDeterminant">
+<area shape="rect" id="Node000001" title="Compute the log of the determinant of covariance." alt="" coords="240,5,397,61"/>
+<area shape="rect" id="Node000002" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ac492dcff81db9652ae12665e68fa2bed" title="Update the sufficient statistics for computing info content." alt="" coords="5,13,192,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,36,192,36,192,31,224,31"/>
+</map>

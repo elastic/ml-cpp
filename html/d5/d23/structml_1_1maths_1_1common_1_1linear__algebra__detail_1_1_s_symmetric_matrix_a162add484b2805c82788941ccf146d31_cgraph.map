@@ -1,0 +1,8 @@
+<map id="ml::maths::common::linear_algebra_detail::SSymmetricMatrix::trace" name="ml::maths::common::linear_algebra_detail::SSymmetricMatrix::trace">
+<area shape="rect" id="Node000001" title="Get the trace." alt="" coords="5,14,180,70"/>
+<area shape="rect" id="Node000002" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#ae8df8630abb27926eab97fade1afccdf" title="Get the i,j &#39;th component (no bounds checking)." alt="" coords="228,14,419,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,40,212,40,212,45,180,45"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="467,29,545,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="419,40,451,40,451,45,419,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="475,30,469,21,473,11,486,5,506,3,528,5,540,12,537,16,527,10,506,8,487,10,477,15,475,20,480,27"/>
+</map>

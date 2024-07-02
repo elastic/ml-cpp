@@ -1,0 +1,7 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::modelPlotAnnotationsEnabled" name="ml::model::CAnomalyDetectorModelConfig::modelPlotAnnotationsEnabled">
+<area shape="rect" id="Node000001" title="Are annotations enabled for each of the models?" alt="" coords="250,16,479,71"/>
+<area shape="rect" id="Node000002" href="$d6/d6a/_c_anomaly_detector_model_config_test_8cc.html#a2df7e0a31393056990628cf68fd5b108" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,33,202,30,202,25,234,28"/>
+<area shape="rect" id="Node000003" href="$d3/dcb/_c_config_updater_test_8cc.html#aa11f776dfb04b7cb5146d1a3c0869f4b" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,58,202,61,202,56,234,53"/>
+</map>

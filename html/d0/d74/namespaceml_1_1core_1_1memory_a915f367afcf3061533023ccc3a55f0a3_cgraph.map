@@ -1,0 +1,17 @@
+<map id="ml::core::memory::dynamicSize" name="ml::core::memory::dynamicSize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,194,212,219"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a3e7a8d70b49e519e44e7f3717324563d" title="Helper to compute container element dynamic memory usage." alt="" coords="260,153,437,194"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,190,244,185,245,190,206,196"/>
+<area shape="rect" id="Node000007" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aab8038dcbe643e8f282cde4b2bfc4cba" title=" " alt="" coords="268,218,429,259"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="210,217,252,223,252,228,209,223"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="485,122,691,147"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="437,156,489,148,490,153,438,161"/>
+<area shape="rect" id="Node000006" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="959,135,1144,190"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="438,169,943,161,943,167,438,174"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="739,5,911,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="620,119,743,65,745,70,622,123"/>
+<area shape="rect" id="Node000005" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="741,85,909,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="692,119,725,115,726,120,692,124"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="692,138,943,153,943,159,692,143"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="908,123,944,133,943,138,907,129"/>
+</map>

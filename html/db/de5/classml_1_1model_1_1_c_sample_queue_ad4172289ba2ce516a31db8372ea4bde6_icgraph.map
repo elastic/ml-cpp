@@ -1,0 +1,7 @@
+<map id="ml::model::CSampleQueue::latestEnd" name="ml::model::CSampleQueue::latestEnd">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,27,428,68"/>
+<area shape="rect" id="Node000002" href="$d5/df7/_c_sample_queue_test_8cc.html#ac7d463cf1fea454d5b0f922776400e72" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,37,202,33,203,28,235,32"/>
+<area shape="rect" id="Node000003" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a3839167305e1480156fc6e94aa7684d5" title="Is the gatherer holding redundant data?" alt="" coords="8,55,199,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,63,199,67,199,62,234,57"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d8/d9a/classml_1_1model_1_1_c_monitored_resource.html" title="Interface for resource monitoring." alt="" coords="5,37,215,63"/>
+<area shape="rect" id="Node000001" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html" title="Interface for detecting and reporting anomalies in different types of unstructured data." alt="" coords="263,11,460,36"/>
+<area shape="poly" id="edge529_Node000000_Node000001" title=" " alt="" coords="230,35,262,31,262,37,230,40"/>
+<area shape="rect" id="Node000003" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html" title="Interface for classes that convert a raw event string to a category." alt="" coords="266,61,457,87"/>
+<area shape="poly" id="edge531_Node000000_Node000003" title=" " alt="" coords="230,59,266,62,265,68,230,64"/>
+<area shape="rect" id="Node000002" href="$d6/dac/classml_1_1model_1_1_c_simple_count_detector.html" title="Simply records and reports overall event counts." alt="" coords="508,8,729,34"/>
+<area shape="poly" id="edge530_Node000001_Node000002" title=" " alt="" coords="475,20,508,19,508,25,475,25"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html" title="Abstract base class for categorising strings based on tokens." alt="" coords="529,58,709,99"/>
+<area shape="poly" id="edge532_Node000003_Node000004" title=" " alt="" coords="473,73,528,74,528,79,473,79"/>
+<area shape="rect" id="Node000005" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html" title="Concrete implementation class to categorise strings." alt="" coords="777,5,1125,151"/>
+<area shape="poly" id="edge533_Node000004_Node000005" title=" " alt="" coords="724,76,777,76,777,81,724,81"/>
+</map>

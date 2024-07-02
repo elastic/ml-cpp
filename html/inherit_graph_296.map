@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html" title="Simple representation of a XML node." alt="" coords="5,5,146,31"/>
+<area shape="rect" id="Node000001" href="$d1/d16/classml_1_1core_1_1_c_xml_node_with_children.html" title="Representation of a XML node that can model a hierarchy." alt="" coords="194,5,409,31"/>
+<area shape="poly" id="edge175_Node000000_Node000001" title=" " alt="" coords="161,16,193,16,193,21,161,21"/>
+</map>

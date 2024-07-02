@@ -1,0 +1,15 @@
+<map id="ml::model::CSampleCounts::name" name="ml::model::CSampleCounts::name">
+<area shape="rect" id="Node000001" title="Get the name of the entity identified by id." alt="" coords="680,104,863,145"/>
+<area shape="rect" id="Node000002" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a0e47e5a9eec57df2b55a7827f7c13356" title="Restore some sample counts from a state document traverser." alt="" coords="450,5,632,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="714,99,631,61,600,49,602,44,633,57,716,94"/>
+<area shape="rect" id="Node000005" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a1d943abf3ed159b5a2985da2d92895bb" title="Get the sample counts checksum." alt="" coords="450,71,632,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="665,112,633,107,633,102,665,106"/>
+<area shape="rect" id="Node000006" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a16b1b8fee1cb4fa5105464ab25c0f4c1" title="Refresh the sample count identified by id." alt="" coords="450,136,632,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="665,142,633,146,633,141,665,136"/>
+<area shape="rect" id="Node000007" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a346ebcbd738ca0f81b8a934c3f3dc6a4" title="Reset the sample count identified by id." alt="" coords="450,201,632,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="715,154,633,191,602,203,600,198,631,186,713,149"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4466baf24e54c548b985f6768e740ed3" title="Restore state from supplied traverser." alt="" coords="228,5,402,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,28,402,28,402,23,434,23"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a9b2048cbba78065b47fa4cb1fe1263e0" title="Construct from a state document." alt="" coords="5,5,180,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="212,28,180,28,180,23,212,23"/>
+</map>

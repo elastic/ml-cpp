@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::marginalLikelihoodCovariance" name="ml::maths::common::CMultivariateConstantPrior::marginalLikelihoodCovariance">
+<area shape="rect" id="Node000001" title="Get the covariance matrix of the marginal likelihood." alt="" coords="5,5,208,61"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="256,5,434,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,31,240,31,240,36,208,36"/>
+</map>

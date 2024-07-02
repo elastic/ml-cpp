@@ -1,0 +1,49 @@
+<map id="ml::maths::common::CTools::stable" name="ml::maths::common::CTools::stable">
+<area shape="rect" id="Node000001" title="Compute a value from x which will be stable across platforms." alt="" coords="1453,444,1599,484"/>
+<area shape="rect" id="Node000002" href="$dc/d53/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_loss.html#a6409ae6ebd38a6f8117f0a5ec88d523c" title=" " alt="" coords="1205,5,1393,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1521,428,1515,355,1496,261,1481,211,1461,162,1436,116,1403,75,1390,64,1394,60,1407,71,1440,113,1466,160,1486,210,1502,260,1520,355,1526,428"/>
+<area shape="rect" id="Node000003" href="$d4/ddd/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_subset_loss.html#ac2f5c66c38256a91dc7891f87d5cb799" title=" " alt="" coords="1200,85,1397,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1518,428,1507,370,1486,297,1452,221,1430,186,1403,155,1389,144,1393,140,1407,151,1434,183,1457,219,1491,295,1512,368,1523,427"/>
+<area shape="rect" id="Node000004" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a5b24b3c55ba7e3bfe662b48788896a32" title="Compute the learn rate for the tree at index." alt="" coords="1192,165,1405,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1513,429,1498,385,1475,333,1444,281,1404,235,1388,224,1391,219,1407,231,1448,278,1480,331,1503,383,1518,428"/>
+<area shape="rect" id="Node000005" href="$dc/d53/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_loss.html#ab37c983e915a991d81c8f9558508ede1" title=" " alt="" coords="1205,245,1393,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1503,432,1462,372,1434,342,1404,315,1385,304,1388,299,1407,311,1438,338,1466,369,1508,428"/>
+<area shape="rect" id="Node000006" href="$d4/ddd/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_subset_loss.html#a15ffa468d18ce7a845c53d98c11bce67" title=" " alt="" coords="1204,325,1393,381"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1480,437,1404,394,1381,384,1383,379,1407,389,1483,433"/>
+<area shape="rect" id="Node000007" href="$df/deb/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_bayesian_optimisation_8cc_03.html#a371831733e5f24d240679a9c56ef6bf8" title=" " alt="" coords="1218,429,1380,499"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1438,467,1380,467,1380,461,1438,461"/>
+<area shape="rect" id="Node000008" href="$df/deb/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_bayesian_optimisation_8cc_03.html#a71ead9ad2997ce8fa4faf30df5731f9b" title=" " alt="" coords="1198,547,1399,618"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="1473,494,1369,549,1367,544,1471,489"/>
+<area shape="rect" id="Node000009" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a4d9b96daa77fc5176be2ffb9b518cd07" title=" " alt="" coords="1210,642,1387,683"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="1511,499,1470,566,1441,601,1407,631,1385,644,1382,639,1404,627,1437,598,1465,563,1506,497"/>
+<area shape="rect" id="Node000017" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5e1b086ca80daefce8765bc99ed77ae7" title=" " alt="" coords="1202,707,1396,762"/>
+<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="1518,500,1503,544,1480,597,1448,650,1407,696,1391,708,1388,704,1404,693,1444,647,1475,594,1498,542,1513,498"/>
+<area shape="rect" id="Node000020" href="$df/deb/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_bayesian_optimisation_8cc_03.html#abf129ad95aa6c4013e42278a0b8b6b6b" title="A version of the normal c.d.f. which is stable across our target platforms." alt="" coords="1218,810,1380,881"/>
+<area shape="poly" id="edge23_Node000001_Node000020" title=" " alt="" coords="1521,500,1508,557,1485,629,1452,705,1431,742,1407,776,1389,795,1369,811,1365,807,1386,791,1403,773,1427,739,1448,703,1480,627,1502,556,1516,499"/>
+<area shape="rect" id="Node000021" href="$df/deb/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_bayesian_optimisation_8cc_03.html#a8aee819b94355c60267fd06d5b34645f" title="A version of the normal p.d.f. which is stable across our target platforms." alt="" coords="1218,929,1380,999"/>
+<area shape="poly" id="edge25_Node000001_Node000021" title=" " alt="" coords="1526,500,1518,577,1498,680,1483,735,1463,791,1438,845,1407,895,1390,914,1371,930,1367,926,1387,910,1403,892,1434,842,1458,789,1478,734,1493,679,1512,577,1520,500"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1334,417,1320,410,1299,407,1280,409,1267,414,1261,420,1259,429,1253,427,1256,417,1265,409,1279,404,1299,402,1322,405,1337,412"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="1334,535,1320,528,1299,526,1280,528,1267,532,1261,539,1259,547,1253,546,1256,536,1265,528,1279,522,1299,521,1322,523,1337,531"/>
+<area shape="rect" id="Node000010" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a34f44a505f17699fc9e75a088e638443" title=" " alt="" coords="729,609,883,650"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1211,639,1191,632,1167,618,1143,608,1076,598,1007,598,941,604,884,614,883,608,940,599,1006,593,1076,593,1145,603,1170,613,1193,627,1213,634"/>
+<area shape="rect" id="Node000015" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a3a758665e1abdc93e7b1a1f63ec17f5d" title=" " alt="" coords="981,617,1126,658"/>
+<area shape="poly" id="edge16_Node000009_Node000015" title=" " alt="" coords="1194,654,1126,647,1127,642,1195,649"/>
+<area shape="rect" id="Node000016" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#ab596a2f2835e1f8490466c370d7c06b1" title=" " alt="" coords="438,674,649,715"/>
+<area shape="poly" id="edge18_Node000009_Node000016" title=" " alt="" coords="1194,670,1144,672,650,693,650,687,1144,667,1194,664"/>
+<area shape="rect" id="Node000011" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a7cbb2bc0d2144a8c258cf88dc62ad91e" title=" " alt="" coords="471,609,616,650"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="714,632,617,632,617,627,714,627"/>
+<area shape="rect" id="Node000012" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a6b37cb16a1dc73e6bdb8883589cad86a" title=" " alt="" coords="245,642,390,683"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="457,645,391,654,390,649,456,639"/>
+<area shape="rect" id="Node000013" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a8093e6557824f11b1ea97be1d64b1d4d" title=" " alt="" coords="6,602,196,643"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="229,649,196,643,197,638,230,644"/>
+<area shape="rect" id="Node000014" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="5,667,197,738"/>
+<area shape="poly" id="edge15_Node000012_Node000014" title=" " alt="" coords="230,681,198,687,197,682,229,676"/>
+<area shape="poly" id="edge17_Node000015_Node000010" title=" " alt="" coords="965,637,883,634,883,629,966,632"/>
+<area shape="poly" id="edge19_Node000016_Node000012" title=" " alt="" coords="422,680,390,675,391,670,423,675"/>
+<area shape="rect" id="Node000018" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5ca70926f9908916ada88324e7249188" title="Compute the maximum likelihood kernel parameters." alt="" coords="963,732,1144,788"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="1186,749,1145,753,1144,748,1186,743"/>
+<area shape="rect" id="Node000019" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a105ec0dc8c3e89ea1f038dba5ee36f71" title=" " alt="" coords="697,732,915,788"/>
+<area shape="poly" id="edge22_Node000018_Node000019" title=" " alt="" coords="947,763,915,763,915,757,947,757"/>
+<area shape="poly" id="edge24_Node000020_Node000020" title=" " alt="" coords="1334,798,1320,791,1299,788,1280,790,1267,795,1261,801,1259,810,1253,809,1256,799,1265,790,1279,785,1299,783,1322,786,1337,793"/>
+<area shape="poly" id="edge26_Node000021_Node000021" title=" " alt="" coords="1334,917,1320,910,1299,907,1280,909,1267,914,1261,920,1259,929,1253,927,1256,917,1265,909,1279,904,1299,902,1322,905,1337,912"/>
+</map>

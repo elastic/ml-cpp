@@ -1,0 +1,32 @@
+<map id="ml::maths::time_series::CTrendComponent::value" name="ml::maths::time_series::CTrendComponent::value">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,259,184,299"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="786,18,1009,73"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,258,117,217,144,167,181,117,204,96,230,78,296,47,366,26,439,12,511,5,583,3,651,5,772,18,771,24,651,11,583,8,512,10,439,17,368,31,298,52,233,83,208,100,185,121,148,170,122,220,105,260"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="281,316,440,357"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,296,266,313,265,318,184,301"/>
+<area shape="rect" id="Node000004" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a49532d0f071c0b14f7c912b6af8f0895" title="Get the mean count of samples in the prediction." alt="" coords="548,103,727,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="103,257,122,223,149,182,186,143,207,126,231,112,269,98,310,88,393,80,474,85,545,96,544,101,473,90,393,86,311,93,271,103,233,117,210,130,189,147,153,186,126,226,108,260"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="818,213,977,254"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="184,272,489,258,802,238,803,243,489,263,184,278"/>
+<area shape="rect" id="Node000007" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a6e49f58e9388dfb77ecfb0ec83117dcc" title="Check if the trend has been estimated." alt="" coords="537,179,738,219"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="183,263,521,213,522,219,184,269"/>
+<area shape="rect" id="Node000008" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#ab2827efd37dd5007c26d31958701bc4c" title="Get the smoothing factors for the different regression models." alt="" coords="257,380,464,436"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="124,298,173,332,233,366,246,372,244,377,230,371,171,337,121,302"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="272,460,449,501"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="109,298,128,331,156,371,191,412,233,446,258,459,256,464,230,450,188,416,152,375,124,334,104,301"/>
+<area shape="rect" id="Node000010" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a651cad6b23d40f7e75426097a40835f8" title=" " alt="" coords="262,151,459,191"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="131,256,231,207,267,194,269,199,233,212,134,260"/>
+<area shape="rect" id="Node000011" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#aea4d24b89e6efe94dc917bcfb2743479" title="Get the weight to assign to the prediction verses the long term mean." alt="" coords="232,525,489,566"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="104,299,120,343,147,401,184,460,207,487,233,510,241,515,238,520,230,514,203,491,180,463,142,403,115,345,99,301"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="708,99,786,76,788,81,709,105"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="825,103,970,143"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="728,120,809,120,809,126,728,126"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="688,141,835,204,832,209,686,146"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="458,151,532,138,533,144,459,157"/>
+<area shape="poly" id="edge13_Node000010_Node000007" title=" " alt="" coords="459,178,522,185,521,190,459,183"/>
+<area shape="poly" id="edge14_Node000010_Node000010" title=" " alt="" coords="311,151,308,141,316,131,334,126,360,124,389,126,406,132,404,137,388,131,360,129,335,131,319,136,313,142,316,149"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="557,492,718,533"/>
+<area shape="poly" id="edge16_Node000011_Node000012" title=" " alt="" coords="489,527,541,521,542,526,490,533"/>
+<area shape="rect" id="Node000013" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0a0e9c67bd96f53dfc7cadaad150b12f" title="Compute the maximum of first, second and third." alt="" coords="562,557,714,598"/>
+<area shape="poly" id="edge17_Node000011_Node000013" title=" " alt="" coords="490,558,546,564,546,570,489,563"/>
+</map>

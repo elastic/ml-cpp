@@ -1,0 +1,24 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="8,90,207,115"/>
+<area shape="rect" id="Node000001" href="$dd/d28/structanonymous__namespace_02_c_base64_filter_test_8cc_03_1_1_c_mock_sink_1_1category.html" title=" " alt="" coords="271,5,433,61"/>
+<area shape="poly" id="edge68_Node000000_Node000001" title=" " alt="" coords="169,82,270,54,271,59,171,88"/>
+<area shape="rect" id="Node000004" href="$d8/d5b/structml_1_1core_1_1_c_base64_decoder_1_1category.html" title="Tell boost::iostreams what this filter is capable of." alt="" coords="262,153,442,194"/>
+<area shape="poly" id="edge69_Node000000_Node000004" title=" " alt="" coords="185,117,210,124,292,150,290,155,209,129,183,122"/>
+<area shape="rect" id="Node000006" href="$da/d9a/structml_1_1core_1_1_c_base64_encoder_1_1category.html" title="Tell boost::iostreams what this filter is capable of." alt="" coords="263,222,441,263"/>
+<area shape="poly" id="edge70_Node000000_Node000006" title=" " alt="" coords="206,121,211,124,229,144,237,164,244,184,259,203,285,219,282,224,256,207,239,186,232,166,224,147,208,129,203,125"/>
+<area shape="rect" id="Node000003" href="$dc/ddb/structml_1_1core_1_1_c_state_compressor_1_1_c_chunk_filter_1_1category.html" title="Inform the filtering_stream owning object what this is capable of." alt="" coords="258,85,446,126"/>
+<area shape="poly" id="edge71_Node000000_Node000003" title=" " alt="" coords="223,101,257,101,257,107,223,106"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="19,188,196,214"/>
+<area shape="poly" id="edge72_Node000005_Node000004" title=" " alt="" coords="211,187,261,181,262,186,212,192"/>
+<area shape="poly" id="edge73_Node000005_Node000006" title=" " alt="" coords="203,215,263,225,262,230,202,220"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="30,139,185,165"/>
+<area shape="poly" id="edge74_Node000009_Node000004" title=" " alt="" coords="201,157,262,163,262,168,200,163"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,238,210,263"/>
+<area shape="poly" id="edge75_Node000007_Node000004" title=" " alt="" coords="185,231,209,224,299,192,301,197,210,229,186,236"/>
+<area shape="poly" id="edge76_Node000007_Node000006" title=" " alt="" coords="225,244,262,243,262,248,225,249"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="26,287,189,313"/>
+<area shape="poly" id="edge77_Node000008_Node000006" title=" " alt="" coords="180,280,261,261,263,266,181,286"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="20,30,195,55"/>
+<area shape="poly" id="edge78_Node000002_Node000001" title=" " alt="" coords="211,36,270,34,271,39,211,41"/>
+<area shape="poly" id="edge79_Node000002_Node000003" title=" " alt="" coords="176,57,270,82,269,87,175,62"/>
+</map>

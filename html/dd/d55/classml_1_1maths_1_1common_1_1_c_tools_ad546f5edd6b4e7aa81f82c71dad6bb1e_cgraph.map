@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CTools::differentialEntropy" name="ml::maths::common::CTools::differentialEntropy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,181,87"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="229,5,374,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,213,40,214,46,181,52"/>
+<area shape="rect" id="Node000003" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="264,94,339,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,81,249,94,248,100,180,86"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="267,95,260,86,264,76,278,70,301,68,327,70,340,77,337,82,325,75,301,73,279,75,268,80,265,85,271,92"/>
+</map>

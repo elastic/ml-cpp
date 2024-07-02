@@ -1,0 +1,30 @@
+<map id="ml::api::CDataFrameAnalysisSpecification::numberRows" name="ml::api::CDataFrameAnalysisSpecification::numberRows">
+<area shape="rect" id="Node000001" title=" " alt="" coords="870,253,1064,294"/>
+<area shape="rect" id="Node000002" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a3d2cec964f35372854826c330b69f687" title=" " alt="" coords="287,63,519,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="946,241,926,207,897,170,862,134,821,107,785,92,747,81,668,69,590,68,519,73,519,68,590,62,668,64,748,76,787,87,824,102,866,130,901,166,930,204,951,239"/>
+<area shape="rect" id="Node000006" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a50ab58c0c23aa98730677efcbe317cdf" title=" " alt="" coords="591,117,798,172"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="923,247,875,216,821,187,793,175,795,170,823,182,878,211,926,242"/>
+<area shape="rect" id="Node000007" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#ae3e1079f27280382909483b64a49f1f7" title=" " alt="" coords="592,220,798,261"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="855,263,798,256,799,250,855,257"/>
+<area shape="rect" id="Node000010" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#ab603b023c95c171d42b6ccc940d96c86" title=" " alt="" coords="598,285,791,326"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="855,289,792,297,792,292,855,284"/>
+<area shape="rect" id="Node000012" href="$de/d56/namespaceml_1_1api_1_1anonymous__namespace_02_c_data_frame_analysis_runner_8cc_03.html#a62a25510b46d88d0ce0275dd54dc2b8e" title=" " alt="" coords="567,374,822,430"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="910,303,757,376,755,371,907,298"/>
+<area shape="rect" id="Node000013" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a6eb2fddf2688b7d71f623808a44a620f" title="Validate if frame is suitable for running the analysis on." alt="" coords="598,453,791,494"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="948,309,898,378,863,414,824,444,793,459,791,454,821,439,860,410,894,374,944,306"/>
+<area shape="rect" id="Node000003" href="$d4/db2/class_c_data_frame_mock_analysis_runner.html#af6d544df8bb5c776825069f66cf9bb7a" title=" " alt="" coords="8,5,236,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="271,63,212,49,213,44,272,58"/>
+<area shape="rect" id="Node000004" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#ac8b798f611790589976d1ed79e13c103" title="This is not intended to be called directly: use CDataFrameOutliersRunnerFactory." alt="" coords="5,71,239,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="271,94,239,94,239,88,271,88"/>
+<area shape="rect" id="Node000005" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a4737af76bd12b1a450b877c4d770c1cd" title="This is not intended to be called directly: use CDataFrameOutliersRunnerFactory." alt="" coords="5,136,239,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="272,124,213,138,212,133,271,119"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="622,216,566,187,541,166,517,145,474,122,476,117,521,141,545,162,568,182,624,211"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="739,207,723,201,695,199,669,201,652,205,646,211,649,219,644,220,641,210,650,201,668,195,695,193,724,196,741,202"/>
+<area shape="rect" id="Node000008" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a32b0d6e6db2f1ed87b8cf8d63141d91f" title=" " alt="" coords="309,155,497,195"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="585,219,496,199,497,193,587,213"/>
+<area shape="rect" id="Node000009" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a953f26e0a0895039f15c11b6623c9130" title=" " alt="" coords="309,220,497,261"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="576,243,497,243,497,238,576,238"/>
+<area shape="rect" id="Node000011" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad60a80e1adc9fee7b028ae04211b7217" title=" " alt="" coords="294,285,512,340"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="582,311,512,313,512,307,582,306"/>
+<area shape="poly" id="edge14_Node000012_Node000012" title=" " alt="" coords="739,362,722,355,695,352,670,354,655,359,647,366,647,374,642,373,642,363,652,355,669,349,695,347,724,350,741,357"/>
+</map>

@@ -1,0 +1,38 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,220,202,246"/>
+<area shape="rect" id="Node000002" href="$dc/d40/classanonymous__namespace_02_c_json_state_persist_inserter_test_8cc_03_1_1_c_readable_json_state_persist_inserter.html#a257f1b2b73e87642acb4e111d1099874" title=" " alt="" coords="250,5,532,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,218,166,155,205,118,248,85,255,81,258,86,251,90,208,122,170,159,117,221"/>
+<area shape="rect" id="Node000003" href="$d8/d42/namespaceanonymous__namespace_02_c_json_state_persist_inserter_test_8cc_03.html#af7b355a6fa4f34cdabd37e945364a975" title=" " alt="" coords="301,100,481,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="130,217,184,191,249,165,285,152,287,158,251,170,187,196,133,222"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="290,179,492,220"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,219,274,210,275,215,202,224"/>
+<area shape="rect" id="Node000006" href="$de/d50/classml_1_1core_1_1_c_json_state_persist_inserter.html#a155163fa616565dfea6c636fa82fc6fe" title="Store a name/value." alt="" coords="298,244,484,285"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,241,282,250,282,255,202,246"/>
+<area shape="rect" id="Node000014" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a35b1abce0123c6332e361d19f2c92a04" title="Trim whitespace characters from the beginning and end of a string." alt="" coords="317,310,465,350"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="132,244,186,269,251,294,303,309,301,314,249,299,184,274,130,248"/>
+<area shape="rect" id="Node000016" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="317,375,465,416"/>
+<area shape="poly" id="edge18_Node000001_Node000016" title=" " alt="" coords="118,244,171,301,209,333,251,360,303,379,301,384,248,364,206,337,167,304,114,248"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="580,107,782,148"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="481,125,564,125,564,130,481,130"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3e682c1a84193d87d74cf25162d8b209" title=" " alt="" coords="848,248,1031,289"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="484,263,833,265,833,271,484,268"/>
+<area shape="rect" id="Node000010" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abc2850b89685437da0d9d93504ff6aa9" title=" " alt="" coords="590,191,772,232"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="484,245,574,228,575,233,485,250"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="1097,215,1279,256"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1031,254,1081,247,1082,252,1032,259"/>
+<area shape="rect" id="Node000009" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="1097,280,1279,321"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1032,278,1082,284,1081,290,1031,283"/>
+<area shape="rect" id="Node000011" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="830,314,1049,354"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="713,230,767,264,831,298,849,306,847,310,829,303,764,269,710,234"/>
+<area shape="rect" id="Node000013" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="848,183,1031,224"/>
+<area shape="poly" id="edge14_Node000010_Node000013" title=" " alt="" coords="773,206,833,204,833,209,773,211"/>
+<area shape="poly" id="edge11_Node000011_Node000008" title=" " alt="" coords="1017,311,1047,298,1071,283,1095,266,1109,260,1111,265,1098,271,1074,287,1050,303,1019,316"/>
+<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="1049,317,1081,312,1082,318,1050,322"/>
+<area shape="rect" id="Node000012" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="1097,346,1279,386"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="1050,345,1082,350,1081,355,1049,351"/>
+<area shape="poly" id="edge15_Node000013_Node000008" title=" " alt="" coords="1032,212,1082,219,1081,224,1031,218"/>
+<area shape="rect" id="Node000015" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a735030108b69ffc78cd71c89e6ffe322" title="Trim certain characters from the beginning and end of a string." alt="" coords="608,310,755,350"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="465,327,592,327,592,333,465,333"/>
+<area shape="rect" id="Node000017" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="612,375,750,416"/>
+<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="465,393,596,393,596,398,465,398"/>
+</map>

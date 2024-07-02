@@ -1,0 +1,17 @@
+<map id="ml::api::CAnomalyJob::setDetectorsLastBucketEndTime" name="ml::api::CAnomalyJob::setDetectorsLastBucketEndTime">
+<area shape="rect" id="Node000001" title="Helper function to set the last bucket end time in the detectors." alt="" coords="5,123,228,163"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a36ccac589e48cb596b5f2b03f4bb3a04" title="Log a list of the detectors and keys." alt="" coords="299,57,450,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,119,283,98,285,103,200,125"/>
+<area shape="rect" id="Node000005" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7b72a8daaa40b863b1a3baca51630e9e" title="Get a description of this anomaly detector." alt="" coords="276,123,473,163"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="228,140,260,140,260,146,228,146"/>
+<area shape="rect" id="Node000007" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a398edf6f327c7aec4b2f4a0feab14c83" title="Get end of the last complete bucket we&#39;ve observed." alt="" coords="276,188,473,229"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="200,161,277,181,276,186,199,167"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a79b4bfd74971bb60644266c10d73f542" title="Get all the detectors." alt="" coords="749,29,900,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="449,55,521,43,571,39,611,39,701,43,734,44,734,49,701,48,611,45,572,44,521,48,450,61"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2a51fcd13e6eda7ea3ea63c610840f7d" title="Get all sorted references to the detectors." alt="" coords="536,57,686,98"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="450,75,520,75,520,80,450,80"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="784,29,782,19,789,10,803,5,825,3,848,5,861,11,859,16,846,10,824,8,804,10,792,15,787,20,789,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="686,65,734,59,734,64,687,70"/>
+<area shape="rect" id="Node000006" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="521,123,701,163"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="474,140,505,140,505,146,474,146"/>
+</map>

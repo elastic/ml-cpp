@@ -1,0 +1,7 @@
+<map id="anonymous_namespace{CNamedPipeFactoryTest.cc}::CThreadBlockCanceller" name="anonymous_namespace{CNamedPipeFactoryTest.cc}::CThreadBlockCanceller">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,153,200,208"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="39,79,166,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,120,105,152,100,152,100,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="20,5,185,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="105,46,105,79,100,79,100,46"/>
+</map>

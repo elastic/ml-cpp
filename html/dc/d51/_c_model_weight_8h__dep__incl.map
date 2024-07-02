@@ -1,0 +1,48 @@
+<map id="include/maths/common/CModelWeight.h" name="include/maths/common/CModelWeight.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="2121,5,2278,46"/>
+<area shape="rect" id="Node000002" href="$d1/dd8/_c_multivariate_one_of_n_prior_8h.html" title=" " alt="" coords="375,102,562,142"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2106,35,563,118,562,113,2106,29"/>
+<area shape="rect" id="Node000006" href="$de/d90/_c_one_of_n_prior_8h.html" title=" " alt="" coords="1520,102,1676,142"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="2106,38,1913,59,1801,76,1689,97,1661,103,1660,98,1688,91,1800,71,1913,54,2106,32"/>
+<area shape="rect" id="Node000017" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html" title=" " alt="" coords="1701,102,1866,142"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="2107,47,1879,97,1852,103,1851,98,1877,91,2106,42"/>
+<area shape="rect" id="Node000018" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html" title=" " alt="" coords="1890,102,2058,142"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="2139,55,2022,103,2020,98,2137,50"/>
+<area shape="rect" id="Node000019" href="$db/d08/_c_model_weight_8cc.html" title=" " alt="" coords="2082,109,2317,135"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="2202,61,2202,109,2197,109,2197,61"/>
+<area shape="rect" id="Node000020" href="$d1/dde/_c_event_rate_anomaly_detector_test_8cc.html" title=" " alt="" coords="2342,94,2540,150"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="2265,50,2372,91,2370,96,2263,55"/>
+<area shape="rect" id="Node000021" href="$de/d99/_c_event_rate_model_test_8cc.html" title=" " alt="" coords="2564,102,2739,142"/>
+<area shape="poly" id="edge21_Node000001_Node000021" title=" " alt="" coords="2293,40,2552,91,2581,98,2579,104,2551,97,2292,46"/>
+<area shape="rect" id="Node000022" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html" title=" " alt="" coords="2763,94,2956,150"/>
+<area shape="poly" id="edge22_Node000001_Node000022" title=" " alt="" coords="2293,32,2504,55,2628,71,2752,91,2763,93,2762,99,2751,97,2627,77,2503,60,2293,38"/>
+<area shape="rect" id="Node000023" href="$d8/d33/_c_metric_anomaly_detector_test_8cc.html" title=" " alt="" coords="2980,102,3195,142"/>
+<area shape="poly" id="edge23_Node000001_Node000023" title=" " alt="" coords="2293,28,2595,49,2782,67,2969,91,3007,98,3006,104,2968,97,2781,72,2594,54,2293,34"/>
+<area shape="rect" id="Node000003" href="$db/dd5/_c_multivariate_one_of_n_prior_8cc.html" title=" " alt="" coords="483,198,692,238"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="507,150,564,195,561,199,503,154"/>
+<area shape="rect" id="Node000004" href="$d7/d8e/_c_multivariate_one_of_n_prior_factory_8cc.html" title=" " alt="" coords="5,198,215,238"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="379,149,186,200,184,195,378,144"/>
+<area shape="rect" id="Node000005" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html" title=" " alt="" coords="239,198,459,238"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="434,154,375,199,372,195,430,150"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="1504,131,1152,156,929,176,704,200,693,202,692,196,703,195,928,170,1152,151,1504,126"/>
+<area shape="rect" id="Node000007" href="$df/dd3/_c_one_of_n_prior_8cc.html" title=" " alt="" coords="716,205,950,231"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="1505,136,962,200,913,207,912,202,962,195,1504,131"/>
+<area shape="rect" id="Node000008" href="$da/dbe/_c_prior_state_serialiser_8cc.html" title=" " alt="" coords="974,198,1174,238"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="1505,142,1175,201,1174,196,1504,137"/>
+<area shape="rect" id="Node000009" href="$df/d0f/_c_multimodal_prior_test_8cc.html" title=" " alt="" coords="1198,198,1374,238"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="1519,150,1352,200,1351,195,1518,144"/>
+<area shape="rect" id="Node000010" href="$d7/d56/_c_one_of_n_prior_test_8cc.html" title=" " alt="" coords="1398,198,1574,238"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="1565,154,1511,199,1507,195,1562,150"/>
+<area shape="rect" id="Node000011" href="$d9/d15/_c_time_series_model_test_8cc.html" title=" " alt="" coords="1598,198,1825,238"/>
+<area shape="poly" id="edge11_Node000006_Node000011" title=" " alt="" coords="1635,150,1690,195,1686,199,1631,154"/>
+<area shape="rect" id="Node000012" href="$dd/d32/_c_event_rate_model_factory_8cc.html" title=" " alt="" coords="1849,198,2033,238"/>
+<area shape="poly" id="edge12_Node000006_Node000012" title=" " alt="" coords="1680,144,1689,147,1866,194,1864,200,1688,152,1678,149"/>
+<area shape="rect" id="Node000013" href="$de/dd1/_c_event_rate_population_model_factory_8cc.html" title=" " alt="" coords="2057,198,2267,238"/>
+<area shape="poly" id="edge13_Node000006_Node000013" title=" " alt="" coords="1676,144,1689,147,1788,165,1866,175,1945,182,2045,195,2057,197,2056,202,2044,200,1944,188,1866,180,1788,170,1688,152,1675,149"/>
+<area shape="rect" id="Node000014" href="$d5/dfb/_c_metric_model_factory_8cc.html" title=" " alt="" coords="2292,205,2510,231"/>
+<area shape="poly" id="edge14_Node000006_Node000014" title=" " alt="" coords="1674,144,1689,147,1778,162,1854,170,1983,177,2113,181,2280,195,2329,202,2329,207,2279,200,2113,186,1983,183,1853,176,1777,167,1688,152,1673,149"/>
+<area shape="rect" id="Node000015" href="$da/d38/_c_metric_population_model_factory_8cc.html" title=" " alt="" coords="2534,198,2718,238"/>
+<area shape="poly" id="edge15_Node000006_Node000015" title=" " alt="" coords="1673,144,1689,147,1815,165,1921,175,2016,178,2104,178,2288,178,2396,183,2522,195,2534,197,2533,202,2522,200,2395,188,2288,183,2104,183,2016,184,1921,180,1814,171,1688,152,1672,149"/>
+<area shape="rect" id="Node000016" href="$d2/d5e/_c_model_factory_8cc.html" title=" " alt="" coords="2743,205,2925,231"/>
+<area shape="poly" id="edge16_Node000006_Node000016" title=" " alt="" coords="1673,144,1689,147,1846,169,1980,179,2098,182,2208,180,2437,176,2572,181,2730,195,2776,202,2775,207,2730,200,2572,186,2437,181,2208,185,2098,187,1979,185,1845,174,1688,152,1672,149"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="include/core/CRegexFilter.h" name="include/core/CRegexFilter.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="177,5,359,31"/>
+<area shape="rect" id="Node000002" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="5,153,142,178"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,34,200,54,158,81,123,112,94,143,90,139,119,108,155,77,198,49,239,29"/>
+<area shape="rect" id="Node000003" href="$dc/d08/_c_regex_8h.html" title=" " alt="" coords="168,79,278,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="263,33,241,67,236,64,258,30"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="304,153,358,178"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="276,30,322,137,317,139,271,32"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="353,79,410,105"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="289,29,351,68,348,73,286,34"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="199,108,114,148,111,143,196,103"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="166,153,280,178"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="226,105,226,137,220,137,220,105"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="243,103,301,141,298,146,240,107"/>
+</map>

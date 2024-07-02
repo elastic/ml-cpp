@@ -1,0 +1,9 @@
+<map id="CNanInjector::injectNan" name="CNanInjector::injectNan">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,167,68"/>
+<area shape="rect" id="Node000002" href="$db/d84/class_c_nan_injector.html#afc12ca6eca44c71877e76e0dbd22e30e" title=" " alt="" coords="230,5,425,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,43,215,37,215,42,167,48"/>
+<area shape="rect" id="Node000004" href="$db/d84/class_c_nan_injector.html#ae61685de057cdfa0dbba64b9c1b36493" title=" " alt="" coords="215,70,440,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,62,199,65,199,71,166,67"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="488,5,662,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,23,473,23,473,28,425,28"/>
+</map>

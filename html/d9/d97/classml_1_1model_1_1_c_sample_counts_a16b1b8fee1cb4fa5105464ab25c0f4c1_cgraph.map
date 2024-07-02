@@ -1,0 +1,26 @@
+<map id="ml::model::CSampleCounts::refresh" name="ml::model::CSampleCounts::refresh">
+<area shape="rect" id="Node000001" title="Refresh the sample count identified by id." alt="" coords="5,201,188,242"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="253,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,200,157,130,193,91,234,57,243,51,246,56,237,61,197,95,162,134,112,203"/>
+<area shape="rect" id="Node000003" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a56d90d6c26c79a6018ee984c9243fe5a" title="Get the sample count identified by id." alt="" coords="242,71,424,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,199,172,160,234,122,249,115,251,120,237,127,175,165,124,203"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a0dadbea767f6b210503290bc78a45c18" title="Get the collection of features for which data is being gathered." alt="" coords="246,136,420,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="172,198,241,179,242,184,173,203"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="253,201,413,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="188,219,238,219,238,224,188,224"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#a8a12a825d0c9c59ce4b5f772a51b287e" title="Get the minimum useful sample count for a feature." alt="" coords="236,267,430,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="173,240,242,259,241,264,172,245"/>
+<area shape="rect" id="Node000007" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#aea3e50b8386b2a09992ae0e0d9e3df7d" title="Get the name of the entity identified by id." alt="" coords="242,332,424,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="124,240,175,279,237,317,251,323,249,328,234,321,172,283,121,245"/>
+<area shape="rect" id="Node000011" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="296,421,370,447"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="114,241,164,308,199,347,237,382,285,411,283,416,234,386,195,351,160,312,109,244"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a92ae7d8205e44f988b79208fb8da93e5" title=" " alt="" coords="478,267,652,307"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="407,329,475,310,476,315,408,334"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="478,332,652,373"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="424,350,462,350,462,355,424,355"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="478,421,652,462"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="400,371,431,382,505,412,503,417,429,387,398,376"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="521,267,519,257,526,248,542,242,565,240,590,242,605,249,603,254,589,248,565,245,543,247,530,252,524,258,527,265"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="521,421,519,411,526,402,542,397,565,395,590,397,605,403,603,408,589,402,565,400,543,402,530,407,524,413,527,420"/>
+<area shape="poly" id="edge13_Node000011_Node000011" title=" " alt="" coords="294,422,287,412,291,402,307,396,333,394,361,397,376,404,373,408,360,402,333,399,308,402,295,406,292,412,299,419"/>
+</map>

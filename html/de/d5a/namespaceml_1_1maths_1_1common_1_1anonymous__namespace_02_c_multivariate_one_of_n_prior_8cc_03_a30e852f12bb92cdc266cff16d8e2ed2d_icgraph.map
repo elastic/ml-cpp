@@ -1,0 +1,7 @@
+<map id="ml::maths::common::anonymous_namespace{CMultivariateOneOfNPrior::cc}::modelAcceptRestoreTraverser" name="ml::maths::common::anonymous_namespace{CMultivariateOneOfNPrior::cc}::modelAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Add a model vector entry reading parameters from traverser." alt="" coords="249,29,481,100"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="406,18,390,11,365,8,343,10,329,15,321,21,318,29,313,28,316,18,326,10,342,5,365,3,392,5,408,13"/>
+<area shape="rect" id="Node000002" href="$de/d5a/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_multivariate_one_of_n_prior_8cc_03.html#aa2af837864cfad961259235133795047" title="Read the models, decay rate and number of samples from the supplied traverser." alt="" coords="5,29,201,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,67,201,67,201,62,233,62"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="144,18,128,11,103,8,81,10,67,15,59,21,57,29,51,28,54,18,64,10,80,5,103,3,130,5,146,13"/>
+</map>

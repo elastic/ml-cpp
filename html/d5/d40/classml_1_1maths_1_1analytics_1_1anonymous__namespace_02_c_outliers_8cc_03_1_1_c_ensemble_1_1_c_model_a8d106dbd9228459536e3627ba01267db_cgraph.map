@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::CModel::estimateMemoryUsage" name="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::CModel::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,60,223,130"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a989fa2e6ba47bfeda6f4ecf09f4fee5b" title=" " alt="" coords="271,75,487,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,92,255,92,255,98,223,98"/>
+<area shape="rect" id="Node000003" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html#a4c16fa5db8d05689da22d5509f156a28" title="Estimate the amount of memory this node will use." alt="" coords="535,67,761,123"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="487,92,519,92,519,98,487,98"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6a3cd00c6fa74f6a65c087dff4dde84b" title=" " alt="" coords="809,41,991,82"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="761,77,794,73,794,78,762,83"/>
+<area shape="rect" id="Node000007" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html#ac6d3a4ec126069dbb47d85ece97aa3a5" title="Copy point into place." alt="" coords="815,107,985,147"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="762,107,800,112,799,117,761,112"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="1058,5,1203,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="991,45,1042,37,1043,42,992,50"/>
+<area shape="rect" id="Node000006" href="$d8/d2a/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_vector_memory_usage.html#a9bc22250998a90f679020a079365bb3a" title=" " alt="" coords="1039,70,1222,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="992,73,1024,78,1023,84,991,79"/>
+</map>

@@ -1,0 +1,26 @@
+<map id="ml::maths::time_series::CTrendComponent::SModel::acceptRestoreTraverser" name="ml::maths::time_series::CTrendComponent::SModel::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,273,197,329"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#a95c55225fd7be47ce4e6c1db8ed8824d" title="Initialize from a delimited string." alt="" coords="245,5,467,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,272,130,228,158,174,196,119,243,71,248,67,251,72,246,75,200,123,163,177,134,230,115,274"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="276,85,436,126"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="118,271,169,204,204,167,243,136,261,127,264,131,246,141,207,171,173,207,122,274"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="247,150,465,191"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="136,271,185,235,243,201,260,194,262,199,246,206,188,240,139,275"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="247,216,465,256"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="197,274,258,258,260,263,198,279"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="283,281,429,322"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="197,299,267,299,267,304,197,304"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="319,370,393,395"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="191,327,305,364,303,369,190,332"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="247,420,465,460"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="135,327,185,367,246,405,258,411,256,416,243,410,182,372,131,331"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="247,485,465,526"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="121,328,171,399,206,437,246,470,255,475,253,480,243,474,202,441,167,402,116,331"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="268,550,444,591"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="114,328,132,374,160,430,198,487,221,512,246,535,256,542,253,546,243,539,217,516,194,490,156,432,127,376,109,330"/>
+<area shape="rect" id="Node000003" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a3dd29272494b917553cb9c44e35ad6f5" title="Function to do conversion from string." alt="" coords="515,5,665,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="468,31,499,31,499,36,468,36"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="713,13,861,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,31,698,31,698,36,665,36"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="317,371,309,361,314,351,330,345,356,343,384,346,399,352,397,357,383,351,356,348,331,350,318,355,315,360,321,368"/>
+</map>

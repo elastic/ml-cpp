@@ -1,0 +1,28 @@
+<map id="ml::CPriorTestInterface::marginalLikelihoodVarianceForTest" name="ml::CPriorTestInterface::marginalLikelihoodVarianceForTest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,101,192,157"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="270,10,415,51"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,98,239,61,258,54,260,59,241,66,158,103"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="248,76,437,116"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,114,232,108,233,113,192,119"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a9e373474eae160db88e50ebd4e89be09" title="Get the mean of the marginal likelihood function." alt="" coords="240,141,445,182"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,139,224,143,224,148,192,144"/>
+<area shape="rect" id="Node000005" href="$d3/d60/classml_1_1_c_prior_test_interface.html#a0cbeea8dc64ae84504fe8dd422918026" title=" " alt="" coords="250,205,435,261"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="161,155,241,191,255,197,253,201,239,196,159,160"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a60cfac60a7086ae3449408c2a79beee5" title="Compute the c.d.f. at x for distribution." alt="" coords="493,191,656,217"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="435,219,477,213,478,219,435,224"/>
+<area shape="rect" id="Node000013" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#ab28ba73f1d52003295bf952bf1b3e9d9" title=" " alt="" coords="502,241,647,282"/>
+<area shape="poly" id="edge13_Node000005_Node000013" title=" " alt="" coords="435,242,487,248,486,253,435,247"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="704,5,885,61"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="584,189,632,133,666,101,703,71,709,67,712,71,706,75,669,105,636,137,588,192"/>
+<area shape="rect" id="Node000008" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="722,85,867,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="599,188,703,136,720,129,722,134,705,141,601,193"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="705,150,884,191"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="656,189,689,184,690,189,657,194"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3b1d398255cd218c09ddfe9f75cfa829" title=" " alt="" coords="722,216,867,256"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="657,213,707,220,706,226,656,218"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="712,281,877,322"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="630,215,658,227,682,246,706,266,717,272,715,276,703,270,679,250,655,231,628,220"/>
+<area shape="rect" id="Node000012" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="757,370,832,395"/>
+<area shape="poly" id="edge11_Node000006_Node000012" title=" " alt="" coords="639,215,658,227,677,253,684,279,690,305,706,331,725,347,746,360,743,365,722,352,702,335,685,307,679,280,673,256,655,231,636,220"/>
+<area shape="poly" id="edge12_Node000012_Node000012" title=" " alt="" coords="758,371,751,361,755,351,770,345,795,343,821,346,835,353,833,357,820,351,794,348,771,350,759,355,756,360,762,368"/>
+</map>

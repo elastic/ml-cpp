@@ -1,0 +1,6 @@
+<map id="ml::api::CAnomalyJob::sortedDetectors" name="ml::api::CAnomalyJob::sortedDetectors">
+<area shape="rect" id="Node000001" title="Get all sorted references to the detectors." alt="" coords="5,29,156,70"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a79b4bfd74971bb60644266c10d73f542" title="Get all the detectors." alt="" coords="204,29,354,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,47,188,47,188,52,156,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="241,29,239,19,245,10,259,5,279,3,300,5,313,11,311,16,299,10,279,8,260,10,249,15,244,20,246,28"/>
+</map>

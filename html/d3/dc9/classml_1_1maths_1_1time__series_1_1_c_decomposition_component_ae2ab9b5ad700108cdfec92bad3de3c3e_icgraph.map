@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CDecompositionComponent::boundaryCondition" name="ml::maths::time_series::CDecompositionComponent::boundaryCondition">
+<area shape="rect" id="Node000001" title="Get the boundary condition to use when interpolating." alt="" coords="754,45,948,101"/>
+<area shape="rect" id="Node000002" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#aa2f6e39b6e2bc51b5eca9eae6b8a0688" title="Create by traversing a state document." alt="" coords="513,5,706,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="738,57,706,52,707,47,739,52"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a5928687b847c2441307221b88e60df35" title=" " alt="" coords="526,85,694,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="739,94,695,102,694,97,739,89"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aba0b2f1de40ae81b63d2916ced7c15e3" title="Initialize the adaptive bucketing." alt="" coords="297,45,465,101"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="510,98,465,91,466,85,511,93"/>
+<area shape="rect" id="Node000006" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ac4bc65a11d95ba4e8449f4b8fe997aac" title="Linearly scale the component&#39;s by scale." alt="" coords="297,125,465,181"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="511,133,466,141,465,136,510,128"/>
+<area shape="rect" id="Node000005" href="$de/da5/classml_1_1maths_1_1time__series_1_1_c_new_seasonal_component_summary.html#a4f24706e33caadc86c16b5ad00d7d6c1" title="Create a seasonal component from the initial values." alt="" coords="5,45,249,101"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="281,76,249,76,249,71,281,71"/>
+<area shape="rect" id="Node000007" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#a466e04eb941540e537a5b5dd3d48433b" title=" " alt="" coords="50,133,204,174"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="281,156,205,156,205,151,281,151"/>
+</map>

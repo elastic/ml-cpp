@@ -1,0 +1,10 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,87,202,112"/>
+<area shape="rect" id="Node000002" href="$d1/d3c/classml_1_1core_1_1_c_process.html#a8c836300da1befde95dacb501c8d7b5c" title="Get the process ID." alt="" coords="250,5,402,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,84,249,41,268,34,270,39,251,46,139,89"/>
+<area shape="rect" id="Node000003" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="259,79,393,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,97,243,97,243,102,202,102"/>
+<area shape="rect" id="Node000004" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ad6b9f4336f98e9cb4a041399a80eb858" title="Get the parent process ID." alt="" coords="259,145,393,185"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="151,110,245,138,243,143,149,115"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="284,79,282,69,289,60,303,55,326,53,350,55,364,61,362,66,349,60,326,58,305,60,292,64,287,70,289,78"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CSampleCounts::updateSampleVariance" name="ml::model::CSampleCounts::updateSampleVariance">
+<area shape="rect" id="Node000001" title="Update the effective sample variances to reflect new sample for id." alt="" coords="290,13,472,54"/>
+<area shape="rect" id="Node000002" href="$d0/d73/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_do_sample.html#ac6df3149d94e4b8a59f95b5ffbe2716a" title=" " alt="" coords="5,5,242,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="274,36,242,36,242,31,274,31"/>
+</map>

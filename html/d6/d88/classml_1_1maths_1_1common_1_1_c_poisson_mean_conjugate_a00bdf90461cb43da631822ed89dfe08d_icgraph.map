@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::equalTolerance" name="ml::maths::common::CPoissonMeanConjugate::equalTolerance">
+<area shape="rect" id="Node000001" title="Check if two priors are equal to the specified tolerance." alt="" coords="250,40,419,95"/>
+<area shape="rect" id="Node000002" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,49,166,34,168,29,235,44"/>
+<area shape="rect" id="Node000003" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a2b4217c715aa6a2bab8967004072d2ae" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a77f1f759557467d97e8fb0d39da3db95" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,91,168,106,166,101,234,86"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CModelAddSamplesParams::isNonNegative" name="ml::maths::common::CModelAddSamplesParams::isNonNegative">
+<area shape="rect" id="Node000001" title="Get the whether the data are non&#45;negative." alt="" coords="504,89,689,145"/>
+<area shape="rect" id="Node000002" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#aae2b9c4c0cabe5b459ddf7a5e7bc765f" title="Set whether or not the data are non&#45;negative." alt="" coords="271,89,456,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="489,120,457,120,457,114,489,114"/>
+<area shape="rect" id="Node000003" href="$de/d99/_c_event_rate_model_test_8cc.html#afbf5771947069fba0cb453004a4a4d67" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="303,84,263,63,222,45,188,34,189,29,224,40,266,58,305,79"/>
+<area shape="rect" id="Node000004" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a643715f989121577e525d568ff1f20db" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="255,98,182,84,183,78,256,93"/>
+<area shape="rect" id="Node000005" href="$d1/d54/_c_metric_population_model_test_8cc.html#a7465cd3ee37f7a742507d447142f9a5f" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="255,120,223,120,223,114,255,114"/>
+<area shape="rect" id="Node000006" href="$de/d99/_c_event_rate_model_test_8cc.html#a48f6894f37ce2b39f82580faf8d66009" title=" " alt="" coords="5,153,223,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="256,141,183,155,182,150,255,136"/>
+<area shape="rect" id="Node000007" href="$de/d77/_c_metric_model_test_8cc.html#a58fbdc1231855455fa40d524d4296c22" title=" " alt="" coords="5,203,223,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="305,155,266,176,224,194,189,205,188,199,222,189,263,171,303,150"/>
+</map>

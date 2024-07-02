@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::meanValue" name="ml::maths::time_series::CTimeSeriesDecomposition::meanValue">
+<area shape="rect" id="Node000001" title="Get the mean value of the time series in the vicinity of time." alt="" coords="5,5,198,61"/>
+<area shape="rect" id="Node000002" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a69952413851ded5195f1999cb240791f" title="Get the mean value of the baseline in the vicinity of time." alt="" coords="246,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,31,230,31,230,36,198,36"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#afbd3692ae31df6650644c4210f798da8" title="Get the mean value of the component." alt="" coords="520,5,688,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="473,31,504,31,504,36,473,36"/>
+<area shape="rect" id="Node000004" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a17315f9f6417af70755f9c489da4a808" title="Get the mean value of the function." alt="" coords="736,5,930,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="688,31,721,31,721,36,688,36"/>
+</map>

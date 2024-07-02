@@ -1,0 +1,12 @@
+<map id="ml::maths::common::basic_statistics_detail::SCentralMomentsCustomAdd&lt; CAnnotatedVector&lt; POINT, SCountAndVariance &gt; &gt;::add" name="ml::maths::common::basic_statistics_detail::SCentralMomentsCustomAdd&lt; CAnnotatedVector&lt; POINT, SCountAndVariance &gt; &gt;::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,72,209,158"/>
+<area shape="rect" id="Node000002" href="$d6/d4d/classml_1_1maths_1_1common_1_1_c_annotated_vector.html#a76a3951de62f2a1dd64ff6bf9c9bae1c" title="Get the annotation data by constant reference." alt="" coords="286,5,482,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,73,256,56,283,48,285,53,257,62,210,78"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6c6bcff753d8d386e43914f322b46505" title="Get the concomitant constant constant vector." alt="" coords="311,95,457,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,112,295,112,295,118,209,118"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="257,160,511,201"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="210,136,280,153,279,158,209,142"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="337,95,335,85,343,76,359,70,384,68,411,70,426,77,424,82,409,76,384,73,360,75,346,80,340,86,342,93"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="559,95,704,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="457,112,544,112,544,118,457,118"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CModel::marginalLikelihoodMean" name="ml::maths::common::CModel::marginalLikelihoodMean">
+<area shape="rect" id="Node000001" title="Get the nearest mean of prior to detrended." alt="" coords="212,5,425,46"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#ac4ee688a3adcaa669cb948013d0bef6c" title="Get the error in the prior prediction for sample." alt="" coords="5,5,164,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,28,164,28,164,23,196,23"/>
+</map>

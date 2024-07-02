@@ -1,0 +1,6 @@
+<map id="ml::maths::common::CBasicStatistics::scale" name="ml::maths::common::CBasicStatistics::scale">
+<area shape="rect" id="Node000001" title="Get a copy of moments with count scaled by scale." alt="" coords="5,22,164,63"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="212,29,286,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,40,196,40,196,45,164,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="221,30,215,21,219,11,230,5,249,3,269,5,279,12,277,16,267,10,249,8,232,10,223,15,221,20,225,28"/>
+</map>

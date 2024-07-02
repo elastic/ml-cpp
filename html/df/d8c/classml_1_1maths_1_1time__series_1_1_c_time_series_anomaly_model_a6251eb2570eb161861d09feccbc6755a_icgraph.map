@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::anomalyProbability" name="ml::maths::time_series::CTimeSeriesAnomalyModel::anomalyProbability">
+<area shape="rect" id="Node000001" title="Compute the probability of the anomaly feature vector." alt="" coords="245,5,436,61"/>
+<area shape="rect" id="Node000002" href="$df/d8c/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model.html#a7730b2827f1dcd71e438d2819a135563" title=" " alt="" coords="5,5,197,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,36,197,36,197,31,229,31"/>
+</map>

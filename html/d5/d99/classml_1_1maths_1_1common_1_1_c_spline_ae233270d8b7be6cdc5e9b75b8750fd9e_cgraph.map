@@ -1,0 +1,18 @@
+<map id="ml::maths::common::CSpline::describe" name="ml::maths::common::CSpline::describe">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,107,151,147"/>
+<area shape="rect" id="Node000002" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a89db4cff0eb3da52e08292f255fd20f7" title="Get the curvatures at the knot points of the spline." alt="" coords="394,5,539,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,104,140,67,168,49,198,35,243,23,290,16,378,14,378,20,290,21,244,28,200,40,171,54,144,71,101,108"/>
+<area shape="rect" id="Node000004" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a7176b435130401a7eb966b8c36897343" title="Check if the spline has been initialized." alt="" coords="200,49,345,90"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="148,104,186,92,187,98,150,109"/>
+<area shape="rect" id="Node000005" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a39e53abd1d0c2de07a44a358db269622" title="Get the knot points of the spline." alt="" coords="394,95,539,135"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="151,122,378,115,378,120,151,127"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="199,164,346,205"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="150,145,187,156,186,162,148,150"/>
+<area shape="rect" id="Node000007" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#af9d9ce19eea5bed22ade0c33c4d922d7" title="Get the values at the knot points of the spline." alt="" coords="394,184,539,225"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="100,146,143,183,170,201,200,214,244,224,291,228,336,226,379,221,379,226,337,231,290,233,243,229,198,219,168,205,140,187,97,150"/>
+<area shape="rect" id="Node000003" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="587,102,728,128"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="513,44,616,93,613,98,511,49"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="346,84,380,92,378,97,345,89"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="540,112,572,112,572,118,540,118"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="511,181,613,132,616,137,513,186"/>
+</map>

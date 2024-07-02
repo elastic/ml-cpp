@@ -1,0 +1,7 @@
+<map id="CTestFixture::handleEvent" name="CTestFixture::handleEvent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,182,39"/>
+<area shape="rect" id="Node000002" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="230,5,388,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,23,214,23,214,28,182,28"/>
+<area shape="rect" id="Node000003" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="436,5,594,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,23,420,23,420,28,388,28"/>
+</map>

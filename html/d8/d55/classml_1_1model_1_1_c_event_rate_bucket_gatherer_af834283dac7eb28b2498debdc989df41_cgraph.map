@@ -1,0 +1,7 @@
+<map id="ml::model::CEventRateBucketGatherer::addValue" name="ml::model::CEventRateBucketGatherer::addValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,205,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="59,29,56,19,64,10,80,5,105,3,132,5,147,11,146,16,130,10,105,8,81,10,67,15,61,21,64,28"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#af8ade4040cfd2b8301fb69d0aec8ef94" title=" " alt="" coords="253,29,452,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="205,47,237,47,237,52,205,52"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="306,29,304,19,311,10,328,5,352,3,379,5,395,11,393,16,378,10,352,8,329,10,314,15,309,21,311,28"/>
+</map>

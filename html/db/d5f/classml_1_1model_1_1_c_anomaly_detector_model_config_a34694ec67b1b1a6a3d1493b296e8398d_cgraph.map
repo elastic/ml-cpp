@@ -1,0 +1,25 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::factory" name="ml::model::CAnomalyDetectorModelConfig::factory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,113,203,153"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#ab60097869a0681c7ca99536c374884f4" title="Get the category of analysis to which feature belongs." alt="" coords="251,5,449,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,110,185,75,250,41,270,33,272,38,252,46,188,79,135,114"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="251,79,449,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,117,236,112,236,118,204,122"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="284,145,416,185"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="204,143,269,152,268,157,203,148"/>
+<area shape="rect" id="Node000010" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a158134890714ae8bcb34bd3bdd86d1bb" title="Does this key represent a simple counting search?" alt="" coords="270,234,430,275"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="148,151,294,224,292,229,146,156"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="307,79,305,69,312,60,327,55,350,53,374,55,389,61,387,66,373,60,350,58,328,60,315,64,310,70,312,78"/>
+<area shape="rect" id="Node000004" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="497,79,657,120"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="449,97,481,97,481,102,449,102"/>
+<area shape="rect" id="Node000006" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="511,145,643,185"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="416,170,496,171,496,176,416,176"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="511,159,431,159,431,154,511,154"/>
+<area shape="rect" id="Node000007" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="705,145,838,185"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="644,171,690,171,690,176,644,176"/>
+<area shape="rect" id="Node000008" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="710,209,833,235"/>
+<area shape="poly" id="edge10_Node000006_Node000008" title=" " alt="" coords="645,182,712,202,711,207,643,187"/>
+<area shape="poly" id="edge9_Node000007_Node000006" title=" " alt="" coords="705,159,659,159,659,153,705,154"/>
+<area shape="rect" id="Node000009" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="886,209,932,235"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="833,220,870,220,870,225,833,225"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="307,234,305,224,312,215,327,209,350,207,374,210,389,216,387,221,373,215,350,212,328,214,315,219,310,225,312,233"/>
+</map>

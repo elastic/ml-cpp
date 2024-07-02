@@ -1,0 +1,9 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::encodingMap" name="ml::api::CBoostedTreeInferenceModelBuilder::encodingMap">
+<area shape="rect" id="Node000001" title=" " alt="" coords="545,39,751,79"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a2068593eeb992ef731cc737e4ee04da3" title=" " alt="" coords="253,5,494,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="529,47,494,43,494,38,530,42"/>
+<area shape="rect" id="Node000004" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a89ed0edd79b71d8f5140d2fe36123b67" title=" " alt="" coords="250,71,497,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="530,75,498,79,497,74,529,70"/>
+<area shape="rect" id="Node000003" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#a47455df0a75da44940391da922696eaf" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="238,28,202,28,202,23,238,23"/>
+</map>

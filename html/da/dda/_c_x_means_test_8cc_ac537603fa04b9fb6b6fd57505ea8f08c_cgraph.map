@@ -1,0 +1,49 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,322,202,348"/>
+<area shape="rect" id="Node000002" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a9923d0ee65a0d33980a4bdc8efeb97c4" title="Get the best clusters found to date." alt="" coords="250,216,395,257"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,319,261,261,263,266,135,324"/>
+<area shape="rect" id="Node000003" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a9f5b7c70857b7a3cbf80c2ca4bab03f0" title=" " alt="" coords="250,281,395,322"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,319,234,312,235,318,193,324"/>
+<area shape="rect" id="Node000016" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a4185dae90d72f8e78cd3953bef9091e1" title="Reinitialize the random number generator." alt="" coords="250,355,395,395"/>
+<area shape="poly" id="edge21_Node000001_Node000016" title=" " alt="" coords="178,346,235,356,234,362,177,351"/>
+<area shape="rect" id="Node000018" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#aa5c3670d8d204695553ba52dda27a13c" title=" " alt="" coords="250,441,395,482"/>
+<area shape="poly" id="edge23_Node000001_Node000018" title=" " alt="" coords="129,346,274,431,271,436,126,351"/>
+<area shape="rect" id="Node000004" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#ad3ee6beaa15a726b1da19cd972b31fb0" title=" " alt="" coords="468,184,646,225"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="372,278,491,229,493,233,375,283"/>
+<area shape="rect" id="Node000011" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a0f8da7aa364058983261bea45c2ffeed" title=" " alt="" coords="464,281,650,322"/>
+<area shape="poly" id="edge12_Node000003_Node000011" title=" " alt="" coords="395,299,448,299,448,304,395,304"/>
+<area shape="rect" id="Node000015" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#ae90f98dc3d3fe03723f46b7961cf44b3" title=" " alt="" coords="485,119,630,159"/>
+<area shape="poly" id="edge17_Node000003_Node000015" title=" " alt="" coords="377,279,393,266,409,242,416,219,422,194,441,170,468,154,471,158,445,174,427,197,421,220,414,245,397,270,380,283"/>
+<area shape="rect" id="Node000005" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a00e4e57461187bfdf48cdffd62e02a22" title="Set the cluster centre." alt="" coords="734,29,918,70"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="646,183,670,169,686,148,693,126,700,104,717,81,724,76,727,80,721,85,705,106,698,128,691,151,673,173,648,188"/>
+<area shape="rect" id="Node000006" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#afeffde355ed98c884a424d9346c4c954" title="Get the cluster checksum." alt="" coords="722,249,930,290"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="644,223,725,243,724,248,643,228"/>
+<area shape="rect" id="Node000007" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a4deecdaa2dccab53c345bc67ef614f47" title="Set the cluster cost." alt="" coords="740,119,912,159"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="643,181,724,161,725,166,644,186"/>
+<area shape="rect" id="Node000008" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a07a733602da586b4a54b83fd198b45d1" title="Swap the points into place and recalculate the checksum." alt="" coords="735,184,917,225"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="647,202,719,202,719,207,647,207"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="776,29,773,19,782,10,799,5,826,3,855,5,872,11,870,16,854,10,826,8,800,10,785,15,779,21,781,28"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="776,119,773,109,782,100,799,94,826,92,855,94,872,101,870,106,854,100,826,97,800,99,785,104,779,110,781,117"/>
+<area shape="rect" id="Node000009" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="1017,205,1171,246"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="918,209,1001,216,1001,221,917,214"/>
+<area shape="rect" id="Node000010" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a540fc199679c52ca5154f88fec9970b4" title="Get the cluster points." alt="" coords="1003,140,1185,181"/>
+<area shape="poly" id="edge11_Node000008_Node000010" title=" " alt="" coords="917,187,987,175,988,180,918,192"/>
+<area shape="rect" id="Node000012" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a9ff14f3e228d5d65f467b522c376eeae" title="Get the best centres found to date." alt="" coords="753,380,899,421"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="645,320,673,331,697,348,721,365,740,373,738,378,718,369,694,352,670,336,643,325"/>
+<area shape="rect" id="Node000013" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a290e0545fda1942cfd946105dad856af" title=" " alt="" coords="719,315,933,355"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="651,311,704,317,704,323,651,316"/>
+<area shape="rect" id="Node000014" href="$d9/db0/classml_1_1maths_1_1common_1_1_c_k_means_plus_plus_initialization.html#a2e1ba44f04a59aa41b4cf849f8530951" title=" " alt="" coords="981,315,1207,355"/>
+<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="933,332,965,332,965,338,933,338"/>
+<area shape="poly" id="edge16_Node000014_Node000014" title=" " alt="" coords="1044,315,1041,305,1050,296,1067,290,1094,288,1123,290,1140,297,1138,302,1121,296,1094,293,1068,295,1052,300,1046,306,1049,313"/>
+<area shape="poly" id="edge18_Node000015_Node000005" title=" " alt="" coords="616,116,718,80,742,73,744,78,720,86,618,121"/>
+<area shape="poly" id="edge19_Node000015_Node000007" title=" " alt="" coords="630,136,724,136,724,142,630,142"/>
+<area shape="poly" id="edge20_Node000015_Node000008" title=" " alt="" coords="631,154,725,177,724,182,630,159"/>
+<area shape="rect" id="Node000017" href="$d2/d96/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03_1_1_c_random_number_generator.html#aa878c3172b42f558732a180785196359" title="Seed the random number generator." alt="" coords="443,346,671,417"/>
+<area shape="poly" id="edge22_Node000016_Node000017" title=" " alt="" coords="395,374,428,375,427,381,395,380"/>
+<area shape="rect" id="Node000019" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="478,441,637,482"/>
+<area shape="poly" id="edge24_Node000018_Node000019" title=" " alt="" coords="395,459,462,459,462,464,395,464"/>
+<area shape="rect" id="Node000020" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="485,507,630,547"/>
+<area shape="poly" id="edge25_Node000018_Node000020" title=" " alt="" coords="396,479,470,500,469,505,394,484"/>
+<area shape="rect" id="Node000021" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="753,507,899,547"/>
+<area shape="poly" id="edge26_Node000020_Node000021" title=" " alt="" coords="630,524,738,524,738,530,630,530"/>
+</map>

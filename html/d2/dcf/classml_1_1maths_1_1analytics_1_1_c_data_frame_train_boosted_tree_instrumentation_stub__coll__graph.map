@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CDataFrameTrainBoostedTreeInstrumentationStub" name="ml::maths::analytics::CDataFrameTrainBoostedTreeInstrumentationStub">
+<area shape="rect" id="Node000001" title="Dummies out all instrumentation for supervised learning." alt="" coords="24,213,231,268"/>
+<area shape="rect" id="Node000002" href="$dc/d4d/classml_1_1maths_1_1analytics_1_1_c_data_frame_train_boosted_tree_instrumentation_interface.html" title="Instrumentation interface for Supervised Learning jobs." alt="" coords="24,109,231,165"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,180,130,212,125,212,125,180"/>
+<area shape="rect" id="Node000003" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,5,250,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="130,77,130,108,125,108,125,77"/>
+</map>

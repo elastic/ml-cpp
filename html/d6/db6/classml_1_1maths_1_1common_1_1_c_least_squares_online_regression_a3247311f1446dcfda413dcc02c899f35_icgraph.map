@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::scale" name="ml::maths::common::CLeastSquaresOnlineRegression::scale">
+<area shape="rect" id="Node000001" title="Scale the statistics&#39; count by scale." alt="" coords="527,45,741,101"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="676,33,660,26,634,24,611,26,596,31,589,37,588,45,583,45,584,35,593,26,610,21,634,19,662,21,678,28"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a0e771a464507d679cb147c2b8ad39fc1" title=" " alt="" coords="265,5,479,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="511,57,479,52,480,47,512,52"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a2f8e4a42744cb7a60471084936decace" title="Multiply the statistics&#39; count by scale." alt="" coords="265,85,479,141"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="512,95,480,99,479,94,511,89"/>
+<area shape="rect" id="Node000003" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#aca7f8b11ad1be9bcdbab527b6e62fc1d" title=" " alt="" coords="13,20,209,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="249,36,209,36,209,31,249,31"/>
+<area shape="rect" id="Node000005" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="13,84,209,110"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="249,108,209,106,210,101,249,103"/>
+<area shape="rect" id="Node000006" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ae66a9e8b24faf14042bb7bca8a52fbc0" title=" " alt="" coords="5,135,217,190"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="249,139,217,145,216,140,248,134"/>
+</map>

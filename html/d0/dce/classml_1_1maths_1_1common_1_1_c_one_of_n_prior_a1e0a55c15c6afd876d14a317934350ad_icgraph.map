@@ -1,0 +1,7 @@
+<map id="ml::maths::common::COneOfNPrior::modelAcceptRestoreTraverser" name="ml::maths::common::COneOfNPrior::modelAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Add a model vector entry reading parameters from traverser." alt="" coords="500,5,736,61"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a226c797db7aa6a87e010b021959952a8" title="Read parameters from traverser." alt="" coords="253,5,452,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="484,36,452,36,452,31,484,31"/>
+<area shape="rect" id="Node000003" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ab4c9f531f6dafab42a9e723b6b1a2f71" title="Construct from part of a state document." alt="" coords="5,13,205,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,36,205,36,205,31,237,31"/>
+</map>

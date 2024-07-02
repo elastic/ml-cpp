@@ -1,0 +1,23 @@
+<map id="ml::api::CModelPlotDataJsonWriter" name="ml::api::CModelPlotDataJsonWriter">
+<area shape="rect" id="Node000001" title="Write visualisation data as a JSON document." alt="" coords="1436,220,1628,261"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="19,198,185,224"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,225,279,248,343,256,407,259,1227,259,1335,255,1435,248,1435,253,1335,261,1227,264,407,264,343,261,279,253,167,231"/>
+<area shape="rect" id="Node000007" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html" title="A wrapper around a shared output stream for concurrent writes, handling writes." alt="" coords="725,133,920,174"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="200,203,510,183,724,162,725,167,510,188,200,209"/>
+<area shape="rect" id="Node000009" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html" title=" " alt="" coords="309,68,508,109"/>
+<area shape="poly" id="edge10_Node000009_Node000002" title=" " alt="" coords="144,189,306,119,340,107,342,112,308,124,146,194"/>
+<area shape="rect" id="Node000003" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html" title="A Json line writer for concurrently writing to a shared output stream." alt="" coords="1119,133,1332,174"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1315,176,1458,217,1456,222,1314,181"/>
+<area shape="rect" id="Node000004" href="$d8/dab/classml_1_1core_1_1_c_string_buf_writer.html" title=" " alt="" coords="736,58,910,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="905,85,1123,130,1122,135,904,90"/>
+<area shape="rect" id="Node000005" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="307,14,510,40"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="526,37,735,59,735,64,525,42"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="214,23,306,24,306,29,214,29"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="936,151,1119,151,1119,156,936,156"/>
+<area shape="rect" id="Node000008" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="314,133,503,174"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="518,151,724,151,724,156,518,156"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="523,103,701,131,725,135,724,140,701,136,523,108"/>
+<area shape="rect" id="Node000010" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="8,71,196,111"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="212,87,309,87,309,92,212,93"/>
+</map>

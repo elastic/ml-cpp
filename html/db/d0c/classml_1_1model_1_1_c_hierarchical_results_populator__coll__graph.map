@@ -1,0 +1,11 @@
+<map id="ml::model::CHierarchicalResultsPopulator" name="ml::model::CHierarchicalResultsPopulator">
+<area shape="rect" id="Node000001" title="FIXME." alt="" coords="59,316,224,357"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="5,213,171,253"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,266,133,315,129,317,103,268"/>
+<area shape="rect" id="Node000003" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="194,220,326,246"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="236,258,166,318,163,314,233,254"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="162,124,358,150"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="263,165,263,220,257,220,257,165"/>
+<area shape="rect" id="Node000005" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="154,5,366,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="263,77,263,123,257,123,257,77"/>
+</map>

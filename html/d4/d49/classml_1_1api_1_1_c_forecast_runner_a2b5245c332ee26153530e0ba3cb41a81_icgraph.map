@@ -1,0 +1,14 @@
+<map id="ml::api::CForecastRunner::sendErrorMessage" name="ml::api::CForecastRunner::sendErrorMessage">
+<area shape="rect" id="Node000001" title="send an error message" alt="" coords="1051,35,1222,75"/>
+<area shape="rect" id="Node000002" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a62c5af6f1d46a8a1e3d1baa9fcb87f44" title="pushes new jobs into the internal &#39;queue&#39; (thread boundary)" alt="" coords="832,5,1003,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1035,44,1003,40,1004,35,1036,39"/>
+<area shape="rect" id="Node000003" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#ad8607aeb873f1214a5abd71746d22211" title=" " alt="" coords="612,35,784,75"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="1035,60,1003,60,832,60,784,60,784,54,832,55,1003,55,1035,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="817,42,785,46,784,41,816,36"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#aa7cbbc4df294ffac26166f761afb236f" title="Update configuration." alt="" coords="414,35,564,75"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="597,58,565,58,565,52,597,52"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,35,366,75"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="399,58,367,58,367,52,399,52"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,35,156,75"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="188,58,156,58,156,52,188,52"/>
+</map>

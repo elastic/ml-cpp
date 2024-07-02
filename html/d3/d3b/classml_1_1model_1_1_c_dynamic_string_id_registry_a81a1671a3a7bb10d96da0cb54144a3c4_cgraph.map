@@ -1,0 +1,17 @@
+<map id="ml::model::CDynamicStringIdRegistry::name" name="ml::model::CDynamicStringIdRegistry::name">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,188,111"/>
+<area shape="rect" id="Node000002" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a8d9d0f248ce54fe797a09237e12a58bc" title=" " alt="" coords="236,71,418,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,97,220,97,220,103,188,102"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="235,85,203,85,203,79,235,80"/>
+<area shape="rect" id="Node000003" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#ad9fd3a9d86ddfb73b3395df3227b851a" title="Translate word to a dictionary word." alt="" coords="466,71,685,111"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="418,88,450,88,450,94,418,94"/>
+<area shape="poly" id="edge8_Node000003_Node000003" title=" " alt="" coords="529,71,527,61,534,52,551,46,576,44,602,46,618,53,616,58,601,52,576,49,552,51,537,56,532,62,534,69"/>
+<area shape="rect" id="Node000004" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ade14a464041834a501408e4fd90d5540" title=" " alt="" coords="733,5,953,46"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="661,67,741,48,743,53,662,73"/>
+<area shape="rect" id="Node000006" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="733,71,953,111"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="686,88,718,88,718,94,686,94"/>
+<area shape="rect" id="Node000007" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ac2086c554c00278219bf073d2a5736c2" title=" " alt="" coords="733,136,953,177"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="662,109,743,129,741,134,661,115"/>
+<area shape="rect" id="Node000005" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#ade1c3a08b72697f0009fa91d14daa719" title=" " alt="" coords="1001,5,1144,46"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="953,23,985,23,985,28,953,28"/>
+</map>

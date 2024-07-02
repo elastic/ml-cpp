@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,152,202,177"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="260,29,414,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,149,180,115,249,79,260,74,263,79,251,84,182,120,127,153"/>
+<area shape="rect" id="Node000003" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="250,94,424,120"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="158,148,266,122,267,127,160,153"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a88ac3d617f3b82716917b70999479d45" title=" " alt="" coords="263,144,411,185"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="202,162,247,162,247,167,202,167"/>
+<area shape="rect" id="Node000007" href="$db/d9f/classml_1_1test_1_1_c_test_tmp_dir.html#afe77bf7508bd46ec0884d43b926cf52d" title="Returns /tmp on Unix or an expansion of TEMP% on Windows." alt="" coords="261,209,413,250"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="153,175,248,202,246,207,151,180"/>
+<area shape="rect" id="Node000009" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aacc70e4361f1d93fe02f2b30dcf830e8" title=" " alt="" coords="266,275,408,315"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="123,175,179,215,251,259,264,266,262,271,248,264,176,220,120,180"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="294,29,292,19,299,10,314,5,337,3,361,5,376,11,374,16,360,10,337,8,315,10,302,15,297,21,299,28"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="491,79,638,119"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="409,141,476,122,477,127,411,146"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="491,144,638,185"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="411,162,475,162,475,167,411,167"/>
+<area shape="rect" id="Node000008" href="$d6/dc1/classml_1_1core_1_1_c_resource_locator.html#a5d3953fdc3e2fd8ac7fc495dd491be46" title=" " alt="" coords="472,209,657,250"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="413,227,456,227,456,232,413,232"/>
+<area shape="rect" id="Node000010" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="494,275,636,315"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="408,292,478,292,478,298,408,298"/>
+<area shape="rect" id="Node000011" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="705,241,849,282"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="636,281,690,273,690,278,637,286"/>
+<area shape="rect" id="Node000012" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="707,307,847,347"/>
+<area shape="poly" id="edge13_Node000010_Node000012" title=" " alt="" coords="637,303,692,312,691,317,636,308"/>
+<area shape="poly" id="edge12_Node000011_Node000011" title=" " alt="" coords="737,241,735,231,741,222,756,217,777,215,800,217,814,223,811,228,799,222,777,220,757,222,745,227,740,232,742,240"/>
+</map>

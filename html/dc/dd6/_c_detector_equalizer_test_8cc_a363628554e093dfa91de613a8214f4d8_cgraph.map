@@ -1,0 +1,62 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,222,202,248"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="253,55,476,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,220,172,172,209,145,248,121,259,115,261,120,251,125,212,149,176,176,121,224"/>
+<area shape="rect" id="Node000003" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a3aac213e8d1073fc779c29672c4d13cd" title="Add probability to the detector&#39;s quantile sketch." alt="" coords="250,136,479,161"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,219,185,195,249,171,278,163,279,168,251,176,187,200,133,224"/>
+<area shape="rect" id="Node000018" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#ac4da813330cc3aa9eb9478cce03bf63c" title="Age the sketches by reducing the count." alt="" coords="250,250,479,276"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="202,243,234,246,234,252,202,248"/>
+<area shape="rect" id="Node000020" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a7f9a8af2f2f2f1fb62aa52a03bd14bc8" title="Correct probability to account for detector differences." alt="" coords="264,185,465,226"/>
+<area shape="poly" id="edge23_Node000001_Node000020" title=" " alt="" coords="202,221,249,216,249,221,202,227"/>
+<area shape="rect" id="Node000023" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a404ada1c9b84c0049e143865cb425e2f" title=" " alt="" coords="272,340,457,381"/>
+<area shape="poly" id="edge30_Node000001_Node000023" title=" " alt="" coords="134,246,308,330,305,335,131,251"/>
+<area shape="rect" id="Node000026" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="285,405,444,446"/>
+<area shape="poly" id="edge34_Node000001_Node000026" title=" " alt="" coords="115,247,167,315,206,355,251,390,272,401,269,405,248,395,203,359,163,319,111,250"/>
+<area shape="rect" id="Node000004" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a6e4ff4e788fd8bf03c8542c201983cc7" title="Add x to the sketch." alt="" coords="553,5,702,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="454,132,477,121,493,106,501,90,509,74,525,57,537,49,540,54,529,61,514,77,506,93,497,109,481,125,456,137"/>
+<area shape="rect" id="Node000016" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="555,71,700,111"/>
+<area shape="poly" id="edge18_Node000003_Node000016" title=" " alt="" coords="426,132,539,107,540,113,427,137"/>
+<area shape="rect" id="Node000017" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a33af7cddc4636961dfe9e975b3e85e74" title="Get the sketch for detector." alt="" coords="527,185,727,226"/>
+<area shape="poly" id="edge19_Node000003_Node000017" title=" " alt="" coords="427,159,516,179,515,184,426,164"/>
+<area shape="rect" id="Node000005" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#adbf1a32cb30469c679be749efc3e86ff" title="A possibly accelerated implementation of reduce." alt="" coords="775,31,971,71"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="702,31,760,37,760,42,702,36"/>
+<area shape="rect" id="Node000006" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a512d452c8d6edc72c3407743e8fc9101" title="Get the target size for fastReduce." alt="" coords="1019,23,1214,79"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="971,48,1003,48,1003,54,971,54"/>
+<area shape="rect" id="Node000007" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a947c1ae935ba81ef8dae72195ff51c91" title="Reduce to target size." alt="" coords="1033,103,1200,143"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="945,69,1031,95,1030,100,943,74"/>
+<area shape="rect" id="Node000008" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#afac48cf1ac00c289ffa00e612dc0430b" title="Combine any co&#45;located values." alt="" coords="1506,39,1701,79"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1186,100,1213,89,1236,73,1246,65,1261,59,1319,47,1379,41,1491,42,1491,48,1379,46,1320,52,1263,64,1249,70,1239,77,1215,93,1188,105"/>
+<area shape="rect" id="Node000009" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a9489402a0c3a783b1b5543d35c0a1a3c" title="Compute the cost of combining vl and vr." alt="" coords="1507,128,1700,169"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1201,125,1492,140,1492,145,1200,130"/>
+<area shape="rect" id="Node000010" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac9813f7e83bf8bc406b4586c7e1cc075" title="Fully order the values." alt="" coords="1281,73,1438,114"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="1200,110,1265,102,1265,108,1201,116"/>
+<area shape="rect" id="Node000011" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a0006c909afeb7ba54693ab4ba5977a19" title="Reduce to the maximum permitted size." alt="" coords="1262,190,1456,246"/>
+<area shape="poly" id="edge11_Node000007_Node000011" title=" " alt="" coords="1171,141,1272,181,1270,186,1169,146"/>
+<area shape="poly" id="edge10_Node000010_Node000008" title=" " alt="" coords="1438,80,1491,72,1491,78,1439,85"/>
+<area shape="poly" id="edge16_Node000011_Node000009" title=" " alt="" coords="1456,188,1514,171,1515,176,1457,193"/>
+<area shape="rect" id="Node000012" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="1513,193,1694,248"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="1457,216,1497,217,1497,222,1457,221"/>
+<area shape="rect" id="Node000015" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a15fce53ec3d0f0b8823ed427cbaa2767" title="The result of merging knots at positions l and r." alt="" coords="1504,272,1703,313"/>
+<area shape="poly" id="edge17_Node000011_Node000015" title=" " alt="" coords="1453,244,1521,264,1519,269,1452,249"/>
+<area shape="rect" id="Node000013" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="1751,193,1932,248"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="1695,218,1735,218,1735,223,1695,223"/>
+<area shape="rect" id="Node000014" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="1980,193,2161,248"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="1932,218,1965,218,1965,223,1932,223"/>
+<area shape="poly" id="edge15_Node000014_Node000014" title=" " alt="" coords="2026,192,2026,182,2034,173,2049,168,2071,166,2095,168,2110,175,2107,180,2093,174,2071,171,2050,173,2037,178,2031,184,2031,192"/>
+<area shape="poly" id="edge22_Node000018_Node000017" title=" " alt="" coords="426,247,515,227,516,233,427,252"/>
+<area shape="rect" id="Node000019" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#aa5ffb65761bce66610d034c69f06d19a" title="Age by scaling the counts." alt="" coords="553,316,702,357"/>
+<area shape="poly" id="edge21_Node000018_Node000019" title=" " alt="" coords="414,274,538,309,537,314,413,279"/>
+<area shape="poly" id="edge27_Node000020_Node000016" title=" " alt="" coords="454,182,478,171,492,161,501,150,511,139,526,127,547,116,550,120,528,132,515,143,505,154,496,165,480,176,456,187"/>
+<area shape="poly" id="edge28_Node000020_Node000017" title=" " alt="" coords="465,203,511,203,511,208,465,208"/>
+<area shape="rect" id="Node000021" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#aba93088d23bbbc835b01385e0e6db1c9" title="Get the c.d.f at x." alt="" coords="800,103,946,143"/>
+<area shape="poly" id="edge24_Node000020_Node000021" title=" " alt="" coords="464,183,527,171,784,132,785,137,527,176,465,188"/>
+<area shape="rect" id="Node000022" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="555,251,700,291"/>
+<area shape="poly" id="edge29_Node000020_Node000022" title=" " alt="" coords="450,224,540,247,538,252,448,229"/>
+<area shape="poly" id="edge25_Node000021_Node000006" title=" " alt="" coords="943,100,1005,81,1006,86,945,105"/>
+<area shape="poly" id="edge26_Node000021_Node000007" title=" " alt="" coords="947,120,1017,120,1017,126,947,126"/>
+<area shape="rect" id="Node000024" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="535,381,720,422"/>
+<area shape="poly" id="edge31_Node000023_Node000024" title=" " alt="" coords="458,372,520,382,519,387,457,378"/>
+<area shape="rect" id="Node000025" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="590,470,664,496"/>
+<area shape="poly" id="edge32_Node000023_Node000025" title=" " alt="" coords="452,379,480,391,505,411,529,431,582,461,579,466,525,436,502,415,478,396,450,384"/>
+<area shape="poly" id="edge33_Node000025_Node000025" title=" " alt="" coords="588,472,579,462,583,452,599,446,627,444,660,447,674,455,671,460,658,452,627,449,601,451,587,456,584,461,592,469"/>
+</map>

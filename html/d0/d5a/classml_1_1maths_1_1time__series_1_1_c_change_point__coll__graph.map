@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CChangePoint" name="ml::maths::time_series::CChangePoint">
+<area shape="rect" id="Node000001" title="Represents a sudden change to a time series model." alt="" coords="34,139,189,180"/>
+<area shape="rect" id="Node000002" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,5,218,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,77,114,139,109,139,109,77"/>
+</map>

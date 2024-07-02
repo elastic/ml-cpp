@@ -1,0 +1,33 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,181,202,207"/>
+<area shape="rect" id="Node000002" href="$d1/d30/classml_1_1core_1_1_c_state_compressor.html#a74e38d151b96b4a2301e05925e0b6d7e" title=" " alt="" coords="257,7,445,47"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,179,167,121,206,86,248,57,257,52,260,57,251,61,209,91,171,124,117,182"/>
+<area shape="rect" id="Node000004" href="$dc/de8/classanonymous__namespace_02_c_state_compressor_test_8cc_03_1_1_c_mock_data_searcher.html#a6062742b4b1327af732cbab41ec95d52" title=" " alt="" coords="262,72,440,142"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="142,178,247,140,249,146,143,183"/>
+<area shape="rect" id="Node000005" href="$d1/d88/namespaceanonymous__namespace_02_c_state_compressor_test_8cc_03.html#a9e84d2051b27ec77b9e3ed1ab3d4d4c1" title=" " alt="" coords="270,166,432,222"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,191,254,191,254,196,202,196"/>
+<area shape="rect" id="Node000012" href="$d5/da5/classml_1_1core_1_1_c_state_decompressor.html#a360e0ae9cabd91b6e0b3fcc611f59b8d" title=" " alt="" coords="250,245,452,286"/>
+<area shape="poly" id="edge15_Node000001_Node000012" title=" " alt="" coords="151,204,265,238,263,243,150,210"/>
+<area shape="rect" id="Node000013" href="$d1/d30/classml_1_1core_1_1_c_state_compressor.html#acfd7adf6cd5e83524e7ed223774501b9" title=" " alt="" coords="257,312,445,353"/>
+<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="122,205,177,248,251,295,268,303,266,308,248,300,174,253,119,209"/>
+<area shape="rect" id="Node000003" href="$d7/de1/classml_1_1core_1_1_c_state_compressor_1_1_c_chunk_filter.html#a8e5ff45f0a831e2fb7c7cb44a8800fa5" title="Set the base ID to use in searches." alt="" coords="521,7,709,47"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="445,24,505,24,505,30,445,30"/>
+<area shape="rect" id="Node000006" href="$d1/d88/namespaceanonymous__namespace_02_c_state_compressor_test_8cc_03.html#a985ab3ed00a8efa4dd38295879949d7f" title=" " alt="" coords="534,122,696,178"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="432,177,518,163,519,168,433,183"/>
+<area shape="rect" id="Node000008" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="1028,128,1230,169"/>
+<area shape="poly" id="edge13_Node000005_Node000008" title=" " alt="" coords="433,218,543,247,610,260,681,270,755,276,831,275,906,267,979,250,1012,236,1043,218,1094,177,1097,182,1046,222,1014,241,980,255,907,272,832,281,755,281,680,276,609,265,542,252,432,223"/>
+<area shape="rect" id="Node000009" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="777,200,980,241"/>
+<area shape="poly" id="edge12_Node000005_Node000009" title=" " alt="" coords="433,195,762,212,762,217,432,200"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="805,5,952,46"/>
+<area shape="poly" id="edge14_Node000005_Node000010" title=" " alt="" coords="431,163,451,153,464,141,474,130,483,118,499,107,560,82,611,72,663,67,729,56,789,43,790,48,730,62,664,72,611,77,561,87,501,112,487,122,478,133,468,145,453,157,434,168"/>
+<area shape="rect" id="Node000007" href="$d1/d88/namespaceanonymous__namespace_02_c_state_compressor_test_8cc_03.html#a4194fbef924fc5f0bf448da5e42dc9ac" title=" " alt="" coords="797,121,960,176"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="696,147,782,146,782,151,697,152"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="696,122,777,106,879,97,980,106,1051,121,1050,126,979,111,879,102,778,111,697,127"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="697,169,786,193,784,198,696,174"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="692,119,728,101,752,81,776,62,800,50,802,55,779,67,755,86,731,105,695,124"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="960,146,1012,146,1012,151,960,151"/>
+<area shape="rect" id="Node000011" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1106,13,1152,39"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="953,23,1090,23,1090,28,953,28"/>
+<area shape="rect" id="Node000014" href="$d7/de1/classml_1_1core_1_1_c_state_compressor_1_1_c_chunk_filter.html#aff1e09699b3776d6a21faecfc2dccd3e" title=" " alt="" coords="500,315,729,355"/>
+<area shape="poly" id="edge17_Node000013_Node000014" title=" " alt="" coords="445,331,485,331,485,336,445,336"/>
+</map>

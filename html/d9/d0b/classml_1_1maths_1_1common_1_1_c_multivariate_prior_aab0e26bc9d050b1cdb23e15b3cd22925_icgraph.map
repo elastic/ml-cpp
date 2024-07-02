@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CMultivariatePrior::swap" name="ml::maths::common::CMultivariatePrior::swap">
+<area shape="rect" id="Node000001" title="Swap the contents of this prior and other." alt="" coords="517,85,681,126"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ac30dccd96d4df01362a88a15fb3cc953" title="Implements value semantics for copy construction." alt="" coords="257,5,454,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="513,83,451,64,453,59,515,78"/>
+<area shape="rect" id="Node000003" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ac99387e272421c98fb8b1a5e191d6b3f" title="An efficient swap of the contents of this and other." alt="" coords="242,85,469,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="501,108,469,108,469,103,501,103"/>
+<area shape="rect" id="Node000005" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a3377bacf5327c51d4224a65ebc43233d" title="Efficient swap of the contents of this prior and other." alt="" coords="249,154,462,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="511,133,430,156,429,151,510,128"/>
+<area shape="rect" id="Node000004" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a9c5da88e7b4773e59e3809950b636bcc" title=" " alt="" coords="5,73,194,129"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="226,106,194,105,194,100,226,100"/>
+<area shape="rect" id="Node000006" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a14b5f5ab7252add1c4c64054e833e27c" title=" " alt="" coords="13,153,186,209"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,180,187,182,187,176,234,175"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::api::CTrainedModel::classificationWeights" name="ml::api::CTrainedModel::classificationWeights">
+<area shape="rect" id="Node000001" title="Set weights by which to multiply classes when doing label assignment." alt="" coords="5,5,162,46"/>
+<area shape="rect" id="Node000002" href="$da/d46/classml_1_1api_1_1_c_ensemble.html#a862511d07c8b2ef1fbb7f3556e5b66c6" title="Get weights by which to multiply classes when doing label assignment." alt="" coords="210,5,362,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,23,194,23,194,28,162,28"/>
+</map>

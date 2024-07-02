@@ -1,0 +1,13 @@
+<map id="ml::model::CAnomalyDetector::~CAnomalyDetector" name="ml::model::CAnomalyDetector::~CAnomalyDetector">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="283,5,414,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,43,267,34,267,39,204,48"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#af37669bdeea72dde3a32751f95b6a48c" title=" " alt="" coords="251,71,446,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,69,235,74,235,79,203,75"/>
+<area shape="rect" id="Node000004" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="737,71,926,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="446,85,494,84,689,84,722,85,722,90,689,90,494,90,446,91"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="494,99,689,139"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="447,100,479,103,478,109,446,105"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="786,71,784,61,792,52,807,46,832,44,857,46,873,53,871,58,856,52,831,49,809,51,795,56,789,62,792,69"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="689,105,721,101,722,106,690,110"/>
+</map>

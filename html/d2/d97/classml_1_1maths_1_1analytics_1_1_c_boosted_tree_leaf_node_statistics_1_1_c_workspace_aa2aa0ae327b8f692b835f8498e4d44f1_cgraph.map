@@ -1,0 +1,12 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::memoryUsage" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this object." alt="" coords="5,77,230,133"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="278,92,484,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,103,262,103,262,108,230,108"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="532,5,703,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,89,516,61,518,66,426,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="534,85,701,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="485,103,518,103,518,108,485,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="751,107,937,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="433,116,532,135,618,138,703,135,735,134,736,139,703,140,618,143,532,140,432,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="702,113,736,118,736,123,701,119"/>
+</map>

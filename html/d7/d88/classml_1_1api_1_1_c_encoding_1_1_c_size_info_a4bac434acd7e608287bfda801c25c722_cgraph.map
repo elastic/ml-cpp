@@ -1,0 +1,9 @@
+<map id="ml::api::CEncoding::CSizeInfo::addToJsonDocument" name="ml::api::CEncoding::CSizeInfo::addToJsonDocument">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,224,79"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="272,5,454,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,42,256,37,257,43,225,47"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ae797de3cab0d65432a6032f1be02e10c" title=" " alt="" coords="278,71,448,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,70,263,75,262,81,224,76"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ab2eb099dd240ff6f226480c258e65854" title=" " alt="" coords="502,71,649,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="448,88,486,88,486,94,448,94"/>
+</map>

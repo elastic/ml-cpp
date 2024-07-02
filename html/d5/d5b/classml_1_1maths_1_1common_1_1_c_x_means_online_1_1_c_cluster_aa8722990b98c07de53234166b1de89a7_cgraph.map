@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CXMeansOnline::CCluster::weight" name="ml::maths::common::CXMeansOnline::CCluster::weight">
+<area shape="rect" id="Node000001" title="Get the weight of the cluster." alt="" coords="5,5,182,61"/>
+<area shape="rect" id="Node000002" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#ae593cf26388a3ed5f6c9a6d353a34eb8" title="Get the total count of values added to the cluster." alt="" coords="230,5,406,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,31,214,31,214,36,182,36"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="454,13,613,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,31,438,31,438,36,406,36"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::computeLeafValues" name="ml::maths::analytics::CBoostedTreeImpl::computeLeafValues">
+<area shape="rect" id="Node000001" title="Compute the leaf values to use for tree." alt="" coords="5,5,202,61"/>
+<area shape="rect" id="Node000002" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html#abaee15b03023809e8634d8e2b29e493e" title="Get an object which computes the leaf value that minimises loss." alt="" coords="250,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,31,234,31,234,36,202,36"/>
+</map>

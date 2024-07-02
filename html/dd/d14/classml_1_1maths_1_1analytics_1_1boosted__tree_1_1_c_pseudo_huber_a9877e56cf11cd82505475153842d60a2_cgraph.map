@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::boosted_tree::CPseudoHuber::acceptRestoreTraverser" name="ml::maths::analytics::boosted_tree::CPseudoHuber::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,207,152"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="266,5,485,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,93,254,57,278,48,279,54,256,61,167,98"/>
+<area shape="rect" id="Node000003" href="$dd/d14/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_pseudo_huber.html#a216b6348decbfb5a8866fe3be01b0ed4" title=" " alt="" coords="255,71,496,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,109,239,105,239,111,207,115"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="266,136,485,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="207,134,251,139,250,144,207,139"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="298,201,453,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="169,150,256,186,284,195,282,200,254,191,167,155"/>
+</map>

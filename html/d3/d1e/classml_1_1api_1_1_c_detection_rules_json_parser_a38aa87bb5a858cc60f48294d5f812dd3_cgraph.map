@@ -1,0 +1,8 @@
+<map id="ml::api::CDetectionRulesJsonParser::parseConditionAppliesTo" name="ml::api::CDetectionRulesJsonParser::parseConditionAppliesTo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,245,103"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#aa1cfd7395a5f4f682dbe1d195d5547ba" title="Set which value the condition applies to." alt="" coords="302,29,481,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,65,286,60,287,65,245,71"/>
+<area shape="rect" id="Node000003" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#aabcc8e86071f562407f92dc8b6d28d0f" title=" " alt="" coords="293,95,490,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="245,95,277,99,277,104,245,100"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="342,29,339,19,347,10,365,5,391,3,420,5,437,11,435,16,419,10,391,8,366,10,350,15,344,21,347,28"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CPopulationModel::correctBaselineForInterim" name="ml::model::CPopulationModel::correctBaselineForInterim">
+<area shape="rect" id="Node000001" title="Correct baseline with corrections for interim results." alt="" coords="273,39,465,79"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a0a00f27876d274e092ad6f760bd251ff" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,47,225,43,225,37,258,42"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a62671b447ad01f481dfbaecf30570106" title=" " alt="" coords="18,71,212,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,76,212,81,212,76,257,70"/>
+</map>

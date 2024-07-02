@@ -1,0 +1,5 @@
+<map id="ml::api::CForecastRunner::finishForecasts" name="ml::api::CForecastRunner::finishForecasts">
+<area shape="rect" id="Node000001" title="Blocks and waits until all queued forecasts are done." alt="" coords="204,5,375,46"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a6f4abd72bef33741d2d04458055b1257" title=" " alt="" coords="5,5,156,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,28,156,28,156,23,188,23"/>
+</map>

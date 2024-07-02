@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,98,202,123"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="259,61,418,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,96,243,90,243,96,203,101"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="250,126,427,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,120,234,123,233,129,202,125"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="475,126,652,151"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="427,136,459,136,459,141,427,141"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="700,5,881,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="591,123,699,71,710,66,713,70,701,76,594,127"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="701,85,880,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="653,123,685,118,686,123,653,128"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="718,150,863,191"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="653,148,703,156,702,161,653,154"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="708,216,873,256"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="593,149,701,200,718,207,716,212,699,205,591,154"/>
+</map>

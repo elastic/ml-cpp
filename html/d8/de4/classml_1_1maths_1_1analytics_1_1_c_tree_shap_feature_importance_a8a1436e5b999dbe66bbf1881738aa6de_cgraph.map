@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CTreeShapFeatureImportance::extendPath" name="ml::maths::analytics::CTreeShapFeatureImportance::extendPath">
+<area shape="rect" id="Node000001" title="Extend the path object, update the variables and factorial scaling coefficients." alt="" coords="5,45,210,101"/>
+<area shape="rect" id="Node000002" href="$d0/d19/classml_1_1maths_1_1analytics_1_1_c_tree_shap_feature_importance_1_1_c_split_path.html#a467556c7fe887225fa28c9defede3626" title=" " alt="" coords="258,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,54,242,49,243,54,210,60"/>
+<area shape="rect" id="Node000003" href="$d0/d19/classml_1_1maths_1_1analytics_1_1_c_tree_shap_feature_importance_1_1_c_split_path.html#aa538cffef3979a4bf2407125fb102830" title=" " alt="" coords="258,85,462,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,87,243,92,242,97,210,92"/>
+</map>

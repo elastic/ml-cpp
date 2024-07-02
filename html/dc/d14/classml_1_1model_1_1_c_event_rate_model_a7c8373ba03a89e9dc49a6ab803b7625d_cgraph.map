@@ -1,0 +1,44 @@
+<map id="ml::model::CEventRateModel::CEventRateModel" name="ml::model::CEventRateModel::CEventRateModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,812,199,853"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6f8f5dc995a35c2935947e846e5e82ff" title="Restore reading state from traverser." alt="" coords="259,507,453,547"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,810,326,558,330,561,123,813"/>
+<area shape="rect" id="Node000016" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="747,872,966,913"/>
+<area shape="poly" id="edge23_Node000001_Node000016" title=" " alt="" coords="200,836,465,855,732,878,731,883,465,860,199,841"/>
+<area shape="rect" id="Node000019" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="247,869,465,910"/>
+<area shape="poly" id="edge22_Node000001_Node000019" title=" " alt="" coords="196,851,249,863,247,868,194,856"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4cdec68d47c3fc48c1f9bcc497561dc6" title="Restore the model reading state from the supplied traverser." alt="" coords="513,464,699,505"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,508,497,500,498,505,453,513"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="747,5,966,46"/>
+<area shape="poly" id="edge18_Node000002_Node000008" title=" " alt="" coords="361,505,380,451,412,377,456,295,482,255,511,219,567,161,617,122,673,92,746,57,762,49,765,54,748,61,676,96,620,127,571,165,515,222,486,258,460,298,417,379,385,453,366,507"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="747,71,966,111"/>
+<area shape="poly" id="edge19_Node000002_Node000009" title=" " alt="" coords="369,505,422,432,508,328,560,272,618,217,680,166,746,121,755,116,757,120,749,125,684,170,622,221,564,276,512,332,426,435,373,508"/>
+<area shape="rect" id="Node000010" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="758,807,955,847"/>
+<area shape="poly" id="edge20_Node000002_Node000010" title=" " alt="" coords="454,538,515,553,581,576,645,609,675,629,701,653,715,671,722,689,725,725,729,759,736,775,749,792,753,796,750,800,745,795,731,778,724,760,720,725,717,691,710,674,697,657,671,633,642,613,579,581,514,558,452,543"/>
+<area shape="poly" id="edge21_Node000002_Node000016" title=" " alt="" coords="384,546,701,812,724,836,749,857,761,863,758,868,746,861,720,840,697,816,381,550"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="778,136,935,161"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="613,463,680,300,718,217,745,172,763,161,766,165,749,176,722,219,685,302,618,465"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a5edc44a999e2965a2cb2bc3312963f67" title="Is the state document unintelligible?" alt="" coords="747,185,966,226"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="611,463,627,416,655,355,694,292,718,263,746,237,752,232,755,236,749,241,722,266,698,295,660,358,632,418,616,464"/>
+<area shape="rect" id="Node000006" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a16fd96d2e0ba306806a92562aa2acc8d" title="Get the last time each persion was seen." alt="" coords="763,251,950,291"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="616,462,635,427,664,384,702,339,746,301,752,297,755,301,749,305,705,343,669,387,640,430,620,465"/>
+<area shape="rect" id="Node000007" href="$db/dc5/namespaceml_1_1core.html#a93bcdc8ec5834bac60be504a29341a09" title=" " alt="" coords="785,316,928,341"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="622,462,673,406,708,376,746,351,769,341,771,346,749,356,711,381,677,410,626,465"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="605,463,611,388,631,279,649,220,673,161,705,106,745,57,750,53,753,57,749,61,709,109,678,163,654,221,637,280,617,388,611,464"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="614,463,697,261,707,220,712,186,721,154,745,121,748,119,752,123,749,125,726,156,717,187,713,221,702,263,619,465"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="652,503,679,523,702,548,718,583,724,615,724,646,721,676,718,705,720,733,729,762,749,792,752,795,748,799,745,795,724,765,714,734,713,705,715,675,719,646,719,616,713,584,697,551,675,527,649,507"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ae8ee1fb659a027d9ce811237b0757e6e" title="Get the person bucket counts." alt="" coords="758,365,955,406"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="647,461,746,417,768,409,770,414,748,421,650,466"/>
+<area shape="rect" id="Node000012" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ad5549af33ca664300303c1db6fa7e2ca" title="Get the frequency of the person identified by pid." alt="" coords="758,431,955,471"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="699,469,742,464,743,469,700,475"/>
+<area shape="rect" id="Node000013" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="779,496,934,537"/>
+<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="700,494,764,502,764,507,699,499"/>
+<area shape="rect" id="Node000014" href="$d6/d52/namespaceml_1_1maths__t.html#aea37ff2381c8daf8bd351ffb7ee6a5d0" title="Set the count weight in weights to weight." alt="" coords="781,561,932,587"/>
+<area shape="poly" id="edge13_Node000003_Node000014" title=" " alt="" coords="649,503,696,525,748,546,775,554,773,559,746,551,694,530,646,508"/>
+<area shape="rect" id="Node000015" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="783,611,930,651"/>
+<area shape="poly" id="edge14_Node000003_Node000015" title=" " alt="" coords="641,503,701,548,724,574,734,585,749,597,769,607,767,612,746,601,730,589,720,578,698,552,638,507"/>
+<area shape="poly" id="edge15_Node000003_Node000016" title=" " alt="" coords="623,504,662,569,702,654,711,685,714,714,715,764,716,787,720,810,731,833,749,857,753,861,749,864,745,861,726,836,715,811,710,788,709,764,709,714,706,687,697,656,657,572,619,506"/>
+<area shape="rect" id="Node000017" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="767,676,946,717"/>
+<area shape="poly" id="edge16_Node000003_Node000017" title=" " alt="" coords="648,503,676,523,701,548,718,579,724,608,730,635,737,648,749,661,755,666,752,670,745,665,733,651,725,637,718,609,713,581,697,551,672,527,645,507"/>
+<area shape="rect" id="Node000018" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="747,741,966,782"/>
+<area shape="poly" id="edge17_Node000003_Node000018" title=" " alt="" coords="650,503,678,523,702,548,715,573,721,597,722,642,725,684,733,705,749,727,753,730,749,734,745,730,728,708,720,686,717,642,716,598,710,575,697,551,674,527,647,507"/>
+</map>

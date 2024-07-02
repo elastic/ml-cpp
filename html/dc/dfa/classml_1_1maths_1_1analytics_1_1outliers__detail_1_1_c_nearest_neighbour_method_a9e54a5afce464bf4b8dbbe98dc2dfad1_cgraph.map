@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::print" name="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::print">
+<area shape="rect" id="Node000001" title="Get a human readable description of the outlier detection method." alt="" coords="5,45,179,101"/>
+<area shape="rect" id="Node000002" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#ae08022ad8f51d12084a10b8ff00eed47" title="The number of points." alt="" coords="227,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,55,211,49,212,54,180,60"/>
+<area shape="rect" id="Node000003" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#a37c26f919ca5b512951fa60986875a2b" title=" " alt="" coords="227,85,400,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,86,212,92,211,97,179,91"/>
+</map>

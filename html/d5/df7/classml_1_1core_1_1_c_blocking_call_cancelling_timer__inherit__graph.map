@@ -1,0 +1,9 @@
+<map id="ml::core::CBlockingCallCancellingTimer" name="ml::core::CBlockingCallCancellingTimer">
+<area shape="rect" id="Node000001" title="Cancels a blocking IO call after a supplied timeout has elapsed." alt="" coords="5,241,226,282"/>
+<area shape="rect" id="Node000002" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html" title="Abstract base for classes that cancels blocking IO on some event." alt="" coords="8,153,223,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,209,118,241,113,241,113,209"/>
+<area shape="rect" id="Node000003" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="52,79,179,105"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="118,120,118,152,113,152,113,120"/>
+<area shape="rect" id="Node000004" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="33,5,198,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="118,46,118,79,113,79,113,46"/>
+</map>

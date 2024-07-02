@@ -1,0 +1,22 @@
+<map id="ml::api::CJsonOutputWriter::persistNormalizer" name="ml::api::CJsonOutputWriter::persistNormalizer">
+<area shape="rect" id="Node000001" title="Persist a normalizer by writing its state to the output." alt="" coords="903,69,1082,109"/>
+<area shape="rect" id="Node000002" href="$d8/dc0/_c_json_output_writer_test_8cc.html#a63a9f33b1a65b5de3c2a879af0061d52" title=" " alt="" coords="658,19,855,44"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="891,67,812,48,813,42,892,62"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#afa31b4a9d8f47c7b64b1e8efac8a6866" title="Perform any final processing once all input data has been seen." alt="" coords="681,69,832,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="887,92,832,92,832,86,887,86"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="667,154,846,195"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="921,117,816,156,814,151,919,112"/>
+<area shape="rect" id="Node000004" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a1c24b7586202d7618f6a3a05c35f6dc1" title=" " alt="" coords="414,5,610,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="676,66,610,45,570,34,571,29,611,40,678,61"/>
+<area shape="rect" id="Node000005" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a825eccea72c0de79e8382aaef2a5bf1c" title=" " alt="" coords="414,55,610,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="666,84,611,79,611,73,666,78"/>
+<area shape="rect" id="Node000006" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a65554f04dc6ee6b276ec61e57cef29c5" title=" " alt="" coords="414,104,610,130"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="666,102,611,108,611,103,666,97"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="437,154,587,195"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="652,177,588,177,588,172,652,172"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,183,156,224"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="660,201,611,209,486,218,361,219,156,212,156,207,361,214,486,212,610,204,660,196"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,154,366,195"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="422,177,366,177,366,172,422,172"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="188,191,156,195,156,190,188,185"/>
+</map>

@@ -1,0 +1,24 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::reset" name="ml::maths::common::CNormalMeanPrecConjugate::reset">
+<area shape="rect" id="Node000001" title="Reset the prior based on the sample central moments." alt="" coords="5,251,197,307"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="293,29,439,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,249,133,211,162,166,199,120,243,81,277,64,279,68,246,85,203,123,166,169,138,214,118,252"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="286,95,446,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="124,249,175,197,208,169,243,146,271,134,273,138,246,151,211,174,179,200,128,253"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="293,160,439,201"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="158,248,244,211,278,200,279,205,246,216,160,253"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="293,225,439,266"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="197,264,277,254,278,259,197,270"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="293,291,439,331"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="197,288,278,298,277,303,197,293"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="245,355,487,411"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="163,305,246,341,262,347,261,352,244,345,161,310"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="286,435,446,475"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="125,306,176,364,209,395,246,421,273,433,271,438,243,425,206,399,172,368,121,309"/>
+<area shape="rect" id="Node000011" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="250,500,482,541"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="116,306,136,346,164,395,201,444,246,485,254,490,251,495,243,489,197,447,160,398,131,349,112,308"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="316,29,314,19,322,10,339,5,366,3,394,5,411,11,409,16,393,10,366,8,340,10,325,15,319,21,321,28"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="535,9,726,35"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="439,39,519,31,520,36,439,45"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="554,59,707,99"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="439,55,539,66,538,71,439,60"/>
+</map>

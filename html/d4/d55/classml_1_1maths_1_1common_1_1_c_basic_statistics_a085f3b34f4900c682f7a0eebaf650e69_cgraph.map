@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBasicStatistics::count" name="ml::maths::common::CBasicStatistics::count">
+<area shape="rect" id="Node000001" title="Extract the count from an accumulator object." alt="" coords="5,39,165,79"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="213,5,358,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,43,197,38,198,43,165,48"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad1c10c15673da0ed43885524eb88b2cd" title="Get the Manhattan norm of one of our internal vector classes." alt="" coords="213,71,358,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,69,198,74,197,80,165,74"/>
+</map>

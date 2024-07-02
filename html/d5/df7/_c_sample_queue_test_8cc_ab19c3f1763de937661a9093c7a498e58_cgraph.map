@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#ae964aa9c4a7eaae243335aff189eaa4d" title="Is the queue empty?" alt="" coords="250,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,43,234,38,235,43,199,48"/>
+<area shape="rect" id="Node000003" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a9d92fd7d21f655914fe847d2ed5049e5" title=" " alt="" coords="250,71,428,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,70,235,74,234,79,202,75"/>
+<area shape="rect" id="Node000004" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#af0f775e41d00cc8c6c2428a986b70662" title=" " alt="" coords="476,71,654,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="429,88,460,88,460,94,429,94"/>
+</map>

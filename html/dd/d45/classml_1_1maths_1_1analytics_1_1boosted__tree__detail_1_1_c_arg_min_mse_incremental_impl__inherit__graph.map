@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinMseIncrementalImpl" name="ml::maths::analytics::boosted_tree_detail::CArgMinMseIncrementalImpl">
+<area shape="rect" id="Node000001" title="Finds the value to add to a set of predictions which minimises the adjusted regularized MSE differenc..." alt="" coords="5,213,204,268"/>
+<area shape="rect" id="Node000002" href="$d0/da5/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_impl.html" title="Finds the value to add to a set of predictions which minimises the regularized MSE w...." alt="" coords="33,109,176,165"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,180,107,212,102,212,102,180"/>
+<area shape="rect" id="Node000003" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html" title=" " alt="" coords="33,5,176,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,77,107,108,102,108,102,77"/>
+</map>

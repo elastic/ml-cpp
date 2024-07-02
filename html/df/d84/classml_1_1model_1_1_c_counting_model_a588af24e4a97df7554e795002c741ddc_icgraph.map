@@ -1,0 +1,9 @@
+<map id="ml::model::CCountingModel::sample" name="ml::model::CCountingModel::sample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="271,47,454,88"/>
+<area shape="rect" id="Node000002" href="$d7/d26/_c_counting_model_test_8cc.html#a41316982f546b1f08a56adff44df03f4" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,49,182,34,183,29,256,44"/>
+<area shape="rect" id="Node000003" href="$de/d99/_c_event_rate_model_test_8cc.html#a3ea0d03f40a2fc72250572411eb0b77a" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,70,223,70,223,65,255,65"/>
+<area shape="rect" id="Node000004" href="$de/d77/_c_metric_model_test_8cc.html#a99a02491bdf3a9c3d44f7dfeb59a59c1" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="256,91,183,106,182,101,255,86"/>
+</map>

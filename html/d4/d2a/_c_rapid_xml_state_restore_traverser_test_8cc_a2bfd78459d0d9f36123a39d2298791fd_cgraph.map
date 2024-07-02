@@ -1,0 +1,42 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,208,202,234"/>
+<area shape="rect" id="Node000002" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html#a2af3ab7b23c52a7e1a73bb94888f13cd" title="Does the current element have a sub&#45;level?" alt="" coords="259,13,465,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,206,164,139,203,99,248,64,259,58,262,63,251,69,207,103,168,142,116,209"/>
+<area shape="rect" id="Node000004" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html#ae710da272975e323b5243307bc6d6cac" title=" " alt="" coords="275,78,449,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="122,205,177,168,249,129,266,122,268,127,251,134,180,173,125,210"/>
+<area shape="rect" id="Node000006" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html#ad9c6fb3bb20d9b601c0f0c0e9bcb58bd" title=" " alt="" coords="275,168,449,208"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,206,259,198,260,204,203,211"/>
+<area shape="rect" id="Node000008" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="271,233,453,274"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="203,231,256,237,255,243,202,236"/>
+<area shape="rect" id="Node000011" href="$d2/d07/namespaceanonymous__namespace_02_c_rapid_xml_state_restore_traverser_test_8cc_03.html#a3d078ecc0c0549de3ddaac7bfa66c16e" title=" " alt="" coords="250,393,474,449"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="124,232,314,382,311,386,120,237"/>
+<area shape="rect" id="Node000017" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="530,574,748,615"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="112,233,128,276,157,337,198,402,223,433,251,459,313,500,381,532,451,556,516,572,514,578,449,561,379,537,311,505,248,463,219,436,194,406,152,340,123,279,107,235"/>
+<area shape="rect" id="Node000003" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html#a1efd7f16803fe0cc222b41b590f006aa" title=" " alt="" coords="548,5,730,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="465,31,532,31,532,36,465,36"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a5edc44a999e2965a2cb2bc3312963f67" title="Is the state document unintelligible?" alt="" coords="530,89,748,130"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="449,99,515,102,514,107,449,105"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="436,164,550,132,551,137,437,169"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="313,168,311,157,319,148,336,143,362,141,390,143,406,149,404,154,388,148,362,146,337,148,322,153,316,159,319,166"/>
+<area shape="rect" id="Node000007" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html#ac420080f250f78e127ace105c5fa9fec" title=" " alt="" coords="522,162,756,203"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="449,183,507,182,507,188,449,189"/>
+<area shape="rect" id="Node000009" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="546,228,733,268"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="453,249,530,247,530,253,453,254"/>
+<area shape="rect" id="Node000010" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="823,228,1004,268"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="733,245,808,245,808,251,733,251"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a924179fa8810008cf71e1dab1c13e1a2" title="Does the current element have a sub&#45;level?" alt="" coords="804,294,1023,335"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="423,390,471,372,521,356,589,341,659,331,789,317,789,323,660,336,590,347,523,361,472,377,425,395"/>
+<area shape="rect" id="Node000013" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="804,364,1023,404"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="460,390,522,379,590,372,660,370,789,372,789,378,660,375,591,378,522,384,461,395"/>
+<area shape="rect" id="Node000014" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="804,436,1023,476"/>
+<area shape="poly" id="edge15_Node000011_Node000014" title=" " alt="" coords="461,447,522,459,590,465,660,467,789,463,789,469,660,472,590,470,522,464,460,452"/>
+<area shape="rect" id="Node000015" href="$d2/d07/namespaceanonymous__namespace_02_c_rapid_xml_state_restore_traverser_test_8cc_03.html#a85247ca6b1e947966a3fc0ce78780480" title=" " alt="" coords="527,393,751,449"/>
+<area shape="poly" id="edge16_Node000011_Node000015" title=" " alt="" coords="474,419,511,419,511,424,474,424"/>
+<area shape="rect" id="Node000016" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="804,514,1023,555"/>
+<area shape="poly" id="edge22_Node000011_Node000016" title=" " alt="" coords="437,447,523,473,660,501,789,519,788,524,659,506,521,478,436,452"/>
+<area shape="poly" id="edge21_Node000011_Node000017" title=" " alt="" coords="396,448,464,508,523,554,549,566,546,571,521,558,460,512,392,452"/>
+<area shape="poly" id="edge17_Node000015_Node000012" title=" " alt="" coords="704,390,803,349,835,338,836,343,805,354,706,395"/>
+<area shape="poly" id="edge18_Node000015_Node000013" title=" " alt="" coords="751,403,788,398,789,403,752,409"/>
+<area shape="poly" id="edge19_Node000015_Node000014" title=" " alt="" coords="752,433,789,437,788,443,751,438"/>
+<area shape="poly" id="edge20_Node000015_Node000016" title=" " alt="" coords="710,447,849,505,847,510,708,452"/>
+</map>

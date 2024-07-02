@@ -1,0 +1,33 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::mean" name="ml::maths::common::CMultivariateNormalConjugate::mean">
+<area shape="rect" id="Node000001" title="Get the expected mean of the marginal likelihood." alt="" coords="744,257,984,298"/>
+<area shape="rect" id="Node000002" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a0ae3bdbfa168c8b373d03a875dcdd778" title=" " alt="" coords="497,5,696,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="841,245,781,161,741,116,695,75,676,64,679,59,698,71,744,112,786,158,845,242"/>
+<area shape="rect" id="Node000003" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="499,86,695,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="834,247,775,185,736,153,695,126,667,114,669,109,698,121,740,149,778,181,838,243"/>
+<area shape="rect" id="Node000004" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#afdd76380e25baf2ddf5495723e52f0c5" title="Get the mean of the marginal likelihood function." alt="" coords="497,136,696,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="801,253,695,206,667,195,669,190,697,201,803,248"/>
+<area shape="rect" id="Node000010" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a0ae070da0ce5e7d52a989a5fee50f2e3" title=" " alt="" coords="250,281,449,337"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="729,288,450,306,449,300,729,283"/>
+<area shape="rect" id="Node000011" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ab89d6a6749362b51b11ffc40273ccdb5" title="Randomly sample from the marginal over the mean." alt="" coords="497,427,696,482"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="833,310,772,363,698,417,676,429,673,424,695,412,769,359,829,306"/>
+<area shape="rect" id="Node000013" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a1de75cac5ad9e7164f89ed7c02eb09f1" title="Randomly sample from the predictive distribution." alt="" coords="497,347,696,402"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="792,306,676,349,674,344,791,301"/>
+<area shape="rect" id="Node000014" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a39fc0f9a05738b7968d07c3e9035baae" title=" " alt="" coords="497,216,696,272"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="729,263,696,259,697,254,729,258"/>
+<area shape="rect" id="Node000015" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#aacb3826ad0f7e7dc4b26001c2b0efd9a" title=" " alt="" coords="497,507,696,562"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="847,313,822,354,788,403,746,453,698,497,680,508,677,504,695,492,742,449,783,400,817,351,842,310"/>
+<area shape="rect" id="Node000005" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="251,20,448,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="501,130,495,126,480,109,471,92,463,76,447,61,424,49,427,44,451,56,467,73,476,89,484,106,499,122,504,126"/>
+<area shape="rect" id="Node000006" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="251,231,448,257"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="510,200,450,221,408,233,406,228,448,216,509,195"/>
+<area shape="rect" id="Node000007" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ade9140a8cffff689b9efe3a29919e72f" title=" " alt="" coords="250,71,449,126"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="481,136,449,127,450,122,483,131"/>
+<area shape="rect" id="Node000008" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a9200bf80f73c6a5e9f2bce9bdf2dcdeb" title="Get the mode of the marginal likelihood function." alt="" coords="250,151,449,206"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="482,173,450,175,449,170,481,168"/>
+<area shape="rect" id="Node000009" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,231,202,257"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="235,212,156,233,154,228,234,206"/>
+<area shape="poly" id="edge10_Node000010_Node000009" title=" " alt="" coords="234,281,154,260,156,255,235,276"/>
+<area shape="rect" id="Node000012" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a52d38ad1a8f1b294f4b166e4c5b88fe9" title=" " alt="" coords="251,442,448,467"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="481,457,448,457,448,452,481,452"/>
+<area shape="poly" id="edge15_Node000014_Node000006" title=" " alt="" coords="481,247,448,247,448,241,481,241"/>
+</map>

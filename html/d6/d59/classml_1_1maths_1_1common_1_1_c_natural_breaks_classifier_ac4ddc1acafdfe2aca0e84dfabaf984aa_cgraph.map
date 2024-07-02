@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CNaturalBreaksClassifier::add" name="ml::maths::common::CNaturalBreaksClassifier::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,204,118"/>
+<area shape="rect" id="Node000002" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a70aadff7ed11ca66ff3e0b2c17b02233" title="Reduce the number of tuples until we satisfy the space constraint." alt="" coords="252,70,421,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,95,236,95,236,100,204,100"/>
+<area shape="rect" id="Node000003" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a6c65badb9cba6c03fdde185b4ab8f501" title="Get the indices of the closest categories." alt="" coords="469,70,638,126"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="421,95,453,95,453,100,421,100"/>
+<area shape="rect" id="Node000004" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a0c0ba018ea39b0e44381d376369b9e89" title="Get the total deviation of the specified class." alt="" coords="686,34,856,90"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="638,81,670,76,671,81,639,86"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="691,113,851,154"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="639,109,676,115,675,121,638,114"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="945,5,1105,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="856,47,929,36,930,42,857,52"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="904,70,1146,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="857,71,889,76,888,81,856,76"/>
+</map>

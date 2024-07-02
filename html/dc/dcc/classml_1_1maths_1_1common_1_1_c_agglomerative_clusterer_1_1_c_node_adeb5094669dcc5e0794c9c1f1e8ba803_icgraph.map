@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CAgglomerativeClusterer::CNode::clusteringAt" name="ml::maths::common::CAgglomerativeClusterer::CNode::clusteringAt">
+<area shape="rect" id="Node000001" title="Get the clustering at the specified height." alt="" coords="548,57,715,113"/>
+<area shape="rect" id="Node000002" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a66576d5102d70f4471471ba19577de7d" title=" " alt="" coords="304,57,500,113"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="532,87,500,87,500,82,532,82"/>
+<area shape="rect" id="Node000003" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html#a8d689a7a4a1e1e0b45ccd513c8b6df19" title=" " alt="" coords="5,5,256,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="288,69,256,64,256,58,289,64"/>
+<area shape="rect" id="Node000004" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#ac5c49de3fff5a02af0ebf7a795b49f68" title=" " alt="" coords="35,100,226,155"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="289,105,227,115,226,110,288,100"/>
+</map>

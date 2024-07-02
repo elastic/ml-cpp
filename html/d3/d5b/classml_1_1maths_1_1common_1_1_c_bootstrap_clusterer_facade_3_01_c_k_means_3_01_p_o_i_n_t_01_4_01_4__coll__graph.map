@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBootstrapClustererFacade&lt; CKMeans&lt; POINT &gt; &gt;" name="ml::maths::common::CBootstrapClustererFacade&lt; CKMeans&lt; POINT &gt; &gt;">
+<area shape="rect" id="Node000001" title="Adapts the x&#45;means implementation for use by the bootstrap clusterer." alt="" coords="325,41,508,97"/>
+<area shape="rect" id="Node000002" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_facade_extract_clusters.html" title="Extracts the clusters in canonical form (by index into the point vector) for the facade implementatio..." alt="" coords="5,5,231,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,46,325,55,324,61,246,51"/>
+<area shape="rect" id="Node000003" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html" title="The xorshift1024* pseudo&#45;random number generator." alt="" coords="24,85,212,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,89,324,78,325,83,228,95"/>
+</map>

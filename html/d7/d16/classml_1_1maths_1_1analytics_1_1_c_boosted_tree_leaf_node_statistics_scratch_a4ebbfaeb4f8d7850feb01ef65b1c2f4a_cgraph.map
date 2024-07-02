@@ -1,0 +1,12 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsScratch::split" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsScratch::split">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,125,230,181"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="65,125,65,115,75,106,92,101,118,99,147,101,164,108,162,113,145,107,117,104,93,106,78,111,70,117,70,125"/>
+<area shape="rect" id="Node000002" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a84e22c61ec7f3b45dd1f754e31d20e93" title=" " alt="" coords="278,5,502,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,122,277,71,291,65,293,70,279,76,173,127"/>
+<area shape="rect" id="Node000003" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ada433c878784c22e42d81c7c4a4c9cb4" title=" " alt="" coords="278,85,502,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,134,262,129,262,135,230,139"/>
+<area shape="rect" id="Node000004" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ae7a1a84f9895c1193e70aaf7371f9750" title="Check if the left child has fewer rows than the right child." alt="" coords="278,165,502,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="230,167,262,172,262,177,230,172"/>
+<area shape="rect" id="Node000005" href="$d2/d97/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_workspace.html#a4b08494855ef3adedf8f7efa3541869f" title="Capture the derivatives object to use later." alt="" coords="278,245,502,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="173,179,279,231,293,237,291,242,277,236,170,184"/>
+</map>

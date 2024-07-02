@@ -1,0 +1,20 @@
+<map id="ml::maths::common::CFastQuantileSketch::fastReduce" name="ml::maths::common::CFastQuantileSketch::fastReduce">
+<area shape="rect" id="Node000001" title="Reduce to the maximum permitted size." alt="" coords="5,180,152,236"/>
+<area shape="rect" id="Node000002" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#a73d91f0d9ea5d150885e551476c707ca" title="Compute the knots to merge." alt="" coords="200,5,381,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,178,140,125,168,96,198,71,204,67,207,71,201,75,172,100,144,128,102,181"/>
+<area shape="rect" id="Node000003" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#a931ab850285617e3b097966a7a3340e6" title="Compute the merge costs." alt="" coords="215,85,366,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,177,211,145,213,150,144,182"/>
+<area shape="rect" id="Node000004" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ad63e71bc0bdee23ee7576a74bf40840c" title="Get read only knots." alt="" coords="446,126,606,167"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="152,195,430,157,431,162,153,200"/>
+<area shape="rect" id="Node000005" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac539b2faba6d25270e8b47730113e59b" title="Get the total count of points added." alt="" coords="210,216,371,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="152,215,195,221,194,226,151,220"/>
+<area shape="rect" id="Node000006" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#ad52a38df6cc53000728e194d489948ef" title="Get the target size for fastReduce." alt="" coords="211,280,370,336"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="136,234,201,265,212,271,210,276,199,270,134,239"/>
+<area shape="rect" id="Node000008" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac9813f7e83bf8bc406b4586c7e1cc075" title="Fully order the values." alt="" coords="212,360,369,400"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="99,234,142,290,170,320,201,346,208,350,205,354,198,350,166,324,138,294,95,237"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="366,121,431,130,430,136,366,126"/>
+<area shape="rect" id="Node000007" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ad71b1072f6b5658f9dc7d663445910d9" title="The maximum permitted size for the sketch." alt="" coords="437,288,616,328"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="370,305,421,305,421,311,370,311"/>
+<area shape="rect" id="Node000009" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#afac48cf1ac00c289ffa00e612dc0430b" title="Combine any co&#45;located values." alt="" coords="429,360,623,400"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="369,377,414,377,414,383,369,383"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CRandomProjectionClustererBatch&lt; N &gt;" name="ml::maths::common::CRandomProjectionClustererBatch&lt; N &gt;">
+<area shape="rect" id="Node000001" title="Implements random projection clustering for batches of data points." alt="" coords="279,13,470,69"/>
+<area shape="rect" id="Node000003" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html" title=" " alt="" coords="518,5,764,76"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="486,38,518,38,518,43,486,43"/>
+<area shape="rect" id="Node000002" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html" title="Common functionality for random projection clustering." alt="" coords="5,20,231,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,38,278,38,278,43,246,43"/>
+</map>

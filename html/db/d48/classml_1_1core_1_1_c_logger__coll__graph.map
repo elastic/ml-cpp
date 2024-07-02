@@ -1,0 +1,9 @@
+<map id="ml::core::CLogger" name="ml::core::CLogger">
+<area shape="rect" id="Node000001" title="Core logging class in ML." alt="" coords="84,198,209,223"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,109,171,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,146,141,196,136,199,102,149"/>
+<area shape="rect" id="Node000003" href="$d4/dc4/classml_1_1core_1_1_c_logger_throttler.html" title="Implements per log line throttling." alt="" coords="195,109,368,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="251,145,167,199,164,195,249,141"/>
+<area shape="rect" id="Node000004" href="$da/dc2/classml_1_1core_1_1_c_logger_throttler_1_1_c_impl.html" title=" " alt="" coords="195,5,368,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="284,61,284,109,279,109,279,61"/>
+</map>

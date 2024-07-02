@@ -1,0 +1,17 @@
+<map id="ml::maths::common::COneOfNPrior::jointLogMarginalLikelihood" name="ml::maths::common::COneOfNPrior::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,214,152"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0e86f4a3d223f85d44725fddb3832359" title="Full debug dump of the model weights." alt="" coords="262,5,458,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,93,261,57,280,49,282,54,263,61,175,98"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="287,71,433,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,108,272,100,272,105,214,113"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="280,136,440,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="214,135,265,142,264,147,214,140"/>
+<area shape="rect" id="Node000007" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="280,201,440,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="176,150,263,186,283,193,281,198,261,191,174,155"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="523,71,668,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="435,133,507,113,508,118,436,138"/>
+<area shape="rect" id="Node000006" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="523,136,668,177"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="441,154,507,154,507,159,441,159"/>
+<area shape="rect" id="Node000008" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="506,201,684,242"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="440,219,490,219,490,224,440,224"/>
+</map>

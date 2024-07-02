@@ -1,0 +1,51 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,420,202,446"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="281,5,437,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,419,110,352,131,250,150,194,175,138,207,86,248,41,265,30,268,34,251,46,211,89,179,140,155,195,136,251,115,353,108,420"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#a8a15eeeb66a19dcfc1277ec4bcdf0317" title="The inverse of offsetCountToZero." alt="" coords="271,55,447,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="104,419,115,362,140,278,159,231,183,186,213,143,248,106,256,99,259,103,251,109,217,146,188,188,164,234,146,279,121,363,109,420"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a5cb06e59ebd2f51812cfd4357eeda4eb" title=" " alt="" coords="272,120,446,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="105,419,118,369,145,297,164,258,188,220,215,185,248,155,257,149,260,153,251,159,219,189,192,223,169,261,150,299,123,371,110,421"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#a3e8b4899466756ed85a5fb2bcda946ae" title=" " alt="" coords="279,169,439,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="107,419,123,376,152,318,193,256,219,228,248,204,263,195,266,200,251,208,223,232,198,259,157,321,128,379,112,420"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#a6c18445fef48c42f02bbf130c2405704" title="Check if feature is modeling time of day or week." alt="" coords="285,219,433,244"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="109,418,129,385,159,339,199,293,248,253,269,243,271,248,251,258,203,296,163,343,133,387,114,421"/>
+<area shape="rect" id="Node000007" href="$df/d9c/namespaceml_1_1model__t.html#adbffb95389e6a14a3e10385772e24adb" title="Check if feature is modeling latitude and longitude." alt="" coords="282,268,436,294"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="115,418,170,366,207,336,248,310,281,297,283,301,251,315,210,341,173,370,119,422"/>
+<area shape="rect" id="Node000008" href="$df/d9c/namespaceml_1_1model__t.html#a59b4a3475bc550a72e4327a8d2a4b1a2" title="Check if feature models the max of some quantity." alt="" coords="529,320,705,346"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="141,417,249,385,386,359,513,341,514,346,387,364,250,390,143,422"/>
+<area shape="rect" id="Node000010" href="$df/d9c/namespaceml_1_1model__t.html#a7bf7c04ac4013033bc79dbd51c37daf1" title="Check if feature models the mean of some quantity." alt="" coords="525,471,708,496"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="202,440,510,470,509,476,202,445"/>
+<area shape="rect" id="Node000011" href="$df/d9c/namespaceml_1_1model__t.html#ad13c348b83bf923026873475ac32bc86" title="Check if feature models the median of some quantity." alt="" coords="520,569,713,595"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="112,445,129,482,158,532,199,583,224,604,251,621,292,636,335,644,380,645,424,641,506,622,572,599,573,604,508,627,425,646,380,650,335,649,291,642,248,626,220,608,195,586,154,535,125,485,107,447"/>
+<area shape="rect" id="Node000012" href="$df/d9c/namespaceml_1_1model__t.html#a5fc4a7e2815307fc119747f4acecf6cc" title="Check if feature models the min of some quantity." alt="" coords="531,371,703,396"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="202,418,249,413,514,389,515,394,250,418,202,423"/>
+<area shape="rect" id="Node000013" href="$df/d9c/namespaceml_1_1model__t.html#ad33fb9a203cd78093f45bc65f658afee" title="Check if feature models the sum of some quantity." alt="" coords="528,421,706,447"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="202,430,512,431,512,437,202,436"/>
+<area shape="rect" id="Node000014" href="$df/d9c/namespaceml_1_1model__t.html#a1f18453bbc8ddb255e00279217d2fb73" title="Offset count features so that their range starts at zero." alt="" coords="276,571,442,612"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="118,444,172,499,210,530,251,557,263,563,261,568,248,562,206,534,168,503,114,448"/>
+<area shape="rect" id="Node000015" href="$df/d9c/namespaceml_1_1model__t.html#ad820f6768ef99fd095ae6785ea5b5da0" title=" " alt="" coords="250,687,468,712"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="112,445,128,487,157,547,198,611,223,640,251,665,273,678,270,683,248,670,219,644,193,614,152,550,123,490,107,447"/>
+<area shape="rect" id="Node000016" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="556,769,678,795"/>
+<area shape="poly" id="edge21_Node000001_Node000016" title=" " alt="" coords="107,446,111,519,117,571,128,628,146,687,172,744,206,796,227,818,251,837,291,858,335,867,380,867,426,860,471,848,512,832,579,801,581,805,514,837,472,853,427,865,381,872,334,872,289,863,248,842,224,822,202,799,167,747,141,689,123,629,112,571,105,519,102,446"/>
+<area shape="rect" id="Node000018" href="$df/d9c/namespaceml_1_1model__t.html#a9bec5dc001991ededfd1236f79f6ee55" title="Get the type of probability calculation to use for feature." alt="" coords="281,737,437,777"/>
+<area shape="poly" id="edge22_Node000001_Node000018" title=" " alt="" coords="110,446,123,497,150,572,169,613,192,653,219,690,251,723,268,734,265,738,248,727,215,694,187,656,164,615,145,574,118,499,105,447"/>
+<area shape="rect" id="Node000019" href="$df/d9c/namespaceml_1_1model__t.html#a9dbb1ae4b63416ba57ecfbef586163c8" title=" " alt="" coords="275,801,443,827"/>
+<area shape="poly" id="edge23_Node000001_Node000019" title=" " alt="" coords="109,446,118,508,141,601,159,651,183,701,214,747,251,787,262,794,259,799,248,791,210,751,179,704,154,653,135,602,112,509,103,447"/>
+<area shape="rect" id="Node000020" href="$df/d9c/namespaceml_1_1model__t.html#a18db9394ce804db46f9f7694c21934b3" title=" " alt="" coords="269,521,449,547"/>
+<area shape="poly" id="edge24_Node000001_Node000020" title=" " alt="" coords="131,444,185,471,251,500,293,514,291,519,249,505,183,476,128,448"/>
+<area shape="rect" id="Node000009" href="$df/d9c/namespaceml_1_1model__t.html#a1482559951b2d7c70f5c33ffc3248342" title=" " alt="" coords="765,447,952,472"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="686,344,718,356,782,394,833,434,830,438,779,398,716,361,684,349"/>
+<area shape="poly" id="edge10_Node000010_Node000009" title=" " alt="" coords="708,472,750,468,750,473,709,477"/>
+<area shape="poly" id="edge12_Node000011_Node000009" title=" " alt="" coords="687,566,716,556,779,519,829,480,833,485,782,524,718,561,689,571"/>
+<area shape="poly" id="edge14_Node000012_Node000009" title=" " alt="" coords="675,394,718,406,810,438,808,443,717,411,674,399"/>
+<area shape="poly" id="edge16_Node000013_Node000009" title=" " alt="" coords="707,441,750,445,749,451,706,446"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="425,710,469,722,572,761,570,766,467,727,423,715"/>
+<area shape="rect" id="Node000017" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="835,769,882,795"/>
+<area shape="poly" id="edge20_Node000016_Node000017" title=" " alt="" coords="678,780,819,780,819,785,678,785"/>
+<area shape="poly" id="edge25_Node000020_Node000010" title=" " alt="" coords="427,518,533,497,534,502,428,523"/>
+<area shape="poly" id="edge26_Node000020_Node000011" title=" " alt="" coords="432,545,529,563,529,569,431,550"/>
+<area shape="rect" id="Node000021" href="$df/d9c/namespaceml_1_1model__t.html#a045e29b0adddc0ab27dd8a5a2a0d0dc6" title="Check if feature models the variance of some quantity." alt="" coords="516,520,717,546"/>
+<area shape="poly" id="edge27_Node000020_Node000021" title=" " alt="" coords="449,531,500,531,500,536,449,536"/>
+<area shape="poly" id="edge28_Node000021_Node000009" title=" " alt="" coords="677,517,717,506,808,476,809,481,718,511,679,522"/>
+</map>

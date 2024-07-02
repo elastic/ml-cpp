@@ -1,0 +1,5 @@
+<map id="ml::api::CAnomalyJobConfig::CAnalysisLimits::categorizationExamplesLimit" name="ml::api::CAnomalyJobConfig::CAnalysisLimits::categorizationExamplesLimit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="103,5,316,61"/>
+<area shape="rect" id="Node000002" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="5,20,55,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,36,55,36,55,31,87,31"/>
+</map>

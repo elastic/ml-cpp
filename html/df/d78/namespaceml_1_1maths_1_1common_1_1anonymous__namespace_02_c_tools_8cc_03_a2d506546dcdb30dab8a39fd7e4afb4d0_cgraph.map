@@ -1,0 +1,8 @@
+<map id="ml::maths::common::anonymous_namespace{CTools::cc}::continuousSafePdf" name="ml::maths::common::anonymous_namespace{CTools::cc}::continuousSafePdf">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,216,87"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="66,31,67,21,75,12,89,6,111,5,134,7,149,14,147,19,133,12,110,10,91,12,78,16,72,23,71,31"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="264,5,409,46"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="216,41,248,36,249,41,217,46"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a76cd2d98ee5eb75044bd14d645246a83" title="Get the support for a log&#45;t distribution." alt="" coords="264,71,409,111"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="217,71,248,76,248,81,216,77"/>
+</map>

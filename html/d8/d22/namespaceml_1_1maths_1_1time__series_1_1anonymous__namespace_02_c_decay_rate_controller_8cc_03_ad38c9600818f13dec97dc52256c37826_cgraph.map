@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::anonymous_namespace{CDecayRateController::cc}::adjustedMaximumMultiplier" name="ml::maths::time_series::anonymous_namespace{CDecayRateController::cc}::adjustedMaximumMultiplier">
+<area shape="rect" id="Node000001" title="Adjust the maximum decay rate multiplier for long bucket lengths." alt="" coords="5,29,211,100"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="64,28,66,18,75,10,89,5,108,3,130,5,145,12,142,17,129,10,108,8,90,10,77,14,71,21,69,29"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="259,44,404,85"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="211,62,243,62,243,67,211,67"/>
+</map>

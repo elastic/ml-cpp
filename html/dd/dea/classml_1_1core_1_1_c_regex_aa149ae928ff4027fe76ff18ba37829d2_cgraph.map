@@ -1,0 +1,5 @@
+<map id="ml::core::CRegex::split" name="ml::core::CRegex::split">
+<area shape="rect" id="Node000001" title="Split a string based on a regex." alt="" coords="5,5,162,31"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="210,5,357,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,16,194,16,194,21,162,21"/>
+</map>

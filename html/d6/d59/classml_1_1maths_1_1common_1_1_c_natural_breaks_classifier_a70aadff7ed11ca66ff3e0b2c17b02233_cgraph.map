@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CNaturalBreaksClassifier::reduce" name="ml::maths::common::CNaturalBreaksClassifier::reduce">
+<area shape="rect" id="Node000001" title="Reduce the number of tuples until we satisfy the space constraint." alt="" coords="5,70,175,126"/>
+<area shape="rect" id="Node000002" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a6c65badb9cba6c03fdde185b4ab8f501" title="Get the indices of the closest categories." alt="" coords="223,70,392,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,95,207,95,207,100,175,100"/>
+<area shape="rect" id="Node000003" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a0c0ba018ea39b0e44381d376369b9e89" title="Get the total deviation of the specified class." alt="" coords="440,34,609,90"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,81,424,76,425,81,393,86"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="445,113,604,154"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="393,109,430,115,429,121,392,114"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="699,5,858,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="610,47,683,36,684,42,610,52"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="657,70,900,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="610,71,642,76,642,81,610,76"/>
+</map>

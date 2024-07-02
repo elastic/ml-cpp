@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CBjkstUniqueValues::acceptPersistInserter" name="ml::maths::common::CBjkstUniqueValues::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Convert to a node tree." alt="" coords="517,20,666,75"/>
+<area shape="rect" id="Node000002" href="$de/d8a/_c_bjkst_unique_values_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="273,5,469,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="501,38,469,34,470,29,502,33"/>
+<area shape="rect" id="Node000003" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3782a8ef83638949ff680eed01b25271" title="Persist state by passing information to the supplied inserter." alt="" coords="275,55,467,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="502,62,468,66,467,61,501,56"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b15945e4bed81aef355a0cea18a60b9" title="Persist state by passing information to the supplied inserter." alt="" coords="5,22,225,63"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="259,64,225,59,226,54,259,58"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aea710498b24a82acd1aeaea7f69b2154" title="Persist state by passing information to the supplied inserter." alt="" coords="18,87,212,128"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="260,92,212,98,212,93,259,87"/>
+</map>

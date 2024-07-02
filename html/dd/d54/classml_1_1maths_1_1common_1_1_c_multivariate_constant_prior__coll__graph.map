@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CMultivariateConstantPrior" name="ml::maths::common::CMultivariateConstantPrior">
+<area shape="rect" id="Node000001" title="A very lightweight prior for representing data for which expect a single value." alt="" coords="5,94,184,135"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html" title="Interface for a multivariate prior distribution function." alt="" coords="22,5,167,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,62,97,94,92,94,92,62"/>
+</map>

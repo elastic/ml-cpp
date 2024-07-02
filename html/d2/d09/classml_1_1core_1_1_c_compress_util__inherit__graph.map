@@ -1,0 +1,9 @@
+<map id="ml::core::CCompressUtil" name="ml::core::CCompressUtil">
+<area shape="rect" id="Node000001" title="Shrink wrap zlib calls." alt="" coords="64,79,231,105"/>
+<area shape="rect" id="Node000003" href="$d0/def/classml_1_1core_1_1_c_deflator.html" title="Implementation of CompressUtil for deflating data." alt="" coords="5,153,138,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="125,117,86,154,82,150,122,114"/>
+<area shape="rect" id="Node000004" href="$d0/db3/classml_1_1core_1_1_c_inflator.html" title="Implementation of CompressUtil for inflating data." alt="" coords="162,153,288,178"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,114,214,150,210,154,170,117"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="65,5,230,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,46,150,79,145,79,145,46"/>
+</map>

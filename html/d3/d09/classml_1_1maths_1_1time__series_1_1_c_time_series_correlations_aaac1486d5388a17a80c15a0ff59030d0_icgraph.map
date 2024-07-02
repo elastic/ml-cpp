@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::acceptPersistInserter" name="ml::maths::time_series::CTimeSeriesCorrelations::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="266,5,441,61"/>
+<area shape="rect" id="Node000002" href="$d9/d96/structml_1_1model_1_1_c_anomaly_detector_model_1_1_s_feature_correlate_models.html#a8045576fb15ea947ac01aba2b892136f" title="Persist the models passing state to inserter." alt="" coords="5,5,218,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,36,218,36,218,31,250,31"/>
+</map>

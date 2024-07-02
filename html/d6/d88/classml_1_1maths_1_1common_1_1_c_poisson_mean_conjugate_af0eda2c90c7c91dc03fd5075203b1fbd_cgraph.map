@@ -1,0 +1,35 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::doPrintMarginalLikelihoodStatistics" name="ml::maths::common::CPoissonMeanConjugate::doPrintMarginalLikelihoodStatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,187,238,243"/>
+<area shape="rect" id="Node000002" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a5868d47e93d9dbf335aa23f6f4a5dfa0" title="Get the mean of the marginal likelihood function." alt="" coords="294,31,464,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,184,317,93,320,97,170,189"/>
+<area shape="rect" id="Node000005" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a23122fbf812a97a5ef2fa7524cb8a057" title="Get the variance of the marginal likelihood." alt="" coords="286,154,472,209"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="238,197,270,193,271,198,239,202"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="290,234,468,260"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="239,227,275,231,274,236,238,232"/>
+<area shape="rect" id="Node000015" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="305,284,453,324"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="204,241,287,269,304,275,302,281,285,275,203,246"/>
+<area shape="rect" id="Node000003" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="774,64,943,120"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="463,28,520,16,621,3,665,5,721,16,765,32,805,53,803,58,763,37,720,21,665,10,621,9,520,21,465,33"/>
+<area shape="rect" id="Node000004" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#ac3bed1d65b91e2e6e83607592a7b5014" title="Compute the mean of the prior distribution." alt="" coords="536,31,705,87"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="464,56,520,56,520,61,464,61"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="706,68,759,75,758,81,705,73"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="472,157,519,147,758,105,759,110,521,152,473,162"/>
+<area shape="poly" id="edge8_Node000005_Node000004" title=" " alt="" coords="430,151,519,103,543,91,545,96,521,108,432,155"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="530,161,710,202"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="472,179,515,179,515,184,472,184"/>
+<area shape="rect" id="Node000007" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a89cebe7fa9b569c2bebfbd2e98719c45" title="Compute the variance of the prior distribution." alt="" coords="536,226,705,281"/>
+<area shape="poly" id="edge9_Node000005_Node000007" title=" " alt="" coords="473,207,521,221,520,226,472,212"/>
+<area shape="rect" id="Node000008" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="520,305,720,346"/>
+<area shape="poly" id="edge11_Node000005_Node000008" title=" " alt="" coords="457,208,474,219,490,238,498,257,506,274,522,291,527,295,524,299,518,295,501,277,493,259,485,241,470,223,454,212"/>
+<area shape="poly" id="edge10_Node000007_Node000003" title=" " alt="" coords="698,223,719,211,773,171,819,129,822,133,776,175,722,216,700,227"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="532,370,709,396"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="452,258,474,270,491,292,498,314,505,335,522,355,529,360,526,365,518,359,500,338,493,316,487,294,470,274,450,262"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="768,250,949,305"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="689,367,719,355,733,346,743,336,767,315,775,311,777,315,770,320,747,340,737,350,722,360,691,372"/>
+<area shape="rect" id="Node000012" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="769,329,948,370"/>
+<area shape="poly" id="edge15_Node000010_Node000012" title=" " alt="" coords="709,368,753,361,754,367,710,373"/>
+<area shape="rect" id="Node000013" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="786,394,931,435"/>
+<area shape="poly" id="edge16_Node000010_Node000013" title=" " alt="" coords="710,392,771,400,770,406,709,397"/>
+<area shape="rect" id="Node000014" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="776,460,941,500"/>
+<area shape="poly" id="edge17_Node000010_Node000014" title=" " alt="" coords="652,394,769,444,787,451,785,456,767,449,650,399"/>
+</map>

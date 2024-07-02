@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,136,202,161"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a142cdd074a53c9767fbdc99e820c3208" title=" " alt="" coords="254,95,408,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,132,238,126,239,131,196,138"/>
+<area shape="rect" id="Node000008" href="$d3/dcf/namespaceanonymous__namespace_02_c_signal_test_8cc_03.html#a248fd0476e4abdcc085c5047694638c4" title=" " alt="" coords="250,160,412,201"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="200,159,235,164,234,169,199,164"/>
+<area shape="rect" id="Node000003" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#ac7ad188bc6d92945541cc2abe5f6e7be" title="Compute the conjugate of f." alt="" coords="460,5,614,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="379,92,473,50,475,55,381,96"/>
+<area shape="rect" id="Node000004" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a395c664814fb97af115aa71ef2b985d5" title=" " alt="" coords="460,95,614,135"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="409,121,445,121,445,127,409,126"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="500,184,574,209"/>
+<area shape="poly" id="edge8_Node000002_Node000007" title=" " alt="" coords="386,133,489,175,487,180,384,138"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="460,109,424,109,424,103,460,104"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="498,95,496,85,503,76,516,70,537,68,560,70,573,77,571,81,558,76,537,73,518,75,506,80,501,86,503,93"/>
+<area shape="rect" id="Node000005" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a186d572e4b8e600162833b1d2c2e0b47" title="Compute the Hadamard product of fx and fy." alt="" coords="669,63,824,103"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="614,101,653,95,654,100,615,106"/>
+<area shape="rect" id="Node000006" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#ab1ff99bf159b9988d30f115f34a3a933" title=" " alt="" coords="662,128,831,169"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="615,125,647,130,646,135,614,130"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="503,185,496,175,500,165,514,159,537,157,563,160,575,166,573,171,561,165,537,162,515,164,504,169,501,174,507,182"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::model::CIndividualModel::CIndividualModel" name="ml::model::CIndividualModel::CIndividualModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,51,192,91"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#ae28345e4bfb587240bb2c0d1b141526e" title="Create a copy of the state we need to persist passing ownership to the caller." alt="" coords="240,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,51,224,44,225,50,193,56"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a5f74bd0ea087594ff5a842bcd6950874" title="Get a read only model corresponding to feature of the person pid." alt="" coords="243,95,430,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,86,228,92,227,98,192,91"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="292,95,289,85,297,76,312,70,336,68,362,70,377,77,375,82,361,76,336,73,314,75,300,80,295,86,297,93"/>
+</map>

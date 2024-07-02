@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CPackedUInt8Decorator" name="ml::maths::analytics::CPackedUInt8Decorator">
+<area shape="rect" id="Node000001" title="Manages accessing the bytes of common::CFloatStorage." alt="" coords="5,79,178,120"/>
+<area shape="rect" id="Node000002" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="11,5,172,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,46,94,79,89,79,89,46"/>
+</map>

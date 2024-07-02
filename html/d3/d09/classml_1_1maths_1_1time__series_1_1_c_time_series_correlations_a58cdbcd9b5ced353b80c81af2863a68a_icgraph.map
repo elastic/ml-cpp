@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::CTimeSeriesCorrelations" name="ml::maths::time_series::CTimeSeriesCorrelations::CTimeSeriesCorrelations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="229,45,404,101"/>
+<area shape="rect" id="Node000002" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a6572104929f4f557e98ce13716f4522a" title="Create a copy of this model passing ownership to the caller." alt="" coords="5,5,181,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,57,181,52,182,46,214,52"/>
+<area shape="rect" id="Node000003" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#aafd52375f22082080396e8fdca78a5ee" title=" " alt="" coords="5,85,181,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,94,182,100,181,95,213,89"/>
+</map>

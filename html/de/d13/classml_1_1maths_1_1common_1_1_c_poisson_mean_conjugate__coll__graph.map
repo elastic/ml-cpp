@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CPoissonMeanConjugate" name="ml::maths::common::CPoissonMeanConjugate">
+<area shape="rect" id="Node000001" title="Interface for a conjugate prior distribution for a Poisson variable." alt="" coords="26,203,196,244"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="146,111,292,152"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,164,136,205,133,201,182,160"/>
+<area shape="rect" id="Node000003" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,5,166,31"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="82,47,75,97,75,125,79,153,89,179,101,202,96,204,84,181,74,155,70,126,70,97,77,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="113,39,197,109,194,113,110,43"/>
+</map>

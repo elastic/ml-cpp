@@ -1,0 +1,6 @@
+<map id="ml::core::CStringSimilarityTester::similarity" name="ml::core::CStringSimilarityTester::similarity">
+<area shape="rect" id="Node000001" title="Calculate how similar two strings are." alt="" coords="250,29,424,70"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="375,16,361,10,337,8,315,10,301,15,296,21,298,28,293,29,291,19,298,10,313,5,337,3,362,5,377,11"/>
+<area shape="rect" id="Node000002" href="$d5/df8/_c_string_similarity_tester_test_8cc.html#a6d429fa0192c06a2efd6a958816a3b00" title=" " alt="" coords="5,37,202,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,52,202,52,202,47,235,47"/>
+</map>

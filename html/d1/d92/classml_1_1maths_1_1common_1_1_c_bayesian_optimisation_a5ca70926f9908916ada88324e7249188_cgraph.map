@@ -1,0 +1,49 @@
+<map id="ml::maths::common::CBayesianOptimisation::maximumLikelihoodKernel" name="ml::maths::common::CBayesianOptimisation::maximumLikelihoodKernel">
+<area shape="rect" id="Node000001" title="Compute the maximum likelihood kernel parameters." alt="" coords="5,360,187,416"/>
+<area shape="rect" id="Node000002" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="257,49,439,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,358,156,264,191,208,233,155,284,112,287,116,237,159,196,211,160,266,112,361"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="262,169,434,210"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="131,357,307,217,310,222,135,361"/>
+<area shape="rect" id="Node000007" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5e1b086ca80daefce8765bc99ed77ae7" title=" " alt="" coords="251,295,445,350"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="187,362,235,349,236,354,188,367"/>
+<area shape="rect" id="Node000015" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a7f8ac7deefb524098468e89c8ed1cc3d" title=" " alt="" coords="521,539,679,594"/>
+<area shape="poly" id="edge19_Node000001_Node000015" title=" " alt="" coords="187,367,252,361,324,364,361,369,397,378,431,392,463,411,476,424,484,438,490,467,494,496,500,510,511,525,513,527,509,530,507,528,495,513,489,497,485,468,479,440,472,427,459,415,429,397,395,384,360,374,324,369,252,367,187,372"/>
+<area shape="rect" id="Node000018" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="311,450,385,475"/>
+<area shape="poly" id="edge24_Node000001_Node000018" title=" " alt="" coords="188,412,296,445,295,450,187,417"/>
+<area shape="rect" id="Node000019" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#af8e0be3f74ee47910215dda353dd810f" title=" " alt="" coords="235,500,461,540"/>
+<area shape="poly" id="edge26_Node000001_Node000019" title=" " alt="" coords="131,414,179,451,236,485,249,491,246,496,233,490,176,455,127,418"/>
+<area shape="rect" id="Node000020" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="275,565,421,606"/>
+<area shape="poly" id="edge27_Node000001_Node000020" title=" " alt="" coords="116,414,164,483,198,519,236,550,261,563,259,568,233,554,194,523,160,486,111,418"/>
+<area shape="rect" id="Node000003" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="509,29,690,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,67,493,63,494,68,439,73"/>
+<area shape="rect" id="Node000004" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="759,29,940,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="691,55,743,55,743,60,691,60"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="804,29,805,19,813,10,828,5,850,3,874,5,889,12,887,17,872,10,849,8,829,10,816,15,810,21,809,29"/>
+<area shape="rect" id="Node000006" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="561,134,639,159"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="434,172,545,153,546,158,435,177"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="559,135,550,125,555,115,572,109,600,107,631,110,646,117,644,122,629,115,600,112,573,114,559,119,556,124,563,132"/>
+<area shape="rect" id="Node000008" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#abf51451ad15bac08b729405954e04406" title=" " alt="" coords="521,235,679,290"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="445,297,505,282,506,287,446,302"/>
+<area shape="rect" id="Node000009" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="770,203,929,258"/>
+<area shape="poly" id="edge15_Node000007_Node000009" title=" " alt="" coords="380,292,437,252,472,234,508,220,571,207,636,203,699,205,755,211,755,216,698,211,636,209,572,213,510,225,474,239,440,257,384,296"/>
+<area shape="rect" id="Node000011" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="521,315,679,370"/>
+<area shape="poly" id="edge14_Node000007_Node000011" title=" " alt="" coords="446,328,505,332,505,338,445,333"/>
+<area shape="rect" id="Node000012" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="521,395,679,450"/>
+<area shape="poly" id="edge16_Node000007_Node000012" title=" " alt="" coords="421,348,514,386,512,391,419,353"/>
+<area shape="rect" id="Node000014" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a94bfaf7bfdeb4d2466949bde27e48cc9" title="Compute a value from x which will be stable across platforms." alt="" coords="527,474,672,515"/>
+<area shape="poly" id="edge18_Node000007_Node000014" title=" " alt="" coords="437,349,463,367,480,392,487,415,494,438,511,461,516,465,513,469,507,464,489,441,482,417,476,394,459,371,434,353"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="679,250,755,240,755,245,680,255"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1009,276,1154,316"/>
+<area shape="poly" id="edge13_Node000008_Node000010" title=" " alt="" coords="679,265,993,287,993,292,679,271"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="804,202,805,192,813,183,828,178,850,176,874,179,889,185,887,190,872,184,849,181,829,183,816,188,810,194,809,202"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="930,250,995,269,993,274,928,255"/>
+<area shape="rect" id="Node000013" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="770,405,929,446"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="679,421,754,421,754,427,679,426"/>
+<area shape="poly" id="edge22_Node000015_Node000010" title=" " alt="" coords="679,539,738,521,802,506,854,499,903,486,930,473,959,455,992,427,1020,393,1061,328,1066,331,1024,396,996,430,962,459,932,478,905,491,855,504,803,512,739,526,680,545"/>
+<area shape="poly" id="edge21_Node000015_Node000013" title=" " alt="" coords="671,536,689,524,703,510,712,496,721,482,737,467,766,450,768,455,740,471,725,485,716,499,707,514,692,529,674,540"/>
+<area shape="rect" id="Node000016" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="738,536,961,592"/>
+<area shape="poly" id="edge20_Node000015_Node000016" title=" " alt="" coords="679,563,723,563,723,568,679,568"/>
+<area shape="rect" id="Node000017" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="761,616,938,656"/>
+<area shape="poly" id="edge23_Node000015_Node000017" title=" " alt="" coords="680,586,760,608,758,613,678,591"/>
+<area shape="poly" id="edge25_Node000018_Node000018" title=" " alt="" coords="308,452,298,442,302,432,319,425,348,423,383,427,393,432,397,437,393,440,390,436,382,432,348,428,320,430,306,436,304,441,312,448"/>
+</map>

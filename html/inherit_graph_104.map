@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,5,154,46"/>
+<area shape="rect" id="Node000001" href="$d3/d0e/classml_1_1torch_1_1_c_buffered_i_stream_adapter.html" title="A buffered stream implementation of ReadAdapterInterface for reading TorchScript models (...." alt="" coords="202,5,387,46"/>
+<area shape="poly" id="edge89_Node000000_Node000001" title=" " alt="" coords="169,23,201,23,201,28,169,28"/>
+</map>

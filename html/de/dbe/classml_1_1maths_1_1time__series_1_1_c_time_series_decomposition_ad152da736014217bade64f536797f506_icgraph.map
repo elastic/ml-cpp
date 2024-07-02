@@ -1,0 +1,23 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::detrend" name="ml::maths::time_series::CTimeSeriesDecomposition::detrend">
+<area shape="rect" id="Node000001" title=" " alt="" coords="271,213,463,269"/>
+<area shape="rect" id="Node000002" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aa6e7191d99df015fef8879cc35acabcf" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="345,200,324,162,296,120,262,79,221,44,201,34,203,29,224,40,266,75,301,116,329,159,349,198"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aed51161465b3655c384d85f77d125207" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="336,202,286,145,255,117,221,94,198,83,200,78,224,89,259,113,290,141,340,199"/>
+<area shape="rect" id="Node000004" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#ae59d63e9eddb311544f1069371d55d2d" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="320,205,274,172,222,143,192,133,194,128,224,138,277,168,323,201"/>
+<area shape="rect" id="Node000005" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a6a67f5b849251b21b09f259706e7ab06" title=" " alt="" coords="5,153,223,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="276,210,222,193,181,182,182,177,223,188,278,205"/>
+<area shape="rect" id="Node000006" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a4746023d885383b23c3ffe1c2a62b35f" title=" " alt="" coords="5,203,223,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="255,232,223,229,224,224,255,227"/>
+<area shape="rect" id="Node000007" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#ab1904a37acdac81f3afac13ac35e2ca9" title=" " alt="" coords="5,252,223,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="255,254,224,257,223,252,255,249"/>
+<area shape="rect" id="Node000008" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aef5a8857b10a60709470dd25cc8fe10e" title=" " alt="" coords="5,301,223,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="275,277,223,293,182,303,180,298,222,288,273,272"/>
+<area shape="rect" id="Node000009" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a0275b233826fcf6aae76891becd70cc7" title=" " alt="" coords="5,351,223,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="322,281,276,313,224,342,193,353,191,348,222,337,274,309,319,276"/>
+<area shape="rect" id="Node000010" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aab271baedce8409a164cc1b5d2fd8f4a" title=" " alt="" coords="5,400,223,426"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="339,283,290,340,258,368,224,391,200,402,198,397,221,386,255,364,286,336,335,280"/>
+<area shape="rect" id="Node000011" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a1b19faa9fbce83f5f41bdb2ae950b300" title=" " alt="" coords="5,449,223,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="349,284,328,322,300,365,265,406,224,440,203,451,201,446,221,436,262,402,296,362,323,320,344,282"/>
+</map>

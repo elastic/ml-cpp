@@ -1,0 +1,18 @@
+<map id="ml::model::CCountingModel::computeProbability" name="ml::model::CCountingModel::computeProbability">
+<area shape="rect" id="Node000001" title="Sets probability to 1." alt="" coords="5,39,189,79"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#aba7a2da551dabb10366606332f9311f2" title=" " alt="" coords="237,5,420,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,43,221,38,221,44,189,48"/>
+<area shape="rect" id="Node000004" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a11cddcdad0e6ec253097821b799e61f6" title=" " alt="" coords="237,71,420,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,69,221,74,221,79,188,74"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="480,5,639,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,23,464,23,464,28,420,28"/>
+<area shape="rect" id="Node000005" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a9d735f6d81faa1f143c846c818bff197" title="Check if bucket statistics are available for the specified time." alt="" coords="468,71,651,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="420,88,452,88,452,94,420,94"/>
+<area shape="rect" id="Node000008" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#af58fcade46baf82ab0ad79214f04ca5e" title="Print the current bucketing interval." alt="" coords="468,136,651,177"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="403,109,471,129,470,134,402,114"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="699,104,897,145"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="652,101,684,106,683,111,651,106"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="945,104,1119,145"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="897,122,929,122,929,127,897,127"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="651,141,683,137,684,142,652,147"/>
+</map>

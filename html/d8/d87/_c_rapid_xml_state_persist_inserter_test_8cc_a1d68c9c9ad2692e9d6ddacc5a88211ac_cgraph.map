@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,220,202,246"/>
+<area shape="rect" id="Node000002" href="$d8/d67/classanonymous__namespace_02_c_rapid_xml_state_persist_inserter_test_8cc_03_1_1_c_readable_xml_state_persist_inserter.html#a4b7abe470114c41a52c0c6574b7fa417" title=" " alt="" coords="250,5,527,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,218,166,155,205,118,248,85,255,81,258,86,251,90,208,122,170,159,117,221"/>
+<area shape="rect" id="Node000003" href="$da/d53/namespaceanonymous__namespace_02_c_rapid_xml_state_persist_inserter_test_8cc_03.html#a9b1b2de490ec53affacf2deaf08be954" title=" " alt="" coords="284,100,493,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="130,217,184,191,249,165,269,158,271,163,251,170,187,196,133,222"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="287,179,490,220"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,219,271,210,272,216,202,224"/>
+<area shape="rect" id="Node000006" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a6730a15e3805fd4c9e236afb9f80577b" title="Store a name/value." alt="" coords="299,244,478,285"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,241,284,250,283,256,202,246"/>
+<area shape="rect" id="Node000007" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="301,334,476,374"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="136,244,251,294,323,325,321,330,249,299,134,249"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="315,399,462,440"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="115,244,167,311,206,351,251,384,301,404,299,409,248,388,203,355,163,315,111,247"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="575,107,777,148"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="493,125,560,125,560,130,493,130"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="335,334,333,324,341,315,360,309,388,307,419,309,437,316,435,321,418,315,388,312,361,314,344,319,338,325,340,332"/>
+<area shape="rect" id="Node000009" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="607,399,745,440"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="462,417,591,417,591,422,462,422"/>
+</map>

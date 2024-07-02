@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CMultivariatePrior::univariate" name="ml::maths::common::CMultivariatePrior::univariate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="768,81,914,137"/>
+<area shape="rect" id="Node000002" href="$de/d06/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_time_series_model_8cc_03.html#ac8c2de9b774c03862964d13b14baaf56" title=" " alt="" coords="532,29,702,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="752,94,702,84,703,79,753,89"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a80fbb512c37966ab0651d3f7c1544e34" title=" " alt="" coords="513,124,720,179"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="753,128,721,134,720,129,752,123"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="651,17,638,10,617,8,598,10,586,14,579,21,577,29,572,28,574,18,583,10,597,5,617,3,639,5,654,12"/>
+<area shape="rect" id="Node000004" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="259,73,456,99"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="497,122,464,114,415,102,417,97,466,109,499,117"/>
+<area shape="rect" id="Node000005" href="$df/ddb/namespaceanonymous__namespace_02_c_multivariate_normal_conjugate_test_8cc_03.html#a8069fc4bca3e3eff8577b0f6242d9864" title=" " alt="" coords="255,124,460,179"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="497,154,460,154,460,149,497,149"/>
+<area shape="rect" id="Node000006" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a80fbb512c37966ab0651d3f7c1544e34" title=" " alt="" coords="250,204,465,259"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="511,187,451,205,449,200,509,182"/>
+<area shape="rect" id="Node000007" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="5,219,202,244"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="234,234,202,234,202,229,234,229"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="ml::api::CAnomalyJob::parseTimeRangeInControlMessage" name="ml::api::CAnomalyJob::parseTimeRangeInControlMessage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="626,39,861,79"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,5,578,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="611,44,579,39,579,34,611,38"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad59345c07a68bbfa087e27bfec766870" title="Reset buckets in the range specified by the control message." alt="" coords="421,71,571,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="611,79,572,84,572,79,611,74"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,39,366,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,44,367,49,366,44,398,38"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,39,156,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="188,62,156,62,156,56,188,56"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="405,80,366,74,367,69,406,75"/>
+</map>

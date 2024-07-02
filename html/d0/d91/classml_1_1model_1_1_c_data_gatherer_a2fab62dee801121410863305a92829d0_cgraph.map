@@ -1,0 +1,20 @@
+<map id="ml::model::CDataGatherer::acceptPersistInserter" name="ml::model::CDataGatherer::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,115,180,155"/>
+<area shape="rect" id="Node000002" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a993506ec963cd3d649c9ea71ea0be288" title=" " alt="" coords="228,49,441,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,112,241,92,242,97,171,117"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="489,5,691,46"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="112,112,161,71,193,51,227,35,289,19,353,11,416,8,474,10,473,15,416,14,353,16,290,24,229,40,195,55,164,75,116,116"/>
+<area shape="rect" id="Node000005" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#ad4901379e36f4bc802c66e84c25fbec7" title="Persist the sample counts to a state document." alt="" coords="243,115,426,155"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="180,132,228,132,228,138,180,138"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="489,172,691,213"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="172,153,228,164,355,179,474,186,473,192,354,184,227,170,171,159"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ade6028073a50c65aef70fc39b8fe0c91" title=" " alt="" coords="247,229,422,270"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="128,154,229,209,258,221,256,226,227,213,126,158"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,49,473,43,474,48,442,54"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="513,83,667,123"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="442,81,498,88,497,94,441,86"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="426,121,497,112,498,117,426,126"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="421,227,481,214,482,219,423,233"/>
+<area shape="rect" id="Node000008" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43e3bdd9e7807bfb67e5970e21ee9bfc" title="Persist state by passing information inserter." alt="" coords="497,237,684,278"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="422,250,481,252,481,257,422,255"/>
+</map>

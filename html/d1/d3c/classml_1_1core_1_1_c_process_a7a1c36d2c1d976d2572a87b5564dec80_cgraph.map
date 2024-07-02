@@ -1,0 +1,6 @@
+<map id="ml::core::CProcess::shutdown" name="ml::core::CProcess::shutdown">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,140,70"/>
+<area shape="rect" id="Node000002" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#acf1a4d893bb267652eda4d3c8f197f7d" title=" " alt="" coords="188,29,321,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,47,172,47,172,52,140,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="219,29,218,19,223,10,236,5,254,3,274,5,286,11,284,16,273,10,254,8,237,10,227,14,223,20,225,28"/>
+</map>

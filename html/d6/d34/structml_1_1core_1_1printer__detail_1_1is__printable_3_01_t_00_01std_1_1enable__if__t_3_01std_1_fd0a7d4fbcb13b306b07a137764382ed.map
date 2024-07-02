@@ -1,0 +1,5 @@
+<map id="ml::core::printer_detail::is_printable&lt; T, std::enable_if_t&lt; std::is_same_v&lt; decltype(TEST_IS_PRINTABLE_STREAM&lt;&lt; std::declval&lt; T &gt;()), std::ostream &amp; &gt; &gt; &gt;" name="ml::core::printer_detail::is_printable&lt; T, std::enable_if_t&lt; std::is_same_v&lt; decltype(TEST_IS_PRINTABLE_STREAM&lt;&lt; std::declval&lt; T &gt;()), std::ostream &amp; &gt; &gt; &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,241,180"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="98,5,148,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,47,126,78,120,78,120,47"/>
+</map>

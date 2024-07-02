@@ -1,0 +1,10 @@
+<map id="ml::maths::common::COneOfNPrior::setToNonInformative" name="ml::maths::common::COneOfNPrior::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,71,241,111"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1ca970f775765a617f276528656c7351" title="Lift all overloads of the decayRate into scope." alt="" coords="289,5,466,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,67,280,48,281,53,206,73"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="297,71,458,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,88,282,88,282,94,241,94"/>
+<area shape="rect" id="Node000004" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1ecba4e7d787e7831e2f5b44dc4cc815" title="Get the maximum model offset." alt="" coords="304,160,451,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,109,304,152,302,157,182,114"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="330,160,327,150,335,141,352,135,377,133,405,136,421,142,419,147,403,141,377,139,353,141,338,145,333,151,335,159"/>
+</map>

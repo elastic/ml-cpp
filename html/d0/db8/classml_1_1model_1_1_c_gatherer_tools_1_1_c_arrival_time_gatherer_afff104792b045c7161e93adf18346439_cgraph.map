@@ -1,0 +1,11 @@
+<map id="ml::model::CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser" name="ml::model::CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create from part of an XML document." alt="" coords="5,97,183,152"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="231,5,449,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,94,230,57,250,49,252,54,232,61,150,98"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="231,71,449,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,110,215,105,215,111,183,115"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="266,136,414,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="183,133,251,142,250,147,183,139"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="231,201,449,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="152,150,232,186,253,194,251,199,230,191,149,155"/>
+</map>

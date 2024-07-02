@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CKMeans::CCluster::points" name="ml::maths::common::CKMeans::CCluster::points">
+<area shape="rect" id="Node000001" title="Swap the points into place and recalculate the checksum." alt="" coords="5,39,188,79"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="250,5,404,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,43,234,36,234,42,188,48"/>
+<area shape="rect" id="Node000003" href="$df/df9/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_cluster.html#aa6c518f2666c61037cee81eef8b13c66" title="Get the cluster points." alt="" coords="236,71,418,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,69,220,74,220,79,187,74"/>
+</map>

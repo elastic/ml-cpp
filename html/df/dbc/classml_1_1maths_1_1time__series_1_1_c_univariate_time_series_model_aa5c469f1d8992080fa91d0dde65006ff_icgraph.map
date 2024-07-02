@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::modelCorrelations" name="ml::maths::time_series::CUnivariateTimeSeriesModel::modelCorrelations">
+<area shape="rect" id="Node000001" title="Tell this to model correlations." alt="" coords="497,5,696,61"/>
+<area shape="rect" id="Node000002" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="481,29,449,28,250,28,202,30,202,24,250,23,449,23,482,24"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4dcb6e76bfaa4811ea44f62c01851e3d" title="Create a copy of this model passing ownership to the caller." alt="" coords="250,37,449,93"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="482,51,450,55,449,50,481,45"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="234,53,202,49,202,43,234,48"/>
+</map>

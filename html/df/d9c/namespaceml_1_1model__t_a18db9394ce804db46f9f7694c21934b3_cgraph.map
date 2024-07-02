@@ -1,0 +1,13 @@
+<map id="ml::model_t::varianceScale" name="ml::model_t::varianceScale">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,185,80"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#a7bf7c04ac4013033bc79dbd51c37daf1" title="Check if feature models the mean of some quantity." alt="" coords="242,5,425,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,51,252,32,253,37,161,57"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#ad13c348b83bf923026873475ac32bc86" title="Check if feature models the median of some quantity." alt="" coords="237,55,430,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,65,221,65,221,70,185,70"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#a045e29b0adddc0ab27dd8a5a2a0d0dc6" title="Check if feature models the variance of some quantity." alt="" coords="233,104,434,130"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="161,78,253,98,252,103,160,84"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#a1482559951b2d7c70f5c33ffc3248342" title=" " alt="" coords="482,55,668,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,29,494,48,493,54,399,34"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="431,65,466,65,466,70,431,70"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="399,101,493,81,494,87,401,106"/>
+</map>

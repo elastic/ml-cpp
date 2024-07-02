@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree::CBinomialLogisticLoss" name="ml::maths::analytics::boosted_tree::CBinomialLogisticLoss">
+<area shape="rect" id="Node000001" title="The loss for binomial logistic regression." alt="" coords="5,94,251,135"/>
+<area shape="rect" id="Node000002" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html" title="Defines the loss function for the regression or classification problem." alt="" coords="53,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,62,131,94,125,94,125,62"/>
+</map>

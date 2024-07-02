@@ -1,0 +1,7 @@
+<map id="ml::api::CRegressionInferenceModelBuilder::setTargetType" name="ml::api::CRegressionInferenceModelBuilder::setTargetType">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,204,79"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a938fb9750ada23deafa5b16ab5315c43" title=" " alt="" coords="252,5,458,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,43,236,39,237,44,204,48"/>
+<area shape="rect" id="Node000003" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a72052c57e93733e1e75ec20604df916b" title=" " alt="" coords="271,71,439,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,69,256,76,255,81,204,74"/>
+</map>

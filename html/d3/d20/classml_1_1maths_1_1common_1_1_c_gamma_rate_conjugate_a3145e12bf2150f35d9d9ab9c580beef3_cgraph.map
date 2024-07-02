@@ -1,0 +1,31 @@
+<map id="ml::maths::common::CGammaRateConjugate::jointLogMarginalLikelihood" name="ml::maths::common::CGammaRateConjugate::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,200,187,256"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af4e938e1cae5aff854d1dace0abf9266" title="Full debug dump of the state of this prior." alt="" coords="257,5,421,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,198,163,135,196,101,233,71,242,65,245,70,236,75,200,105,167,138,118,201"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="259,85,419,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,197,180,166,233,136,249,129,251,134,236,141,183,171,136,202"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="266,150,412,191"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="186,204,250,189,252,194,188,209"/>
+<area shape="rect" id="Node000007" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a6f32d138689c010c6dc54ab247ef7d9a" title="Check if this is a non&#45;informative prior." alt="" coords="257,329,421,385"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="138,254,184,285,236,315,247,320,244,325,233,320,181,289,135,258"/>
+<area shape="rect" id="Node000009" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a04fe7c04ef3a6bdcd7c2d666cbac3ed5" title=" " alt="" coords="491,395,655,450"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="113,255,133,289,160,328,195,365,236,395,294,418,357,430,419,434,475,432,476,438,418,439,356,435,293,423,233,400,191,369,156,331,128,292,109,257"/>
+<area shape="rect" id="Node000011" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#a82db2f212f8908863edae25e2ea1be84" title=" " alt="" coords="235,265,443,306"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="188,247,236,258,235,263,186,252"/>
+<area shape="rect" id="Node000013" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af8aace96dd553dc5fd86360da33fbacb" title=" " alt="" coords="491,189,655,245"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="187,223,475,217,475,222,187,228"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="501,40,646,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="419,87,485,74,486,79,420,92"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="501,105,646,146"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="419,109,486,115,485,120,419,115"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="703,337,863,378"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="422,355,688,355,688,360,422,360"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="422,377,477,393,475,398,420,383"/>
+<area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="655,394,700,380,702,385,657,399"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="703,402,863,443"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="656,420,688,420,688,425,656,425"/>
+<area shape="rect" id="Node000012" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="534,294,612,319"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="444,292,519,299,519,304,443,297"/>
+<area shape="poly" id="edge13_Node000012_Node000012" title=" " alt="" coords="538,295,531,285,535,275,550,269,573,267,599,270,612,277,610,281,597,275,573,272,551,274,539,279,537,284,542,292"/>
+<area shape="poly" id="edge16_Node000013_Node000008" title=" " alt="" coords="637,243,657,255,706,290,749,324,745,329,703,294,654,259,634,248"/>
+</map>

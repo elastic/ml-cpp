@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CBoundingBox::centre" name="ml::maths::common::CBoundingBox::centre">
+<area shape="rect" id="Node000001" title="Get the centre of the bounding box." alt="" coords="501,31,653,72"/>
+<area shape="rect" id="Node000002" href="$d9/dff/_c_bounding_box_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="257,5,453,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,40,444,34,445,29,486,35"/>
+<area shape="rect" id="Node000003" href="$dc/de9/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_centre_filter.html#a7b2fd7151092644afec704add0869e03" title=" " alt="" coords="272,56,438,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="486,67,438,74,438,69,485,62"/>
+<area shape="rect" id="Node000004" href="$d2/d8d/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_centroid_computer.html#ad71965740a0134100c14d1fac9dd5285" title=" " alt="" coords="5,56,209,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="256,86,209,86,209,81,256,81"/>
+</map>

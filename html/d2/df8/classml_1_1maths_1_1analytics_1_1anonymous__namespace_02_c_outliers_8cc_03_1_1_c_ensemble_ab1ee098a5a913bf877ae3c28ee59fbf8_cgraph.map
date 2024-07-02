@@ -1,0 +1,33 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::createProjections" name="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::createProjections">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,201,188,271"/>
+<area shape="rect" id="Node000002" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#acdaa76bc07ddbc929d93e35ab4ff1bcf" title=" " alt="" coords="243,168,420,208"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,215,228,206,229,212,189,220"/>
+<area shape="rect" id="Node000009" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a61726991be03c8561eee39ffcafb2881" title=" " alt="" coords="236,244,427,300"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="189,247,221,252,220,257,188,252"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="482,167,659,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,182,466,181,466,186,420,188"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="724,158,901,183"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="660,174,708,172,708,177,660,179"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="959,5,1139,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="830,155,886,116,957,71,966,66,969,71,960,75,889,120,833,159"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="959,85,1139,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="861,155,957,128,959,133,862,160"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="976,150,1122,191"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="902,168,961,168,961,173,902,173"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="966,216,1132,256"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="862,181,959,208,957,213,861,186"/>
+<area shape="rect" id="Node000010" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a46230d84d985b62998f8537a9885e8d2" title=" " alt="" coords="475,269,666,325"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="428,279,460,283,459,288,427,285"/>
+<area shape="rect" id="Node000011" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#ad207ab1d93d9116bfa539b1c703ffd3c" title=" " alt="" coords="721,212,904,252"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="666,269,719,254,721,259,668,274"/>
+<area shape="rect" id="Node000013" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a0b5ebeaff235beb9db236b60547e785a" title=" " alt="" coords="716,277,909,318"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="667,295,700,295,700,300,667,300"/>
+<area shape="rect" id="Node000014" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a22d70337267548fe9fa4bbbf85015e67" title=" " alt="" coords="733,342,892,383"/>
+<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="668,321,721,335,719,340,666,326"/>
+<area shape="rect" id="Node000015" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a0da44b5174462a96a4fb04eca3627b61" title=" " alt="" coords="714,408,911,448"/>
+<area shape="poly" id="edge15_Node000010_Node000015" title=" " alt="" coords="609,323,658,358,716,392,730,399,728,404,713,397,656,363,606,328"/>
+<area shape="rect" id="Node000012" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="976,281,1122,322"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="885,250,963,273,962,279,884,255"/>
+<area shape="poly" id="edge13_Node000013_Node000012" title=" " alt="" coords="910,296,961,297,961,302,910,301"/>
+<area shape="poly" id="edge16_Node000015_Node000012" title=" " alt="" coords="881,405,909,392,962,361,1008,329,1011,333,965,366,912,397,883,409"/>
+</map>

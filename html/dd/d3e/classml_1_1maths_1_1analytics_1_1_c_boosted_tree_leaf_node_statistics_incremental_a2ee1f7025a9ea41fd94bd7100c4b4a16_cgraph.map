@@ -1,0 +1,10 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::rootPreviousSplit" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::rootPreviousSplit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,230,133"/>
+<area shape="rect" id="Node000002" href="$d2/d97/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_workspace.html#a5ec8e44c736032fc671458fbc5603513" title="Define the tree to retrain." alt="" coords="278,5,502,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,74,267,63,268,68,226,79"/>
+<area shape="rect" id="Node000003" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a28dd812434f4a84942591c0ec8c04998" title="Get the root node of tree." alt="" coords="304,85,476,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,103,288,103,288,108,230,108"/>
+<area shape="rect" id="Node000004" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a16bfd25e0568da0e227b67ff19eafc0d" title="Get the index of the root node in a canonical tree node vector." alt="" coords="550,107,692,162"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="230,128,278,135,341,139,390,139,502,135,534,134,534,139,502,140,390,144,340,144,277,140,230,133"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="477,113,535,121,534,126,476,119"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,321,202,347"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a190204fda0cf33bb6f25ae12ba584977" title=" " alt="" coords="250,215,437,255"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,318,277,259,279,264,138,323"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="251,345,436,386"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="203,344,236,349,235,354,202,349"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="536,5,689,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="353,213,373,178,402,136,439,92,484,55,519,39,521,43,486,60,443,96,406,139,377,181,357,216"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="491,70,733,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="368,212,420,174,484,135,496,129,499,134,486,140,423,178,371,216"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="533,149,692,190"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="429,211,517,190,518,195,431,217"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="485,215,739,255"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="437,232,469,232,469,238,437,238"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="540,280,685,321"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="431,253,525,277,524,282,429,259"/>
+<area shape="rect" id="Node000008" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a6fbf2cd8167040e143f95af1658cd535" title=" " alt="" coords="517,345,708,386"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="371,254,422,292,486,330,504,337,502,342,484,335,419,297,367,258"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="520,411,705,451"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="431,384,512,404,510,409,429,389"/>
+</map>

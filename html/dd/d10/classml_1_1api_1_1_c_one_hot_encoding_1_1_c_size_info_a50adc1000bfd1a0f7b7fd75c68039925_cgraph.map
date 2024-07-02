@@ -1,0 +1,14 @@
+<map id="ml::api::COneHotEncoding::CSizeInfo::addToJsonDocument" name="ml::api::COneHotEncoding::CSizeInfo::addToJsonDocument">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,224,111"/>
+<area shape="rect" id="Node000002" href="$d7/d88/classml_1_1api_1_1_c_encoding_1_1_c_size_info.html#a4bac434acd7e608287bfda801c25c722" title=" " alt="" coords="272,13,490,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,67,268,55,269,60,213,73"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ae797de3cab0d65432a6032f1be02e10c" title=" " alt="" coords="544,71,714,111"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="224,88,528,88,528,94,224,94"/>
+<area shape="rect" id="Node000006" href="$d9/d6f/classml_1_1api_1_1_c_one_hot_encoding.html#ae96f1a91a52efacecc2719419dbb1a58" title="Map from the category names of the original field to the new field names." alt="" coords="292,128,470,169"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="213,109,278,123,277,129,212,115"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="538,5,720,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="491,27,522,26,522,32,491,33"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="473,52,529,65,528,70,471,57"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ab2eb099dd240ff6f226480c258e65854" title=" " alt="" coords="768,71,916,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="715,88,753,88,753,94,715,94"/>
+</map>

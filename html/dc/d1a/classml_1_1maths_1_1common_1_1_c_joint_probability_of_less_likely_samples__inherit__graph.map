@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CJointProbabilityOfLessLikelySamples" name="ml::maths::common::CJointProbabilityOfLessLikelySamples">
+<area shape="rect" id="Node000001" title="Computes the joint probability of seeing a more extreme collection of samples." alt="" coords="16,94,212,150"/>
+<area shape="rect" id="Node000003" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_log_joint_probability_of_less_likely_samples.html" title="Computes log of the joint probability of seeing a more extreme collection of samples." alt="" coords="22,198,206,253"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,165,117,197,111,197,111,165"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,223,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,61,117,93,111,93,111,61"/>
+</map>

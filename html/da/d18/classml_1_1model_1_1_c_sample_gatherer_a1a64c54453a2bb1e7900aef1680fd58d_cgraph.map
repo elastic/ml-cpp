@@ -1,0 +1,20 @@
+<map id="ml::model::CSampleGatherer::sample" name="ml::model::CSampleGatherer::sample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,51,196,91"/>
+<area shape="rect" id="Node000002" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#af94b15098f527b8f0ba8a1a564609a80" title="Can the queue possible create samples?" alt="" coords="244,5,422,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,50,228,43,229,49,196,55"/>
+<area shape="rect" id="Node000003" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a7733874d4308f485119a90fdc79be5d0" title=" " alt="" coords="244,95,422,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,86,229,93,228,98,195,92"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="290,95,288,85,295,76,310,70,333,68,357,70,372,77,370,82,356,76,333,73,311,75,298,80,293,86,295,93"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a18db9394ce804db46f9f7694c21934b3" title=" " alt="" coords="470,102,649,128"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="422,112,454,112,454,118,422,118"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#a7bf7c04ac4013033bc79dbd51c37daf1" title="Check if feature models the mean of some quantity." alt="" coords="706,53,890,79"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="625,99,717,80,718,85,626,104"/>
+<area shape="rect" id="Node000007" href="$df/d9c/namespaceml_1_1model__t.html#ad13c348b83bf923026873475ac32bc86" title="Check if feature models the median of some quantity." alt="" coords="701,102,895,128"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="650,112,686,112,686,118,650,118"/>
+<area shape="rect" id="Node000008" href="$df/d9c/namespaceml_1_1model__t.html#a045e29b0adddc0ab27dd8a5a2a0d0dc6" title="Check if feature models the variance of some quantity." alt="" coords="697,152,899,177"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="626,126,718,145,717,150,625,131"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#a1482559951b2d7c70f5c33ffc3248342" title=" " alt="" coords="947,102,1133,128"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="865,77,959,96,958,101,864,82"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="895,112,931,112,931,118,895,118"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="864,148,958,129,959,134,865,153"/>
+</map>

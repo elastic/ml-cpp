@@ -1,0 +1,24 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,201,202,227"/>
+<area shape="rect" id="Node000002" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#af47c41d5ea6f762e12caf827ec8da998" title="Populate the object from serialized data." alt="" coords="250,71,419,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,198,178,162,248,122,262,116,264,120,251,127,181,167,125,203"/>
+<area shape="rect" id="Node000005" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#ae052fc2da6495e27cd778dd9af6c42a5" title="Get a checksum for this object." alt="" coords="251,136,418,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="158,198,236,178,237,183,159,203"/>
+<area shape="rect" id="Node000009" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#a9b77c187faebd23b4036400146d8b5a7" title="Increment the progress by i." alt="" coords="493,291,659,331"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="202,210,308,217,364,225,420,236,476,256,527,280,524,285,474,261,418,242,364,230,307,222,202,215"/>
+<area shape="rect" id="Node000010" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#ac869c1ab1deaeb05613219be78373b49" title="Attach a new progress monitor callback." alt="" coords="251,251,418,291"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="159,225,237,244,236,249,158,230"/>
+<area shape="rect" id="Node000011" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#aabbd217558d1a394a93729f3ad17e474" title="Resume progress monitoring which was restored." alt="" coords="251,316,418,357"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="125,225,181,261,251,301,264,307,262,312,248,305,178,265,122,229"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="467,5,685,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,68,482,48,484,53,413,73"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="467,71,685,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="420,88,451,88,451,94,420,94"/>
+<area shape="rect" id="Node000006" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#a2b576f5bc635ebe084f2e4b4e892d542" title="32 bit hash combine modeled on boost::hash_combine." alt="" coords="509,136,643,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="418,154,493,154,493,159,418,159"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="503,201,650,242"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="413,175,488,195,487,200,411,180"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="733,201,872,242"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="650,219,718,219,718,224,650,224"/>
+<area shape="poly" id="edge11_Node000011_Node000009" title=" " alt="" coords="418,325,477,319,478,324,418,330"/>
+</map>

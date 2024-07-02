@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultinomialConjugate::marginalLikelihoodVariance" name="ml::maths::common::CMultinomialConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="5,125,192,181"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="240,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,123,238,71,251,65,254,70,241,76,146,127"/>
+<area shape="rect" id="Node000003" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ac733c981cec582ec45d16dd5fe55f78a" title="Check if this is a non&#45;informative prior." alt="" coords="273,85,429,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,136,257,125,258,130,193,141"/>
+<area shape="rect" id="Node000004" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a365d3c0c294813c23e36431084e13d84" title=" " alt="" coords="273,165,429,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,165,258,176,257,181,192,171"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="263,245,439,286"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="145,179,190,206,241,231,256,237,254,242,239,236,188,211,142,184"/>
+</map>

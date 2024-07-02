@@ -1,0 +1,14 @@
+<map id="ml::core::detail::CTrackerThread::checkForDeadChildren" name="ml::core::detail::CTrackerThread::checkForDeadChildren">
+<area shape="rect" id="Node000001" title=" " alt="" coords="440,104,642,145"/>
+<area shape="rect" id="Node000002" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#ac0d65f9c97a0f6b6e9c2dc71b55cbac1" title="Given a process ID, return the corresponding process handle." alt="" coords="223,5,392,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="479,100,391,61,361,49,363,44,393,57,481,95"/>
+<area shape="rect" id="Node000004" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#aeaaee6a900bfd188dbfbeaf27cba54f4" title=" " alt="" coords="223,71,392,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="424,110,392,106,393,100,425,105"/>
+<area shape="rect" id="Node000005" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#a02a54132c8b5c1592cf7a6c395ae2273" title=" " alt="" coords="223,136,392,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="425,143,393,147,392,142,424,138"/>
+<area shape="rect" id="Node000006" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#ac9ec4144c58a6778e6d0b8eff984ec42" title=" " alt="" coords="223,201,392,242"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="480,154,393,191,363,203,361,198,391,186,478,149"/>
+<area shape="rect" id="Node000003" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#a180c338e4889a33afce7337de896ac45" title=" " alt="" coords="5,39,175,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="208,44,175,49,175,43,207,38"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="207,79,175,74,175,69,208,74"/>
+</map>

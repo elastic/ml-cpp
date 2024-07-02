@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CBasicStatistics::print" name="ml::maths::common::CBasicStatistics::print">
+<area shape="rect" id="Node000001" title="Print a mean and variance accumulator." alt="" coords="5,71,158,111"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="214,5,374,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,68,210,49,211,54,151,73"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="214,71,374,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="158,88,198,88,198,94,158,94"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="206,136,382,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="151,109,211,128,210,133,149,114"/>
+</map>

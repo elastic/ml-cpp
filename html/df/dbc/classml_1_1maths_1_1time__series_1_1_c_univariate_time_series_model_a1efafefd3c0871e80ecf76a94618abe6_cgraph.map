@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::countWeights" name="ml::maths::time_series::CUnivariateTimeSeriesModel::countWeights">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,161,205,216"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a5ac0bda977188fef5f2e786f1b15c783" title="Fill in the seasonal variance scale at time." alt="" coords="254,38,453,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,158,251,103,263,98,266,103,254,108,154,162"/>
+<area shape="rect" id="Node000005" href="$d6/d52/namespaceml_1_1maths__t.html#aea37ff2381c8daf8bd351ffb7ee6a5d0" title="Set the count weight in weights to weight." alt="" coords="278,118,429,144"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="205,163,279,145,280,151,206,168"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#ae2ff578b5be677ada1f09d21d92ba335" title="Set the count variance scale weight in weights to weight." alt="" coords="253,168,454,209"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="205,186,237,186,237,191,205,191"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#a35cfe081b501dde3d8c2f4df534e1224" title="Set the outlier weight in weights to weight." alt="" coords="256,233,451,259"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="206,209,280,226,279,231,205,214"/>
+<area shape="rect" id="Node000008" href="$d6/d52/namespaceml_1_1maths__t.html#a4e2ff9d2a64df68ffeb890db05b17709" title="Set the seasonal variance scale weight in weights to weight." alt="" coords="268,283,439,323"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="152,214,200,242,254,269,268,274,265,279,252,273,198,247,149,219"/>
+<area shape="rect" id="Node000003" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="502,5,647,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,45,486,39,487,44,454,50"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="538,94,612,120"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="454,82,523,95,522,100,453,87"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="538,95,531,86,535,76,550,70,575,68,602,70,616,77,613,82,600,75,575,73,551,75,539,80,536,85,542,92"/>
+</map>

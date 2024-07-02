@@ -1,0 +1,27 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents">
+<area shape="rect" id="Node000001" title="Add new seasonal components." alt="" coords="5,371,276,427"/>
+<area shape="rect" id="Node000002" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html#a9e950ac41d6a6316050c7f90dea16c3b" title="Check if we can still allocate any components." alt="" coords="349,5,551,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,370,166,305,201,221,224,176,252,132,285,92,322,57,333,49,336,54,325,61,288,96,256,135,229,179,205,223,171,307,151,372"/>
+<area shape="rect" id="Node000003" href="$d5/d11/classml_1_1maths_1_1time__series_1_1_c_new_trend_summary.html#a0ec228eb7283a3386daa421848c42592" title="Get the initial values bucket length." alt="" coords="329,71,571,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,370,174,317,210,250,260,181,289,149,322,122,331,117,334,121,325,126,293,153,264,184,215,252,178,319,155,372"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="370,136,530,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="156,369,184,328,221,279,268,229,322,187,354,172,356,177,325,192,272,233,225,283,188,331,161,372"/>
+<area shape="rect" id="Node000005" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#abb096b4eece4494dadd6fd063421c082" title="Get the base rate at which models lose information." alt="" coords="324,201,576,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="168,369,235,310,277,279,322,253,338,246,340,250,325,257,280,284,238,314,171,373"/>
+<area shape="rect" id="Node000006" href="$d5/d11/classml_1_1maths_1_1time__series_1_1_c_new_trend_summary.html#adbe318e169ec68ec6980121bb9d394c6" title="Get the values to use to initialize the component." alt="" coords="334,267,566,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="199,368,258,342,323,316,344,310,345,315,325,322,260,347,201,373"/>
+<area shape="rect" id="Node000007" href="$d5/d11/classml_1_1maths_1_1time__series_1_1_c_new_trend_summary.html#a24752f10e5dbd1efc73d43c3e9715fa3" title="Get the end time of the initial values." alt="" coords="334,331,566,387"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="276,379,318,373,319,379,276,384"/>
+<area shape="rect" id="Node000008" href="$d5/d11/classml_1_1maths_1_1time__series_1_1_c_new_trend_summary.html#a5ce2d20f6c0c0f6cced4f6f0ee0cc784" title="Get the start time of the initial values." alt="" coords="334,411,566,467"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="276,414,319,419,318,425,276,419"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="363,491,537,531"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="201,425,260,451,325,476,348,484,347,489,323,482,258,456,199,430"/>
+<area shape="rect" id="Node000010" href="$d3/ddd/classml_1_1maths_1_1time__series_1_1_c_seasonal_decomposition.html#a8b391899c70f11c011c0b984a23f4e71" title="Get the summaries of any periodic components." alt="" coords="360,555,540,611"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="172,425,239,483,281,514,325,541,347,551,345,556,322,545,278,518,236,487,169,429"/>
+<area shape="rect" id="Node000011" href="$d3/ddd/classml_1_1maths_1_1time__series_1_1_c_seasonal_decomposition.html#a8f6024cdd2b3b6a55fb5c2500454c4ef" title="A mask of any currently modelled components to remove." alt="" coords="360,635,540,691"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="160,426,186,469,224,521,271,575,325,621,347,633,344,638,322,625,267,579,220,525,182,472,155,429"/>
+<area shape="rect" id="Node000012" href="$d3/ddd/classml_1_1maths_1_1time__series_1_1_c_seasonal_decomposition.html#aca13850ba5e15bc91bfccb511ad4a76e" title="Get the summary of any trend component." alt="" coords="360,715,540,771"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="153,426,176,484,212,558,261,635,292,670,325,701,347,715,344,719,322,705,288,674,257,638,207,560,171,486,148,428"/>
+<area shape="rect" id="Node000013" href="$d3/ddd/classml_1_1maths_1_1time__series_1_1_c_seasonal_decomposition.html#a134c5750c8a49a3d535dd607ecb57a34" title="Set the within bucket value variance." alt="" coords="360,795,540,851"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="150,427,168,498,201,593,224,644,253,694,286,740,325,781,347,796,344,800,322,785,282,744,248,697,219,647,196,595,162,499,145,428"/>
+</map>

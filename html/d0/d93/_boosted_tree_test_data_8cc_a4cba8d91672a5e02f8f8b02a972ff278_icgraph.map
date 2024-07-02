@@ -1,0 +1,9 @@
+<map id="setupClassificationProblem" name="setupClassificationProblem">
+<area shape="rect" id="Node000001" title=" " alt="" coords="502,31,682,56"/>
+<area shape="rect" id="Node000002" href="$d0/d93/_boosted_tree_test_data_8cc.html#a21002b90506cdbcb1c54d8ebe485124c" title=" " alt="" coords="250,23,454,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="487,46,454,46,454,41,487,41"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html#a0eb3a6315630590cc110a9961eccaf6a" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,34,202,31,202,26,234,29"/>
+<area shape="rect" id="Node000004" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html#a12db42392789c773ceba79fd2031658b" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="234,58,202,61,202,55,234,52"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::outliers_detail::CLof::setup" name="ml::maths::analytics::outliers_detail::CLof::setup">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,151,126"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af7e6f121a664dac4be861f13f363120d" title="Get the number of columns of a matrix." alt="" coords="265,5,411,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,70,198,55,249,42,251,47,199,60,152,75"/>
+<area shape="rect" id="Node000003" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#a35709eb4f09ab46b43111561c2729cba" title="Check whether to compute influences of features on the outlier scores." alt="" coords="199,70,477,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,95,183,95,183,100,151,100"/>
+<area shape="rect" id="Node000004" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#acc93291a41d61f74d48314abbc068acc" title="The number of nearest neighbours." alt="" coords="251,150,425,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,120,199,135,237,146,235,152,198,140,150,125"/>
+</map>

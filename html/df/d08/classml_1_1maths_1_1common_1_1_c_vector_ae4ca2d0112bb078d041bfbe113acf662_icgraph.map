@@ -1,0 +1,41 @@
+<map id="ml::maths::common::CVector::dimension" name="ml::maths::common::CVector::dimension">
+<area shape="rect" id="Node000001" title="Get the dimension." alt="" coords="509,514,654,555"/>
+<area shape="rect" id="Node000002" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a872cfd3894f80f273a142305461bbdb2" title=" " alt="" coords="245,5,461,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="579,499,576,414,571,360,561,301,546,241,525,181,496,125,459,75,446,63,449,59,463,71,501,122,530,179,551,239,566,300,576,359,582,414,584,499"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ab68ef09ee7a52c3c5393ee7c30b3633e" title="Get the conformable zero initialized matrix for our internal heap vector." alt="" coords="263,85,443,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="578,499,572,424,555,327,540,276,520,227,493,180,459,139,441,126,444,122,463,135,497,177,524,224,545,275,560,326,578,423,583,498"/>
+<area shape="rect" id="Node000004" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#a8ea117a6528635b6fb166af2a5ff5911" title="Construct from the outer product of a vector with itself." alt="" coords="247,149,459,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="574,499,563,439,543,364,528,325,509,287,486,251,459,219,445,208,448,203,463,215,491,248,514,284,533,323,548,363,569,438,579,498"/>
+<area shape="rect" id="Node000005" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a8d3622e932ded23774559ec957fb3bb9" title="Multivariate implementation returns the dimension of x." alt="" coords="245,229,461,285"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="569,500,554,454,531,401,500,346,459,299,443,288,447,283,463,295,504,343,536,398,559,452,574,498"/>
+<area shape="rect" id="Node000006" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a0b61280b8ff0e919a48604f3ff8232b4" title=" " alt="" coords="280,309,426,350"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="563,502,523,431,494,394,459,363,425,346,427,341,463,359,498,391,527,428,568,499"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8eacbdf2fca7e302e54884001677daff" title="Overload std::fabs for CVector." alt="" coords="268,374,438,399"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="555,503,514,456,488,432,460,413,436,402,438,398,462,408,492,428,518,452,559,500"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac82f424fc63e6c4fde60b066b4ad029d" title="Overload maximum for CVector." alt="" coords="268,423,438,449"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="539,507,502,483,460,462,428,452,430,447,462,457,504,479,542,503"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a321391f3f9998351a17c74b617c3a8e0" title="Overload maximum for CVector." alt="" coords="268,472,438,498"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="494,518,415,501,416,496,495,513"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ae1cba49a51fedbab16a32632a1bec660" title="Overload maximum for CVector." alt="" coords="268,522,438,547"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="494,537,438,537,438,532,494,532"/>
+<area shape="rect" id="Node000012" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a0043cff9082992f7157fc77005e02620" title="Overload minimum for CVector." alt="" coords="270,571,436,597"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="495,556,416,573,415,568,494,551"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a6e578ab914994181870be988c4f8c5c3" title="Overload minimum for CVector." alt="" coords="270,620,436,646"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="542,566,504,590,462,612,430,622,428,617,460,607,502,586,539,562"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a3508b3139881ac582d381f8c33921875" title="Overload minimum for CVector." alt="" coords="270,670,436,695"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="559,569,518,617,492,641,462,661,438,672,435,667,460,656,488,637,514,613,555,566"/>
+<area shape="rect" id="Node000015" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ade96659972eec9741d2f1b3f5fae9b19" title=" " alt="" coords="280,720,426,760"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="568,570,527,641,498,678,463,710,427,728,425,723,459,706,494,675,523,638,563,567"/>
+<area shape="rect" id="Node000016" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#abd10c67689a2fc3e9ddd7e8105090d86" title=" " alt="" coords="280,785,426,826"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="574,571,560,617,537,671,505,726,485,752,463,774,427,794,425,789,459,770,481,748,501,723,533,669,555,615,569,569"/>
+<area shape="rect" id="Node000018" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a594a7026bc2e7b43b0c8cf05463ae391" title="Overload sqrt for CVector." alt="" coords="269,850,437,875"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="579,570,569,629,549,702,534,740,515,776,491,810,463,839,438,854,436,849,459,835,487,806,510,773,529,737,544,700,564,628,574,570"/>
+<area shape="rect" id="Node000019" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#ab70e680f943c30a761ce0ead55140951" title=" " alt="" coords="280,900,426,940"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="581,571,573,638,554,724,539,769,519,812,494,854,463,890,446,902,427,911,425,906,443,898,459,886,490,850,515,810,534,767,549,722,568,637,576,570"/>
+<area shape="rect" id="Node000020" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a336cbb4949cf099c245d67e48d70095a" title="Component&#45;wise truncation of heap vectors." alt="" coords="280,965,426,1006"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="583,571,579,649,563,751,547,806,526,859,499,909,463,954,446,967,427,976,425,971,443,962,459,950,494,906,522,857,542,804,557,750,574,648,578,570"/>
+<area shape="rect" id="Node000007" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#aa4bcae8545bcb0ffcc78f442e58a72ad" title=" " alt="" coords="5,301,197,357"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="265,332,197,332,197,327,265,327"/>
+<area shape="rect" id="Node000017" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a7408848c090c3e2d116002e78ab4f08f" title=" " alt="" coords="28,785,174,826"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="265,808,174,808,174,803,265,803"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="ml::model::CPopulationModel::createUpdateNewModels" name="ml::model::CPopulationModel::createUpdateNewModels">
+<area shape="rect" id="Node000001" title="Monitor the resource usage while creating new models." alt="" coords="273,128,465,169"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="325,121,278,90,224,61,192,49,194,44,226,57,280,86,328,117"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="18,95,212,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,136,212,130,212,125,258,131"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af772818e59f98fba772923915e6e0d32" title=" " alt="" coords="5,160,225,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="258,165,225,169,225,164,257,160"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aab1df5b44c7137345d39ea37dc476eda" title=" " alt="" coords="14,225,216,266"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="312,178,226,215,189,227,188,222,224,210,310,173"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="157,82,141,76,115,73,91,75,76,80,70,86,73,93,67,95,65,85,73,76,90,70,115,68,142,70,159,77"/>
+</map>

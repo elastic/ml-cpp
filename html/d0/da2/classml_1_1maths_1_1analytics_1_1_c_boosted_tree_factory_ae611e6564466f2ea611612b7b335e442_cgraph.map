@@ -1,0 +1,14 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters" name="ml::maths::analytics::CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters">
+<area shape="rect" id="Node000001" title="Start progress monitoring initializeHyperparameters." alt="" coords="5,122,221,193"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ae353cfcd98eaa7123ac07a90b5e1ea3a" title="Get the number of progress iterations used for a line search." alt="" coords="269,94,516,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,141,253,137,253,142,222,146"/>
+<area shape="rect" id="Node000006" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#ac869c1ab1deaeb05613219be78373b49" title="Attach a new progress monitor callback." alt="" coords="309,173,476,214"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="222,169,294,178,293,184,221,174"/>
+<area shape="rect" id="Node000003" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="579,29,762,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="502,91,574,72,576,77,503,96"/>
+<area shape="rect" id="Node000004" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a06c888a44035bc3baac323959040943c" title="Get the maximum number of iterations used in testLossLineSearch." alt="" coords="564,94,777,150"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="517,119,548,119,548,124,517,124"/>
+<area shape="rect" id="Node000005" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="595,173,746,214"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="503,148,581,168,579,173,502,153"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="619,29,616,19,625,10,643,5,671,3,701,5,718,11,716,16,699,10,671,8,644,10,628,15,621,21,624,28"/>
+</map>

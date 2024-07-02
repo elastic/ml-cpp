@@ -1,0 +1,18 @@
+<map id="ml::maths::common::linear_algebra_tools_detail::sampleGaussian" name="ml::maths::common::linear_algebra_tools_detail::sampleGaussian">
+<area shape="rect" id="Node000001" title=" " alt="" coords="690,40,855,95"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#af3262f05d54d15782c0ec942414cdb89" title=" " alt="" coords="497,14,642,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="674,54,642,49,643,43,675,49"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a023c0d45a9a40d3f84c6b499527160dc" title=" " alt="" coords="497,79,642,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="675,86,643,91,642,85,674,80"/>
+<area shape="rect" id="Node000004" href="$d6/d26/_c_linear_algebra_test_8cc.html#af2dce9c3ea2d44267307d89a1778b0a6" title=" " alt="" coords="251,5,448,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="509,75,496,69,448,46,410,34,411,29,450,41,498,64,511,70"/>
+<area shape="rect" id="Node000005" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a4c2e710f97aa5f509c438e2838b53aaa" title=" " alt="" coords="266,79,433,120"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="481,102,433,102,433,97,481,97"/>
+<area shape="rect" id="Node000007" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a39fc0f9a05738b7968d07c3e9035baae" title=" " alt="" coords="250,144,449,199"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="492,128,437,146,436,141,490,123"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="385,66,372,60,349,58,328,60,316,64,311,70,313,78,308,79,306,69,312,60,327,55,349,53,373,55,387,61"/>
+<area shape="rect" id="Node000006" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a349fcbc0d5884b00de4615aae147b3d5" title="Get numberSamples from this cluster." alt="" coords="15,72,192,127"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="250,102,192,102,192,97,250,97"/>
+<area shape="rect" id="Node000008" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,159,202,184"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="234,174,202,174,202,169,234,169"/>
+</map>

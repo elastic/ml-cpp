@@ -1,0 +1,41 @@
+<map id="ml::api::CSerializableToJsonStream" name="ml::api::CSerializableToJsonStream">
+<area shape="rect" id="Node000001" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="5,377,165,417"/>
+<area shape="rect" id="Node000002" href="$d4/d10/classml_1_1api_1_1_c_aggregate_output.html" title="Abstract class for output aggregation." alt="" coords="214,104,391,130"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,363,289,128,293,131,113,366"/>
+<area shape="rect" id="Node000007" href="$d8/d06/classml_1_1api_1_1_c_custom_encoding.html" title=" " alt="" coords="213,252,392,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="128,365,211,312,275,276,277,281,214,316,131,370"/>
+<area shape="rect" id="Node000009" href="$d7/d50/classml_1_1api_1_1_c_encoding.html" title=" " alt="" coords="236,327,369,352"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="178,369,250,350,251,356,180,375"/>
+<area shape="rect" id="Node000013" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="215,445,390,485"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="168,420,236,441,234,446,166,425"/>
+<area shape="rect" id="Node000017" href="$d9/dcd/classml_1_1api_1_1_c_trained_model.html" title=" " alt="" coords="224,541,381,567"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="124,425,214,495,281,539,278,543,211,499,121,429"/>
+<area shape="rect" id="Node000020" href="$d0/ddc/classml_1_1api_1_1_c_tree_1_1_c_tree_node.html" title=" " alt="" coords="213,591,392,616"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="103,430,121,465,146,505,177,544,214,577,234,588,231,592,211,582,173,548,142,508,117,468,99,433"/>
+<area shape="rect" id="Node000003" href="$d6/d38/classml_1_1api_1_1_c_exponent.html" title="Exponent aggregation." alt="" coords="474,5,607,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="336,93,384,66,439,40,472,29,474,34,441,45,386,70,338,98"/>
+<area shape="rect" id="Node000004" href="$d3/d35/classml_1_1api_1_1_c_logistic_regression.html" title="Logistic regression aggregation." alt="" coords="446,55,635,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="382,98,474,78,475,84,383,103"/>
+<area shape="rect" id="Node000005" href="$dc/ddd/classml_1_1api_1_1_c_weighted_mode.html" title="Allows to use (weighted) majority vote for classification." alt="" coords="458,104,622,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="406,114,458,114,458,120,406,120"/>
+<area shape="rect" id="Node000006" href="$d2/d7a/classml_1_1api_1_1_c_weighted_sum.html" title="Allows to use (weighted) sum for regression." alt="" coords="461,153,620,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="383,131,475,150,474,155,382,136"/>
+<area shape="rect" id="Node000008" href="$d0/d62/classml_1_1api_1_1_c_opaque_encoding.html" title="A JSON blob defining a custom encoding or an array of custom encodings." alt="" coords="452,203,629,228"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="382,246,474,226,475,232,383,251"/>
+<area shape="rect" id="Node000010" href="$d7/d76/classml_1_1api_1_1_c_frequency_encoding.html" title="Mapping from categorical columns to numerical values related to categorical value distribution." alt="" coords="444,252,637,278"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="350,318,439,286,478,276,479,281,441,291,351,323"/>
+<area shape="rect" id="Node000011" href="$d9/d6f/classml_1_1api_1_1_c_one_hot_encoding.html" title="Application of the one&#45;hot encoding function on a single column." alt="" coords="452,301,629,327"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="383,328,451,321,451,326,384,334"/>
+<area shape="rect" id="Node000012" href="$d9/d32/classml_1_1api_1_1_c_target_mean_encoding.html" title="Mapping from categorical columns to numerical values related to the target value." alt="" coords="440,351,640,376"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="384,345,440,351,439,356,383,350"/>
+<area shape="rect" id="Node000014" href="$de/d1d/classanonymous__namespace_02_c_serializable_to_json_test_8cc_03_1_1_c_serializable_vector.html" title=" " alt="" coords="445,401,636,457"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="405,447,444,441,444,446,406,452"/>
+<area shape="rect" id="Node000015" href="$d7/d1e/classml_1_1api_1_1_c_data_summarization_json_writer.html" title="Writes the data summarization as a compressed, base64 encoded and chunked JSON blob." alt="" coords="444,481,637,521"/>
+<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="406,478,444,484,443,489,405,483"/>
+<area shape="rect" id="Node000016" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html" title="Technical details required for model evaluation." alt="" coords="457,546,624,587"/>
+<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="356,490,441,530,473,543,471,548,439,535,354,495"/>
+<area shape="rect" id="Node000018" href="$da/d46/classml_1_1api_1_1_c_ensemble.html" title="Ensemble of a collection of trained models." alt="" coords="472,611,608,636"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="373,569,393,576,441,596,481,607,480,613,439,601,391,581,372,574"/>
+<area shape="rect" id="Node000019" href="$de/de4/classml_1_1api_1_1_c_tree.html" title="Classification and regression trees." alt="" coords="488,660,592,686"/>
+<area shape="poly" id="edge18_Node000017_Node000019" title=" " alt="" coords="387,572,394,576,410,594,418,613,426,630,442,647,464,658,488,665,487,670,462,663,438,651,421,633,413,615,406,597,390,580,384,576"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::core::CPersistUtils::persistIfNotNull" name="ml::core::CPersistUtils::persistIfNotNull">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,160,79"/>
+<area shape="rect" id="Node000002" href="$d2/d43/classml_1_1core_1_1_c_persistence_tag.html#aa52da189a4ad91612c307bbe1e3eae55" title=" " alt="" coords="221,5,397,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,45,205,38,206,44,161,50"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a49e9ed6833f80064eaede19f972f45b2" title="Get whether short or long (readable) tag names are desired for persistence." alt="" coords="208,71,410,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,67,193,72,192,77,160,73"/>
+</map>

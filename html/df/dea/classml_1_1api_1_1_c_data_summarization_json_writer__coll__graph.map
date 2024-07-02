@@ -1,0 +1,17 @@
+<map id="ml::api::CDataSummarizationJsonWriter" name="ml::api::CDataSummarizationJsonWriter">
+<area shape="rect" id="Node000001" title="Writes the data summarization as a compressed, base64 encoded and chunked JSON blob." alt="" coords="653,128,847,169"/>
+<area shape="rect" id="Node000002" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="332,5,507,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="502,49,523,56,699,125,697,130,521,62,500,54"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="57,5,216,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="232,23,332,23,332,28,232,28"/>
+<area shape="rect" id="Node000004" href="$d2/d95/structml_1_1api_1_1_c_data_summarization_json_tags.html" title="Shared tags used by the JSON data summarization object." alt="" coords="323,71,516,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="532,108,653,129,652,134,531,113"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html" title="A compact representation of binary vector." alt="" coords="328,136,512,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="527,146,653,146,653,151,527,151"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="5,113,268,184"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="283,146,327,146,327,151,283,151"/>
+<area shape="rect" id="Node000007" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html" title="A data frame representation." alt="" coords="344,185,495,211"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="510,183,629,166,653,162,653,168,630,171,511,188"/>
+<area shape="rect" id="Node000008" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html" title="Performs encoding of the categorical columns in a data frame." alt="" coords="317,235,522,275"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="532,228,628,199,706,167,708,172,630,205,534,233"/>
+</map>

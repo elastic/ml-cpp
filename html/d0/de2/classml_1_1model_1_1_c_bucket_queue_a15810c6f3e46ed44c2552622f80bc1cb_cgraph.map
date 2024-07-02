@@ -1,0 +1,15 @@
+<map id="ml::model::CBucketQueue::restore" name="ml::model::CBucketQueue::restore">
+<area shape="rect" id="Node000001" title="Restore the buckets in the queue using bucketRestore." alt="" coords="5,169,181,210"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a924179fa8810008cf71e1dab1c13e1a2" title="Does the current element have a sub&#45;level?" alt="" coords="229,5,447,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,167,158,112,191,83,227,57,239,50,241,55,230,61,194,87,161,116,112,171"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="229,71,447,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,166,228,122,248,114,250,119,230,127,134,171"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="229,136,447,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="181,175,213,171,214,176,181,180"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="264,201,412,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="181,198,249,207,248,213,181,204"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="229,267,447,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="135,208,230,251,250,259,248,264,228,256,133,213"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="229,332,447,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="112,208,161,262,194,292,230,317,242,323,240,328,227,321,191,296,158,266,108,212"/>
+</map>

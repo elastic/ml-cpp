@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CNaiveBayes::validate" name="ml::maths::common::CNaiveBayes::validate">
+<area shape="rect" id="Node000001" title="Validate x." alt="" coords="571,39,726,79"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#ad984c04ffabf66710aef1a7461201b84" title=" " alt="" coords="311,39,523,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="555,62,523,62,523,56,555,56"/>
+<area shape="rect" id="Node000003" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#a8fc85c4ef76382a20188a923bf8067fc" title=" " alt="" coords="33,5,235,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="295,47,235,40,236,35,296,42"/>
+<area shape="rect" id="Node000004" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#aa6e99cae017c4994d1debeb36522df2d" title=" " alt="" coords="5,71,263,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="296,75,264,79,263,74,295,70"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="ml::model::CCategoryExamplesCollector::truncateExample" name="ml::model::CCategoryExamplesCollector::truncateExample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="505,187,712,227"/>
+<area shape="rect" id="Node000002" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aeb0b9e7f03d29f31dc80d3f8eff759c4" title=" " alt="" coords="250,187,457,227"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="489,210,457,210,457,204,489,204"/>
+<area shape="rect" id="Node000003" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#ae07fd8b8ff71ef1e0b691f75cf706649" title=" " alt="" coords="8,5,199,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="325,176,271,117,237,86,200,60,179,49,181,44,203,55,240,82,275,113,329,172"/>
+<area shape="rect" id="Node000004" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#a9c8203d4290dbdbb118fc2e80435a9c5" title=" " alt="" coords="5,70,202,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="313,179,261,143,201,109,171,99,173,94,203,105,264,138,316,175"/>
+<area shape="rect" id="Node000005" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#acfae06bb4d8f3ec1e0aaaf159ca5b8aa" title=" " alt="" coords="5,120,202,145"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="278,184,201,159,162,148,163,143,202,154,280,179"/>
+<area shape="rect" id="Node000006" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#a58f3bc24b255f4cd02a85be48f561124" title=" " alt="" coords="5,169,202,195"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="234,198,202,194,202,189,234,192"/>
+<area shape="rect" id="Node000007" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#a9b3415e39547abc23c88a00fa4f7fa48" title=" " alt="" coords="5,218,202,244"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="234,221,202,224,202,219,234,216"/>
+<area shape="rect" id="Node000008" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#aa0004a55bd786d4ac0e51ee2124ca1f4" title=" " alt="" coords="5,268,202,293"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="278,235,202,259,163,270,161,264,201,254,276,230"/>
+<area shape="rect" id="Node000009" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,317,202,343"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="316,239,264,275,203,308,173,319,171,314,201,303,261,270,313,235"/>
+<area shape="rect" id="Node000010" href="$d9/d6a/_c_category_examples_collector_test_8cc.html#a0208c9401947e7d3e4e1b46c59f26337" title=" " alt="" coords="5,366,202,392"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="330,242,276,301,241,332,203,357,178,368,176,363,200,353,238,327,272,297,326,238"/>
+</map>

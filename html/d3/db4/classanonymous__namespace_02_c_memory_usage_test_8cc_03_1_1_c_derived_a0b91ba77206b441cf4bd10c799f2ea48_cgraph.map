@@ -1,0 +1,15 @@
+<map id="anonymous_namespace{CMemoryUsageTest::cc}::CDerived::memoryUsage" name="anonymous_namespace{CMemoryUsageTest::cc}::CDerived::memoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,183,133"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="450,92,656,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,97,231,95,402,95,435,96,434,101,402,100,231,100,183,102"/>
+<area shape="rect" id="Node000006" href="$d8/d2c/classanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_c_base.html#a0c75ecbe3cbfbf46f109527aad969830" title=" " alt="" coords="231,109,402,165"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="183,115,216,120,215,125,182,121"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="704,5,876,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="597,89,688,61,690,66,599,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="706,85,874,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="657,103,691,103,691,108,657,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="924,107,1109,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="605,116,705,135,790,138,876,135,908,134,908,139,876,140,790,143,704,140,604,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="874,113,909,118,908,123,874,119"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="402,123,438,118,438,123,403,128"/>
+</map>

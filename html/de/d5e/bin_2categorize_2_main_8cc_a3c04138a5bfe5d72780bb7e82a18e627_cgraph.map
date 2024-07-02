@@ -1,0 +1,89 @@
+<map id="main" name="main">
+<area shape="rect" id="Node000001" title="Group machine generated messages into categories by similarity." alt="" coords="5,385,55,411"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a088543e25af81956f05f9c04a5fa69e8" title="Static method to get the ID of the currently running thread." alt="" coords="149,75,283,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="28,385,29,338,38,271,47,234,60,197,77,163,101,132,116,119,133,109,136,114,119,123,105,136,82,165,65,199,52,235,43,272,35,338,34,385"/>
+<area shape="rect" id="Node000003" href="$dd/d97/classml_1_1ver_1_1_c_build_info.html#ac40e99338744a4d8e27bb9208212c6f0" title=" " alt="" coords="426,133,556,174"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="28,384,30,343,39,285,48,255,61,225,78,198,101,176,124,163,156,155,236,145,327,143,410,146,410,151,327,149,237,150,157,160,126,168,104,180,82,202,66,228,53,257,44,286,35,343,34,385"/>
+<area shape="rect" id="Node000007" href="$d8/d61/classml_1_1seccomp_1_1_c_system_call_filter.html#a4530ad295ba07c3ace3508331bc32578" title=" " alt="" coords="121,189,311,230"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="31,384,38,354,51,316,72,276,101,241,106,237,110,241,105,245,76,279,56,318,43,356,36,385"/>
+<area shape="rect" id="Node000008" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#acf1a4d893bb267652eda4d3c8f197f7d" title=" " alt="" coords="149,279,283,319"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="41,382,67,356,101,330,133,316,135,321,104,335,70,360,44,386"/>
+<area shape="rect" id="Node000009" href="$d1/d0e/classml_1_1categorize_1_1_c_cmd_line_parser.html#adc5c7de792606a6c6450acc3f6cd19c7" title=" " alt="" coords="129,344,303,385"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="55,391,114,380,115,385,56,396"/>
+<area shape="rect" id="Node000010" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a01adb279c7fd317365425df860a58701" title="Persist current state due to the periodic persistence being triggered." alt="" coords="103,409,329,450"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="56,399,88,405,87,410,55,404"/>
+<area shape="rect" id="Node000036" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a8871ea9a8d160bfbe974b0f9f2fed247" title=" " alt="" coords="105,475,327,515"/>
+<area shape="poly" id="edge42_Node000001_Node000036" title=" " alt="" coords="45,409,70,435,104,459,117,466,115,471,101,464,67,439,41,413"/>
+<area shape="rect" id="Node000038" href="$db/dc9/classml_1_1core_1_1_c_process_priority.html#a79b652a19df269341abc52caf81f7c83" title=" " alt="" coords="128,540,304,581"/>
+<area shape="poly" id="edge45_Node000001_Node000038" title=" " alt="" coords="37,410,60,466,79,498,104,525,116,533,113,537,101,529,75,501,55,468,32,412"/>
+<area shape="rect" id="Node000039" href="$db/dc9/classml_1_1core_1_1_c_process_priority.html#a54d4ed13453d60d901ac7d8968f10b8c" title=" " alt="" coords="128,605,304,646"/>
+<area shape="poly" id="edge46_Node000001_Node000039" title=" " alt="" coords="35,410,39,446,51,495,72,546,86,570,104,590,116,599,113,604,101,594,82,573,67,549,46,496,34,447,30,411"/>
+<area shape="rect" id="Node000040" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a214f264fb87ce5c97caa26684b8306e1" title=" " alt="" coords="115,671,317,711"/>
+<area shape="poly" id="edge47_Node000001_Node000040" title=" " alt="" coords="33,411,34,457,43,523,51,558,64,594,82,627,105,656,108,659,104,663,101,659,77,630,59,596,46,560,37,523,29,457,28,411"/>
+<area shape="rect" id="Node000004" href="$d0/d85/classml_1_1core_1_1_c_prog_name.html#a2d4e543e27db40381e896a0d00d275e4" title=" " alt="" coords="679,69,827,110"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="556,135,663,109,664,114,557,140"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="679,135,827,175"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="556,151,664,152,664,157,556,157"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="979,142,1026,168"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="827,152,964,152,964,158,827,158"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="180,279,179,269,184,260,197,254,216,252,236,254,248,261,246,265,235,260,216,257,198,259,188,264,184,270,186,278"/>
+<area shape="poly" id="edge10_Node000009_Node000003" title=" " alt="" coords="301,346,327,329,340,314,347,299,351,267,355,234,362,217,375,200,410,175,413,179,379,204,367,220,361,235,357,268,352,300,344,317,331,333,304,350"/>
+<area shape="rect" id="Node000011" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a723188ea0d10c33e9955e4452ecc6010" title=" " alt="" coords="392,524,589,565"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="303,448,330,461,345,472,355,482,364,493,378,503,402,515,400,520,376,508,361,497,351,486,342,475,328,465,301,453"/>
+<area shape="rect" id="Node000015" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a110b26f93f51fa3cac00337ec10a873f" title=" " alt="" coords="390,409,591,450"/>
+<area shape="poly" id="edge16_Node000010_Node000015" title=" " alt="" coords="329,427,374,427,374,432,329,432"/>
+<area shape="rect" id="Node000019" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="937,472,1068,513"/>
+<area shape="poly" id="edge40_Node000010_Node000019" title=" " alt="" coords="310,448,377,459,527,474,677,483,921,490,921,495,677,488,527,479,377,464,309,453"/>
+<area shape="rect" id="Node000020" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a71c372e0dfbe488b3872e90c918e753e" title="Force an update of the resource monitor." alt="" coords="377,213,604,254"/>
+<area shape="poly" id="edge21_Node000010_Node000020" title=" " alt="" coords="310,407,327,394,340,379,347,364,350,331,354,298,362,281,375,265,380,261,384,265,379,269,366,284,359,300,356,332,352,365,344,382,331,398,313,411"/>
+<area shape="rect" id="Node000034" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html#a18c182dece5ff0e5895c192f85f11cd2" title="Persist current state in the background due to the periodic persistence being triggered." alt="" coords="378,279,604,319"/>
+<area shape="poly" id="edge39_Node000010_Node000034" title=" " alt="" coords="306,406,327,394,343,379,351,363,359,346,375,330,384,325,387,329,379,334,363,350,355,366,347,382,331,398,308,411"/>
+<area shape="rect" id="Node000035" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a171e59a16782c90daed1a26f86e37068" title="Configure persistence to be performed in the background." alt="" coords="392,344,589,385"/>
+<area shape="poly" id="edge41_Node000010_Node000035" title=" " alt="" coords="304,406,387,386,388,391,305,411"/>
+<area shape="rect" id="Node000012" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a0c1ba61de9599d565cd6f8bd595aa23f" title="Is background persistence currently in progress?" alt="" coords="654,655,852,695"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="583,563,606,576,622,592,631,608,639,624,654,640,662,645,659,649,651,644,635,627,626,611,618,595,603,580,581,568"/>
+<area shape="rect" id="Node000013" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="686,524,820,565"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="590,542,670,542,670,547,590,547"/>
+<area shape="rect" id="Node000014" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#ac25482f1bd4c99b31b3d92dec69d8b43" title=" " alt="" coords="686,589,820,630"/>
+<area shape="poly" id="edge15_Node000011_Node000014" title=" " alt="" coords="576,563,671,587,670,592,575,568"/>
+<area shape="rect" id="Node000016" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af0512e7af8b366ddbd6ff3ba5d57d855" title=" " alt="" coords="652,407,854,447"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="592,426,637,426,637,431,592,431"/>
+<area shape="rect" id="Node000017" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="905,341,1100,382"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="833,403,907,384,908,389,834,409"/>
+<area shape="rect" id="Node000018" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#adf2efcf213f98449915ad0847c9352b0" title=" " alt="" coords="902,407,1103,447"/>
+<area shape="poly" id="edge19_Node000016_Node000018" title=" " alt="" coords="854,424,886,424,886,430,854,430"/>
+<area shape="poly" id="edge20_Node000016_Node000019" title=" " alt="" coords="834,445,922,469,921,474,833,451"/>
+<area shape="rect" id="Node000021" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1fe23e430ce7a98d9ce61fd19e7446b5" title="Recalculate the memory usage regardless of whether there is a memory limit." alt="" coords="655,213,851,254"/>
+<area shape="poly" id="edge22_Node000020_Node000021" title=" " alt="" coords="605,231,640,231,640,236,605,236"/>
+<area shape="rect" id="Node000022" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#ab98d5a5316283e47e262b02400df076c" title="Update the given model and recalculate the total usage." alt="" coords="905,197,1100,238"/>
+<area shape="poly" id="edge23_Node000021_Node000022" title=" " alt="" coords="851,225,889,222,889,228,851,230"/>
+<area shape="rect" id="Node000027" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1cf1c108bb07110b0d95c2e5b9e99ad5" title=" " alt="" coords="905,264,1100,305"/>
+<area shape="poly" id="edge29_Node000021_Node000027" title=" " alt="" coords="852,251,890,259,889,264,851,256"/>
+<area shape="rect" id="Node000023" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="1151,94,1357,120"/>
+<area shape="poly" id="edge24_Node000022_Node000023" title=" " alt="" coords="1062,194,1102,178,1150,153,1209,124,1211,129,1152,157,1104,183,1064,199"/>
+<area shape="rect" id="Node000024" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1435,121,1606,176"/>
+<area shape="poly" id="edge25_Node000023_Node000024" title=" " alt="" coords="1342,118,1420,130,1419,135,1341,123"/>
+<area shape="rect" id="Node000025" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1437,5,1604,46"/>
+<area shape="poly" id="edge26_Node000023_Node000025" title=" " alt="" coords="1298,91,1436,49,1438,54,1300,96"/>
+<area shape="rect" id="Node000026" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1684,27,1869,83"/>
+<area shape="poly" id="edge28_Node000023_Node000026" title=" " alt="" coords="1357,94,1668,63,1669,68,1358,99"/>
+<area shape="poly" id="edge27_Node000025_Node000026" title=" " alt="" coords="1605,33,1668,40,1668,45,1604,38"/>
+<area shape="rect" id="Node000028" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a666a89154a86726709e80b1800861a8f" title=" " alt="" coords="1157,305,1352,346"/>
+<area shape="poly" id="edge30_Node000027_Node000028" title=" " alt="" coords="1101,298,1142,305,1141,310,1100,303"/>
+<area shape="rect" id="Node000030" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="1426,224,1615,265"/>
+<area shape="poly" id="edge33_Node000027_Node000030" title=" " alt="" coords="1100,272,1151,267,1410,248,1411,254,1151,272,1101,277"/>
+<area shape="rect" id="Node000031" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#adaa0f7f080ef8046ac0829817b886a3e" title="Get the high memory limit with margin applied." alt="" coords="1157,371,1352,411"/>
+<area shape="poly" id="edge35_Node000027_Node000031" title=" " alt="" coords="1053,303,1104,327,1152,355,1170,362,1167,367,1150,360,1102,332,1051,308"/>
+<area shape="rect" id="Node000032" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a0b836618d7b75d94a8adf9669d8be908" title="Get the low memory limit with margin applied." alt="" coords="1157,436,1352,477"/>
+<area shape="poly" id="edge36_Node000027_Node000032" title=" " alt="" coords="1068,303,1105,328,1122,352,1129,376,1136,399,1153,421,1159,426,1155,430,1149,425,1131,401,1124,378,1117,355,1101,332,1065,308"/>
+<area shape="rect" id="Node000033" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="1157,167,1352,207"/>
+<area shape="poly" id="edge37_Node000027_Node000033" title=" " alt="" coords="1067,261,1102,247,1150,223,1180,211,1182,216,1152,228,1104,252,1069,266"/>
+<area shape="poly" id="edge31_Node000028_Node000028" title=" " alt="" coords="1207,305,1205,295,1212,286,1229,281,1254,279,1281,281,1297,287,1295,292,1280,286,1254,284,1230,286,1215,291,1210,297,1212,304"/>
+<area shape="rect" id="Node000029" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="1405,305,1636,346"/>
+<area shape="poly" id="edge32_Node000028_Node000029" title=" " alt="" coords="1352,323,1390,323,1390,328,1352,328"/>
+<area shape="poly" id="edge34_Node000030_Node000030" title=" " alt="" coords="1473,224,1470,214,1478,205,1495,199,1521,197,1548,200,1564,206,1562,211,1547,205,1520,203,1496,205,1481,209,1475,215,1478,223"/>
+<area shape="poly" id="edge38_Node000033_Node000030" title=" " alt="" coords="1352,205,1412,218,1410,223,1351,211"/>
+<area shape="poly" id="edge43_Node000036_Node000011" title=" " alt="" coords="328,512,377,521,376,527,327,518"/>
+<area shape="rect" id="Node000037" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#aed37bfbdd625c31ad8814af6a780f5b9" title="Configure persistence to be performed in the foreground." alt="" coords="392,589,589,630"/>
+<area shape="poly" id="edge44_Node000036_Node000037" title=" " alt="" coords="304,513,330,526,346,538,355,551,364,563,378,574,390,580,388,585,376,579,360,566,351,554,342,542,328,531,302,518"/>
+</map>

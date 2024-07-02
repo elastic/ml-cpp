@@ -1,0 +1,34 @@
+<map id="ml::model::CHierarchicalResultsLevelSet::elements" name="ml::model::CHierarchicalResultsLevelSet::elements">
+<area shape="rect" id="Node000001" title="Get and possibly add a normalizer for node." alt="" coords="5,221,184,262"/>
+<area shape="rect" id="Node000002" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#a0692e71f64d973d6baefbd289fc7497a" title="Get an element of set by name." alt="" coords="244,41,416,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,219,159,160,193,127,230,98,250,86,253,91,233,103,196,131,163,164,113,222"/>
+<area shape="rect" id="Node000003" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#ad9fd3a9d86ddfb73b3395df3227b851a" title="Translate word to a dictionary word." alt="" coords="476,71,695,111"/>
+<area shape="poly" id="edge18_Node000001_Node000003" title=" " alt="" coords="116,219,166,179,197,158,231,142,288,123,347,108,460,93,461,98,348,114,289,128,233,147,200,163,169,183,120,223"/>
+<area shape="rect" id="Node000008" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#adedccb34126f54fa542741d102a483d8" title="Check if the node is a leaf." alt="" coords="247,156,413,197"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="169,218,238,199,240,204,171,223"/>
+<area shape="rect" id="Node000009" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a782a7ab20789d56e6d02c6dde2f28169" title="Check if this is a named partition." alt="" coords="245,221,415,262"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="184,239,230,239,230,244,184,244"/>
+<area shape="rect" id="Node000010" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3578a82308dd4efac1c213646600e326" title="Check if this node is the root node." alt="" coords="503,271,668,311"/>
+<area shape="poly" id="edge16_Node000001_Node000010" title=" " alt="" coords="175,260,232,271,365,284,487,288,487,294,365,289,231,276,174,265"/>
+<area shape="rect" id="Node000011" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#acd692c7679e11f68c725ff8009a6a712" title="Check if the node is a named person." alt="" coords="247,336,413,377"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="132,260,233,315,260,327,257,332,230,320,129,265"/>
+<area shape="rect" id="Node000014" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a91f7dd2c0b68d17e2a019c35b5bbdd39" title="Check if the node is simple counting result." alt="" coords="232,401,428,442"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="112,261,161,322,195,356,233,386,243,392,240,397,230,391,192,360,157,326,108,264"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="286,41,283,31,291,22,306,17,330,15,355,17,370,23,368,28,354,22,330,20,307,22,294,27,289,33,291,40"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="416,69,461,74,460,79,416,74"/>
+<area shape="poly" id="edge8_Node000003_Node000003" title=" " alt="" coords="538,71,535,61,543,52,560,46,586,44,613,46,630,53,628,58,612,52,586,49,561,51,546,56,541,62,543,69"/>
+<area shape="rect" id="Node000004" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ade14a464041834a501408e4fd90d5540" title=" " alt="" coords="743,5,963,46"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="671,67,751,48,753,53,672,73"/>
+<area shape="rect" id="Node000006" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="743,71,963,111"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="696,88,728,88,728,94,696,94"/>
+<area shape="rect" id="Node000007" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ac2086c554c00278219bf073d2a5736c2" title=" " alt="" coords="743,136,963,177"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="672,109,753,129,751,134,671,115"/>
+<area shape="rect" id="Node000005" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#ade1c3a08b72697f0009fa91d14daa719" title=" " alt="" coords="1011,5,1154,46"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="963,23,995,23,995,28,963,28"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="416,255,488,269,487,275,415,261"/>
+<area shape="poly" id="edge15_Node000011_Node000010" title=" " alt="" coords="412,333,488,313,489,318,413,338"/>
+<area shape="rect" id="Node000012" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a8c652c45225c2e147f3881b6923e0e63" title=" " alt="" coords="494,336,677,377"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="413,354,479,354,479,359,413,359"/>
+<area shape="rect" id="Node000013" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a074d1c1ecbc9e7c97ad336c1d4bc7b08" title="Check if the node is a population result." alt="" coords="495,401,677,442"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="413,375,489,394,488,400,412,380"/>
+</map>

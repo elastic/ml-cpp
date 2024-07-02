@@ -1,0 +1,5 @@
+<map id="ml::api::CDataFrameAnalysisSpecificationJsonWriter" name="ml::api::CDataFrameAnalysisSpecificationJsonWriter">
+<area shape="rect" id="Node000001" title="A static utility for writing data frame analysis specification in JSON." alt="" coords="5,79,199,120"/>
+<area shape="rect" id="Node000002" href="$d1/dfe/classml_1_1core_1_1_c_non_instantiatable.html" title="Similar idea to boost::noncopyable, but for instantiation." alt="" coords="8,5,196,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,46,105,79,99,79,99,46"/>
+</map>

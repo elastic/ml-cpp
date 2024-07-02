@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::updateForest" name="ml::maths::analytics::CBoostedTreeImpl::updateForest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,228,82"/>
+<area shape="rect" id="Node000002" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#a9b77c187faebd23b4036400146d8b5a7" title="Increment the progress by i." alt="" coords="276,5,442,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,42,260,38,261,43,229,48"/>
+<area shape="rect" id="Node000003" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a16bfd25e0568da0e227b67ff19eafc0d" title="Get the index of the root node in a canonical tree node vector." alt="" coords="288,70,430,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,76,272,82,272,87,228,81"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::setToNonInformative" name="ml::maths::common::CMultivariateMultimodalPrior::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,45,194,101"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="242,5,430,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,55,226,49,227,54,195,60"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="263,85,409,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="195,87,248,96,247,101,194,92"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2507854a990915f6440312167ef3136b" title="Get the mode of the marginal likelihood function." alt="" coords="478,5,638,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,31,462,31,462,36,430,36"/>
+</map>

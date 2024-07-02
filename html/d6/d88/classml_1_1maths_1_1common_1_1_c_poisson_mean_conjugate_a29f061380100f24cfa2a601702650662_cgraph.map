@@ -1,0 +1,31 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::acceptPersistInserter" name="ml::maths::common::CPoissonMeanConjugate::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,178,175,234"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="251,5,397,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,176,155,116,186,84,221,57,235,49,238,53,224,61,190,88,159,120,112,179"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="223,71,425,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="129,175,173,147,222,121,234,115,237,120,224,125,175,152,132,179"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="235,136,413,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,182,253,163,254,168,175,188"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="244,185,404,226"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="175,203,228,203,228,208,175,208"/>
+<area shape="rect" id="Node000011" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="225,250,423,306"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="176,229,218,242,216,247,174,234"/>
+<area shape="rect" id="Node000014" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a49e9ed6833f80064eaede19f972f45b2" title="Get whether short or long (readable) tag names are desired for persistence." alt="" coords="223,329,425,370"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="120,232,166,275,224,315,234,320,231,325,221,320,163,279,116,236"/>
+<area shape="rect" id="Node000015" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html#a7c35fbd89f1e059926cccf0d53d6f62f" title="Convert to a string." alt="" coords="244,395,404,435"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="107,232,153,306,186,345,224,380,233,385,230,389,221,384,182,349,149,309,103,235"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="492,136,669,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="413,146,476,146,476,151,413,151"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="735,15,916,71"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="611,133,744,75,746,80,613,137"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="736,95,915,135"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="669,134,720,127,721,132,670,139"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="753,160,898,201"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="670,157,738,166,737,172,669,163"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="743,225,908,266"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="614,159,736,210,754,217,752,222,734,215,612,164"/>
+<area shape="rect" id="Node000012" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="473,218,687,274"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="423,263,457,258,458,264,424,268"/>
+<area shape="rect" id="Node000013" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="498,297,663,338"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="424,291,482,300,481,305,423,296"/>
+</map>

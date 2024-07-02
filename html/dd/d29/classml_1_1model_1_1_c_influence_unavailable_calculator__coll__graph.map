@@ -1,0 +1,7 @@
+<map id="ml::model::CInfluenceUnavailableCalculator" name="ml::model::CInfluenceUnavailableCalculator">
+<area shape="rect" id="Node000001" title="A stub implementation for the case that the influence can&#39;t be calculated." alt="" coords="5,153,223,193"/>
+<area shape="rect" id="Node000002" href="$df/de1/classml_1_1model_1_1_c_influence_calculator.html" title="Interface for influence calculations." alt="" coords="10,79,218,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,120,117,152,111,152,111,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="31,5,197,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="117,46,117,79,111,79,111,46"/>
+</map>

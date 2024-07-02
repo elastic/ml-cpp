@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CMultinomialConjugate::jointLogMarginalLikelihood" name="ml::maths::common::CMultinomialConjugate::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,187,175"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="235,5,426,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,117,174,78,233,41,250,34,252,39,236,46,177,82,129,121"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="250,55,411,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,117,246,98,248,104,188,122"/>
+<area shape="rect" id="Node000006" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a625479e1f1a8d2b5dea246d8b766dc02" title=" " alt="" coords="252,120,409,175"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="187,145,237,145,237,150,187,150"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ac733c981cec582ec45d16dd5fe55f78a" title="Check if this is a non&#45;informative prior." alt="" coords="252,200,409,255"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="181,173,238,193,236,198,179,178"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="250,279,411,320"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="125,174,174,220,236,265,245,270,242,275,233,270,171,224,121,178"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="474,23,619,64"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="410,61,458,54,459,59,411,66"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="474,89,619,129"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="411,85,459,93,458,98,410,90"/>
+</map>

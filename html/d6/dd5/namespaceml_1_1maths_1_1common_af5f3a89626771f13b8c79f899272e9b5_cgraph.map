@@ -1,0 +1,9 @@
+<map id="ml::maths::common::operator&lt;&lt;" name="ml::maths::common::operator&lt;&lt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,151,79"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a5dda9542675423de3783f4f7fe004de0" title="Print a mean accumulator." alt="" coords="199,39,351,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,56,183,56,183,62,151,62"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="399,5,558,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="351,44,383,39,384,44,352,49"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="399,71,558,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="352,68,384,73,383,79,351,74"/>
+</map>

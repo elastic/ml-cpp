@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::modes" name="ml::maths::common::CMultivariateMultimodalPrior::modes">
+<area shape="rect" id="Node000001" title="Get the modes." alt="" coords="518,172,706,228"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a70fc6afe93c74e011ec0ace6ac36b8c6" title=" " alt="" coords="266,5,454,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,163,526,118,469,75,447,64,449,59,471,71,529,114,577,159"/>
+<area shape="rect" id="Node000003" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ac30dccd96d4df01362a88a15fb3cc953" title="Implements value semantics for copy construction." alt="" coords="262,85,458,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="513,169,442,144,444,139,515,164"/>
+<area shape="rect" id="Node000004" href="$dc/d6c/classanonymous__namespace_02_c_multivariate_multimodal_prior_test_8cc_03_1_1_c_multivariate_multimodal_prior_for_test.html#ac0291ff4f372dd1ef18a151d7688798d" title=" " alt="" coords="250,165,470,235"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="502,203,470,203,470,197,502,197"/>
+<area shape="rect" id="Node000006" href="$de/d50/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_1_1_c_mode_split_callback.html#af4d5909f9472fc284b37ece89fd27f54" title=" " alt="" coords="254,259,466,314"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="515,236,444,261,442,256,513,231"/>
+<area shape="rect" id="Node000007" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a2b4f9112a4d5e57fb39718fa33b03029" title=" " alt="" coords="266,339,454,394"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="577,241,529,286,471,329,449,340,447,336,469,324,526,282,574,237"/>
+<area shape="rect" id="Node000005" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#ac92f9f7829883062212e876a0548a26f" title=" " alt="" coords="5,187,202,213"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,203,202,203,202,197,234,197"/>
+</map>

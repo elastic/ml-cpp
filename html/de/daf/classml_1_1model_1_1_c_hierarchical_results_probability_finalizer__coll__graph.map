@@ -1,0 +1,5 @@
+<map id="ml::model::CHierarchicalResultsProbabilityFinalizer" name="ml::model::CHierarchicalResultsProbabilityFinalizer">
+<area shape="rect" id="Node000001" title="Ensures that all probabilities are equal to the inverse deviation of the anomaly scores." alt="" coords="5,94,182,135"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="11,5,176,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,62,96,94,91,94,91,62"/>
+</map>

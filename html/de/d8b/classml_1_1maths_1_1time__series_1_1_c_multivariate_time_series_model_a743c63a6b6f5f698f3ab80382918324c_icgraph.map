@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::updateDecayRates" name="ml::maths::time_series::CMultivariateTimeSeriesModel::updateDecayRates">
+<area shape="rect" id="Node000001" title=" " alt="" coords="760,5,968,61"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7015518321c48a29b9fbf372e98fb84f" title="Update the residual models." alt="" coords="505,5,712,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="745,36,713,36,713,31,745,31"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="250,5,457,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="489,36,457,36,457,31,489,31"/>
+<area shape="rect" id="Node000004" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

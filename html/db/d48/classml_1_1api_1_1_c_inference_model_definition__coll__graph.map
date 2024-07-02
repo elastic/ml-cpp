@@ -1,0 +1,7 @@
+<map id="ml::api::CInferenceModelDefinition" name="ml::api::CInferenceModelDefinition">
+<area shape="rect" id="Node000001" title="Technical details required for model evaluation." alt="" coords="9,183,177,223"/>
+<area shape="rect" id="Node000002" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="5,94,181,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,150,96,182,90,182,90,150"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="13,5,173,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="96,62,96,94,90,94,90,62"/>
+</map>

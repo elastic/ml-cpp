@@ -1,0 +1,50 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::dimension" name="ml::maths::time_series::CMultivariateTimeSeriesModel::dimension">
+<area shape="rect" id="Node000001" title="Get the model dimension." alt="" coords="1056,463,1263,518"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a8ce328de4c454f169473c6c185a05e74" title="Add to trendWeights and residualWeights." alt="" coords="780,5,988,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1151,448,1139,370,1113,273,1094,221,1070,171,1041,124,1006,82,982,64,985,59,1010,78,1045,121,1075,168,1099,219,1118,271,1144,369,1157,447"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="250,167,457,222"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1152,448,1140,377,1115,291,1096,247,1072,206,1042,169,1006,139,971,119,933,103,894,92,854,85,771,81,688,88,608,104,534,124,416,169,414,164,533,119,607,99,688,83,771,76,854,80,895,87,935,98,973,114,1009,135,1046,166,1076,203,1101,245,1120,289,1145,376,1157,447"/>
+<area shape="rect" id="Node000005" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a680d798b93e4edae6f620012d007988c" title=" " alt="" coords="780,579,988,634"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1086,528,1009,562,963,581,961,576,1007,557,1084,523"/>
+<area shape="rect" id="Node000007" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a205bd63e56940de564a0616e3002e7e8" title=" " alt="" coords="780,659,988,714"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1131,532,1078,592,1045,622,1009,649,987,660,985,656,1006,644,1042,618,1074,588,1127,529"/>
+<area shape="rect" id="Node000008" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a79cc0c7988e9480b1c9af9245ed62c41" title=" " alt="" coords="780,813,988,869"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1146,534,1125,586,1096,649,1057,713,1010,772,982,796,951,815,948,810,979,792,1006,769,1053,710,1091,646,1120,584,1141,532"/>
+<area shape="rect" id="Node000009" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ae34539830e9f5c38c56337d6d55ca0a2" title="Remove any trend components from value." alt="" coords="505,769,712,825"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="1146,534,1125,581,1096,634,1058,686,1035,709,1009,729,967,743,893,758,713,786,713,781,892,753,966,737,1006,724,1031,705,1054,682,1092,631,1121,578,1141,532"/>
+<area shape="rect" id="Node000010" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a366b66f66057fe1716e4e3bfebdab552" title=" " alt="" coords="505,397,712,453"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="1040,492,905,485,760,468,705,456,706,451,761,463,906,479,1040,486"/>
+<area shape="rect" id="Node000011" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#adb51ecd61bf74a7be604a33fb3a75f24" title="Get the most likely value for the time series at time." alt="" coords="760,917,1008,958"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="1155,534,1140,608,1113,700,1094,749,1071,797,1043,842,1010,883,984,904,956,919,954,914,982,899,1006,879,1038,839,1066,794,1089,747,1108,698,1135,607,1150,533"/>
+<area shape="rect" id="Node000013" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a676200e234e8e19aba54fa75cccf6ef0" title="Get the best (least MSE) predicted value at time." alt="" coords="780,981,988,1037"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="1160,534,1152,624,1142,681,1129,741,1110,803,1084,864,1051,921,1010,971,990,986,986,982,1006,967,1047,918,1079,861,1105,801,1124,740,1137,680,1146,624,1154,534"/>
+<area shape="rect" id="Node000014" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#acba8104c96a977b3eede89f940aad3a9" title="Compute the probability of drawing value at time." alt="" coords="505,501,712,557"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="1041,509,1008,512,853,522,713,529,713,523,853,517,1007,507,1040,503"/>
+<area shape="rect" id="Node000015" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a72f05e1a21ee909104337288657b148a" title=" " alt="" coords="761,187,1007,242"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="1138,450,1116,406,1087,356,1050,307,1006,263,977,245,980,241,1009,259,1054,303,1091,354,1121,404,1143,447"/>
+<area shape="rect" id="Node000016" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abf9f4648dfe56cf1076407a088ab24f6" title="Update the trend with samples." alt="" coords="505,167,712,222"/>
+<area shape="poly" id="edge29_Node000001_Node000016" title=" " alt="" coords="1149,448,1135,384,1109,308,1090,270,1067,234,1039,203,1006,177,969,158,928,146,886,141,843,140,760,150,688,169,686,164,759,145,843,135,886,135,929,141,970,153,1009,172,1043,199,1071,231,1095,267,1114,306,1140,382,1155,446"/>
+<area shape="rect" id="Node000017" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#afbf17c0561f4fbd513896f3450c00bfc" title="Fill in the seasonal variance scale at time." alt="" coords="780,397,988,453"/>
+<area shape="poly" id="edge21_Node000001_Node000017" title=" " alt="" coords="1040,465,987,452,989,447,1041,460"/>
+<area shape="rect" id="Node000018" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7015518321c48a29b9fbf372e98fb84f" title="Update the residual models." alt="" coords="505,272,712,328"/>
+<area shape="poly" id="edge28_Node000001_Node000018" title=" " alt="" coords="1136,450,1114,413,1085,373,1049,336,1006,308,971,293,934,283,857,273,781,274,713,281,712,276,781,268,857,268,935,278,973,288,1009,303,1052,332,1089,370,1119,410,1140,447"/>
+<area shape="rect" id="Node000019" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a743c63a6b6f5f698f3ab80382918324c" title=" " alt="" coords="780,317,988,373"/>
+<area shape="poly" id="edge26_Node000001_Node000019" title=" " alt="" coords="1110,455,1062,420,1006,388,980,376,982,371,1009,383,1064,416,1114,451"/>
+<area shape="rect" id="Node000004" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,182,202,207"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,197,202,197,202,192,234,192"/>
+<area shape="rect" id="Node000006" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ad384e0eadafe908ea7acaae16644ba3f" title="Initialize reading state from traverser." alt="" coords="505,581,712,637"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="765,610,713,611,713,605,765,605"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="929,801,912,795,884,792,860,794,844,799,836,805,836,813,831,813,831,803,841,794,859,789,884,787,913,789,931,796"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="764,825,712,816,713,811,765,820"/>
+<area shape="poly" id="edge13_Node000011_Node000011" title=" " alt="" coords="929,904,912,898,884,895,858,897,841,902,835,908,838,915,833,917,830,907,839,898,857,892,884,890,914,893,931,899"/>
+<area shape="rect" id="Node000012" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abf4f75f6217413e2d2fa4515eba38105" title="Get the local maxima of the residual distribution." alt="" coords="505,909,712,965"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="745,940,713,940,713,935,745,935"/>
+<area shape="poly" id="edge17_Node000014_Node000014" title=" " alt="" coords="650,489,634,482,609,480,586,482,571,487,564,493,564,501,559,501,560,491,569,482,585,477,609,475,635,477,652,484"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="745,207,713,205,713,199,745,202"/>
+<area shape="poly" id="edge20_Node000016_Node000003" title=" " alt="" coords="489,197,457,197,457,192,489,192"/>
+<area shape="poly" id="edge22_Node000017_Node000010" title=" " alt="" coords="765,428,713,428,713,423,765,423"/>
+<area shape="poly" id="edge23_Node000017_Node000014" title=" " alt="" coords="795,462,685,503,683,498,793,457"/>
+<area shape="poly" id="edge24_Node000017_Node000018" title=" " alt="" coords="774,394,759,388,703,360,653,330,656,326,706,355,761,383,776,389"/>
+<area shape="poly" id="edge25_Node000018_Node000003" title=" " alt="" coords="525,268,422,225,424,221,527,263"/>
+<area shape="poly" id="edge27_Node000019_Node000018" title=" " alt="" coords="765,328,712,320,713,314,766,323"/>
+</map>

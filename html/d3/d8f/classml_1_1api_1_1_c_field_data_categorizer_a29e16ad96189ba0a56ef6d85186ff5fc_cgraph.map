@@ -1,0 +1,7 @@
+<map id="ml::api::CFieldDataCategorizer::CFieldDataCategorizer" name="ml::api::CFieldDataCategorizer::CFieldDataCategorizer">
+<area shape="rect" id="Node000001" title="Construct without persistence capability." alt="" coords="5,49,207,90"/>
+<area shape="rect" id="Node000002" href="$d9/da7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config.html#a98d0924dd8330f5ca8177c924ce5900d" title=" " alt="" coords="255,5,471,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,52,239,48,239,53,207,58"/>
+<area shape="rect" id="Node000003" href="$d9/de8/classml_1_1core_1_1_c_regex_filter.html#ad57792da13ec900833599d677f01fc6a" title="Configures the filter for the given regularExpressions." alt="" coords="286,85,440,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,81,271,90,270,95,207,86"/>
+</map>

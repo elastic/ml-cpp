@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CPRNG::CXorShift1024Mult::seed" name="ml::maths::common::CPRNG::CXorShift1024Mult::seed">
+<area shape="rect" id="Node000001" title=" " alt="" coords="486,93,710,134"/>
+<area shape="rect" id="Node000002" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a833b977b41bda60ec2b8d188fb473c30" title=" " alt="" coords="250,5,438,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="516,90,434,64,435,59,518,85"/>
+<area shape="rect" id="Node000003" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#ab3496ee036bd4816894cf7a686f1f6b8" title=" " alt="" coords="250,85,438,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="470,116,438,116,438,111,470,111"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a816fe01fae7e3b8e42205daea8c86591" title=" " alt="" coords="251,189,437,230"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="529,142,401,191,399,186,527,137"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="383,176,368,170,344,167,321,169,307,174,302,180,304,188,299,189,296,179,304,170,320,164,344,162,370,165,385,171"/>
+<area shape="rect" id="Node000005" href="$d2/d06/_c_boosted_tree_test_8cc.html#ae32adb0a04151494989c0e8519d37b00" title=" " alt="" coords="5,171,202,197"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="235,200,202,197,202,192,236,195"/>
+<area shape="rect" id="Node000006" href="$da/d0f/_c_boosted_tree_leaf_node_statistics_test_8cc.html#a959c3ea67643d9b278ae56990f00f0c0" title=" " alt="" coords="5,220,202,246"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="236,223,202,226,202,221,235,217"/>
+</map>

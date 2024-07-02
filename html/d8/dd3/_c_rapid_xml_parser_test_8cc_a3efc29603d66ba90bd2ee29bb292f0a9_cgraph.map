@@ -1,0 +1,8 @@
+<map id="testParseHelper" name="testParseHelper">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,58,121,84"/>
+<area shape="rect" id="Node000002" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#acdae3fb1fad228ee370274d600291860" title="Return the root element name (empty string if not parsed yet)" alt="" coords="169,5,350,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,55,153,47,154,53,121,60"/>
+<area shape="rect" id="Node000003" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ae00a5157623ddcab7acce9a3ea56ae54" title=" " alt="" coords="169,95,350,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,81,154,89,153,94,120,86"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="222,95,220,85,226,76,239,70,259,68,281,70,293,77,291,81,279,76,259,73,241,75,230,80,225,86,227,93"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::SModel::logPValueProxy" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::SModel::logPValueProxy">
+<area shape="rect" id="Node000001" title="A proxy for p&#45;value of this model vs H0 which doesn&#39;t underflow." alt="" coords="5,103,223,159"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="312,5,472,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,100,270,55,297,46,298,51,272,60,170,105"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="271,70,513,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,115,255,111,255,117,224,121"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="303,150,481,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,141,288,148,287,154,223,146"/>
+<area shape="rect" id="Node000010" href="$d4/dcc/structml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality_1_1_s_model.html#a9f91ca8f06a728134606c8e75728c4c3" title="The number of parameters in model." alt="" coords="283,201,501,256"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="192,157,272,186,291,193,289,198,270,191,190,162"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="561,150,738,176"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="481,160,545,160,545,166,481,166"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="786,30,967,86"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="677,147,785,95,796,90,799,95,787,100,680,152"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="787,109,966,150"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="739,147,771,142,772,148,739,153"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="804,175,949,215"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="739,173,789,180,788,185,739,178"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="794,240,959,281"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="679,174,787,225,804,231,802,236,785,229,677,179"/>
+</map>

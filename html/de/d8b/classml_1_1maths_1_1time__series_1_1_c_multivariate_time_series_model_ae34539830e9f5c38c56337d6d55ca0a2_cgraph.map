@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::detrend" name="ml::maths::time_series::CMultivariateTimeSeriesModel::detrend">
+<area shape="rect" id="Node000001" title="Remove any trend components from value." alt="" coords="5,41,213,97"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a79cc0c7988e9480b1c9af9245ed62c41" title=" " alt="" coords="261,85,468,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,84,246,90,245,95,213,90"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="516,5,723,61"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="213,52,260,47,500,33,501,39,261,52,214,57"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="315,85,315,75,324,66,341,61,364,59,391,61,407,68,405,73,390,66,364,64,342,66,327,71,320,77,320,85"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="455,82,514,64,515,69,456,87"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="540,93,699,134"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="468,111,525,111,525,116,468,116"/>
+</map>

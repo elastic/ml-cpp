@@ -1,0 +1,44 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,478,202,503"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="251,5,473,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,477,110,407,131,299,150,238,175,178,207,122,248,71,250,69,254,73,252,75,211,125,179,181,155,240,136,300,115,407,108,477"/>
+<area shape="rect" id="Node000003" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#af6126f43cd6db0aa6072261d0aec5da5" title="Add a value of the cumulative density function." alt="" coords="271,85,453,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="104,477,115,418,141,331,160,283,183,236,213,191,248,151,256,145,259,149,252,155,217,194,188,238,164,285,146,333,121,419,109,478"/>
+<area shape="rect" id="Node000004" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#aa787913b7e0a0956bb98a8fb947bcaed" title="Discard the next n random numbers." alt="" coords="268,165,456,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="106,476,122,430,150,365,192,294,218,260,248,231,253,227,257,231,251,235,222,264,196,297,155,367,127,432,111,478"/>
+<area shape="rect" id="Node000005" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#ac061eb9cb11e10d9ef196db90e3dce43" title="Restore from a string." alt="" coords="268,245,456,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="110,476,161,399,201,352,248,311,255,307,258,311,251,315,205,356,165,402,114,479"/>
+<area shape="rect" id="Node000008" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#ad4fc5a83c7360ef69ff3d8442ed13489" title=" " alt="" coords="268,325,456,381"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="120,475,176,435,248,391,260,385,262,390,251,396,179,439,123,479"/>
+<area shape="rect" id="Node000009" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a8d48446cfc0227e44b6fbea19320b331" title=" " alt="" coords="250,405,474,446"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="157,475,263,447,264,452,158,480"/>
+<area shape="rect" id="Node000010" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#adb453e20e2d96efef34311a5f1d37bc6" title="The maximum value returnable by operator()." alt="" coords="251,470,473,511"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="202,488,235,488,235,493,202,493"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="277,535,447,561"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="165,501,286,528,285,534,164,507"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="522,602,681,643"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="124,502,179,537,214,556,251,571,316,589,383,602,507,616,506,622,382,608,315,594,249,576,212,560,176,542,122,506"/>
+<area shape="rect" id="Node000013" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a809ed75a650235424a3c73eb8c3372f2" title="The minimum value returnable by operator()." alt="" coords="253,636,471,676"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="119,502,173,556,210,587,251,615,275,627,272,632,248,619,207,591,169,560,115,506"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="279,700,445,726"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="113,502,131,539,161,589,201,642,225,665,251,686,266,694,263,698,248,690,221,669,197,645,156,592,126,542,108,505"/>
+<area shape="rect" id="Node000015" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#afaba2cb9e5e813c992b070f090ce78f8" title=" " alt="" coords="271,751,453,806"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="112,503,128,547,156,610,197,678,223,709,251,736,259,742,256,747,248,741,219,712,193,681,152,613,123,549,106,505"/>
+<area shape="rect" id="Node000018" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a0aa5a18640c301ae43736612dae81f77" title="Persist to a string." alt="" coords="268,831,456,886"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="110,503,121,560,147,644,165,690,189,736,217,779,252,817,257,821,253,825,248,820,213,782,184,739,161,692,142,646,116,561,104,504"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="525,221,679,262"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="456,258,509,251,510,256,457,263"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="528,286,675,327"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="457,284,513,292,512,297,456,289"/>
+<area shape="poly" id="edge16_Node000015_Node000012" title=" " alt="" coords="452,748,472,736,487,724,497,712,520,683,558,651,562,655,524,687,501,715,491,728,476,741,455,753"/>
+<area shape="rect" id="Node000016" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="522,697,681,738"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="453,753,506,739,508,744,454,758"/>
+<area shape="rect" id="Node000017" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="529,762,674,803"/>
+<area shape="poly" id="edge17_Node000015_Node000017" title=" " alt="" coords="454,777,513,778,513,784,453,783"/>
+<area shape="rect" id="Node000019" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="525,834,679,875"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="457,854,509,853,509,859,457,860"/>
+<area shape="rect" id="Node000020" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="528,900,675,940"/>
+<area shape="poly" id="edge20_Node000018_Node000020" title=" " alt="" coords="457,880,514,895,512,900,456,885"/>
+<area shape="rect" id="Node000021" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="729,907,776,933"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="676,917,714,917,714,923,676,923"/>
+</map>

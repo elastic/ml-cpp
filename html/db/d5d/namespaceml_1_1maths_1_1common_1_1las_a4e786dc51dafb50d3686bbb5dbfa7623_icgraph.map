@@ -1,0 +1,79 @@
+<map id="ml::maths::common::las::distance" name="ml::maths::common::las::distance">
+<area shape="rect" id="Node000001" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="784,622,930,663"/>
+<area shape="rect" id="Node000002" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a77d2d178ef951047c94d320dea9f154d" title=" " alt="" coords="549,30,723,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="850,606,837,489,814,333,799,255,780,184,759,125,734,85,720,73,723,69,738,82,763,123,785,182,804,254,820,332,843,489,855,606"/>
+<area shape="rect" id="Node000003" href="$d9/ddb/_c_outliers_test_8cc.html#adc636b4d0cc89ff362c30d4a4234dd60" title=" " alt="" coords="274,491,471,516"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="845,608,830,566,808,519,777,474,757,455,735,439,683,416,661,412,639,411,592,420,537,439,523,448,514,458,504,470,489,481,458,493,456,488,487,476,501,466,509,455,519,444,535,434,591,415,638,406,661,406,685,411,738,435,761,451,781,470,813,516,835,564,850,606"/>
+<area shape="rect" id="Node000004" href="$d9/ddb/_c_outliers_test_8cc.html#ae6fcd95a371b0a7ab405c159e268bb30" title=" " alt="" coords="274,629,471,655"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="769,647,736,647,536,647,471,647,471,641,536,642,736,642,768,642"/>
+<area shape="rect" id="Node000005" href="$d6/d26/_c_linear_algebra_test_8cc.html#acc80dd395d463f62036e0cf5859e3362" title=" " alt="" coords="538,268,734,294"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="851,607,843,542,823,462,808,420,789,379,764,341,735,308,717,297,720,292,738,304,769,338,793,376,813,417,828,460,848,541,856,606"/>
+<area shape="rect" id="Node000006" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a973161493c1036876a26a56c6b277bcc" title=" " alt="" coords="549,95,723,136"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="851,607,843,527,824,420,809,362,789,303,765,246,734,193,706,162,674,138,677,134,710,158,738,190,769,244,794,301,814,360,829,419,849,526,857,606"/>
+<area shape="rect" id="Node000009" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a153036de4488f25b9631b42dabec2075" title="Get the closest filtered centre to point." alt="" coords="564,203,709,244"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="852,607,846,534,828,440,813,391,793,343,767,297,735,257,708,240,711,235,738,254,771,294,798,340,818,389,834,439,852,533,858,606"/>
+<area shape="rect" id="Node000014" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a0f9ca379a5758afed887a438aa2b2a6a" title=" " alt="" coords="563,449,709,489"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="833,610,792,555,765,527,735,503,709,489,711,485,738,499,768,523,796,552,837,607"/>
+<area shape="rect" id="Node000015" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ad39c80082ef1364256b5d2bbe715350c" title=" " alt="" coords="557,318,715,374"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="844,607,830,560,807,504,775,446,734,395,711,377,714,372,738,391,780,443,812,502,835,559,849,606"/>
+<area shape="rect" id="Node000017" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a762c444861b1cd158c80153eee8c6a87" title="Euclidean distance implementation for an annotated vector." alt="" coords="564,593,709,633"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="769,633,709,625,710,620,770,628"/>
+<area shape="rect" id="Node000018" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a7cbb2bc0d2144a8c258cf88dc62ad91e" title=" " alt="" coords="564,903,709,944"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="850,679,836,726,814,784,782,842,761,868,738,892,711,909,708,905,735,888,757,865,777,839,809,781,831,725,845,677"/>
+<area shape="rect" id="Node000022" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#ab64d1841401ea1f0c0bcc89e41aa0671" title="Recursively find the nearest point to point." alt="" coords="545,707,728,748"/>
+<area shape="poly" id="edge22_Node000001_Node000022" title=" " alt="" coords="789,671,692,709,690,704,787,666"/>
+<area shape="rect" id="Node000023" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a72958209c67f09d1046d13455ea9471a" title="Recursively find the nearest point to point." alt="" coords="541,773,731,813"/>
+<area shape="poly" id="edge23_Node000001_Node000023" title=" " alt="" coords="832,676,790,720,738,762,713,774,710,770,735,757,787,716,828,673"/>
+<area shape="rect" id="Node000024" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a22050e9a5e2769439a55fd3dc6b44de6" title="Branch and bound search for nearest n neighbours of point." alt="" coords="541,838,731,879"/>
+<area shape="poly" id="edge24_Node000001_Node000024" title=" " alt="" coords="844,678,827,713,803,753,774,793,738,827,718,840,715,835,735,823,770,789,799,750,822,710,839,676"/>
+<area shape="rect" id="Node000025" href="$dc/d0f/namespaceanonymous__namespace_02_c_kd_tree_test_8cc_03.html#abc23f426517c4959019d7d3e12aa5c3e" title=" " alt="" coords="547,968,726,1023"/>
+<area shape="poly" id="edge25_Node000001_Node000025" title=" " alt="" coords="854,679,843,738,822,812,788,889,765,925,738,957,724,969,720,965,734,954,761,922,783,887,817,810,838,737,849,678"/>
+<area shape="rect" id="Node000028" href="$d9/db9/namespaceanonymous__namespace_02_c_outliers_test_8cc_03.html#a63c67319792a951cdea9d0fcf533da6b" title=" " alt="" coords="555,513,717,569"/>
+<area shape="poly" id="edge28_Node000001_Node000028" title=" " alt="" coords="803,617,735,583,709,572,711,567,737,578,805,612"/>
+<area shape="rect" id="Node000030" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a4c2e710f97aa5f509c438e2838b53aaa" title=" " alt="" coords="553,1071,719,1112"/>
+<area shape="poly" id="edge32_Node000001_Node000030" title=" " alt="" coords="856,678,848,750,828,844,813,895,793,945,769,993,738,1037,717,1057,693,1073,690,1068,714,1053,734,1034,764,990,788,943,808,893,823,843,842,750,851,678"/>
+<area shape="rect" id="Node000032" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a076374c48a6995fd1c59465a654881d4" title="Single iteration of Lloyd&#39;s algorithm to update centres." alt="" coords="550,1137,722,1177"/>
+<area shape="poly" id="edge35_Node000001_Node000032" title=" " alt="" coords="854,678,839,781,814,914,799,980,781,1041,761,1091,738,1125,723,1138,720,1134,734,1122,756,1088,776,1039,794,979,809,913,834,780,849,677"/>
+<area shape="rect" id="Node000036" href="$d9/db0/classml_1_1maths_1_1common_1_1_c_k_means_plus_plus_initialization.html#aa36337c64f1e893445c2d854f5352cda" title=" " alt="" coords="536,1201,736,1257"/>
+<area shape="poly" id="edge39_Node000001_Node000036" title=" " alt="" coords="855,678,841,793,818,945,802,1022,783,1092,762,1150,738,1190,726,1203,722,1199,734,1187,758,1148,778,1090,797,1021,812,944,836,792,850,678"/>
+<area shape="rect" id="Node000007" href="$d9/dff/_c_bounding_box_test_8cc.html#af2b26e638ed33ba40202d0e7fe2b78aa" title=" " alt="" coords="274,5,471,31"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="548,91,535,84,510,64,501,55,487,46,455,34,457,29,489,41,504,51,514,60,537,80,550,86"/>
+<area shape="rect" id="Node000008" href="$d9/d71/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_centre_filter_1_1_c_further_from.html#a73e2be1cfa38d9213395cb3752b888ba" title=" " alt="" coords="286,56,459,111"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="533,106,459,97,460,91,534,100"/>
+<area shape="rect" id="Node000010" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a4d61395d5bdf5f03bdc31d18e1842b13" title="Get the closest filtered centre to point." alt="" coords="300,135,445,176"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="548,204,445,177,446,172,549,198"/>
+<area shape="rect" id="Node000011" href="$d2/d8d/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_centroid_computer.html#ad71965740a0134100c14d1fac9dd5285" title=" " alt="" coords="5,258,209,314"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="548,223,411,225,333,230,257,241,183,260,182,255,256,236,333,225,410,219,548,217"/>
+<area shape="rect" id="Node000012" href="$d7/d61/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_closest_points_collector.html#a6572d328c1488cc389bb773733d0a74e" title=" " alt="" coords="257,250,488,306"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="549,244,489,257,488,252,548,239"/>
+<area shape="rect" id="Node000013" href="$dc/de9/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_centre_filter.html#a7b2fd7151092644afec704add0869e03" title=" " alt="" coords="290,330,455,386"/>
+<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="551,250,538,258,523,273,514,288,506,304,490,320,457,339,454,334,486,316,501,301,510,285,518,269,534,253,548,245"/>
+<area shape="poly" id="edge13_Node000013_Node000011" title=" " alt="" coords="274,334,208,316,210,311,275,329"/>
+<area shape="rect" id="Node000016" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a105ec0dc8c3e89ea1f038dba5ee36f71" title=" " alt="" coords="264,410,481,466"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="543,382,489,401,456,412,454,407,487,396,541,377"/>
+<area shape="rect" id="Node000019" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a6b37cb16a1dc73e6bdb8883589cad86a" title=" " alt="" coords="300,899,445,940"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="548,925,445,923,445,918,548,920"/>
+<area shape="rect" id="Node000020" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a8093e6557824f11b1ea97be1d64b1d4d" title=" " alt="" coords="12,939,202,980"/>
+<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="285,935,203,948,202,942,284,930"/>
+<area shape="rect" id="Node000021" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="11,844,203,915"/>
+<area shape="poly" id="edge21_Node000019_Node000021" title=" " alt="" coords="284,909,203,897,204,891,285,904"/>
+<area shape="rect" id="Node000026" href="$de/d5c/_c_kd_tree_test_8cc.html#a8262d6a79c2cb9d21a49c67f25b99f97" title=" " alt="" coords="274,964,471,990"/>
+<area shape="poly" id="edge26_Node000025_Node000026" title=" " alt="" coords="531,991,471,986,471,981,531,985"/>
+<area shape="rect" id="Node000027" href="$de/d5c/_c_kd_tree_test_8cc.html#ac988c35a6d316c6d3bb041ba0b841cc7" title=" " alt="" coords="274,1013,471,1039"/>
+<area shape="poly" id="edge27_Node000025_Node000027" title=" " alt="" coords="531,1010,471,1017,471,1012,531,1005"/>
+<area shape="poly" id="edge29_Node000028_Node000003" title=" " alt="" coords="539,530,468,520,468,514,540,525"/>
+<area shape="poly" id="edge30_Node000028_Node000004" title=" " alt="" coords="549,577,409,631,407,626,547,572"/>
+<area shape="rect" id="Node000029" href="$d9/ddb/_c_outliers_test_8cc.html#a6774c8e9b49311107c9741a4a80ecea6" title=" " alt="" coords="274,540,471,566"/>
+<area shape="poly" id="edge31_Node000028_Node000029" title=" " alt="" coords="539,548,471,551,471,546,539,543"/>
+<area shape="poly" id="edge33_Node000030_Node000030" title=" " alt="" coords="672,1058,659,1052,636,1050,615,1052,602,1056,598,1062,600,1070,594,1071,592,1061,599,1052,614,1047,636,1045,660,1047,674,1053"/>
+<area shape="rect" id="Node000031" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a349fcbc0d5884b00de4615aae147b3d5" title="Get numberSamples from this cluster." alt="" coords="284,1064,461,1119"/>
+<area shape="poly" id="edge34_Node000030_Node000031" title=" " alt="" coords="537,1094,461,1094,461,1089,537,1089"/>
+<area shape="rect" id="Node000033" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a5014dc6590487aef34bf5ffe69813911" title=" " alt="" coords="300,1143,445,1184"/>
+<area shape="poly" id="edge36_Node000032_Node000033" title=" " alt="" coords="534,1162,446,1164,446,1159,534,1157"/>
+<area shape="rect" id="Node000034" href="$d1/db3/_c_k_means_test_8cc.html#a5d51fad51252ec6099fc73f939a93e5b" title=" " alt="" coords="9,1175,205,1200"/>
+<area shape="poly" id="edge37_Node000033_Node000034" title=" " alt="" coords="284,1174,206,1181,205,1176,284,1169"/>
+<area shape="rect" id="Node000035" href="$d1/db3/_c_k_means_test_8cc.html#aacc7c4dd73c33d4ccbf3805715cccdce" title=" " alt="" coords="9,1125,205,1151"/>
+<area shape="poly" id="edge38_Node000033_Node000035" title=" " alt="" coords="284,1158,205,1150,206,1145,284,1152"/>
+<area shape="rect" id="Node000037" href="$d9/db0/classml_1_1maths_1_1common_1_1_c_k_means_plus_plus_initialization.html#ac1de69e6d3ddb302b1d0baae71d4fbbb" title=" " alt="" coords="259,1209,486,1249"/>
+<area shape="poly" id="edge40_Node000036_Node000037" title=" " alt="" coords="520,1232,486,1232,486,1226,520,1226"/>
+</map>

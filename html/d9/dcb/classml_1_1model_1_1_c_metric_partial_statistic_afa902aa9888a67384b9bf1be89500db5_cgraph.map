@@ -1,0 +1,21 @@
+<map id="ml::model::CMetricPartialStatistic::add" name="ml::model::CMetricPartialStatistic::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,150,175,191"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="223,5,445,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,147,162,109,221,71,232,66,234,70,224,75,165,114,117,152"/>
+<area shape="rect" id="Node000003" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#abf37cd764badc8c0cfbb2a51c4a93906" title="Add value to an order statistic." alt="" coords="244,85,424,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,147,240,128,241,133,169,152"/>
+<area shape="rect" id="Node000005" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a4458307df4ab8f653908bf0bf2194bd6" title="Returns the combined count of all the measurements." alt="" coords="249,150,419,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,168,233,168,233,173,175,173"/>
+<area shape="rect" id="Node000007" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ad9152389320356c28a74d4840a929e59" title="Returns the mean time of all the measurements." alt="" coords="249,216,419,256"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="169,189,241,208,240,213,168,194"/>
+<area shape="rect" id="Node000009" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ae949469432decbaff601c88431943d6a" title="Returns the aggregated value of all the measurements." alt="" coords="249,281,419,322"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="116,189,164,228,224,265,239,272,237,277,221,270,161,232,113,194"/>
+<area shape="rect" id="Node000004" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="493,71,717,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="425,100,478,99,478,104,425,106"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="526,150,685,191"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="419,168,510,168,510,173,419,173"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="526,216,685,256"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="419,233,510,233,510,239,419,239"/>
+<area shape="rect" id="Node000010" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a661bd8a0db4975639e7b2a7555610989" title="Get the median value of an order statistic." alt="" coords="515,281,695,322"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="419,299,499,299,499,304,419,304"/>
+</map>

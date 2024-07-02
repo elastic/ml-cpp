@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::trendModel" name="ml::maths::time_series::CUnivariateTimeSeriesModel::trendModel">
+<area shape="rect" id="Node000001" title="Get the trend." alt="" coords="271,16,470,71"/>
+<area shape="rect" id="Node000002" href="$d9/d15/_c_time_series_model_test_8cc.html#ad5ee31f31475c4d41301af0340450ba9" title=" " alt="" coords="16,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,35,212,31,213,25,255,29"/>
+<area shape="rect" id="Node000003" href="$de/d99/_c_event_rate_model_test_8cc.html#a46eaa3d97cf343b742c3170cacc17377" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,57,223,60,223,55,255,52"/>
+</map>

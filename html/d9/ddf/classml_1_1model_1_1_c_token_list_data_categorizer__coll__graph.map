@@ -1,0 +1,35 @@
+<map id="ml::model::CTokenListDataCategorizer&lt; DO_WARPING, ALLOW_UNDERSCORE, ALLOW_DOT, ALLOW_DASH, ALLOW_FORWARD_SLASH, IGNORE_LEADING_DIGIT, IGNORE_HEX, IGNORE_DATE_WORDS, IGNORE_FIELD_NAMES, MIN_DICTIONARY_LENGTH, TRUNCATE_AT_NEWLINE, DICTIONARY_WEIGHT_FUNC &gt;" name="ml::model::CTokenListDataCategorizer&lt; DO_WARPING, ALLOW_UNDERSCORE, ALLOW_DOT, ALLOW_DASH, ALLOW_FORWARD_SLASH, IGNORE_LEADING_DIGIT, IGNORE_HEX, IGNORE_DATE_WORDS, IGNORE_FIELD_NAMES, MIN_DICTIONARY_LENGTH, TRUNCATE_AT_NEWLINE, DICTIONARY_WEIGHT_FUNC &gt;">
+<area shape="rect" id="Node000001" title="Concrete implementation class to categorise strings." alt="" coords="1968,172,2315,318"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html" title="Abstract base class for categorising strings based on tokens." alt="" coords="1570,97,1751,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1755,139,1968,196,1967,201,1754,144"/>
+<area shape="rect" id="Node000003" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html" title="Interface for classes that convert a raw event string to a category." alt="" coords="1165,55,1357,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1373,76,1527,94,1570,100,1569,105,1526,99,1372,81"/>
+<area shape="rect" id="Node000004" href="$d8/d9a/classml_1_1model_1_1_c_monitored_resource.html" title="Interface for resource monitoring." alt="" coords="775,5,984,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1000,28,1141,45,1184,51,1183,57,1140,50,999,33"/>
+<area shape="rect" id="Node000005" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="814,55,945,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="961,65,1165,65,1165,70,961,70"/>
+<area shape="rect" id="Node000006" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="411,55,606,80"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="622,65,813,65,813,70,622,70"/>
+<area shape="rect" id="Node000007" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="5,40,218,95"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="233,65,410,65,410,70,233,70"/>
+<area shape="rect" id="Node000008" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html" title="Collects up to a configurable number of distinct examples per category." alt="" coords="776,105,983,145"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="998,106,1140,85,1182,78,1183,84,1141,90,999,111"/>
+<area shape="rect" id="Node000009" href="$dc/d3c/classml_1_1core_1_1_c_csv_line_parser.html" title="Parses single lines of CSV formatted data." alt="" coords="1175,104,1347,130"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="1362,114,1570,114,1570,120,1362,120"/>
+<area shape="rect" id="Node000010" href="$dd/d4b/structml_1_1model_1_1_s_categorizer_stats.html" title="Stats that summarise what a categorizer has done." alt="" coords="1164,153,1358,179"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="1373,152,1526,135,1569,128,1570,134,1527,140,1373,158"/>
+<area shape="rect" id="Node000011" href="$da/de9/classml_1_1core_1_1_c_word_dictionary.html" title="Class to check whether words are present in a dictionary." alt="" coords="1573,200,1748,226"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1764,217,1968,231,1967,236,1763,222"/>
+<area shape="poly" id="edge11_Node000011_Node000011" title=" " alt="" coords="1622,183,1635,176,1660,173,1683,175,1697,182,1702,191,1695,201,1690,198,1696,191,1694,185,1682,181,1660,179,1637,181,1625,188"/>
+<area shape="rect" id="Node000012" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html" title="Class to measure how similar strings are." alt="" coords="1573,250,1748,291"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="1763,266,1944,259,1967,257,1968,262,1944,264,1763,271"/>
+<area shape="rect" id="Node000013" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="426,256,591,282"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="606,265,630,265,1078,262,1527,265,1573,266,1572,271,1527,270,1078,268,630,270,607,270"/>
+<area shape="rect" id="Node000015" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html" title="Shrink wrap zlib calls." alt="" coords="797,287,963,312"/>
+<area shape="poly" id="edge16_Node000015_Node000013" title=" " alt="" coords="607,274,796,290,796,295,606,280"/>
+<area shape="rect" id="Node000014" href="$d0/def/classml_1_1core_1_1_c_deflator.html" title="Implementation of CompressUtil for deflating data." alt="" coords="1195,287,1327,312"/>
+<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="1342,292,1526,280,1572,276,1573,281,1527,285,1343,298"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="978,297,1195,297,1195,302,978,302"/>
+<area shape="rect" id="Node000016" href="$d2/d6b/classml_1_1core_1_1_c_word_dictionary_1_1_c_weight_all.html" title="Functor for weighting all dictionary words by a certain amount." alt="" coords="1551,314,1770,370"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="1785,316,1943,285,1967,280,1968,286,1945,290,1786,322"/>
+</map>

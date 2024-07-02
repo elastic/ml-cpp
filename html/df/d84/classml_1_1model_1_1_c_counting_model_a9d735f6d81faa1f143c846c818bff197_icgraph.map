@@ -1,0 +1,11 @@
+<map id="ml::model::CCountingModel::bucketStatsAvailable" name="ml::model::CCountingModel::bucketStatsAvailable">
+<area shape="rect" id="Node000001" title="Check if bucket statistics are available for the specified time." alt="" coords="468,72,651,113"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a11cddcdad0e6ec253097821b799e61f6" title=" " alt="" coords="237,39,420,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="452,80,420,75,421,70,453,74"/>
+<area shape="rect" id="Node000005" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a3592479e569a42682585c180310f8444" title=" " alt="" coords="237,104,420,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="453,110,421,114,420,109,452,104"/>
+<area shape="rect" id="Node000003" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a7a744d6ec67f3a850609da695a2d9d5e" title="Sets probability to 1." alt="" coords="5,5,189,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="221,46,189,42,190,36,222,41"/>
+<area shape="rect" id="Node000004" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a6b1e45ca692a6ceafdc350ce9b5fbd83" title=" " alt="" coords="5,71,189,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="222,76,190,81,189,76,221,71"/>
+</map>

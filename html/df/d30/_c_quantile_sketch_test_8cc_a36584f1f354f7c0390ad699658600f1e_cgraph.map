@@ -1,0 +1,24 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,208,202,233"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,85,435,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,205,283,131,286,136,134,209"/>
+<area shape="rect" id="Node000004" href="$df/d68/namespaceanonymous__namespace_02_c_quantile_sketch_test_8cc_03.html#a0875924bfecc82c01bf8b6031eef4795" title=" " alt="" coords="261,229,424,284"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,231,246,239,245,244,193,236"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="518,5,703,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="400,82,482,55,507,48,509,53,484,60,402,87"/>
+<area shape="rect" id="Node000005" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="499,70,721,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="368,226,418,180,449,156,482,135,492,130,494,135,484,140,452,161,422,184,372,230"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="531,149,690,190"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="410,225,482,199,514,190,516,195,484,204,412,230"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="525,214,695,240"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="424,245,509,235,510,241,424,250"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="531,264,690,305"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="424,262,515,272,515,277,424,267"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="527,329,693,355"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="403,282,484,314,515,322,513,327,482,319,401,287"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="483,379,737,419"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="373,282,423,325,484,365,497,370,495,375,482,369,420,329,370,287"/>
+<area shape="rect" id="Node000011" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="573,468,647,493"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="362,283,411,355,445,394,485,429,521,450,559,465,557,470,519,455,481,433,442,398,407,358,357,286"/>
+<area shape="poly" id="edge11_Node000011_Node000011" title=" " alt="" coords="571,472,558,461,561,450,579,443,610,441,652,446,661,452,662,460,657,460,657,455,650,451,610,446,580,448,565,454,563,459,574,467"/>
+</map>

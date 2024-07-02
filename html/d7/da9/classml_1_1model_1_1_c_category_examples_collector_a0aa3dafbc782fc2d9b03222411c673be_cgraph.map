@@ -1,0 +1,23 @@
+<map id="ml::model::CCategoryExamplesCollector::acceptRestoreTraverser" name="ml::model::CCategoryExamplesCollector::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Populate the object from part of a state document." alt="" coords="5,107,227,147"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="541,5,759,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,103,274,88,525,43,526,48,275,94,206,109"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="541,71,759,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,117,525,97,526,102,227,122"/>
+<area shape="rect" id="Node000004" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aa35d1589ba432a9c8c8f7e06c93be177" title=" " alt="" coords="280,135,488,175"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="227,136,265,140,264,145,227,141"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="275,200,493,241"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="171,145,276,184,299,192,297,197,274,190,169,150"/>
+<area shape="poly" id="edge8_Node000004_Node000002" title=" " alt="" coords="412,132,470,94,540,57,557,49,559,54,542,61,473,99,415,137"/>
+<area shape="poly" id="edge9_Node000004_Node000003" title=" " alt="" coords="471,131,547,113,549,118,472,137"/>
+<area shape="rect" id="Node000005" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aacd44abd96032a41d0c29327e15fc2a9" title=" " alt="" coords="547,267,754,307"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="473,174,495,186,511,203,519,220,527,236,543,252,551,257,548,261,539,256,523,239,515,222,507,206,491,190,470,178"/>
+<area shape="rect" id="Node000006" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a315d9733c0ab1d1517f9f1221c7ba3c4" title="Parse from string. Returns false if unsuccessful." alt="" coords="560,332,740,373"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="477,174,495,186,508,203,516,220,520,253,523,286,530,302,543,317,549,322,545,326,539,321,526,304,518,287,514,254,511,221,504,206,491,190,474,178"/>
+<area shape="rect" id="Node000008" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="560,136,740,177"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="488,153,545,153,545,158,488,158"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="541,201,759,242"/>
+<area shape="poly" id="edge10_Node000004_Node000009" title=" " alt="" coords="469,173,552,194,551,200,467,178"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="807,332,955,373"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="740,350,792,350,792,355,740,355"/>
+</map>

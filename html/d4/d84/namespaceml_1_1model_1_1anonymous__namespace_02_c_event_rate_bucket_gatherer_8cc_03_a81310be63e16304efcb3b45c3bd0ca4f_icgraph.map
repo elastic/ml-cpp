@@ -1,0 +1,6 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::registerMemoryCallbacks" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::registerMemoryCallbacks">
+<area shape="rect" id="Node000001" title=" " alt="" coords="307,29,560,85"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="482,17,464,11,433,8,406,10,389,15,381,21,380,29,375,29,376,19,386,10,406,5,433,3,465,5,484,12"/>
+<area shape="rect" id="Node000002" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#a833bff300ce68f6ac67303721853bc77" title="Register the callbacks for computing the size of feature data gatherers." alt="" coords="5,29,259,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="291,60,259,60,259,55,291,55"/>
+</map>

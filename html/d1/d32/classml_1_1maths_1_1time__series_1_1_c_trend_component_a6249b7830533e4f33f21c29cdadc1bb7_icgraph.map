@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CTrendComponent::print" name="ml::maths::time_series::CTrendComponent::print">
+<area shape="rect" id="Node000001" title="Get a debug description of this object." alt="" coords="766,53,939,94"/>
+<area shape="rect" id="Node000002" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#aa4b75825be26f2bb67a42a7fce3f1ade" title=" " alt="" coords="524,53,718,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="751,76,719,76,719,71,751,71"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="659,40,645,34,621,31,599,33,586,38,581,44,583,52,578,53,575,43,583,34,598,28,621,26,646,29,661,35"/>
+<area shape="rect" id="Node000003" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#af48fad15657dd25f7f13c1e16b319e3d" title=" " alt="" coords="284,5,476,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="508,57,476,52,477,46,509,52"/>
+<area shape="rect" id="Node000004" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#aef4f07aa6b56ffa8b24ac2ca9d46e893" title=" " alt="" coords="299,85,461,141"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="509,94,462,102,461,97,508,89"/>
+<area shape="rect" id="Node000005" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#a00bf6a87699dd2fc2b849cdd664344d3" title=" " alt="" coords="5,45,236,101"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="283,101,236,94,237,88,284,96"/>
+<area shape="rect" id="Node000006" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#a78423d558b292ff5faa9f81b792a0458" title=" " alt="" coords="5,125,236,181"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="284,131,237,138,236,133,283,125"/>
+</map>

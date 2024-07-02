@@ -1,0 +1,7 @@
+<map id="ml::maths::common::COneOfNPrior::decayRate" name="ml::maths::common::COneOfNPrior::decayRate">
+<area shape="rect" id="Node000001" title="Set the rate at which the prior returns to non&#45;informative." alt="" coords="5,39,183,79"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1ca970f775765a617f276528656c7351" title="Lift all overloads of the decayRate into scope." alt="" coords="231,5,408,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,43,215,38,215,44,183,49"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="247,71,392,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,69,232,76,231,81,182,74"/>
+</map>

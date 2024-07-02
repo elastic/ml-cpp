@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,132,202,157"/>
+<area shape="rect" id="Node000002" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a240386af2c68df5ef40b8bd03aa341bd" title=" " alt="" coords="250,59,416,99"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,128,244,102,245,107,152,134"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a701705f024cf5f26e867ac1b4bc5de2e" title=" " alt="" coords="250,124,416,165"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,142,234,142,234,147,202,147"/>
+<area shape="rect" id="Node000008" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a33a7d0f1d501369f530b5ebbab453406" title=" " alt="" coords="464,209,630,250"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="164,155,250,174,449,211,448,216,249,179,163,160"/>
+<area shape="rect" id="Node000003" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="678,120,845,161"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,81,519,91,631,106,669,113,668,119,630,111,518,96,416,87"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a30fd71d5aa580fa9c13a5ca29e49a107" title=" " alt="" coords="464,5,630,46"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="416,56,448,47,450,53,417,61"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#abbcc2bb82dd761f9674856db5bc59bbb" title="Reset the underlying stream." alt="" coords="678,5,845,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="631,23,663,23,663,28,631,28"/>
+<area shape="rect" id="Node000007" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="464,120,630,161"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="417,140,449,140,449,145,417,145"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="631,138,663,138,663,143,631,143"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="597,206,695,165,698,170,599,211"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="507,209,505,199,511,190,526,185,547,183,570,185,584,191,582,196,569,190,547,188,527,190,514,195,510,200,512,208"/>
+</map>

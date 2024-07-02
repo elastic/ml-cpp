@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CRandomProjectionClustererBatch::similarities" name="ml::maths::common::CRandomProjectionClustererBatch::similarities">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,197,133"/>
+<area shape="rect" id="Node000002" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#ad1c426853beb6ab27b16e48be53397bc" title="Get the log determinant of the rank full portion of m." alt="" coords="245,5,436,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,74,230,64,232,69,197,79"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="261,85,420,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,103,245,103,245,108,197,108"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a3db0a396d60198f64859f2f0f8b5810c" title="Get the Eigen vector for vector." alt="" coords="268,150,413,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,129,253,144,252,149,197,134"/>
+</map>

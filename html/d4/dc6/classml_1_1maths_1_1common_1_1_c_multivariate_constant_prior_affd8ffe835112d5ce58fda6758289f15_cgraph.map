@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::marginalLikelihoodMode" name="ml::maths::common::CMultivariateConstantPrior::marginalLikelihoodMode">
+<area shape="rect" id="Node000001" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="5,5,184,61"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a3aa5601346727c68b762412aac8d5969" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="232,5,410,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,31,216,31,216,36,184,36"/>
+<area shape="rect" id="Node000003" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="458,5,636,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,31,442,31,442,36,411,36"/>
+</map>

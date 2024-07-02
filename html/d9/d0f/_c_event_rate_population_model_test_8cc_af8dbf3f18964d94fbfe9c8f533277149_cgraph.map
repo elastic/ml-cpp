@@ -1,0 +1,18 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,86,223,111"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="271,5,493,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,83,255,61,256,67,170,88"/>
+<area shape="rect" id="Node000003" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="342,86,422,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,96,326,96,326,101,223,101"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="302,136,462,176"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="178,109,287,133,286,138,177,115"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="541,50,715,91"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="421,91,525,79,526,85,422,97"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="771,108,930,148"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="422,98,756,119,756,125,422,104"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="763,42,938,83"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="716,65,748,64,748,69,716,70"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="710,89,757,101,755,106,709,94"/>
+<area shape="rect" id="Node000007" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="986,108,1144,148"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="930,125,970,125,970,131,930,131"/>
+</map>

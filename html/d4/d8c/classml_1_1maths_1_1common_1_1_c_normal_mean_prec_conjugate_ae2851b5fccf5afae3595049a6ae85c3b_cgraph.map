@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::minusLogJointCdfComplement" name="ml::maths::common::CNormalMeanPrecConjugate::minusLogJointCdfComplement">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,73,214,128"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="561,13,706,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,70,201,41,261,18,335,6,411,3,483,7,546,15,545,20,482,12,411,8,336,11,262,23,203,45,152,74"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="270,33,462,88"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,81,254,75,255,80,214,87"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#a82db2f212f8908863edae25e2ea1be84" title=" " alt="" coords="262,195,470,235"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,126,263,178,284,187,282,192,261,183,158,131"/>
+<area shape="rect" id="Node000006" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a06f43db6da759e71f00c4953c054205e" title="Get the mean of the marginal likelihood function." alt="" coords="270,113,462,168"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="214,114,255,120,254,126,214,119"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="595,206,673,232"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="470,214,579,216,579,221,470,219"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="592,209,581,199,585,188,603,182,634,180,672,184,683,189,686,195,682,197,679,193,671,189,634,185,604,187,589,192,586,198,596,205"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="440,109,469,98,567,58,569,63,471,103,442,114"/>
+<area shape="rect" id="Node000007" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="518,117,749,158"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="462,137,502,136,502,142,462,142"/>
+</map>

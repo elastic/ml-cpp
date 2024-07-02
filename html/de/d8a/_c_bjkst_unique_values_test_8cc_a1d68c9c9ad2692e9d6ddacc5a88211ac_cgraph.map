@@ -1,0 +1,35 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,374,202,400"/>
+<area shape="rect" id="Node000002" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a675689cf1261d0e41890219c524ad188" title="Convert to a node tree." alt="" coords="268,129,417,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,372,299,193,303,197,120,376"/>
+<area shape="rect" id="Node000006" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="739,208,909,249"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="202,382,325,376,464,366,593,351,645,341,684,330,715,315,743,297,790,257,794,262,746,301,717,320,686,335,646,347,594,356,465,372,325,381,202,387"/>
+<area shape="rect" id="Node000008" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ac4840f48933d59dc70558cf4bcca3c5c" title="Get a checksum for the sketch." alt="" coords="268,265,417,320"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="137,371,255,324,257,329,139,376"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,395,435,435"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="203,396,235,400,234,405,202,401"/>
+<area shape="rect" id="Node000012" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="252,460,433,501"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="137,398,251,445,269,452,268,457,249,449,135,403"/>
+<area shape="rect" id="Node000015" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="255,549,430,590"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="120,398,176,449,251,510,294,539,291,543,248,514,173,453,117,402"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="483,136,685,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,154,468,154,468,159,417,159"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="483,5,685,46"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="376,126,425,91,482,57,497,50,499,54,484,61,428,95,380,130"/>
+<area shape="rect" id="Node000005" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="510,201,659,256"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="418,176,495,199,494,204,417,181"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="507,71,661,111"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="417,134,491,113,493,118,418,139"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="659,234,723,235,723,240,659,239"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="738,222,674,222,674,217,738,217"/>
+<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="417,270,494,249,495,255,418,275"/>
+<area shape="rect" id="Node000009" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="507,280,661,321"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="417,292,492,295,491,300,417,297"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="492,395,677,435"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="435,412,476,412,476,418,435,418"/>
+<area shape="rect" id="Node000013" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="491,460,678,501"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="433,478,475,478,475,483,433,483"/>
+<area shape="rect" id="Node000014" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="733,460,915,501"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="678,478,718,478,718,483,678,483"/>
+<area shape="poly" id="edge18_Node000015_Node000015" title=" " alt="" coords="297,549,295,539,303,530,318,525,342,523,368,525,383,531,381,536,367,530,342,528,320,530,306,535,300,541,303,548"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,159,202,185"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a49679dd24c6dfeaf8869aa75a338de6d" title="Get the complement distribution of mode." alt="" coords="270,118,415,159"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,156,254,148,254,153,201,161"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,184,435,224"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="203,182,235,187,234,192,202,188"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="487,126,664,151"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="415,136,471,136,471,141,415,141"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="716,5,897,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="604,123,715,71,727,65,729,70,717,76,606,128"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="717,85,896,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="664,123,701,118,702,123,665,128"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="734,150,879,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="665,148,719,156,718,161,664,153"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="724,216,889,256"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="621,149,670,169,694,185,718,200,732,207,729,212,715,205,691,189,667,174,619,154"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,184,668,224"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="435,201,467,201,467,207,435,207"/>
+</map>

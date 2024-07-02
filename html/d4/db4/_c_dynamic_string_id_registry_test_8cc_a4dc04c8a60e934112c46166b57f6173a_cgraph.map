@@ -1,0 +1,40 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,348,202,373"/>
+<area shape="rect" id="Node000002" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#ada94ece396b0e561aa1d115c76cee069" title="Register a name and return its unique identifier." alt="" coords="264,209,447,250"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,345,175,304,248,261,264,254,266,259,251,265,178,309,123,349"/>
+<area shape="rect" id="Node000013" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="264,340,447,381"/>
+<area shape="poly" id="edge17_Node000001_Node000013" title=" " alt="" coords="202,358,248,358,248,363,202,363"/>
+<area shape="rect" id="Node000014" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a3f3fee3d48ea194e385b822101c1ef4d" title="Get the number of active names (not pruned)." alt="" coords="250,405,461,446"/>
+<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="157,371,260,398,259,403,155,376"/>
+<area shape="rect" id="Node000015" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a48738901bb6e09e5ec631806d8e6215c" title=" " alt="" coords="264,471,447,511"/>
+<area shape="poly" id="edge19_Node000001_Node000015" title=" " alt="" coords="123,372,178,412,251,455,266,462,264,467,248,460,175,417,120,376"/>
+<area shape="rect" id="Node000016" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#ac2076c62c95157992084edb606153edc" title=" " alt="" coords="264,275,447,315"/>
+<area shape="poly" id="edge20_Node000001_Node000016" title=" " alt="" coords="155,344,259,317,260,322,157,350"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a72d88e36f12b484564a72142d734367c" title=" " alt="" coords="509,209,711,250"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,227,494,227,494,232,447,232"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="513,5,708,46"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="369,207,424,137,464,97,507,62,527,50,530,55,511,67,467,101,428,141,373,211"/>
+<area shape="rect" id="Node000005" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="516,144,704,185"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="437,206,513,186,514,192,438,211"/>
+<area shape="rect" id="Node000006" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a8d9d0f248ce54fe797a09237e12a58bc" title=" " alt="" coords="519,275,701,315"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="438,248,514,268,513,273,437,253"/>
+<area shape="rect" id="Node000007" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a81a1671a3a7bb10d96da0cb54144a3c4" title=" " alt="" coords="778,259,960,299"/>
+<area shape="poly" id="edge15_Node000002_Node000007" title=" " alt="" coords="372,207,428,153,466,126,508,106,564,88,611,81,658,86,712,106,758,134,796,170,828,209,851,244,847,247,824,212,792,174,754,138,710,111,656,91,611,86,565,93,510,111,469,131,432,157,376,211"/>
+<area shape="rect" id="Node000008" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#ad9fd3a9d86ddfb73b3395df3227b851a" title="Translate word to a dictionary word." alt="" coords="759,348,979,389"/>
+<area shape="poly" id="edge16_Node000002_Node000008" title=" " alt="" coords="441,248,463,261,479,278,487,295,495,311,510,325,551,339,609,350,744,362,744,367,608,355,549,344,508,329,490,314,482,297,474,281,459,265,438,253"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="562,144,560,134,568,125,585,119,610,117,638,120,654,126,652,131,636,125,610,123,586,125,571,129,565,135,568,143"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="702,295,762,292,762,297,702,301"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="685,313,781,341,779,346,684,318"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="777,279,717,282,717,277,777,273"/>
+<area shape="poly" id="edge14_Node000008_Node000008" title=" " alt="" coords="821,348,818,338,826,329,843,323,869,321,897,324,913,330,911,335,896,329,869,327,844,329,829,333,823,339,826,347"/>
+<area shape="rect" id="Node000009" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ade14a464041834a501408e4fd90d5540" title=" " alt="" coords="1027,283,1246,323"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="955,345,1035,325,1036,330,956,350"/>
+<area shape="rect" id="Node000011" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="1027,348,1246,389"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="979,366,1011,366,1011,371,979,371"/>
+<area shape="rect" id="Node000012" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ac2086c554c00278219bf073d2a5736c2" title=" " alt="" coords="1027,413,1246,454"/>
+<area shape="poly" id="edge13_Node000008_Node000012" title=" " alt="" coords="956,387,1036,406,1035,412,955,392"/>
+<area shape="rect" id="Node000010" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#ade1c3a08b72697f0009fa91d14daa719" title=" " alt="" coords="1294,283,1437,323"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1246,300,1279,300,1279,306,1246,306"/>
+<area shape="poly" id="edge21_Node000016_Node000006" title=" " alt="" coords="447,292,504,292,504,298,447,298"/>
+<area shape="poly" id="edge22_Node000016_Node000008" title=" " alt="" coords="436,313,462,326,477,338,486,349,495,360,510,369,568,385,628,392,688,392,744,388,744,394,688,398,628,397,567,390,508,373,492,364,482,353,473,341,460,331,433,318"/>
+</map>

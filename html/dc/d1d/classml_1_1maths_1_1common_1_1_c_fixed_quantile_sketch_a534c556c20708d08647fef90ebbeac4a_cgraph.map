@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CFixedQuantileSketch::memoryUsage" name="ml::maths::common::CFixedQuantileSketch::memoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,158,133"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a1e71567c28cc5f64b10d8e4cbba96653" title="Get the memory used by this object." alt="" coords="206,85,419,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,103,190,103,190,108,158,108"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="467,92,673,118"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,103,451,103,451,108,420,108"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="721,5,893,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="614,89,705,61,707,66,616,94"/>
+<area shape="rect" id="Node000005" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="723,85,891,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="674,103,708,103,708,108,674,108"/>
+<area shape="rect" id="Node000006" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="941,107,1126,162"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="622,116,722,135,807,138,893,135,925,134,925,139,893,140,807,143,721,140,621,121"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="891,113,926,118,925,123,891,119"/>
+</map>

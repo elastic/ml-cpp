@@ -1,0 +1,6 @@
+<map id="ml::maths::common::CMultivariatePrior::swap" name="ml::maths::common::CMultivariatePrior::swap">
+<area shape="rect" id="Node000001" title="Swap the contents of this prior and other." alt="" coords="5,22,170,63"/>
+<area shape="rect" id="Node000002" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="218,29,296,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,40,202,40,202,45,170,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="228,30,223,21,226,11,238,5,257,3,277,5,288,12,285,16,276,10,257,8,239,10,230,15,228,20,233,28"/>
+</map>

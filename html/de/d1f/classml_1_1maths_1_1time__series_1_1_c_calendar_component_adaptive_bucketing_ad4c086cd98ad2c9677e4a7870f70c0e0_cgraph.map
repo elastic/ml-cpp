@@ -1,0 +1,25 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::propagateForwardsByTime" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Age the bucket values to account for time elapsed time." alt="" coords="5,135,249,190"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="554,5,776,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,132,221,91,258,71,296,56,357,40,419,31,538,24,539,30,420,36,358,46,297,61,260,76,224,95,164,137"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a1ee1d5be2458c03b7b2651344030d1d5" title="Age the force moments." alt="" coords="313,70,490,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,131,306,113,307,118,236,137"/>
+<area shape="rect" id="Node000006" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a259b158f8ed05aa83b21cc6bdbf2b64a" title="Get the rate at which the bucketing loses information." alt="" coords="323,135,480,190"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="249,160,308,160,308,165,249,165"/>
+<area shape="rect" id="Node000007" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="587,196,743,252"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="236,188,297,200,441,214,572,220,571,226,441,220,296,205,235,194"/>
+<area shape="rect" id="Node000008" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#afe92b2fae82a591e7b16461184166e3a" title="Get the value at time." alt="" coords="297,269,506,325"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="186,189,298,244,329,260,327,264,295,249,184,193"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="490,69,538,58,539,63,491,74"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#abb82eda3e1056a9cea92799517a3c033" title="Get the total count of in the bucketing." alt="" coords="571,85,759,126"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="491,93,556,96,556,102,490,98"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a46c659da01617c9298587c1c52d3025d" title="Get the count in bucket." alt="" coords="824,77,981,133"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="760,103,809,103,809,108,760,108"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="503,266,571,247,573,252,505,271"/>
+<area shape="rect" id="Node000009" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="587,276,743,332"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="507,297,571,299,571,304,507,302"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="593,356,738,396"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="495,323,555,341,579,348,577,353,553,346,493,328"/>
+<area shape="rect" id="Node000010" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="824,276,981,332"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="744,301,808,301,808,307,744,307"/>
+</map>

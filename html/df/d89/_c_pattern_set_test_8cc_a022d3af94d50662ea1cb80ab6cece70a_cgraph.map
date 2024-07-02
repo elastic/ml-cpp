@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,201,202,227"/>
+<area shape="rect" id="Node000002" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#a0e1df1f6949768637ed03219bb3fc485" title="Initialise the set from JSON that is an array of strings." alt="" coords="250,193,398,234"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,211,234,211,234,216,202,216"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac9c0287e7f45f33df1ec6065e6ddd1ec" title=" " alt="" coords="455,95,623,135"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,190,445,146,461,139,463,144,447,151,362,195"/>
+<area shape="rect" id="Node000009" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#a62424ef1b7965a18841cf83339115a8a" title="Clears the set." alt="" coords="465,160,613,201"/>
+<area shape="poly" id="edge10_Node000002_Node000009" title=" " alt="" coords="398,200,449,192,450,197,399,205"/>
+<area shape="rect" id="Node000011" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="446,225,632,266"/>
+<area shape="poly" id="edge12_Node000002_Node000011" title=" " alt="" coords="399,222,431,227,430,232,398,227"/>
+<area shape="rect" id="Node000012" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#acd862d4a1264604cb342e91a03817455" title=" " alt="" coords="454,291,624,331"/>
+<area shape="poly" id="edge13_Node000002_Node000012" title=" " alt="" coords="363,232,447,275,464,282,462,287,445,280,360,237"/>
+<area shape="rect" id="Node000004" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a3c93c774f1385bee9d579c358ea7462b" title="The recursive building helper." alt="" coords="680,29,849,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="611,92,676,72,678,78,612,97"/>
+<area shape="rect" id="Node000007" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad06d73c85fb99d9a9888376159c88fd4" title="Pretty&#45;prints the tree." alt="" coords="680,95,849,135"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="623,112,664,112,664,118,623,118"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="723,29,721,19,728,10,742,5,765,3,788,5,803,11,801,16,787,10,764,8,743,10,731,15,726,21,728,28"/>
+<area shape="rect" id="Node000005" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="897,29,1075,70"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="849,47,881,47,881,52,849,52"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1123,70,1169,96"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="1076,66,1108,73,1107,78,1075,71"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="912,95,1060,135"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="849,112,897,112,897,118,849,118"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="1059,98,1107,88,1108,93,1061,103"/>
+<area shape="rect" id="Node000010" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac3d4b4ced0b4fa847a0405f2535cf732" title="Clears the tree." alt="" coords="680,160,849,201"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="613,178,665,178,665,183,613,183"/>
+</map>

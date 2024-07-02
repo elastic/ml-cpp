@@ -1,0 +1,15 @@
+<map id="ml::model::CMetricBucketGatherer::initializeFieldNamesPart2" name="ml::model::CMetricBucketGatherer::initializeFieldNamesPart2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,87,233,128"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a956f61328f7ab63fdbfd1c4ddf1429e5" title=" " alt="" coords="281,22,456,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,84,273,64,274,70,200,89"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a8dd4e45e9f85981261149fa85e38077e" title=" " alt="" coords="281,87,456,128"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="233,105,266,105,266,110,233,110"/>
+<area shape="rect" id="Node000007" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa50476d7b7f8567c9663afcf98c4f385" title="Returns an empty string." alt="" coords="282,153,455,193"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="200,126,274,145,273,151,199,131"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#a1482559951b2d7c70f5c33ffc3248342" title=" " alt="" coords="504,5,690,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="456,30,488,27,489,32,457,36"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="536,55,658,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="457,49,521,56,520,62,456,55"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="738,55,785,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="659,65,723,65,723,70,659,70"/>
+</map>

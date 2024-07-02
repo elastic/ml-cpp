@@ -1,0 +1,24 @@
+<map id="ml::maths::common::CBjkstUniqueValues::debugMemoryUsage" name="ml::maths::common::CBjkstUniqueValues::debugMemoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this sketch." alt="" coords="5,200,155,256"/>
+<area shape="rect" id="Node000002" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#af9da9b8dc9d9ea16d09112f4ac614c2c" title="Default implementation for non&#45;pointer types." alt="" coords="203,172,368,212"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,212,187,206,187,212,156,217"/>
+<area shape="rect" id="Node000009" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="211,236,360,292"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="156,238,196,245,195,251,155,244"/>
+<area shape="rect" id="Node000003" href="$de/df0/structml_1_1core_1_1memory__detail_1_1_s_debug_memory_dynamic_size.html#a0b0baf0a3d6bf2367e46016e88a0ad32" title=" " alt="" coords="416,85,617,141"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="346,168,418,144,419,149,348,173"/>
+<area shape="rect" id="Node000008" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aa0a3d5d3341bb51e9df11ef0ea542a6a" title="Check if we expect an overloaded dynamicSize function." alt="" coords="666,182,871,223"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="368,191,651,197,651,203,368,196"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="665,95,872,121"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="618,108,650,108,650,113,618,114"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="920,5,1091,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="811,92,904,62,906,67,813,97"/>
+<area shape="rect" id="Node000006" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="922,85,1089,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="872,104,906,104,906,109,872,109"/>
+<area shape="rect" id="Node000007" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1139,135,1324,190"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="831,119,920,135,1025,146,1124,154,1123,159,1024,152,919,140,830,124"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1089,123,1124,133,1123,138,1087,129"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="871,195,1091,179,1123,175,1124,180,1091,184,872,200"/>
+<area shape="rect" id="Node000010" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="432,244,602,284"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="360,270,416,270,416,275,360,275"/>
+<area shape="poly" id="edge12_Node000010_Node000009" title=" " alt="" coords="431,258,375,258,375,252,431,252"/>
+</map>

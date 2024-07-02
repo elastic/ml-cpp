@@ -1,0 +1,6 @@
+<map id="ml::maths::common::CClusterer::add" name="ml::maths::common::CClusterer::add">
+<area shape="rect" id="Node000001" title="Add a point without caring about its cluster." alt="" coords="199,29,344,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="303,16,291,10,271,8,253,10,242,15,238,20,240,28,234,29,233,19,239,10,252,5,271,3,292,5,305,11"/>
+<area shape="rect" id="Node000002" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#af8e4fc3f25ea33005c6ea15e7b90cc20" title="Update the clustering with points." alt="" coords="5,29,151,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="183,52,151,52,151,47,183,47"/>
+</map>

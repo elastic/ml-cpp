@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::print" name="ml::maths::common::CMultivariateConstantPrior::print">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,184,97"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="233,5,411,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,52,217,47,218,52,184,58"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="232,85,412,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,81,216,86,216,91,184,86"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultimodalPrior::clone" name="ml::maths::common::CMultimodalPrior::clone">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,104,433,145"/>
+<area shape="rect" id="Node000002" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a9a9c1ec344485a1a5265d163c7c0f312" title=" " alt="" coords="18,5,212,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="301,99,224,61,189,49,191,44,226,57,303,94"/>
+<area shape="rect" id="Node000003" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#a3ab98cd34165e78d7ddaf8d0994891eb" title=" " alt="" coords="5,71,225,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,114,225,109,226,104,258,108"/>
+<area shape="rect" id="Node000004" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#a81ab4d3924f55a8285294fcd4b1f00b2" title=" " alt="" coords="9,136,221,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,140,221,145,221,139,257,134"/>
+<area shape="rect" id="Node000005" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#af231a0eff97605c30487253f9e2c699a" title=" " alt="" coords="18,201,212,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="303,154,226,191,191,203,189,198,224,186,300,150"/>
+</map>

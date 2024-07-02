@@ -1,0 +1,7 @@
+<map id="ml::core::CLogger::levelToString" name="ml::core::CLogger::levelToString">
+<area shape="rect" id="Node000001" title="Map the level enum to a string." alt="" coords="228,35,361,75"/>
+<area shape="rect" id="Node000002" href="$d6/de6/classml_1_1core_1_1_c_json_log_layout.html#a72e7b23ce7cced614328c75bf69c94b6" title="Formats a Boost.Log record as JSON." alt="" coords="5,5,180,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,46,180,41,181,36,212,40"/>
+<area shape="rect" id="Node000003" href="$db/dc5/namespaceml_1_1core.html#aa264dc75fc6e41ab0bbaf57a3512bde5" title=" " alt="" coords="23,70,162,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,69,163,76,162,71,212,64"/>
+</map>

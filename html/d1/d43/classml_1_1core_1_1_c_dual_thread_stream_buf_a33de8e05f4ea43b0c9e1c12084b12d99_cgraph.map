@@ -1,0 +1,5 @@
+<map id="ml::core::CDualThreadStreamBuf::signalFatalError" name="ml::core::CDualThreadStreamBuf::signalFatalError">
+<area shape="rect" id="Node000001" title="Set the fatal error flag." alt="" coords="5,5,201,46"/>
+<area shape="rect" id="Node000002" href="$d1/d57/classml_1_1core_1_1_c_condition.html#adf8ff0b46ed94d5031927e967b854b1b" title="Wake up a single thread that is blocked in wait." alt="" coords="249,5,390,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,23,233,23,233,28,201,28"/>
+</map>

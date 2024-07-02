@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketMean::acceptPersistInserter" name="ml::maths::time_series::CTimeSeriesMultibucketMean::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,31,210,87"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="258,5,460,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,43,242,38,243,44,210,48"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="282,71,436,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,69,267,77,266,82,210,75"/>
+</map>

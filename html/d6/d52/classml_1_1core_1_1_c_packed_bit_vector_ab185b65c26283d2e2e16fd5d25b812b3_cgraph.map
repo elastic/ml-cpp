@@ -1,0 +1,14 @@
+<map id="ml::core::CPackedBitVector::inner" name="ml::core::CPackedBitVector::inner">
+<area shape="rect" id="Node000001" title="Inner product." alt="" coords="5,39,190,79"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ac0eebb5df26a9562043d149bbfb20ab8" title=" " alt="" coords="238,39,422,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,56,222,56,222,62,190,62"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#aae429f3ade684c422d9f25ec88301131" title="Get the dimension." alt="" coords="470,5,654,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,43,454,38,455,44,423,48"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a1fd3c1271bf4d576ec2e62b2645b9177" title=" " alt="" coords="470,71,654,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,69,455,74,454,79,422,74"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="702,29,887,70"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="654,72,686,66,687,71,655,77"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="757,118,832,144"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="655,104,742,119,742,125,654,110"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="756,119,748,110,753,100,769,94,795,92,823,94,837,101,835,106,821,99,794,97,770,99,757,104,754,109,760,116"/>
+</map>

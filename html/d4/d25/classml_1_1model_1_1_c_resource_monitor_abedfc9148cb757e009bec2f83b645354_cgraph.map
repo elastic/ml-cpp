@@ -1,0 +1,24 @@
+<map id="ml::model::CResourceMonitor::isMemoryStable" name="ml::model::CResourceMonitor::isMemoryStable">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,165,201,206"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="258,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,163,175,111,210,82,247,57,258,51,261,55,250,61,213,86,179,115,125,167"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="265,71,410,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,162,248,122,265,115,267,120,250,127,153,167"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="258,136,417,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,171,242,166,242,171,202,176"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="249,201,426,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,195,234,199,233,204,201,200"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="717,252,862,293"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="151,204,198,222,249,236,371,256,494,267,607,272,701,272,701,277,607,277,493,272,370,261,248,242,196,227,149,209"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="249,301,426,342"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="134,204,187,242,250,281,272,292,270,297,247,285,184,246,131,209"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="474,194,651,220"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="426,208,458,207,458,213,426,214"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="699,42,880,98"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="579,191,631,152,698,107,707,102,709,107,701,112,634,156,582,196"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="700,121,879,162"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="609,191,701,164,702,169,611,196"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="611,218,702,245,701,250,609,223"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="707,187,872,227"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="652,204,691,204,691,210,652,210"/>
+</map>

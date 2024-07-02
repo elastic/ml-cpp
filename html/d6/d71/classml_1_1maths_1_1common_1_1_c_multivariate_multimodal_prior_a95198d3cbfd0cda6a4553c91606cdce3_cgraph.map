@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::checksum" name="ml::maths::common::CMultivariateMultimodalPrior::checksum">
+<area shape="rect" id="Node000001" title="Get a checksum for this object." alt="" coords="5,5,194,61"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="435,13,589,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,24,242,23,387,23,420,24,420,29,387,28,242,28,194,30"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a00ce3bf67c4bcf3d302793d3a1208e49" title="Get a checksum for this object." alt="" coords="242,37,387,93"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,45,227,49,226,55,193,50"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="387,51,419,45,420,51,388,56"/>
+</map>

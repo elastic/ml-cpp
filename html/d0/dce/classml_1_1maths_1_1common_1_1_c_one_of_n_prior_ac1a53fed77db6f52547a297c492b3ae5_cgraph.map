@@ -1,0 +1,9 @@
+<map id="ml::maths::common::COneOfNPrior::marginalLikelihoodMean" name="ml::maths::common::COneOfNPrior::marginalLikelihoodMean">
+<area shape="rect" id="Node000001" title="Get the mean of the marginal likelihood function." alt="" coords="5,39,259,79"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a6ebf8a8f265d7d778b384b44b524f543" title="Check if this is a non&#45;informative prior." alt="" coords="312,5,525,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="259,42,296,37,297,42,259,47"/>
+<area shape="rect" id="Node000003" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#adbc1ad64f904bf4aed63803108979a95" title="Get the median of the model means." alt="" coords="307,71,530,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="259,71,291,74,291,79,259,76"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#af85715f6cd6628a014dbe48cbd74da74" title="Compute the sample median." alt="" coords="578,71,747,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="531,88,562,88,562,94,531,94"/>
+</map>

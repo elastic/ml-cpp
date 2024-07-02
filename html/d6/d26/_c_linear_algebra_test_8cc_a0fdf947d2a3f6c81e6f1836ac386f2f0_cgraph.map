@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,202,169"/>
+<area shape="rect" id="Node000002" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#ae69fcec5d3b5ae916172bbc58ab4216a" title="Get the number of columns." alt="" coords="250,5,437,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,141,176,100,248,57,263,50,265,55,251,61,179,105,123,145"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="264,71,423,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="153,140,251,113,252,119,154,146"/>
+<area shape="rect" id="Node000004" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aeca3b102706a48078df4f64182e7d104" title="Get the mean of the matrix elements." alt="" coords="258,136,429,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,154,243,154,243,159,202,159"/>
+<area shape="rect" id="Node000006" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aed064a5bacaea4526c73c59bd3d48d61" title="Get the number of rows." alt="" coords="260,201,427,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="154,167,252,194,251,199,153,172"/>
+<area shape="rect" id="Node000007" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#a44a36c3b36892a466d546d91bc2da213" title="Get the trace." alt="" coords="260,267,427,307"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="123,168,179,208,251,251,265,258,263,263,248,256,176,212,120,172"/>
+<area shape="rect" id="Node000005" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a3d5fe3ef22bc9c29a6b866fc353af73e" title=" " alt="" coords="485,121,652,192"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="429,154,469,154,469,159,429,159"/>
+<area shape="rect" id="Node000008" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a162add484b2805c82788941ccf146d31" title=" " alt="" coords="485,252,652,322"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="428,284,469,284,469,290,428,290"/>
+</map>

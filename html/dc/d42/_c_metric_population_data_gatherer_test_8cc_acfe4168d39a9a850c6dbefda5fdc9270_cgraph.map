@@ -1,0 +1,31 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,276,223,301"/>
+<area shape="rect" id="Node000002" href="$d1/d74/namespaceanonymous__namespace_02_c_metric_population_data_gatherer_test_8cc_03.html#a710a77a1c89810cfbd8173c9f36acdbf" title=" " alt="" coords="275,66,485,122"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,274,180,207,222,167,269,131,277,127,280,131,272,136,226,171,184,211,127,277"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab8b83d54a037e51309b2712f866c6f5a" title=" " alt="" coords="293,145,467,186"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="134,273,193,236,270,197,288,189,290,194,272,201,196,241,137,277"/>
+<area shape="rect" id="Node000010" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#a3e283d386e37859bf38edde72cd6d0b7" title="Set the features which will be modeled." alt="" coords="283,235,477,275"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="221,272,267,266,268,272,222,278"/>
+<area shape="rect" id="Node000011" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#a1ef7f929f2ec503f45972ab4fdee1615" title=" " alt="" coords="271,300,489,341"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="223,299,255,303,255,308,223,304"/>
+<area shape="rect" id="Node000013" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a170d7a2c0230cd416385e207322a055e" title="Roll time to the end of the bucket that is latency after the sampled bucket." alt="" coords="293,365,467,406"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="146,299,272,350,294,357,292,363,270,355,144,304"/>
+<area shape="rect" id="Node000014" href="$d3/dc5/structanonymous__namespace_02_c_metric_population_data_gatherer_test_8cc_03_1_1_s_message.html#ad8261a3cb0c25758380659c9c204a3c3" title=" " alt="" coords="274,430,486,486"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="130,300,189,355,229,387,272,415,281,420,279,425,269,420,226,391,185,359,126,304"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="538,16,712,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="485,66,522,58,523,63,486,72"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="768,71,927,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="486,90,753,89,753,94,486,96"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="551,135,698,175"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="486,118,537,130,535,135,485,123"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="760,5,935,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="712,29,744,28,745,33,713,35"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="711,55,754,65,752,70,710,60"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="983,71,1141,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="927,88,967,88,967,94,927,94"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="778,136,917,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="699,153,763,153,763,158,699,158"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="334,235,332,225,339,216,355,210,380,208,406,210,422,217,420,222,405,216,380,213,356,215,342,220,337,226,339,233"/>
+<area shape="rect" id="Node000012" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a4c2361335ef97eebb66e5e2852ef0f4e" title="Get global model configuration parameters." alt="" coords="537,300,712,341"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="490,318,521,318,521,323,490,323"/>
+</map>

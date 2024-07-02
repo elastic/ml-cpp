@@ -1,0 +1,29 @@
+<map id="ml::maths::time_series::CCalendarCyclicTest::winsorise" name="ml::maths::time_series::CCalendarCyclicTest::winsorise">
+<area shape="rect" id="Node000001" title="Winsorise error." alt="" coords="5,41,160,97"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a6dce5cdf69b64a6b39b931db211d71bb" title="Get the quantile corresponding to percentage." alt="" coords="208,49,381,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,67,192,67,192,72,160,72"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="254,49,252,39,259,30,273,24,294,22,317,25,331,31,329,36,316,30,294,27,274,29,262,34,257,40,259,48"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a512d452c8d6edc72c3407743e8fc9101" title="Get the target size for fastReduce." alt="" coords="429,5,624,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="381,53,413,48,414,53,382,58"/>
+<area shape="rect" id="Node000004" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a947c1ae935ba81ef8dae72195ff51c91" title="Reduce to target size." alt="" coords="443,85,610,126"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="382,80,428,87,427,92,381,85"/>
+<area shape="rect" id="Node000005" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#afac48cf1ac00c289ffa00e612dc0430b" title="Combine any co&#45;located values." alt="" coords="917,21,1111,62"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="596,82,623,71,646,55,657,48,672,41,730,29,789,23,901,25,901,30,790,28,730,34,673,46,659,52,649,59,626,76,598,87"/>
+<area shape="rect" id="Node000006" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a9489402a0c3a783b1b5543d35c0a1a3c" title="Compute the cost of combining vl and vr." alt="" coords="918,110,1110,151"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="611,107,902,122,902,127,611,112"/>
+<area shape="rect" id="Node000007" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac9813f7e83bf8bc406b4586c7e1cc075" title="Fully order the values." alt="" coords="691,56,848,96"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="611,92,675,85,676,90,611,98"/>
+<area shape="rect" id="Node000008" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a0006c909afeb7ba54693ab4ba5977a19" title="Reduce to the maximum permitted size." alt="" coords="672,172,867,228"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="582,123,683,163,681,168,580,128"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="848,62,901,54,902,60,849,67"/>
+<area shape="poly" id="edge14_Node000008_Node000006" title=" " alt="" coords="866,170,924,153,925,158,868,175"/>
+<area shape="rect" id="Node000009" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="923,175,1105,230"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="867,198,908,199,907,204,867,204"/>
+<area shape="rect" id="Node000012" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a15fce53ec3d0f0b8823ed427cbaa2767" title="The result of merging knots at positions l and r." alt="" coords="915,254,1113,295"/>
+<area shape="poly" id="edge15_Node000008_Node000012" title=" " alt="" coords="864,226,931,246,929,252,862,231"/>
+<area shape="rect" id="Node000010" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="1161,175,1342,230"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1105,200,1145,200,1145,205,1105,205"/>
+<area shape="rect" id="Node000011" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="1390,175,1572,230"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="1343,200,1375,200,1375,205,1343,205"/>
+<area shape="poly" id="edge13_Node000011_Node000011" title=" " alt="" coords="1436,174,1437,164,1445,155,1460,150,1481,148,1505,151,1520,157,1518,162,1504,156,1481,153,1461,155,1448,160,1442,166,1441,174"/>
+</map>

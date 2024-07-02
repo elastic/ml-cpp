@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::linearScale" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::linearScale">
+<area shape="rect" id="Node000001" title="Linearly scale the regressions by scale at time." alt="" coords="424,5,635,61"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ac4bc65a11d95ba4e8449f4b8fe997aac" title="Linearly scale the component&#39;s by scale." alt="" coords="208,5,376,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="408,36,377,36,377,31,408,31"/>
+<area shape="rect" id="Node000003" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#a466e04eb941540e537a5b5dd3d48433b" title=" " alt="" coords="5,13,160,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="192,36,160,36,160,31,192,31"/>
+</map>

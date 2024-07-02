@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::correlationModels" name="ml::maths::time_series::CUnivariateTimeSeriesModel::correlationModels">
+<area shape="rect" id="Node000001" title=" " alt="" coords="500,125,699,181"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="639,113,624,106,600,104,578,106,564,111,557,117,557,125,551,125,552,115,561,106,577,101,600,99,626,101,641,108"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a6bafa8fd1529e7a1b24b538c3191d403" title="Compute the probability for correlated series." alt="" coords="253,5,452,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="535,120,451,76,425,64,427,59,453,71,538,115"/>
+<area shape="rect" id="Node000004" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a2b5c91aa7f696a1ce4a27df0ebe00bbd" title=" " alt="" coords="253,85,452,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="484,137,452,132,453,127,485,132"/>
+<area shape="rect" id="Node000005" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#add0e727556bea054ba91db9dd85233ba" title="Get the correlated time series identifier pairs if any." alt="" coords="253,165,452,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="485,174,453,180,452,174,484,169"/>
+<area shape="rect" id="Node000006" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa82bbb853d097c3a42f01423bbfeccab" title="Remove any trend components from value." alt="" coords="253,245,452,301"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="538,191,453,236,427,247,425,242,451,231,535,187"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a24874bc00a4f05cb755223d282eeea0b" title="Compute the probability of drawing value at time." alt="" coords="5,5,205,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,36,205,36,205,31,237,31"/>
+</map>

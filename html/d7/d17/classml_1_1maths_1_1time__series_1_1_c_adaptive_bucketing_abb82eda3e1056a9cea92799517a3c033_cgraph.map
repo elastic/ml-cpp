@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::count" name="ml::maths::time_series::CAdaptiveBucketing::count">
+<area shape="rect" id="Node000001" title="Get the total count of in the bucketing." alt="" coords="5,13,194,54"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a46c659da01617c9298587c1c52d3025d" title="Get the count in bucket." alt="" coords="242,5,398,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,31,226,31,226,36,194,36"/>
+</map>

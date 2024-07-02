@@ -1,0 +1,21 @@
+<map id="ml::api::CHierarchicalResultsWriter::writeSimpleCountResult" name="ml::api::CHierarchicalResultsWriter::writeSimpleCountResult">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,136,210,177"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a904b4b4a1f1f1e6d43647bbdbe2baf63" title="Is this function for use with metric models?" alt="" coords="290,71,422,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,133,274,110,275,115,188,138"/>
+<area shape="rect" id="Node000008" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a91f7dd2c0b68d17e2a019c35b5bbdd39" title="Check if the node is simple counting result." alt="" coords="258,136,454,177"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="210,154,242,154,242,159,210,159"/>
+<area shape="rect" id="Node000009" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="279,201,433,256"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="181,175,265,199,263,204,179,180"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="502,71,634,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,88,487,88,487,94,422,94"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="682,5,815,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="634,73,695,50,697,55,636,78"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="682,71,815,111"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="635,97,667,97,667,103,635,102"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="687,136,810,161"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="635,109,692,128,690,133,633,114"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="683,44,621,67,619,62,681,39"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="682,85,650,85,650,79,682,80"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="863,136,909,161"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="810,146,847,146,847,151,810,151"/>
+</map>

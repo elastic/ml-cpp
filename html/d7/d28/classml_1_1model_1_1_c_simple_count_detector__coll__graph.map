@@ -1,0 +1,15 @@
+<map id="ml::model::CSimpleCountDetector" name="ml::model::CSimpleCountDetector">
+<area shape="rect" id="Node000001" title="Simply records and reports overall event counts." alt="" coords="1374,55,1595,80"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html" title="Interface for detecting and reporting anomalies in different types of unstructured data." alt="" coords="1127,55,1325,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1340,65,1374,65,1374,70,1340,70"/>
+<area shape="rect" id="Node000003" href="$d8/d9a/classml_1_1model_1_1_c_monitored_resource.html" title="Interface for resource monitoring." alt="" coords="775,5,984,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1000,30,1104,45,1146,51,1145,57,1103,50,999,36"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="814,55,945,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="961,65,1127,65,1127,70,961,70"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="411,55,606,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="622,65,813,65,813,70,622,70"/>
+<area shape="rect" id="Node000006" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="5,40,218,95"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="233,65,410,65,410,70,233,70"/>
+<area shape="rect" id="Node000007" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html" title="Responsible for configuring anomaly detection models." alt="" coords="781,105,978,145"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="993,103,1103,85,1144,78,1145,84,1104,90,994,109"/>
+</map>

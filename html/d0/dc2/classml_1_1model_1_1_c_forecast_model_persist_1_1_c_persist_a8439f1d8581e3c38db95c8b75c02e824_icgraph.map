@@ -1,0 +1,9 @@
+<map id="ml::model::CForecastModelPersist::CPersist::finalizePersistAndGetFile" name="ml::model::CForecastModelPersist::CPersist::finalizePersistAndGetFile">
+<area shape="rect" id="Node000001" title="close the output file stream" alt="" coords="251,40,462,95"/>
+<area shape="rect" id="Node000002" href="$d9/d06/_c_forecast_model_persist_test_8cc.html#a795f3175d2d5797cfe8c035402281353" title=" " alt="" coords="6,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,47,173,34,174,29,236,41"/>
+<area shape="rect" id="Node000003" href="$d9/d06/_c_forecast_model_persist_test_8cc.html#a4494baafc47a6881d00e75676b78db4c" title=" " alt="" coords="6,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,70,203,70,203,65,235,65"/>
+<area shape="rect" id="Node000004" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7e6bd4649eea94780ec213c850c83a31" title="Generate maths models for forecasting." alt="" coords="5,105,203,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="236,98,197,106,196,101,235,92"/>
+</map>

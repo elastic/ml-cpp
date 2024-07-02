@@ -1,0 +1,9 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::quantile" name="ml::model::CAnomalyScore::CNormalizer::quantile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,187,79"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a64e6c91d87582a63a71bab40f631e1bb" title=" " alt="" coords="235,5,388,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,42,219,37,220,42,187,48"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="239,71,384,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,70,224,75,223,81,187,75"/>
+<area shape="rect" id="Node000003" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#aca33548a3aad68a5e063512c9f29c65c" title="Get the total number of values added to the q&#45;digest." alt="" coords="436,5,581,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,23,421,23,421,28,388,28"/>
+</map>

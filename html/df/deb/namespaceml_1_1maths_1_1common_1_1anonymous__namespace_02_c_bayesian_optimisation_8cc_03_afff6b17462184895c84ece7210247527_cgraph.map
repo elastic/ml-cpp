@@ -1,0 +1,7 @@
+<map id="ml::maths::common::anonymous_namespace{CBayesianOptimisation::cc}::toScaled" name="ml::maths::common::anonymous_namespace{CBayesianOptimisation::cc}::toScaled">
+<area shape="rect" id="Node000001" title="Affine transform scale * (fx &#45; shift)." alt="" coords="5,29,168,100"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="53,28,54,19,61,10,72,5,87,3,103,5,114,12,111,17,101,10,86,8,73,10,64,14,59,21,58,29"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="216,52,290,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,62,200,62,200,67,168,67"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="224,53,219,43,222,34,234,27,253,25,273,28,284,34,281,39,271,33,253,30,236,32,226,37,224,43,229,50"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CXMeans::polish" name="ml::maths::common::CXMeans::polish">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,151,159"/>
+<area shape="rect" id="Node000002" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a00e4e57461187bfdf48cdffd62e02a22" title="Set the cluster centre." alt="" coords="199,29,382,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,116,198,81,215,74,217,79,200,85,123,121"/>
+<area shape="rect" id="Node000003" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a4deecdaa2dccab53c345bc67ef614f47" title="Set the cluster cost." alt="" coords="204,119,377,159"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="151,136,188,136,188,142,151,142"/>
+<area shape="rect" id="Node000004" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a07a733602da586b4a54b83fd198b45d1" title="Swap the points into place and recalculate the checksum." alt="" coords="199,184,382,225"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="147,157,208,176,206,181,145,162"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="250,29,248,19,255,10,269,5,290,3,313,5,327,11,325,16,312,10,290,8,270,10,258,15,253,20,255,28"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="250,119,248,109,255,100,269,94,290,92,313,94,327,101,325,105,312,100,290,97,270,99,258,104,253,110,255,117"/>
+<area shape="rect" id="Node000005" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="444,151,598,191"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="381,189,428,182,429,187,382,194"/>
+<area shape="rect" id="Node000006" href="$d6/d4c/classml_1_1maths_1_1common_1_1_c_x_means_1_1_c_cluster.html#a540fc199679c52ca5154f88fec9970b4" title="Get the cluster points." alt="" coords="430,216,612,257"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="382,214,415,219,414,224,381,220"/>
+</map>

@@ -1,0 +1,38 @@
+<map id="ml::api::CAnnotationJsonWriter::populateAnnotationObject" name="ml::api::CAnnotationJsonWriter::populateAnnotationObject">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,431,218,471"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a658376c982f9bb48b0bb62145649e48c" title=" " alt="" coords="293,71,475,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,430,128,369,155,286,175,242,200,198,229,158,264,122,277,113,280,117,267,126,233,161,204,201,180,244,160,288,133,371,119,431"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a64cde73b037726cb4012fcc7ae8571e0" title=" " alt="" coords="266,5,502,46"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="112,430,122,359,147,259,167,204,192,151,224,101,264,57,269,53,273,57,268,61,229,104,197,153,172,206,152,260,127,360,117,431"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a6258a45eac6ad2a6a37486b80d7924e0" title=" " alt="" coords="293,136,475,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="117,429,134,380,164,314,207,246,234,215,264,188,277,179,280,183,267,192,238,219,212,249,169,317,139,382,122,431"/>
+<area shape="rect" id="Node000008" href="$da/d08/classml_1_1model_1_1_c_annotation.html#adbe7b2fe95630aab0b91b58951268394" title=" " alt="" coords="305,201,463,242"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="121,429,142,391,174,344,215,295,264,253,289,240,292,244,267,257,219,298,178,347,147,394,125,432"/>
+<area shape="rect" id="Node000009" href="$da/d08/classml_1_1model_1_1_c_annotation.html#a5f02eec51b392fc320a8ac0592bd1535" title=" " alt="" coords="305,267,463,307"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="130,428,186,373,224,344,264,318,289,307,291,312,267,323,227,348,190,377,133,432"/>
+<area shape="rect" id="Node000010" href="$da/d08/classml_1_1model_1_1_c_annotation.html#aa85be48453126d3e2e4b02e8d0fddcb9" title=" " alt="" coords="305,332,463,373"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="157,428,265,383,289,375,290,380,267,388,159,433"/>
+<area shape="rect" id="Node000011" href="$da/d08/classml_1_1model_1_1_c_annotation.html#ab70a62af1d7723444a1c42c2c08e01ec" title=" " alt="" coords="305,397,463,438"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="218,435,289,427,290,432,219,441"/>
+<area shape="rect" id="Node000012" href="$da/d08/classml_1_1model_1_1_c_annotation.html#a852b87f74297b47be4023e869995f647" title=" " alt="" coords="305,463,463,503"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="219,461,290,469,289,475,218,466"/>
+<area shape="rect" id="Node000013" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#ad866aed0c9880f80b8531fd518d491f6" title="Current time in milliseconds since the epoch." alt="" coords="313,528,455,569"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="160,469,267,512,298,523,297,528,265,518,158,474"/>
+<area shape="rect" id="Node000014" href="$da/d08/classml_1_1model_1_1_c_annotation.html#a3c03893b72c9274b568fb693370d860e" title=" " alt="" coords="305,593,463,634"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="133,470,190,524,227,553,267,578,291,589,289,594,264,583,224,557,187,528,130,474"/>
+<area shape="rect" id="Node000015" href="$da/d08/classml_1_1model_1_1_c_annotation.html#aa924952d120f471a63c9df0ca1e974db" title=" " alt="" coords="305,659,463,699"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="126,470,147,508,179,554,219,603,267,643,292,656,289,661,264,648,215,606,174,558,142,510,121,473"/>
+<area shape="rect" id="Node000016" href="$da/d08/classml_1_1model_1_1_c_annotation.html#a27966f079351b3896fceea189fc54642" title=" " alt="" coords="305,724,463,765"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="122,471,139,520,169,584,212,652,238,682,267,709,292,723,289,728,264,713,234,686,207,655,165,587,134,522,117,473"/>
+<area shape="rect" id="Node000017" href="$da/d08/classml_1_1model_1_1_c_annotation.html#a87ed5899f807a5b0cb23d61363f73f9e" title=" " alt="" coords="305,789,463,830"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="119,471,133,531,161,613,180,657,204,700,233,740,267,774,292,789,289,794,264,778,229,743,200,703,175,659,156,615,128,532,114,472"/>
+<area shape="rect" id="Node000018" href="$da/d08/classml_1_1model_1_1_c_annotation.html#a602b84ffd60f3b14baa722ad914a8aa5" title=" " alt="" coords="305,855,463,895"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="117,472,128,542,152,641,172,695,197,748,229,797,267,840,292,856,289,860,264,844,224,800,192,750,167,697,147,643,122,543,112,472"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="550,71,732,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="475,88,535,88,535,94,475,94"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa04b96bd845cee548d7424fe8300a876" title=" " alt="" coords="550,5,732,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="502,23,534,23,534,28,502,28"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="466,133,543,113,544,118,467,138"/>
+<area shape="rect" id="Node000007" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a628750eca37e99b7ee659670f7b5752d" title="Converts an epoch seconds timestamp to epoch millis." alt="" coords="570,136,712,177"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="475,154,554,154,554,159,475,159"/>
+</map>

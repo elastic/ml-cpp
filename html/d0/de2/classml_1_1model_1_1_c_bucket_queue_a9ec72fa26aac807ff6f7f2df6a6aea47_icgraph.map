@@ -1,0 +1,39 @@
+<map id="ml::model::CBucketQueue::end" name="ml::model::CBucketQueue::end">
+<area shape="rect" id="Node000001" title="Returns an iterator pointing to the end of the queue." alt="" coords="732,291,937,317"/>
+<area shape="rect" id="Node000002" href="$de/d3c/_c_bucket_queue_test_8cc.html#a6eb2ab9edcab78fe594e208575832aed" title=" " alt="" coords="488,262,684,288"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="716,293,684,289,685,284,717,288"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ab27631f14f5ae505aeb401f3d56f57a9" title=" " alt="" coords="493,312,680,353"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="717,320,681,324,680,319,717,315"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a5aa5b28fbf86b461353d5844764afa89" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="253,64,440,105"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="488,304,486,302,470,279,462,257,460,213,460,169,453,147,438,125,416,107,419,103,442,121,458,145,465,168,466,212,467,256,474,277,490,299,492,300"/>
+<area shape="rect" id="Node000005" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ada2b9089aedcce8d848a7b2b1d44e4a6" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="5,20,205,61"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="487,304,486,302,466,269,459,236,460,204,466,172,470,140,470,110,461,82,438,54,410,35,379,22,345,13,311,9,242,12,179,22,179,17,241,6,311,4,346,8,380,17,413,30,442,50,466,79,476,110,476,141,471,173,465,204,464,236,471,267,490,299,491,300"/>
+<area shape="rect" id="Node000006" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#adaceafb3f03d6f440ceb1357a8000a66" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="16,109,194,150"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="489,305,486,302,474,287,467,271,463,240,458,210,451,197,438,184,411,165,382,151,318,132,253,124,194,124,194,118,254,119,319,127,384,146,414,161,442,180,455,194,463,209,468,239,472,270,478,284,490,298,492,301"/>
+<area shape="rect" id="Node000007" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a2fe5889882e39d0134993002dc51c8e2" title="Stop gathering data on the people identified by peopleToRemove." alt="" coords="253,229,440,270"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="505,309,487,303,404,273,405,268,489,298,507,304"/>
+<area shape="rect" id="Node000008" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a2f73010e86fc7e067f970bbb3fbfd35f" title="Stop gathering data on the people identified by peopleToRemove." alt="" coords="5,192,205,233"/>
+<area shape="poly" id="edge11_Node000003_Node000008" title=" " alt="" coords="491,306,486,302,469,280,463,258,456,237,438,220,410,206,380,196,316,186,252,187,194,194,194,189,252,182,316,181,381,191,412,201,442,215,461,234,468,256,474,278,490,298,494,302"/>
+<area shape="rect" id="Node000009" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a324c69bf5abcc3792c3678feccaa4b12" title="Stop gathering data on the people identified by peopleToRemove." alt="" coords="18,272,192,313"/>
+<area shape="poly" id="edge12_Node000003_Node000009" title=" " alt="" coords="477,326,192,302,192,297,477,321"/>
+<area shape="rect" id="Node000010" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#acc7098738f4418a4ca6f9b4cce71e3bd" title=" " alt="" coords="253,395,440,435"/>
+<area shape="poly" id="edge13_Node000003_Node000010" title=" " alt="" coords="512,361,409,397,407,391,510,356"/>
+<area shape="rect" id="Node000011" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a5c9eb24e7ca4548cfaf372e03404e34b" title=" " alt="" coords="5,355,205,395"/>
+<area shape="poly" id="edge16_Node000003_Node000011" title=" " alt="" coords="477,345,205,369,205,364,477,339"/>
+<area shape="rect" id="Node000012" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#abb6a41e8a5118585267cdb37bef906f8" title=" " alt="" coords="16,441,194,482"/>
+<area shape="poly" id="edge17_Node000003_Node000012" title=" " alt="" coords="558,366,507,412,475,433,441,449,378,467,314,475,251,477,195,475,195,470,251,472,313,470,377,461,439,444,473,428,504,407,554,362"/>
+<area shape="rect" id="Node000013" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ae6d21714b6e8d2ee23d4a064c04d1da2" title=" " alt="" coords="253,560,440,601"/>
+<area shape="poly" id="edge18_Node000003_Node000013" title=" " alt="" coords="571,368,550,408,521,454,484,502,442,544,412,562,410,557,438,540,480,498,516,451,545,405,567,365"/>
+<area shape="rect" id="Node000014" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a431b5ea1104138c6af7e92d0ea17b31a" title=" " alt="" coords="5,515,205,555"/>
+<area shape="poly" id="edge21_Node000003_Node000014" title=" " alt="" coords="564,367,513,427,479,458,441,483,383,507,322,523,261,533,205,537,205,532,261,527,321,518,381,502,439,478,476,454,509,424,560,364"/>
+<area shape="rect" id="Node000015" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a9b3811506c3d897a6067942effddbcfd" title=" " alt="" coords="18,597,192,638"/>
+<area shape="poly" id="edge22_Node000003_Node000015" title=" " alt="" coords="581,368,566,425,540,494,521,529,499,561,473,591,441,615,412,630,380,640,314,651,248,649,189,641,190,636,249,644,313,645,379,635,410,625,439,610,469,587,495,558,517,526,535,492,561,424,576,367"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="237,67,204,61,205,56,238,62"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="238,107,194,116,193,110,237,102"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="237,235,205,230,205,225,237,230"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="238,272,192,280,192,274,237,266"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="237,400,205,394,205,389,237,394"/>
+<area shape="poly" id="edge15_Node000010_Node000012" title=" " alt="" coords="238,439,195,447,194,442,237,433"/>
+<area shape="poly" id="edge19_Node000013_Node000014" title=" " alt="" coords="237,562,204,556,205,551,238,557"/>
+<area shape="poly" id="edge20_Node000013_Node000015" title=" " alt="" coords="237,600,192,607,192,602,237,595"/>
+</map>

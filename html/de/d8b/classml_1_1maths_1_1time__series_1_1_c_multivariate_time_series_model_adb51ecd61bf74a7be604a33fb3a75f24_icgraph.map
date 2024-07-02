@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::mode" name="ml::maths::time_series::CMultivariateTimeSeriesModel::mode">
+<area shape="rect" id="Node000001" title="Get the most likely value for the time series at time." alt="" coords="261,29,508,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="430,16,413,10,384,8,358,10,342,15,336,21,338,28,333,29,330,19,339,10,357,5,384,3,414,5,431,11"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abf4f75f6217413e2d2fa4515eba38105" title="Get the local maxima of the residual distribution." alt="" coords="5,22,213,78"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="245,52,213,52,213,47,245,47"/>
+</map>

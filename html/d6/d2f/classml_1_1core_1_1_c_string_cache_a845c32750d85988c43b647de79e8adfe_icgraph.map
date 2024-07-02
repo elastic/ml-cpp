@@ -1,0 +1,7 @@
+<map id="ml::core::CStringCache::haveCopyOnWriteStrings" name="ml::core::CStringCache::haveCopyOnWriteStrings">
+<area shape="rect" id="Node000001" title=" " alt="" coords="235,39,411,79"/>
+<area shape="rect" id="Node000002" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a62fa997234af569a4cf00becd24bf3f5" title="As above, but use both a node pool and a string cache." alt="" coords="5,5,187,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,46,187,42,187,36,220,41"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a7ac25a32fe2c8388673a1332fab770bc" title="As above, but use both a node pool and a string cache." alt="" coords="22,71,170,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,76,171,83,170,78,219,71"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CKMeans&lt; POINT &gt;::CCentroidComputer" name="ml::maths::common::CKMeans&lt; POINT &gt;::CCentroidComputer">
+<area shape="rect" id="Node000001" title="Updates the cluster centres in an iteration of Lloyd&#39;s algorithm." alt="" coords="15,109,226,165"/>
+<area shape="rect" id="Node000002" href="$dc/de9/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_centre_filter.html" title="Maintains a set of candidate centres which could be the closest centre to a point in k&#45;d tree branch." alt="" coords="5,5,236,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,62,123,109,118,109,118,62"/>
+</map>

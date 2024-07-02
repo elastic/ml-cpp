@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CXMeansOnline::cluster" name="ml::maths::common::CXMeansOnline::cluster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,169,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="48,29,46,19,52,10,66,5,87,3,110,5,123,11,121,16,108,10,87,8,67,10,55,15,51,20,53,28"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a3596fdd65798421a6755966082b8d22f" title="The total count of points." alt="" coords="217,29,373,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="169,56,201,56,201,61,169,61"/>
+<area shape="poly" id="edge3_Node000002_Node000001" title=" " alt="" coords="216,44,184,43,184,38,216,38"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="255,29,253,19,260,10,274,5,295,3,317,5,331,11,329,16,316,10,295,8,275,10,263,15,259,20,261,28"/>
+</map>

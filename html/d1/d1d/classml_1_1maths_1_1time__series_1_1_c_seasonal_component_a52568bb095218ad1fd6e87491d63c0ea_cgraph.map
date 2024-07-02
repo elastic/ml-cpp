@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CSeasonalComponent::size" name="ml::maths::time_series::CSeasonalComponent::size">
+<area shape="rect" id="Node000001" title="Get the size of this component." alt="" coords="5,5,198,46"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a83bf2ff948fc0a5e9dbd5079a9ad3918" title="Get the number of buckets." alt="" coords="246,5,426,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,23,230,23,230,28,198,28"/>
+</map>

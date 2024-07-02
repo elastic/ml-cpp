@@ -1,0 +1,6 @@
+<map id="ml::maths::common::linear_algebra_detail::SVector::multiplyEquals" name="ml::maths::common::linear_algebra_detail::SVector::multiplyEquals">
+<area shape="rect" id="Node000001" title="Scalar multiplication." alt="" coords="5,14,175,70"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="223,29,297,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,40,207,40,207,45,175,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="231,30,225,21,229,11,241,5,260,3,280,5,291,12,289,16,279,10,260,8,242,10,233,15,231,20,236,28"/>
+</map>

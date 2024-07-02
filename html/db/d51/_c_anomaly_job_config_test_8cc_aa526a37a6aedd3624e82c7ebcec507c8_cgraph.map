@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#adfc8473bd0bc40b8f3c296186cad2b3f" title=" " alt="" coords="250,5,438,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,43,234,38,235,43,201,48"/>
+<area shape="rect" id="Node000004" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#a1f8a341719c6ea82fbcf028805a4670f" title=" " alt="" coords="250,71,438,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,69,235,74,234,79,202,75"/>
+<area shape="rect" id="Node000003" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="486,5,672,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,23,471,23,471,28,438,28"/>
+</map>

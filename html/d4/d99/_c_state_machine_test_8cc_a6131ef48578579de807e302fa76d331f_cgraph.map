@@ -1,0 +1,28 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,152,202,177"/>
+<area shape="rect" id="Node000002" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#acaa4b143e74b6f3e6d740ea858a73863" title="Apply symbol to the machine." alt="" coords="250,13,416,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,149,176,109,248,65,261,58,263,63,251,69,179,114,123,153"/>
+<area shape="rect" id="Node000003" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#adfe89e292e16d0b2fb00e6dcb178999d" title=" " alt="" coords="250,79,416,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,148,244,122,245,127,152,154"/>
+<area shape="rect" id="Node000007" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#adff731e1b89c0698a10f20388e4bc77d" title="Get the current state of the machine." alt="" coords="480,201,646,242"/>
+<area shape="poly" id="edge14_Node000001_Node000007" title=" " alt="" coords="158,175,250,194,361,207,464,214,464,220,360,212,249,199,157,180"/>
+<area shape="rect" id="Node000008" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#a4abbb8417be16b60282f9dbfa22848cc" title="Print state." alt="" coords="250,144,416,185"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="202,162,234,162,234,167,202,167"/>
+<area shape="rect" id="Node000009" href="$d9/d00/namespaceanonymous__namespace_02_c_state_machine_test_8cc_03.html#a5457ee6bbccdfe6b75a807e02795f756" title=" " alt="" coords="252,259,414,315"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="131,175,267,249,265,254,128,180"/>
+<area shape="rect" id="Node000004" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#a3838cc26c81d4497e5bb9c56372cf2d0" title="Try to find machine in the range [begin, end)." alt="" coords="480,5,646,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="398,76,481,49,483,54,399,81"/>
+<area shape="rect" id="Node000005" href="$df/d93/classml_1_1core_1_1_c_state_machine_1_1_c_machine_deque.html#a78c09507b1a19c984998b077833909a8" title="Add a new element to the back of the collection." alt="" coords="464,71,661,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="416,93,448,92,448,98,416,99"/>
+<area shape="rect" id="Node000006" href="$df/d93/classml_1_1core_1_1_c_state_machine_1_1_c_machine_deque.html#acb660e8fb5c0c8bae512ba4e7dacfafe" title="Get the number of elements in this container." alt="" coords="480,136,646,177"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="417,117,465,129,464,134,416,122"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="396,118,418,130,433,145,442,159,451,173,466,186,475,192,472,196,462,190,447,176,438,162,429,148,414,134,394,122"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="416,159,464,157,464,162,416,164"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="417,182,465,195,464,200,416,188"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="470,267,655,307"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="414,284,454,284,454,290,414,290"/>
+<area shape="rect" id="Node000012" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html#a8244dfdf7d281ebea7629cbfde00a13e" title=" " alt="" coords="480,331,646,387"/>
+<area shape="poly" id="edge13_Node000009_Node000012" title=" " alt="" coords="415,310,465,326,464,331,413,315"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="709,267,895,307"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="656,284,694,284,694,290,656,290"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="ml::model::CAnomalyDetectorModel::attributeFilter" name="ml::model::CAnomalyDetectorModel::attributeFilter">
+<area shape="rect" id="Node000001" title="Get the predicate used for removing heavy hitting attributes." alt="" coords="513,115,710,155"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#ac6f2093b5dd96c74b1c58910ad1a2d00" title=" " alt="" coords="273,115,465,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="498,138,465,138,465,132,498,132"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="544,111,464,86,341,59,225,41,225,36,342,54,466,80,546,106"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="18,95,212,135"/>
+<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="514,114,465,106,399,101,333,101,212,107,212,102,333,95,400,96,465,100,515,108"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af772818e59f98fba772923915e6e0d32" title=" " alt="" coords="5,160,225,201"/>
+<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="513,162,465,170,341,180,225,184,225,178,341,175,465,164,512,156"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aab1df5b44c7137345d39ea37dc476eda" title=" " alt="" coords="14,225,216,266"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="544,164,466,188,337,216,217,235,216,230,336,211,464,183,542,159"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="318,109,224,61,190,49,192,44,226,57,321,104"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="257,129,212,125,212,120,257,124"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="258,158,226,163,225,158,257,152"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="322,166,226,215,192,227,190,222,224,210,319,161"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="157,82,141,76,115,73,91,75,76,80,70,86,73,93,67,95,65,85,73,76,90,70,115,68,142,70,159,77"/>
+</map>

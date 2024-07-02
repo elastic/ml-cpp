@@ -1,0 +1,28 @@
+<map id="ml::test::CDataFrameAnalysisSpecificationFactory::regressionLossFunction" name="ml::test::CDataFrameAnalysisSpecificationFactory::regressionLossFunction">
+<area shape="rect" id="Node000001" title=" " alt="" coords="512,188,720,243"/>
+<area shape="rect" id="Node000002" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a87ccde9e795a8806a4debcbf6edd689f" title=" " alt="" coords="259,5,455,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="588,176,536,107,501,73,463,44,440,34,442,29,465,40,505,69,540,104,592,173"/>
+<area shape="rect" id="Node000003" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a22aa1a9b718cf54a4332c50eb5d705da" title=" " alt="" coords="259,55,455,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="576,179,525,134,495,112,463,94,436,83,437,78,465,89,498,108,528,130,580,175"/>
+<area shape="rect" id="Node000004" href="$dd/dd3/_c_data_frame_train_boosted_tree_regression_runner_test_8cc.html#a1ce4d7bf89444f3121d02121770dd947" title=" " alt="" coords="259,104,455,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="550,182,463,143,428,133,429,128,465,138,553,178"/>
+<area shape="rect" id="Node000005" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a7a522ad0e2c282ede4c62a78e2bfef00" title=" " alt="" coords="259,153,455,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="496,195,428,182,429,177,497,190"/>
+<area shape="rect" id="Node000006" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#a537b28720b844efe0e75170efd03f8ae" title=" " alt="" coords="259,203,455,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="496,218,455,218,455,213,496,213"/>
+<area shape="rect" id="Node000007" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a062f64f741922efefac1fa96ef234b06" title=" " alt="" coords="259,252,455,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="497,241,429,254,428,249,496,236"/>
+<area shape="rect" id="Node000008" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a3dbeba09d42adaa46ad2c4b54d722d04" title=" " alt="" coords="259,301,455,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="553,253,465,293,429,303,428,298,463,288,550,249"/>
+<area shape="rect" id="Node000009" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#afb38a5c444b456c65b8fc6e7185f9931" title=" " alt="" coords="259,351,455,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="580,256,528,301,498,323,465,342,437,353,436,348,463,337,495,319,525,297,576,252"/>
+<area shape="rect" id="Node000010" href="$de/daf/namespaceanonymous__namespace_02_c_data_frame_analyzer_training_test_8cc_03.html#a17065af8b7989b5a4ae55dedba39b10f" title=" " alt="" coords="250,424,464,495"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="587,257,533,323,466,391,419,426,416,422,462,387,529,319,583,254"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="397,412,381,405,357,403,336,405,322,409,314,416,312,424,307,423,310,413,319,405,335,399,357,398,383,400,399,408"/>
+<area shape="rect" id="Node000011" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#ab9988e41984fb12375376d167e9bdc06" title=" " alt="" coords="5,397,202,423"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="234,438,173,426,174,421,235,433"/>
+<area shape="rect" id="Node000012" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a2b5ff090dee8bb17c3393a6d7c5baa7b" title=" " alt="" coords="5,447,202,472"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="234,462,202,462,202,457,234,457"/>
+<area shape="rect" id="Node000013" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a8f2a73dac72530477ae0e4eef39041e5" title=" " alt="" coords="5,496,202,522"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="235,486,174,498,173,493,234,481"/>
+</map>

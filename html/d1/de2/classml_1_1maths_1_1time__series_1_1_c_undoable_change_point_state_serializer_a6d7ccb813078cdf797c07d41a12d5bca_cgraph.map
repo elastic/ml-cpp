@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CUndoableChangePointStateSerializer::operator()" name="ml::maths::time_series::CUndoableChangePointStateSerializer::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,260,184"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="340,5,494,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,126,237,91,307,57,325,49,327,54,309,61,240,95,180,130"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="308,71,526,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="256,125,310,113,311,118,257,130"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="308,136,526,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="260,154,292,154,292,159,260,159"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="394,201,440,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="261,179,379,203,378,209,260,185"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="308,251,526,291"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="189,182,309,237,326,243,325,248,307,241,187,187"/>
+</map>

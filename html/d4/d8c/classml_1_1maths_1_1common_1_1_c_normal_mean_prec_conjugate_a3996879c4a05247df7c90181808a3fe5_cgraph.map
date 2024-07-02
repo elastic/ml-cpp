@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::isBad" name="ml::maths::common::CNormalMeanPrecConjugate::isBad">
+<area shape="rect" id="Node000001" title="Check that the state is valid." alt="" coords="5,5,197,61"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="245,13,398,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,31,229,31,229,36,197,36"/>
+</map>

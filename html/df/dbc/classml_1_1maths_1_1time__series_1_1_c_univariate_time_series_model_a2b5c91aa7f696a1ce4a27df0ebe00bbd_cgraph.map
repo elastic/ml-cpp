@@ -1,0 +1,19 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::correlateModes" name="ml::maths::time_series::CUnivariateTimeSeriesModel::correlateModes">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,189,205,245"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4497db416823b24756a4849b24e0427b" title=" " alt="" coords="273,109,472,165"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,186,262,167,263,172,201,191"/>
+<area shape="rect" id="Node000005" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a7e62f7c23e23118c30b0b2dc0f16fe34" title="Get the most likely value for the time series at time." alt="" coords="253,197,492,238"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="205,215,237,215,237,220,205,220"/>
+<area shape="rect" id="Node000007" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7bb422b74018d6e1f743ceaaa683991f" title="Unpack the weights in weights." alt="" coords="269,261,476,317"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="206,242,254,255,253,260,205,247"/>
+<area shape="poly" id="edge5_Node000002_Node000002" title=" " alt="" coords="320,109,321,99,330,90,348,85,372,83,401,85,418,93,416,97,400,91,372,88,349,90,333,95,326,101,326,109"/>
+<area shape="rect" id="Node000003" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a230bd35b8e13a152626a408d4b8a947c" title="Get the ids of the time series correlated with id." alt="" coords="552,29,727,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="467,106,537,85,538,90,468,111"/>
+<area shape="rect" id="Node000004" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a13392589ff03136ef3ca2ffedb0ffcaa" title="Get the correlation joint distribution models." alt="" coords="552,109,727,165"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="473,135,537,135,537,140,473,140"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="588,29,588,19,598,10,615,5,640,3,668,5,685,13,683,17,667,11,640,8,616,10,600,15,593,21,593,29"/>
+<area shape="rect" id="Node000006" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="540,189,739,245"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="492,215,524,215,524,220,492,220"/>
+<area shape="rect" id="Node000008" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="550,269,729,310"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="476,287,534,287,534,292,476,292"/>
+</map>

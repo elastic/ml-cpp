@@ -1,0 +1,7 @@
+<map id="ml::core::CStateCompressor::CChunkFilter" name="ml::core::CStateCompressor::CChunkFilter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,169,194,210"/>
+<area shape="rect" id="Node000002" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html" title="Abstract interface for data adder." alt="" coords="25,80,174,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,121,102,168,97,168,97,121"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="17,5,182,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="102,46,102,80,97,80,97,46"/>
+</map>

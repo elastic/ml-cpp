@@ -1,0 +1,30 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,108,202,133"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a280e2ebaee53a5dc263cedcf2bd0812f" title="Dump the document to string." alt="" coords="250,5,397,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,105,259,50,261,55,137,109"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a88ac3d617f3b82716917b70999479d45" title=" " alt="" coords="449,128,596,169"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,124,434,140,433,145,202,130"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a5fcfffb26dafc67f42f8bf01a2ae9222" title="Parse XML stored in a string." alt="" coords="250,71,397,111"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,105,234,100,234,106,202,110"/>
+<area shape="rect" id="Node000008" href="$df/d54/_c_xml_parser_test_8cc.html#a65df461916b01f4ced713d913b679e58" title=" " alt="" coords="266,310,381,336"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="121,132,299,298,295,302,117,136"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="647,63,795,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="585,125,642,106,643,111,587,130"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="647,128,795,169"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="596,146,632,146,632,151,596,151"/>
+<area shape="rect" id="Node000007" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a79c507fe3b080722648fc5f4d219ffdb" title="Parse XML stored in a char buffer." alt="" coords="449,63,596,103"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="397,85,433,84,433,89,397,91"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="596,80,632,80,632,86,596,86"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="587,101,643,120,642,125,585,106"/>
+<area shape="rect" id="Node000009" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#aceab2f51242f6dadbcea69ca71586f03" title=" " alt="" coords="452,259,592,299"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="381,308,436,295,437,300,382,313"/>
+<area shape="rect" id="Node000010" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="445,348,599,389"/>
+<area shape="poly" id="edge11_Node000008_Node000010" title=" " alt="" coords="382,334,430,345,429,350,381,339"/>
+<area shape="rect" id="Node000011" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#ad646646a4ba181b2fe1c3a8db144fc79" title="Accessors." alt="" coords="452,413,592,454"/>
+<area shape="poly" id="edge13_Node000008_Node000011" title=" " alt="" coords="345,334,390,365,446,398,458,404,455,409,444,403,387,369,342,338"/>
+<area shape="rect" id="Node000012" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a1ca090c0dec38513ae116d758af5519c" title="Return the root element name (empty string if not parsed yet)" alt="" coords="449,479,596,519"/>
+<area shape="poly" id="edge14_Node000008_Node000012" title=" " alt="" coords="335,335,378,395,410,431,447,464,454,469,451,473,443,468,406,435,374,399,331,338"/>
+<area shape="rect" id="Node000013" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#a4208a4b69b2fab3ae1849696c504610d" title=" " alt="" coords="452,193,592,234"/>
+<area shape="poly" id="edge15_Node000008_Node000013" title=" " alt="" coords="342,307,388,278,444,245,456,239,458,243,446,249,391,282,345,312"/>
+<area shape="poly" id="edge12_Node000010_Node000010" title=" " alt="" coords="484,348,482,338,489,329,502,323,522,321,544,324,557,330,554,335,542,329,522,327,503,329,492,333,488,339,490,347"/>
+</map>

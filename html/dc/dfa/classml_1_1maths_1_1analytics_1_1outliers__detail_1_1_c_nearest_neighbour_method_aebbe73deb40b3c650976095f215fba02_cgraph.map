@@ -1,0 +1,27 @@
+<map id="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::run" name="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::run">
+<area shape="rect" id="Node000001" title="Compute the outlier scores for points." alt="" coords="5,139,179,194"/>
+<area shape="rect" id="Node000002" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#a4595281bd267933ebf027b396346acc0" title=" " alt="" coords="248,23,430,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,136,225,88,239,82,241,87,228,93,140,140"/>
+<area shape="rect" id="Node000003" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#ab9185c447e73d24aefaa1afce54414a6" title=" " alt="" coords="227,103,451,158"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,151,211,146,212,152,179,156"/>
+<area shape="rect" id="Node000004" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="280,182,398,223"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,177,265,189,264,194,179,182"/>
+<area shape="rect" id="Node000013" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#ac469e5e14672b8152d5b43c049aade5d" title=" " alt="" coords="252,247,426,302"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="146,192,228,232,242,238,240,243,226,237,144,197"/>
+<area shape="rect" id="Node000005" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="521,146,686,187"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="397,192,505,177,506,182,398,197"/>
+<area shape="rect" id="Node000012" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="499,211,707,266"/>
+<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="398,208,484,220,483,225,397,213"/>
+<area shape="rect" id="Node000006" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="802,92,913,118"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="686,144,786,120,787,125,687,149"/>
+<area shape="rect" id="Node000009" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="755,154,960,179"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="686,164,740,164,740,169,686,169"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="774,204,941,244"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="687,183,759,199,758,204,686,188"/>
+<area shape="rect" id="Node000007" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="1008,5,1204,61"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="904,89,993,63,994,68,905,94"/>
+<area shape="rect" id="Node000008" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="1037,85,1175,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="913,103,1021,103,1021,108,913,108"/>
+<area shape="rect" id="Node000010" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="1015,149,1197,205"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="960,168,1000,170,999,175,960,174"/>
+</map>

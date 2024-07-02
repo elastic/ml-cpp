@@ -1,0 +1,27 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::sampleMarginalLikelihood" name="ml::maths::common::CMultivariateOneOfNPrior::sampleMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,303,184,358"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#af9944273e2c93044b65797f87cabef56" title="Check if this is a non&#45;informative prior." alt="" coords="240,5,413,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,301,118,253,145,192,182,128,204,98,230,71,233,68,237,72,234,75,208,101,186,131,149,194,123,255,106,303"/>
+<area shape="rect" id="Node000003" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#af3c8ba0abf79fcd6248c236f33e13eaa" title="Get the support for the marginal likelihood function." alt="" coords="236,85,417,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="109,301,157,228,191,187,230,151,235,148,238,152,233,155,195,191,162,231,113,304"/>
+<area shape="rect" id="Node000006" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="254,165,399,221"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="129,300,176,265,230,231,239,226,242,231,233,235,179,270,132,304"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a1a927a53dd2efb92b3f0eb99143a92de" title="Shift x to the left by eps times x." alt="" coords="254,245,399,286"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="183,303,238,287,239,292,185,308"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0988252aeab1e723b99ee7eaf1c8cd90" title="Shift x to the right by eps times x." alt="" coords="254,310,399,351"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="184,328,238,328,238,333,184,333"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a76cd2d98ee5eb75044bd14d645246a83" title="Get the support for a log&#45;t distribution." alt="" coords="254,376,399,416"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="185,353,239,369,238,374,183,358"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="254,441,399,482"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="131,357,178,392,233,425,246,432,244,437,230,430,175,396,128,361"/>
+<area shape="rect" id="Node000011" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a9ce168c59defc3b6cd3f0566a100e9b6" title=" " alt="" coords="232,506,421,547"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="115,357,163,424,196,460,233,491,242,496,239,501,230,495,192,464,159,427,110,360"/>
+<area shape="rect" id="Node000012" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#aa8cfb658b8e19df24a363561ceed55eb" title="Get the current values for the model weights." alt="" coords="240,571,413,626"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="108,358,127,401,154,454,189,508,234,557,237,560,234,564,230,560,185,512,149,457,122,403,104,360"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="471,76,641,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="417,101,455,97,455,102,418,106"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="473,126,639,151"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="418,121,457,125,456,130,417,126"/>
+<area shape="rect" id="Node000013" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a57dfff2ba8085af06b89dd6c9104f9cf" title="Get the current values for the log model weights." alt="" coords="469,571,642,626"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="413,596,454,596,454,601,413,601"/>
+</map>

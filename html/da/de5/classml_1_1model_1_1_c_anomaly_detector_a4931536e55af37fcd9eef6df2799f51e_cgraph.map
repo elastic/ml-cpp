@@ -1,0 +1,48 @@
+<map id="ml::model::CAnomalyDetector::acceptPersistInserter" name="ml::model::CAnomalyDetector::acceptPersistInserter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,182,203,223"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="1087,199,1289,240"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,179,190,151,250,126,468,53,560,26,647,9,734,3,826,10,926,33,1040,73,1079,95,1114,124,1144,156,1167,185,1162,188,1140,159,1111,128,1076,100,1038,78,924,38,825,15,734,8,648,14,561,32,470,58,252,131,192,156,141,184"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a70bf6c820cf5f593eb4ed744274e1bd6" title="Check if this is a simple count detector." alt="" coords="273,271,471,312"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,221,252,250,291,263,289,268,250,255,163,226"/>
+<area shape="rect" id="Node000004" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a265aef182b008c78dd630def370b78aa" title=" " alt="" coords="251,141,493,197"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,187,235,183,236,189,204,193"/>
+<area shape="rect" id="Node000014" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a0f6e2f5bee13454c2e0916634e32d2d5" title=" " alt="" coords="560,498,757,539"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="203,209,380,230,454,243,494,257,510,273,519,289,526,322,529,356,534,375,543,394,582,444,623,486,619,489,578,448,539,397,529,377,524,357,520,323,514,291,506,276,492,262,453,248,380,235,203,214"/>
+<area shape="poly" id="edge15_Node000004_Node000002" title=" " alt="" coords="455,138,572,107,643,93,720,82,800,76,881,77,962,87,1040,106,1074,122,1106,142,1158,186,1155,190,1103,146,1072,126,1038,111,961,92,881,83,800,82,720,87,644,98,574,112,457,143"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a2fab62dee801121410863305a92829d0" title="Persist state by passing information to the supplied inserter." alt="" coords="572,343,746,384"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="459,195,494,213,534,241,571,272,630,330,627,334,567,276,531,245,492,218,456,200"/>
+<area shape="rect" id="Node000012" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a963c831fb7b7a8d808f3f5874c1941e4" title=" " alt="" coords="541,149,776,189"/>
+<area shape="poly" id="edge16_Node000004_Node000012" title=" " alt="" coords="493,166,525,166,525,172,493,172"/>
+<area shape="poly" id="edge10_Node000005_Node000002" title=" " alt="" coords="689,340,750,305,823,272,886,254,950,240,1071,224,1072,229,951,246,887,259,825,277,752,309,692,345"/>
+<area shape="rect" id="Node000006" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a993506ec963cd3d649c9ea71ea0be288" title=" " alt="" coords="825,466,1038,507"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="695,382,755,416,825,450,844,458,842,463,823,455,752,421,692,387"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="1087,542,1289,583"/>
+<area shape="poly" id="edge11_Node000005_Node000007" title=" " alt="" coords="681,382,754,458,794,494,826,516,886,538,950,553,1013,561,1071,564,1071,569,1012,566,949,558,884,543,823,521,790,498,750,461,677,386"/>
+<area shape="rect" id="Node000009" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#ad4901379e36f4bc802c66e84c25fbec7" title="Persist the sample counts to a state document." alt="" coords="840,401,1023,441"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="747,379,826,396,825,401,746,384"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ade6028073a50c65aef70fc39b8fe0c91" title=" " alt="" coords="844,286,1019,327"/>
+<area shape="poly" id="edge12_Node000005_Node000010" title=" " alt="" coords="746,343,828,325,829,330,747,348"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1004,505,1103,534,1101,540,1002,510"/>
+<area shape="rect" id="Node000008" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="1111,433,1265,473"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="1038,470,1095,462,1096,468,1039,475"/>
+<area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="1023,430,1095,439,1095,444,1023,435"/>
+<area shape="poly" id="edge14_Node000010_Node000002" title=" " alt="" coords="993,283,1110,243,1112,248,995,288"/>
+<area shape="rect" id="Node000011" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43e3bdd9e7807bfb67e5970e21ee9bfc" title="Persist state by passing information inserter." alt="" coords="1094,286,1282,327"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1019,304,1079,304,1079,309,1019,309"/>
+<area shape="poly" id="edge18_Node000012_Node000002" title=" " alt="" coords="777,177,1072,206,1071,211,777,183"/>
+<area shape="rect" id="Node000013" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a5d1c82c0b243133039bdcb9d98097ee3" title="Persist state by passing information to the supplied inserter." alt="" coords="833,121,1030,161"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="777,154,817,150,818,155,777,159"/>
+<area shape="poly" id="edge20_Node000014_Node000002" title=" " alt="" coords="678,495,740,441,780,411,823,386,855,374,883,368,934,365,982,360,1009,352,1037,336,1053,322,1061,306,1070,290,1085,272,1124,245,1127,250,1088,276,1074,293,1066,309,1057,325,1040,340,1011,357,984,365,934,370,884,373,856,379,825,391,783,416,743,445,682,499"/>
+<area shape="rect" id="Node000015" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a4ca628e01e5053d4d8dc9db65dc1ee80" title="Persist the static members of this class." alt="" coords="834,685,1029,725"/>
+<area shape="poly" id="edge21_Node000014_Node000015" title=" " alt="" coords="685,537,747,589,826,647,875,675,872,680,823,651,744,593,682,541"/>
+<area shape="rect" id="Node000018" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a2dc056f287217cb17e575671bb8c6ff3" title="Persist the static members of this class." alt="" coords="824,581,1039,637"/>
+<area shape="poly" id="edge27_Node000014_Node000018" title=" " alt="" coords="723,537,832,573,831,578,721,542"/>
+<area shape="poly" id="edge25_Node000015_Node000007" title=" " alt="" coords="974,682,1037,647,1085,613,1130,588,1133,592,1088,618,1040,651,976,686"/>
+<area shape="poly" id="edge26_Node000015_Node000015" title=" " alt="" coords="884,685,881,675,889,665,906,660,932,658,959,660,975,666,974,671,958,665,931,663,907,665,892,670,886,676,889,683"/>
+<area shape="rect" id="Node000016" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a35d2a2807ba99f434c1ab92502d66fc8" title="Clear the collection of cached counters." alt="" coords="1094,717,1282,757"/>
+<area shape="poly" id="edge22_Node000015_Node000016" title=" " alt="" coords="1029,714,1079,721,1078,726,1029,720"/>
+<area shape="rect" id="Node000017" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="1094,651,1282,692"/>
+<area shape="poly" id="edge23_Node000015_Node000017" title=" " alt="" coords="1029,690,1078,683,1079,688,1029,695"/>
+<area shape="poly" id="edge24_Node000017_Node000017" title=" " alt="" coords="1140,651,1137,641,1145,632,1162,627,1188,625,1215,627,1232,633,1230,638,1214,632,1188,630,1163,632,1148,637,1143,642,1145,650"/>
+<area shape="poly" id="edge28_Node000018_Node000007" title=" " alt="" coords="1039,587,1071,581,1072,586,1040,592"/>
+</map>

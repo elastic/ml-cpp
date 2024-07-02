@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl::objective" name="ml::maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl::objective">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,26,197,97"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a8c3d1df181659ad924b63c09be850c3b" title="Compute the log of the softmax for the multinomial logit values logit." alt="" coords="246,5,427,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,44,230,39,231,44,198,50"/>
+<area shape="rect" id="Node000003" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html#a4573c44bdd35101f2e847c3bc416d5cf" title=" " alt="" coords="245,70,428,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,74,230,79,229,84,197,79"/>
+</map>

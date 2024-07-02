@@ -1,0 +1,5 @@
+<map id="ml::api::CDataFrameOutliersRunner" name="ml::api::CDataFrameOutliersRunner">
+<area shape="rect" id="Node000001" title="Runs outlier detection on a core::CDataFrame." alt="" coords="8,94,196,135"/>
+<area shape="rect" id="Node000002" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html" title="Hierarchy for running a specific core::CDataFrame analyses." alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,62,105,94,99,94,99,62"/>
+</map>

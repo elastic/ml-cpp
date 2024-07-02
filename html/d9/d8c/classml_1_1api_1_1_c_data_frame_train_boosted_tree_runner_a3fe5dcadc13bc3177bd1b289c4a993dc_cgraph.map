@@ -1,0 +1,7 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage" name="ml::api::CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,276,87"/>
+<area shape="rect" id="Node000002" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a789a01713073a4e1b37b5f4fdf747524" title=" " alt="" coords="324,5,561,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="276,41,308,38,308,43,276,47"/>
+<area shape="rect" id="Node000003" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="346,71,539,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="276,71,330,76,330,82,276,76"/>
+</map>

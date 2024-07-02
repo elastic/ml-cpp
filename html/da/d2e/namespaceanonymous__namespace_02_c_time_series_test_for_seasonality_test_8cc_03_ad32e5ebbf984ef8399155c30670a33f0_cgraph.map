@@ -1,0 +1,30 @@
+<map id="anonymous_namespace{CTimeSeriesTestForSeasonalityTest::cc}::generateNoise" name="anonymous_namespace{CTimeSeriesTestForSeasonalityTest::cc}::generateNoise">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,113,219,169"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a404ada1c9b84c0049e143865cb425e2f" title=" " alt="" coords="271,22,456,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,110,266,73,285,66,287,71,268,78,178,115"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a4b4d7f8242105a19d073a5a3a7ba1fc8" title=" " alt="" coords="267,87,460,128"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="219,124,251,120,252,125,220,129"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="271,153,456,193"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="219,152,255,156,255,162,219,157"/>
+<area shape="rect" id="Node000013" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="340,217,387,243"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="177,167,268,202,326,219,325,224,266,207,175,172"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="508,87,693,128"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,60,510,80,509,85,439,66"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="564,29,638,55"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="456,40,548,40,548,45,456,45"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="563,31,555,21,560,11,575,5,601,3,629,5,643,12,641,17,627,10,601,8,576,10,563,15,560,20,567,27"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="460,105,493,105,493,110,460,110"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="439,149,509,130,510,135,440,155"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="512,160,689,186"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="456,170,497,170,497,176,456,176"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="741,160,919,186"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="690,170,726,170,726,176,690,176"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="967,40,1147,95"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="858,157,966,105,977,100,979,105,968,110,860,162"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="967,119,1147,160"/>
+<area shape="poly" id="edge12_Node000008_Node000010" title=" " alt="" coords="919,157,951,152,952,158,920,162"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="984,185,1130,225"/>
+<area shape="poly" id="edge13_Node000008_Node000011" title=" " alt="" coords="920,183,969,190,969,195,919,188"/>
+<area shape="rect" id="Node000012" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="974,250,1140,291"/>
+<area shape="poly" id="edge14_Node000008_Node000012" title=" " alt="" coords="859,184,968,234,985,241,983,246,966,239,857,189"/>
+</map>

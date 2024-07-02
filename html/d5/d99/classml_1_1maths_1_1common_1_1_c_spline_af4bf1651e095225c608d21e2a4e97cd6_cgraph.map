@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CSpline::clear" name="ml::maths::common::CSpline::clear">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,151,111"/>
+<area shape="rect" id="Node000002" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ad25a00931439cf66b316c2c0277bdf79" title="Get the curvatures at the knot points of the spline." alt="" coords="199,5,356,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,68,198,49,200,54,143,73"/>
+<area shape="rect" id="Node000004" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a0a27ad6088318c0c6b7404200931ca3b" title="Get the knot points of the spline." alt="" coords="205,71,350,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="151,88,189,88,189,94,151,94"/>
+<area shape="rect" id="Node000005" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a79562d5d268d5702d2f1f8459ab32a1d" title="Get the values at the knot points of the spline." alt="" coords="205,136,350,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="143,109,200,128,198,133,141,114"/>
+<area shape="rect" id="Node000003" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="404,78,544,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="341,44,419,70,418,75,340,49"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="350,88,389,88,389,94,350,94"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="340,133,418,107,419,112,341,138"/>
+</map>

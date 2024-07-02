@@ -1,0 +1,29 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,177,202,203"/>
+<area shape="rect" id="Node000002" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3aeabebeacfe1261741df6083720583f" title=" " alt="" coords="314,5,401,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,175,164,110,203,72,248,40,273,29,298,22,300,27,275,34,251,44,206,76,168,114,116,179"/>
+<area shape="rect" id="Node000003" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="270,55,445,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="119,175,174,133,210,110,249,90,269,83,271,88,251,95,213,115,177,137,122,179"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a46c7e571a9a2cbc6ee7f6e4a887aea55" title="Parse XML stored in a string." alt="" coords="267,105,448,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="156,174,260,147,262,152,157,179"/>
+<area shape="rect" id="Node000007" href="$d3/df3/classml_1_1core_1_1_c_xml_node_with_children_pool.html#a1ceacbe02c1094d3fa634c1f313a25bd" title="Recycle an XML node, plus any children it may have." alt="" coords="250,170,465,211"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="202,188,234,188,234,193,202,193"/>
+<area shape="rect" id="Node000008" href="$d1/dff/_c_container_throughput_test_8cc.html#acb99ee2c1bf9405788d8b79e238fc8a3" title=" " alt="" coords="311,235,404,260"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="164,201,297,231,296,236,163,206"/>
+<area shape="rect" id="Node000009" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ae00a5157623ddcab7acce9a3ea56ae54" title=" " alt="" coords="267,309,448,349"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="129,201,251,270,304,299,301,303,248,275,126,206"/>
+<area shape="rect" id="Node000010" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aacc70e4361f1d93fe02f2b30dcf830e8" title=" " alt="" coords="286,374,429,415"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="115,202,166,276,205,320,251,359,273,370,271,375,248,363,201,324,161,279,110,205"/>
+<area shape="rect" id="Node000005" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="513,105,700,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="448,122,498,122,498,128,448,128"/>
+<area shape="rect" id="Node000006" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="748,105,930,145"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="701,122,733,122,733,128,701,128"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="311,309,308,298,316,289,332,284,357,282,384,284,400,290,398,295,383,289,357,287,333,289,319,294,313,300,316,307"/>
+<area shape="rect" id="Node000011" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="536,374,678,415"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="429,392,520,392,520,397,429,397"/>
+<area shape="rect" id="Node000012" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="767,341,911,381"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="678,381,752,371,752,376,679,387"/>
+<area shape="rect" id="Node000013" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="769,406,909,447"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="679,401,754,412,753,417,678,407"/>
+<area shape="poly" id="edge13_Node000012_Node000012" title=" " alt="" coords="795,340,793,331,800,321,816,316,839,314,864,316,879,322,877,327,863,321,839,319,817,321,803,326,798,332,800,339"/>
+</map>

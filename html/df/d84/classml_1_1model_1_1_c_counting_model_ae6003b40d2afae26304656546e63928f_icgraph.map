@@ -1,0 +1,16 @@
+<map id="ml::model::CCountingModel::updateCurrentBucketsStats" name="ml::model::CCountingModel::updateCurrentBucketsStats">
+<area shape="rect" id="Node000001" title="Update start time and counts for the given bucket." alt="" coords="502,49,692,89"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a588af24e4a97df7554e795002c741ddc" title=" " alt="" coords="271,15,454,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="486,56,454,51,455,46,487,50"/>
+<area shape="rect" id="Node000006" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a05a6203b31b0219d05a42f855da666c9" title=" " alt="" coords="271,81,454,121"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="487,87,455,91,454,86,486,81"/>
+<area shape="rect" id="Node000003" href="$d7/d26/_c_counting_model_test_8cc.html#a41316982f546b1f08a56adff44df03f4" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="255,31,223,28,223,23,255,25"/>
+<area shape="rect" id="Node000004" href="$de/d99/_c_event_rate_model_test_8cc.html#a3ea0d03f40a2fc72250572411eb0b77a" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="255,52,219,57,218,51,255,47"/>
+<area shape="rect" id="Node000005" href="$de/d77/_c_metric_model_test_8cc.html#a99a02491bdf3a9c3d44f7dfeb59a59c1" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="288,64,272,71,248,84,224,95,188,106,186,101,222,90,246,79,270,66,286,59"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="286,77,269,70,246,57,222,45,187,34,188,29,224,40,248,52,272,65,288,72"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="255,89,214,84,215,78,255,84"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="255,110,223,112,223,107,255,105"/>
+</map>

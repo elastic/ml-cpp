@@ -1,0 +1,18 @@
+<map id="lib/core/CScopedLock.cc" name="lib/core/CScopedLock.cc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="68,5,236,31"/>
+<area shape="rect" id="Node000002" href="$de/dff/_c_scoped_lock_8h.html" title=" " alt="" coords="6,79,149,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,33,102,70,99,66,137,30"/>
+<area shape="rect" id="Node000005" href="$d2/d78/_c_mutex_8h.html" title=" " alt="" coords="173,79,280,105"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="166,30,205,66,201,70,163,33"/>
+<area shape="rect" id="Node000003" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="21,153,171,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="83,104,91,137,86,138,78,106"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="28,226,164,252"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="57,107,37,121,19,138,9,158,8,167,12,177,29,199,53,216,50,221,26,203,7,180,3,168,4,156,15,135,34,117,54,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="99,179,99,211,93,211,93,179"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="206,108,132,147,130,143,203,103"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="225,106,210,141,185,180,160,203,134,221,131,216,157,198,180,177,205,139,220,104"/>
+<area shape="rect" id="Node000006" href="$da/d3e/_windows_safe_8h.html" title=" " alt="" coords="245,153,387,178"/>
+<area shape="poly" id="edge8_Node000005_Node000006" title=" " alt="" coords="243,103,291,141,287,145,240,107"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="412,153,487,178"/>
+<area shape="poly" id="edge9_Node000005_Node000007" title=" " alt="" coords="265,103,398,145,396,150,263,108"/>
+</map>

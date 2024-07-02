@@ -1,0 +1,13 @@
+<map id="ml::maths::common::COrderings::simultaneousSort" name="ml::maths::common::COrderings::simultaneousSort">
+<area shape="rect" id="Node000001" title="Overload for default operator&lt; comparison." alt="" coords="5,37,202,78"/>
+<area shape="rect" id="Node000002" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#aaf1103e5c428d67f245c11be5ee75024" title=" " alt="" coords="250,37,473,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,55,234,55,234,60,202,60"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="521,17,697,43"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="473,42,505,39,505,44,474,48"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="963,42,1041,68"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="473,56,915,55,947,54,947,60,915,60,473,61"/>
+<area shape="rect" id="Node000004" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="745,5,915,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="698,25,729,25,730,30,698,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="915,38,948,43,947,48,914,43"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="973,43,967,34,970,24,982,18,1002,16,1023,18,1034,25,1031,29,1021,23,1002,21,984,23,974,27,972,33,977,40"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::mainLoopMaximumNumberTrees" name="ml::maths::analytics::CBoostedTreeFactory::mainLoopMaximumNumberTrees">
+<area shape="rect" id="Node000001" title="The maximum number of trees to use in the hyperparameter optimisation loop." alt="" coords="5,22,227,78"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="275,29,458,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,47,259,47,259,52,227,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="319,29,317,19,325,10,341,5,366,3,393,5,409,11,407,16,392,10,366,8,342,10,328,15,322,21,325,28"/>
+</map>

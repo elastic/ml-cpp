@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CDecompositionComponent::varianceSpline" name="ml::maths::time_series::CDecompositionComponent::varianceSpline">
+<area shape="rect" id="Node000001" title="Get the variance spline." alt="" coords="5,5,199,61"/>
+<area shape="rect" id="Node000002" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#af06ce53f8fd739ff1f611b52cdc0bf42" title="Get a constant spline reference." alt="" coords="247,5,440,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,31,231,31,231,36,199,36"/>
+</map>

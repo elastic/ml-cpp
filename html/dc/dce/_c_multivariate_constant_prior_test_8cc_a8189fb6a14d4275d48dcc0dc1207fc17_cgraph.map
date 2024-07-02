@@ -1,0 +1,19 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,202,145"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aa5fcc1973a56c4be82ba5756ab965fb1" title="Set the constant if it hasn&#39;t been set." alt="" coords="251,5,430,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,116,257,65,259,70,137,121"/>
+<area shape="rect" id="Node000003" href="$d4/da6/namespaceml.html#a303ae6a2f20b09f1a5fec07f14f5abbf" title="A constant function." alt="" coords="294,86,387,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,116,278,104,279,110,200,121"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a47d34030b49fa44fecf67a21c4551f13" title=" " alt="" coords="250,136,431,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,142,235,147,234,152,202,148"/>
+<area shape="rect" id="Node000009" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="251,216,430,256"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="131,143,251,201,264,207,262,212,249,206,128,148"/>
+<area shape="rect" id="Node000005" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="479,46,670,71"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="409,133,429,122,453,101,478,82,493,74,495,79,480,86,456,105,433,126,412,138"/>
+<area shape="rect" id="Node000006" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="486,96,664,152"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="431,146,470,139,471,144,432,151"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="502,176,647,232"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="432,177,487,186,486,191,431,182"/>
+<area shape="rect" id="Node000008" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a27608c97cfbc7931a896cd1bfbaca9c8" title="Get the smallest component of x." alt="" coords="502,256,647,312"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="412,190,433,202,457,222,481,242,490,247,487,252,477,246,453,226,429,206,409,195"/>
+</map>

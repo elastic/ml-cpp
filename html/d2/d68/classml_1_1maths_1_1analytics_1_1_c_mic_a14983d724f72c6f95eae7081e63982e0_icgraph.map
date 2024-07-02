@@ -1,0 +1,28 @@
+<map id="ml::maths::analytics::CMic::add" name="ml::maths::analytics::CMic::add">
+<area shape="rect" id="Node000001" title="Add a sample of the random variable (X, Y)." alt="" coords="270,270,409,311"/>
+<area shape="rect" id="Node000002" href="$d1/dfe/_c_mic_test_8cc.html#a660abeb3186c7ba99a31e671fb1440e0" title=" " alt="" coords="15,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="329,255,316,207,295,149,264,92,243,66,220,44,203,34,206,29,223,40,247,63,268,89,300,147,322,205,334,254"/>
+<area shape="rect" id="Node000003" href="$d1/dfe/_c_mic_test_8cc.html#abfdbb32816c7702ebae5ad061749253f" title=" " alt="" coords="15,55,212,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="325,256,310,217,287,173,258,130,220,94,201,83,204,78,223,89,262,126,292,170,314,215,330,254"/>
+<area shape="rect" id="Node000004" href="$d1/dfe/_c_mic_test_8cc.html#a4dad3c2c7a1baaf08ef78001d36a8177" title=" " alt="" coords="15,104,212,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="319,258,279,198,252,168,220,143,199,133,201,128,223,139,255,164,283,195,323,255"/>
+<area shape="rect" id="Node000005" href="$d1/dfe/_c_mic_test_8cc.html#abfca39809f361c9966f57a7359e389f6" title=" " alt="" coords="15,153,212,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="308,261,268,224,220,193,194,182,196,177,223,188,272,220,311,257"/>
+<area shape="rect" id="Node000006" href="$d1/dfe/_c_mic_test_8cc.html#afd28e44e2a105260606abe8c01d7b666" title=" " alt="" coords="15,203,212,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="281,266,221,242,183,232,184,226,223,237,283,261"/>
+<area shape="rect" id="Node000007" href="$de/de4/_c_data_frame_utils_test_8cc.html#a983088e9fa0277add60f9e5ac44c987c" title=" " alt="" coords="15,252,212,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="254,283,212,279,212,273,254,278"/>
+<area shape="rect" id="Node000008" href="$de/de4/_c_data_frame_utils_test_8cc.html#a6571ebea4b82d44f0919e78f3ebd099f" title=" " alt="" coords="15,301,212,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="254,302,212,306,212,301,254,297"/>
+<area shape="rect" id="Node000009" href="$d1/dfe/_c_mic_test_8cc.html#a68f0aa9ebf151c3e54d6e393367e5eba" title=" " alt="" coords="15,351,212,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="281,320,222,342,184,353,182,348,221,337,279,315"/>
+<area shape="rect" id="Node000010" href="$d1/dfe/_c_mic_test_8cc.html#a97cbd34912f58376db4d163ad22eb8a8" title=" " alt="" coords="15,400,212,426"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="311,324,271,359,223,391,195,402,194,397,220,386,268,355,307,320"/>
+<area shape="rect" id="Node000011" href="$d1/dfe/_c_mic_test_8cc.html#afd19a1ad82e89a9b389a4086e1b2597b" title=" " alt="" coords="15,449,212,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="323,326,283,385,255,415,223,440,201,451,199,446,220,436,251,411,278,382,318,323"/>
+<area shape="rect" id="Node000012" href="$d4/d07/namespaceml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_data_frame_utils_8cc_03.html#a5130ee806f44added8a1fc58456f9deb" title=" " alt="" coords="22,523,205,594"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="326,326,285,405,257,449,224,489,181,524,178,520,220,486,253,446,281,402,321,323"/>
+<area shape="rect" id="Node000013" href="$df/df6/classml_1_1maths_1_1analytics_1_1_c_data_frame_utils.html#ab01e64758836584826924e52d1763471" title=" " alt="" coords="5,617,222,673"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="337,327,327,386,307,461,292,500,273,538,251,575,224,607,209,619,206,614,220,603,246,571,269,536,287,498,302,459,322,385,332,326"/>
+<area shape="poly" id="edge12_Node000012_Node000012" title=" " alt="" coords="149,511,135,504,113,501,95,503,83,508,76,514,74,523,69,522,71,512,80,503,94,498,114,496,137,499,151,506"/>
+</map>

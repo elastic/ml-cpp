@@ -1,0 +1,39 @@
+<map id="ml::maths::common::CGammaRateConjugate::marginalLikelihoodMode" name="ml::maths::common::CGammaRateConjugate::marginalLikelihoodMode">
+<area shape="rect" id="Node000001" title="Get the mode of the marginal likelihood function." alt="" coords="5,252,174,308"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="234,16,414,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,250,118,211,144,164,178,115,220,72,236,61,239,66,223,77,182,118,148,166,122,214,104,253"/>
+<area shape="rect" id="Node000003" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a6f32d138689c010c6dc54ab247ef7d9a" title="Check if this is a non&#45;informative prior." alt="" coords="482,85,646,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="114,250,160,206,189,184,221,167,282,144,346,128,409,118,466,113,467,118,409,123,347,133,283,149,223,172,192,189,163,210,117,254"/>
+<area shape="rect" id="Node000005" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a04fe7c04ef3a6bdcd7c2d666cbac3ed5" title=" " alt="" coords="702,136,867,192"/>
+<area shape="poly" id="edge19_Node000001_Node000005" title=" " alt="" coords="174,267,392,237,654,192,686,185,688,190,655,197,392,243,174,273"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="915,209,1074,250"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="174,275,426,267,683,251,899,234,899,240,683,256,426,272,174,281"/>
+<area shape="rect" id="Node000007" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a8afd988aafdbda6185c3deddf76fa690" title="Get the of the marginal likelihood." alt="" coords="222,181,426,222"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="173,249,246,224,248,229,175,254"/>
+<area shape="rect" id="Node000008" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af8aace96dd553dc5fd86360da33fbacb" title=" " alt="" coords="482,5,646,61"/>
+<area shape="poly" id="edge20_Node000001_Node000008" title=" " alt="" coords="105,250,152,186,184,153,220,124,311,97,466,55,468,60,313,102,223,129,187,157,156,190,110,253"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="235,375,413,401"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="142,306,223,347,271,367,269,372,221,352,140,311"/>
+<area shape="rect" id="Node000014" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="224,425,424,466"/>
+<area shape="poly" id="edge21_Node000001_Node000014" title=" " alt="" coords="114,307,161,360,190,387,223,411,231,416,229,420,220,415,187,391,157,363,110,310"/>
+<area shape="rect" id="Node000015" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="236,490,412,531"/>
+<area shape="poly" id="edge22_Node000001_Node000015" title=" " alt="" coords="105,307,123,345,149,390,182,436,223,475,231,480,228,484,220,479,178,439,144,393,118,347,100,309"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="915,78,1074,119"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,108,899,99,899,104,647,113"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="647,129,688,139,687,144,646,135"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="866,136,911,121,913,127,868,141"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="868,187,913,201,911,206,866,192"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="381,178,471,144,473,149,382,183"/>
+<area shape="poly" id="edge11_Node000007_Node000005" title=" " alt="" coords="426,190,687,169,687,174,426,196"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="427,203,899,223,899,228,426,208"/>
+<area shape="poly" id="edge12_Node000007_Node000008" title=" " alt="" coords="346,179,472,71,480,66,483,71,476,75,350,183"/>
+<area shape="poly" id="edge13_Node000008_Node000004" title=" " alt="" coords="647,43,899,81,899,87,647,48"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="474,497,654,553"/>
+<area shape="poly" id="edge15_Node000009_Node000010" title=" " alt="" coords="404,399,428,411,445,429,453,447,461,465,476,483,480,486,476,490,472,487,456,468,448,449,440,432,424,415,402,403"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="475,577,654,618"/>
+<area shape="poly" id="edge16_Node000009_Node000011" title=" " alt="" coords="410,399,428,411,443,430,451,450,454,488,456,526,462,545,476,563,478,565,474,569,472,567,458,547,450,527,448,488,446,451,439,433,424,415,407,403"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="492,368,637,408"/>
+<area shape="poly" id="edge17_Node000009_Node000012" title=" " alt="" coords="413,385,476,385,476,391,413,391"/>
+<area shape="rect" id="Node000013" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="482,433,647,474"/>
+<area shape="poly" id="edge18_Node000009_Node000013" title=" " alt="" coords="381,399,427,411,479,425,478,431,425,416,380,404"/>
+</map>

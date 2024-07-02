@@ -1,0 +1,7 @@
+<map id="ml::api::CModelSnapshotJsonWriter::write" name="ml::api::CModelSnapshotJsonWriter::write">
+<area shape="rect" id="Node000001" title="Writes the given model snapshot in JSON format." alt="" coords="250,23,446,64"/>
+<area shape="rect" id="Node000002" href="$d0/da3/_c_model_snapshot_json_writer_test_8cc.html#a0d6de50cd7f9e4c3769edafff9c39a9c" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,34,202,31,203,26,235,29"/>
+<area shape="rect" id="Node000003" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="79,55,128,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,57,129,68,128,62,234,52"/>
+</map>

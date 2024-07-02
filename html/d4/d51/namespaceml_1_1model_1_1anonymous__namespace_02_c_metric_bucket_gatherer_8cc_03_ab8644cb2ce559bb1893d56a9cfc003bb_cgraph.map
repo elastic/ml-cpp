@@ -1,0 +1,11 @@
+<map id="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::registerMemoryCallbacks" name="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::registerMemoryCallbacks">
+<area shape="rect" id="Node000001" title="Register the callbacks for computing the size of feature data gatherers." alt="" coords="5,31,242,87"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50ba7442efeaf08f05c1791e5cb25bbc" title="Get the any visitor singleton." alt="" coords="290,16,479,41"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,42,274,39,274,44,243,48"/>
+<area shape="rect" id="Node000004" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#aaa0e704b8764a6fd0d9b939de690e0d1" title="Get the any visitor singleton." alt="" coords="302,67,467,107"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,69,287,74,286,79,242,74"/>
+<area shape="rect" id="Node000003" href="$db/de8/classml_1_1core_1_1memory_1_1_c_any_visitor.html#a3fb7b9121638c6d5af7d186f499a77c1" title=" " alt="" coords="527,5,728,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="479,25,511,24,511,30,479,30"/>
+<area shape="rect" id="Node000005" href="$dd/d05/classml_1_1core_1_1memory__debug_1_1_c_any_visitor.html#a42a269050c3352b932e860276a602359" title=" " alt="" coords="545,71,710,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="468,86,530,87,530,92,467,91"/>
+</map>

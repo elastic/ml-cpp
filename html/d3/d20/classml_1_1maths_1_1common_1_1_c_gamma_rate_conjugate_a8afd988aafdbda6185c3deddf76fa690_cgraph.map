@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CGammaRateConjugate::mean" name="ml::maths::common::CGammaRateConjugate::mean">
+<area shape="rect" id="Node000001" title="Get the of the marginal likelihood." alt="" coords="5,112,210,152"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a6f32d138689c010c6dc54ab247ef7d9a" title="Check if this is a non&#45;informative prior." alt="" coords="258,71,422,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,114,242,110,243,115,211,120"/>
+<area shape="rect" id="Node000004" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a04fe7c04ef3a6bdcd7c2d666cbac3ed5" title=" " alt="" coords="470,136,634,192"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="210,137,455,154,454,160,210,142"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="682,176,842,216"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="190,150,321,179,470,201,552,205,634,201,666,200,667,205,634,206,552,210,470,206,320,184,189,155"/>
+<area shape="rect" id="Node000006" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af8aace96dd553dc5fd86360da33fbacb" title=" " alt="" coords="470,5,634,61"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="141,108,194,80,257,56,307,45,358,37,454,30,455,35,359,42,308,50,258,61,196,85,144,113"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="682,78,842,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,96,667,96,667,101,423,101"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,121,456,132,454,137,421,126"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="634,136,679,121,681,127,636,141"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="635,174,667,179,667,184,634,179"/>
+<area shape="poly" id="edge9_Node000006_Node000003" title=" " alt="" coords="636,56,681,70,679,76,634,61"/>
+</map>

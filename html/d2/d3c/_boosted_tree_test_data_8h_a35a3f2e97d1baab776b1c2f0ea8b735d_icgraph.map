@@ -1,0 +1,11 @@
+<map id="setupRegressionProblem" name="setupRegressionProblem">
+<area shape="rect" id="Node000001" title=" " alt="" coords="500,31,667,56"/>
+<area shape="rect" id="Node000002" href="$d2/d12/_c_boosted_tree_utils_test_8cc.html#aad40496fe2c52f2d38dbf7694091eff8" title=" " alt="" coords="253,5,449,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="484,35,449,32,450,26,485,30"/>
+<area shape="rect" id="Node000003" href="$d0/d93/_boosted_tree_test_data_8cc.html#aca312e50922d2475d107c287c0678265" title=" " alt="" coords="250,55,452,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="485,56,453,60,452,54,485,51"/>
+<area shape="rect" id="Node000004" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html#abbba83c7f0cfd32e06db66b8eb928314" title=" " alt="" coords="5,29,202,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,58,202,55,202,50,234,53"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html#afc62b338e2f95f4fdf7581439522126f" title=" " alt="" coords="5,79,202,104"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="234,81,202,85,202,79,234,76"/>
+</map>

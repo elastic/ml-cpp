@@ -1,0 +1,11 @@
+<map id="ml::torch::CCommandParser::CRequestCache" name="ml::torch::CCommandParser::CRequestCache">
+<area shape="rect" id="Node000001" title="Memory limited inference request LFU cache." alt="" coords="989,37,1177,78"/>
+<area shape="rect" id="Node000002" href="$d4/d2a/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache_interface.html" title="Inference request cache interface." alt="" coords="687,5,875,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="891,35,989,45,988,50,890,40"/>
+<area shape="rect" id="Node000003" href="$db/d55/classml_1_1core_1_1_c_concurrent_compressed_lfu_cache.html" title=" " alt="" coords="668,71,894,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="909,74,988,65,989,71,910,80"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html" title=" " alt="" coords="365,63,619,119"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="635,88,668,88,668,94,635,94"/>
+<area shape="rect" id="Node000005" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title=" " alt="" coords="5,71,236,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="251,88,364,88,364,94,251,94"/>
+</map>

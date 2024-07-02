@@ -1,0 +1,9 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::build" name="ml::api::CBoostedTreeInferenceModelBuilder::build">
+<area shape="rect" id="Node000001" title=" " alt="" coords="257,63,463,104"/>
+<area shape="rect" id="Node000002" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#a47455df0a75da44940391da922696eaf" title=" " alt="" coords="9,5,205,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,61,208,46,161,34,163,29,209,41,267,56"/>
+<area shape="rect" id="Node000003" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a06a0fac72d5e6b08e91a67fe5dd2ffbd" title=" " alt="" coords="11,56,203,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,86,204,86,204,81,241,81"/>
+<area shape="rect" id="Node000004" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#af502e1ffbd1fcf497945307b14b6d225" title=" " alt="" coords="5,136,209,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="280,111,198,138,196,133,278,106"/>
+</map>

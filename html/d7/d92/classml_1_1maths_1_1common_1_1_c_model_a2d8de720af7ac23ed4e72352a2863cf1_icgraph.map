@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CModel::detrend" name="ml::maths::common::CModel::detrend">
+<area shape="rect" id="Node000001" title="Remove any trend components from value." alt="" coords="836,109,982,149"/>
+<area shape="rect" id="Node000002" href="$d2/d53/classml_1_1model_1_1_c_probability_and_influence_calculator.html#acabae1d1c8e229cc6fb47bf043c83fb8" title=" " alt="" coords="565,109,788,149"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="821,132,789,132,789,126,821,126"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_probability_and_influence_calculator_test_8cc.html#adacf1c21ee64f9bdf5b1c4471078449a" title=" " alt="" coords="5,124,202,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="638,101,583,63,550,47,516,34,442,15,383,8,324,14,251,34,210,53,173,77,119,125,115,121,169,73,207,48,249,29,323,9,383,3,443,10,518,29,552,42,585,59,641,96"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="287,43,480,84"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="567,107,477,87,478,82,568,102"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="274,109,493,149"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="550,132,494,132,494,126,550,126"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="287,174,480,215"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="568,156,478,176,477,171,567,150"/>
+<area shape="rect" id="Node000007" href="$da/d82/namespaceanonymous__namespace_02_c_probability_and_influence_calculator_test_8cc_03.html#a219259c6d79d4b107831957ec59d7950" title=" " alt="" coords="250,238,517,294"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="636,160,581,195,518,229,489,240,487,235,516,224,578,191,633,156"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="263,235,249,229,177,190,122,153,125,148,180,185,251,224,265,230"/>
+</map>

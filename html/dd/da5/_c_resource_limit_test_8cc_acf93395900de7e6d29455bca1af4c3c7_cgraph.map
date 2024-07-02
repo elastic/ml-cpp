@@ -1,0 +1,14 @@
+<map id="addMetricArrival" name="addMetricArrival">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,121,104"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="169,13,343,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,75,170,56,171,62,110,80"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="399,71,557,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="121,88,384,88,384,94,121,94"/>
+<area shape="rect" id="Node000006" href="$dd/da5/_c_resource_limit_test_8cc.html#adfff002e956fa0ecb7a8a4d4ce39f79f" title=" " alt="" coords="224,129,288,155"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="115,102,210,127,209,132,114,107"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="391,5,565,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="343,28,375,27,376,32,343,33"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="338,52,384,64,383,69,336,57"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="613,71,772,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="558,88,598,88,598,94,558,94"/>
+</map>

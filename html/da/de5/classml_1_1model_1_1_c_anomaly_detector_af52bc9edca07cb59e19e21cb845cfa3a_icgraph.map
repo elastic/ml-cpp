@@ -1,0 +1,29 @@
+<map id="ml::model::CAnomalyDetector::updateLastSampledBucket" name="ml::model::CAnomalyDetector::updateLastSampledBucket">
+<area shape="rect" id="Node000001" title="Updates the last sampled bucket." alt="" coords="1353,157,1551,197"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a8c242e575ca46e218cb088b9398a1231" title="Update the results with this detector model&#39;s results." alt="" coords="1108,157,1305,197"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1338,180,1306,180,1306,174,1338,174"/>
+<area shape="rect" id="Node000003" href="$db/d96/class_c_test_fixture.html#a9552787d9c98889661f815d763a67ddd" title=" " alt="" coords="871,5,1049,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1177,146,1126,93,1094,67,1059,45,1034,34,1036,29,1061,40,1097,63,1129,90,1181,143"/>
+<area shape="rect" id="Node000004" href="$d1/d56/classanonymous__namespace_02_c_event_rate_anomaly_detector_test_8cc_03_1_1_c_result_writer.html#a16612da3a3848441fb9df34caadd10d5" title=" " alt="" coords="861,55,1059,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1131,153,1058,127,1060,122,1133,148"/>
+<area shape="rect" id="Node000005" href="$d9/d46/classanonymous__namespace_02_c_metric_anomaly_detector_test_8cc_03_1_1_c_result_writer.html#afe623a3dab2b236e9c8c77b90b789f5f" title=" " alt="" coords="860,149,1060,205"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1092,180,1060,180,1060,174,1092,174"/>
+<area shape="rect" id="Node000006" href="$d1/d77/class_c_result_writer.html#a431d3e6e7cb646504c7cff9a1f6cd07f" title=" " alt="" coords="877,229,1043,255"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="1116,204,1061,219,1015,231,1013,226,1059,214,1115,199"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a13e6b57c735a0fbab0c720e3f82b6f7d" title="Write out the results for the bucket starting at bucketStartTime." alt="" coords="885,279,1035,320"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1165,209,1116,240,1061,270,1034,281,1032,276,1059,265,1114,236,1162,204"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="630,246,808,287"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="869,290,808,281,809,276,870,284"/>
+<area shape="rect" id="Node000012" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9f65dd0e424bca17de0073ad974fa819" title=" " alt="" coords="626,311,812,352"/>
+<area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="870,314,812,322,812,317,869,309"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="421,246,571,287"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="614,269,572,269,572,264,614,264"/>
+<area shape="rect" id="Node000011" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,218,156,259"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="625,245,578,237,463,228,348,227,156,235,156,229,348,222,463,223,579,232,626,239"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,246,366,287"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="406,269,366,269,366,264,406,264"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="188,256,156,251,156,246,188,250"/>
+<area shape="rect" id="Node000013" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,311,578,352"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="611,334,579,334,579,329,611,329"/>
+<area shape="poly" id="edge14_Node000013_Node000010" title=" " alt="" coords="413,309,352,290,354,285,415,304"/>
+</map>

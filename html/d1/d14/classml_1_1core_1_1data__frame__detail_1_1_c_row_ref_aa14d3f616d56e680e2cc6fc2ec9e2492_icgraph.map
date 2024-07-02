@@ -1,0 +1,7 @@
+<map id="ml::core::data_frame_detail::CRowRef::index" name="ml::core::data_frame_detail::CRowRef::index">
+<area shape="rect" id="Node000001" title="Get the row&#39;s index." alt="" coords="257,31,421,72"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/_c_data_frame_category_encoder_test_8cc.html#a3e5a5fd1c78e77dd19968ffd3765efc4" title=" " alt="" coords="9,5,205,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,40,200,34,201,29,242,35"/>
+<area shape="rect" id="Node000003" href="$db/df5/classml_1_1maths_1_1analytics_1_1_c_encoded_data_frame_row_ref.html#aae691d358e0b7da81e407e5909131ae4" title="Get the row&#39;s index." alt="" coords="5,56,209,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,68,210,72,209,67,241,62"/>
+</map>

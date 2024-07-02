@@ -1,0 +1,56 @@
+<map id="ml::maths::common::CBayesianOptimisation::kernel" name="ml::maths::common::CBayesianOptimisation::kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="990,136,1148,192"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="1102,124,1089,117,1069,115,1051,116,1039,121,1034,128,1033,136,1028,135,1029,126,1036,117,1049,111,1069,109,1091,112,1104,119"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#abf51451ad15bac08b729405954e04406" title=" " alt="" coords="783,5,942,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1012,129,940,82,910,64,913,59,943,78,1015,125"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5e1b086ca80daefce8765bc99ed77ae7" title=" " alt="" coords="529,12,723,68"/>
+<area shape="poly" id="edge32_Node000001_Node000003" title=" " alt="" coords="974,136,941,126,723,67,724,62,942,121,975,131"/>
+<area shape="rect" id="Node000006" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a1fbfc98c04fb1484fd2130baf2c35f01" title=" " alt="" coords="783,136,942,192"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="974,167,942,167,942,161,974,161"/>
+<area shape="rect" id="Node000008" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae12a0fedd9f76f818a2de29eb297f491" title=" " alt="" coords="517,186,735,257"/>
+<area shape="poly" id="edge31_Node000001_Node000008" title=" " alt="" coords="975,199,942,206,836,220,736,225,736,219,836,214,941,201,974,194"/>
+<area shape="rect" id="Node000009" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#aa56e37b0e1538d1963615b9e9189c3cd" title=" " alt="" coords="783,515,942,570"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="1047,207,881,515,877,513,1043,204"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="768,38,724,40,724,34,768,33"/>
+<area shape="rect" id="Node000004" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5ca70926f9908916ada88324e7249188" title="Compute the maximum likelihood kernel parameters." alt="" coords="279,12,461,68"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="513,43,461,43,461,37,513,37"/>
+<area shape="rect" id="Node000005" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a105ec0dc8c3e89ea1f038dba5ee36f71" title=" " alt="" coords="5,45,223,101"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="264,56,224,62,223,56,263,51"/>
+<area shape="rect" id="Node000007" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a38d0611982d67d8420765b5e2831dd85" title=" " alt="" coords="547,107,705,162"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="768,155,705,147,706,142,768,149"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="769,189,736,197,735,192,767,184"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="521,180,515,177,501,165,492,153,482,142,468,133,424,119,363,106,223,86,224,81,364,101,426,113,470,128,486,138,496,150,505,161,519,172,524,176"/>
+<area shape="rect" id="Node000010" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab632e8fd2b6bf043ed7726e3a6c48668" title="Get the constant factor of the ANOVA decomposition of the Gaussian process." alt="" coords="547,337,705,393"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="827,504,785,459,734,415,700,396,703,391,737,411,789,455,831,501"/>
+<area shape="rect" id="Node000017" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a5da2ef29a9c5e620e01588f58ef9b467" title=" " alt="" coords="547,449,705,505"/>
+<area shape="poly" id="edge19_Node000009_Node000017" title=" " alt="" coords="768,519,705,502,706,496,769,514"/>
+<area shape="rect" id="Node000018" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a90a55a7a98d6f9b19ec087691023204e" title=" " alt="" coords="291,532,449,588"/>
+<area shape="poly" id="edge22_Node000009_Node000018" title=" " alt="" coords="768,548,450,560,449,554,768,543"/>
+<area shape="rect" id="Node000019" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ad26d55e2bd0b23d5e7e3c0c3b3faa13e" title=" " alt="" coords="547,604,705,660"/>
+<area shape="poly" id="edge23_Node000009_Node000019" title=" " alt="" coords="774,578,703,606,701,601,773,574"/>
+<area shape="rect" id="Node000021" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#abf040affbeaa20688b3980585f507154" title="Evaluate the Guassian process at the point input." alt="" coords="547,708,705,764"/>
+<area shape="poly" id="edge27_Node000009_Node000021" title=" " alt="" coords="829,584,787,629,737,674,683,710,680,705,734,670,783,625,826,580"/>
+<area shape="rect" id="Node000022" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a414777833b825bbd7d1d0f2e8602a53d" title=" " alt="" coords="547,812,705,868"/>
+<area shape="poly" id="edge29_Node000009_Node000022" title=" " alt="" coords="849,586,831,629,806,679,775,731,737,778,715,797,690,814,687,809,711,793,733,774,771,728,802,677,826,627,844,583"/>
+<area shape="poly" id="edge12_Node000010_Node000010" title=" " alt="" coords="664,325,650,318,626,316,605,318,592,323,585,329,585,337,580,337,580,327,589,318,604,313,626,311,651,313,666,320"/>
+<area shape="rect" id="Node000011" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#aa4c57cdcaa467fcfd508c5e8cad438c1" title=" " alt="" coords="291,143,449,198"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="578,329,515,270,492,239,483,226,467,213,448,201,451,196,471,208,487,223,497,236,519,266,582,325"/>
+<area shape="rect" id="Node000012" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a6e6c05e62db0c6c0626feb02d10bc973" title=" " alt="" coords="291,223,449,278"/>
+<area shape="poly" id="edge14_Node000010_Node000012" title=" " alt="" coords="553,333,468,293,441,281,443,276,470,288,555,328"/>
+<area shape="rect" id="Node000013" href="$dc/d91/_c_bayesian_optimisation_test_8cc.html#a50990ef5b672f0b99f647470443b6629" title=" " alt="" coords="272,303,468,329"/>
+<area shape="poly" id="edge15_Node000010_Node000013" title=" " alt="" coords="531,350,440,332,441,327,532,344"/>
+<area shape="rect" id="Node000014" href="$dc/d91/_c_bayesian_optimisation_test_8cc.html#abb14e08acaad90f5b3104a08a646d1d4" title=" " alt="" coords="272,352,468,378"/>
+<area shape="poly" id="edge16_Node000010_Node000014" title=" " alt="" coords="532,368,468,368,468,363,532,363"/>
+<area shape="rect" id="Node000015" href="$dc/d91/_c_bayesian_optimisation_test_8cc.html#ac5fc875f8836e4b426f224e2801ff04a" title=" " alt="" coords="272,402,468,427"/>
+<area shape="poly" id="edge17_Node000010_Node000015" title=" " alt="" coords="532,386,441,404,440,398,531,381"/>
+<area shape="rect" id="Node000016" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a839646647095036b792cdf2ad2794f9b" title=" " alt="" coords="291,452,449,508"/>
+<area shape="poly" id="edge18_Node000010_Node000016" title=" " alt="" coords="546,402,518,416,470,442,444,454,442,449,468,437,516,411,544,397"/>
+<area shape="poly" id="edge20_Node000017_Node000017" title=" " alt="" coords="664,437,650,430,626,428,605,430,592,435,585,441,585,449,580,449,580,439,589,430,604,425,626,423,651,425,666,432"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="533,510,450,537,449,532,531,505"/>
+<area shape="poly" id="edge24_Node000019_Node000018" title=" " alt="" coords="531,608,449,585,450,580,533,603"/>
+<area shape="poly" id="edge25_Node000019_Node000019" title=" " alt="" coords="664,592,650,585,626,583,605,585,592,589,585,596,585,604,580,603,580,593,589,585,604,579,626,577,651,580,666,587"/>
+<area shape="rect" id="Node000020" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#adeb839b8ceab34995af0ebdf467928f5" title=" " alt="" coords="271,612,469,668"/>
+<area shape="poly" id="edge26_Node000019_Node000020" title=" " alt="" coords="532,637,469,639,469,634,531,632"/>
+<area shape="poly" id="edge28_Node000021_Node000021" title=" " alt="" coords="664,696,650,689,626,687,605,689,592,693,585,700,585,708,580,707,580,697,589,689,604,683,626,681,651,684,666,691"/>
+<area shape="poly" id="edge30_Node000022_Node000022" title=" " alt="" coords="664,800,650,793,626,791,605,793,592,797,585,804,585,812,580,811,580,801,589,793,604,787,626,785,651,788,666,795"/>
+</map>

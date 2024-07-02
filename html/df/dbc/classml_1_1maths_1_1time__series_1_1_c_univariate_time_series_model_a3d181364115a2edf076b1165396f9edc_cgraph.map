@@ -1,0 +1,23 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::uncorrelatedProbability" name="ml::maths::time_series::CUnivariateTimeSeriesModel::uncorrelatedProbability">
+<area shape="rect" id="Node000001" title="Compute the probability for uncorrelated series." alt="" coords="5,181,205,237"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a0e3783014f92b8805cd76adfcd60fd80" title=" " alt="" coords="253,29,453,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,179,192,141,251,102,272,90,275,95,254,106,195,145,143,183"/>
+<area shape="rect" id="Node000004" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="501,95,700,150"/>
+<area shape="poly" id="edge12_Node000001_Node000004" title=" " alt="" coords="161,178,205,160,252,145,311,134,372,126,485,119,486,124,372,131,312,139,253,150,207,165,163,183"/>
+<area shape="rect" id="Node000005" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="263,160,443,200"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="205,195,247,190,247,195,205,200"/>
+<area shape="rect" id="Node000006" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="528,241,673,282"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="205,217,513,249,512,255,205,222"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="253,274,453,315"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="189,235,278,266,276,271,187,240"/>
+<area shape="rect" id="Node000008" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a5ac0bda977188fef5f2e786f1b15c783" title="Fill in the seasonal variance scale at time." alt="" coords="253,339,453,394"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="138,236,190,280,254,324,263,329,260,334,251,329,187,284,135,240"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="304,29,305,19,314,10,330,5,353,3,379,5,395,12,393,17,377,10,353,8,331,10,317,15,310,21,310,29"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="521,30,680,71"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="453,52,505,50,506,56,453,57"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="454,81,487,90,485,95,452,86"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="424,336,452,324,539,286,541,291,454,329,426,341"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="564,354,638,379"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="453,364,548,364,548,369,453,369"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="561,356,552,346,556,336,573,329,601,327,634,331,648,339,645,344,633,336,601,332,574,334,560,339,557,345,565,352"/>
+</map>

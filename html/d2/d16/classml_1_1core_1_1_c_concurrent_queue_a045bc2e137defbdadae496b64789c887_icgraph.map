@@ -1,0 +1,14 @@
+<map id="ml::core::CConcurrentQueue::memoryUsage" name="ml::core::CConcurrentQueue::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this component." alt="" coords="756,39,945,80"/>
+<area shape="rect" id="Node000002" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html#a36c6762640a6067bfae5d501733520fd" title="Get the memory used by this component." alt="" coords="510,39,708,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="741,62,709,62,709,57,741,57"/>
+<area shape="rect" id="Node000003" href="$df/db2/_c_concurrent_wrapper_test_8cc.html#a7005e516a475f5e2390363f4c20c48a5" title=" " alt="" coords="266,5,462,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="494,43,444,34,445,29,495,38"/>
+<area shape="rect" id="Node000004" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html#ad932fbdde0ed79b5f8cba9f260e3ecd2" title="Get the memory used by this component." alt="" coords="266,79,462,120"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="495,81,463,86,462,81,494,76"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="404,66,389,60,364,58,340,60,326,65,321,70,323,78,318,79,315,69,323,60,339,55,364,53,390,55,406,61"/>
+<area shape="rect" id="Node000005" href="$d0/d5f/_c_json_output_stream_wrapper_test_8cc.html#ae0cb108371de3c06fafe446c0cc11374" title=" " alt="" coords="13,57,210,83"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="250,89,210,84,210,79,251,84"/>
+<area shape="rect" id="Node000006" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html#a48fe9460444771f4e925b915d4b7eb6d" title="Get the memory used by this component." alt="" coords="5,107,218,148"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="251,115,218,118,218,113,250,109"/>
+</map>

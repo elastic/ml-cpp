@@ -1,0 +1,7 @@
+<map id="ml::model_t::analysisCategory" name="ml::model_t::analysisCategory">
+<area shape="rect" id="Node000001" title="Get the category of analysis to which feature belongs." alt="" coords="271,35,469,60"/>
+<area shape="rect" id="Node000002" href="$d6/d0c/_c_model_details_view_test_8cc.html#a450874ff5c5719013f9858ec19b772ed" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,37,223,33,223,28,256,32"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a34694ec67b1b1a6a3d1493b296e8398d" title=" " alt="" coords="15,55,213,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,63,213,67,213,62,255,57"/>
+</map>

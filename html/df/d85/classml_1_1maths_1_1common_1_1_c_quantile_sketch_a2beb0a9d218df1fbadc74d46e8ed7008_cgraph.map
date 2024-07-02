@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CQuantileSketch::checkInvariants" name="ml::maths::common::CQuantileSketch::checkInvariants">
+<area shape="rect" id="Node000001" title="Check invariants." alt="" coords="5,39,226,79"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac539b2faba6d25270e8b47730113e59b" title="Get the total count of points added." alt="" coords="284,5,444,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,42,268,36,269,41,226,47"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="274,71,454,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="226,71,259,75,258,80,226,76"/>
+</map>

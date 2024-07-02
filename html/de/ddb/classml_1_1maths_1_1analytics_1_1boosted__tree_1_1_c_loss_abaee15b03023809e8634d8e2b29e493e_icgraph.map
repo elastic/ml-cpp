@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree::CLoss::minimizer" name="ml::maths::analytics::boosted_tree::CLoss::minimizer">
+<area shape="rect" id="Node000001" title="Get an object which computes the leaf value that minimises loss." alt="" coords="250,5,400,61"/>
+<area shape="rect" id="Node000002" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#af1c28257035e7881da5f8d7e66322aeb" title="Compute the leaf values to use for tree." alt="" coords="5,5,202,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

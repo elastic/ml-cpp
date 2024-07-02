@@ -1,0 +1,43 @@
+<map id="include/maths/analytics/CBoostedTreeLeafNodeStatistics.h" name="include/maths/analytics/CBoostedTreeLeafNodeStatistics.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1958,5,2189,46"/>
+<area shape="rect" id="Node000002" href="$d2/d91/_c_boosted_tree_impl_8h.html" title=" " alt="" coords="1005,102,1163,142"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1942,42,1164,116,1163,110,1942,37"/>
+<area shape="rect" id="Node000004" href="$d0/d0a/_c_boosted_tree_8cc.html" title=" " alt="" coords="5,205,136,246"/>
+<area shape="poly" id="edge19_Node000001_Node000004" title=" " alt="" coords="1942,29,1622,34,1410,43,1175,57,923,78,662,109,401,149,147,200,123,207,121,202,146,195,400,143,662,103,922,73,1174,52,1410,37,1622,29,1942,23"/>
+<area shape="rect" id="Node000007" href="$dc/d56/_c_boosted_tree_impl_8cc.html" title=" " alt="" coords="1780,205,1932,246"/>
+<area shape="poly" id="edge20_Node000001_Node000007" title=" " alt="" coords="1943,51,1874,70,1848,82,1831,96,1824,108,1821,122,1823,151,1833,180,1846,204,1841,206,1828,182,1818,152,1816,121,1819,106,1827,92,1845,78,1872,65,1941,46"/>
+<area shape="rect" id="Node000012" href="$da/d48/_c_boosted_tree_leaf_node_statistics_incremental_8h.html" title=" " alt="" coords="1842,94,2062,150"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="2038,58,1989,95,1985,91,2035,53"/>
+<area shape="rect" id="Node000014" href="$da/d0f/_c_boosted_tree_leaf_node_statistics_test_8cc.html" title=" " alt="" coords="2201,198,2383,253"/>
+<area shape="poly" id="edge23_Node000001_Node000014" title=" " alt="" coords="2205,45,2276,65,2303,78,2321,92,2331,118,2331,147,2322,174,2311,199,2306,196,2317,173,2325,146,2326,119,2316,96,2300,82,2274,70,2204,51"/>
+<area shape="rect" id="Node000015" href="$da/d44/_c_boosted_tree_leaf_node_statistics_scratch_8h.html" title=" " alt="" coords="2086,94,2306,150"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="2112,53,2162,91,2159,95,2109,58"/>
+<area shape="rect" id="Node000017" href="$d7/dde/_c_boosted_tree_leaf_node_statistics_8cc.html" title=" " alt="" coords="2381,102,2619,142"/>
+<area shape="poly" id="edge21_Node000001_Node000017" title=" " alt="" coords="2178,47,2411,98,2410,103,2177,52"/>
+<area shape="rect" id="Node000018" href="$d5/de3/_c_boosted_tree_leaf_node_statistics_threading_8cc.html" title=" " alt="" coords="2643,94,2863,150"/>
+<area shape="poly" id="edge22_Node000001_Node000018" title=" " alt="" coords="2205,37,2406,59,2631,91,2643,94,2642,99,2630,97,2405,64,2204,42"/>
+<area shape="rect" id="Node000003" href="$dd/dd3/_c_data_frame_train_boosted_tree_regression_runner_test_8cc.html" title=" " alt="" coords="1524,198,1756,253"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1179,136,1512,195,1524,197,1523,202,1511,200,1178,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="989,130,551,157,317,177,220,188,147,200,122,207,120,202,146,195,220,183,316,171,550,151,989,125"/>
+<area shape="rect" id="Node000005" href="$d8/d49/_c_boosted_tree_factory_8cc.html" title=" " alt="" coords="159,205,329,246"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="989,130,699,152,520,172,342,200,311,207,309,202,341,195,519,167,698,147,989,125"/>
+<area shape="rect" id="Node000006" href="$dd/d1f/_c_boosted_tree_hyperparameters_8cc.html" title=" " alt="" coords="353,205,580,246"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="990,138,806,165,592,200,557,207,556,202,591,195,805,160,989,133"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1179,125,1446,147,1607,167,1768,195,1797,202,1795,207,1767,200,1606,173,1445,153,1179,131"/>
+<area shape="rect" id="Node000008" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html" title=" " alt="" coords="604,198,860,253"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="1002,150,827,200,825,195,1000,144"/>
+<area shape="rect" id="Node000009" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html" title=" " alt="" coords="884,198,1068,253"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="1054,155,1007,199,1003,195,1050,151"/>
+<area shape="rect" id="Node000010" href="$d2/d06/_c_boosted_tree_test_8cc.html" title=" " alt="" coords="1092,205,1292,246"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="1118,151,1173,203,1169,207,1114,155"/>
+<area shape="rect" id="Node000011" href="$d2/d12/_c_boosted_tree_utils_test_8cc.html" title=" " alt="" coords="1316,198,1500,253"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="1162,145,1322,195,1320,200,1160,150"/>
+<area shape="poly" id="edge12_Node000012_Node000007" title=" " alt="" coords="1918,163,1876,207,1872,203,1914,159"/>
+<area shape="rect" id="Node000013" href="$d7/d70/_c_boosted_tree_leaf_node_statistics_incremental_8cc.html" title=" " alt="" coords="1956,198,2177,253"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="1996,158,2037,195,2034,199,1992,162"/>
+<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="2058,152,2202,195,2200,200,2057,157"/>
+<area shape="poly" id="edge16_Node000015_Node000007" title=" " alt="" coords="2090,157,1945,200,1921,207,1920,202,1943,195,2089,152"/>
+<area shape="poly" id="edge18_Node000015_Node000014" title=" " alt="" coords="2234,159,2268,195,2264,199,2230,163"/>
+<area shape="rect" id="Node000016" href="$d5/d16/_c_boosted_tree_leaf_node_statistics_scratch_8cc.html" title=" " alt="" coords="2407,198,2627,253"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="2297,152,2432,194,2430,200,2295,157"/>
+</map>

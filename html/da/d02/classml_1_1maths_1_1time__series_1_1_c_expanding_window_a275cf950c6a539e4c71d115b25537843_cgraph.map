@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CExpandingWindow::beginValuesTime" name="ml::maths::time_series::CExpandingWindow::beginValuesTime">
+<area shape="rect" id="Node000001" title="Get the time of the first window value." alt="" coords="5,97,260,138"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a824a6446df32e6fa757a8d236bff4604" title="Get the current bucket length." alt="" coords="601,36,834,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,94,224,52,264,32,307,17,349,9,392,4,478,5,560,15,630,29,629,34,559,20,478,10,392,10,350,14,308,23,266,37,227,57,162,99"/>
+<area shape="rect" id="Node000003" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a146c7ffc1ffc2d4f1951d2288854bf30" title=" " alt="" coords="358,32,503,72"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,94,342,69,343,74,229,99"/>
+<area shape="rect" id="Node000004" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab8000e6b7e7cb9ec3e9ac86ea5881230" title="Get the end time of the window." alt="" coords="328,97,533,138"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="260,115,312,115,312,120,260,120"/>
+<area shape="rect" id="Node000005" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="358,162,503,203"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="229,136,343,161,342,166,228,141"/>
+<area shape="rect" id="Node000006" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a56d95bb679296928343f2b9b24bcbb40" title=" " alt="" coords="308,227,553,283"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="168,136,232,174,309,212,324,219,322,224,307,217,230,178,165,141"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="528,94,604,78,605,83,529,99"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="638,234,797,275"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="554,252,622,252,622,257,554,257"/>
+</map>

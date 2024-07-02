@@ -1,0 +1,14 @@
+<map id="ml::model::CCountingModel::currentBucketValue" name="ml::model::CCountingModel::currentBucketValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,189,79"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a11cddcdad0e6ec253097821b799e61f6" title=" " alt="" coords="237,39,420,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,56,221,56,221,62,189,62"/>
+<area shape="rect" id="Node000003" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a9d735f6d81faa1f143c846c818bff197" title="Check if bucket statistics are available for the specified time." alt="" coords="468,5,651,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,43,452,38,453,44,420,48"/>
+<area shape="rect" id="Node000006" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#af58fcade46baf82ab0ad79214f04ca5e" title="Print the current bucketing interval." alt="" coords="468,71,651,111"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="420,69,453,74,452,79,420,74"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="699,39,897,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="652,36,684,40,683,46,651,41"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="945,39,1119,79"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="897,56,929,56,929,62,897,62"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="651,76,683,72,684,77,652,81"/>
+</map>

@@ -1,0 +1,29 @@
+<map id="ml::maths::common::CBasicStatistics::COrderStatisticsStack::fromDelimited" name="ml::maths::common::CBasicStatistics::COrderStatisticsStack::fromDelimited">
+<area shape="rect" id="Node000001" title="Create a member function template so this class works with CPersistUtils::restore." alt="" coords="1314,125,1538,181"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a9e1cd9346d22108cafe066f918937c56" title="Restore by traversing a state document." alt="" coords="1043,5,1266,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1358,120,1265,76,1236,64,1238,59,1267,71,1360,115"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ab50fb7ee2875c737ea6176a989241f14" title="Restore by traversing a state document." alt="" coords="1074,85,1235,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1298,137,1235,128,1236,122,1299,132"/>
+<area shape="rect" id="Node000005" href="$d8/d71/classml_1_1maths_1_1common_1_1_c_probability_of_extreme_sample.html#ae4f1d9ba3f954513fccfe54e2be92c67" title="Initialize from value if possible." alt="" coords="1055,165,1254,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1299,175,1255,181,1254,176,1298,169"/>
+<area shape="rect" id="Node000006" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#ab1c6149a287510e2cacc319ede0e76bd" title="Restore an order statistic." alt="" coords="1064,245,1245,286"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1362,191,1267,236,1236,247,1234,242,1265,231,1360,186"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ad324fde09ab14e3c55ba2d46846f5557" title="Get the restore function bound to this object." alt="" coords="795,85,977,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1058,116,977,116,977,111,1058,111"/>
+<area shape="rect" id="Node000007" href="$da/d21/classml_1_1model_1_1_c_sample_gatherer_1_1_c_optional_str_stat_u_map_serializer.html#a6252219c8a2c430e52f3425d3764efaf" title=" " alt="" coords="777,165,995,221"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1061,243,992,224,993,219,1062,238"/>
+<area shape="rect" id="Node000008" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#a92a39db1584bd6dbb7a572c836467379" title="Restore from the supplied state document traverser." alt="" coords="786,245,986,286"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="1049,268,986,268,986,263,1049,263"/>
+<area shape="rect" id="Node000009" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a2833b18be5f98d5c2c0fdcfb2521aa5c" title="Restore from the supplied state document traverser." alt="" coords="801,310,971,351"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="1054,292,972,312,970,307,1052,287"/>
+<area shape="rect" id="Node000010" href="$db/d17/structml_1_1model_1_1_c_sample_queue_1_1_s_sub_sample.html#a6bb6d3f5a5ad7d2033a219911d30213e" title="Restore from a state document." alt="" coords="476,277,729,318"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="786,321,730,315,730,309,786,316"/>
+<area shape="rect" id="Node000014" href="$d6/df7/structml_1_1model_1_1_c_sample_gatherer_1_1_s_stat_serializer.html#a362de0973bb43a93f615c7c6fc718fef" title=" " alt="" coords="508,342,698,383"/>
+<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="786,344,699,354,698,349,785,339"/>
+<area shape="rect" id="Node000011" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a4038d37803356a616d916f54776c89ec" title="Restore by getting information from the state document traverser." alt="" coords="250,277,428,318"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="460,300,429,300,429,295,460,295"/>
+<area shape="rect" id="Node000012" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#acb986ed2182f4aca7213a7cad5919c2f" title="Create from part of a state document." alt="" coords="8,248,199,288"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="234,287,199,282,199,277,235,282"/>
+<area shape="rect" id="Node000013" href="$d5/df7/_c_sample_queue_test_8cc.html#a198486660676a176453a9cfe2c6324c6" title=" " alt="" coords="5,312,202,338"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="235,312,203,316,202,311,234,307"/>
+</map>

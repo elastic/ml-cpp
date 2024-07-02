@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CXMeansOnline::CCluster::BICGain" name="ml::maths::common::CXMeansOnline::CCluster::BICGain">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,58,182,114"/>
+<area shape="rect" id="Node000002" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ab8966dbcafd1ff359fbdc39f58dd21e8" title="Update the sufficient statistics for computing info content." alt="" coords="230,29,416,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,69,214,64,214,69,182,74"/>
+<area shape="rect" id="Node000003" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#a6c2f8ef2bb7e30da56da10cd29b45360" title="Calculate the information content of the clusters added so far." alt="" coords="244,94,402,150"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="182,97,229,104,229,110,181,102"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="280,29,277,19,285,10,300,5,323,3,348,5,362,11,360,16,346,10,323,8,301,10,288,15,283,21,285,28"/>
+</map>

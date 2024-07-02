@@ -1,0 +1,25 @@
+<map id="ml::maths::common::COrthogonaliser::orthonormalBasisImpl" name="ml::maths::common::COrthogonaliser::orthonormalBasisImpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="968,98,1159,154"/>
+<area shape="rect" id="Node000002" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a8c80fe4e37ab3314ed20dda0ca89773e" title=" " alt="" coords="728,58,920,114"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="952,110,920,105,921,100,953,105"/>
+<area shape="rect" id="Node000003" href="$da/d44/classml_1_1maths_1_1common_1_1_c_orthogonaliser.html#a61726991be03c8561eee39ffcafb2881" title=" " alt="" coords="728,138,920,194"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="953,147,921,153,920,147,952,142"/>
+<area shape="rect" id="Node000004" href="$d9/d55/_c_orthogonaliser_test_8cc.html#a4dad3c2c7a1baaf08ef78001d36a8177" title=" " alt="" coords="484,5,680,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="730,131,726,128,710,106,703,84,695,64,679,44,660,34,663,29,682,40,700,61,708,82,714,103,730,124,733,127"/>
+<area shape="rect" id="Node000005" href="$d9/d55/_c_orthogonaliser_test_8cc.html#ad1165c761f01d8ed7e2c5d22ecf3ca05" title=" " alt="" coords="484,55,680,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="736,133,727,128,703,110,679,94,651,83,653,78,682,89,706,106,730,124,739,129"/>
+<area shape="rect" id="Node000006" href="$d9/d55/_c_orthogonaliser_test_8cc.html#a477c173cfab58a67bda1145cee352c2c" title=" " alt="" coords="484,104,680,130"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="712,146,648,133,649,128,713,141"/>
+<area shape="rect" id="Node000007" href="$d9/d55/_c_orthogonaliser_test_8cc.html#ac535670f15b4aa20d0f67ba4c388a126" title=" " alt="" coords="484,153,680,179"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="713,169,681,169,681,164,713,164"/>
+<area shape="rect" id="Node000008" href="$d2/df8/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble.html#ab1ee098a5a913bf877ae3c28ee59fbf8" title=" " alt="" coords="491,203,673,274"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="715,202,675,214,673,208,713,196"/>
+<area shape="rect" id="Node000009" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#aa4bcae8545bcb0ffcc78f442e58a72ad" title=" " alt="" coords="487,297,678,353"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="785,207,737,248,682,287,660,299,657,294,679,283,734,244,781,203"/>
+<area shape="rect" id="Node000010" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#aea5fd07d815eefdedd55f0cbe59a10e7" title="Generate b random projections." alt="" coords="487,377,678,433"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="804,209,755,288,721,330,682,367,664,379,661,374,679,363,717,326,750,285,800,206"/>
+<area shape="rect" id="Node000011" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#af2a0e8b478209ee582972ea18b6e3859" title="Set up the projections." alt="" coords="245,377,436,433"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="471,408,436,408,436,402,471,402"/>
+<area shape="rect" id="Node000012" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a8f49c49d91cb2d4ec0431b5d37309760" title=" " alt="" coords="5,377,197,433"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="229,408,197,408,197,402,229,402"/>
+</map>

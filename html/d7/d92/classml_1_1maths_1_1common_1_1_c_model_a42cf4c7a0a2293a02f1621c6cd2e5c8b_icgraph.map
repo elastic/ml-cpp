@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CModel::skipTime" name="ml::maths::common::CModel::skipTime">
+<area shape="rect" id="Node000001" title="Advance time by gap." alt="" coords="517,201,662,242"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a73991b42e69535fb920b2f0059110636" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="250,5,469,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="569,189,529,123,500,90,467,61,446,49,448,44,471,57,504,86,533,120,574,186"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#aa43e0c95fb17012dfe4b81f467bbfa3a" title="Perform derived class specific operations to accomplish skipping sampling." alt="" coords="266,71,453,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="555,193,515,158,468,127,440,114,442,110,470,122,519,154,559,189"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#afb94cfdc11fb1b766cc1ed100134d114" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="263,136,456,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="502,200,433,180,435,175,503,194"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="263,201,456,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="502,224,456,224,456,219,502,219"/>
+<area shape="rect" id="Node000007" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="250,267,469,307"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="503,249,435,269,433,263,502,244"/>
+<area shape="rect" id="Node000008" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="276,332,443,373"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="559,255,519,289,470,321,442,334,440,329,468,317,515,285,555,251"/>
+<area shape="rect" id="Node000010" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="263,421,456,462"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="572,257,530,321,502,355,471,386,442,407,412,423,410,419,439,402,467,382,498,352,526,318,568,254"/>
+<area shape="rect" id="Node000006" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,209,202,235"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="247,224,202,224,202,219,247,219"/>
+<area shape="rect" id="Node000009" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,340,202,365"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="260,355,202,355,202,350,260,350"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="397,408,383,402,359,400,337,402,324,407,319,413,321,420,316,421,314,411,321,402,336,397,359,395,384,397,399,403"/>
+</map>

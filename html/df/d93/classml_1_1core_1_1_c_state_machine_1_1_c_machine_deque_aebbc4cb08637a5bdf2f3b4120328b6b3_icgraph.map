@@ -1,0 +1,9 @@
+<map id="ml::core::CStateMachine::CMachineDeque::clear" name="ml::core::CStateMachine::CMachineDeque::clear">
+<area shape="rect" id="Node000001" title="Remove all elements." alt="" coords="691,20,858,61"/>
+<area shape="rect" id="Node000002" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#a2e2d60e79daabdc67e663bc6945b48b3" title="Clear all machines (for test only)." alt="" coords="477,20,643,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="676,43,644,43,644,38,676,38"/>
+<area shape="rect" id="Node000003" href="$d2/db8/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_state_machine_clearer.html#a6799e38da3ab783fc0476c54ff4c96e4" title=" " alt="" coords="250,5,429,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="461,43,429,43,429,38,461,38"/>
+<area shape="rect" id="Node000004" href="$d4/d99/_c_state_machine_test_8cc.html#ad51d18d6b4d21b80e21a294f688eea88" title=" " alt="" coords="5,28,202,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,43,202,43,202,38,234,38"/>
+</map>

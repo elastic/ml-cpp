@@ -1,0 +1,7 @@
+<map id="anonymous_namespace{CAnnotatedProbabilityBuilderTest.cc}::CAnnotatedProbabilityBuilderForTest" name="anonymous_namespace{CAnnotatedProbabilityBuilderTest.cc}::CAnnotatedProbabilityBuilderForTest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,168,252,238"/>
+<area shape="rect" id="Node000002" href="$d4/d51/classml_1_1model_1_1_c_annotated_probability_builder.html" title="Manages the creation of annotated probabilities using the builder pattern." alt="" coords="20,79,237,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,135,131,167,126,167,126,135"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="46,5,211,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="131,46,131,79,126,79,126,46"/>
+</map>

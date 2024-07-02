@@ -1,0 +1,27 @@
+<map id="include/api/CAnomalyJob.h" name="include/api/CAnomalyJob.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="406,5,586,31"/>
+<area shape="rect" id="Node000002" href="$d2/dab/bin_2autodetect_2_main_8cc.html" title=" " alt="" coords="155,87,308,112"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="442,38,273,88,272,83,440,33"/>
+<area shape="rect" id="Node000003" href="$df/d80/_c_anomaly_job_8cc.html" title=" " alt="" coords="332,87,491,112"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="474,43,426,88,423,84,470,40"/>
+<area shape="rect" id="Node000004" href="$d5/d82/lib_2api_2dump__state_2_main_8cc.html" title=" " alt="" coords="516,79,643,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="521,40,561,77,557,81,518,44"/>
+<area shape="rect" id="Node000005" href="$d7/deb/_c_test_anomaly_job_8h.html" title=" " alt="" coords="668,79,860,120"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="552,33,698,76,696,81,550,38"/>
+<area shape="rect" id="Node000006" href="$d4/de4/_c_anomaly_job_limit_test_8cc.html" title=" " alt="" coords="5,168,173,208"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="652,123,520,138,417,146,315,154,185,170,174,172,173,167,185,165,314,149,417,140,520,132,652,117"/>
+<area shape="rect" id="Node000007" href="$d4/d7c/_c_anomaly_job_test_8cc.html" title=" " alt="" coords="197,168,365,208"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="653,123,377,170,366,172,365,167,377,165,652,118"/>
+<area shape="rect" id="Node000008" href="$da/dbb/_c_forecast_runner_test_8cc.html" title=" " alt="" coords="389,168,557,208"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="684,127,540,170,538,165,682,122"/>
+<area shape="rect" id="Node000009" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html" title=" " alt="" coords="581,168,746,208"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="731,132,688,169,685,165,728,128"/>
+<area shape="rect" id="Node000010" href="$df/df3/_c_persistence_manager_test_8cc.html" title=" " alt="" coords="771,168,956,208"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="800,128,843,165,839,169,796,132"/>
+<area shape="rect" id="Node000011" href="$d1/d67/_c_restore_previous_state_test_8cc.html" title=" " alt="" coords="980,168,1142,208"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="847,122,994,165,993,170,845,127"/>
+<area shape="rect" id="Node000012" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html" title=" " alt="" coords="1166,168,1335,208"/>
+<area shape="poly" id="edge11_Node000005_Node000012" title=" " alt="" coords="875,116,1155,165,1166,167,1165,172,1154,170,874,122"/>
+<area shape="rect" id="Node000013" href="$de/d85/_c_test_anomaly_job_8cc.html" title=" " alt="" coords="1358,168,1551,208"/>
+<area shape="poly" id="edge12_Node000005_Node000013" title=" " alt="" coords="876,109,1094,132,1347,165,1358,167,1357,172,1346,170,1093,138,875,114"/>
+</map>

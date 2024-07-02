@@ -1,0 +1,37 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::leftChildHasFewerRows" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::leftChildHasFewerRows">
+<area shape="rect" id="Node000001" title="Check if the left child has fewer rows than the right child." alt="" coords="1493,148,1717,203"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a44b6468e8a98686ccd827beca6d38146" title=" " alt="" coords="1221,80,1445,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1477,146,1445,138,1446,133,1479,141"/>
+<area shape="rect" id="Node000010" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4ebbfaeb4f8d7850feb01ef65b1c2f4a" title=" " alt="" coords="1221,200,1445,255"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="1478,202,1446,208,1445,203,1477,197"/>
+<area shape="poly" id="edge11_Node000002_Node000002" title=" " alt="" coords="1377,68,1361,61,1333,58,1309,60,1293,65,1285,71,1285,79,1280,79,1281,69,1290,60,1308,55,1333,53,1362,56,1379,63"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,5,298,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1205,103,1173,101,298,51,298,46,1173,95,1206,97"/>
+<area shape="rect" id="Node000004" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a87c50aeebda7b2f957a61606295451ba" title=" " alt="" coords="664,110,895,166"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1205,112,944,123,895,127,895,122,943,118,1205,107"/>
+<area shape="rect" id="Node000009" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#afb28f129a824d7bdfdb23527b4af13e3" title=" " alt="" coords="943,133,1173,189"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="1206,135,1174,141,1173,136,1205,129"/>
+<area shape="rect" id="Node000005" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a148adb8fd7b6ad022e084aba0fb48d9f" title=" " alt="" coords="353,110,608,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="648,141,608,141,608,135,648,135"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="369,108,272,79,274,74,370,103"/>
+<area shape="rect" id="Node000006" href="$da/d0f/_c_boosted_tree_leaf_node_statistics_test_8cc.html#a12e25436cd30e1de9f5cd30640b2318d" title=" " alt="" coords="53,289,250,315"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="355,177,347,183,337,194,331,206,325,231,319,256,311,269,299,280,276,293,251,301,249,296,274,288,296,276,307,265,314,254,320,230,326,204,333,191,344,179,352,172"/>
+<area shape="rect" id="Node000007" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a35d65536888b061faf1fb6a447347a99" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,100,298,171"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="337,140,298,139,298,134,337,134"/>
+<area shape="rect" id="Node000008" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a58fd2782d8c92cc89789b5307d1dd44e" title=" " alt="" coords="5,195,298,265"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="364,173,281,197,280,191,363,168"/>
+<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="927,153,895,150,896,145,928,147"/>
+<area shape="poly" id="edge20_Node000010_Node000010" title=" " alt="" coords="1377,188,1361,181,1333,178,1309,180,1293,185,1285,191,1285,199,1280,199,1281,189,1290,180,1308,175,1333,173,1362,176,1379,183"/>
+<area shape="rect" id="Node000011" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="346,192,615,263"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1205,230,616,230,616,225,1205,225"/>
+<area shape="rect" id="Node000012" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a7bf7df4a4e12a976495091fd48ea307f" title=" " alt="" coords="946,269,1170,325"/>
+<area shape="poly" id="edge14_Node000010_Node000012" title=" " alt="" coords="1206,262,1171,271,1170,266,1205,257"/>
+<area shape="rect" id="Node000013" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#abf8d02e25f46d9d9d0dbe61376e66999" title=" " alt="" coords="663,273,895,329"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="931,301,896,302,896,296,930,296"/>
+<area shape="poly" id="edge16_Node000013_Node000006" title=" " alt="" coords="647,304,250,304,250,299,647,298"/>
+<area shape="poly" id="edge18_Node000013_Node000011" title=" " alt="" coords="647,271,615,263,616,258,649,266"/>
+<area shape="rect" id="Node000014" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a7bc4acc23ebf2e84fbbbad033bae6113" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="346,339,615,409"/>
+<area shape="poly" id="edge17_Node000013_Node000014" title=" " alt="" coords="649,335,616,344,615,338,647,330"/>
+<area shape="rect" id="Node000015" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a01bd47ba3a2b2abbc45d007a428820da" title=" " alt="" coords="346,433,615,504"/>
+<area shape="poly" id="edge19_Node000013_Node000015" title=" " alt="" coords="736,341,681,384,616,424,594,435,591,430,614,420,678,379,733,336"/>
+</map>

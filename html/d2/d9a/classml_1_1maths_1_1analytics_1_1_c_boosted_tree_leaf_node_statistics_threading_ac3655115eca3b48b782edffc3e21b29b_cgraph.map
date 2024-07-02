@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsThreading::maximumThroughputNumberThreads" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsThreading::maximumThroughputNumberThreads">
+<area shape="rect" id="Node000001" title="Compute the number of threads which optimises throughput given totalWork." alt="" coords="5,5,307,61"/>
+<area shape="rect" id="Node000002" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#afc6b2e1c24405a7f9674a8cc2c7ea796" title="Get the overhead of using numberThreads." alt="" coords="355,5,579,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="307,31,339,31,339,36,307,36"/>
+</map>

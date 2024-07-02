@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CModelProbabilityParams::seasonalConfidenceInterval" name="ml::maths::common::CModelProbabilityParams::seasonalConfidenceInterval">
+<area shape="rect" id="Node000001" title="Set the confidence interval to use when detrending." alt="" coords="836,247,1027,302"/>
+<area shape="rect" id="Node000002" href="$d2/d53/classml_1_1model_1_1_c_probability_and_influence_calculator.html#acabae1d1c8e229cc6fb47bf043c83fb8" title=" " alt="" coords="565,153,788,194"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="844,243,729,197,731,192,846,238"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_probability_and_influence_calculator_test_8cc.html#adacf1c21ee64f9bdf5b1c4471078449a" title=" " alt="" coords="5,264,202,290"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="821,297,703,314,560,327,405,331,326,328,249,320,192,308,142,293,143,288,194,303,250,315,326,322,405,326,560,322,703,309,821,292"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="647,143,591,89,555,64,516,45,442,20,380,9,351,9,320,15,287,27,251,45,220,67,194,94,171,125,152,157,125,219,111,265,106,263,120,218,147,155,167,122,190,91,217,63,248,40,285,22,319,10,350,4,381,3,443,15,518,40,558,59,594,85,650,139"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="287,54,480,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="615,149,516,111,474,98,476,93,518,105,617,144"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="274,120,493,160"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="549,162,493,155,494,150,550,156"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="287,185,480,226"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="550,190,481,197,480,192,549,185"/>
+<area shape="rect" id="Node000007" href="$da/d82/namespaceanonymous__namespace_02_c_probability_and_influence_calculator_test_8cc_03.html#a219259c6d79d4b107831957ec59d7950" title=" " alt="" coords="250,249,517,305"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="614,203,518,240,483,251,482,246,516,235,612,198"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="234,280,202,280,202,275,234,275"/>
+</map>

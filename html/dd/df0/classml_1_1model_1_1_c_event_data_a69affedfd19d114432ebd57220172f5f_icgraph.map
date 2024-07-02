@@ -1,0 +1,14 @@
+<map id="ml::model::CEventData::count" name="ml::model::CEventData::count">
+<area shape="rect" id="Node000001" title="Get the unique count of measurements comprising the statistic." alt="" coords="694,67,853,107"/>
+<area shape="rect" id="Node000002" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a106ff3c23980d685da673419ff4023f1" title="Add a count only statistic." alt="" coords="474,33,632,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="679,75,632,68,633,63,680,70"/>
+<area shape="rect" id="Node000006" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="459,99,646,139"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="679,103,647,108,646,103,679,98"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#aab59d74835388b2ed32bead094f1fe56" title=" " alt="" coords="5,5,205,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="458,50,205,35,205,29,459,45"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a9c89172b7bbc216f0cbdbcbb07f304c8" title="Sets the data to be explicit null." alt="" coords="253,63,411,103"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="459,69,412,75,411,70,458,64"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="237,62,187,49,189,44,238,57"/>
+<area shape="rect" id="Node000005" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ad476fb6d42cbcdb08069828c6f6dd25b" title=" " alt="" coords="18,71,192,111"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="237,89,192,91,192,85,237,84"/>
+</map>

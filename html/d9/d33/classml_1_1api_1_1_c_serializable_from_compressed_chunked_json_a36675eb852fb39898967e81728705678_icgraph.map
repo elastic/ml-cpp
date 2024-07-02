@@ -1,0 +1,17 @@
+<map id="ml::api::CSerializableFromCompressedChunkedJson::getAsObjectFrom" name="ml::api::CSerializableFromCompressedChunkedJson::getAsObjectFrom">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1135,47,1318,102"/>
+<area shape="rect" id="Node000002" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a92e17acd17c9d8b439d2f48577530f55" title=" " alt="" coords="851,9,1087,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1119,62,1087,57,1087,52,1120,56"/>
+<area shape="rect" id="Node000006" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a81e1697a89ed440ee2857261dcab8ce7" title=" " alt="" coords="602,85,785,141"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1119,85,786,109,785,104,1119,80"/>
+<area shape="rect" id="Node000003" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a23ccdca02952641abdd746d95d732fbc" title="Retrieve the best forest from a JSON blob." alt="" coords="584,5,803,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="836,38,804,37,804,32,836,33"/>
+<area shape="rect" id="Node000004" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a12d31b816bcedb148095f21df93a898b" title="Retrieve the best forest from a compressed and chunked JSON blob." alt="" coords="271,5,536,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="568,36,536,36,536,31,568,31"/>
+<area shape="rect" id="Node000005" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad60a80e1adc9fee7b028ae04211b7217" title=" " alt="" coords="5,45,223,101"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="256,56,223,61,223,56,255,51"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="586,86,506,64,508,59,588,81"/>
+<area shape="rect" id="Node000007" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a342961302ee95fd78c6466c4604bc655" title="Retrieve the data summarization from a compressed and chunked JSON blob." alt="" coords="283,85,524,141"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="586,116,524,116,524,111,586,111"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="267,97,223,91,223,86,268,92"/>
+</map>

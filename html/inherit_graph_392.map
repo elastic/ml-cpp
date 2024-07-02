@@ -1,0 +1,19 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html" title="Defines the loss function for the regression or classification problem." alt="" coords="5,148,156,188"/>
+<area shape="rect" id="Node000001" href="$dc/d39/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_binomial_logistic_loss.html" title="The loss for binomial logistic regression." alt="" coords="204,14,449,55"/>
+<area shape="poly" id="edge180_Node000000_Node000001" title=" " alt="" coords="112,135,153,100,202,68,238,53,240,58,205,73,156,104,115,139"/>
+<area shape="rect" id="Node000003" href="$d7/dc0/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_mse.html" title="The MSE loss function." alt="" coords="253,82,400,123"/>
+<area shape="poly" id="edge182_Node000000_Node000003" title=" " alt="" coords="170,141,251,120,253,125,171,147"/>
+<area shape="rect" id="Node000005" href="$d8/d46/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_msle.html" title="The MSLE loss function." alt="" coords="251,148,402,188"/>
+<area shape="poly" id="edge184_Node000000_Node000005" title=" " alt="" coords="171,165,251,165,251,171,171,171"/>
+<area shape="rect" id="Node000006" href="$dc/d53/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_loss.html" title="The loss for multinomial logistic regression." alt="" coords="232,212,421,268"/>
+<area shape="poly" id="edge185_Node000000_Node000006" title=" " alt="" coords="167,190,232,210,231,215,166,195"/>
+<area shape="rect" id="Node000008" href="$dd/d14/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_pseudo_huber.html" title="The pseudo&#45;Huber loss function." alt="" coords="226,292,427,332"/>
+<area shape="poly" id="edge187_Node000000_Node000008" title=" " alt="" coords="110,198,152,240,205,278,229,288,227,293,202,282,149,244,107,202"/>
+<area shape="rect" id="Node000002" href="$d6/df5/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_binomial_logistic_loss_incremental.html" title="The loss for incremental binomial logistic regression." alt="" coords="497,5,714,61"/>
+<area shape="poly" id="edge181_Node000001_Node000002" title=" " alt="" coords="465,31,496,31,496,36,465,37"/>
+<area shape="rect" id="Node000004" href="$d7/d64/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_mse_incremental.html" title="The MSE loss function for incremental training." alt="" coords="498,85,713,126"/>
+<area shape="poly" id="edge183_Node000003_Node000004" title=" " alt="" coords="415,101,498,101,498,107,415,106"/>
+<area shape="rect" id="Node000007" href="$d4/ddd/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_multinomial_logistic_subset_loss.html" title="The loss for multinomial logistic regression over a subset of classes." alt="" coords="512,212,700,268"/>
+<area shape="poly" id="edge186_Node000006_Node000007" title=" " alt="" coords="436,237,511,237,511,243,436,243"/>
+</map>

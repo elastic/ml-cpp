@@ -1,0 +1,5 @@
+<map id="ml::model::CForecastDataSink::CForecastDataSink" name="ml::model::CForecastDataSink::CForecastDataSink">
+<area shape="rect" id="Node000001" title="Create a DataSink instance." alt="" coords="5,5,181,46"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a4131b673163f07db277668ca7bd4ef66" title=" " alt="" coords="229,5,481,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,23,213,23,213,28,181,28"/>
+</map>

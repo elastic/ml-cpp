@@ -1,0 +1,35 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::refresh" name="ml::maths::time_series::CTimeSeriesCorrelations::refresh">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,413,181,469"/>
+<area shape="rect" id="Node000002" href="$df/d82/classml_1_1maths_1_1time__series_1_1_c_time_series_correlate_model_allocator.html#a6a1d3124eec3b12a2009d0645b0bf866" title="Check if we can still allocate any correlations." alt="" coords="229,5,473,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,412,103,344,125,253,143,204,165,156,193,111,227,71,229,69,233,73,231,75,197,114,169,158,148,206,130,254,109,345,99,413"/>
+<area shape="rect" id="Node000003" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a818ac740d3ed9c6e2130aea1286f51f3" title="Check if the correlations may have just changed." alt="" coords="258,85,444,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="96,412,108,354,132,279,150,240,171,202,197,166,227,135,242,125,245,129,230,139,201,170,175,205,154,242,137,281,114,355,101,413"/>
+<area shape="rect" id="Node000004" href="$df/d82/classml_1_1maths_1_1time__series_1_1_c_time_series_correlate_model_allocator.html#abcf17dd193055008a9a879c5dcba4454" title="Get the chunk size in which to allocate correlations." alt="" coords="229,149,473,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="101,412,119,368,146,316,182,262,227,215,232,212,235,216,230,219,186,265,150,318,124,371,106,414"/>
+<area shape="rect" id="Node000005" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a230bd35b8e13a152626a408d4b8a947c" title="Get the ids of the time series correlated with id." alt="" coords="263,253,439,309"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="118,411,166,364,196,340,227,319,248,308,250,313,230,323,199,344,169,368,121,415"/>
+<area shape="rect" id="Node000006" href="$df/d82/classml_1_1maths_1_1time__series_1_1_c_time_series_correlate_model_allocator.html#a138c1c29bbdbbf87842cab3ada47cff1" title="Check if correlations exceeds the memory limit." alt="" coords="229,333,473,389"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="180,411,243,392,245,397,182,417"/>
+<area shape="rect" id="Node000007" href="$df/d82/classml_1_1maths_1_1time__series_1_1_c_time_series_correlate_model_allocator.html#a72ae3bb43938dbb09dcec0031a443249" title="Get the maximum number of correlations we should model." alt="" coords="229,413,473,469"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="181,439,213,439,213,444,181,444"/>
+<area shape="rect" id="Node000008" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#af1cc73c542ac0e55492bb3b58a988b76" title="Get the most correlated variables." alt="" coords="238,493,464,534"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="182,465,229,479,255,486,254,491,228,484,181,470"/>
+<area shape="rect" id="Node000009" href="$df/d82/classml_1_1maths_1_1time__series_1_1_c_time_series_correlate_model_allocator.html#a7de4874534719c8adcfa4ae4a59c6e05" title="Create a new prior for a correlation model." alt="" coords="229,557,473,613"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="126,468,173,506,230,543,241,549,239,553,227,547,170,510,123,472"/>
+<area shape="rect" id="Node000010" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a4f3de1745d118b3a48dd2e0e49deb08a" title=" " alt="" coords="263,637,439,693"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="110,468,130,504,157,545,190,587,230,623,251,635,248,640,227,627,187,591,152,548,125,506,105,471"/>
+<area shape="rect" id="Node000011" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a01bb26b2c071c6d75a4b7bede94c7136" title="Overload for default operator&lt; comparison." alt="" coords="253,717,449,758"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="103,469,118,520,143,583,180,648,203,678,230,703,240,710,237,715,227,707,200,681,176,651,138,585,113,521,98,470"/>
+<area shape="rect" id="Node000012" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#aaf1103e5c428d67f245c11be5ee75024" title=" " alt="" coords="521,746,744,787"/>
+<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="99,469,107,534,128,617,145,660,167,701,195,737,230,767,268,787,308,800,351,808,394,810,478,804,552,789,553,794,479,809,394,815,350,813,307,806,266,792,227,771,192,741,163,704,140,663,123,619,102,535,93,470"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="301,253,301,243,310,234,327,229,351,227,378,229,394,236,392,241,377,234,351,232,328,234,313,239,306,245,306,253"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="450,745,506,751,505,756,449,750"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="792,726,969,751"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="744,751,776,748,777,753,745,757"/>
+<area shape="rect" id="Node000015" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1234,751,1312,777"/>
+<area shape="poly" id="edge17_Node000012_Node000015" title=" " alt="" coords="744,765,1186,764,1218,763,1218,768,1186,769,745,770"/>
+<area shape="rect" id="Node000014" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="1017,714,1186,755"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="969,734,1001,734,1001,739,969,740"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="1187,746,1219,752,1218,757,1186,752"/>
+<area shape="poly" id="edge16_Node000015_Node000015" title=" " alt="" coords="1244,752,1238,742,1242,733,1254,727,1273,724,1294,727,1305,734,1302,738,1292,732,1273,730,1255,732,1246,736,1244,742,1249,749"/>
+</map>

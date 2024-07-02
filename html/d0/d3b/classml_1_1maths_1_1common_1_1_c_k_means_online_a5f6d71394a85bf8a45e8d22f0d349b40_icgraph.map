@@ -1,0 +1,6 @@
+<map id="ml::maths::common::CKMeansOnline::decayRate" name="ml::maths::common::CKMeansOnline::decayRate">
+<area shape="rect" id="Node000001" title="Set the rate at which information is aged out." alt="" coords="230,29,417,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="361,16,347,10,323,8,301,10,288,15,283,21,285,28,280,29,278,19,285,10,300,5,323,3,348,5,363,11"/>
+<area shape="rect" id="Node000002" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#acd95cf8e789a8b5ee7c181ff64f2ca3f" title="Set the rate at which information is aged out." alt="" coords="5,22,182,78"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="214,52,182,52,182,47,214,47"/>
+</map>

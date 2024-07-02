@@ -1,0 +1,9 @@
+<map id="testParseHelper" name="testParseHelper">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,55,365,80"/>
+<area shape="rect" id="Node000002" href="$df/d54/_c_xml_parser_test_8cc.html#af4c96088782be6e71d804932925df641" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,53,159,34,160,29,237,48"/>
+<area shape="rect" id="Node000003" href="$df/d54/_c_xml_parser_test_8cc.html#a2834ed432a04a58d2d6f057f5fb6f7ad" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$df/d54/_c_xml_parser_test_8cc.html#a893b0d0bab076003690bdf825f0aa52c" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="237,87,160,106,159,101,236,82"/>
+</map>

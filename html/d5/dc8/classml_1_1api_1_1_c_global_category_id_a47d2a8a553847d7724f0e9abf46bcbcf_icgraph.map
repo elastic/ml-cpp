@@ -1,0 +1,11 @@
+<map id="ml::api::CGlobalCategoryId::hardFailure" name="ml::api::CGlobalCategoryId::hardFailure">
+<area shape="rect" id="Node000001" title="Get an object representing a hard failure." alt="" coords="504,47,672,88"/>
+<area shape="rect" id="Node000002" href="$de/ddc/_c_global_category_id_test_8cc.html#a30a0c754cd721a045698917d942ef9a6" title=" " alt="" coords="257,5,454,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,49,419,34,420,29,489,44"/>
+<area shape="rect" id="Node000003" href="$d8/d4d/_c_per_partition_category_id_mapper_test_8cc.html#a1f4c74d7fe40b7d88f386eda70bcdf50" title=" " alt="" coords="257,55,454,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="488,70,454,70,454,65,488,65"/>
+<area shape="rect" id="Node000004" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#aac21b11f7ed43197729993aea4520cda" title=" " alt="" coords="255,105,456,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="490,94,441,106,440,101,488,89"/>
+<area shape="rect" id="Node000005" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad9934d581fe7465d1317a23c0664ca82" title=" " alt="" coords="5,105,207,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="239,128,207,128,207,122,239,122"/>
+</map>

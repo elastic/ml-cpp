@@ -1,0 +1,10 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,202,96"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aaac5e7883124c0e9e52148da200bf513" title=" " alt="" coords="264,5,440,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,67,248,47,250,52,163,72"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a9ec72fa26aac807ff6f7f2df6a6aea47" title="Returns an iterator pointing to the end of the queue." alt="" coords="250,70,454,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,80,234,80,234,86,202,86"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="264,144,440,185"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="146,94,274,136,272,141,145,99"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="305,144,303,134,311,125,327,119,352,117,379,120,394,126,393,131,377,125,352,123,328,125,314,129,308,135,310,143"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CDataGatherer::numberOverFieldValues" name="ml::model::CDataGatherer::numberOverFieldValues">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,180,79"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="228,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,43,212,38,213,44,180,49"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a03f7b7e60a3a9537e8dc4a772b62278a" title="Get the number of active people (not pruned)." alt="" coords="228,71,402,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,69,213,74,212,79,180,74"/>
+<area shape="rect" id="Node000004" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a3f3fee3d48ea194e385b822101c1ef4d" title="Get the number of active names (not pruned)." alt="" coords="450,71,661,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="402,88,434,88,434,94,402,94"/>
+</map>

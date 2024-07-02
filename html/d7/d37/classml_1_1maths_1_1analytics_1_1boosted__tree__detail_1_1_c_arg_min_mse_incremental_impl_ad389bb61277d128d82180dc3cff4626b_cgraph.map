@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinMseIncrementalImpl::add" name="ml::maths::analytics::boosted_tree_detail::CArgMinMseIncrementalImpl::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,121,233,177"/>
+<area shape="rect" id="Node000002" href="$d0/da5/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_impl.html#afc20ce18f0fbc8b56e2c81fbd1af239e" title=" " alt="" coords="312,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,118,280,71,296,64,298,69,282,76,178,123"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="281,85,503,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,132,265,127,265,133,233,137"/>
+<area shape="rect" id="Node000004" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a28dd812434f4a84942591c0ec8c04998" title="Get the root node of tree." alt="" coords="306,165,478,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,162,291,169,290,174,233,167"/>
+<area shape="rect" id="Node000006" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a5facc329dd077dc73d2a34f7ba1b64f9" title="Get the value predicted by tree for the feature vector row." alt="" coords="300,230,484,271"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="184,175,282,215,304,222,302,227,280,220,182,180"/>
+<area shape="rect" id="Node000005" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a16bfd25e0568da0e227b67ff19eafc0d" title="Get the index of the root node in a canonical tree node vector." alt="" coords="551,157,693,213"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="479,183,535,183,535,188,479,188"/>
+</map>

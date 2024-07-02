@@ -1,0 +1,6 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::initialDownsampleRowsPerFeature" name="ml::maths::analytics::CBoostedTreeFactory::initialDownsampleRowsPerFeature">
+<area shape="rect" id="Node000001" title="The number of rows per feature to sample in the initial downsample." alt="" coords="5,29,239,85"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ade4d3db6b0a03fffa0233e330c8263c8" title="Set the number of training examples we need per feature we&#39;ll include." alt="" coords="287,29,444,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,55,271,55,271,60,239,60"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="318,29,318,19,327,10,343,5,365,3,391,5,406,12,404,17,390,10,365,8,344,10,330,15,323,21,323,29"/>
+</map>

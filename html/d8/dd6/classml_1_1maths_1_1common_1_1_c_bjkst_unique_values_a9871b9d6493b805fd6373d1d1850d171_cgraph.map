@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CBjkstUniqueValues::number" name="ml::maths::common::CBjkstUniqueValues::number">
+<area shape="rect" id="Node000001" title="Get an estimate of the number of unique values added." alt="" coords="5,5,155,61"/>
+<area shape="rect" id="Node000002" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="203,5,352,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,31,187,31,187,36,155,36"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="400,13,570,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="352,39,384,39,384,45,352,45"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="399,27,367,27,367,22,399,22"/>
+</map>

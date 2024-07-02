@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::age" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::age">
+<area shape="rect" id="Node000001" title="Age the errors by factor." alt="" coords="5,5,268,61"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a8962d2f028cb2edf4d27e5c239828ddd" title=" " alt="" coords="316,5,540,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,31,300,31,300,36,268,36"/>
+</map>

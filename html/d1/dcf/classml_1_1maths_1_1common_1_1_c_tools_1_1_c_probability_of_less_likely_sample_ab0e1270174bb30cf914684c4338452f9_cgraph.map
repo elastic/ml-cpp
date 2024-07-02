@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CTools::CProbabilityOfLessLikelySample::tail" name="ml::maths::common::CTools::CProbabilityOfLessLikelySample::tail">
+<area shape="rect" id="Node000001" title="Update the tail." alt="" coords="5,111,189,166"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="237,126,414,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,136,221,136,221,141,189,141"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="462,5,642,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="353,123,461,71,472,66,474,70,463,76,355,127"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="463,85,642,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="414,123,446,118,447,123,415,128"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="480,150,625,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="415,148,465,156,464,161,414,154"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="470,216,635,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="354,149,463,200,480,207,478,212,461,205,352,154"/>
+</map>

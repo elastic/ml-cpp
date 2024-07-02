@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CLowess::likelihood" name="ml::maths::common::CLowess::likelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,130,151,171"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="199,77,390,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,133,183,126,184,131,152,138"/>
+<area shape="rect" id="Node000007" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="255,182,334,207"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="152,163,240,181,239,186,151,168"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="438,5,637,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,74,426,63,427,69,391,79"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="465,85,610,126"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="390,103,449,103,449,108,390,108"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="465,150,610,191"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="391,128,451,144,449,150,390,133"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="685,13,846,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="638,31,670,31,670,36,638,36"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="258,183,251,173,256,163,270,157,294,155,321,158,334,165,332,169,319,163,294,160,271,162,259,167,257,172,263,180"/>
+</map>

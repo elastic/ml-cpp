@@ -1,0 +1,15 @@
+<map id="anonymous_namespace{CTimeSeriesModelTest::cc}::univariateLogNormal" name="anonymous_namespace{CTimeSeriesModelTest::cc}::univariateLogNormal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,180,198"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa9e2bdebb6a033925f6fe61c2c4e57e0" title=" " alt="" coords="228,143,440,198"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,168,212,168,212,173,180,173"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa5c96a794a387e6c36a548be90adbd70" title=" " alt="" coords="488,5,708,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,140,426,105,487,71,499,65,501,70,489,76,429,110,376,144"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="526,85,671,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="440,142,510,124,511,129,441,147"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="526,150,671,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="440,168,510,168,510,173,440,173"/>
+<area shape="rect" id="Node000006" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a54f917af2e603edfa54be613056c4265" title="Get the current offset." alt="" coords="492,215,704,270"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="439,196,480,207,478,213,438,202"/>
+<area shape="rect" id="Node000007" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a649d7f5cf38ff01ca9618e0aa2602f3a" title=" " alt="" coords="492,295,704,350"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="370,197,424,239,489,280,499,285,497,290,487,285,421,243,366,201"/>
+</map>

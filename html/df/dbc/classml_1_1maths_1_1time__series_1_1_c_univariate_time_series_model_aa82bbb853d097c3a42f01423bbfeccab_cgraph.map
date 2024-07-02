@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::detrend" name="ml::maths::time_series::CUnivariateTimeSeriesModel::detrend">
+<area shape="rect" id="Node000001" title="Remove any trend components from value." alt="" coords="5,122,205,178"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a0e3783014f92b8805cd76adfcd60fd80" title=" " alt="" coords="253,70,452,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,126,237,119,238,124,206,131"/>
+<area shape="rect" id="Node000005" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4497db416823b24756a4849b24e0427b" title=" " alt="" coords="253,174,452,230"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="206,168,238,175,237,180,205,173"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="304,69,305,59,313,51,329,45,352,43,378,46,394,53,392,57,377,51,352,48,330,50,316,55,310,61,309,70"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="520,5,679,46"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="450,67,512,48,514,53,451,72"/>
+<area shape="rect" id="Node000004" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="500,70,699,126"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="452,95,485,95,485,100,452,100"/>
+<area shape="poly" id="edge9_Node000005_Node000005" title=" " alt="" coords="304,173,305,163,313,155,329,149,352,147,378,150,394,157,392,161,377,155,352,152,330,154,316,159,310,165,309,174"/>
+<area shape="rect" id="Node000006" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a230bd35b8e13a152626a408d4b8a947c" title="Get the ids of the time series correlated with id." alt="" coords="512,174,687,230"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="452,199,496,199,496,204,452,204"/>
+<area shape="rect" id="Node000007" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a13392589ff03136ef3ca2ffedb0ffcaa" title="Get the correlation joint distribution models." alt="" coords="512,254,687,310"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="441,228,498,246,497,251,440,233"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="551,173,552,163,561,155,577,149,600,147,626,150,641,157,639,161,624,155,600,152,578,154,564,159,557,165,557,174"/>
+</map>

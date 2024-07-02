@@ -1,0 +1,9 @@
+<map id="ml::api::CTrainedModel::CSizeInfo" name="ml::api::CTrainedModel::CSizeInfo">
+<area shape="rect" id="Node000001" title="A measure of the model complexity." alt="" coords="83,94,240,135"/>
+<area shape="rect" id="Node000003" href="$d8/d79/classml_1_1api_1_1_c_ensemble_1_1_c_size_info.html" title=" " alt="" coords="5,183,142,223"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,148,95,184,92,180,129,144"/>
+<area shape="rect" id="Node000004" href="$d1/df7/classml_1_1api_1_1_c_tree_1_1_c_size_info.html" title=" " alt="" coords="166,190,336,216"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="195,144,240,188,237,192,191,148"/>
+<area shape="rect" id="Node000002" href="$d3/d04/classml_1_1api_1_1_c_serializable_to_json_document.html" title="Interface for adding all elements of an inference model definition to a JSON writer." alt="" coords="82,5,241,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,62,164,94,159,94,159,62"/>
+</map>

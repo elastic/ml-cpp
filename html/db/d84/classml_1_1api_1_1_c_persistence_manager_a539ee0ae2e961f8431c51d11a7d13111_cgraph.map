@@ -1,0 +1,7 @@
+<map id="ml::api::CPersistenceManager::waitForIdle" name="ml::api::CPersistenceManager::waitForIdle">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="251,5,385,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,41,235,36,235,41,203,46"/>
+<area shape="rect" id="Node000003" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#ac25482f1bd4c99b31b3d92dec69d8b43" title=" " alt="" coords="251,71,385,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,71,235,76,235,81,202,76"/>
+</map>

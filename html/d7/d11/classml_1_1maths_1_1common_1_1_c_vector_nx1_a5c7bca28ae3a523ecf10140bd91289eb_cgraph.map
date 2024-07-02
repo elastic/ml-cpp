@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CVectorNx1::CVectorNx1" name="ml::maths::common::CVectorNx1::CVectorNx1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,64,179,105"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#acde7aba7c841710c0fb6347b0198c53a" title="Assignment if the underlying type is implicitly convertible." alt="" coords="227,64,383,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,82,211,82,211,87,179,87"/>
+<area shape="rect" id="Node000003" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a9d3543cb60ada4356a5227e377ee8718" title=" " alt="" coords="431,5,576,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,65,415,57,417,63,384,70"/>
+<area shape="rect" id="Node000004" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a20d1bb135682b5741deae937d92e6dc2" title="Get read only reference." alt="" coords="431,100,576,155"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="384,99,417,106,415,111,383,104"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="ml::core::CRapidXmlParser::convert" name="ml::core::CRapidXmlParser::convert">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,104,187,145"/>
+<area shape="rect" id="Node000002" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#adca50421c9bfc9721e6c8c5e7c7e0a72" title="Called recursively by the convert() method." alt="" coords="235,104,416,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,122,219,122,219,127,187,127"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="282,104,280,94,287,85,302,79,325,77,350,80,365,86,363,91,349,85,325,83,303,85,290,89,285,95,287,103"/>
+<area shape="rect" id="Node000003" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#aceab2f51242f6dadbcea69ca71586f03" title=" " alt="" coords="502,5,642,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="366,101,463,57,486,48,488,53,465,61,368,106"/>
+<area shape="rect" id="Node000004" href="$d1/d16/classml_1_1core_1_1_c_xml_node_with_children.html#ab35b303481ab4121d356c2eac45b72cc" title="Get children." alt="" coords="464,71,679,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="416,109,448,105,449,110,417,115"/>
+<area shape="rect" id="Node000005" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#ad646646a4ba181b2fe1c3a8db144fc79" title="Accessors." alt="" coords="502,136,642,177"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="417,133,486,143,485,148,416,139"/>
+<area shape="rect" id="Node000006" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#a4208a4b69b2fab3ae1849696c504610d" title=" " alt="" coords="502,201,642,242"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="369,143,465,186,488,194,486,199,463,191,366,148"/>
+</map>

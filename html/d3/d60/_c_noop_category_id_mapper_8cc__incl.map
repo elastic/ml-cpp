@@ -1,0 +1,29 @@
+<map id="lib/api/CNoopCategoryIdMapper.cc" name="lib/api/CNoopCategoryIdMapper.cc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="287,5,511,31"/>
+<area shape="rect" id="Node000002" href="$df/d44/_c_noop_category_id_mapper_8h.html" title=" " alt="" coords="299,79,499,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,31,401,63,396,63,396,31"/>
+<area shape="rect" id="Node000003" href="$d5/d3d/_c_category_id_mapper_8h.html" title=" " alt="" coords="213,153,382,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,107,329,145,326,141,380,103"/>
+<area shape="rect" id="Node000009" href="$d9/dd6/api_2_import_export_8h.html" title=" " alt="" coords="387,300,515,326"/>
+<area shape="poly" id="edge16_Node000002_Node000009" title=" " alt="" coords="408,104,432,156,444,190,453,226,456,256,456,285,451,285,451,257,448,227,439,192,427,158,403,106"/>
+<area shape="rect" id="Node000004" href="$d1/dfd/_c_local_category_id_8h.html" title=" " alt="" coords="69,300,246,326"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="213,180,123,199,87,212,65,228,60,237,60,245,69,262,88,277,113,291,110,295,85,282,65,265,54,246,55,235,61,225,84,208,122,194,212,175"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,374,59,399"/>
+<area shape="poly" id="edge14_Node000003_Node000007" title=" " alt="" coords="213,180,118,199,79,213,54,228,36,258,28,293,26,328,29,358,24,359,21,328,22,292,31,256,50,224,76,208,117,194,212,175"/>
+<area shape="rect" id="Node000008" href="$de/ddb/_c_global_category_id_8h.html" title=" " alt="" coords="75,226,240,252"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="275,181,196,221,193,217,272,176"/>
+<area shape="poly" id="edge12_Node000003_Node000009" title=" " alt="" coords="348,177,390,195,410,208,427,225,444,254,451,284,446,285,439,256,423,228,407,212,387,200,346,181"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="263,226,332,252"/>
+<area shape="poly" id="edge13_Node000003_Node000010" title=" " alt="" coords="300,179,300,211,295,211,295,179"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="355,226,413,252"/>
+<area shape="poly" id="edge15_Node000003_Node000011" title=" " alt="" coords="314,177,360,214,356,218,310,181"/>
+<area shape="rect" id="Node000005" href="$de/d8d/model_2_import_export_8h.html" title=" " alt="" coords="83,374,229,399"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="160,326,159,358,154,358,154,326"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="253,374,312,399"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="180,324,250,363,247,368,177,329"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="137,329,68,368,65,363,135,324"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="160,252,160,284,155,284,155,252"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="191,250,227,269,259,298,275,328,282,358,277,359,270,330,255,302,224,274,189,255"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="126,255,91,274,59,302,45,330,37,359,32,358,40,328,55,298,88,269,123,250"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="208,250,387,293,385,298,206,255"/>
+</map>

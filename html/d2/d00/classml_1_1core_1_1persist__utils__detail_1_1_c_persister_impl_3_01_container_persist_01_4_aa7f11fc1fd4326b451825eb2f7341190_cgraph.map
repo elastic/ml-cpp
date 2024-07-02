@@ -1,0 +1,7 @@
+<map id="ml::core::persist_utils_detail::CPersisterImpl&lt; ContainerPersist &gt;::doInsert" name="ml::core::persist_utils_detail::CPersisterImpl&lt; ContainerPersist &gt;::doInsert">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,203,87"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="251,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,43,235,39,236,44,204,48"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="275,71,429,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,69,260,76,259,82,203,74"/>
+</map>

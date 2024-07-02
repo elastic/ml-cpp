@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html" title="Abstract interface for restoring state." alt="" coords="5,46,224,72"/>
+<area shape="rect" id="Node000001" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html" title="For restoring state in JSON format." alt="" coords="272,5,463,46"/>
+<area shape="poly" id="edge173_Node000000_Node000001" title=" " alt="" coords="231,41,271,36,271,41,232,46"/>
+<area shape="rect" id="Node000002" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html" title="For restoring state in XML format." alt="" coords="280,71,455,111"/>
+<area shape="poly" id="edge174_Node000000_Node000002" title=" " alt="" coords="237,72,280,77,279,83,236,77"/>
+</map>

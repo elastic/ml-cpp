@@ -1,0 +1,31 @@
+<map id="ml::maths::time_series::CSignal::autocorrelations" name="ml::maths::time_series::CSignal::autocorrelations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,274,181,315"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="239,5,461,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,273,117,232,144,180,181,126,227,78,243,67,246,71,230,82,185,129,149,183,122,234,105,275"/>
+<area shape="rect" id="Node000003" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#ac7ad188bc6d92945541cc2abe5f6e7be" title="Compute the conjugate of f." alt="" coords="735,161,890,202"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="101,273,119,237,146,195,182,153,204,136,228,121,296,97,367,84,440,83,513,89,582,101,646,117,750,152,748,157,645,122,581,106,512,94,440,88,368,90,297,102,230,126,207,140,186,157,150,198,123,240,105,275"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="270,136,430,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="116,271,165,232,227,192,256,180,258,184,230,197,168,236,119,276"/>
+<area shape="rect" id="Node000005" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a395c664814fb97af115aa71ef2b985d5" title=" " alt="" coords="273,274,427,315"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="181,292,257,292,257,297,181,297"/>
+<area shape="rect" id="Node000006" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a186d572e4b8e600162833b1d2c2e0b47" title="Compute the Hadamard product of fx and fy." alt="" coords="526,193,680,234"/>
+<area shape="poly" id="edge13_Node000001_Node000006" title=" " alt="" coords="133,271,178,252,228,236,301,222,376,214,510,208,510,214,376,219,302,228,229,241,180,257,135,276"/>
+<area shape="rect" id="Node000007" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a142cdd074a53c9767fbdc99e820c3208" title=" " alt="" coords="526,324,680,364"/>
+<area shape="poly" id="edge14_Node000001_Node000007" title=" " alt="" coords="172,313,229,324,377,338,511,342,510,347,377,343,228,329,171,318"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="229,389,471,445"/>
+<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="129,313,230,368,258,381,256,386,227,373,127,318"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="270,469,430,510"/>
+<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="108,313,155,383,190,422,230,455,257,468,255,473,227,459,186,426,151,387,103,316"/>
+<area shape="rect" id="Node000012" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a60c73746bf9a7548e39a98392b71a01b" title=" " alt="" coords="273,534,427,575"/>
+<area shape="poly" id="edge17_Node000001_Node000012" title=" " alt="" coords="103,314,119,358,146,413,182,470,205,496,230,519,259,535,256,540,227,523,201,500,178,474,141,416,114,360,98,316"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="302,274,300,264,308,255,325,250,350,248,377,250,393,256,391,261,376,255,350,253,326,255,311,260,305,265,308,273"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="415,271,522,236,524,241,417,276"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="418,313,511,332,510,337,416,318"/>
+<area shape="rect" id="Node000009" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#ab1ff99bf159b9988d30f115f34a3a933" title=" " alt="" coords="519,258,687,299"/>
+<area shape="poly" id="edge12_Node000005_Node000009" title=" " alt="" coords="427,287,503,282,504,287,428,292"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="664,321,686,308,715,286,741,261,785,212,789,215,745,265,718,290,689,313,667,325"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="536,325,442,306,443,301,537,320"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="775,331,850,357"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="681,341,760,341,760,347,681,347"/>
+<area shape="poly" id="edge11_Node000008_Node000008" title=" " alt="" coords="778,332,771,322,775,313,789,306,813,304,838,307,851,314,849,319,837,312,812,310,790,312,779,316,776,322,782,329"/>
+</map>

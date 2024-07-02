@@ -1,0 +1,21 @@
+<map id="ml::maths_t::countVarianceScaleWeight" name="ml::maths_t::countVarianceScaleWeight">
+<area shape="rect" id="Node000001" title="Get a weights array with count variance scale weight." alt="" coords="494,171,674,212"/>
+<area shape="rect" id="Node000002" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#aa6f11147e0ec8e890f37a5a70c0fcdcb" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="559,160,511,100,480,70,445,44,422,34,424,29,447,40,483,66,515,96,563,156"/>
+<area shape="rect" id="Node000003" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="547,163,500,127,445,94,417,83,418,78,447,89,503,122,550,159"/>
+<area shape="rect" id="Node000004" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="250,104,446,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="516,168,445,143,407,133,409,128,447,138,517,163"/>
+<area shape="rect" id="Node000005" href="$d8/da9/_c_time_series_multibucket_features_test_8cc.html#ab221f58f95fcbae84aea27338e60e92c" title=" " alt="" coords="250,153,446,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="478,183,446,179,447,174,479,178"/>
+<area shape="rect" id="Node000006" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="250,203,446,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="479,205,447,208,446,203,479,200"/>
+<area shape="rect" id="Node000007" href="$d8/da9/_c_time_series_multibucket_features_test_8cc.html#a4e72e491ce2d55888f3f363d87c6caa3" title=" " alt="" coords="250,252,446,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="516,220,447,243,408,254,407,249,445,238,514,215"/>
+<area shape="rect" id="Node000008" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a6671bf65e1b60d9a6db130c124bdc2a0" title=" " alt="" coords="250,301,446,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="550,224,503,260,447,293,418,303,417,298,445,288,500,256,547,220"/>
+<area shape="rect" id="Node000009" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#acb42a0c7673feb011a975c5c8f372c5f" title="Get the mode of the marginal likelihood function." alt="" coords="259,352,437,407"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="561,226,513,284,481,315,448,342,428,353,426,349,444,337,478,311,509,280,557,223"/>
+<area shape="rect" id="Node000010" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,367,202,392"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="243,382,202,382,202,377,243,377"/>
+</map>

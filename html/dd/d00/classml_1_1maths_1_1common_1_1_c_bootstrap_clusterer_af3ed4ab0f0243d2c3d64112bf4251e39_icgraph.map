@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CBootstrapClusterer::fromVertex" name="ml::maths::common::CBootstrapClusterer::fromVertex">
+<area shape="rect" id="Node000001" title=" " alt="" coords="903,93,1048,149"/>
+<area shape="rect" id="Node000002" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a01e9d48f7a694b40df64ba1b443a84ce" title=" " alt="" coords="709,13,855,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="891,89,850,71,852,67,893,84"/>
+<area shape="rect" id="Node000009" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a4517878593056f5244b08369013e597f" title=" " alt="" coords="709,93,855,149"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="887,123,855,123,855,118,887,118"/>
+<area shape="rect" id="Node000010" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a7f5bb16b5b37c5942ccefd7f4b7bc6ef" title=" " alt="" coords="709,173,855,229"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="893,157,852,175,850,170,891,153"/>
+<area shape="rect" id="Node000003" href="$d4/d0e/classanonymous__namespace_02_c_bootstrap_clusterer_test_8cc_03_1_1_c_bootstrap_clusterer_for_test.html#a744669565f0b9a84ca39b4defa3f5e2e" title=" " alt="" coords="443,5,661,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="694,43,662,43,662,38,694,38"/>
+<area shape="rect" id="Node000004" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#aa8c417f49afcfd1c33880c7e2bd4dcfd" title=" " alt="" coords="469,100,635,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="700,77,662,91,628,102,627,97,660,86,699,72"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aabd7128384bbfcd2736cf13d2ce453c2" title="Cluster points using B bootstrap samples using k&#45;means." alt="" coords="250,67,395,108"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="454,109,395,100,396,95,454,104"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa90935097a74d25465b30b362d82da7d" title=" " alt="" coords="250,132,395,173"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="454,137,396,145,395,140,454,132"/>
+<area shape="rect" id="Node000007" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a827f72a6bc2775ceff50425a5649ba21" title=" " alt="" coords="5,115,202,140"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="234,145,202,141,203,136,234,140"/>
+<area shape="rect" id="Node000008" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a8b6fd6dbbc11dcbb38b70853d4a6f621" title=" " alt="" coords="5,164,202,190"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="234,165,203,168,202,163,234,160"/>
+<area shape="poly" id="edge9_Node000009_Node000004" title=" " alt="" coords="694,123,636,123,636,118,694,118"/>
+</map>

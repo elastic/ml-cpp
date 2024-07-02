@@ -1,0 +1,12 @@
+<map id="ml::api::CLengthEncodedInputParser::parseRecordLoop" name="ml::api::CLengthEncodedInputParser::parseRecordLoop">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$dc/d6b/classml_1_1api_1_1_c_length_encoded_input_parser.html#a7e8c67283516be5efe4256b87945c3da" title=" " alt="" coords="251,39,464,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,56,235,56,235,62,203,62"/>
+<area shape="rect" id="Node000003" href="$dc/d6b/classml_1_1api_1_1_c_length_encoded_input_parser.html#a867011b08d46c951c502ff9285df93b0" title="Parse a string of given length from the input stream." alt="" coords="515,5,720,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,43,499,38,499,43,465,48"/>
+<area shape="rect" id="Node000005" href="$dc/d6b/classml_1_1api_1_1_c_length_encoded_input_parser.html#ac9f6e6adeae65e342e3c7afde67c5014" title="Parse a 32 bit unsigned integer from the input stream." alt="" coords="512,71,722,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="465,70,497,73,496,79,464,75"/>
+<area shape="rect" id="Node000004" href="$dc/d6b/classml_1_1api_1_1_c_length_encoded_input_parser.html#a4e7df1b0ccb2fc8d079c41a9747dbc1a" title="Refill the working buffer from the stream." alt="" coords="770,39,968,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="721,37,755,41,754,47,720,42"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="722,75,754,71,755,76,723,80"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::largestAnomalyProbability" name="ml::maths::time_series::CTimeSeriesAnomalyModel::largestAnomalyProbability">
+<area shape="rect" id="Node000001" title="Get the largest probability the model counts as anomalous." alt="" coords="245,85,436,141"/>
+<area shape="rect" id="Node000002" href="$df/d8c/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model.html#acd1f86c31a407a543430e71794b48d98" title=" " alt="" coords="5,5,197,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,82,186,64,187,59,242,77"/>
+<area shape="rect" id="Node000003" href="$df/d8c/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model.html#a7730b2827f1dcd71e438d2819a135563" title=" " alt="" coords="5,85,197,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,116,197,116,197,111,229,111"/>
+<area shape="rect" id="Node000004" href="$df/d8c/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model.html#ad0133351ca1d427171d73c53508510fd" title=" " alt="" coords="5,189,197,245"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="262,150,168,191,166,186,260,145"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="139,177,125,170,101,168,80,170,66,175,60,181,59,189,54,189,55,179,63,170,79,165,101,163,126,165,141,172"/>
+</map>

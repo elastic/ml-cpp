@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CGammaRateConjugate" name="ml::maths::common::CGammaRateConjugate">
+<area shape="rect" id="Node000001" title="A conjugate prior distribution for a stationary gamma variable." alt="" coords="717,129,881,170"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="363,93,509,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="524,119,717,139,717,144,524,125"/>
+<area shape="rect" id="Node000003" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,66,166,92"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="181,62,190,61,247,59,305,61,415,65,501,72,587,86,694,112,739,126,737,131,692,117,585,91,501,77,415,71,305,67,247,65,190,67,181,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="181,90,190,91,363,106,362,112,189,97,181,96"/>
+<area shape="rect" id="Node000004" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="330,158,542,213"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="557,171,693,158,716,155,717,161,693,163,558,176"/>
+<area shape="rect" id="Node000005" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="329,238,543,293"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="557,232,692,191,751,168,753,173,694,196,558,238"/>
+</map>

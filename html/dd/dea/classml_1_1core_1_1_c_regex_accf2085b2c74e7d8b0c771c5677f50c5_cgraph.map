@@ -1,0 +1,9 @@
+<map id="ml::core::CRegex::tokenise" name="ml::core::CRegex::tokenise">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,187,80"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="235,29,417,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,55,219,51,219,57,187,60"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="465,55,612,80"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="187,65,449,65,449,70,187,70"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,31,283,21,288,11,302,5,326,3,352,5,365,12,363,17,350,10,326,8,303,10,291,15,289,20,295,27"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="418,50,450,54,450,60,417,56"/>
+</map>

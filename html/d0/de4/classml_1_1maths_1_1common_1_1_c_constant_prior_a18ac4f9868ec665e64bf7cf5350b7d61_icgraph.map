@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CConstantPrior::isNonInformative" name="ml::maths::common::CConstantPrior::isNonInformative">
+<area shape="rect" id="Node000001" title="Check if this is a non&#45;informative prior." alt="" coords="618,309,836,350"/>
+<area shape="rect" id="Node000002" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a7dfaedb0da1709246d28c809a1635bcf" title=" " alt="" coords="334,5,548,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="711,295,691,246,660,186,619,126,595,99,568,75,546,62,549,57,572,71,599,95,624,123,665,184,696,243,716,293"/>
+<area shape="rect" id="Node000003" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#ab9712c7fcff759cc5d42d1d479e8efbc" title="All confidence intervals are the point [constant, constant]." alt="" coords="328,85,554,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="703,298,647,226,610,188,569,155,548,144,550,139,571,151,614,184,651,222,707,295"/>
+<area shape="rect" id="Node000004" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#aa2e46a6897368243566ebbb62aadf23d" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="312,165,570,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="690,301,635,258,569,220,541,209,543,204,571,215,638,254,693,296"/>
+<area shape="rect" id="Node000006" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#ac65744db2a145ecba3f2cc5ce4a88cae" title="Get the variance of the marginal likelihood." alt="" coords="328,229,554,285"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="628,307,554,288,555,283,629,302"/>
+<area shape="rect" id="Node000007" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a810a4e604787843a057c2a269bb007c1" title=" " alt="" coords="329,309,553,350"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="602,332,553,332,553,327,602,327"/>
+<area shape="rect" id="Node000008" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a95b6914ccab07869fbfb765f295d4367" title=" " alt="" coords="339,373,543,429"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="629,356,544,378,542,373,628,351"/>
+<area shape="rect" id="Node000009" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a993c43142db21349ad4317106a355006" title=" " alt="" coords="368,453,514,494"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="693,362,638,404,571,444,515,463,513,458,569,439,635,400,690,358"/>
+<area shape="rect" id="Node000010" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#aa1b015dfe910c4cc4d67b28917751914" title="Returns one if all samples equal the constant and one otherwise." alt="" coords="352,517,530,573"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="707,364,651,436,614,474,571,507,532,527,529,522,569,503,610,470,647,433,703,361"/>
+<area shape="rect" id="Node000011" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#aa8f3e47341d8d701ed4256ae3e0fa8ea" title="Get numberSamples times the constant." alt="" coords="336,597,546,653"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="716,365,696,415,665,475,624,535,599,563,572,587,548,602,545,597,568,583,595,559,619,532,660,472,691,413,711,363"/>
+<area shape="rect" id="Node000005" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a929caca6ff98661a0b8896f4534355a5" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="5,165,264,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="296,188,264,188,264,183,296,183"/>
+</map>

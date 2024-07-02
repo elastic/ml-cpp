@@ -1,0 +1,28 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::printJointDensityFunction" name="ml::maths::common::CPoissonMeanConjugate::printJointDensityFunction">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,182,183,238"/>
+<area shape="rect" id="Node000002" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="235,91,404,147"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,179,233,151,235,156,166,184"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="231,172,408,197"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,197,215,193,215,199,183,202"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac476b9273936034b5333b76fd6e8a7de" title="Compute the p.d.f. at x for distribution." alt="" coords="463,222,626,248"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="183,212,447,227,447,232,183,217"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="699,353,844,394"/>
+<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="184,228,684,350,683,355,183,234"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="456,157,633,183"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="408,176,440,174,441,179,408,181"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="681,70,862,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="587,154,666,128,668,133,588,159"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="682,149,861,190"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="634,167,666,167,666,172,634,172"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="699,5,844,46"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="557,154,608,107,643,80,680,55,689,51,692,55,683,60,646,84,612,111,561,158"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="689,215,854,255"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="593,180,684,207,683,212,591,186"/>
+<area shape="poly" id="edge9_Node000009_Node000005" title=" " alt="" coords="583,219,608,208,632,193,646,179,655,165,664,151,680,136,685,132,688,136,683,140,668,154,660,168,650,182,635,197,611,212,586,224"/>
+<area shape="poly" id="edge10_Node000009_Node000006" title=" " alt="" coords="591,219,683,192,684,197,593,224"/>
+<area shape="poly" id="edge12_Node000009_Node000008" title=" " alt="" coords="627,232,673,232,673,238,627,238"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="561,246,612,291,646,316,683,339,692,344,690,349,680,344,643,321,609,295,558,250"/>
+<area shape="rect" id="Node000011" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="734,304,809,329"/>
+<area shape="poly" id="edge13_Node000009_Node000011" title=" " alt="" coords="584,246,721,296,719,301,582,251"/>
+<area shape="poly" id="edge14_Node000011_Node000011" title=" " alt="" coords="734,305,726,295,731,285,746,279,772,277,799,280,813,286,811,291,798,285,771,282,747,284,735,289,732,294,738,301"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CForecastModelPersist::CRestore::nextModel" name="ml::model::CForecastModelPersist::CRestore::nextModel">
+<area shape="rect" id="Node000001" title="restore a single model" alt="" coords="250,23,444,64"/>
+<area shape="rect" id="Node000002" href="$d9/d06/_c_forecast_model_persist_test_8cc.html#a795f3175d2d5797cfe8c035402281353" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,34,202,31,202,26,235,29"/>
+<area shape="rect" id="Node000003" href="$d9/d06/_c_forecast_model_persist_test_8cc.html#a4494baafc47a6881d00e75676b78db4c" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,57,202,60,202,55,234,52"/>
+</map>

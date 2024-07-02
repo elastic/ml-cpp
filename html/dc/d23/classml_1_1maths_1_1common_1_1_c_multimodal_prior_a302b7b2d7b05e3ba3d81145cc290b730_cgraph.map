@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CMultimodalPrior::checkInvariants" name="ml::maths::common::CMultimodalPrior::checkInvariants">
+<area shape="rect" id="Node000001" title="Check if the class invariants hold." alt="" coords="5,148,227,188"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="275,126,452,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,152,259,148,259,154,227,157"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="283,176,444,216"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="227,178,268,182,267,188,227,183"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="500,5,680,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="391,123,499,71,510,66,512,70,501,76,393,127"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="501,85,680,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="452,123,484,118,485,123,453,128"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="518,150,663,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="453,148,503,156,502,161,452,154"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="508,216,673,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="424,150,453,162,478,181,501,200,513,206,510,211,499,205,475,185,451,166,422,154"/>
+</map>

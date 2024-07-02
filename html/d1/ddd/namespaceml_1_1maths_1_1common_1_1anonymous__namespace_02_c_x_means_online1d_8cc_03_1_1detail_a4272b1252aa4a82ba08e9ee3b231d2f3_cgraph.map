@@ -1,0 +1,21 @@
+<map id="ml::maths::common::anonymous_namespace{CXMeansOnline1d::cc}::detail::BICGain" name="ml::maths::common::anonymous_namespace{CXMeansOnline1d::cc}::detail::BICGain">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,201,168,272"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="42,200,44,190,53,182,67,177,87,175,109,177,123,184,121,189,108,182,86,180,68,182,56,186,49,193,47,201"/>
+<area shape="rect" id="Node000002" href="$d1/ddd/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_x_means_online1d_8cc_03_1_1detail.html#a7ca5b5bc2c05d4bcef55c445ee541f5e" title=" " alt="" coords="229,29,392,100"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="121,199,164,158,214,117,230,106,233,111,217,121,167,162,124,203"/>
+<area shape="rect" id="Node000003" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#acb064e8d62ade6ea795ce2d8ec057079" title="Check if the gamma distribution is available." alt="" coords="453,113,642,169"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="137,198,174,177,215,161,271,147,329,139,437,133,438,139,329,144,272,153,216,166,176,182,140,203"/>
+<area shape="rect" id="Node000004" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#ae0d5bd025a2b652eaeb3270dab917872" title="Check if the log&#45;normal distribution is available." alt="" coords="453,196,642,251"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="168,239,216,241,310,244,405,241,437,238,438,243,405,246,310,249,216,246,168,244"/>
+<area shape="rect" id="Node000005" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#af38bbcf61b6fae20b537cdf9eca16d51" title="Check if the normal distribution is available." alt="" coords="453,281,642,337"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="169,247,438,289,437,294,168,252"/>
+<area shape="rect" id="Node000006" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#aee88bed60fb4c3aedd04a9cef7e0e1ba" title="Get the number of parameters used to model a mode." alt="" coords="216,176,405,231"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="168,222,200,217,200,222,169,227"/>
+<area shape="rect" id="Node000007" href="$d1/ddd/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_x_means_online1d_8cc_03_1_1detail.html#a194174adbecbfb82b8a50dc7a73ee63a" title="Compute the variance of category." alt="" coords="229,381,392,452"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="134,271,255,369,251,373,130,275"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="266,28,268,18,277,10,291,5,310,3,333,5,347,12,345,17,331,10,310,8,292,10,280,14,273,21,271,29"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="405,176,437,167,438,172,406,181"/>
+<area shape="poly" id="edge9_Node000006_Node000004" title=" " alt="" coords="406,209,438,211,437,217,405,214"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="376,229,470,272,468,276,373,234"/>
+<area shape="poly" id="edge12_Node000007_Node000007" title=" " alt="" coords="266,380,268,370,277,362,291,357,310,355,333,357,347,364,345,369,331,362,310,360,292,362,280,366,273,373,271,381"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::CMultivariateNormalConjugate" name="ml::maths::common::CMultivariateNormalConjugate::CMultivariateNormalConjugate">
+<area shape="rect" id="Node000001" title="Construct from sample central moments." alt="" coords="5,34,213,90"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="261,5,420,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,43,245,38,246,43,214,48"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="268,70,413,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,75,252,81,251,87,213,81"/>
+</map>

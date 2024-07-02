@@ -1,0 +1,7 @@
+<map id="ml::api::CRetrainableModelJsonReader" name="ml::api::CRetrainableModelJsonReader">
+<area shape="rect" id="Node000001" title="Reads a compressed, base64 encoded chunked JSON representation of a data summarisation and an inferen..." alt="" coords="247,39,426,79"/>
+<area shape="rect" id="Node000002" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html" title="Utility for reading the inference model and training data summarization JSON descriptions from a stre..." alt="" coords="14,5,190,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,38,246,44,246,49,205,43"/>
+<area shape="rect" id="Node000003" href="$d2/d95/structml_1_1api_1_1_c_data_summarization_json_tags.html" title="Shared tags used by the JSON data summarization object." alt="" coords="5,71,199,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,73,246,69,247,74,215,78"/>
+</map>

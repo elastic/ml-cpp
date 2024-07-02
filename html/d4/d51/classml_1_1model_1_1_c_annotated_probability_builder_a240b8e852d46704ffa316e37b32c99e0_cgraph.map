@@ -1,0 +1,9 @@
+<map id="ml::model::CAnnotatedProbabilityBuilder::addAttributeProbability" name="ml::model::CAnnotatedProbabilityBuilder::addAttributeProbability">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,222,126"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="270,5,494,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,82,260,63,262,68,193,87"/>
+<area shape="rect" id="Node000003" href="$d6/d9a/classml_1_1model__t_1_1_c_result_type.html#adeead576234423142d50d1b17a6be9cc" title="Get as interim or final enumeration." alt="" coords="295,85,469,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="222,103,280,103,280,108,222,108"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="359,150,405,175"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="212,124,344,152,343,157,211,129"/>
+</map>

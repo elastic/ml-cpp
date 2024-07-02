@@ -1,0 +1,25 @@
+<map id="ml::core::memory_debug::elementDynamicSize" name="ml::core::memory_debug::elementDynamicSize">
+<area shape="rect" id="Node000001" title="Helper to debug container element dynamic memory usage." alt="" coords="219,332,384,373"/>
+<area shape="rect" id="Node000002" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a68c5c99cffab9080b8db371164389c9f" title=" " alt="" coords="5,5,171,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="291,318,277,262,253,194,217,123,195,90,169,61,152,49,156,44,172,57,199,87,222,120,258,192,282,261,296,316"/>
+<area shape="rect" id="Node000003" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a642fd153675f513d5c7eb2f1a525e656" title=" " alt="" coords="5,71,171,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="286,318,269,275,244,224,210,172,169,126,151,114,154,110,172,122,214,169,248,221,274,273,291,316"/>
+<area shape="rect" id="Node000004" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#ae33aafd78136da13037a7e4e105835d7" title=" " alt="" coords="5,136,171,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="278,320,233,256,203,222,169,192,149,180,152,175,172,188,207,218,237,252,283,317"/>
+<area shape="rect" id="Node000005" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a7b7017bedc9293edfe279f87f6074586" title=" " alt="" coords="5,201,171,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="263,324,220,290,169,257,145,245,147,240,172,253,223,286,267,320"/>
+<area shape="rect" id="Node000006" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a986b8d02a49e944ce595b3005040a03c" title=" " alt="" coords="5,267,171,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="217,330,156,311,158,305,219,324"/>
+<area shape="rect" id="Node000007" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#aa8a5738ac8ebb3558cb79e60377a283d" title=" " alt="" coords="5,332,171,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="203,355,171,355,171,350,203,350"/>
+<area shape="rect" id="Node000008" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a971fdf9b49f74a8e08f2e281cf19e998" title=" " alt="" coords="5,397,171,438"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="219,380,158,399,156,394,217,375"/>
+<area shape="rect" id="Node000009" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#ae10a5b8134a096eb4c59e3150216f8c0" title=" " alt="" coords="5,463,171,503"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="267,385,223,419,172,452,147,464,145,460,169,447,220,414,263,380"/>
+<area shape="rect" id="Node000010" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a4f10cddc32a74496597a7fea1a34583b" title=" " alt="" coords="5,528,171,569"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="283,387,237,452,207,487,172,517,152,530,149,525,169,513,203,483,233,449,278,384"/>
+<area shape="rect" id="Node000011" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a69008fd8bbe77c84ddd36401035c4e8b" title=" " alt="" coords="5,593,171,634"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="291,388,274,432,248,483,214,536,172,582,154,595,151,591,169,578,210,533,244,481,269,430,286,386"/>
+<area shape="rect" id="Node000012" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#ab9483d51c24e07c534c9cafefc955b2c" title=" " alt="" coords="5,659,171,699"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="296,388,282,444,258,513,222,584,199,618,172,648,156,660,152,656,169,644,195,614,217,582,253,511,277,443,291,387"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CDataFrameUtils::metricMicWithColumn" name="ml::maths::analytics::CDataFrameUtils::metricMicWithColumn">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,202,119"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a8195a0466acb3ebe8154058a91837dcf" title="Check if the data frame resides in main memory." alt="" coords="250,5,401,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,60,238,48,240,54,201,65"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="250,71,401,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,88,234,88,234,94,202,94"/>
+<area shape="rect" id="Node000004" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="250,136,401,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,117,240,128,238,134,200,122"/>
+</map>

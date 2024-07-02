@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CBootstrapClusterer::visit" name="ml::maths::common::CBootstrapClusterer::visit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,151,113"/>
+<area shape="rect" id="Node000002" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#ac0e5fa2bd6f8e07ab0c1a27a14d3c89c" title="Merge any vertices to visit after n." alt="" coords="199,5,361,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,64,183,55,184,61,152,69"/>
+<area shape="rect" id="Node000003" href="$da/dd6/structml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_1_1_s_cut_state.html#a31c9e5a0478b1e18d21ffe78bf8eebb9" title="Check if the vertex is to visit." alt="" coords="207,109,353,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,101,193,112,191,117,151,107"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="240,109,240,99,248,90,261,85,280,83,301,85,314,92,312,97,300,90,280,88,262,90,251,95,245,101,245,109"/>
+</map>

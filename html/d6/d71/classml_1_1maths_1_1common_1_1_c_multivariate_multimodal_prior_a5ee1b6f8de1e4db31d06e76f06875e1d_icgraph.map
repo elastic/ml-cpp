@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::addSamples" name="ml::maths::common::CMultivariateMultimodalPrior::addSamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,188,438,243"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="382,175,368,169,344,166,323,168,309,173,302,179,302,187,297,187,297,177,306,168,321,163,344,161,369,164,384,170"/>
+<area shape="rect" id="Node000002" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="318,176,269,107,237,73,200,44,179,34,181,29,203,40,240,69,273,104,322,173"/>
+<area shape="rect" id="Node000003" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="306,179,259,134,230,112,200,94,175,83,177,79,203,89,233,108,262,130,310,175"/>
+<area shape="rect" id="Node000004" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="282,182,201,143,168,133,169,128,203,138,284,177"/>
+<area shape="rect" id="Node000005" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="234,196,169,182,170,177,235,191"/>
+<area shape="rect" id="Node000006" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="234,218,202,218,202,213,234,213"/>
+<area shape="rect" id="Node000007" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="235,240,170,254,169,249,234,235"/>
+<area shape="rect" id="Node000008" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="284,254,203,293,169,303,168,298,201,288,282,249"/>
+<area shape="rect" id="Node000009" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#af133468c156efe4d950954c80ef77729" title=" " alt="" coords="5,351,202,376"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="310,256,262,301,233,323,203,342,177,352,175,348,200,337,230,319,259,297,306,252"/>
+<area shape="rect" id="Node000010" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ac30dccd96d4df01362a88a15fb3cc953" title="Implements value semantics for copy construction." alt="" coords="5,401,202,457"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="320,258,271,325,239,360,203,391,185,403,182,398,200,387,235,356,267,322,316,255"/>
+</map>

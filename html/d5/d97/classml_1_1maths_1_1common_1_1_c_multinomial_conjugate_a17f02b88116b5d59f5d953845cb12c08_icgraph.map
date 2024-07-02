@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultinomialConjugate::concentration" name="ml::maths::common::CMultinomialConjugate::concentration">
+<area shape="rect" id="Node000001" title="Get the concentration for a specified category." alt="" coords="517,48,673,103"/>
+<area shape="rect" id="Node000002" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a9789208dc6543d39cd8f9ba3a2c9d229" title=" " alt="" coords="273,5,469,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="502,54,424,34,425,29,503,49"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="274,55,468,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="502,78,468,78,468,73,502,73"/>
+<area shape="rect" id="Node000004" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a9ff54e948af67048a7675c578fbbf0d3" title=" " alt="" coords="293,120,449,175"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="503,108,450,125,448,120,502,103"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="5,127,225,168"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="277,150,225,150,225,145,277,145"/>
+</map>

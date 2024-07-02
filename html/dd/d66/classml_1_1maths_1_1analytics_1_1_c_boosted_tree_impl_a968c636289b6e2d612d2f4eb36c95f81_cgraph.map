@@ -1,0 +1,28 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::downsample" name="ml::maths::analytics::CBoostedTreeImpl::downsample">
+<area shape="rect" id="Node000001" title="Randomly downsamples the training row mask by the downsample factor." alt="" coords="5,136,225,177"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab4c5b9e980d1ccc59096d549bc0f0f6c" title="Get an iterator over the one bits of the collection." alt="" coords="273,5,457,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,133,202,95,271,57,286,50,288,55,274,61,205,100,147,138"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a236a682cfe3278b5e79c8c8208dff2aa" title="Get an iterator for the end of the collection of one bits." alt="" coords="273,71,457,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,133,269,113,270,118,196,138"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a0b807215ff3ca99c07f7d3ed36d7acf7" title=" " alt="" coords="273,136,457,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,154,257,154,257,159,225,159"/>
+<area shape="rect" id="Node000011" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a8099c4cbd9ef3dc7ee8b611290f2b701" title="Manhattan norm." alt="" coords="273,201,457,242"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="196,175,270,194,269,199,195,180"/>
+<area shape="rect" id="Node000012" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a37e00825b643d8661c8e804114ef3403" title="Wraps dimension." alt="" coords="273,267,457,307"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="147,175,205,213,274,251,288,258,286,263,271,256,202,217,144,179"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ab39be1dbb91f842590eb8a91b1a7febd" title=" " alt="" coords="505,104,689,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="457,141,489,137,490,142,458,146"/>
+<area shape="rect" id="Node000008" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a02e4ff5fc304cf133650ce5802cfdfae" title=" " alt="" coords="505,169,689,210"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="458,167,490,172,489,177,457,172"/>
+<area shape="rect" id="Node000006" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="970,112,1154,153"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="689,104,737,98,830,92,922,98,969,105,968,111,921,103,830,97,738,103,690,109"/>
+<area shape="rect" id="Node000007" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a495d71889bdd3fa04554c3a69bfe4140" title=" " alt="" coords="737,112,922,153"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="690,125,721,126,721,131,690,130"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="922,130,954,130,954,135,922,135"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="690,183,801,176,921,162,964,154,965,159,922,167,801,181,690,189"/>
+<area shape="poly" id="edge12_Node000008_Node000007" title=" " alt="" coords="681,166,729,154,730,159,683,171"/>
+<area shape="rect" id="Node000009" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a40946f8d81f39c2c7f724d906ebbebe5" title=" " alt="" coords="737,227,922,267"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="683,208,730,220,729,225,681,213"/>
+<area shape="rect" id="Node000010" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae6d9c61f436a57a38691bb19b4054e73" title=" " alt="" coords="970,227,1154,267"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="922,244,954,244,954,250,922,250"/>
+</map>

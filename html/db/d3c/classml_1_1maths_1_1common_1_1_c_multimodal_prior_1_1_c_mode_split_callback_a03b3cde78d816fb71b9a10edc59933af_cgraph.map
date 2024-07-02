@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CMultimodalPrior::CModeSplitCallback::operator()" name="ml::maths::common::CMultimodalPrior::CModeSplitCallback::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,142,203,198"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="254,61,425,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,139,290,90,292,95,175,144"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="251,157,428,183"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,167,235,167,235,172,203,172"/>
+<area shape="rect" id="Node000009" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="259,207,420,247"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="204,191,245,201,243,206,203,196"/>
+<area shape="rect" id="Node000003" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="477,5,656,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,58,461,45,462,50,404,63"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="476,70,656,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="381,154,461,128,463,133,383,159"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="477,149,656,190"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="429,167,461,167,461,172,429,172"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="494,215,639,255"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="388,180,429,192,479,207,478,212,427,198,386,186"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="484,280,649,321"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="407,181,430,193,447,211,455,229,462,247,478,265,484,269,481,274,474,269,458,250,450,232,442,214,426,197,405,185"/>
+</map>

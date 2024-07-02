@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CClustererTypes::CIndexGenerator::acceptRestoreTraverser" name="ml::maths::common::CClustererTypes::CIndexGenerator::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore by traversing a state document." alt="" coords="5,63,232,119"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="280,5,498,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,61,286,48,287,53,233,66"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="312,71,466,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,88,296,88,296,94,232,94"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="280,136,498,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,116,287,129,286,134,232,121"/>
+</map>

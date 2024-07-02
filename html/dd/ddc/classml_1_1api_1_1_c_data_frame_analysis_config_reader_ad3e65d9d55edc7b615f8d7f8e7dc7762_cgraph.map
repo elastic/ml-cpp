@@ -1,0 +1,7 @@
+<map id="ml::api::CDataFrameAnalysisConfigReader::read" name="ml::api::CDataFrameAnalysisConfigReader::read">
+<area shape="rect" id="Node000001" title="Extract the parameters from a JSON object." alt="" coords="5,39,199,79"/>
+<area shape="rect" id="Node000002" href="$d5/dca/classml_1_1api_1_1_c_data_frame_analysis_parameters.html#a057154834fd1ef0dd5e206486ffa5afb" title="Add parameter." alt="" coords="260,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,44,244,38,245,43,200,49"/>
+<area shape="rect" id="Node000003" href="$d8/db3/classml_1_1api_1_1_c_data_frame_analysis_config_reader_1_1_c_parameter.html#a31e2bc25af6f5b369f1c2cee98f1ed15" title="Get the name of the parameter." alt="" coords="247,71,466,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,69,232,73,231,78,199,74"/>
+</map>

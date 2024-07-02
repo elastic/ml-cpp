@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CGammaRateConjugate::setToNonInformative" name="ml::maths::common::CGammaRateConjugate::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,142,170,198"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="444,5,589,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,140,438,49,440,54,171,145"/>
+<area shape="rect" id="Node000003" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#ad22d14f6934d43e725a4f0cc467de641" title=" " alt="" coords="218,142,382,198"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,167,202,167,202,172,170,172"/>
+<area shape="rect" id="Node000007" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#afc0f35d23ec67b354bfdf3c87dd53a2b" title=" " alt="" coords="434,294,598,350"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="169,196,422,286,420,291,168,201"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="326,140,372,97,429,55,437,51,439,56,431,60,375,101,329,144"/>
+<area shape="rect" id="Node000004" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a3e87240540da47015ac21d747c39f36c" title=" " alt="" coords="430,70,602,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="382,140,415,128,417,133,383,145"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="444,149,589,190"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="383,167,428,167,428,172,383,172"/>
+<area shape="rect" id="Node000006" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#adde1b5856046af8a3ea806a7d8ca2236" title="Get the current offset." alt="" coords="434,214,598,270"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="383,195,420,207,419,212,382,200"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="331,196,376,238,432,279,438,284,435,288,428,284,373,242,327,200"/>
+</map>

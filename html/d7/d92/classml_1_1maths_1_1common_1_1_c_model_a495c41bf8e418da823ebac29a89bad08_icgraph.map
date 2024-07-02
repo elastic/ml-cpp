@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CModel::residualModes" name="ml::maths::common::CModel::residualModes">
+<area shape="rect" id="Node000001" title="Get the local maxima of the residual distribution." alt="" coords="504,5,662,46"/>
+<area shape="rect" id="Node000002" href="$df/d4f/classml_1_1model_1_1_c_model_tools_1_1_c_probability_cache.html#a7dcbfcdb39aa145882295cd6b2fc5d89" title="Maybe add the modes of model." alt="" coords="250,5,456,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,28,456,28,456,23,488,23"/>
+<area shape="rect" id="Node000003" href="$d5/d3e/_c_model_tools_test_8cc.html#a95c87adc5689e12f1b661f862e77d808" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

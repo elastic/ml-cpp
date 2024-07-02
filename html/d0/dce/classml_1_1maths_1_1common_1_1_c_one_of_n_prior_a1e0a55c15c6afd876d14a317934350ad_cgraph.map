@@ -1,0 +1,13 @@
+<map id="ml::maths::common::COneOfNPrior::modelAcceptRestoreTraverser" name="ml::maths::common::COneOfNPrior::modelAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Add a model vector entry reading parameters from traverser." alt="" coords="5,79,242,135"/>
+<area shape="rect" id="Node000002" href="$d0/d4b/classml_1_1maths_1_1common_1_1_c_model_weight.html#ac23fa9c7a3ef69892cfe50730a0516d4" title="Restore state from part of a state document." alt="" coords="299,46,499,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,90,284,85,284,90,242,95"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="556,5,774,46"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="174,76,228,51,289,31,353,20,418,14,541,13,541,19,419,20,354,25,290,36,230,56,176,81"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="556,87,774,127"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="242,110,290,111,508,111,541,110,541,115,508,116,290,116,242,115"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="290,176,508,217"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="212,133,320,168,318,173,211,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="499,53,540,45,541,51,500,58"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="499,84,541,89,540,94,499,89"/>
+</map>

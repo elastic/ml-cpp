@@ -1,0 +1,13 @@
+<map id="ml::model::CMetricStatisticWrappers::count" name="ml::model::CMetricStatisticWrappers::count">
+<area shape="rect" id="Node000001" title="Returns 1.0 since this is not available." alt="" coords="728,71,909,111"/>
+<area shape="rect" id="Node000002" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#a639d596d77b1b342a6cba8a71769ced7" title="Returns the count of all the measurements." alt="" coords="481,37,680,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="713,79,680,74,681,69,713,74"/>
+<area shape="rect" id="Node000006" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#abe3aa5567654a1d07e41fe49ae42d6db" title=" " alt="" coords="486,103,676,143"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="713,108,677,113,676,108,713,103"/>
+<area shape="rect" id="Node000003" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#aa9e1e23c5813ef428343f995f6448e24" title=" " alt="" coords="234,5,433,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="465,45,433,41,434,36,466,40"/>
+<area shape="rect" id="Node000005" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a906b85ad9bcc4398cb16a4bbfed93803" title="Get the count of a multivariate statistic." alt="" coords="243,71,424,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="466,76,424,81,424,76,465,71"/>
+<area shape="rect" id="Node000004" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a556f6cea594b302fa499f5049c0898fc" title="Add value to a multivariate statistic." alt="" coords="5,5,186,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="218,28,186,28,186,23,218,23"/>
+</map>

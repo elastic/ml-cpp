@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::analysisInstrumentation" name="ml::maths::analytics::CBoostedTreeFactory::analysisInstrumentation">
+<area shape="rect" id="Node000001" title="Set pointer to the analysis instrumentation." alt="" coords="549,65,716,121"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a33e664eb43c16fe682412ebf3e8aada7" title=" " alt="" coords="273,5,470,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="550,61,500,45,456,34,458,29,502,40,552,56"/>
+<area shape="rect" id="Node000003" href="$d2/d06/_c_boosted_tree_test_8cc.html#acb29d1ad1191f26158c2bdeab2a5dafc" title=" " alt="" coords="273,55,470,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="533,86,470,80,470,74,534,81"/>
+<area shape="rect" id="Node000004" href="$d2/d06/_c_boosted_tree_test_8cc.html#a113e717ca13d2ecc8be686b91aee8872" title=" " alt="" coords="273,104,470,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="534,105,470,110,470,105,533,99"/>
+<area shape="rect" id="Node000005" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a0e87cc12e0f8ee140ac125ee3f4af37c" title=" " alt="" coords="242,154,501,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="547,129,502,145,463,156,462,151,500,140,546,124"/>
+<area shape="rect" id="Node000006" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a953f26e0a0895039f15c11b6623c9130" title=" " alt="" coords="5,154,194,195"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="226,177,194,177,194,172,226,172"/>
+</map>

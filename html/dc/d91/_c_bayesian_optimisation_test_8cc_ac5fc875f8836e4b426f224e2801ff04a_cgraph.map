@@ -1,0 +1,38 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,320,202,346"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="252,85,474,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,318,161,240,201,193,248,151,255,147,258,151,251,155,205,196,165,243,114,321"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab632e8fd2b6bf043ed7726e3a6c48668" title="Get the constant factor of the ANOVA decomposition of the Gaussian process." alt="" coords="284,189,442,245"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,317,249,261,277,249,279,254,251,266,133,322"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="993,229,1152,270"/>
+<area shape="poly" id="edge18_Node000001_Node000009" title=" " alt="" coords="202,320,249,316,977,254,977,259,250,321,202,326"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="525,320,710,360"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="202,332,509,336,509,341,202,337"/>
+<area shape="rect" id="Node000012" href="$d0/d57/namespaceanonymous__namespace_02_c_bayesian_optimisation_test_8cc_03.html#a97fcdb70a88de4f9ed0c6a6a54b20138" title=" " alt="" coords="263,371,463,426"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="158,344,249,367,247,372,157,349"/>
+<area shape="rect" id="Node000015" href="$d0/d57/namespaceanonymous__namespace_02_c_bayesian_optimisation_test_8cc_03.html#aef51cd62ddb2aaea0580429c73eaaac0" title=" " alt="" coords="524,484,711,540"/>
+<area shape="poly" id="edge20_Node000001_Node000015" title=" " alt="" coords="120,345,175,390,211,415,251,436,351,460,509,490,508,495,350,465,249,441,209,420,172,394,117,349"/>
+<area shape="rect" id="Node000016" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#af8e0be3f74ee47910215dda353dd810f" title=" " alt="" coords="250,501,476,542"/>
+<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="116,345,169,409,208,447,251,480,273,492,270,497,248,485,204,451,165,413,112,348"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="313,189,314,179,323,170,339,165,363,163,390,165,406,172,404,177,388,170,363,168,340,170,326,175,319,181,318,189"/>
+<area shape="rect" id="Node000004" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#aa56e37b0e1538d1963615b9e9189c3cd" title=" " alt="" coords="539,149,697,205"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="442,202,523,189,524,195,443,207"/>
+<area shape="rect" id="Node000005" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="773,5,931,61"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="651,147,700,109,758,71,767,66,769,71,761,75,703,113,654,151"/>
+<area shape="rect" id="Node000006" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="773,109,931,165"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="697,161,757,151,758,156,698,166"/>
+<area shape="rect" id="Node000008" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="773,189,931,245"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="698,188,758,198,757,204,697,193"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="809,109,809,99,817,90,831,85,852,83,875,85,889,92,887,97,874,90,852,88,833,90,820,95,814,101,814,109"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1000,117,1145,158"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="931,135,984,135,984,140,931,140"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="932,226,977,233,977,238,931,231"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="759,320,945,360"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="711,337,744,337,744,343,711,343"/>
+<area shape="poly" id="edge14_Node000012_Node000010" title=" " alt="" coords="463,373,511,362,512,367,464,378"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="533,384,703,410"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="463,395,517,395,517,400,463,401"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="535,434,701,459"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="464,415,531,428,530,433,463,420"/>
+<area shape="poly" id="edge17_Node000012_Node000015" title=" " alt="" coords="437,425,477,443,525,469,536,475,534,480,523,474,475,448,435,429"/>
+</map>

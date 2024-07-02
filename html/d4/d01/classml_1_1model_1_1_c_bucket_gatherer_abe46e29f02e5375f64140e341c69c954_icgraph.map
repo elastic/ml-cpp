@@ -1,0 +1,9 @@
+<map id="ml::model::CBucketGatherer::timeNow" name="ml::model::CBucketGatherer::timeNow">
+<area shape="rect" id="Node000001" title="Roll time forwards to time." alt="" coords="241,71,428,111"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="5,5,193,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,69,174,49,176,44,245,63"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a97be85d4969fb5b279c5b82a90162d3a" title="Roll time to the end of the bucket that is latency after the sampled bucket." alt="" coords="5,71,193,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,94,193,94,193,88,225,88"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a1ebd713642b3d06181ef9e3918d58d23" title=" " alt="" coords="5,136,193,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="245,119,176,138,174,133,243,113"/>
+</map>

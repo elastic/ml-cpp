@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTree::CVisitor" name="ml::maths::analytics::CBoostedTree::CVisitor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="259,49,427,90"/>
+<area shape="rect" id="Node000002" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html" title="Visits each encoding type." alt="" coords="5,5,211,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,49,259,54,258,59,226,54"/>
+<area shape="rect" id="Node000003" href="$da/d0e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node_1_1_c_visitor.html" title=" " alt="" coords="8,85,208,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,85,258,79,259,85,223,90"/>
+</map>

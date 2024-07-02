@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::modelCorrelations" name="ml::maths::time_series::CUnivariateTimeSeriesModel::modelCorrelations">
+<area shape="rect" id="Node000001" title="Tell this to model correlations." alt="" coords="5,27,205,83"/>
+<area shape="rect" id="Node000002" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a4b70d61717917cfc540fb743131f4ee5" title="Add the time series identified by id." alt="" coords="253,27,428,83"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,52,237,52,237,58,205,58"/>
+<area shape="rect" id="Node000003" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a0f8191b28305e28b28ca335cb2e705bc" title="Resize the relevant statistics to accommodate up to n variables." alt="" coords="476,5,687,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,42,460,38,461,43,429,47"/>
+<area shape="rect" id="Node000004" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#a3597ed3463d58538c43e8f1f2898591e" title="Resize a container using a 10% capacity increase." alt="" coords="735,35,928,75"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="428,54,476,55,687,55,720,55,720,60,687,60,476,60,428,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="688,35,720,39,720,45,688,41"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CMetricBucketGatherer" name="ml::model::CMetricBucketGatherer">
+<area shape="rect" id="Node000001" title="Metric series data gathering class." alt="" coords="12,79,186,120"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html" title="Time series data gathering interface." alt="" coords="5,5,193,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,46,102,79,96,79,96,46"/>
+</map>

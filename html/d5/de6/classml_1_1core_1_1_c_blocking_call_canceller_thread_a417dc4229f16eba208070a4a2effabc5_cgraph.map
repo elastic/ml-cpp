@@ -1,0 +1,9 @@
+<map id="ml::core::CBlockingCallCancellerThread::run" name="ml::core::CBlockingCallCancellerThread::run">
+<area shape="rect" id="Node000001" title="Called when the thread is started." alt="" coords="5,71,220,111"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a66913a7a22dd5d25cab74b1b46ce667b" title=" " alt="" coords="308,5,442,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,67,292,43,293,49,198,73"/>
+<area shape="rect" id="Node000003" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a02efa00791009c72d0851fb43866a414" title="Has the thread been stopped?" alt="" coords="268,71,482,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,88,252,88,252,94,220,94"/>
+<area shape="rect" id="Node000004" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a320a242a22f9a74d0f95964cc4483629" title=" " alt="" coords="268,136,482,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,109,276,129,275,134,196,115"/>
+</map>

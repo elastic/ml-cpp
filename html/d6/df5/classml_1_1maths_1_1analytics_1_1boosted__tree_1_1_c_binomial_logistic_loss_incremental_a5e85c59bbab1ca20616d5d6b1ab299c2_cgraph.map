@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::boosted_tree::CBinomialLogisticLossIncremental::gradient" name="ml::maths::analytics::boosted_tree::CBinomialLogisticLossIncremental::gradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,223,198"/>
+<area shape="rect" id="Node000002" href="$dc/d39/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_binomial_logistic_loss.html#af215dc4127e9a05ca9f9612998b79b87" title=" " alt="" coords="271,5,488,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,140,208,105,269,71,281,65,284,70,272,76,211,110,157,144"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="299,85,460,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,141,283,126,284,131,224,146"/>
+<area shape="rect" id="Node000004" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a28dd812434f4a84942591c0ec8c04998" title="Get the root node of tree." alt="" coords="293,150,466,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,168,277,168,277,173,223,173"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="307,216,452,256"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="224,195,292,212,291,217,223,200"/>
+<area shape="rect" id="Node000007" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a5facc329dd077dc73d2a34f7ba1b64f9" title="Get the value predicted by tree for the feature vector row." alt="" coords="288,281,471,322"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="155,196,209,232,272,265,289,273,287,278,270,270,207,236,153,201"/>
+<area shape="rect" id="Node000005" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a16bfd25e0568da0e227b67ff19eafc0d" title="Get the index of the root node in a canonical tree node vector." alt="" coords="536,143,678,198"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="466,168,521,168,521,173,466,173"/>
+</map>

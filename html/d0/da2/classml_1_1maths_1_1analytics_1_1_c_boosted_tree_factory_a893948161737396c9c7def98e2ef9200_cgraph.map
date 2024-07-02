@@ -1,0 +1,31 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::initializeUnsetFeatureBagFraction" name="ml::maths::analytics::CBoostedTreeFactory::initializeUnsetFeatureBagFraction">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,185,231,240"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ad8d1d6b231235b0ee02f2a2fd6ec393a" title="Set the fraction of features we&#39;ll use in the bag to build a tree." alt="" coords="324,11,481,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,182,277,102,330,72,333,77,280,107,160,186"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="316,116,489,157"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,181,308,159,310,164,225,187"/>
+<area shape="rect" id="Node000006" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ae353cfcd98eaa7123ac07a90b5e1ea3a" title="Get the number of progress iterations used for a line search." alt="" coords="279,221,526,276"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="231,224,263,228,263,233,231,229"/>
+<area shape="rect" id="Node000010" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#abd8183775b061f4011c71df95baf407a" title=" " alt="" coords="311,333,494,388"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="174,238,335,323,332,327,172,243"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="608,5,753,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,33,593,27,593,33,482,38"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="642,94,720,120"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="489,125,626,110,626,115,489,130"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="639,96,630,86,635,76,652,70,681,68,714,71,729,79,727,83,712,76,681,73,653,75,638,80,636,85,643,92"/>
+<area shape="rect" id="Node000007" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="589,168,772,209"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="526,219,573,209,574,214,527,224"/>
+<area shape="rect" id="Node000008" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a06c888a44035bc3baac323959040943c" title="Get the maximum number of iterations used in testLossLineSearch." alt="" coords="574,233,787,288"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="527,251,558,252,558,258,526,256"/>
+<area shape="rect" id="Node000009" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="605,312,756,353"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="498,274,575,298,597,304,595,310,573,303,496,279"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="633,168,630,158,638,149,655,143,681,141,708,144,725,150,723,155,707,149,681,147,656,149,641,153,636,159,638,167"/>
+<area shape="rect" id="Node000011" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#adfac6ffce38516840c306f329394735c" title="Persist state writing to inserter." alt="" coords="602,377,759,432"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="494,372,587,387,586,392,494,377"/>
+<area shape="rect" id="Node000012" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="835,319,1038,359"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="759,382,839,361,840,366,760,387"/>
+<area shape="rect" id="Node000013" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="835,384,1038,425"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="760,402,820,402,820,407,760,407"/>
+<area shape="rect" id="Node000014" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="859,449,1014,490"/>
+<area shape="poly" id="edge15_Node000011_Node000014" title=" " alt="" coords="760,422,845,444,844,449,759,427"/>
+</map>

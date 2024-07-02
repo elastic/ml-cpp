@@ -1,0 +1,9 @@
+<map id="ml::core::persist_utils_detail::CRestorerImpl&lt; ContainerRestore &gt;::doTraverse" name="ml::core::persist_utils_detail::CRestorerImpl&lt; ContainerRestore &gt;::doTraverse">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,226,119"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a924179fa8810008cf71e1dab1c13e1a2" title="Does the current element have a sub&#45;level?" alt="" coords="274,5,492,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,61,282,48,283,53,227,67"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="274,71,492,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="226,88,258,88,258,94,226,94"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="274,136,492,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="227,115,283,129,282,134,225,121"/>
+</map>

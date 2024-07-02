@@ -1,0 +1,23 @@
+<map id="ml::model::CPopulationModel::sampleRateWeight" name="ml::model::CPopulationModel::sampleRateWeight">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,107,198,147"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="287,71,464,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,112,271,102,272,107,198,117"/>
+<area shape="rect" id="Node000005" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a9871b9d6493b805fd6373d1d1850d171" title="Get an estimate of the number of unique values added." alt="" coords="301,135,450,191"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="198,137,286,149,285,154,198,142"/>
+<area shape="rect" id="Node000008" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a38291fd67c2e7c86ac1e17f1a72341a5" title="Get the &#160;error." alt="" coords="246,5,505,46"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="140,104,189,80,245,57,269,48,270,54,247,61,192,84,143,109"/>
+<area shape="rect" id="Node000009" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a205480f2b78d27471af1c7220b9a25b3" title="Get the total count of all categories." alt="" coords="273,215,478,255"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="138,146,188,174,247,201,266,207,264,212,245,205,186,179,135,150"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="553,13,736,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="463,70,537,54,538,59,465,75"/>
+<area shape="rect" id="Node000004" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="787,13,952,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="736,40,771,40,771,45,736,45"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="792,57,737,68,603,84,479,91,479,86,602,78,736,63,791,52"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="786,28,752,27,752,22,786,22"/>
+<area shape="rect" id="Node000006" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="570,135,719,191"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="451,160,555,160,555,166,451,166"/>
+<area shape="rect" id="Node000007" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="784,143,955,183"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="720,169,769,169,769,175,720,174"/>
+<area shape="poly" id="edge9_Node000007_Node000006" title=" " alt="" coords="784,157,735,157,735,151,784,152"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="505,27,537,28,537,33,505,32"/>
+</map>

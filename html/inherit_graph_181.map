@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$df/d34/classml_1_1api_1_1_c_simple_output_writer.html" title="Interface for simple output of homogenous key/value pairs." alt="" coords="5,31,197,56"/>
+<area shape="rect" id="Node000001" href="$d9/dfe/classml_1_1api_1_1_c_csv_output_writer.html" title="Write output data in CSV format." alt="" coords="255,5,431,31"/>
+<area shape="poly" id="edge153_Node000000_Node000001" title=" " alt="" coords="212,29,254,25,255,30,213,34"/>
+<area shape="rect" id="Node000002" href="$d6/d83/classml_1_1api_1_1_c_nd_json_output_writer.html" title="Write output data in JSON format, one document per line." alt="" coords="245,55,441,80"/>
+<area shape="poly" id="edge154_Node000000_Node000002" title=" " alt="" coords="212,52,244,55,244,60,212,57"/>
+</map>

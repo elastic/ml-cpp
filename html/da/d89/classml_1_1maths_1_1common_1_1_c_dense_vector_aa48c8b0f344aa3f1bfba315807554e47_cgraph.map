@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CDenseVector::acceptPersistInserter" name="ml::maths::common::CDenseVector::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,63,201,119"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="249,5,451,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,63,255,48,256,53,202,68"/>
+<area shape="rect" id="Node000003" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#a389bad31c541e617d550a2f2e62d700b" title=" " alt="" coords="277,71,423,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,88,261,88,261,94,201,94"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="273,136,427,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,114,258,129,257,135,200,119"/>
+</map>

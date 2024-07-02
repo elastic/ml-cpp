@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerivedTypeState" name="ml::maths::analytics::CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerivedTypeState">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,237,94"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="285,5,503,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,42,269,38,269,44,238,47"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="317,71,471,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,70,302,78,301,83,237,75"/>
+</map>

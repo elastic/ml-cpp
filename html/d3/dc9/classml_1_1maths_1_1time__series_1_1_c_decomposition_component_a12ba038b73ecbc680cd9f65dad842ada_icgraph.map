@@ -1,0 +1,26 @@
+<map id="ml::maths::time_series::CDecompositionComponent::value" name="ml::maths::time_series::CDecompositionComponent::value">
+<area shape="rect" id="Node000001" title=" " alt="" coords="788,77,982,133"/>
+<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="924,65,909,58,885,56,863,58,849,63,843,69,843,77,837,77,838,67,847,58,862,53,885,51,911,53,926,60"/>
+<area shape="rect" id="Node000002" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#adf010f909745baf9d7c633ee2a7ec636" title="Shift the spline values by shift." alt="" coords="544,5,737,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="773,75,737,64,738,59,774,70"/>
+<area shape="rect" id="Node000005" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a388c580a49ddd380233c6f70e6693df1" title=" " alt="" coords="542,85,739,126"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="772,108,740,108,740,103,772,103"/>
+<area shape="rect" id="Node000007" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#af91bf6c8db20eed8e0e918aecd33429d" title=" " alt="" coords="541,216,740,256"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="819,143,682,217,679,213,817,138"/>
+<area shape="rect" id="Node000003" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#aac2961a2574e420ad68a107ea52af27b" title="Shift the component&#39;s values by shift." alt="" coords="298,5,492,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="528,36,492,36,492,31,528,31"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a323995eaa9accda687b08756271e8adf" title="Shift the component&#39;s values by shift." alt="" coords="43,5,211,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="283,36,212,36,212,31,283,31"/>
+<area shape="rect" id="Node000006" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#aaec5ae27ff76668274c8b4150db795cd" title=" " alt="" coords="301,85,489,126"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="526,108,489,108,489,103,526,103"/>
+<area shape="rect" id="Node000008" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a954c2f848dce54b210cb10453008d50a" title=" " alt="" coords="300,150,490,191"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="546,214,473,194,475,189,547,208"/>
+<area shape="rect" id="Node000009" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#afa5a4a5743f70ec7b4560b16cd14f2c3" title=" " alt="" coords="297,216,493,256"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="525,239,493,239,493,233,525,233"/>
+<area shape="rect" id="Node000010" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aba0b2f1de40ae81b63d2916ced7c15e3" title="Initialize the adaptive bucketing." alt="" coords="311,280,479,336"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="555,264,480,286,478,281,554,258"/>
+<area shape="rect" id="Node000012" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a9385f3bf7a005668d1ba4b19637ed8b9" title=" " alt="" coords="311,360,479,416"/>
+<area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="607,268,555,309,494,350,472,362,469,357,492,346,552,305,603,264"/>
+<area shape="rect" id="Node000011" href="$de/da5/classml_1_1maths_1_1time__series_1_1_c_new_seasonal_component_summary.html#a4f24706e33caadc86c16b5ad00d7d6c1" title="Create a seasonal component from the initial values." alt="" coords="5,280,249,336"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="295,311,249,311,249,305,295,305"/>
+</map>

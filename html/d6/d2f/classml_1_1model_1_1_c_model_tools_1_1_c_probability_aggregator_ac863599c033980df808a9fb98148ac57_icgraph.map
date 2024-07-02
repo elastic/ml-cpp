@@ -1,0 +1,7 @@
+<map id="ml::model::CModelTools::CProbabilityAggregator::add" name="ml::model::CModelTools::CProbabilityAggregator::add">
+<area shape="rect" id="Node000001" title="Add an aggregation style aggregator with weight weight." alt="" coords="298,27,490,68"/>
+<area shape="rect" id="Node000002" href="$d5/d10/model_2unittest_2_c_tools_test_8cc.html#a804c7ee93d77a86f75960bf3aebfb387" title=" " alt="" coords="29,5,226,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="282,38,226,32,226,26,283,33"/>
+<area shape="rect" id="Node000003" href="$d2/d53/classml_1_1model_1_1_c_probability_and_influence_calculator.html#ad1bdd58f727cc6a6f800fa8bf95fd9f8" title="Actually commit any influences we&#39;ve found." alt="" coords="5,55,250,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="283,62,250,65,250,60,282,57"/>
+</map>

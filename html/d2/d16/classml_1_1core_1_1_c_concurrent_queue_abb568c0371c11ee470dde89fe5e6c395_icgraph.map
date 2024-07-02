@@ -1,0 +1,4 @@
+<map id="ml::core::CConcurrentQueue::tryPop" name="ml::core::CConcurrentQueue::tryPop">
+<area shape="rect" id="Node000001" title="Pop an item out of the queue, this returns none if an item isn&#39;t available." alt="" coords="5,29,194,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="130,16,119,10,99,8,82,10,71,15,67,20,69,28,64,29,62,19,68,10,80,5,100,3,120,5,132,11"/>
+</map>

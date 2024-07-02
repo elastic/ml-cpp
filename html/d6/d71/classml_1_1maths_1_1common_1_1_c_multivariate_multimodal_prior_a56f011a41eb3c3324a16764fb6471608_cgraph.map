@@ -1,0 +1,29 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::marginalLikelihoodCovariance" name="ml::maths::common::CMultivariateMultimodalPrior::marginalLikelihoodCovariance">
+<area shape="rect" id="Node000001" title="Get the covariance matrix for the marginal likelihood." alt="" coords="5,113,208,169"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a8a19b1a60ec02a7dcb457ab125b4ed46" title=" " alt="" coords="267,49,433,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,110,264,92,265,97,204,115"/>
+<area shape="rect" id="Node000003" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a040d50e8f9186fc12eccc18e0968fd35" title="Get the convariance matrix for the marginal likelihood." alt="" coords="256,113,444,169"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,139,240,139,240,144,208,144"/>
+<area shape="rect" id="Node000013" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a4d6d5d0e9b5365e9c4ed381447e1d5c5" title=" " alt="" coords="276,193,424,249"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="194,167,262,190,260,195,193,172"/>
+<area shape="rect" id="Node000004" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a2f4340d100d3c2c817ccb9cfe22611eb" title="Get the mean of the marginal likelihood function." alt="" coords="492,80,680,136"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="444,125,476,121,477,126,445,130"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1014,57,1173,98"/>
+<area shape="poly" id="edge11_Node000003_Node000006" title=" " alt="" coords="420,110,443,99,466,81,476,72,491,65,558,48,626,38,696,33,765,32,893,40,998,55,998,61,892,46,764,38,696,38,627,43,559,54,493,70,479,77,469,85,445,103,423,115"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="1005,126,1182,151"/>
+<area shape="poly" id="edge12_Node000003_Node000007" title=" " alt="" coords="444,144,492,145,761,146,989,140,989,145,761,151,492,150,444,149"/>
+<area shape="rect" id="Node000012" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a641ad115f6b34c2cc25dc9e4add3c485" title=" " alt="" coords="514,210,659,251"/>
+<area shape="poly" id="edge13_Node000003_Node000012" title=" " alt="" coords="426,167,517,202,515,207,424,172"/>
+<area shape="rect" id="Node000005" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#aa47716c54c673390bbfe2bb6a53e9322" title="Get the expected mean of the marginal likelihood." alt="" coords="728,88,957,128"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="681,105,713,105,713,111,681,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="957,91,998,86,998,91,957,96"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="957,119,990,123,989,128,957,124"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1230,5,1410,61"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1143,123,1181,107,1205,89,1229,71,1237,66,1240,71,1231,75,1208,94,1183,111,1145,127"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1231,85,1410,126"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1182,123,1214,118,1215,123,1183,128"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1248,150,1393,191"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="1183,148,1233,156,1232,161,1182,154"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1238,216,1403,256"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="1122,149,1231,200,1248,207,1246,212,1229,205,1120,154"/>
+</map>

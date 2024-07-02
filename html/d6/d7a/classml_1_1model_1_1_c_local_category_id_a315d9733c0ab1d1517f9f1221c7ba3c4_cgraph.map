@@ -1,0 +1,5 @@
+<map id="ml::model::CLocalCategoryId::fromString" name="ml::model::CLocalCategoryId::fromString">
+<area shape="rect" id="Node000001" title="Parse from string. Returns false if unsuccessful." alt="" coords="5,5,186,46"/>
+<area shape="rect" id="Node000002" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="234,5,381,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,23,218,23,218,28,186,28"/>
+</map>

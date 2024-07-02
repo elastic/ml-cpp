@@ -1,0 +1,74 @@
+<map id="ml::model_t::metricCategory" name="ml::model_t::metricCategory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1074,354,1260,380"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a956f61328f7ab63fdbfd1c4ddf1429e5" title=" " alt="" coords="837,79,1013,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1152,341,1133,299,1105,247,1068,193,1024,145,988,122,990,118,1027,141,1073,189,1110,244,1138,296,1157,339"/>
+<area shape="rect" id="Node000007" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a3ac7068a6e7b92681b6a61af2658d0a7" title=" " alt="" coords="838,155,1012,195"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1147,343,1097,277,1063,241,1024,211,1001,198,1004,194,1027,206,1066,237,1101,273,1151,339"/>
+<area shape="rect" id="Node000008" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a7f62a496b545c85fa0a0dac9676035f2" title="Initialize the feature data gatherers." alt="" coords="826,220,1024,261"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1126,349,1024,295,965,264,968,259,1027,290,1129,344"/>
+<area shape="rect" id="Node000010" href="$df/d9c/namespaceml_1_1model__t.html#a59b4a3475bc550a72e4327a8d2a4b1a2" title="Check if feature models the max of some quantity." alt="" coords="575,465,751,491"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="1135,391,1085,420,1026,444,955,461,883,472,752,481,751,476,882,467,954,456,1025,439,1083,415,1132,386"/>
+<area shape="rect" id="Node000012" href="$df/d9c/namespaceml_1_1model__t.html#a7bf7c04ac4013033bc79dbd51c37daf1" title="Check if feature models the mean of some quantity." alt="" coords="833,354,1017,380"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="1058,370,1017,370,1017,364,1058,364"/>
+<area shape="rect" id="Node000029" href="$df/d9c/namespaceml_1_1model__t.html#ad13c348b83bf923026873475ac32bc86" title="Check if feature models the median of some quantity." alt="" coords="828,404,1022,429"/>
+<area shape="poly" id="edge32_Node000001_Node000029" title=" " alt="" coords="1086,386,992,405,991,400,1085,381"/>
+<area shape="rect" id="Node000030" href="$df/d9c/namespaceml_1_1model__t.html#a5fc4a7e2815307fc119747f4acecf6cc" title="Check if feature models the min of some quantity." alt="" coords="577,514,749,540"/>
+<area shape="poly" id="edge35_Node000001_Node000030" title=" " alt="" coords="1146,393,1095,440,1062,464,1027,483,956,506,883,521,812,529,749,532,749,526,812,524,882,516,955,501,1025,478,1059,459,1091,436,1142,389"/>
+<area shape="rect" id="Node000031" href="$df/d9c/namespaceml_1_1model__t.html#ad33fb9a203cd78093f45bc65f658afee" title="Check if feature models the sum of some quantity." alt="" coords="574,564,752,589"/>
+<area shape="poly" id="edge37_Node000001_Node000031" title=" " alt="" coords="1154,395,1133,428,1105,466,1069,503,1027,533,959,561,886,577,816,584,752,585,752,580,815,579,886,572,957,556,1024,529,1066,499,1101,463,1129,425,1149,392"/>
+<area shape="rect" id="Node000032" href="$df/d9c/namespaceml_1_1model__t.html#a045e29b0adddc0ab27dd8a5a2a0d0dc6" title="Check if feature models the variance of some quantity." alt="" coords="824,305,1026,331"/>
+<area shape="poly" id="edge39_Node000001_Node000032" title=" " alt="" coords="1085,353,991,334,992,329,1086,348"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a4875cb579bf9e797cc0fa06e500006a3" title=" " alt="" coords="549,71,776,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="822,99,777,97,777,92,822,93"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa56151076ac089b82ccaa49b1823a15b" title="Construct from a state document." alt="" coords="268,5,485,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="555,69,468,49,469,44,556,64"/>
+<area shape="rect" id="Node000005" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a4a041ddc13ae2df86910a60d47ede95d" title=" " alt="" coords="268,71,485,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="533,94,485,94,485,88,533,88"/>
+<area shape="rect" id="Node000006" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#abc07cc1160846092f4e464d33806598e" title=" " alt="" coords="5,71,204,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="253,94,204,94,204,88,253,88"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="840,216,823,209,799,195,775,181,722,165,648,147,484,113,485,108,649,142,723,160,777,177,802,190,826,205,842,212"/>
+<area shape="rect" id="Node000009" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a4e7dc00661edd1c059355d1cbeb838fa" title="Clear this data gatherer." alt="" coords="576,191,749,231"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="810,230,750,223,750,218,811,225"/>
+<area shape="rect" id="Node000011" href="$d8/d9e/_c_model_types_test_8cc.html#a9b4a3994bc0c6e5b43c31dc372f95d4b" title=" " alt="" coords="278,520,475,545"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="577,497,448,521,447,516,576,491"/>
+<area shape="poly" id="edge16_Node000012_Node000011" title=" " alt="" coords="817,357,753,356,683,363,613,381,581,395,551,413,539,423,533,434,527,459,521,485,514,497,503,509,476,524,474,519,499,505,510,494,516,483,522,458,528,432,535,420,547,409,578,390,612,376,682,358,752,351,818,351"/>
+<area shape="rect" id="Node000013" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html#aae48ba7dfdee17bcfd88829dab920fda" title="Update the classification with value." alt="" coords="559,256,767,281"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="835,351,823,345,808,335,798,324,789,313,775,303,729,284,731,279,778,298,793,309,802,320,811,331,826,341,837,346"/>
+<area shape="rect" id="Node000016" href="$df/d9c/namespaceml_1_1model__t.html#a18db9394ce804db46f9f7694c21934b3" title=" " alt="" coords="573,313,752,339"/>
+<area shape="poly" id="edge17_Node000012_Node000016" title=" " alt="" coords="824,354,748,342,749,336,825,349"/>
+<area shape="rect" id="Node000014" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html#a38a1d389128208c9a3d72b1f0eb46c94" title="Update the classification with value." alt="" coords="272,185,481,211"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="578,254,548,246,500,226,454,214,455,208,502,220,550,240,579,249"/>
+<area shape="rect" id="Node000015" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a7c4736c5e93d96f26ce43a050956013a" title=" " alt="" coords="267,136,486,161"/>
+<area shape="poly" id="edge15_Node000013_Node000015" title=" " alt="" coords="557,251,547,245,530,227,523,209,515,191,499,174,479,164,482,159,503,170,520,188,528,206,535,224,551,241,560,246"/>
+<area shape="poly" id="edge18_Node000016_Node000011" title=" " alt="" coords="566,348,551,360,537,377,530,395,528,433,526,471,518,491,503,509,476,525,473,521,499,505,514,488,521,470,523,433,525,394,532,375,547,356,563,344"/>
+<area shape="rect" id="Node000017" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#a4ec8fcce257e3c9ae930e30d81d8146b" title=" " alt="" coords="272,455,481,495"/>
+<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="571,347,551,360,534,380,528,401,520,422,503,444,482,457,479,452,499,440,516,420,523,399,530,377,547,356,569,343"/>
+<area shape="rect" id="Node000018" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a7a22f4083e6f639c08b2dafbd37762ec" title=" " alt="" coords="252,235,501,275"/>
+<area shape="poly" id="edge20_Node000016_Node000018" title=" " alt="" coords="592,311,461,279,462,273,593,306"/>
+<area shape="rect" id="Node000019" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#abe3aa5567654a1d07e41fe49ae42d6db" title=" " alt="" coords="281,300,472,341"/>
+<area shape="poly" id="edge21_Node000016_Node000019" title=" " alt="" coords="557,326,472,325,472,319,557,321"/>
+<area shape="rect" id="Node000020" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a7733874d4308f485119a90fdc79be5d0" title=" " alt="" coords="287,389,466,430"/>
+<area shape="poly" id="edge22_Node000016_Node000020" title=" " alt="" coords="600,346,550,360,446,391,445,386,548,355,598,341"/>
+<area shape="poly" id="edge31_Node000020_Node000020" title=" " alt="" coords="421,376,404,370,376,368,350,370,334,375,328,381,331,388,326,389,323,379,331,370,349,365,376,363,405,365,423,371"/>
+<area shape="rect" id="Node000021" href="$d5/df7/_c_sample_queue_test_8cc.html#a15738eb4fb33752c015b2555c4a94884" title=" " alt="" coords="6,372,203,397"/>
+<area shape="poly" id="edge23_Node000020_Node000021" title=" " alt="" coords="272,403,203,396,203,391,272,397"/>
+<area shape="rect" id="Node000022" href="$d5/df7/_c_sample_queue_test_8cc.html#a0d4d4484d85fad7c01c96ba39aa55159" title=" " alt="" coords="6,421,203,447"/>
+<area shape="poly" id="edge24_Node000020_Node000022" title=" " alt="" coords="272,421,203,428,203,422,272,416"/>
+<area shape="rect" id="Node000023" href="$d5/df7/_c_sample_queue_test_8cc.html#a0273a86f4e2f2782b55f2d85563450de" title=" " alt="" coords="6,470,203,496"/>
+<area shape="poly" id="edge25_Node000020_Node000023" title=" " alt="" coords="281,437,252,446,204,462,165,472,163,467,203,456,251,440,280,432"/>
+<area shape="rect" id="Node000024" href="$d5/df7/_c_sample_queue_test_8cc.html#a213baac7cdae7c8085df208ad3b78b61" title=" " alt="" coords="6,520,203,545"/>
+<area shape="poly" id="edge26_Node000020_Node000024" title=" " alt="" coords="274,433,253,445,238,461,230,477,222,494,205,510,184,521,182,517,202,506,217,491,225,475,234,457,250,441,272,429"/>
+<area shape="rect" id="Node000025" href="$d5/df7/_c_sample_queue_test_8cc.html#a8d70afff421984a6ee33987165d000a8" title=" " alt="" coords="6,569,203,595"/>
+<area shape="poly" id="edge27_Node000020_Node000025" title=" " alt="" coords="275,431,253,445,242,458,235,472,230,501,226,531,218,545,205,560,189,570,186,566,202,556,214,542,220,529,225,500,230,470,237,455,250,441,272,426"/>
+<area shape="rect" id="Node000026" href="$d5/df7/_c_sample_queue_test_8cc.html#a28a580e7c344a327aff828ca0779d537" title=" " alt="" coords="6,208,203,233"/>
+<area shape="poly" id="edge28_Node000020_Node000026" title=" " alt="" coords="293,385,270,371,250,354,238,340,232,325,226,297,220,271,214,259,202,246,185,236,188,231,205,242,218,256,225,269,232,296,237,324,243,337,254,350,273,367,296,380"/>
+<area shape="rect" id="Node000027" href="$d5/df7/_c_sample_queue_test_8cc.html#a962d5a17afc0f06d8ea362f9097f94f6" title=" " alt="" coords="6,257,203,283"/>
+<area shape="poly" id="edge29_Node000020_Node000027" title=" " alt="" coords="301,385,250,354,235,339,226,324,217,310,202,297,177,285,180,281,205,293,221,307,231,321,239,336,253,350,304,380"/>
+<area shape="rect" id="Node000028" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a1a64c54453a2bb1e7900aef1680fd58d" title=" " alt="" coords="9,307,200,347"/>
+<area shape="poly" id="edge30_Node000020_Node000028" title=" " alt="" coords="292,387,173,350,175,345,293,382"/>
+<area shape="poly" id="edge33_Node000029_Node000011" title=" " alt="" coords="813,409,750,409,683,415,614,430,550,455,535,467,527,480,518,495,502,509,475,521,473,516,500,505,514,492,522,478,531,463,548,450,613,425,682,410,750,404,813,403"/>
+<area shape="poly" id="edge34_Node000029_Node000016" title=" " alt="" coords="846,402,823,395,752,368,691,342,694,337,754,363,825,390,847,396"/>
+<area shape="poly" id="edge36_Node000030_Node000011" title=" " alt="" coords="561,532,475,533,475,528,561,526"/>
+<area shape="poly" id="edge38_Node000031_Node000011" title=" " alt="" coords="559,563,464,548,465,543,560,558"/>
+<area shape="poly" id="edge40_Node000032_Node000016" title=" " alt="" coords="809,324,753,326,753,320,809,319"/>
+</map>

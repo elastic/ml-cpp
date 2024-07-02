@@ -1,0 +1,48 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters" name="ml::maths::analytics::CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,383,200,454"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a6fb1b0e4cedde152e3b124700400f07e" title=" " alt="" coords="265,5,478,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,382,120,316,145,233,164,189,186,146,214,107,246,71,251,67,254,71,250,75,218,110,191,149,168,191,150,235,125,318,111,383"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa193b6bfdf93e07be52077c5e9beea84" title=" " alt="" coords="250,85,493,141"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="112,382,131,332,159,273,197,211,220,183,246,158,261,147,264,151,249,162,224,187,202,215,164,275,136,334,117,384"/>
+<area shape="rect" id="Node000006" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a0509e54d14727f19ae3c77f707f8e6ea" title=" " alt="" coords="571,143,728,198"/>
+<area shape="poly" id="edge20_Node000001_Node000006" title=" " alt="" coords="114,381,133,338,161,288,199,240,221,219,246,202,270,191,302,183,382,173,471,168,555,166,555,172,471,173,382,178,303,189,272,196,249,206,225,223,203,244,166,291,138,341,119,384"/>
+<area shape="rect" id="Node000007" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a92465adbdcedf9fb1542f3fe7332ffd4" title=" " alt="" coords="277,217,466,287"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="138,381,187,338,246,296,261,288,264,293,249,301,191,342,141,385"/>
+<area shape="rect" id="Node000009" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa9acf41587c7fb469f2389ea0af322ee" title="Set the sum of weights squared multiplier." alt="" coords="278,311,465,366"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="200,387,263,368,264,373,201,392"/>
+<area shape="rect" id="Node000010" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ae353cfcd98eaa7123ac07a90b5e1ea3a" title="Get the number of progress iterations used for a line search." alt="" coords="248,391,495,446"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="200,416,232,416,232,421,200,421"/>
+<area shape="rect" id="Node000014" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#abd8183775b061f4011c71df95baf407a" title=" " alt="" coords="280,471,463,526"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="201,445,266,464,264,470,200,450"/>
+<area shape="rect" id="Node000019" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab30e5eeb34214b89ef38fbdabcd03dc3" title="Set the soft tree depth limit." alt="" coords="293,551,450,606"/>
+<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="141,452,190,496,249,536,279,550,277,555,246,541,187,500,137,456"/>
+<area shape="rect" id="Node000020" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a588f0d5aeceaf14c501ccbd633dfb008" title=" " alt="" coords="287,631,456,686"/>
+<area shape="poly" id="edge22_Node000001_Node000020" title=" " alt="" coords="123,453,144,491,172,535,208,579,249,616,275,631,272,636,246,621,204,583,168,538,139,494,118,455"/>
+<area shape="rect" id="Node000021" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aac9938381be89d8e4edc775781a12ee4" title="Set the tree size penalty multiplier." alt="" coords="285,711,458,766"/>
+<area shape="poly" id="edge23_Node000001_Node000021" title=" " alt="" coords="115,453,132,507,160,572,198,639,222,670,249,696,273,712,270,716,246,701,218,673,194,642,155,575,127,509,110,455"/>
+<area shape="rect" id="Node000022" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="299,790,444,831"/>
+<area shape="poly" id="edge24_Node000001_Node000022" title=" " alt="" coords="110,454,122,523,147,610,165,655,188,700,216,741,249,776,266,788,285,797,283,801,263,793,246,781,212,744,183,703,160,658,142,612,117,524,105,455"/>
+<area shape="rect" id="Node000003" href="$de/d69/classml_1_1maths_1_1analytics_1_1_c_scope_boosted_tree_parameter_overrides.html#afbb9eee631045aa8b4d08e62c5d1cd56" title=" " alt="" coords="545,5,755,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="478,31,529,31,529,36,478,36"/>
+<area shape="rect" id="Node000004" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="819,5,992,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="755,31,804,31,804,36,755,36"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="493,136,557,149,556,154,492,141"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="466,222,555,195,557,200,467,227"/>
+<area shape="rect" id="Node000008" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a8c65b28cf324be0c4c70cf017473b55d" title="Set the penalty for changing the tree toppology when incrementally training." alt="" coords="554,223,746,278"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="466,249,538,248,538,254,466,254"/>
+<area shape="rect" id="Node000011" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="558,326,741,367"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="481,387,553,369,555,374,482,393"/>
+<area shape="rect" id="Node000012" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a06c888a44035bc3baac323959040943c" title="Get the maximum number of iterations used in testLossLineSearch." alt="" coords="543,391,756,446"/>
+<area shape="poly" id="edge13_Node000010_Node000012" title=" " alt="" coords="496,416,527,416,527,421,496,421"/>
+<area shape="rect" id="Node000013" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="574,470,725,511"/>
+<area shape="poly" id="edge14_Node000010_Node000013" title=" " alt="" coords="482,444,560,465,558,470,481,450"/>
+<area shape="poly" id="edge12_Node000011_Node000011" title=" " alt="" coords="602,326,599,316,607,307,624,301,650,300,677,302,694,308,692,313,676,307,650,305,625,307,610,312,605,317,607,325"/>
+<area shape="rect" id="Node000015" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#adfac6ffce38516840c306f329394735c" title="Persist state writing to inserter." alt="" coords="571,535,728,590"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="464,517,556,538,555,544,462,522"/>
+<area shape="rect" id="Node000016" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="804,477,1007,518"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="728,540,808,519,809,524,729,545"/>
+<area shape="rect" id="Node000017" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="804,542,1007,583"/>
+<area shape="poly" id="edge18_Node000015_Node000017" title=" " alt="" coords="729,560,789,560,789,565,729,565"/>
+<area shape="rect" id="Node000018" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="828,608,983,648"/>
+<area shape="poly" id="edge19_Node000015_Node000018" title=" " alt="" coords="729,580,814,602,813,607,728,585"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTrendComponent::shiftOrigin" name="ml::maths::time_series::CTrendComponent::shiftOrigin">
+<area shape="rect" id="Node000001" title="Shift the regression models&#39; time origins to time." alt="" coords="5,5,212,46"/>
+<area shape="rect" id="Node000002" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="260,5,405,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,23,244,23,244,28,212,28"/>
+</map>

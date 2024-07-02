@@ -1,0 +1,17 @@
+<map id="ml::core::CStringUtils::memorySizeStringToBytes" name="ml::core::CStringUtils::memorySizeStringToBytes">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,190,125"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="254,5,403,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,81,237,41,260,33,262,38,239,46,143,86"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="255,55,402,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,90,239,84,239,89,191,96"/>
+<area shape="rect" id="Node000004" href="$dd/dea/classml_1_1core_1_1_c_regex.html#accf2085b2c74e7d8b0c771c5677f50c5" title=" " alt="" coords="238,120,419,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="191,113,223,117,222,123,190,119"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#afe172d321b5ba2b6c5e67144455b86b2" title="Convert a string to lower case." alt="" coords="255,170,402,211"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="153,123,239,156,254,162,253,167,237,161,151,128"/>
+<area shape="rect" id="Node000005" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="467,95,649,120"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="419,120,451,117,452,122,420,125"/>
+<area shape="rect" id="Node000006" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="697,120,845,146"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="419,130,682,130,682,136,419,136"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="523,96,516,86,520,76,534,70,558,68,584,71,598,78,595,82,583,76,558,73,536,75,524,80,521,85,527,93"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="650,116,683,120,682,125,650,121"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CDecompositionComponent::CPackedSplines::acceptPersistInserter" name="ml::maths::time_series::CDecompositionComponent::CPackedSplines::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="463,45,721,101"/>
+<area shape="rect" id="Node000002" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a96c332a26092fad4b7677a2793c1be57" title="Persist state by passing information to inserter." alt="" coords="222,45,415,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="447,76,416,76,416,71,447,71"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a6aeed80a5f2ae4d6e08f14a687b1df72" title="Persist state by passing information to inserter." alt="" coords="6,5,173,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,56,173,50,174,45,207,51"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aeb29980902a370584104bbb6a3dd24e1" title="Persist state by passing information to inserter." alt="" coords="5,85,174,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="207,95,174,101,174,96,206,90"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBootstrapClustererFacadeExtractClusters::extract" name="ml::maths::common::CBootstrapClustererFacadeExtractClusters::extract">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,231,101"/>
+<area shape="rect" id="Node000002" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_facade_extract_clusters.html#abf8d962616f51fb3b84e29fb0d92528b" title="Get the first point equal or right of x." alt="" coords="279,5,504,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,54,263,49,263,55,231,59"/>
+<area shape="rect" id="Node000003" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_facade_extract_clusters.html#aea7ceaf9692b7af6cde914c51da0e47c" title="Get the first point right of x." alt="" coords="279,85,504,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,87,263,92,263,97,231,92"/>
+</map>

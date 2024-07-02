@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CBasicStatistics::scale" name="ml::maths::common::CBasicStatistics::scale">
+<area shape="rect" id="Node000001" title="Get a copy of moments with count scaled by scale." alt="" coords="263,63,421,104"/>
+<area shape="rect" id="Node000002" href="$d8/dfa/_c_basic_statistics_test_8cc.html#a96c76036ad14c8a0e34305dd1382d88a" title=" " alt="" coords="12,5,208,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="262,61,214,46,168,34,170,29,215,41,264,55"/>
+<area shape="rect" id="Node000003" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#ae8956b52f45a863a658fda2c02b2c370" title=" " alt="" coords="5,56,215,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,86,215,86,215,81,247,81"/>
+<area shape="rect" id="Node000004" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a3054c59859763a24f0bd53d62552e881" title="Split bucket." alt="" coords="5,136,215,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="267,112,194,138,192,133,266,107"/>
+</map>

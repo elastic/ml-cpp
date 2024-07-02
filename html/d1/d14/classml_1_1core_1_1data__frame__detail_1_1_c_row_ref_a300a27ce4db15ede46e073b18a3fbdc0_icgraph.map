@@ -1,0 +1,9 @@
+<map id="ml::core::data_frame_detail::CRowRef::numberColumns" name="ml::core::data_frame_detail::CRowRef::numberColumns">
+<area shape="rect" id="Node000001" title="Get the number of columns." alt="" coords="306,123,534,164"/>
+<area shape="rect" id="Node000002" href="$d0/dac/structml_1_1maths_1_1analytics_1_1data__frame__utils__detail_1_1_s_row_to_3_01common_1_1_c_dense_vector_3_01_t_01_4_01_4.html#a71d567680e298a15dd511b146213ab5a" title=" " alt="" coords="14,5,249,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="345,120,232,79,233,74,347,115"/>
+<area shape="rect" id="Node000003" href="$d9/dc1/structml_1_1maths_1_1analytics_1_1data__frame__utils__detail_1_1_s_row_to_3_01common_1_1_c_memor53436a5b6cf5197e186e248f84079c24.html#a25c7a5253acb9232a5e5f6a24603a68f" title=" " alt="" coords="5,101,258,186"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="290,146,258,146,258,141,290,141"/>
+<area shape="rect" id="Node000004" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a834cbb4f8160296bad2c05f142abac91" title="Write the extra columns of row added by outlier analysis to writer." alt="" coords="37,210,226,250"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="347,172,258,201,219,212,218,206,257,195,345,167"/>
+</map>

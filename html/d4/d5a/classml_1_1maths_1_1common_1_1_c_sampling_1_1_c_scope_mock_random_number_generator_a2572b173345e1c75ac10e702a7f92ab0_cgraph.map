@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CSampling::CScopeMockRandomNumberGenerator::CScopeMockRandomNumberGenerator" name="ml::maths::common::CSampling::CScopeMockRandomNumberGenerator::CScopeMockRandomNumberGenerator">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,266,76"/>
+<area shape="rect" id="Node000002" href="$d2/d96/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03_1_1_c_random_number_generator.html#a785b4245f954f9cd43890106f859a6b1" title="Mock the random number generator to produce a constant." alt="" coords="314,5,542,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,38,298,38,298,43,266,43"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::computeFeatureInfluence" name="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::computeFeatureInfluence">
+<area shape="rect" id="Node000001" title="Check whether to compute influences of features on the outlier scores." alt="" coords="263,150,541,206"/>
+<area shape="rect" id="Node000002" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a3710ae01b54ffccf3fe3c79fb05cc721" title=" " alt="" coords="19,5,201,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="350,143,286,100,214,60,186,49,188,44,216,55,289,96,353,138"/>
+<area shape="rect" id="Node000003" href="$d8/ddf/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_multiple_methods.html#a4cce62b12499b36d5b9f44682e0406df" title=" " alt="" coords="18,70,202,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="282,148,202,126,203,120,284,143"/>
+<area shape="rect" id="Node000004" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#aaef5e8ef46bd6f3907a85b18c96a9944" title=" " alt="" coords="5,150,215,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="247,180,215,180,215,175,247,175"/>
+<area shape="rect" id="Node000005" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a7391c031aef039debab4410c4a6fa87f" title=" " alt="" coords="37,230,183,286"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="284,213,184,240,182,235,283,208"/>
+<area shape="rect" id="Node000006" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a60ba415829ec622fe215b26a834aee12" title=" " alt="" coords="37,310,183,366"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="351,217,288,259,216,300,184,314,182,310,213,295,285,254,348,212"/>
+</map>

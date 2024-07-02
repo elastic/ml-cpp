@@ -1,0 +1,29 @@
+<map id="anonymous_namespace{CAnnotatedProbabilityBuilderTest.cc}::CAnnotatedProbabilityBuilderForTest" name="anonymous_namespace{CAnnotatedProbabilityBuilderTest.cc}::CAnnotatedProbabilityBuilderForTest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1524,137,1770,208"/>
+<area shape="rect" id="Node000002" href="$d4/d51/classml_1_1model_1_1_c_annotated_probability_builder.html" title="Manages the creation of annotated probabilities using the builder pattern." alt="" coords="1258,152,1475,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1491,170,1523,170,1523,175,1491,175"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="820,78,985,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1001,95,1114,108,1235,128,1308,149,1306,154,1234,134,1113,113,1000,101"/>
+<area shape="rect" id="Node000004" href="$df/d20/structml_1_1model_1_1_s_annotated_probability.html" title="A collection of data describing the result of a model probability calculation." alt="" coords="795,128,1010,153"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1025,146,1258,162,1258,168,1025,151"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="361,5,539,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="554,21,606,25,662,35,717,52,768,78,777,87,781,97,784,106,792,114,811,125,809,129,788,118,780,109,776,99,772,90,764,82,715,57,660,40,606,31,554,26"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="9,5,162,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="178,23,361,23,361,28,178,28"/>
+<area shape="rect" id="Node000007" href="$d6/d9a/classml_1_1model__t_1_1_c_result_type.html" title="Describes the result type." alt="" coords="363,70,537,96"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="552,92,766,118,813,124,812,129,766,123,552,97"/>
+<area shape="rect" id="Node000008" href="$dc/d00/structml_1_1maths_1_1common_1_1_s_anomaly_score_explanation.html" title="Describes the impact of different factors on the anomaly score." alt="" coords="358,120,542,161"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="558,138,794,138,794,143,558,143"/>
+<area shape="rect" id="Node000009" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html" title="A conjugate prior distribution for a multinomial variable." alt="" coords="824,184,980,225"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="996,204,1110,204,1234,196,1270,191,1270,196,1235,201,1110,209,996,210"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="377,185,523,226"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="538,203,824,202,824,207,538,208"/>
+<area shape="rect" id="Node000011" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,193,166,219"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="181,203,377,203,377,208,181,208"/>
+<area shape="rect" id="Node000012" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title=" " alt="" coords="790,250,1014,306"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="1030,264,1130,249,1234,226,1281,210,1323,191,1325,196,1283,215,1235,231,1131,255,1030,269"/>
+<area shape="rect" id="Node000013" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title="Implementation of an accumulator class for order statistics." alt="" coords="338,250,562,306"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="578,275,789,275,789,280,578,280"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="329,330,571,386"/>
+<area shape="poly" id="edge13_Node000012_Node000014" title=" " alt="" coords="586,331,789,295,790,300,586,336"/>
+</map>

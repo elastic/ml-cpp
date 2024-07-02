@@ -1,0 +1,15 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::SNewBucket::operator()" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::SNewBucket::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,72,218,142"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="266,37,467,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,80,291,64,292,69,219,86"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aedd783dbcd45bc4d7f52478d504da0b0" title="Returns the latest bucket end time, as tracked by the queue." alt="" coords="279,87,454,127"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="218,104,263,104,263,110,218,110"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="279,176,454,217"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="215,140,292,168,291,173,213,145"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="515,29,690,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="467,47,499,47,499,52,467,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="560,29,558,19,565,10,580,5,603,3,627,5,641,11,639,16,625,10,603,8,581,10,568,15,564,21,566,28"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="738,29,914,70"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="691,47,723,47,723,52,691,52"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="322,176,320,166,327,157,343,151,366,149,392,152,407,158,405,163,391,157,366,155,344,157,330,161,325,167,327,175"/>
+</map>

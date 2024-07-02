@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree::CPseudoHuber" name="ml::maths::analytics::boosted_tree::CPseudoHuber">
+<area shape="rect" id="Node000001" title="The pseudo&#45;Huber loss function." alt="" coords="5,94,207,135"/>
+<area shape="rect" id="Node000002" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html" title="Defines the loss function for the regression or classification problem." alt="" coords="31,5,181,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,62,109,94,103,94,103,62"/>
+</map>

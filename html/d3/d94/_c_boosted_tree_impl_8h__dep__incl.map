@@ -1,0 +1,21 @@
+<map id="include/maths/analytics/CBoostedTreeImpl.h" name="include/maths/analytics/CBoostedTreeImpl.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="857,5,1015,46"/>
+<area shape="rect" id="Node000002" href="$dd/dd3/_c_data_frame_train_boosted_tree_regression_runner_test_8cc.html" title=" " alt="" coords="5,94,238,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="842,36,575,58,412,75,250,97,239,98,238,93,249,91,412,70,574,52,841,30"/>
+<area shape="rect" id="Node000003" href="$d0/d0a/_c_boosted_tree_8cc.html" title=" " alt="" coords="262,102,392,142"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="842,35,639,56,521,73,403,97,379,103,378,98,402,91,520,68,639,50,842,30"/>
+<area shape="rect" id="Node000004" href="$d8/d49/_c_boosted_tree_factory_8cc.html" title=" " alt="" coords="416,102,585,142"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="842,47,598,97,570,104,569,98,597,91,841,41"/>
+<area shape="rect" id="Node000005" href="$dd/d1f/_c_boosted_tree_hyperparameters_8cc.html" title=" " alt="" coords="609,102,837,142"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="879,55,769,103,766,98,877,50"/>
+<area shape="rect" id="Node000006" href="$dc/d56/_c_boosted_tree_impl_8cc.html" title=" " alt="" coords="860,102,1012,142"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="939,62,939,101,934,101,934,62"/>
+<area shape="rect" id="Node000007" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html" title=" " alt="" coords="1036,94,1292,150"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="999,50,1099,91,1097,96,997,55"/>
+<area shape="rect" id="Node000008" href="$d2/d5e/_c_boosted_tree_loss_test_8cc.html" title=" " alt="" coords="1316,94,1500,150"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1031,40,1305,91,1316,94,1315,99,1304,97,1030,45"/>
+<area shape="rect" id="Node000009" href="$d2/d06/_c_boosted_tree_test_8cc.html" title=" " alt="" coords="1525,102,1724,142"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1031,32,1252,54,1382,71,1513,91,1547,98,1546,104,1512,97,1382,76,1251,60,1031,37"/>
+<area shape="rect" id="Node000010" href="$d2/d12/_c_boosted_tree_utils_test_8cc.html" title=" " alt="" coords="1749,94,1932,150"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1031,27,1169,34,1345,45,1541,64,1737,91,1748,94,1747,99,1736,97,1540,69,1345,51,1169,39,1030,33"/>
+</map>

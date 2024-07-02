@@ -1,0 +1,12 @@
+<map id="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::insertPersonAttributeCounts" name="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::insertPersonAttributeCounts">
+<area shape="rect" id="Node000001" title="Persist a person, attribute and count tuple." alt="" coords="5,109,222,180"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="62,108,64,98,74,90,91,85,114,83,140,85,157,93,155,98,139,91,113,88,92,90,77,95,69,101,67,109"/>
+<area shape="rect" id="Node000002" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#abadd2fddddf3f748dfab7047d466b83c" title=" " alt="" coords="277,29,478,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,109,262,97,263,102,223,114"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="276,124,479,165"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="222,142,261,142,261,147,222,147"/>
+<area shape="rect" id="Node000004" href="$d5/d91/namespaceml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail.html#a69de755093a5bb6ef5c0af72540ac573" title=" " alt="" coords="270,213,485,269"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="213,178,286,205,284,210,212,183"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="325,28,328,18,338,10,355,5,377,3,404,5,421,13,419,18,403,11,377,8,356,10,341,15,333,21,330,29"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="326,212,327,202,336,194,353,188,377,186,405,189,422,196,420,200,404,194,377,191,354,193,339,198,331,205,331,213"/>
+</map>

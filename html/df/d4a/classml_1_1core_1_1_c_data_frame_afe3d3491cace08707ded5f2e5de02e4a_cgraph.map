@@ -1,0 +1,23 @@
+<map id="ml::core::CDataFrame::reserve" name="ml::core::CDataFrame::reserve">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,216,157,256"/>
+<area shape="rect" id="Node000002" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="218,182,336,223"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,220,203,212,204,218,157,226"/>
+<area shape="rect" id="Node000011" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#a2fb7854074e15d768c1f087a6340a8ad" title="Round up n items of T so they use a multiple of alignment size memory." alt="" coords="205,248,349,288"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="157,246,190,251,189,256,157,251"/>
+<area shape="rect" id="Node000003" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="419,146,584,187"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="335,191,403,180,403,185,336,196"/>
+<area shape="rect" id="Node000010" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="397,211,605,266"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="336,209,382,217,381,222,335,214"/>
+<area shape="rect" id="Node000004" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="700,92,811,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="584,144,684,120,685,125,585,149"/>
+<area shape="rect" id="Node000007" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="653,154,858,179"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="584,164,638,164,638,169,584,169"/>
+<area shape="rect" id="Node000009" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="672,204,839,244"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="585,183,657,199,656,204,584,188"/>
+<area shape="rect" id="Node000005" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="906,5,1102,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="802,89,891,63,892,68,803,94"/>
+<area shape="rect" id="Node000006" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="935,85,1073,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="811,103,919,103,919,108,811,108"/>
+<area shape="rect" id="Node000008" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="913,149,1095,205"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="858,168,898,170,897,175,858,174"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CMultinomialConjugate::shrink" name="ml::maths::common::CMultinomialConjugate::shrink">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,162,133"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ab394643d489a3fec9502a01be07f0013" title="Get the categories." alt="" coords="229,5,386,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,77,213,60,215,66,163,83"/>
+<area shape="rect" id="Node000003" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a42234485447630f5f9cf0dd8c87b116a" title="Efficient swap of the contents of this prior and other." alt="" coords="210,85,405,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,103,194,103,194,108,162,108"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="646,99,725,125"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="163,126,210,135,327,142,444,139,549,129,631,118,631,123,550,134,445,144,327,147,209,140,162,131"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4ef6e7ff28c4e5a1c85a17a841b373fb" title="Swap the contents of this prior and other." alt="" coords="453,34,598,75"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="397,82,437,72,438,77,398,87"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="405,104,631,108,631,114,405,110"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="585,73,634,91,632,96,583,78"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="658,100,653,90,656,81,667,75,686,72,705,75,715,82,712,86,703,80,685,78,669,80,660,84,658,90,663,97"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::api::CAnomalyJob::descriptionAndDebugMemoryUsage" name="ml::api::CAnomalyJob::descriptionAndDebugMemoryUsage">
+<area shape="rect" id="Node000001" title="Log a list of the detectors, keys and their memory usage." alt="" coords="5,22,206,78"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a79b4bfd74971bb60644266c10d73f542" title="Get all the detectors." alt="" coords="452,29,602,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,44,254,43,404,43,436,44,436,49,404,48,254,48,206,49"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2a51fcd13e6eda7ea3ea63c610840f7d" title="Get all sorted references to the detectors." alt="" coords="254,57,404,98"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="207,60,238,64,238,69,206,65"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="489,29,488,19,494,10,507,5,527,3,549,5,562,11,559,16,547,10,527,8,508,10,497,15,493,20,495,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="404,64,436,60,437,65,405,70"/>
+</map>

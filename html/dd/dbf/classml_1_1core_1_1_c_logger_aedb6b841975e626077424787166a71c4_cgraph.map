@@ -1,0 +1,23 @@
+<map id="ml::core::CLogger::reconfigureLogToNamedPipe" name="ml::core::CLogger::reconfigureLogToNamedPipe">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,121,194,161"/>
+<area shape="rect" id="Node000002" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a13e17ff131e3497ff352b26a720b3071" title=" " alt="" coords="246,5,436,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,118,175,79,240,41,259,34,261,39,243,46,178,83,127,122"/>
+<area shape="rect" id="Node000003" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="261,55,421,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,117,247,98,249,103,178,123"/>
+<area shape="rect" id="Node000004" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a8296dd27069cba4c00dadaed327c3434" title=" " alt="" coords="242,121,440,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,138,226,138,226,144,194,144"/>
+<area shape="rect" id="Node000005" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a68fe67e3178edca9a0cda3a825f2ee9b" title=" " alt="" coords="242,186,440,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="178,159,249,179,247,184,176,164"/>
+<area shape="rect" id="Node000011" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#af34b7d15012be8517b911fe28ddeb72d" title="Tell the logger to reconfigure itself to log JSON." alt="" coords="274,251,408,292"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="128,160,180,198,243,236,260,244,258,249,240,241,177,202,125,164"/>
+<area shape="rect" id="Node000006" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#aa43125277b181d9dbd4263ff45f8ba75" title=" " alt="" coords="488,186,686,227"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="441,204,472,204,472,209,441,209"/>
+<area shape="rect" id="Node000007" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#ad6c48125c40ec2d7825628445118eac8" title=" " alt="" coords="734,87,895,128"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="633,183,733,138,749,132,751,137,735,143,635,188"/>
+<area shape="rect" id="Node000008" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#acc911f7595fc8451a15ccc6389162721" title=" " alt="" coords="734,153,895,193"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="686,189,718,184,719,189,687,194"/>
+<area shape="rect" id="Node000009" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a0ac6930dbe3831527169f29e1794fa18" title=" " alt="" coords="734,218,895,259"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="687,217,719,222,718,227,686,223"/>
+<area shape="rect" id="Node000010" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a9b938fd4fd923da6d926426fe06c9e14" title=" " alt="" coords="734,283,895,324"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="637,225,735,268,751,274,749,279,733,273,635,230"/>
+</map>

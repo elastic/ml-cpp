@@ -1,0 +1,5 @@
+<map id="ml::api::CInputParser::readStreamIntoMaps" name="ml::api::CInputParser::readStreamIntoMaps">
+<area shape="rect" id="Node000001" title=" " alt="" coords="211,5,361,46"/>
+<area shape="rect" id="Node000002" href="$d5/dcf/classml_1_1api_1_1_c_cmd_skeleton.html#a4160d3e430266b610a7ab787ea2c0491" title="Pass input to the processor until it&#39;s consumed as much as it can." alt="" coords="5,5,163,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,28,163,28,163,23,195,23"/>
+</map>

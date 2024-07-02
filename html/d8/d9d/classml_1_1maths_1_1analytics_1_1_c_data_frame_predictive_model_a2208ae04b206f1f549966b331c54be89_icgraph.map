@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::CDataFramePredictiveModel::frame" name="ml::maths::analytics::CDataFramePredictiveModel::frame">
+<area shape="rect" id="Node000001" title=" " alt="" coords="843,144,1041,200"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#adeab8c445c7d3a9e369fc377e7a458cb" title="Get the selected rows that summarize." alt="" coords="562,53,795,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="868,140,794,109,757,97,759,92,796,104,870,135"/>
+<area shape="rect" id="Node000006" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a0b112bbbc59f3c9e650804bf166be2c1" title=" " alt="" coords="599,118,759,159"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="827,160,759,151,760,146,828,155"/>
+<area shape="rect" id="Node000007" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a8c5d0a4ff76ab13efd176534ec6d76b3" title="Train on the examples in the data frame supplied to the constructor." alt="" coords="606,184,752,224"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="828,188,753,198,752,192,828,183"/>
+<area shape="rect" id="Node000008" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a81857b7bccad74f14ca973dc954e3d07" title=" " alt="" coords="572,249,786,290"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="868,209,796,238,758,251,757,246,794,233,866,204"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a3a3dabba10cac0c7060c4029feea5310" title=" " alt="" coords="257,53,514,94"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="547,76,514,76,514,71,547,71"/>
+<area shape="rect" id="Node000004" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a64a41f746d066bbc38609231cb6d0cf6" title=" " alt="" coords="11,5,203,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="241,55,203,50,204,44,242,50"/>
+<area shape="rect" id="Node000005" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a7c60d2fbb946ab7e1bc93cf07a7f0d3e" title=" " alt="" coords="5,85,209,141"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="241,97,210,101,209,96,241,91"/>
+</map>

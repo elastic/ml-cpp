@@ -1,0 +1,39 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::isNonInformative" name="ml::maths::common::CMultivariateOneOfNPrior::isNonInformative">
+<area shape="rect" id="Node000001" title="Check if this is a non&#45;informative prior." alt="" coords="500,226,673,282"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a0f64cd42058638a73b3c5e28e14510ce" title=" " alt="" coords="264,193,438,249"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,242,438,236,438,230,485,237"/>
+<area shape="rect" id="Node000003" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,11,202,36"/>
+<area shape="poly" id="edge12_Node000001_Node000003" title=" " alt="" coords="569,213,551,172,525,127,492,85,451,51,419,35,386,24,316,11,248,8,186,13,186,7,248,3,317,6,387,19,421,30,453,46,496,81,530,124,556,170,573,211"/>
+<area shape="rect" id="Node000004" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="5,109,202,135"/>
+<area shape="poly" id="edge13_Node000001_Node000004" title=" " alt="" coords="528,220,491,200,451,183,388,164,322,150,202,132,202,127,323,145,389,159,453,178,493,195,531,216"/>
+<area shape="rect" id="Node000011" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,455,202,480"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="485,263,417,270,349,280,290,295,267,303,251,313,238,328,231,344,228,377,225,411,217,429,203,445,188,456,185,452,200,441,213,426,219,410,222,376,226,342,234,325,248,309,265,299,288,290,348,275,416,264,484,258"/>
+<area shape="rect" id="Node000013" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a8e3c0ea1b5710bfe2a1fa4df653ccf70" title="Get the covariance matrix for the marginal likelihood." alt="" coords="250,61,452,117"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="546,217,502,177,451,138,418,119,421,115,453,133,505,173,550,213"/>
+<area shape="rect" id="Node000014" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#adf028f3de0a371e5eba5801f45c24468" title="Get the diagonal of the covariance matrix for the marginal likelihood." alt="" coords="254,404,448,459"/>
+<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="556,296,511,346,454,394,434,405,431,401,450,389,507,342,552,292"/>
+<area shape="rect" id="Node000015" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a0e30084406b6bf2ad289a4bf69b4fc3b" title=" " alt="" coords="264,484,438,539"/>
+<area shape="poly" id="edge19_Node000001_Node000015" title=" " alt="" coords="572,297,553,339,526,385,493,432,454,473,437,485,434,481,450,469,489,429,522,383,548,336,567,295"/>
+<area shape="rect" id="Node000016" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a936f6f55f91ba588e95f1fb40aca0417" title=" " alt="" coords="262,324,440,379"/>
+<area shape="poly" id="edge20_Node000001_Node000016" title=" " alt="" coords="504,291,421,325,419,320,502,286"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="301,184,248,130,233,107,226,86,217,68,200,49,182,39,184,34,203,45,222,65,231,84,238,105,252,127,304,181"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="274,188,248,175,225,161,201,148,168,138,170,133,203,144,227,156,251,170,277,183"/>
+<area shape="rect" id="Node000005" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,159,202,184"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="248,203,171,187,172,182,249,198"/>
+<area shape="rect" id="Node000006" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#ac0dfc8e2021da3a34a0dbda966c14405" title=" " alt="" coords="5,208,202,234"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="248,223,202,223,202,218,248,218"/>
+<area shape="rect" id="Node000007" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="5,257,202,283"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="249,244,172,259,171,254,248,238"/>
+<area shape="rect" id="Node000008" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,307,202,332"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="274,258,251,270,227,284,203,298,171,309,169,303,201,293,225,280,248,265,272,253"/>
+<area shape="rect" id="Node000009" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="5,356,202,382"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="264,259,252,269,236,289,229,308,221,328,203,347,184,358,181,353,200,343,216,325,224,306,232,286,248,265,261,255"/>
+<area shape="rect" id="Node000010" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,60,202,86"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="307,185,249,134,200,99,175,89,176,84,203,94,252,130,310,180"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="261,260,252,269,237,292,231,313,230,357,229,401,221,423,204,445,189,456,185,452,200,441,216,421,224,400,225,357,226,313,233,289,248,266,257,256"/>
+<area shape="rect" id="Node000012" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a9bedcd2ca2b273d88afc27815d12cd07" title=" " alt="" coords="5,405,202,431"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="262,260,252,269,240,285,234,301,230,333,225,364,217,380,203,396,187,407,184,402,200,392,213,377,220,363,225,332,229,299,235,283,248,266,258,256"/>
+<area shape="poly" id="edge16_Node000013_Node000003" title=" " alt="" coords="234,59,201,50,160,39,161,34,202,45,235,54"/>
+<area shape="poly" id="edge17_Node000013_Node000010" title=" " alt="" coords="234,84,202,82,202,76,234,78"/>
+<area shape="poly" id="edge21_Node000016_Node000011" title=" " alt="" coords="258,389,251,393,237,406,228,420,219,433,203,446,180,456,177,452,200,441,215,429,224,417,233,403,248,389,255,385"/>
+</map>

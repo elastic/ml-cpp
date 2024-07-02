@@ -1,0 +1,14 @@
+<map id="ml::model::CEventRateBucketGatherer::initializeFieldNames" name="ml::model::CEventRateBucketGatherer::initializeFieldNames">
+<area shape="rect" id="Node000001" title="Initialize the field names collection." alt="" coords="5,120,205,161"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a98ab766b5ec00161946b4314b5f72269" title=" " alt="" coords="253,5,452,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,117,252,62,280,50,282,55,254,67,145,122"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="500,35,674,75"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="198,117,252,106,484,67,485,72,253,111,199,122"/>
+<area shape="rect" id="Node000004" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a73c7cebb865dcf99b52844475a828906" title=" " alt="" coords="253,120,452,161"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="205,138,237,138,237,143,205,143"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a8dd4e45e9f85981261149fa85e38077e" title=" " alt="" coords="265,185,440,226"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="185,159,259,178,257,183,184,164"/>
+<area shape="rect" id="Node000006" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#abd58b063bf4fb77f8e4c90087cfa24a8" title="Returns an empty string." alt="" coords="253,251,452,291"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="135,159,188,197,254,235,269,242,267,247,251,240,185,202,132,163"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,36,485,40,484,45,452,41"/>
+</map>

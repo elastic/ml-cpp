@@ -1,0 +1,5 @@
+<map id="ml::maths::common::COrderings::SFirstGreater" name="ml::maths::common::COrderings::SFirstGreater">
+<area shape="rect" id="Node000001" title="Partial ordering of std::pairs based on larger first element." alt="" coords="5,109,179,150"/>
+<area shape="rect" id="Node000002" href="$db/db0/structml_1_1maths_1_1common_1_1_c_orderings_1_1_s_greater.html" title="Wrapper around various greater than comparisons." alt="" coords="18,5,166,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,62,95,109,89,109,89,62"/>
+</map>

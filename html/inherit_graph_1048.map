@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d4/d2a/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache_interface.html" title="Inference request cache interface." alt="" coords="5,39,194,79"/>
+<area shape="rect" id="Node000001" href="$d2/d0f/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache.html" title="Memory limited inference request LFU cache." alt="" coords="242,5,430,46"/>
+<area shape="poly" id="edge534_Node000000_Node000001" title=" " alt="" coords="209,41,241,36,242,42,210,46"/>
+<area shape="rect" id="Node000002" href="$d8/d09/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache_stub.html" title="Stub cache." alt="" coords="242,71,430,111"/>
+<area shape="poly" id="edge535_Node000000_Node000002" title=" " alt="" coords="210,71,242,76,241,81,209,76"/>
+</map>

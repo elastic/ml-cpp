@@ -1,0 +1,18 @@
+<map id="ml::model::CBucketQueue::latestBucketEnd" name="ml::model::CBucketQueue::latestBucketEnd">
+<area shape="rect" id="Node000001" title="Returns the latest bucket end time, as tracked by the queue." alt="" coords="513,236,688,277"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ad8773f4e4f3f15578bae2eae4aca6bea" title="Get the checksum of this gatherer." alt="" coords="265,61,453,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,225,526,170,496,142,464,117,439,105,442,100,466,113,500,137,530,166,578,221"/>
+<area shape="rect" id="Node000005" href="$d6/deb/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_add_value.html#ad0d96ef2fd1026c012695f376a6b5e43" title=" " alt="" coords="253,126,465,197"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="532,232,450,200,452,195,534,228"/>
+<area shape="rect" id="Node000006" href="$d6/deb/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_add_value.html#a516246f82115a0f25e3a6db903585811" title=" " alt="" coords="253,221,465,292"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="497,259,465,259,465,254,497,254"/>
+<area shape="rect" id="Node000007" href="$db/d24/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_new_bucket.html#af5ff0578fe6dbdbaef4f885329059e5a" title=" " alt="" coords="253,316,465,386"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="534,285,452,317,450,313,532,280"/>
+<area shape="rect" id="Node000008" href="$db/d24/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_new_bucket.html#a56891521acc16a62a0a8d789c7976317" title=" " alt="" coords="253,410,465,481"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="577,291,529,346,499,375,467,401,449,412,447,408,463,397,495,371,525,342,573,288"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a967a6b38b6d2c83fff4fe69023db143d" title="Get the checksum of this gatherer." alt="" coords="5,29,205,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="249,71,205,65,205,60,250,65"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a42ac34b4c955df26458a3421c9f14669" title="Get the checksum of this gatherer." alt="" coords="18,95,192,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="250,99,192,106,192,101,250,93"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="147,16,131,10,105,8,81,10,66,15,60,21,63,28,57,29,55,19,63,10,80,5,105,3,132,5,149,11"/>
+</map>

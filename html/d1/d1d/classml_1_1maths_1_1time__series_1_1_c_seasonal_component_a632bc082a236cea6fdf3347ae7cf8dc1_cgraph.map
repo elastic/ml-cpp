@@ -1,0 +1,26 @@
+<map id="ml::maths::time_series::CSeasonalComponent::propagateForwardsByTime" name="ml::maths::time_series::CSeasonalComponent::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,309,183,365"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a55c62f94aeb900586135ae75e9a2b3b7" title=" " alt="" coords="231,269,474,325"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,321,215,316,216,321,184,326"/>
+<area shape="rect" id="Node000012" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ab27d693b34462e3d09bd6b455b375633" title="Get the time provider." alt="" coords="256,353,449,394"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="184,347,241,355,240,360,183,352"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a1ee1d5be2458c03b7b2651344030d1d5" title="Age the force moments." alt="" coords="539,85,716,126"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="374,267,436,201,476,165,521,135,530,130,532,135,523,139,480,170,440,205,378,271"/>
+<area shape="rect" id="Node000007" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="550,149,706,205"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="409,266,521,215,535,209,537,214,523,220,412,271"/>
+<area shape="rect" id="Node000009" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a259b158f8ed05aa83b21cc6bdbf2b64a" title="Get the rate at which the bucketing loses information." alt="" coords="550,229,706,285"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="474,277,534,268,534,273,475,282"/>
+<area shape="rect" id="Node000010" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="550,309,706,365"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="475,312,534,321,534,326,474,318"/>
+<area shape="rect" id="Node000011" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="522,389,733,445"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="442,323,475,339,500,357,523,375,533,380,530,385,521,379,496,361,473,343,439,328"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="781,5,1004,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="704,82,772,63,774,68,706,87"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#abb82eda3e1056a9cea92799517a3c033" title="Get the total count of in the bucketing." alt="" coords="798,85,987,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="717,103,783,103,783,108,717,108"/>
+<area shape="rect" id="Node000006" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a46c659da01617c9298587c1c52d3025d" title="Get the count in bucket." alt="" coords="1052,77,1208,133"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="987,103,1036,103,1036,108,987,108"/>
+<area shape="rect" id="Node000008" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="814,149,971,205"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="706,175,799,175,799,180,706,180"/>
+<area shape="poly" id="edge12_Node000012_Node000011" title=" " alt="" coords="450,386,507,395,507,401,449,391"/>
+</map>

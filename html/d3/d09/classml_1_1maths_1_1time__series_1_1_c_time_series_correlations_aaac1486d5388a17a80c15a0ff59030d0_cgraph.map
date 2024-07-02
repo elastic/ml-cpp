@@ -1,0 +1,27 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::acceptPersistInserter" name="ml::maths::time_series::CTimeSeriesCorrelations::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,194,181,250"/>
+<area shape="rect" id="Node000002" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#aa2c60aef4c9b21a7a387eea5df2246bc" title="Persist state by passing to the supplied inserter." alt="" coords="229,95,446,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,191,251,155,253,160,165,196"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="511,160,665,201"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="181,212,495,185,496,191,181,217"/>
+<area shape="rect" id="Node000009" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="730,297,933,338"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="138,248,181,272,229,291,292,307,357,318,487,331,610,332,715,327,715,332,610,337,487,336,356,324,291,312,228,296,179,277,135,252"/>
+<area shape="rect" id="Node000010" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#ae3915f3272d64626ea1abf04bad09615" title=" " alt="" coords="250,226,425,282"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="182,231,234,237,233,243,181,236"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="730,200,933,241"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,118,561,124,623,133,683,146,737,165,785,190,783,194,735,170,682,151,622,138,561,130,446,123"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="447,145,497,157,495,162,446,150"/>
+<area shape="rect" id="Node000005" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a0aa5a18640c301ae43736612dae81f77" title="Persist to a string." alt="" coords="494,30,682,86"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="446,92,478,83,480,89,447,97"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="754,5,909,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="683,43,738,35,739,40,683,48"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="758,71,905,111"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="683,68,743,76,742,81,683,73"/>
+<area shape="rect" id="Node000008" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="981,78,1027,104"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="906,88,966,88,966,94,906,94"/>
+<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="426,275,494,290,608,304,715,311,714,316,607,309,494,295,425,281"/>
+<area shape="rect" id="Node000011" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#afa59ea39e84ad0bde78f3028a62193b1" title="Persist the model passing information to inserter." alt="" coords="501,225,676,280"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="425,251,485,250,485,256,425,256"/>
+<area shape="poly" id="edge14_Node000011_Node000003" title=" " alt="" coords="676,238,714,233,715,238,677,243"/>
+<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="677,273,739,290,738,295,676,278"/>
+</map>

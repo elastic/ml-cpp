@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CPRNG::CXorOShiro128Plus::discard" name="ml::maths::common::CPRNG::CXorOShiro128Plus::discard">
+<area shape="rect" id="Node000001" title="Discard the next n random numbers." alt="" coords="250,20,445,75"/>
+<area shape="rect" id="Node000002" href="$d6/d83/_c_p_r_n_g_test_8cc.html#ab2bf31b5f5e1d367567b0408b75f8e72" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,37,202,33,202,27,235,31"/>
+<area shape="rect" id="Node000003" href="$d7/d00/classml_1_1maths_1_1common_1_1_c_lowess.html#aefc9d7094d6304fa5b5af5c8860744ac" title=" " alt="" coords="26,55,181,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,63,182,69,181,64,234,58"/>
+</map>

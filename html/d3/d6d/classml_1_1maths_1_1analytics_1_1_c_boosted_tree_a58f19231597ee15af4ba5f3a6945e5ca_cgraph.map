@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTree::prediction" name="ml::maths::analytics::CBoostedTree::prediction">
+<area shape="rect" id="Node000001" title="Read the model prediction from row." alt="" coords="5,13,183,54"/>
+<area shape="rect" id="Node000002" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a31c9ad7047bef6e6cebac46ba8f28449" title="Read the prediction from row." alt="" coords="231,5,373,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,31,216,31,216,36,183,36"/>
+<area shape="rect" id="Node000003" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="421,13,579,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,31,405,31,405,36,373,36"/>
+</map>

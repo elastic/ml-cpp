@@ -1,0 +1,7 @@
+<map id="ml::model::CBucketGatherer::recycleAttributes" name="ml::model::CBucketGatherer::recycleAttributes">
+<area shape="rect" id="Node000001" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="253,39,440,79"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ada2b9089aedcce8d848a7b2b1d44e4a6" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="5,5,205,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,47,205,42,205,37,237,41"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#adaceafb3f03d6f440ceb1357a8000a66" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="16,71,194,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,76,194,82,194,77,237,71"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="ml::model::CSampleCounts::acceptRestoreTraverser" name="ml::model::CSampleCounts::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore some sample counts from a state document traverser." alt="" coords="5,128,188,169"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="236,29,454,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,125,235,81,256,73,258,78,237,85,139,130"/>
+<area shape="rect" id="Node000003" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#aea3e50b8386b2a09992ae0e0d9e3df7d" title="Get the name of the entity identified by id." alt="" coords="254,95,436,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,133,238,127,239,132,189,139"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="236,160,454,201"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="189,157,221,162,220,167,188,163"/>
+<area shape="rect" id="Node000008" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="268,225,422,266"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="140,167,237,210,258,218,256,223,235,215,138,172"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a92ae7d8205e44f988b79208fb8da93e5" title=" " alt="" coords="502,29,676,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="423,92,495,72,496,77,424,97"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="502,95,676,135"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="436,112,487,112,487,118,436,118"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="502,184,676,225"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="418,133,455,146,528,175,526,180,453,151,416,138"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="543,29,541,19,549,10,565,5,589,3,615,5,631,11,629,16,614,10,589,8,566,10,552,15,546,21,548,28"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="543,184,541,174,549,165,565,159,589,157,615,160,631,166,629,171,614,165,589,163,566,165,552,169,546,175,548,183"/>
+</map>

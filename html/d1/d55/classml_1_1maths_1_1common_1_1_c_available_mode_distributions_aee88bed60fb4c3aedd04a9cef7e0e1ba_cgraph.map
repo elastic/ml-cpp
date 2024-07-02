@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CAvailableModeDistributions::parameters" name="ml::maths::common::CAvailableModeDistributions::parameters">
+<area shape="rect" id="Node000001" title="Get the number of parameters used to model a mode." alt="" coords="5,85,195,141"/>
+<area shape="rect" id="Node000002" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#acb064e8d62ade6ea795ce2d8ec057079" title="Check if the gamma distribution is available." alt="" coords="243,5,432,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,82,237,64,239,69,186,87"/>
+<area shape="rect" id="Node000003" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#ae0d5bd025a2b652eaeb3270dab917872" title="Check if the log&#45;normal distribution is available." alt="" coords="243,85,432,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,111,227,111,227,116,195,116"/>
+<area shape="rect" id="Node000004" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#af38bbcf61b6fae20b537cdf9eca16d51" title="Check if the normal distribution is available." alt="" coords="243,165,432,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,139,239,157,237,162,184,144"/>
+</map>

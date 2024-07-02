@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CConstantPrior::marginalLikelihoodMean" name="ml::maths::common::CConstantPrior::marginalLikelihoodMean">
+<area shape="rect" id="Node000001" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="312,5,570,46"/>
+<area shape="rect" id="Node000002" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a929caca6ff98661a0b8896f4534355a5" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="5,5,264,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="296,28,264,28,264,23,296,23"/>
+</map>

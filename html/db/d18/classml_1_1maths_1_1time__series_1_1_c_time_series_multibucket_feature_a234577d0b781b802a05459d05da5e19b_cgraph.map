@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketFeature::toVector" name="ml::maths::time_series::CTimeSeriesMultibucketFeature::toVector">
+<area shape="rect" id="Node000001" title="Multivariate implementation returns x as the VECTOR type." alt="" coords="5,5,222,61"/>
+<area shape="rect" id="Node000002" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a71f96cfad9c132d7673b82a4cfb13f72" title="Univariate implementation returns x." alt="" coords="270,5,486,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,31,254,31,254,36,222,36"/>
+</map>

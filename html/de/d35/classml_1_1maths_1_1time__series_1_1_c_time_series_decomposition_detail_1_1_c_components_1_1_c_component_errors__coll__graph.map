@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CComponentErrors" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CComponentErrors">
+<area shape="rect" id="Node000001" title="Tracks prediction errors with and without components." alt="" coords="413,45,646,101"/>
+<area shape="rect" id="Node000002" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,5,218,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,42,412,59,412,65,233,47"/>
+<area shape="rect" id="Node000003" href="$da/df8/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_max.html" title=" " alt="" coords="31,85,192,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,101,412,82,412,87,208,107"/>
+</map>

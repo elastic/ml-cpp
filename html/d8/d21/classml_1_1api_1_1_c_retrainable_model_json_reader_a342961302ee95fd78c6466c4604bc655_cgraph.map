@@ -1,0 +1,64 @@
+<map id="ml::api::CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream" name="ml::api::CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream">
+<area shape="rect" id="Node000001" title="Retrieve the data summarization from a compressed and chunked JSON blob." alt="" coords="5,491,247,547"/>
+<area shape="rect" id="Node000002" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#ac9f63e9ffc2c5fecf093184a3d1cebe7" title="Retrieve the data summarization from a JSON blob." alt="" coords="295,523,536,579"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="248,530,279,533,279,539,247,535"/>
+<area shape="rect" id="Node000025" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a81e1697a89ed440ee2857261dcab8ce7" title=" " alt="" coords="607,270,790,326"/>
+<area shape="poly" id="edge27_Node000001_Node000025" title=" " alt="" coords="200,488,609,329,611,334,202,493"/>
+<area shape="rect" id="Node000003" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a14f026c9656ae4db9356dcb8505642b7" title=" " alt="" coords="584,639,812,695"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="486,577,615,630,613,635,484,582"/>
+<area shape="rect" id="Node000004" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#ad50be95ed9e9b05714be0ff68b2ab9f0" title=" " alt="" coords="862,390,1045,446"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="713,637,770,549,811,500,859,456,863,452,867,456,862,460,815,503,774,553,717,640"/>
+<area shape="rect" id="Node000005" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#aca6052374a080b7b0c29a4b391f571e9" title=" " alt="" coords="862,470,1045,526"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="728,637,787,587,859,535,867,531,869,535,862,540,790,591,731,641"/>
+<area shape="rect" id="Node000006" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a7d1c4899e84ebd94e45efce36688a7b0" title="Write which columns contain categorical data." alt="" coords="878,1049,1029,1090"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="707,695,722,763,751,854,771,903,796,950,827,995,862,1034,867,1038,863,1042,858,1038,822,998,792,953,766,905,745,856,717,765,701,696"/>
+<area shape="rect" id="Node000007" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a98c07237121a3650c9dd105580d7d14d" title="Write the values of the categories for each column." alt="" coords="865,1115,1042,1155"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="705,695,716,774,742,882,763,940,789,998,822,1052,862,1100,866,1104,863,1108,858,1104,818,1055,784,1000,758,942,737,884,711,775,699,696"/>
+<area shape="rect" id="Node000011" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#ab6875fb65c5381470b1d4bbad83418a4" title="Write the column names." alt="" coords="878,615,1029,655"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="813,650,862,644,863,649,813,655"/>
+<area shape="rect" id="Node000013" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a6b106cb583aa1cdc6d7d7d3a7ddefa16" title=" " alt="" coords="878,680,1029,721"/>
+<area shape="poly" id="edge13_Node000003_Node000013" title=" " alt="" coords="813,679,863,686,862,691,813,685"/>
+<area shape="rect" id="Node000014" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a31f7c18d990e5c284be5bb4b63aca1ab" title=" " alt="" coords="862,745,1045,800"/>
+<area shape="poly" id="edge14_Node000003_Node000014" title=" " alt="" coords="768,693,871,736,869,741,766,698"/>
+<area shape="rect" id="Node000015" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a3ce116cdd046d19624560699171695a5" title=" " alt="" coords="862,825,1045,880"/>
+<area shape="poly" id="edge15_Node000003_Node000015" title=" " alt="" coords="727,693,786,751,823,782,862,810,869,815,866,819,859,815,820,786,782,755,723,697"/>
+<area shape="rect" id="Node000016" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#af8788fae99f224784f7d4addd27a7686" title=" " alt="" coords="862,230,1045,286"/>
+<area shape="poly" id="edge16_Node000003_Node000016" title=" " alt="" coords="702,638,718,571,747,480,768,431,793,383,823,337,858,296,861,293,865,297,862,299,827,340,798,385,773,433,752,482,723,572,707,640"/>
+<area shape="rect" id="Node000017" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a837a6cf1a0926c7b194c0be91a7e1fe2" title=" " alt="" coords="862,905,1045,960"/>
+<area shape="poly" id="edge17_Node000003_Node000017" title=" " alt="" coords="716,694,739,737,772,789,813,843,862,890,867,894,863,898,859,894,809,846,767,792,734,739,711,697"/>
+<area shape="rect" id="Node000018" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#af8a0fb9b990f08db02a87c2d029db2c9" title=" " alt="" coords="862,310,1045,366"/>
+<area shape="poly" id="edge18_Node000003_Node000018" title=" " alt="" coords="706,638,726,584,758,514,802,441,829,406,859,376,862,372,866,377,862,380,833,410,806,444,763,517,731,586,711,640"/>
+<area shape="rect" id="Node000019" href="$db/dc5/namespaceml_1_1core.html#a37698c48097b13dbb4ad797403d49aea" title="Make a const vector subrange." alt="" coords="880,984,1027,1025"/>
+<area shape="poly" id="edge19_Node000003_Node000019" title=" " alt="" coords="709,695,728,752,759,826,803,903,831,939,862,970,868,975,865,979,859,974,827,942,799,906,754,829,723,754,704,696"/>
+<area shape="rect" id="Node000020" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa8b8d9021069bb9d70a34cb8b244f494" title=" " alt="" coords="878,549,1029,590"/>
+<area shape="poly" id="edge20_Node000003_Node000020" title=" " alt="" coords="768,636,859,601,879,593,880,598,861,605,770,641"/>
+<area shape="rect" id="Node000008" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#adbec6b52ba93143243d78a66e41ff9f6" title=" " alt="" coords="1099,1115,1276,1155"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1042,1132,1084,1132,1084,1138,1042,1138"/>
+<area shape="rect" id="Node000009" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aeca9fb679495b0b198bfa68310278f80" title=" " alt="" coords="1095,819,1280,875"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1028,1112,1045,1100,1065,1073,1073,1048,1079,1019,1092,986,1123,933,1155,886,1159,889,1128,936,1097,988,1084,1021,1079,1049,1070,1076,1049,1104,1031,1116"/>
+<area shape="rect" id="Node000010" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="1097,999,1278,1039"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="1016,1112,1045,1099,1141,1046,1143,1050,1048,1104,1018,1117"/>
+<area shape="poly" id="edge12_Node000011_Node000010" title=" " alt="" coords="1031,652,1049,667,1068,694,1079,721,1083,746,1083,772,1082,825,1086,854,1097,886,1127,939,1160,985,1156,988,1122,942,1092,888,1081,855,1077,825,1078,772,1078,747,1074,722,1064,697,1045,670,1028,656"/>
+<area shape="rect" id="Node000012" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a3117ea048fe8bbc3dfe9180a40bc1a8b" title=" " alt="" coords="1112,704,1263,745"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="1016,653,1048,666,1096,689,1113,696,1111,701,1094,693,1046,671,1014,658"/>
+<area shape="poly" id="edge21_Node000020_Node000009" title=" " alt="" coords="1031,588,1049,601,1064,621,1072,639,1078,676,1081,713,1086,733,1097,755,1117,782,1141,807,1137,810,1113,786,1092,758,1081,735,1076,714,1073,676,1067,641,1059,623,1045,605,1028,592"/>
+<area shape="rect" id="Node000021" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a024ada4a13ec2b5173eca2f0f4c77870" title="Size of range." alt="" coords="1106,419,1269,459"/>
+<area shape="poly" id="edge22_Node000020_Node000021" title=" " alt="" coords="1027,547,1045,536,1060,520,1068,504,1077,487,1093,470,1101,465,1104,469,1096,474,1081,490,1073,506,1065,523,1048,540,1029,551"/>
+<area shape="rect" id="Node000022" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a3b6905e30d6e4de2397f97ec3241de77" title=" " alt="" coords="1114,484,1261,525"/>
+<area shape="poly" id="edge23_Node000020_Node000022" title=" " alt="" coords="1028,546,1098,526,1100,531,1029,551"/>
+<area shape="rect" id="Node000023" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a9e67cdd60e6e590883773cd96605ab76" title="Get the value to use for a missing element in a data frame." alt="" coords="1112,549,1263,590"/>
+<area shape="poly" id="edge24_Node000020_Node000023" title=" " alt="" coords="1029,567,1096,567,1096,572,1029,572"/>
+<area shape="rect" id="Node000024" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#ae209341c84c1e72678540db4b3bd1fd6" title=" " alt="" coords="1112,639,1263,679"/>
+<area shape="poly" id="edge25_Node000020_Node000024" title=" " alt="" coords="1014,588,1048,601,1122,630,1120,635,1046,605,1012,593"/>
+<area shape="poly" id="edge26_Node000024_Node000024" title=" " alt="" coords="1143,639,1141,629,1148,620,1164,614,1187,612,1213,614,1228,621,1226,626,1211,620,1187,617,1165,619,1151,624,1146,630,1148,637"/>
+<area shape="poly" id="edge28_Node000025_Node000004" title=" " alt="" coords="756,324,861,375,873,381,871,386,859,380,754,329"/>
+<area shape="poly" id="edge29_Node000025_Node000005" title=" " alt="" coords="724,324,783,389,821,424,862,455,868,460,865,464,859,460,817,428,779,392,720,328"/>
+<area shape="poly" id="edge31_Node000025_Node000016" title=" " alt="" coords="790,281,846,272,847,277,791,286"/>
+<area shape="poly" id="edge33_Node000025_Node000018" title=" " alt="" coords="791,309,847,318,846,324,790,315"/>
+<area shape="rect" id="Node000026" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a36675eb852fb39898967e81728705678" title=" " alt="" coords="862,70,1045,126"/>
+<area shape="poly" id="edge30_Node000025_Node000026" title=" " alt="" coords="720,268,779,203,817,167,859,135,865,131,868,136,862,140,821,171,783,207,724,271"/>
+<area shape="rect" id="Node000027" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a9b3f51411a7765aec1dd25a81dc1a54c" title=" " alt="" coords="862,150,1045,206"/>
+<area shape="poly" id="edge32_Node000025_Node000027" title=" " alt="" coords="754,267,859,215,871,210,873,215,861,220,756,272"/>
+<area shape="rect" id="Node000028" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="860,5,1047,46"/>
+<area shape="poly" id="edge34_Node000025_Node000028" title=" " alt="" coords="709,268,731,222,764,165,806,107,831,79,859,56,864,52,867,56,862,60,835,83,810,110,768,168,736,225,714,270"/>
+</map>

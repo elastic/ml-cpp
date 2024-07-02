@@ -1,0 +1,52 @@
+<map id="ml::model::CMetricModelFactory::defaultPrior" name="ml::model::CMetricModelFactory::defaultPrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,533,217,574"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a4a4581b480eaee4ea9e1e4077a152920" title=" " alt="" coords="289,56,453,112"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,532,131,467,161,375,204,271,232,220,263,172,287,144,314,119,318,123,291,147,267,175,236,222,209,273,166,377,136,469,119,533"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a4d374e588af69774e04dfe5d8039f985" title=" " alt="" coords="265,285,477,341"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="128,531,186,467,263,391,316,348,319,353,266,395,190,470,132,534"/>
+<area shape="rect" id="Node000006" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a97aa2d15af04f195937ddaa9ca64caf1" title=" " alt="" coords="291,645,451,686"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="148,572,203,601,266,631,282,637,280,642,264,636,200,606,146,576"/>
+<area shape="rect" id="Node000008" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af6fec051336b8cee312a68fbb48f80c3" title=" " alt="" coords="275,565,467,621"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="218,567,260,573,259,579,217,572"/>
+<area shape="rect" id="Node000011" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#ae37f51e33d8c94d43d661f4581dcc616" title="Get the default data type for models from this factory." alt="" coords="265,710,477,751"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="131,572,187,633,225,666,266,695,278,701,276,706,263,699,221,670,183,636,127,576"/>
+<area shape="rect" id="Node000012" href="$df/d9c/namespaceml_1_1model__t.html#a5cb06e59ebd2f51812cfd4357eeda4eb" title=" " alt="" coords="284,775,458,801"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="124,572,144,613,175,664,216,716,240,740,266,760,276,766,273,771,263,765,236,744,212,720,170,667,139,615,119,575"/>
+<area shape="rect" id="Node000013" href="$df/d9c/namespaceml_1_1model__t.html#a3e8b4899466756ed85a5fb2bcda946ae" title=" " alt="" coords="291,824,451,850"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="121,573,138,622,167,687,210,755,236,785,266,811,278,818,275,823,263,815,233,789,206,758,163,690,133,624,116,575"/>
+<area shape="rect" id="Node000014" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#ad22d14f6934d43e725a4f0cc467de641" title=" " alt="" coords="289,185,453,241"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="117,532,136,481,167,413,209,339,234,304,263,271,292,248,295,252,267,275,239,307,213,342,171,415,141,483,122,533"/>
+<area shape="rect" id="Node000019" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa9e2bdebb6a033925f6fe61c2c4e57e0" title=" " alt="" coords="265,405,477,461"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="148,530,264,471,277,465,279,470,266,476,150,535"/>
+<area shape="rect" id="Node000022" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="275,485,467,541"/>
+<area shape="poly" id="edge25_Node000001_Node000022" title=" " alt="" coords="217,534,259,528,260,533,218,539"/>
+<area shape="rect" id="Node000003" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a3e87240540da47015ac21d747c39f36c" title=" " alt="" coords="549,5,721,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,65,533,50,534,55,454,71"/>
+<area shape="rect" id="Node000005" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa5c96a794a387e6c36a548be90adbd70" title=" " alt="" coords="525,245,745,301"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="477,294,509,290,510,295,478,300"/>
+<area shape="rect" id="Node000007" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a166e7c34e3b917f05ad87a0ef5497354" title="Create a new (empty) multimodal prior." alt="" coords="534,695,736,750"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="452,680,519,695,518,700,451,685"/>
+<area shape="rect" id="Node000009" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="536,615,735,670"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="467,608,521,618,520,624,467,614"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="793,622,954,663"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="735,640,778,640,778,645,735,645"/>
+<area shape="poly" id="edge14_Node000014_Node000003" title=" " alt="" coords="406,183,475,122,498,95,523,71,534,65,537,69,527,75,502,99,479,126,409,187"/>
+<area shape="rect" id="Node000015" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="563,485,708,526"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="442,239,462,254,479,272,495,299,501,326,501,376,499,400,501,424,509,447,527,471,550,488,547,492,523,475,505,450,496,425,494,400,495,376,496,326,490,301,475,275,459,258,439,244"/>
+<area shape="rect" id="Node000016" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="563,550,708,591"/>
+<area shape="poly" id="edge16_Node000014_Node000016" title=" " alt="" coords="443,239,463,254,479,272,498,308,505,343,504,376,500,409,496,440,496,472,505,503,527,535,550,553,547,557,523,539,501,505,491,472,490,440,494,408,499,376,500,343,493,310,475,275,459,258,440,244"/>
+<area shape="rect" id="Node000017" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#adde1b5856046af8a3ea806a7d8ca2236" title="Get the current offset." alt="" coords="553,85,717,141"/>
+<area shape="poly" id="edge17_Node000014_Node000017" title=" " alt="" coords="443,182,524,151,541,144,543,149,526,156,445,187"/>
+<area shape="rect" id="Node000018" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#afc0f35d23ec67b354bfdf3c87dd53a2b" title=" " alt="" coords="553,165,717,221"/>
+<area shape="poly" id="edge18_Node000014_Node000018" title=" " alt="" coords="453,204,537,198,538,203,454,210"/>
+<area shape="poly" id="edge20_Node000019_Node000005" title=" " alt="" coords="409,403,475,351,498,330,524,311,533,306,536,310,526,315,502,334,479,355,412,407"/>
+<area shape="poly" id="edge21_Node000019_Node000015" title=" " alt="" coords="476,459,548,479,547,484,475,464"/>
+<area shape="poly" id="edge22_Node000019_Node000016" title=" " alt="" coords="460,459,479,471,495,488,503,504,511,520,527,535,550,548,547,552,523,539,507,523,498,507,490,491,475,475,458,464"/>
+<area shape="rect" id="Node000020" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a54f917af2e603edfa54be613056c4265" title="Get the current offset." alt="" coords="529,405,741,461"/>
+<area shape="poly" id="edge23_Node000019_Node000020" title=" " alt="" coords="477,431,514,431,514,436,477,436"/>
+<area shape="rect" id="Node000021" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a649d7f5cf38ff01ca9618e0aa2602f3a" title=" " alt="" coords="529,325,741,381"/>
+<area shape="poly" id="edge24_Node000019_Node000021" title=" " alt="" coords="464,402,525,384,527,389,466,407"/>
+<area shape="poly" id="edge26_Node000022_Node000009" title=" " alt="" coords="458,539,479,551,494,564,503,576,512,588,527,600,534,605,531,609,523,605,508,592,499,580,490,567,475,555,455,544"/>
+<area shape="poly" id="edge27_Node000022_Node000015" title=" " alt="" coords="467,508,547,505,547,510,467,513"/>
+<area shape="poly" id="edge28_Node000022_Node000016" title=" " alt="" coords="468,531,548,549,547,554,466,537"/>
+</map>

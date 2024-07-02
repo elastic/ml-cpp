@@ -1,0 +1,16 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,202,169"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a9b5cb396d70323afcb44a5aed363546e" title=" " alt="" coords="258,5,406,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,141,176,101,248,57,260,51,263,55,251,61,179,106,124,145"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a879e5b4a78a974197470d55d6927ec79" title=" " alt="" coords="250,71,414,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,140,243,114,244,119,152,146"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a280e2ebaee53a5dc263cedcf2bd0812f" title="Dump the document to string." alt="" coords="258,136,406,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,154,242,154,242,159,202,159"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="255,225,409,266"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="140,167,264,217,263,222,138,172"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a7a37cae098c44515678bac80f67bf5c7" title="Set root name." alt="" coords="258,291,406,331"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="120,168,174,218,211,248,251,275,261,281,258,286,248,280,208,253,171,222,116,172"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="293,225,291,215,298,206,311,201,332,199,354,201,367,207,365,212,353,206,332,204,313,206,301,211,296,216,298,224"/>
+<area shape="rect" id="Node000007" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="462,291,609,331"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="406,308,446,308,446,314,406,314"/>
+</map>

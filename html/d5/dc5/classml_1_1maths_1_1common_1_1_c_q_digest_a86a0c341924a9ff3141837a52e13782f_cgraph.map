@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CQDigest::propagateForwardsByTime" name="ml::maths::common::CQDigest::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,43,204,99"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a3133f69ee14bff3a0070721029e41a92" title="Age the counts by the specified factor." alt="" coords="252,5,409,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,49,236,42,237,47,204,54"/>
+<area shape="rect" id="Node000003" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ab786a7ba977538a8e80958cd0e3a4c02" title="Compress the q&#45;digest bottom up in level order." alt="" coords="258,95,403,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,88,243,95,242,101,203,93"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="288,95,286,85,293,76,308,70,330,68,355,70,369,77,367,82,353,76,330,73,309,75,296,80,291,86,293,93"/>
+<area shape="rect" id="Node000004" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a65a4eff2aae40127d3488ba474404c8f" title="Fill in nodes with q&#45;digest nodes in post&#45;order." alt="" coords="457,95,650,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="403,112,441,112,441,118,403,118"/>
+</map>

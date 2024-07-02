@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,202,202,227"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aa5fcc1973a56c4be82ba5756ab965fb1" title="Set the constant if it hasn&#39;t been set." alt="" coords="251,5,429,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,199,168,140,206,104,248,71,255,67,257,71,251,75,210,108,172,143,118,203"/>
+<area shape="rect" id="Node000003" href="$d4/da6/namespaceml.html#a303ae6a2f20b09f1a5fec07f14f5abbf" title="A constant function." alt="" coords="293,86,387,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="124,199,179,165,249,128,281,115,283,120,251,133,182,169,127,203"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a3aa5601346727c68b762412aac8d5969" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="478,155,656,210"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="142,199,192,184,249,172,359,165,463,169,462,174,359,170,250,177,194,189,143,204"/>
+<area shape="rect" id="Node000006" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#affd8ffe835112d5ce58fda6758289f15" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="251,187,429,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,212,235,212,235,217,202,217"/>
+<area shape="rect" id="Node000007" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="250,266,430,307"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="149,225,257,259,256,264,147,230"/>
+<area shape="rect" id="Node000008" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="250,332,430,372"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="122,226,177,269,251,316,264,322,261,327,248,321,174,273,119,230"/>
+<area shape="rect" id="Node000009" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="250,397,430,438"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="115,226,167,299,206,343,251,382,260,387,257,392,248,386,202,347,163,303,111,229"/>
+<area shape="rect" id="Node000005" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="704,155,883,210"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="657,180,688,180,688,185,657,185"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="429,199,462,195,463,200,430,205"/>
+</map>

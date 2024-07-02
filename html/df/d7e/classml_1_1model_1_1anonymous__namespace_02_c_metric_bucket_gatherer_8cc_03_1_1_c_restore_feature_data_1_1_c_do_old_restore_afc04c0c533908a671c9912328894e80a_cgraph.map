@@ -1,0 +1,27 @@
+<map id="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::CRestoreFeatureData::CDoOldRestore::restorePopulation" name="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::CRestoreFeatureData::CDoOldRestore::restorePopulation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,338,242,409"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa1281b007943e82ed135c3807c266ddd" title="Get an iterator at the beginning the influencing field names." alt="" coords="321,5,495,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,337,150,276,181,201,202,161,227,123,255,88,288,57,305,46,308,50,291,61,259,92,231,126,207,164,186,203,155,278,136,339"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#abdb61d2ba82e5d05fa4133ef95d1521d" title="Get the length of the bucketing time interval." alt="" coords="314,71,502,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="137,337,161,290,194,233,236,177,288,128,306,116,309,121,291,132,240,180,198,236,165,292,142,339"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="574,100,748,141"/>
+<area shape="poly" id="edge11_Node000001_Node000004" title=" " alt="" coords="141,336,165,297,198,251,240,207,288,171,337,154,405,141,558,124,558,129,406,146,338,159,291,176,243,211,203,255,170,300,146,339"/>
+<area shape="rect" id="Node000005" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a8e7d4c860df9ac287703bc9d3260549c" title="Get the start of the current bucketing time interval." alt="" coords="314,185,502,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="157,336,215,284,251,258,288,235,300,230,302,235,291,240,254,262,219,288,161,340"/>
+<area shape="rect" id="Node000006" href="$d4/d51/namespaceml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03.html#a9f7f38a1d7cc77bb2c01904a757aedcb" title=" " alt="" coords="290,274,526,330"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="242,341,280,331,281,336,243,346"/>
+<area shape="rect" id="Node000007" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a96707bd6d2f781ad546d70db455813cc" title="Get a reference to the owning data gatherer." alt="" coords="314,353,502,394"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="242,371,298,371,298,376,242,376"/>
+<area shape="rect" id="Node000008" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a26d1905ce3dea21d8f1ea4182715dc8b" title="Get an iterator at the end of the influencing field names." alt="" coords="321,419,495,459"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="243,398,306,413,305,418,242,403"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="299,484,517,525"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="179,407,232,439,291,469,310,476,308,481,289,473,229,444,176,412"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="299,549,517,590"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="154,408,213,472,250,506,291,534,303,540,301,545,288,539,247,510,209,476,150,411"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="299,615,517,655"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="144,408,167,452,200,504,242,556,291,600,300,605,297,610,288,604,238,559,196,507,162,455,139,411"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="299,680,517,721"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="138,408,158,465,189,534,234,605,261,637,291,665,298,670,295,674,288,669,257,641,230,608,185,537,153,467,132,410"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="502,99,559,106,559,111,502,105"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="358,273,359,263,368,255,384,249,408,247,434,250,451,257,448,261,433,255,408,252,385,254,371,259,364,266,364,274"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="ml::model::CAnomalyDetector::CAnomalyDetector" name="ml::model::CAnomalyDetector::CAnomalyDetector">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,203,169"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="251,29,448,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,125,250,81,269,73,271,78,252,85,150,130"/>
+<area shape="rect" id="Node000005" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7b72a8daaa40b863b1a3baca51630e9e" title="Get a description of this anomaly detector." alt="" coords="251,95,448,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="203,132,235,128,235,133,203,138"/>
+<area shape="rect" id="Node000007" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a91c6d4a7dbdf5f4acdf2cc281686d59e" title=" " alt="" coords="252,160,447,201"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="203,159,237,163,236,168,203,164"/>
+<area shape="rect" id="Node000008" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="284,225,415,266"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="151,167,252,210,271,217,269,222,250,215,149,172"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="496,29,693,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,47,480,47,480,52,448,52"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="552,29,550,19,557,10,572,5,595,3,619,5,634,11,632,16,618,10,595,8,573,10,560,15,555,21,557,28"/>
+<area shape="rect" id="Node000004" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="741,29,902,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="694,47,726,47,726,52,694,52"/>
+<area shape="rect" id="Node000006" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="505,95,685,135"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="448,112,489,112,489,118,448,118"/>
+</map>

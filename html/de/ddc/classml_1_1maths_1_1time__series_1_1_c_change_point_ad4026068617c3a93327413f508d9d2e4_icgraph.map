@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CChangePoint::apply" name="ml::maths::time_series::CChangePoint::apply">
+<area shape="rect" id="Node000001" title=" " alt="" coords="280,53,434,94"/>
+<area shape="rect" id="Node000002" href="$dd/d8f/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components_1_1_c_calendar.html#a123039e0ff1d1dd9a69cad50750a159e" title="Apply change to the components." alt="" coords="5,5,232,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,60,232,55,232,50,265,55"/>
+<area shape="rect" id="Node000003" href="$da/de8/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components_1_1_c_seasonal.html#ab044789c15613f0546efa3dbf721497c" title="Apply change to the components." alt="" coords="5,85,232,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="265,91,232,97,232,91,264,86"/>
+</map>

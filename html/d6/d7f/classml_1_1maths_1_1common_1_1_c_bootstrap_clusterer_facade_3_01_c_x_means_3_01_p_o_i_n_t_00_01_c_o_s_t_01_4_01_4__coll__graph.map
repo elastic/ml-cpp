@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CBootstrapClustererFacade&lt; CXMeans&lt; POINT, COST &gt; &gt;" name="ml::maths::common::CBootstrapClustererFacade&lt; CXMeans&lt; POINT, COST &gt; &gt;">
+<area shape="rect" id="Node000001" title="Adapts the x&#45;means implementation for use by the bootstrap clusterer." alt="" coords="631,41,842,97"/>
+<area shape="rect" id="Node000002" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_facade_extract_clusters.html" title="Extracts the clusters in canonical form (by index into the point vector) for the facade implementatio..." alt="" coords="288,5,513,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="528,44,631,55,630,61,528,49"/>
+<area shape="rect" id="Node000003" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html" title=" " alt="" coords="307,85,494,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="509,91,630,78,631,83,510,96"/>
+<area shape="rect" id="Node000004" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html" title="The xorshift1024* pseudo&#45;random number generator." alt="" coords="5,85,194,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="209,103,306,103,306,108,209,108"/>
+</map>

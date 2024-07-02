@@ -1,0 +1,13 @@
+<map id="ml::model::CForecastDataSink::writeCommonStatsFields" name="ml::model::CForecastDataSink::writeCommonStatsFields">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,208,79"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a64cde73b037726cb4012fcc7ae8571e0" title=" " alt="" coords="256,5,492,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,44,240,40,240,45,209,49"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a6258a45eac6ad2a6a37486b80d7924e0" title=" " alt="" coords="283,71,465,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="209,68,268,76,267,81,208,74"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa04b96bd845cee548d7424fe8300a876" title=" " alt="" coords="540,5,722,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="492,23,524,23,524,28,492,28"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="540,71,722,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="465,88,525,88,525,94,465,94"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a628750eca37e99b7ee659670f7b5752d" title="Converts an epoch seconds timestamp to epoch millis." alt="" coords="560,136,702,177"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="457,109,546,132,544,137,456,115"/>
+</map>

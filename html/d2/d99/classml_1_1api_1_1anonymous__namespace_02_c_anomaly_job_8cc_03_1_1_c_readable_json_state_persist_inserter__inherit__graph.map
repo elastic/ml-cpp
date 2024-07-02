@@ -1,0 +1,9 @@
+<map id="ml::api::anonymous_namespace{CAnomalyJob.cc}::CReadableJsonStatePersistInserter" name="ml::api::anonymous_namespace{CAnomalyJob.cc}::CReadableJsonStatePersistInserter">
+<area shape="rect" id="Node000001" title="Persist state as JSON with meaningful tag names." alt="" coords="5,241,244,297"/>
+<area shape="rect" id="Node000002" href="$de/d50/classml_1_1core_1_1_c_json_state_persist_inserter.html" title="For persisting state in JSON format." alt="" coords="31,153,218,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,209,127,241,122,241,122,209"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html" title="Abstract interface for persisting state." alt="" coords="23,79,226,105"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="127,120,127,152,122,152,122,120"/>
+<area shape="rect" id="Node000004" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="42,5,207,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="127,46,127,79,122,79,122,46"/>
+</map>

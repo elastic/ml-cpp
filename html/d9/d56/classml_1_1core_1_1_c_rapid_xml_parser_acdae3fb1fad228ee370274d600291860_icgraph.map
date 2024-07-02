@@ -1,0 +1,11 @@
+<map id="ml::core::CRapidXmlParser::rootElementName" name="ml::core::CRapidXmlParser::rootElementName">
+<area shape="rect" id="Node000001" title="Return the root element name (empty string if not parsed yet)" alt="" coords="494,23,675,64"/>
+<area shape="rect" id="Node000002" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#ac5291555eb6a8e0e86883e0efd3dbaea" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="478,35,446,31,447,26,479,30"/>
+<area shape="rect" id="Node000003" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3efc29603d66ba90bd2ee29bb292f0a9" title=" " alt="" coords="290,55,406,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="479,57,406,64,406,59,478,52"/>
+<area shape="rect" id="Node000004" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#af4c96088782be6e71d804932925df641" title=" " alt="" coords="5,29,202,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="274,63,202,55,203,50,275,57"/>
+<area shape="rect" id="Node000005" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a9ea89ec3facaf823378a08ff0a0b62d6" title=" " alt="" coords="5,79,202,104"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="275,77,203,84,202,79,274,72"/>
+</map>

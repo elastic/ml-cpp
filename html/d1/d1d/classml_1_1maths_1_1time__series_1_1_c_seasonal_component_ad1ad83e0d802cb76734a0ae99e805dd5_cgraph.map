@@ -1,0 +1,22 @@
+<map id="ml::maths::time_series::CSeasonalComponent::jitter" name="ml::maths::time_series::CSeasonalComponent::jitter">
+<area shape="rect" id="Node000001" title="Get a jitter to apply to the prediction time." alt="" coords="5,157,174,213"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="42,157,43,147,52,138,67,133,90,131,115,133,130,140,128,145,113,138,89,136,68,138,54,143,48,149,48,157"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a32605235cceb5f6493ac0f9c7cdf78b0" title="Get the minimum permitted bucket length." alt="" coords="252,52,409,108"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="143,154,221,117,237,111,239,115,223,122,145,159"/>
+<area shape="rect" id="Node000003" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a350bd63567cd3401d5c375d9e3bd728f" title="Get the start of the window containing time." alt="" coords="222,132,439,172"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="174,171,206,166,206,172,175,176"/>
+<area shape="rect" id="Node000007" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ab27d693b34462e3d09bd6b455b375633" title="Get the time provider." alt="" coords="234,197,427,238"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="174,194,219,200,218,205,174,199"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="258,262,403,303"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="145,211,223,247,244,255,242,260,221,252,143,216"/>
+<area shape="rect" id="Node000004" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6068afe55b344946a9eb4a1eb91a832b" title="Get the start of the repeat containing time." alt="" coords="487,29,704,85"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="404,128,438,117,513,89,515,94,440,122,406,133"/>
+<area shape="rect" id="Node000005" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a0d1174c2ef0e69bba09af71e7d837fb4" title="Get the start of the window pattern." alt="" coords="752,70,997,111"/>
+<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="439,137,737,103,737,109,440,142"/>
+<area shape="rect" id="Node000006" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6584008b4716036277991ff9622c092a" title="Get the start of the window." alt="" coords="495,160,697,200"/>
+<area shape="poly" id="edge8_Node000003_Node000006" title=" " alt="" coords="440,161,479,165,479,170,439,166"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="544,29,545,19,554,10,571,5,596,3,623,5,640,12,638,17,622,10,596,8,572,10,557,15,550,21,549,29"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="705,68,737,71,737,77,705,73"/>
+<area shape="rect" id="Node000008" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="490,224,701,280"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="428,227,475,233,474,239,427,232"/>
+</map>

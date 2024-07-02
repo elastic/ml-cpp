@@ -1,0 +1,9 @@
+<map id="ml::model::CEventData::values" name="ml::model::CEventData::values">
+<area shape="rect" id="Node000001" title="Get the function argument metric statistic value(s)." alt="" coords="462,39,620,79"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="227,5,414,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="446,47,414,42,415,37,447,42"/>
+<area shape="rect" id="Node000003" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a3bd40b325235ebd78bf39f66c8edb9f5" title="Add metric statistics." alt="" coords="241,71,400,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="447,75,400,82,400,77,447,70"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ad476fb6d42cbcdb08069828c6f6dd25b" title=" " alt="" coords="5,71,179,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="226,94,179,94,179,88,226,88"/>
+</map>

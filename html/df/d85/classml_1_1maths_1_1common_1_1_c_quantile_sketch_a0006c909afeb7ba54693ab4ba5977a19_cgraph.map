@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CQuantileSketch::reduceWithSuppliedCosts" name="ml::maths::common::CQuantileSketch::reduceWithSuppliedCosts">
+<area shape="rect" id="Node000001" title="Reduce to the maximum permitted size." alt="" coords="5,101,200,157"/>
+<area shape="rect" id="Node000002" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="256,29,438,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,98,241,86,242,91,200,103"/>
+<area shape="rect" id="Node000005" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a9489402a0c3a783b1b5543d35c0a1a3c" title="Compute the cost of combining vl and vr." alt="" coords="251,109,443,150"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="200,127,235,127,235,132,200,132"/>
+<area shape="rect" id="Node000006" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a15fce53ec3d0f0b8823ed427cbaa2767" title="The result of merging knots at positions l and r." alt="" coords="248,174,446,215"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="201,153,254,167,253,172,199,158"/>
+<area shape="rect" id="Node000003" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="494,29,675,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,55,478,55,478,60,438,60"/>
+<area shape="rect" id="Node000004" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="723,29,905,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="676,55,708,55,708,60,676,60"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="769,29,770,19,778,10,793,5,814,3,838,5,853,12,851,17,837,10,814,8,794,10,781,15,775,21,774,29"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CSampling::CStreamSampler&lt; T &gt;" name="ml::maths::common::CSampling::CStreamSampler&lt; T &gt;">
+<area shape="rect" id="Node000001" title="A basic stream sampler." alt="" coords="5,41,231,82"/>
+<area shape="rect" id="Node000002" href="$d0/d73/classml_1_1maths_1_1common_1_1_c_sampling_1_1_c_reservoir_sampler.html" title="This produces (very nearly) a uniform random sample of a stream of values of a specified cardinality ..." alt="" coords="279,5,518,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,43,278,38,279,44,246,48"/>
+<area shape="rect" id="Node000003" href="$d9/d40/classml_1_1maths_1_1common_1_1_c_sampling_1_1_c_vector_dissimilarity_sampler.html" title="Perform a weighted sample of stream of vectors of specified cardinality where the probability of samp..." alt="" coords="292,70,505,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="246,75,292,81,291,87,246,81"/>
+</map>

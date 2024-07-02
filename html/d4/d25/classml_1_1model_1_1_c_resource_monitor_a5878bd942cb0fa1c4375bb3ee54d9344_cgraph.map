@@ -1,0 +1,12 @@
+<map id="ml::model::CResourceMonitor::updateMoments" name="ml::model::CResourceMonitor::updateMoments">
+<area shape="rect" id="Node000001" title="Update the moments that are used to determine whether memory is stable." alt="" coords="5,93,201,134"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="249,5,471,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,90,253,64,255,69,171,95"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="249,85,471,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,111,233,111,233,116,201,116"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="262,165,458,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,132,271,158,269,163,177,137"/>
+<area shape="rect" id="Node000005" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="519,165,707,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="458,183,504,183,504,188,458,188"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="566,165,563,155,571,146,588,140,613,138,640,141,657,147,655,152,639,146,613,143,589,145,574,150,569,156,571,163"/>
+</map>

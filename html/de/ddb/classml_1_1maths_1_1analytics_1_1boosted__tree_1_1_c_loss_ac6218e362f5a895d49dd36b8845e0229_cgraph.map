@@ -1,0 +1,28 @@
+<map id="ml::maths::analytics::boosted_tree::CLoss::persistLoss" name="ml::maths::analytics::boosted_tree::CLoss::persistLoss">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,111,156,166"/>
+<area shape="rect" id="Node000002" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html#a7a792135d01223baf94fc9f5e84cc84a" title=" " alt="" coords="228,5,382,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,108,203,71,215,65,217,70,205,76,133,113"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="204,85,406,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,125,188,120,189,125,157,130"/>
+<area shape="rect" id="Node000004" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html#a55a6cafa2c5b7eb1cc8691814be22d3d" title="Get the name of the loss function." alt="" coords="210,150,400,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="157,147,195,152,194,157,156,152"/>
+<area shape="rect" id="Node000005" href="$d0/df6/_c_program_counters_test_8cc.html#ac437411333571bb1ea58c99700ed2d1e" title=" " alt="" coords="275,215,335,241"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="130,164,205,200,260,216,259,222,203,205,128,169"/>
+<area shape="rect" id="Node000006" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a80c1d35799ce21207c0bd98eafa8ea22" title="Copy the collection of live counters to a cache." alt="" coords="457,97,645,138"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="335,222,370,215,405,200,419,188,428,175,437,162,452,148,462,142,465,147,456,153,441,165,432,178,423,192,407,205,371,220,336,228"/>
+<area shape="rect" id="Node000007" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#ad956a15161016f02afbf6d16025bb823" title=" " alt="" coords="457,162,645,203"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="335,220,441,200,442,205,336,225"/>
+<area shape="rect" id="Node000008" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a4ca628e01e5053d4d8dc9db65dc1ee80" title="Persist the static members of this class." alt="" coords="454,252,648,292"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="336,231,439,249,438,254,335,236"/>
+<area shape="rect" id="Node000012" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="464,341,638,382"/>
+<area shape="poly" id="edge13_Node000005_Node000012" title=" " alt="" coords="332,239,500,331,497,335,329,243"/>
+<area shape="poly" id="edge12_Node000008_Node000008" title=" " alt="" coords="505,252,503,241,510,232,527,227,551,225,578,227,593,233,591,238,576,232,551,230,528,232,513,237,508,243,510,250"/>
+<area shape="rect" id="Node000009" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a35d2a2807ba99f434c1ab92502d66fc8" title="Clear the collection of cached counters." alt="" coords="703,162,892,203"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="604,248,695,213,717,206,719,211,697,218,605,253"/>
+<area shape="rect" id="Node000010" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="703,252,892,292"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="649,269,688,269,688,275,649,275"/>
+<area shape="rect" id="Node000011" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="696,317,899,358"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="631,290,704,310,703,315,630,295"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="751,252,749,241,757,232,773,227,798,225,824,227,840,233,838,238,823,232,797,230,774,232,760,237,754,243,756,250"/>
+<area shape="poly" id="edge14_Node000012_Node000012" title=" " alt="" coords="505,341,503,331,510,322,527,316,551,314,578,317,593,323,591,328,576,322,551,319,528,321,513,326,508,332,510,340"/>
+</map>

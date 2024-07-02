@@ -1,0 +1,28 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,162,202,187"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="250,9,472,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,159,176,119,248,75,260,69,263,74,251,80,179,123,123,163"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="268,89,454,130"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,159,263,131,264,136,158,164"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="281,154,441,195"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="202,172,266,172,266,177,202,177"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="525,244,701,284"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="163,185,250,204,509,247,509,252,249,209,162,191"/>
+<area shape="rect" id="Node000013" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#ad092f58e1d6f9728e8b847c99a8230b7" title=" " alt="" coords="273,269,449,325"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="130,185,251,248,278,261,276,265,248,253,127,190"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="520,61,705,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="454,96,504,91,504,96,454,102"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="524,126,701,151"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="454,117,509,124,508,129,454,123"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="753,126,931,151"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="702,136,738,136,738,141,702,141"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="979,5,1159,61"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="870,123,978,71,989,66,991,70,980,76,872,127"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="979,85,1159,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="931,123,963,118,964,123,932,128"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="996,150,1142,191"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="932,148,981,156,981,161,931,154"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="986,216,1152,256"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="871,149,980,200,997,207,995,212,978,205,869,154"/>
+<area shape="poly" id="edge13_Node000013_Node000012" title=" " alt="" coords="449,283,509,275,509,280,450,288"/>
+</map>

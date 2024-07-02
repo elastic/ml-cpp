@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CMultinomialConjugate::index" name="ml::maths::common::CMultinomialConjugate::index">
+<area shape="rect" id="Node000001" title=" " alt="" coords="780,169,937,225"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a17f02b88116b5d59f5d953845cb12c08" title="Get the concentration for a specified category." alt="" coords="547,76,703,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="772,165,696,134,698,130,774,160"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a44165d20e344eab83c9778755214eaed" title=" " alt="" coords="534,169,715,225"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="765,200,716,200,716,194,765,194"/>
+<area shape="rect" id="Node000009" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a36e6a0a3fad49129226fde986c439e98" title=" " alt="" coords="517,249,732,305"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="767,231,709,251,707,246,765,226"/>
+<area shape="rect" id="Node000003" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a9789208dc6543d39cd8f9ba3a2c9d229" title=" " alt="" coords="273,5,469,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="540,72,468,46,427,34,429,29,470,41,542,67"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="274,55,468,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="531,96,468,89,468,84,531,91"/>
+<area shape="rect" id="Node000005" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a9ff54e948af67048a7675c578fbbf0d3" title=" " alt="" coords="293,120,449,175"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="531,122,450,137,449,131,530,117"/>
+<area shape="rect" id="Node000006" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="5,127,225,168"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="277,150,225,150,225,145,277,145"/>
+<area shape="rect" id="Node000008" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="273,200,469,226"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="518,206,470,209,469,204,518,201"/>
+<area shape="rect" id="Node000010" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="273,264,469,290"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="501,280,469,280,469,274,501,274"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::api::CEncoding::CSizeInfo::addToJsonDocument" name="ml::api::CEncoding::CSizeInfo::addToJsonDocument">
+<area shape="rect" id="Node000001" title=" " alt="" coords="272,71,490,111"/>
+<area shape="rect" id="Node000002" href="$d2/d3c/classml_1_1api_1_1_c_frequency_encoding_1_1_c_size_info.html#ac5d7f4cd084a60d6c1e7bcfb922ca2ec" title=" " alt="" coords="5,5,224,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="280,69,200,49,201,44,281,64"/>
+<area shape="rect" id="Node000003" href="$dd/d10/classml_1_1api_1_1_c_one_hot_encoding_1_1_c_size_info.html#a50adc1000bfd1a0f7b7fd75c68039925" title=" " alt="" coords="5,71,224,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="256,94,224,94,224,88,256,88"/>
+<area shape="rect" id="Node000004" href="$dd/db4/classml_1_1api_1_1_c_target_mean_encoding_1_1_c_size_info.html#ad58467f1cdfaf8b3227ef0e0a4e8e882" title=" " alt="" coords="5,136,224,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="281,118,201,138,200,133,280,113"/>
+</map>

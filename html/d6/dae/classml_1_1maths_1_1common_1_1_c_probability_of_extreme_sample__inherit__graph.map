@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CProbabilityOfExtremeSample" name="ml::maths::common::CProbabilityOfExtremeSample">
+<area shape="rect" id="Node000001" title="Computes probability of seeing the most extreme sample in a collection of N samples." alt="" coords="5,94,205,135"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="10,5,200,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,62,108,94,102,94,102,62"/>
+</map>

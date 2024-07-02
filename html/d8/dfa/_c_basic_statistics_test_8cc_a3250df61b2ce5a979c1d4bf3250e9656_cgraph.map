@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,201,202,227"/>
+<area shape="rect" id="Node000002" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a86fe66601db1049b6d8ec0555b1299b1" title="Update the statistic with the collection x." alt="" coords="252,5,464,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,199,163,131,203,90,248,55,256,51,259,55,251,60,206,94,167,134,115,202"/>
+<area shape="rect" id="Node000003" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a4100085555a05cfd31cabcca8c2ceff8" title="Get a checksum for this object." alt="" coords="266,70,450,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="127,198,249,135,262,129,264,134,251,140,129,203"/>
+<area shape="rect" id="Node000005" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a99cebcc7653a7f75b0a6abc6b87fb270" title="Get the count of statistics." alt="" coords="266,150,450,206"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="199,198,251,190,251,195,199,203"/>
+<area shape="rect" id="Node000006" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ac3b874ba2fe9ae9649a0023833e14ff2" title="Get the maximum value." alt="" coords="250,229,466,270"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="199,224,235,230,234,235,199,230"/>
+<area shape="rect" id="Node000007" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ad95b6f7fc8146f0e12e9791b03ec6027" title="Get the minimum value." alt="" coords="252,295,464,335"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="132,225,186,251,251,279,271,287,269,292,249,284,184,256,129,229"/>
+<area shape="rect" id="Node000008" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ac052ec404660d4d946481a96d7960f00" title="Get the margin by which all the values have the same sign." alt="" coords="266,359,450,415"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="118,225,172,282,210,315,251,345,259,350,257,354,248,349,206,319,168,286,114,229"/>
+<area shape="rect" id="Node000004" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#a2b576f5bc635ebe084f2e4b4e892d542" title="32 bit hash combine modeled on boost::hash_combine." alt="" coords="514,77,648,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="450,95,499,95,499,100,450,100"/>
+</map>

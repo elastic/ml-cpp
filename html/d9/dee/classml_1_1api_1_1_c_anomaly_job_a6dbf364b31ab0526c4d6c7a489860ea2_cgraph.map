@@ -1,0 +1,11 @@
+<map id="ml::api::CAnomalyJob::isPersistenceNeeded" name="ml::api::CAnomalyJob::isPersistenceNeeded">
+<area shape="rect" id="Node000001" title="Is persistence needed?" alt="" coords="5,29,159,70"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a36ccac589e48cb596b5f2b03f4bb3a04" title="Log a list of the detectors and keys." alt="" coords="207,29,357,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,47,191,47,191,52,159,52"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a79b4bfd74971bb60644266c10d73f542" title="Get all the detectors." alt="" coords="603,29,754,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="357,44,405,43,555,43,588,44,588,49,555,48,405,48,357,50"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2a51fcd13e6eda7ea3ea63c610840f7d" title="Get all sorted references to the detectors." alt="" coords="405,57,555,98"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="358,58,390,62,389,68,357,63"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="641,29,639,19,645,10,658,5,679,3,700,5,713,11,711,16,699,10,678,8,660,10,648,15,644,20,646,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="555,64,588,60,588,65,556,70"/>
+</map>

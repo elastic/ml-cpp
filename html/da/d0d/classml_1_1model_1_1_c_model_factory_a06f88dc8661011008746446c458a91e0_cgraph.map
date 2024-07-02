@@ -1,0 +1,9 @@
+<map id="ml::model::CModelFactory::latLongPrior" name="ml::model::CModelFactory::latLongPrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,181,118"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a8188504494881af36332bc1f903923b6" title="Get the default data type for models from this factory." alt="" coords="241,5,416,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,74,244,48,246,54,162,79"/>
+<area shape="rect" id="Node000003" href="$d1/df8/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_factory.html#ac0b600e1034c8c6c636839f8bf300d85" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="234,70,423,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,95,218,95,218,100,181,100"/>
+<area shape="rect" id="Node000004" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate_factory.html#a4ac9fcb997cb27402ebc945a7ef78f1f" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="229,150,428,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="156,116,231,142,229,147,154,121"/>
+</map>

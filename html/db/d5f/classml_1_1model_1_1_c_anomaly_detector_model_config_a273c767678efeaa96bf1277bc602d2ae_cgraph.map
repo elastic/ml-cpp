@@ -1,0 +1,8 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::useMultibucketFeatures" name="ml::model::CAnomalyDetectorModelConfig::useMultibucketFeatures">
+<area shape="rect" id="Node000001" title="Set whether to model multibucket features." alt="" coords="5,29,247,70"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="295,29,492,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="247,47,279,47,279,52,247,52"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="351,29,348,19,355,10,371,5,393,3,418,5,432,11,430,16,417,10,393,8,372,10,359,15,354,21,356,28"/>
+<area shape="rect" id="Node000003" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="540,29,700,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="492,47,524,47,524,52,492,52"/>
+</map>

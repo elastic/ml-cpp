@@ -1,0 +1,25 @@
+<map id="ml::model::CTokenListDataCategorizer::debugMemoryUsage" name="ml::model::CTokenListDataCategorizer::debugMemoryUsage">
+<area shape="rect" id="Node000001" title="Debug the memory used by this categorizer." alt="" coords="5,152,222,192"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a7821e67834c6ea635db2775152a8b2e1" title="Debug the memory used by this categorizer." alt="" coords="270,122,516,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,158,254,154,254,160,222,163"/>
+<area shape="rect" id="Node000004" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#af9da9b8dc9d9ea16d09112f4ac614c2c" title="Default implementation for non&#45;pointer types." alt="" coords="803,129,969,170"/>
+<area shape="poly" id="edge13_Node000001_Node000004" title=" " alt="" coords="222,171,270,172,393,174,516,172,788,155,788,160,516,177,393,179,270,177,222,177"/>
+<area shape="rect" id="Node000003" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#aebf718241f98eea638a66eb20f130aea" title="Debug the memory used by this categorizer." alt="" coords="564,72,755,112"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="503,119,548,110,549,115,504,124"/>
+<area shape="poly" id="edge12_Node000002_Node000004" title=" " alt="" coords="516,141,788,145,788,151,516,147"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="743,110,789,122,788,127,742,115"/>
+<area shape="rect" id="Node000005" href="$de/df0/structml_1_1core_1_1memory__detail_1_1_s_debug_memory_dynamic_size.html#a0b0baf0a3d6bf2367e46016e88a0ad32" title=" " alt="" coords="1017,83,1218,138"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="969,133,1001,127,1002,132,970,138"/>
+<area shape="rect" id="Node000010" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aa0a3d5d3341bb51e9df11ef0ea542a6a" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1267,182,1472,223"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="969,156,1252,187,1251,192,969,161"/>
+<area shape="rect" id="Node000006" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="1266,95,1472,121"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1219,107,1250,106,1250,112,1219,112"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1520,5,1692,61"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1412,92,1505,62,1506,67,1413,97"/>
+<area shape="rect" id="Node000008" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1522,85,1690,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="1473,104,1507,104,1507,109,1473,109"/>
+<area shape="rect" id="Node000009" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1740,135,1925,190"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="1432,119,1521,135,1625,146,1724,154,1724,159,1625,152,1520,140,1431,124"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1689,123,1725,133,1724,138,1688,129"/>
+<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="1472,195,1691,179,1724,175,1725,180,1692,184,1472,200"/>
+</map>

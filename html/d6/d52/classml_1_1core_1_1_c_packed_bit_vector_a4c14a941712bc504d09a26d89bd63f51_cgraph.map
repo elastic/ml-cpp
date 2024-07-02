@@ -1,0 +1,10 @@
+<map id="ml::core::CPackedBitVector::contract" name="ml::core::CPackedBitVector::contract">
+<area shape="rect" id="Node000001" title="Contract the vector by popping a component from the start." alt="" coords="5,24,190,65"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="470,28,654,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,21,237,10,330,3,422,10,480,21,479,27,422,15,330,8,238,15,176,26"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae6d9c61f436a57a38691bb19b4054e73" title=" " alt="" coords="238,24,422,65"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,42,222,42,222,47,190,47"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a495d71889bdd3fa04554c3a69bfe4140" title=" " alt="" coords="238,90,422,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,63,241,82,239,88,171,68"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="409,87,467,71,469,76,410,92"/>
+</map>

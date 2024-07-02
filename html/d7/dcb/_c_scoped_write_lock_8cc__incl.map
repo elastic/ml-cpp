@@ -1,0 +1,18 @@
+<map id="lib/core/CScopedWriteLock.cc" name="lib/core/CScopedWriteLock.cc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="88,5,285,31"/>
+<area shape="rect" id="Node000002" href="$d8/de4/_c_scoped_write_lock_8h.html" title=" " alt="" coords="5,79,179,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,34,122,72,118,67,169,29"/>
+<area shape="rect" id="Node000005" href="$dd/db7/_c_read_write_lock_8h.html" title=" " alt="" coords="203,79,363,105"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="205,29,256,68,253,72,201,34"/>
+<area shape="rect" id="Node000003" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="57,153,207,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="101,104,120,138,116,140,96,106"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="64,226,200,252"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="79,107,64,122,52,139,45,158,48,177,66,199,89,216,86,221,62,203,43,179,39,158,47,137,60,118,75,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="135,179,135,211,129,211,129,179"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="258,108,173,148,170,143,256,103"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="278,107,254,141,220,180,168,220,164,216,217,176,250,138,273,104"/>
+<area shape="rect" id="Node000006" href="$da/d3e/_windows_safe_8h.html" title=" " alt="" coords="281,153,423,178"/>
+<area shape="poly" id="edge8_Node000005_Node000006" title=" " alt="" coords="296,103,332,140,328,143,292,107"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="448,153,523,178"/>
+<area shape="poly" id="edge9_Node000005_Node000007" title=" " alt="" coords="318,103,437,144,435,150,316,108"/>
+</map>

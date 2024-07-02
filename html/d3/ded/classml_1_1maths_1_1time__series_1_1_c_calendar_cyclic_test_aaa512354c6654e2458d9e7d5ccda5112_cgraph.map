@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CCalendarCyclicTest::errorsPValue" name="ml::maths::time_series::CCalendarCyclicTest::errorsPValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,160,101"/>
+<area shape="rect" id="Node000002" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a5019454ab7e5ba0258f188b0132d5909" title="Get the percentile for errors classified as large." alt="" coords="217,5,371,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,56,201,48,202,53,160,61"/>
+<area shape="rect" id="Node000004" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a3c6bb58334050abe8cb1a912cad1da19" title="Get the percentile for errors classified as very large." alt="" coords="208,85,380,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="160,85,193,91,192,97,159,90"/>
+<area shape="rect" id="Node000003" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a93b605a61cb8d4c6809c4970af423276" title="Adjust percentile thresholds for long bucket lengths." alt="" coords="428,45,645,101"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="372,43,413,50,412,55,371,48"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="380,96,412,91,413,96,381,102"/>
+</map>

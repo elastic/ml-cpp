@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,243,202,268"/>
+<area shape="rect" id="Node000002" href="$d0/d65/classanonymous__namespace_02_c_k_most_correlated_test_8cc_03_1_1_c_k_most_correlated_for_test.html#ad4dd2ae54e3fca075f07827a97d3cf4d" title=" " alt="" coords="250,5,457,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,240,164,169,203,125,248,85,252,82,255,87,251,89,207,129,168,172,116,243"/>
+<area shape="rect" id="Node000003" href="$d0/d65/classanonymous__namespace_02_c_k_most_correlated_test_8cc_03_1_1_c_k_most_correlated_for_test.html#ac8e70aff1a8bf1174691dcf9d237ff47" title=" " alt="" coords="250,100,457,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="130,239,248,181,260,175,262,180,251,186,133,244"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="261,195,446,236"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="188,239,245,230,245,235,189,244"/>
+<area shape="rect" id="Node000007" href="$d0/d65/classanonymous__namespace_02_c_k_most_correlated_test_8cc_03_1_1_c_k_most_correlated_for_test.html#a5114e81b3e3fa708176f1e990f2f47e7" title=" " alt="" coords="250,260,457,331"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="189,266,235,274,234,279,188,271"/>
+<area shape="rect" id="Node000009" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="263,355,444,396"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="125,266,180,302,251,340,267,347,265,352,249,344,178,306,122,271"/>
+<area shape="rect" id="Node000010" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a4185dae90d72f8e78cd3953bef9091e1" title="Reinitialize the random number generator." alt="" coords="281,420,426,461"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="116,267,168,332,207,371,251,405,268,414,265,419,248,410,204,375,164,336,112,270"/>
+<area shape="rect" id="Node000004" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#af3f2a9b91d01d3b7714a06168d280a3d" title="Get the current correlation collection." alt="" coords="517,115,721,156"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="458,133,502,133,502,138,458,138"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="527,195,712,236"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="446,213,511,213,511,218,446,218"/>
+<area shape="rect" id="Node000008" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#af1cc73c542ac0e55492bb3b58a988b76" title="Get the most correlated variables." alt="" coords="506,275,732,316"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="458,293,490,293,490,298,458,298"/>
+<area shape="rect" id="Node000011" href="$d2/d96/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03_1_1_c_random_number_generator.html#aa878c3172b42f558732a180785196359" title="Seed the random number generator." alt="" coords="505,405,733,476"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="427,438,490,438,490,443,427,443"/>
+</map>

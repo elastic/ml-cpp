@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest">
+<area shape="rect" id="Node000001" title="Checks for sudden change or change events." alt="" coords="5,109,232,165"/>
+<area shape="rect" id="Node000002" href="$dc/d37/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_handler.html" title="The basic interface for one aspect of the modeling of a time series decomposition." alt="" coords="5,5,232,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,77,121,108,116,108,116,77"/>
+</map>

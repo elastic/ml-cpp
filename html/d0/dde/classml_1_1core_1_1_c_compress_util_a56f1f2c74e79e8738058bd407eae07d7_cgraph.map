@@ -1,0 +1,5 @@
+<map id="ml::core::CCompressUtil::prepareToReturnData" name="ml::core::CCompressUtil::prepareToReturnData">
+<area shape="rect" id="Node000001" title="Preparation before returning any data." alt="" coords="5,5,172,46"/>
+<area shape="rect" id="Node000002" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="220,5,386,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,23,204,23,204,28,172,28"/>
+</map>

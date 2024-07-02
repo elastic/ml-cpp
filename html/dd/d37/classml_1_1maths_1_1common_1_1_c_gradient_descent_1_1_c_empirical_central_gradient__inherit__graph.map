@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CGradientDescent::CEmpiricalCentralGradient" name="ml::maths::common::CGradientDescent::CEmpiricalCentralGradient">
+<area shape="rect" id="Node000001" title="Computes the gradient using the central difference method." alt="" coords="106,94,307,150"/>
+<area shape="rect" id="Node000002" href="$da/dc2/classml_1_1maths_1_1common_1_1_c_gradient_descent_1_1_c_gradient.html" title="The interface for the gradient calculation." alt="" coords="5,5,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,55,178,91,175,95,134,59"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="226,13,392,39"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="286,51,238,95,234,92,283,47"/>
+</map>

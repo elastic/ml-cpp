@@ -1,0 +1,5 @@
+<map id="ml::api::CSerializableToJsonStream::jsonString" name="ml::api::CSerializableToJsonStream::jsonString">
+<area shape="rect" id="Node000001" title="Get as string." alt="" coords="5,5,165,46"/>
+<area shape="rect" id="Node000002" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html#aa4639f2a60cfcc78947908cdb8e8587a" title="Write the type as JSON using writer." alt="" coords="213,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,23,197,23,197,28,165,28"/>
+</map>

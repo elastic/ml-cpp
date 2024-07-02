@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::SHypothesisStats" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::SHypothesisStats">
+<area shape="rect" id="Node000001" title="A summary of test statistics related to a new seasonal component." alt="" coords="322,83,539,138"/>
+<area shape="rect" id="Node000002" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html" title="A description of a seasonal component." alt="" coords="5,5,219,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,60,322,81,321,87,233,65"/>
+<area shape="rect" id="Node000003" href="$dd/db8/classml_1_1maths_1_1common_1_1_c_fuzzy_truth_value.html" title="Fuzzy logical expression with multiplicative AND and OR." alt="" coords="39,169,185,210"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,165,320,135,322,140,200,170"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="84,151,94,145,112,142,128,144,139,150,144,159,143,169,137,168,139,160,135,154,127,149,112,147,96,150,87,156"/>
+</map>

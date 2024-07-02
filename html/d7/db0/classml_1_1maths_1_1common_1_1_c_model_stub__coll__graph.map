@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CModelStub" name="ml::maths::common::CModelStub">
+<area shape="rect" id="Node000001" title="A stateless lightweight model which stubs the interface." alt="" coords="5,199,151,240"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html" title="The model interface." alt="" coords="5,109,151,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,165,81,199,75,199,75,165"/>
+<area shape="rect" id="Node000003" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html" title="Model parameters." alt="" coords="5,5,151,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="81,62,81,109,75,109,75,62"/>
+</map>

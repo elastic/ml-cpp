@@ -1,0 +1,5 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache&lt; KEY, VALUE, COMPRESSED_KEY_BITS &gt;::CCacheItemStats" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache&lt; KEY, VALUE, COMPRESSED_KEY_BITS &gt;::CCacheItemStats">
+<area shape="rect" id="Node000001" title="A cache item hit frequency and memory usage." alt="" coords="10,109,279,180"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,284,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,61,147,108,142,108,142,61"/>
+</map>

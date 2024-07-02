@@ -1,0 +1,20 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::minimumBucketLength" name="ml::maths::time_series::CAdaptiveBucketing::minimumBucketLength">
+<area shape="rect" id="Node000001" title="Get the minimum permitted bucket length." alt="" coords="598,109,754,165"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ad1ad83e0d802cb76734a0ae99e805dd5" title="Get a jitter to apply to the prediction time." alt="" coords="360,29,529,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="583,108,526,88,528,83,585,103"/>
+<area shape="rect" id="Node000004" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#abc5a12a1df466a0f52d6174633414cba" title="Name of component." alt="" coords="340,109,549,165"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="583,140,549,140,549,135,583,135"/>
+<area shape="rect" id="Node000006" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a07466ad5aef811954276969bfd7b3db8" title="Name of component." alt="" coords="339,225,550,281"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="607,175,503,227,501,222,604,170"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="481,17,467,10,444,8,424,10,411,15,404,21,404,29,399,29,399,19,408,10,423,5,444,3,469,5,484,12"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a954c2f848dce54b210cb10453008d50a" title=" " alt="" coords="53,37,243,78"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="344,60,243,60,243,55,344,55"/>
+<area shape="rect" id="Node000005" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#aa482c81894c91c4ac9b9fa209f7f45c8" title="Restore by traversing a state document." alt="" coords="34,105,262,161"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="324,138,262,137,262,132,324,133"/>
+<area shape="rect" id="Node000007" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#aa432fd9519f6e2ad7d0c13b985438569" title="Restore by traversing a state document." alt="" coords="34,185,262,241"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="323,240,262,231,262,226,324,234"/>
+<area shape="rect" id="Node000008" href="$d5/d06/structml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing_1_1_s_bucket.html#a477a2debcf3acc7ca96a9c98a82cdee8" title=" " alt="" coords="5,265,291,321"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="324,272,291,277,291,271,323,267"/>
+<area shape="rect" id="Node000009" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a169584770e162d9f835e600247c7bf04" title=" " alt="" coords="50,346,246,371"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="386,291,341,315,292,336,247,348,246,343,290,331,339,310,384,287"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::model::CMetricPopulationModel::CMetricPopulationModel" name="ml::model::CMetricPopulationModel::CMetricPopulationModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,51,212,91"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#ae28345e4bfb587240bb2c0d1b141526e" title="Create a copy of the state we need to persist passing ownership to the caller." alt="" coords="260,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,49,244,44,245,49,213,55"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a9d01e0c353a938402db76b498a332b61" title=" " alt="" coords="260,95,453,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,87,245,92,244,98,212,92"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="310,95,308,85,315,76,332,70,356,68,383,70,399,77,397,82,382,76,356,73,333,75,318,80,313,86,315,93"/>
+</map>

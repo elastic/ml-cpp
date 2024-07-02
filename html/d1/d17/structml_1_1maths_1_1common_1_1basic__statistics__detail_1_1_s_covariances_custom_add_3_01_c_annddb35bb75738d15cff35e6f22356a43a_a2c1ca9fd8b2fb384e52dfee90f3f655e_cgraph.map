@@ -1,0 +1,10 @@
+<map id="ml::maths::common::basic_statistics_detail::SCovariancesCustomAdd&lt; CAnnotatedVector&lt; POINT, SCountAndVariance &gt; &gt;::add" name="ml::maths::common::basic_statistics_detail::SCovariancesCustomAdd&lt; CAnnotatedVector&lt; POINT, SCountAndVariance &gt; &gt;::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,28,201,114"/>
+<area shape="rect" id="Node000002" href="$d6/d4d/classml_1_1maths_1_1common_1_1_c_annotated_vector.html#a76a3951de62f2a1dd64ff6bf9c9bae1c" title="Get the annotation data by constant reference." alt="" coords="249,5,445,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,50,233,44,234,49,202,55"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6c6bcff753d8d386e43914f322b46505" title="Get the concomitant constant constant vector." alt="" coords="274,95,420,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,86,259,97,258,102,201,91"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="305,95,303,85,310,76,325,70,347,68,371,70,385,77,382,81,369,76,347,73,326,75,313,80,309,86,311,93"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="493,95,638,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="420,112,478,112,478,118,420,118"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CBasicStatistics::SSampleCovariances::operator+=" name="ml::maths::common::CBasicStatistics::SSampleCovariances::operator+=">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,259,184"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#afd48e4708e3a901320e72de745613ffa" title="Expose componentwise operations for our internal vectors." alt="" coords="307,5,452,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,126,305,57,317,51,320,55,308,61,183,130"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ac5663b883dec939f2661857d2fe43afd" title="Check if a vector is a zero vector." alt="" coords="307,71,452,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,125,291,111,292,117,241,130"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af184aba3d3646637687e34b55c15f09a" title="Get the concomitant ones vector." alt="" coords="307,136,452,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="259,154,291,154,291,159,259,159"/>
+<area shape="rect" id="Node000006" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad47e71d2642bb0a1bcd46b27d3929fef" title="Get the outer product of one of our internal vector types." alt="" coords="307,201,452,242"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="241,182,292,196,291,201,239,187"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="307,267,452,307"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="183,182,308,251,320,257,317,262,305,256,180,187"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="500,104,645,145"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="453,101,485,106,484,112,452,106"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="452,142,484,136,485,142,453,147"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="536,274,610,300"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="452,284,520,284,520,290,452,290"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="540,275,534,266,538,256,551,250,573,248,596,250,609,257,606,262,595,255,573,253,552,255,542,260,539,265,545,272"/>
+</map>

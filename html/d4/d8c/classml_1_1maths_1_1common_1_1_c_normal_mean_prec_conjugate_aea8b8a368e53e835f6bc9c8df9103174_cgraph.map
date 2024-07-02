@@ -1,0 +1,25 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::jointLogMarginalLikelihood" name="ml::maths::common::CNormalMeanPrecConjugate::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,168,197,224"/>
+<area shape="rect" id="Node000002" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#afdbad2d19c58d124e7688af9941a8c11" title="Full debug dump of the state of this prior." alt="" coords="253,5,445,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,165,179,118,243,71,252,66,254,71,246,75,182,122,131,169"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="269,85,429,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,165,276,129,278,134,180,170"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="544,182,689,223"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="197,187,245,185,349,183,453,185,528,191,528,196,453,190,349,188,245,190,197,192"/>
+<area shape="rect" id="Node000007" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="253,200,445,256"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="197,206,238,211,237,216,197,211"/>
+<area shape="rect" id="Node000008" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#a82db2f212f8908863edae25e2ea1be84" title=" " alt="" coords="245,360,453,400"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="124,222,175,285,209,317,246,346,254,350,251,355,243,350,205,321,171,288,120,226"/>
+<area shape="rect" id="Node000010" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a06f43db6da759e71f00c4953c054205e" title="Get the mean of the marginal likelihood function." alt="" coords="253,280,445,336"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="157,222,246,265,259,271,257,276,244,270,154,227"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="544,101,689,142"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="430,107,529,113,528,119,429,113"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="544,36,689,76"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="429,88,528,69,529,75,430,93"/>
+<area shape="rect" id="Node000009" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="578,368,656,394"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="453,378,562,378,561,384,453,383"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="575,371,564,361,568,350,586,344,617,342,655,346,666,351,669,357,665,360,662,355,654,351,617,347,587,349,572,354,569,360,579,367"/>
+<area shape="poly" id="edge11_Node000010_Node000006" title=" " alt="" coords="422,277,452,265,549,227,551,232,454,270,424,282"/>
+<area shape="rect" id="Node000011" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="501,280,732,320"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="445,302,485,301,485,306,445,308"/>
+</map>

@@ -1,0 +1,31 @@
+<map id="ml::api::CFieldDataCategorizer::restoreState" name="ml::api::CFieldDataCategorizer::restoreState">
+<area shape="rect" id="Node000001" title="Restore previously saved state." alt="" coords="5,365,207,406"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af6160754cda17c2eaaa6dd156e58ddf0" title=" " alt="" coords="255,267,457,307"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,362,254,318,274,310,276,315,256,323,152,367"/>
+<area shape="rect" id="Node000013" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a396e996ee01ee17d51e2e5aab381298a" title=" " alt="" coords="255,332,457,373"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="207,370,239,365,240,370,208,375"/>
+<area shape="rect" id="Node000014" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html#a4e720c74d195da11cd5e6f109684e77c" title="Restore previously saved state." alt="" coords="273,397,439,438"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="207,396,258,402,257,408,207,401"/>
+<area shape="rect" id="Node000015" href="$d5/da5/classml_1_1core_1_1_c_state_decompressor.html#a360e0ae9cabd91b6e0b3fcc611f59b8d" title=" " alt="" coords="255,463,457,503"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="154,404,256,447,276,455,274,460,254,452,152,409"/>
+<area shape="rect" id="Node000003" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af0512e7af8b366ddbd6ff3ba5d57d855" title=" " alt="" coords="514,71,715,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="368,265,422,195,460,156,504,122,514,116,516,121,506,127,464,160,426,198,373,268"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aebc1684318a439f8dbe8282e2b0f4103" title="Has the end of the inputstream been reached?" alt="" coords="505,136,723,177"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="382,264,437,226,504,187,521,180,523,185,506,192,439,230,385,268"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="505,201,723,242"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="438,263,516,244,517,249,440,269"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="505,267,723,307"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="457,284,489,284,489,290,457,290"/>
+<area shape="rect" id="Node000010" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="537,332,691,373"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="440,305,523,326,521,332,438,311"/>
+<area shape="rect" id="Node000011" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="541,397,688,438"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="437,305,459,318,475,335,483,351,491,367,507,382,528,394,525,399,503,386,487,370,479,354,470,338,455,322,434,310"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="505,463,723,503"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="442,306,459,318,472,335,479,352,483,385,487,417,494,432,507,448,511,452,508,456,503,452,490,435,482,418,478,386,474,353,468,338,455,322,439,310"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="774,5,970,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="697,67,774,48,775,53,698,73"/>
+<area shape="rect" id="Node000005" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#adf2efcf213f98449915ad0847c9352b0" title=" " alt="" coords="771,71,973,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="715,88,756,88,756,94,715,94"/>
+<area shape="rect" id="Node000006" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="806,136,938,177"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="698,109,792,133,790,139,697,115"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CNaiveBayesFeatureDensity" name="ml::maths::common::CNaiveBayesFeatureDensity">
+<area shape="rect" id="Node000001" title="The interface expected by CNaiveBayes for implementations of the class conditional density functions." alt="" coords="20,5,212,46"/>
+<area shape="rect" id="Node000002" href="$d6/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes_feature_density_from_prior.html" title="An implementation of the class conditional density function based on the CPrior hierarchy." alt="" coords="5,94,227,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,61,119,93,113,93,113,61"/>
+</map>

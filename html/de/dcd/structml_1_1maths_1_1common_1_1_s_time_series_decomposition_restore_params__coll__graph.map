@@ -1,0 +1,5 @@
+<map id="ml::maths::common::STimeSeriesDecompositionRestoreParams" name="ml::maths::common::STimeSeriesDecompositionRestoreParams">
+<area shape="rect" id="Node000001" title="Gatherers up extra parameters supplied when restoring time series decompositions." alt="" coords="5,109,235,165"/>
+<area shape="rect" id="Node000002" href="$db/d6a/structml_1_1maths_1_1common_1_1_s_distribution_restore_params.html" title="Gatherers up extra parameters supplied when restoring distribution models." alt="" coords="26,5,214,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,62,123,109,117,109,117,62"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CExpandingWindow::propagateForwardsByTime" name="ml::maths::time_series::CExpandingWindow::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Age the bucket values to account for time elapsed time." alt="" coords="5,41,218,97"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="266,5,488,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,52,250,48,251,53,219,57"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="300,85,454,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="219,81,285,90,285,95,218,86"/>
+</map>

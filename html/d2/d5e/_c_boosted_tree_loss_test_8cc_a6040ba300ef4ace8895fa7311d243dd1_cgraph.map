@@ -1,0 +1,41 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,278,202,303"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="279,25,424,66"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,276,126,237,156,184,197,126,221,100,248,76,263,67,266,71,251,81,225,104,201,130,160,187,130,240,113,278"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="259,156,444,196"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="127,275,249,212,277,200,279,205,251,217,129,280"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1001,216,1147,256"/>
+<area shape="poly" id="edge20_Node000001_Node000009" title=" " alt="" coords="154,274,249,256,456,237,661,229,845,228,986,230,986,236,845,233,661,235,456,243,250,261,155,280"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="259,90,444,131"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="112,275,166,212,204,174,248,142,259,135,262,140,251,146,208,178,169,216,117,279"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="271,270,432,311"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="202,288,255,288,255,293,202,293"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="266,335,437,361"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="163,301,278,328,277,334,162,307"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="268,384,435,410"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="125,302,180,336,251,371,269,377,267,382,249,376,178,341,123,306"/>
+<area shape="rect" id="Node000015" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a124b81fb2e2bf0eb8dadda02f2f7073f" title=" " alt="" coords="279,434,424,475"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="118,302,171,359,209,392,251,420,266,428,263,432,248,425,206,396,168,362,114,306"/>
+<area shape="rect" id="Node000016" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a3dbf34427aeaf7c4d239d8a73edc0228" title=" " alt="" coords="250,499,453,570"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="114,302,164,386,204,438,251,485,256,488,253,492,248,488,200,441,160,389,109,305"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="510,93,695,134"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="435,152,503,135,504,140,436,157"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="514,162,691,187"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="445,173,499,172,499,178,445,178"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="755,158,933,183"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="692,170,740,170,740,175,692,176"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="984,5,1164,61"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="861,155,914,115,982,71,991,66,994,71,985,75,917,120,864,159"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="984,85,1164,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="891,155,985,128,986,133,893,160"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="893,181,987,208,985,214,891,186"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="991,150,1157,191"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="933,168,976,168,976,173,933,173"/>
+<area shape="poly" id="edge11_Node000011_Node000004" title=" " alt="" coords="445,109,494,109,494,115,445,114"/>
+<area shape="rect" id="Node000017" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#aaffeec53d068c5de175b905aaadbd43a" title=" " alt="" coords="501,499,704,570"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="453,532,485,532,485,537,453,537"/>
+<area shape="rect" id="Node000018" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a99cebcc7653a7f75b0a6abc6b87fb270" title="Get the count of statistics." alt="" coords="752,467,936,522"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="704,515,737,510,737,515,705,520"/>
+<area shape="rect" id="Node000019" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a5b92ae07b31b41f40fdc93356a2d2666" title="Get the range." alt="" coords="752,547,936,602"/>
+<area shape="poly" id="edge19_Node000017_Node000019" title=" " alt="" coords="705,549,737,554,737,559,704,554"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CAnomalyDetector" name="ml::model::CAnomalyDetector">
+<area shape="rect" id="Node000001" title="Interface for detecting and reporting anomalies in different types of unstructured data." alt="" coords="17,79,215,105"/>
+<area shape="rect" id="Node000003" href="$d6/dac/classml_1_1model_1_1_c_simple_count_detector.html" title="Simply records and reports overall event counts." alt="" coords="5,153,227,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="119,120,119,152,113,152,113,120"/>
+<area shape="rect" id="Node000002" href="$d8/d9a/classml_1_1model_1_1_c_monitored_resource.html" title="Interface for resource monitoring." alt="" coords="11,5,221,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,46,119,79,113,79,113,46"/>
+</map>

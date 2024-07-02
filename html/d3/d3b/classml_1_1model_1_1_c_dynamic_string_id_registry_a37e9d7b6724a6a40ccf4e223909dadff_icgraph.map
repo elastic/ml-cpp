@@ -1,0 +1,9 @@
+<map id="ml::model::CDynamicStringIdRegistry::acceptRestoreTraverser" name="ml::model::CDynamicStringIdRegistry::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="472,35,701,75"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4466baf24e54c548b985f6768e740ed3" title="Restore state from supplied traverser." alt="" coords="239,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="456,43,413,38,414,33,457,38"/>
+<area shape="rect" id="Node000004" href="$d4/db4/_c_dynamic_string_id_registry_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="228,70,424,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="457,72,425,75,424,70,456,66"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a9b2048cbba78065b47fa4cb1fe1263e0" title="Construct from a state document." alt="" coords="5,5,180,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="224,28,180,28,180,23,224,23"/>
+</map>

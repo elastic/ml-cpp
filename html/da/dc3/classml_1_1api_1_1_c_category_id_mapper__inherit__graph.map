@@ -1,0 +1,7 @@
+<map id="ml::api::CCategoryIdMapper" name="ml::api::CCategoryIdMapper">
+<area shape="rect" id="Node000001" title="Interface for mappers between local and global category IDs." alt="" coords="105,5,290,31"/>
+<area shape="rect" id="Node000002" href="$db/d11/classml_1_1api_1_1_c_noop_category_id_mapper.html" title="Category ID mapper for use when local and global category IDs are the same." alt="" coords="5,79,179,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,43,120,81,116,76,167,38"/>
+<area shape="rect" id="Node000003" href="$d1/d2f/classml_1_1api_1_1_c_per_partition_category_id_mapper.html" title="Category ID mapper for use with per&#45;partition categorization." alt="" coords="203,79,402,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,38,278,76,275,81,224,43"/>
+</map>

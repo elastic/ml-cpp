@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::marginalLikelihoodVariances" name="ml::maths::common::CMultivariateNormalConjugate::marginalLikelihoodVariances">
+<area shape="rect" id="Node000001" title="Get the diagonal of the covariance matrix for the marginal likelihood." alt="" coords="5,14,205,70"/>
+<area shape="rect" id="Node000002" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#adf9bfad63f32b984fed17da61c051b69" title="Get the covariance matrix for the marginal likelihood." alt="" coords="253,14,452,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,40,237,40,237,45,205,45"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="500,22,645,63"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,40,484,40,484,45,452,45"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="693,29,768,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="646,40,678,40,678,45,646,45"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="703,30,698,21,701,11,713,5,731,3,750,5,760,12,757,16,748,10,730,8,714,10,706,15,704,20,708,28"/>
+</map>

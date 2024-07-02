@@ -1,0 +1,4 @@
+<map id="ml::maths::time_series::CTrendComponent::decayRate" name="ml::maths::time_series::CTrendComponent::decayRate">
+<area shape="rect" id="Node000001" title="Set the rate base rate at which models lose information." alt="" coords="5,29,216,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="145,16,132,10,110,8,91,10,78,15,74,20,76,28,71,29,69,19,75,10,89,5,111,3,133,5,147,11"/>
+</map>

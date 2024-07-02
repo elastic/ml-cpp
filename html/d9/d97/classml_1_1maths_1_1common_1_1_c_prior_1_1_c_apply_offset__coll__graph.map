@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CPrior::CApplyOffset" name="ml::maths::common::CPrior::CApplyOffset">
+<area shape="rect" id="Node000001" title="Apply a specified offset to a prior." alt="" coords="898,91,1043,132"/>
+<area shape="rect" id="Node000002" href="$d2/d48/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_offset_parameters.html" title="Defines a set of operations to adjust the offset parameter of those priors with non&#45;negative support." alt="" coords="669,91,848,132"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="864,109,897,109,897,114,864,114"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="335,15,480,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="496,38,569,47,646,62,715,88,714,93,644,67,568,52,495,43"/>
+<area shape="rect" id="Node000004" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,23,166,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="181,33,334,33,334,38,181,38"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="329,86,486,126"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="502,107,510,107,669,109,669,114,510,112,502,112"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="9,122,162,162"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="177,129,328,112,328,117,178,134"/>
+<area shape="rect" id="Node000007" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="329,151,486,192"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="178,148,328,162,328,167,177,153"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="501,153,645,129,668,125,669,130,645,134,502,159"/>
+</map>

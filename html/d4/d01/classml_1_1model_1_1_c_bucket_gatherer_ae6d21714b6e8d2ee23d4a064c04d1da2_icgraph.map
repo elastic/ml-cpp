@@ -1,0 +1,7 @@
+<map id="ml::model::CBucketGatherer::removePeople" name="ml::model::CBucketGatherer::removePeople">
+<area shape="rect" id="Node000001" title=" " alt="" coords="253,39,440,79"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a431b5ea1104138c6af7e92d0ea17b31a" title=" " alt="" coords="5,5,205,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,47,205,42,205,37,237,41"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a9b3811506c3d897a6067942effddbcfd" title=" " alt="" coords="18,71,192,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,76,192,82,192,77,237,71"/>
+</map>

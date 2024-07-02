@@ -1,0 +1,8 @@
+<map id="ml::model::CHierarchicalResultsAggregator::detectorProbabilities" name="ml::model::CHierarchicalResultsAggregator::detectorProbabilities">
+<area shape="rect" id="Node000001" title="Compute the probability for each of the detectors." alt="" coords="492,29,747,70"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="667,16,649,10,620,8,592,10,575,15,568,21,571,28,566,29,563,19,572,10,591,5,620,3,651,5,669,11"/>
+<area shape="rect" id="Node000002" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a7cdca7a4e250095934a9b812eb3ea7a7" title="Aggregate at internal node." alt="" coords="219,29,444,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="476,52,444,52,444,47,476,47"/>
+<area shape="rect" id="Node000003" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#aaaf9f722a5855913332ae94c8364d178" title="Compute the aggregate probability for node." alt="" coords="5,29,171,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="203,52,171,52,171,47,203,47"/>
+</map>

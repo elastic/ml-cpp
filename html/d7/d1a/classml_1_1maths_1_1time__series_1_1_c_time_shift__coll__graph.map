@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeShift" name="ml::maths::time_series::CTimeShift">
+<area shape="rect" id="Node000001" title="Represents a time shift of a time series." alt="" coords="722,70,876,110"/>
+<area shape="rect" id="Node000002" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html" title="Represents a sudden change to a time series model." alt="" coords="383,15,537,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="553,48,722,75,721,80,552,53"/>
+<area shape="rect" id="Node000003" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,8,218,63"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="233,33,382,33,382,38,233,38"/>
+<area shape="rect" id="Node000004" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="354,80,566,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="581,98,722,91,722,97,581,104"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CSeasonalComponent::decayRate" name="ml::maths::time_series::CSeasonalComponent::decayRate">
+<area shape="rect" id="Node000001" title="Set the rate at which the seasonal component loses information." alt="" coords="5,5,174,61"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#af22de4a85a4679f67fbdd9de4a8d3643" title="Set the rate at which the bucketing loses information." alt="" coords="438,5,594,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,25,222,23,390,23,422,24,422,29,390,28,222,28,174,30"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a17a7fd7755ca7e798b6b209229c69b06" title="Get the rate at which the seasonal component loses information." alt="" coords="222,37,390,93"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,43,207,48,206,53,174,48"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="390,50,422,45,423,50,391,55"/>
+</map>

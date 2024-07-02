@@ -1,0 +1,9 @@
+<map id="ml::model::CModelFactory::defaultCategoricalPrior" name="ml::model::CModelFactory::defaultCategoricalPrior">
+<area shape="rect" id="Node000001" title="Get the default prior to use for categorical data." alt="" coords="5,49,181,90"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a20826b9899bd2bfb06b8ab4e99c3a250" title=" " alt="" coords="229,41,385,97"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,67,213,67,213,72,181,72"/>
+<area shape="rect" id="Node000003" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0cba7f8b12e783f4859d267c8e251b2f" title=" " alt="" coords="433,5,597,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,53,417,47,418,53,386,58"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="443,85,588,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="386,80,428,87,427,93,385,85"/>
+</map>

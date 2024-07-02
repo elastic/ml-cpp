@@ -1,0 +1,11 @@
+<map id="CBoostedTreeImplForTest::nodeFeatureBag" name="CBoostedTreeImplForTest::nodeFeatureBag">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,51,180,91"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="45,51,42,41,50,32,67,26,93,24,120,26,136,33,134,38,119,32,92,29,68,31,53,36,47,42,50,49"/>
+<area shape="rect" id="Node000002" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#ae1266b6a7e7a2875bdd97f497a6f97e0" title="Sample the features according to their categorical distribution." alt="" coords="228,5,469,46"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="180,53,215,47,216,52,181,58"/>
+<area shape="rect" id="Node000003" href="$d2/d6c/class_c_boosted_tree_impl_for_test.html#aebb1de03f1c1bdd81f2468dd3e5af76f" title=" " alt="" coords="261,95,436,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="181,83,246,95,245,100,180,89"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="300,95,298,85,306,76,323,70,348,68,376,70,392,77,390,82,375,76,348,73,324,75,309,80,303,86,306,93"/>
+<area shape="rect" id="Node000004" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a84d3f36931393a64549ffb0b162d0953" title="Sample the features according to their categorical distribution." alt="" coords="517,95,752,135"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="436,112,501,112,501,118,436,118"/>
+</map>

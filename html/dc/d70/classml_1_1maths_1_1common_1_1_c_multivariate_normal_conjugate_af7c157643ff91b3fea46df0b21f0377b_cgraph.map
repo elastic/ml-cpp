@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::acceptRestoreTraverser" name="ml::maths::common::CMultivariateNormalConjugate::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Read parameters from traverser." alt="" coords="5,256,205,312"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="289,5,435,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,254,137,214,167,165,205,115,251,71,274,57,277,61,254,75,209,118,172,168,142,216,121,257"/>
+<area shape="rect" id="Node000003" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#af9f29c98c25e47cf53f809d41877faa8" title="Create from a delimited string." alt="" coords="283,85,441,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="130,254,183,202,216,175,251,151,268,142,271,147,254,155,219,179,187,206,134,257"/>
+<area shape="rect" id="Node000005" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a33ed7fb8aa514c188c8397ea09ddc50a" title="Create from a delimited string." alt="" coords="271,165,453,206"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="164,253,252,216,274,208,275,213,254,221,167,258"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="253,230,471,271"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="205,268,237,264,237,269,206,273"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="253,296,471,336"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="206,294,237,298,237,303,205,299"/>
+<area shape="rect" id="Node000009" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="289,360,435,416"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="170,310,254,345,276,354,274,359,252,350,168,315"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="288,440,436,480"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="130,310,182,369,217,399,254,426,275,436,272,441,251,430,213,403,179,372,126,314"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="253,505,471,546"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="121,311,142,351,171,399,209,448,254,490,263,495,260,500,251,494,205,452,167,402,137,354,116,313"/>
+<area shape="rect" id="Node000004" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a1358153d705f0f06de995c3c28024228" title=" " alt="" coords="521,56,688,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="441,106,505,102,505,107,441,111"/>
+<area shape="rect" id="Node000006" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#ab44d251749dc9d37aa90e4919e51334a" title=" " alt="" coords="519,166,689,237"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="454,189,504,192,503,197,453,194"/>
+</map>

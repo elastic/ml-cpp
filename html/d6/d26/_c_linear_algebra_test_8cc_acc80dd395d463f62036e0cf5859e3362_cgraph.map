@@ -1,0 +1,43 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,512,202,537"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#afd48e4708e3a901320e72de745613ffa" title="Expose componentwise operations for our internal vectors." alt="" coords="267,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,511,107,434,114,378,126,314,144,246,170,178,204,114,248,57,253,52,256,56,252,61,208,117,175,181,149,248,131,315,120,378,112,435,108,511"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad3a4aa5d556f8228cce12b1b51caa5dc" title="Get the conformable zero initialized matrix for our internal stack vector." alt="" coords="250,71,430,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,511,111,443,134,340,152,282,177,225,208,171,248,123,252,118,256,122,252,126,213,174,182,227,157,284,139,341,117,444,108,511"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6c6bcff753d8d386e43914f322b46505" title="Get the concomitant constant constant vector." alt="" coords="267,160,413,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="105,511,119,458,146,380,165,337,188,294,216,253,248,217,260,207,264,211,252,221,220,257,193,297,170,339,151,382,124,460,110,512"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="478,536,623,577"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="105,511,117,461,143,391,162,353,186,318,214,286,248,261,297,237,341,228,362,230,384,236,431,261,462,286,486,317,506,352,521,389,541,461,550,520,544,521,536,462,516,390,501,354,482,320,458,290,429,265,383,241,361,235,341,234,298,242,251,265,218,290,190,321,167,356,148,393,122,463,110,512"/>
+<area shape="rect" id="Node000006" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="267,275,413,315"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="109,510,128,474,159,425,199,372,248,326,256,321,259,325,251,330,203,376,163,428,133,476,114,512"/>
+<area shape="rect" id="Node000007" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a5fefb2ae343bd030c2bc8dadd7304d9c" title="Get the Frobenius norm of one of our internal matrices." alt="" coords="267,340,413,381"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="114,509,169,454,207,421,248,391,259,385,262,390,251,396,210,425,172,457,118,513"/>
+<area shape="rect" id="Node000008" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a8570a3f43637808042bf5373431bb90b" title="Get the inner product of two of our internal vectors." alt="" coords="267,405,413,446"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="132,509,249,457,266,450,268,455,251,461,134,513"/>
+<area shape="rect" id="Node000009" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ac5663b883dec939f2661857d2fe43afd" title="Check if a vector is a zero vector." alt="" coords="267,471,413,511"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="199,508,252,501,252,506,200,514"/>
+<area shape="rect" id="Node000010" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad1c10c15673da0ed43885524eb88b2cd" title="Get the Manhattan norm of one of our internal vector classes." alt="" coords="267,536,413,577"/>
+<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="203,535,252,542,251,547,202,540"/>
+<area shape="rect" id="Node000011" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="267,601,413,642"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="135,535,251,586,268,593,266,598,249,591,133,540"/>
+<area shape="rect" id="Node000012" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a786f76053e20e60af5ece9d2a221d032" title="In&#45;place minimum, writing to y." alt="" coords="267,667,413,707"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="118,536,172,590,210,623,251,651,262,657,259,662,248,656,207,627,169,594,114,539"/>
+<area shape="rect" id="Node000013" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="267,732,413,773"/>
+<area shape="poly" id="edge18_Node000001_Node000013" title=" " alt="" coords="114,536,133,572,163,620,203,672,251,717,259,722,256,726,248,721,199,675,159,623,128,575,109,539"/>
+<area shape="rect" id="Node000014" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af184aba3d3646637687e34b55c15f09a" title="Get the concomitant ones vector." alt="" coords="267,797,413,838"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="111,537,127,583,155,649,196,720,222,753,251,782,257,786,253,791,248,786,218,757,192,723,150,651,122,585,106,539"/>
+<area shape="rect" id="Node000015" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad47e71d2642bb0a1bcd46b27d3929fef" title="Get the outer product of one of our internal vector types." alt="" coords="267,863,413,903"/>
+<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="110,537,122,593,147,676,166,722,189,767,218,810,252,848,256,852,252,856,248,852,214,813,185,770,161,724,142,678,116,595,104,538"/>
+<area shape="rect" id="Node000016" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="250,928,430,969"/>
+<area shape="poly" id="edge22_Node000001_Node000016" title=" " alt="" coords="108,537,117,603,140,703,158,759,183,815,213,867,252,913,256,917,252,921,248,917,209,870,178,817,153,761,135,705,112,604,103,538"/>
+<area shape="rect" id="Node000017" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="267,993,413,1034"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="108,537,113,613,120,668,133,730,151,796,176,862,209,924,252,979,256,983,253,987,248,982,204,926,171,864,146,798,127,731,115,669,108,613,102,538"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="300,160,298,150,304,141,319,135,340,133,363,136,376,142,374,147,361,141,340,139,320,141,308,145,303,151,305,159"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="408,199,432,217,460,253,484,292,503,334,518,377,539,457,549,520,543,521,533,458,513,378,498,336,479,295,456,256,428,221,405,203"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="413,314,432,326,472,372,504,425,527,476,542,520,537,522,522,478,499,427,468,375,428,330,410,318"/>
+<area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="408,509,469,528,467,533,407,514"/>
+<area shape="poly" id="edge15_Node000011_Node000005" title=" " alt="" coords="407,598,467,579,469,584,408,603"/>
+<area shape="poly" id="edge17_Node000012_Node000005" title=" " alt="" coords="403,664,429,651,476,619,516,585,519,589,479,623,431,656,406,669"/>
+<area shape="poly" id="edge20_Node000014_Node000005" title=" " alt="" coords="410,795,428,782,468,737,499,686,522,634,537,591,542,593,527,636,504,688,472,740,432,786,413,799"/>
+<area shape="poly" id="edge24_Node000017_Node000005" title=" " alt="" coords="411,992,428,978,463,933,490,882,510,828,525,774,542,671,547,592,552,593,547,671,531,775,515,830,495,885,467,936,432,982,415,996"/>
+</map>

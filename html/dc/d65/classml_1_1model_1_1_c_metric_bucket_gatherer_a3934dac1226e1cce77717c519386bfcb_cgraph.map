@@ -1,0 +1,26 @@
+<map id="ml::model::CMetricBucketGatherer::description" name="ml::model::CMetricBucketGatherer::description">
+<area shape="rect" id="Node000001" title="Get a description of the search." alt="" coords="5,120,179,161"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a0dadbea767f6b210503290bc78a45c18" title="Get the collection of features for which data is being gathered." alt="" coords="227,5,401,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,117,225,62,249,50,252,55,228,67,129,122"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="453,124,585,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,117,226,106,314,98,401,106,448,116,447,122,401,111,314,103,227,111,168,122"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="227,120,401,161"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="179,138,211,138,211,143,179,143"/>
+<area shape="rect" id="Node000009" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a31a129ca64e498ea1efccc3ef6f6c12e" title="Get the name of function." alt="" coords="248,185,380,226"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="164,159,233,179,232,184,163,164"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#adb666a24d59617cf57835b4345e7af5e" title=" " alt="" coords="227,251,401,291"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="119,159,168,197,228,235,240,241,237,246,225,240,165,201,116,163"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="637,59,770,99"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="585,127,650,103,652,108,586,132"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="637,124,770,165"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="586,150,622,151,622,156,586,156"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="642,189,765,215"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="586,162,646,181,644,186,585,167"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="638,96,573,120,571,115,636,91"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="637,138,601,138,601,133,637,133"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="818,189,864,215"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="765,199,802,199,802,204,765,204"/>
+<area shape="poly" id="edge11_Node000009_Node000003" title=" " alt="" coords="380,183,437,166,439,171,381,188"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="449,258,589,284"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="401,268,434,268,434,274,401,274"/>
+</map>

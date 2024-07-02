@@ -1,0 +1,25 @@
+<map id="ml::core::CStatePersistInserter::readableTags" name="ml::core::CStatePersistInserter::readableTags">
+<area shape="rect" id="Node000001" title="Get whether short or long (readable) tag names are desired for persistence." alt="" coords="541,213,743,254"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a89578d5c0c34f39f36bdbfaf5f0c18da" title="Persist state by passing information to the supplied inserter." alt="" coords="305,5,469,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="616,202,563,138,529,105,492,75,468,62,471,58,494,71,532,101,567,135,620,199"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aaf1029641fae1970878d98d5f61e6480" title="Persist state by passing information to the supplied inserter." alt="" coords="281,85,493,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="591,207,492,156,465,144,467,139,494,151,594,203"/>
+<area shape="rect" id="Node000006" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a8f695febeae598e6c15944717df58e3f" title="Persist state by passing information to the supplied inserter." alt="" coords="291,165,483,221"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="525,218,483,211,483,206,526,212"/>
+<area shape="rect" id="Node000009" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a29f061380100f24cfa2a601702650662" title="Persist state by passing information to the supplied inserter." alt="" coords="302,245,472,301"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="526,254,472,263,472,257,525,249"/>
+<area shape="rect" id="Node000011" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#aea47461e4344ec31a69958b5f8a61b47" title="Persist collection passing state to inserter using tag for elements." alt="" coords="310,325,464,366"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="595,264,547,291,494,316,464,327,462,322,492,311,545,286,593,259"/>
+<area shape="rect" id="Node000012" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a4f096085cbf4d00c3da180598fd9fd5b" title=" " alt="" coords="310,390,464,431"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="617,267,565,324,531,354,494,379,466,393,463,388,492,375,528,350,561,320,614,264"/>
+<area shape="rect" id="Node000003" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="21,20,217,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="289,36,217,36,217,31,289,31"/>
+<area shape="rect" id="Node000005" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="21,90,217,115"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="265,111,218,109,218,104,265,106"/>
+<area shape="rect" id="Node000007" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#ac8bb1f9bac38f3959138e6eac1c4765c" title="Persist state by passing information to inserter." alt="" coords="5,140,233,196"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="275,185,233,181,233,176,276,180"/>
+<area shape="rect" id="Node000008" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="21,220,217,246"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="276,212,210,222,209,217,275,207"/>
+<area shape="rect" id="Node000010" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="21,270,217,295"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="286,279,218,282,217,276,286,274"/>
+</map>

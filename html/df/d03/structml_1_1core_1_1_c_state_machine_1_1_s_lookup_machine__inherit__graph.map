@@ -1,0 +1,5 @@
+<map id="ml::core::CStateMachine::SLookupMachine" name="ml::core::CStateMachine::SLookupMachine">
+<area shape="rect" id="Node000001" title="A lightweight object to lookup a single machine." alt="" coords="28,94,194,135"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,217,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,62,114,94,108,94,108,62"/>
+</map>

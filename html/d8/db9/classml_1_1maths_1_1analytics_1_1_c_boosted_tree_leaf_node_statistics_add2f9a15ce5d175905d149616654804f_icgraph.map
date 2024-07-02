@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives">
+<area shape="rect" id="Node000001" title=" " alt="" coords="346,61,660,117"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,5,298,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="330,68,298,63,299,58,330,62"/>
+<area shape="rect" id="Node000003" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,100,286,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="330,114,287,120,286,115,329,109"/>
+</map>

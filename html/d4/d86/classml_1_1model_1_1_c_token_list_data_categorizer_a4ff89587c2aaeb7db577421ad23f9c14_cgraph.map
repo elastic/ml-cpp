@@ -1,0 +1,11 @@
+<map id="ml::model::CTokenListDataCategorizer::similarity" name="ml::model::CTokenListDataCategorizer::similarity">
+<area shape="rect" id="Node000001" title="Compute similarity between two vectors." alt="" coords="5,39,186,79"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="51,39,49,29,56,20,72,14,96,12,121,14,136,21,134,26,120,20,95,17,73,19,59,24,54,30,56,37"/>
+<area shape="rect" id="Node000002" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html#a410f407533193d4fa3a8783fa4f07a74" title=" " alt="" coords="234,5,427,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,44,218,39,218,44,186,49"/>
+<area shape="rect" id="Node000003" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html#a05c8205f632a82f37b9d1c6ec5254839" title=" " alt="" coords="234,71,427,111"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="186,69,219,73,218,78,186,74"/>
+<area shape="rect" id="Node000004" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="475,78,553,104"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="427,88,459,88,459,94,427,94"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="483,79,477,70,481,60,493,54,514,52,536,54,548,61,545,65,535,59,514,57,495,59,485,63,482,69,488,76"/>
+</map>

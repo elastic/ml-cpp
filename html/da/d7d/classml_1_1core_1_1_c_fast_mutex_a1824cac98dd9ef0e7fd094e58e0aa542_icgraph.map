@@ -1,0 +1,7 @@
+<map id="ml::core::CFastMutex::lock" name="ml::core::CFastMutex::lock">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,27,398,68"/>
+<area shape="rect" id="Node000002" href="$dc/d93/_c_mutex_test_8cc.html#ac982f7bfa0185c7f1925de8e7673d945" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,38,202,34,202,29,235,33"/>
+<area shape="rect" id="Node000003" href="$d0/d95/classml_1_1core_1_1_c_scoped_fast_lock.html#a4e16061fc98c33d698a31d25c1dbf855" title="Lock specified mutex." alt="" coords="11,55,196,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,61,197,66,196,61,234,56"/>
+</map>

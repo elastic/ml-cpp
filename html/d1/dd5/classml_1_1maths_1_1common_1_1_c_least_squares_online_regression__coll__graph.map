@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression&lt; N_, T, R_2 &gt;" name="ml::maths::common::CLeastSquaresOnlineRegression&lt; N_, T, R_2 &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="461,110,675,166"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,297,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="313,72,437,101,462,107,461,112,436,106,312,77"/>
+<area shape="rect" id="Node000003" href="$d2/d43/classml_1_1core_1_1_c_persistence_tag.html" title="Convenience container class for holding persistence tags." alt="" coords="63,100,239,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,116,460,129,460,134,255,122"/>
+<area shape="rect" id="Node000004" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="71,149,231,175"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="247,161,339,159,436,154,460,152,461,157,437,160,339,165,247,166"/>
+<area shape="rect" id="Node000005" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="45,200,257,255"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="272,211,353,199,436,181,492,164,494,169,437,186,354,204,273,217"/>
+</map>

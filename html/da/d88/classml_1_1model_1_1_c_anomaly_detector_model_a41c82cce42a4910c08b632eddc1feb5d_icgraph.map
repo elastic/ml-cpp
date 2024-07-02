@@ -1,0 +1,7 @@
+<map id="ml::model::CAnomalyDetectorModel::printAttributes" name="ml::model::CAnomalyDetectorModel::printAttributes">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,39,470,79"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#ae3cf9891594d7715fcd2916260d665f8" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,47,225,43,225,37,258,42"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a85882ed6b58e6c5fd11cb647dbc77b86" title=" " alt="" coords="18,71,212,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,76,213,82,212,76,257,71"/>
+</map>

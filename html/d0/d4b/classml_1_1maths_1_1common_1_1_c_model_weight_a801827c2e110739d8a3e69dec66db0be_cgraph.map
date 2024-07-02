@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CModelWeight::acceptPersistInserter" name="ml::maths::common::CModelWeight::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,200,61"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="248,13,450,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,31,232,31,232,36,200,36"/>
+</map>

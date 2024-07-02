@@ -1,0 +1,31 @@
+<map id="ml::api::CDataFrameAnalysisSpecification::numberColumns" name="ml::api::CDataFrameAnalysisSpecification::numberColumns">
+<area shape="rect" id="Node000001" title=" " alt="" coords="821,280,1021,321"/>
+<area shape="rect" id="Node000002" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a3d2cec964f35372854826c330b69f687" title=" " alt="" coords="287,63,519,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="894,270,842,213,809,185,772,161,710,135,645,117,580,105,519,98,520,92,580,100,646,112,712,130,775,157,812,180,846,209,898,266"/>
+<area shape="rect" id="Node000006" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#ae3e1079f27280382909483b64a49f1f7" title=" " alt="" coords="567,195,773,235"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="844,277,732,238,733,233,845,272"/>
+<area shape="rect" id="Node000009" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#ab603b023c95c171d42b6ccc940d96c86" title=" " alt="" coords="574,280,767,321"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="806,303,767,303,767,298,806,298"/>
+<area shape="rect" id="Node000011" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a4d3bb6fa4dafa01b0ce031ffa56e8bef" title=" " alt="" coords="572,348,769,389"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="829,328,748,350,747,345,828,323"/>
+<area shape="rect" id="Node000014" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a6eb2fddf2688b7d71f623808a44a620f" title="Validate if frame is suitable for running the analysis on." alt="" coords="574,413,767,454"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="884,332,833,368,775,403,745,415,743,410,772,398,830,364,881,328"/>
+<area shape="rect" id="Node000003" href="$d4/db2/class_c_data_frame_mock_analysis_runner.html#af6d544df8bb5c776825069f66cf9bb7a" title=" " alt="" coords="8,5,236,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="271,63,212,49,213,44,272,58"/>
+<area shape="rect" id="Node000004" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#ac8b798f611790589976d1ed79e13c103" title="This is not intended to be called directly: use CDataFrameOutliersRunnerFactory." alt="" coords="5,71,239,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="271,94,239,94,239,88,271,88"/>
+<area shape="rect" id="Node000005" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a4737af76bd12b1a450b877c4d770c1cd" title="This is not intended to be called directly: use CDataFrameOutliersRunnerFactory." alt="" coords="5,136,239,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="272,124,213,138,212,133,271,119"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="621,189,518,133,490,122,492,117,520,129,624,184"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="711,182,696,176,670,173,646,175,631,180,626,186,628,193,623,195,621,185,629,176,645,170,670,168,697,170,713,177"/>
+<area shape="rect" id="Node000007" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a32b0d6e6db2f1ed87b8cf8d63141d91f" title=" " alt="" coords="309,143,497,183"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="551,195,497,184,498,179,552,189"/>
+<area shape="rect" id="Node000008" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a953f26e0a0895039f15c11b6623c9130" title=" " alt="" coords="309,208,497,249"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="552,224,498,226,497,221,551,218"/>
+<area shape="rect" id="Node000010" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad60a80e1adc9fee7b028ae04211b7217" title=" " alt="" coords="294,273,512,328"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="558,303,512,303,512,298,558,298"/>
+<area shape="rect" id="Node000012" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a587a9336d60f97cbc10aa66a6c455c82" title=" " alt="" coords="296,352,510,393"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="556,373,511,373,510,368,556,367"/>
+<area shape="rect" id="Node000013" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a834cbb4f8160296bad2c05f142abac91" title="Write the extra columns of row added by outlier analysis to writer." alt="" coords="309,417,497,458"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="575,396,485,419,483,414,573,391"/>
+</map>

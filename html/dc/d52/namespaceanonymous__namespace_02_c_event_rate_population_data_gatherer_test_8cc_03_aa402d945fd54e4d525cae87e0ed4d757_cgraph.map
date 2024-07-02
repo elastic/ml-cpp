@@ -1,0 +1,12 @@
+<map id="anonymous_namespace{CEventRatePopulationDataGathererTest::cc}::addArrival" name="anonymous_namespace{CEventRatePopulationDataGathererTest::cc}::addArrival">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,242,91"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="290,13,464,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,47,274,43,274,48,242,52"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="520,71,678,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="242,67,505,83,504,88,242,73"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="512,5,686,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,28,496,27,497,32,464,33"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="459,52,505,64,504,69,457,57"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="734,71,893,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="679,88,719,88,719,94,679,94"/>
+</map>

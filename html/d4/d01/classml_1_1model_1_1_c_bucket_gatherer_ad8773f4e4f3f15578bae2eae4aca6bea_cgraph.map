@@ -1,0 +1,28 @@
+<map id="ml::model::CBucketGatherer::checksum" name="ml::model::CBucketGatherer::checksum">
+<area shape="rect" id="Node000001" title="Get the checksum of this gatherer." alt="" coords="5,259,193,299"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a92ae7d8205e44f988b79208fb8da93e5" title=" " alt="" coords="247,29,422,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,257,127,220,156,172,194,124,239,81,246,76,250,80,242,85,198,127,161,175,132,222,112,259"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a90e223289901def64d3ea439b8e55318" title=" " alt="" coords="241,95,428,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="116,256,168,202,202,172,239,146,250,140,253,145,242,151,205,177,171,206,120,260"/>
+<area shape="rect" id="Node000007" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="257,160,412,201"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="141,256,240,211,257,204,259,209,242,216,143,261"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a6a78bb3800805de96968d1e28728ad44" title="Extract the attribute identifier from a tuple." alt="" coords="247,225,422,266"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="193,263,231,258,232,263,194,268"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="247,291,422,331"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="194,289,232,294,231,300,193,294"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaa2f42f2be5d74bd04fa6567fe95860c" title="Extract the person identifier from a tuple." alt="" coords="247,356,422,397"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="145,297,242,341,259,348,258,353,240,345,142,302"/>
+<area shape="rect" id="Node000011" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aedd783dbcd45bc4d7f52478d504da0b0" title="Returns the latest bucket end time, as tracked by the queue." alt="" coords="247,421,422,462"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="120,298,172,351,205,380,242,406,253,412,250,417,239,411,202,385,168,355,116,302"/>
+<area shape="rect" id="Node000012" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="247,511,422,551"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="114,298,165,379,201,427,242,472,281,500,277,504,239,476,197,431,160,382,109,301"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,29,288,19,295,10,311,5,334,3,360,5,375,11,373,16,358,10,334,8,312,10,298,15,293,21,295,28"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="476,102,677,128"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="428,112,460,112,460,118,428,118"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="725,95,901,135"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="678,112,709,112,709,118,678,118"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="771,95,769,85,776,76,791,70,813,68,837,70,852,77,849,82,836,76,813,73,792,75,779,80,774,86,776,93"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="949,95,1124,135"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="901,112,933,112,933,118,901,118"/>
+<area shape="poly" id="edge14_Node000012_Node000012" title=" " alt="" coords="290,511,288,501,295,492,311,486,334,484,360,486,375,493,373,498,358,492,334,489,312,491,298,496,293,502,295,509"/>
+</map>

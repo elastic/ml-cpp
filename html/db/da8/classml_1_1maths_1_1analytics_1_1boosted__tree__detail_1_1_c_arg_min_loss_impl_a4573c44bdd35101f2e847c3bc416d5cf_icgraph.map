@@ -1,0 +1,28 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinLossImpl::lambda" name="ml::maths::analytics::boosted_tree_detail::CArgMinLossImpl::lambda">
+<area shape="rect" id="Node000001" title=" " alt="" coords="508,329,691,385"/>
+<area shape="rect" id="Node000002" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#ad6c5b67e7fef79c9c1ec252a88795441" title=" " alt="" coords="257,5,460,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="584,315,566,264,539,204,503,143,458,89,445,79,449,75,462,85,508,140,544,202,571,262,589,313"/>
+<area shape="rect" id="Node000004" href="$d9/dec/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_incremental_impl.html#ae8eb571cf4b18521bdecfbe98556649c" title=" " alt="" coords="257,100,460,171"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="572,317,523,250,493,215,458,184,443,173,446,169,462,180,496,212,528,247,576,314"/>
+<area shape="rect" id="Node000005" href="$da/de3/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_msle_impl.html#aed38f9a688f9410c837a6cb7594a9307" title=" " alt="" coords="262,194,455,250"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="549,322,506,291,459,263,438,253,440,248,461,258,509,287,552,317"/>
+<area shape="rect" id="Node000007" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#a2a55eb51a4fed1f59f0ce0839062949f" title=" " alt="" coords="263,273,454,344"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="492,338,454,330,455,325,493,333"/>
+<area shape="rect" id="Node000009" href="$d6/d53/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_pseudo_huber_impl.html#ae60c1fe3b5029d45057489209618285e" title=" " alt="" coords="266,463,451,533"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="549,396,461,452,439,465,436,460,459,448,546,391"/>
+<area shape="rect" id="Node000011" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#a437bfc4128136f95012520d67b666b74" title=" " alt="" coords="263,368,454,439"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="493,380,455,387,454,382,492,375"/>
+<area shape="rect" id="Node000012" href="$d0/da5/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_impl.html#ac94bf26aa4d157cf6ef47837fe52853a" title=" " alt="" coords="274,557,443,613"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="579,400,531,474,499,513,462,547,444,558,441,554,458,543,495,509,527,471,575,397"/>
+<area shape="rect" id="Node000013" href="$d7/d37/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_incremental_impl.html#ab963310796f38c6fb0001691ae6758b0" title=" " alt="" coords="259,636,458,707"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="588,400,570,451,543,511,507,572,462,627,449,637,445,633,458,623,503,569,539,508,565,449,583,399"/>
+<area shape="rect" id="Node000003" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a6c7a7662d9f08d9f7258b4b5d7f934e9" title=" " alt="" coords="5,5,209,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="241,43,209,43,209,38,241,38"/>
+<area shape="rect" id="Node000006" href="$da/de3/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_msle_impl.html#aa7d86506377f092ec925dda77790234e" title=" " alt="" coords="21,194,193,250"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="246,225,194,225,194,219,246,219"/>
+<area shape="rect" id="Node000008" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="11,320,203,391"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="248,332,204,340,203,335,247,327"/>
+<area shape="rect" id="Node000010" href="$d6/d53/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_pseudo_huber_impl.html#ae628995e21cacc5966d5ebef415d34d6" title=" " alt="" coords="15,463,199,533"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="251,501,200,501,200,495,251,495"/>
+<area shape="poly" id="edge11_Node000011_Node000008" title=" " alt="" coords="247,385,203,376,204,371,248,380"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::addCustomProcessor" name="ml::api::CBoostedTreeInferenceModelBuilder::addCustomProcessor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="489,53,719,94"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#acc3b40db273c62478ca23a0efc14c4e6" title="Write the boosted tree and custom processors to builder." alt="" coords="257,53,441,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="473,76,441,76,441,71,473,71"/>
+<area shape="rect" id="Node000003" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a06a0fac72d5e6b08e91a67fe5dd2ffbd" title=" " alt="" coords="11,5,203,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="241,58,203,52,204,46,241,53"/>
+<area shape="rect" id="Node000004" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#af502e1ffbd1fcf497945307b14b6d225" title=" " alt="" coords="5,85,209,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="242,94,210,99,209,94,241,88"/>
+</map>

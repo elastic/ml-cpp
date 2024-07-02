@@ -1,0 +1,5 @@
+<map id="ml::core::CStateDecompressor::CDechunkFilter::category" name="ml::core::CStateDecompressor::CDechunkFilter::category">
+<area shape="rect" id="Node000001" title="Inform the filtering_stream owning object what this is capable of." alt="" coords="5,79,208,120"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="11,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,46,109,79,104,79,104,46"/>
+</map>

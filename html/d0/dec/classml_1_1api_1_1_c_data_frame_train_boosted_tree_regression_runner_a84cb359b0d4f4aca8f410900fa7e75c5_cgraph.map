@@ -1,0 +1,11 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner" name="ml::api::CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner">
+<area shape="rect" id="Node000001" title="This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory." alt="" coords="5,111,321,166"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a313663bfc1b4e641ec429027a9fd54fc" title=" " alt="" coords="379,5,596,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,108,384,64,386,69,252,113"/>
+<area shape="rect" id="Node000003" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a789a01713073a4e1b37b5f4fdf747524" title=" " alt="" coords="369,85,606,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="321,120,353,116,354,122,321,125"/>
+<area shape="rect" id="Node000004" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="391,150,584,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="321,151,375,157,375,162,321,157"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#af78b75ff1cf14d04caec5b06824e2f4f" title="Stratify the cross&#45;validation we do for regression." alt="" coords="374,215,601,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="253,164,385,207,383,212,251,169"/>
+</map>

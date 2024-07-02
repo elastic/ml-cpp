@@ -1,0 +1,7 @@
+<map id="ml::model::function_t::isPopulation" name="ml::model::function_t::isPopulation">
+<area shape="rect" id="Node000001" title="Is this function for use with the population models?" alt="" coords="287,49,419,90"/>
+<area shape="rect" id="Node000002" href="$db/d01/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config_1_1_c_detector_config.html#afec151b9e76da2c6319db26565863025" title=" " alt="" coords="5,5,239,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="271,59,239,54,240,49,272,54"/>
+<area shape="rect" id="Node000003" href="$db/d69/classml_1_1model_1_1_c_search_key.html#ab9812dac00e37125c0ccbe358a59ee07" title="Is the function type for use with the population models?" alt="" coords="42,85,202,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="271,84,203,95,202,90,271,79"/>
+</map>

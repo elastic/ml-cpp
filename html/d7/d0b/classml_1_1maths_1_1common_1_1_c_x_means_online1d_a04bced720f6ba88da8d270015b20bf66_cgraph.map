@@ -1,0 +1,27 @@
+<map id="ml::maths::common::CXMeansOnline1d::acceptPersistInserter" name="ml::maths::common::CXMeansOnline1d::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,218,224,274"/>
+<area shape="rect" id="Node000002" href="$d5/d01/classml_1_1maths_1_1common_1_1_c_clusterer_types_1_1_c_index_generator.html#a566dc8ffc6ed1de651bb174789492c10" title="Persist state by passing information to the supplied inserter." alt="" coords="272,6,498,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,216,192,150,229,113,270,81,293,67,296,71,273,85,233,117,196,154,139,219"/>
+<area shape="rect" id="Node000004" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#abcabb7b5750133a0f54c4d9bee6973fe" title=" " alt="" coords="296,95,474,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="153,215,207,180,271,146,288,139,290,143,273,151,210,184,156,220"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="284,160,486,201"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="224,217,283,202,284,207,225,222"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="284,225,486,266"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="224,243,268,243,268,248,224,248"/>
+<area shape="rect" id="Node000008" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="273,290,497,346"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="222,272,263,283,262,288,221,277"/>
+<area shape="rect" id="Node000009" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html#a7c35fbd89f1e059926cccf0d53d6f62f" title="Convert to a string." alt="" coords="305,369,465,410"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="149,272,205,314,273,355,291,363,289,368,270,360,202,319,146,276"/>
+<area shape="rect" id="Node000010" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#a450f29bc76f6b0e3e916d872a07f43eb" title="Conversion to a string." alt="" coords="290,434,480,490"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="136,272,192,345,230,385,273,419,280,424,278,429,270,424,227,389,188,349,132,276"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="554,5,708,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="498,27,538,26,538,31,498,33"/>
+<area shape="rect" id="Node000005" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a27a8cb85db7bf18509c0a8b9cd4e76e0" title="The total count of points." alt="" coords="546,95,716,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="474,121,531,121,531,127,474,126"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="546,109,489,109,489,103,546,104"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="601,94,599,85,604,76,615,70,631,68,649,70,659,77,656,81,647,75,631,73,617,75,608,80,605,86,606,94"/>
+<area shape="rect" id="Node000011" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="558,441,705,482"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="480,459,542,459,542,464,480,464"/>
+<area shape="rect" id="Node000012" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="764,449,811,475"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="705,459,748,459,748,464,705,464"/>
+</map>

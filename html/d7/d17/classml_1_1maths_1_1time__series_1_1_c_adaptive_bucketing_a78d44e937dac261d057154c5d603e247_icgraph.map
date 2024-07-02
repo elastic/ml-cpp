@@ -1,0 +1,69 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::predict" name="ml::maths::time_series::CAdaptiveBucketing::predict">
+<area shape="rect" id="Node000001" title="Get the predicted value for bucket at time." alt="" coords="1485,403,1642,458"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ae9b9c67cb000b00ec58698e170b36715" title=" " alt="" coords="1045,264,1233,304"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1470,401,1199,307,1201,302,1471,396"/>
+<area shape="rect" id="Node000019" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ad8170457fa056f84e9d7425095ad0796" title=" " alt="" coords="1061,535,1217,590"/>
+<area shape="poly" id="edge22_Node000001_Node000019" title=" " alt="" coords="1471,463,1438,473,1218,541,1216,536,1437,468,1470,457"/>
+<area shape="rect" id="Node000025" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#aca160da0a470e282876ff3d623b34486" title="Get the bucket regressions." alt="" coords="1281,403,1437,458"/>
+<area shape="poly" id="edge36_Node000001_Node000025" title=" " alt="" coords="1470,433,1437,433,1437,428,1470,428"/>
+<area shape="poly" id="edge21_Node000002_Node000002" title=" " alt="" coords="1175,250,1161,244,1139,242,1118,244,1105,249,1100,255,1102,262,1097,263,1095,254,1102,244,1117,239,1139,237,1163,239,1177,245"/>
+<area shape="rect" id="Node000003" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a6b0b85c0a881bafd27de2c784292791c" title=" " alt="" coords="800,35,997,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1120,251,1100,212,1072,166,1037,121,995,82,959,64,962,59,998,78,1041,117,1076,163,1105,209,1125,249"/>
+<area shape="rect" id="Node000004" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#acfcbb61c2b3b4e3b314ee4a98279fabe" title=" " alt="" coords="800,398,997,423"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1104,317,1056,354,998,388,965,400,964,395,996,383,1053,349,1101,312"/>
+<area shape="rect" id="Node000005" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a6ace0510d94b4171a5d28caa7232f876" title=" " alt="" coords="297,419,493,445"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1116,252,1095,221,1068,187,1034,156,996,133,953,119,898,108,834,101,766,98,699,99,636,105,582,116,542,133,506,162,477,198,453,239,434,282,410,363,400,419,395,418,405,361,429,280,448,237,472,195,502,158,540,128,581,111,635,99,698,93,766,92,835,96,899,103,955,114,998,128,1037,152,1072,184,1100,218,1121,249"/>
+<area shape="rect" id="Node000006" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a83d3db08b40e753bcbf9bc6672205f64" title=" " alt="" coords="297,483,493,509"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="1107,254,1058,211,1028,192,996,177,942,161,898,155,854,160,801,177,745,204,703,235,671,269,643,306,585,383,546,421,494,459,440,485,438,480,492,455,542,417,581,379,639,302,666,266,700,231,743,200,799,172,853,155,898,149,943,156,998,172,1031,187,1061,207,1111,250"/>
+<area shape="rect" id="Node000007" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a77d4b9767e6bf93ec4b49bbd2130e590" title=" " alt="" coords="800,267,997,293"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1029,285,997,284,997,279,1029,279"/>
+<area shape="rect" id="Node000008" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a7332f86f46b93cd58e4e70aa5096f0bb" title=" " alt="" coords="820,317,977,373"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="1042,311,978,328,976,323,1041,306"/>
+<area shape="rect" id="Node000013" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a52413b96720bac163a882f8bd99127c8" title=" " alt="" coords="815,187,982,242"/>
+<area shape="poly" id="edge14_Node000002_Node000013" title=" " alt="" coords="1050,261,981,241,983,236,1052,256"/>
+<area shape="rect" id="Node000016" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a5928687b847c2441307221b88e60df35" title=" " alt="" coords="814,600,983,656"/>
+<area shape="poly" id="edge17_Node000002_Node000016" title=" " alt="" coords="1117,318,922,601,917,598,1113,315"/>
+<area shape="rect" id="Node000009" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ae46bcff4e98237ce406cd2f74028c104" title=" " alt="" coords="541,469,752,525"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="811,382,802,387,737,429,683,471,680,467,734,425,799,383,809,378"/>
+<area shape="poly" id="edge9_Node000009_Node000005" title=" " alt="" coords="525,468,447,448,448,443,526,463"/>
+<area shape="poly" id="edge10_Node000009_Node000006" title=" " alt="" coords="525,499,493,499,493,494,525,494"/>
+<area shape="rect" id="Node000010" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a7a2446117e41608ffd09eb34186757f3" title=" " alt="" coords="297,614,493,639"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="601,537,551,572,494,604,461,616,459,611,492,599,548,567,598,533"/>
+<area shape="rect" id="Node000011" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aba0b2f1de40ae81b63d2916ced7c15e3" title="Initialize the adaptive bucketing." alt="" coords="311,533,479,589"/>
+<area shape="poly" id="edge12_Node000009_Node000011" title=" " alt="" coords="527,530,480,542,479,537,525,525"/>
+<area shape="rect" id="Node000012" href="$de/da5/classml_1_1maths_1_1time__series_1_1_c_new_seasonal_component_summary.html#a4f24706e33caadc86c16b5ad00d7d6c1" title="Create a seasonal component from the initial values." alt="" coords="5,533,249,589"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="295,564,249,564,249,559,295,559"/>
+<area shape="rect" id="Node000014" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a00a981aefb89b1fbd233341a369106f1" title="Linearly scale the component&#39;s by scale." alt="" coords="564,5,730,61"/>
+<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="845,180,686,64,689,59,848,175"/>
+<area shape="rect" id="Node000015" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#aaeef51dd980bf63d603f1b9123229039" title=" " alt="" coords="318,13,472,54"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="548,36,472,36,472,31,548,31"/>
+<area shape="poly" id="edge18_Node000016_Node000011" title=" " alt="" coords="799,618,541,584,479,575,480,570,541,579,800,613"/>
+<area shape="rect" id="Node000017" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ac4bc65a11d95ba4e8449f4b8fe997aac" title="Linearly scale the component&#39;s by scale." alt="" coords="563,655,731,710"/>
+<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="800,652,732,667,731,662,799,647"/>
+<area shape="rect" id="Node000018" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#a466e04eb941540e537a5b5dd3d48433b" title=" " alt="" coords="318,664,472,704"/>
+<area shape="poly" id="edge20_Node000017_Node000018" title=" " alt="" coords="547,686,472,686,472,681,547,680"/>
+<area shape="poly" id="edge23_Node000019_Node000004" title=" " alt="" coords="1079,528,919,426,922,421,1082,524"/>
+<area shape="poly" id="edge24_Node000019_Node000005" title=" " alt="" coords="1045,535,908,495,752,460,617,443,493,436,494,431,618,438,753,455,909,489,1047,529"/>
+<area shape="poly" id="edge29_Node000019_Node000006" title=" " alt="" coords="1045,569,941,571,815,568,677,559,540,540,516,533,492,524,449,512,451,507,494,519,518,528,542,535,678,553,815,563,941,565,1045,564"/>
+<area shape="poly" id="edge32_Node000019_Node000007" title=" " alt="" coords="1117,521,1059,400,1025,343,995,307,975,296,978,291,998,303,1030,340,1063,398,1122,519"/>
+<area shape="poly" id="edge33_Node000019_Node000008" title=" " alt="" coords="1112,523,1063,454,1031,419,995,387,975,375,978,370,998,383,1034,415,1067,451,1116,520"/>
+<area shape="poly" id="edge30_Node000019_Node000010" title=" " alt="" coords="1119,606,1054,734,1022,790,998,819,934,851,874,867,817,870,762,859,709,838,655,808,599,770,539,724,523,706,515,688,507,670,491,654,469,642,472,638,495,650,512,667,520,686,527,703,543,721,602,765,657,803,711,834,764,854,817,864,873,862,932,846,995,815,1017,787,1050,731,1115,603"/>
+<area shape="poly" id="edge34_Node000019_Node000013" title=" " alt="" coords="1120,521,1062,375,1027,303,1010,276,995,256,980,245,984,241,999,253,1015,272,1032,301,1067,372,1125,519"/>
+<area shape="poly" id="edge35_Node000019_Node000016" title=" " alt="" coords="1046,590,984,607,982,602,1045,585"/>
+<area shape="rect" id="Node000020" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#ae354c24679da5da159826c646fd65a53" title=" " alt="" coords="800,880,997,906"/>
+<area shape="poly" id="edge25_Node000019_Node000020" title=" " alt="" coords="1121,605,1048,762,999,863,966,882,963,878,995,859,1043,760,1116,603"/>
+<area shape="rect" id="Node000021" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="800,680,997,706"/>
+<area shape="poly" id="edge26_Node000019_Node000021" title=" " alt="" coords="1097,603,1051,638,998,670,966,682,964,677,996,665,1048,634,1094,598"/>
+<area shape="rect" id="Node000022" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a57d3ec5369f2c114c2fb6aba9f16ea77" title=" " alt="" coords="800,730,997,755"/>
+<area shape="poly" id="edge27_Node000019_Node000022" title=" " alt="" coords="1113,605,1065,665,1033,695,998,721,975,732,972,727,995,716,1030,691,1061,662,1109,602"/>
+<area shape="rect" id="Node000023" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#ab16c369a2fea1232a8435f0bca6a2675" title=" " alt="" coords="800,930,997,955"/>
+<area shape="poly" id="edge28_Node000019_Node000023" title=" " alt="" coords="1119,605,1084,680,1047,767,1036,812,1033,850,1025,885,1015,902,998,920,983,931,980,927,995,917,1010,899,1020,883,1028,849,1031,811,1042,766,1079,678,1115,603"/>
+<area shape="rect" id="Node000024" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a9d63d724a22497ecdc14720985d34e5a" title=" " alt="" coords="800,779,997,805"/>
+<area shape="poly" id="edge31_Node000019_Node000024" title=" " alt="" coords="1122,606,1102,645,1074,690,1040,733,998,770,978,781,975,776,995,766,1036,730,1070,687,1097,643,1117,603"/>
+<area shape="poly" id="edge41_Node000025_Node000002" title=" " alt="" coords="1317,394,1277,360,1232,327,1193,307,1195,302,1234,323,1280,356,1320,390"/>
+<area shape="poly" id="edge38_Node000025_Node000007" title=" " alt="" coords="1292,398,1232,372,1167,349,1115,336,996,308,951,296,952,291,997,303,1117,331,1169,344,1234,367,1294,393"/>
+<area shape="poly" id="edge39_Node000025_Node000008" title=" " alt="" coords="1265,416,977,362,978,357,1266,411"/>
+<area shape="poly" id="edge40_Node000025_Node000009" title=" " alt="" coords="1266,442,753,490,753,485,1265,437"/>
+<area shape="poly" id="edge42_Node000025_Node000019" title=" " alt="" coords="1300,469,1189,536,1186,532,1297,464"/>
+<area shape="poly" id="edge37_Node000025_Node000023" title=" " alt="" coords="1342,473,1295,567,1220,688,1173,752,1121,814,1062,872,998,921,977,931,975,927,995,916,1059,868,1117,811,1169,749,1216,685,1290,564,1337,471"/>
+</map>

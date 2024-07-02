@@ -1,0 +1,9 @@
+<map id="anonymous_namespace{CSerializableToJsonTest.cc}::CSerializableVector" name="anonymous_namespace{CSerializableToJsonTest.cc}::CSerializableVector">
+<area shape="rect" id="Node000001" title=" " alt="" coords="436,31,627,87"/>
+<area shape="rect" id="Node000002" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="213,5,388,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="404,38,436,43,435,48,403,43"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="5,5,165,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="180,23,212,23,212,28,180,28"/>
+<area shape="rect" id="Node000004" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html" title="Utility for reading the inference model and training data summarization JSON descriptions from a stre..." alt="" coords="213,71,388,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="403,74,435,70,436,75,403,79"/>
+</map>

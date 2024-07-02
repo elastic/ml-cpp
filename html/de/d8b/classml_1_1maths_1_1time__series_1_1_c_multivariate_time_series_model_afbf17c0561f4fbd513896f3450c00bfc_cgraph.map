@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::seasonalWeight" name="ml::maths::time_series::CMultivariateTimeSeriesModel::seasonalWeight">
+<area shape="rect" id="Node000001" title="Fill in the seasonal variance scale at time." alt="" coords="5,77,213,133"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="261,5,468,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,74,248,63,249,68,211,79"/>
+<area shape="rect" id="Node000003" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="292,85,437,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,103,276,103,276,108,213,108"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="327,174,402,199"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,131,313,168,312,173,198,136"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="325,177,314,166,318,156,335,149,364,147,401,151,411,156,415,162,410,165,407,160,400,156,364,152,336,155,322,160,319,165,328,173"/>
+</map>

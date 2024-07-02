@@ -1,0 +1,30 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,202,137"/>
+<area shape="rect" id="Node000002" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#adf27b7c1ce28d313a46267ba824b5224" title="Check if the set contains the given key." alt="" coords="250,71,398,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,108,234,102,235,107,193,114"/>
+<area shape="rect" id="Node000006" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#a5923e315eac66a87f3acdde33b7821a9" title=" " alt="" coords="250,136,398,177"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="197,135,235,141,234,146,196,140"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a709fd22341339d9c4e4e95cb7599cdf9" title="Returns true if the key fully matches a prefix present in the tree." alt="" coords="447,5,615,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,68,449,49,451,54,391,73"/>
+<area shape="rect" id="Node000005" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a0d0fbc913278f92a8286c097fa887ff8" title="Returns true if the key starts with a prefix present in the tree." alt="" coords="447,71,615,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="398,88,432,88,432,94,398,94"/>
+<area shape="rect" id="Node000004" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a8e87239a9ad8c6fe1b76774e3cf0b9ee" title="Implementation of the search algorithm." alt="" coords="664,16,833,57"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="616,27,649,29,649,34,615,32"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="614,67,650,58,651,64,616,73"/>
+<area shape="rect" id="Node000007" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac9c0287e7f45f33df1ec6065e6ddd1ec" title=" " alt="" coords="447,136,615,177"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="398,154,432,154,432,159,398,159"/>
+<area shape="rect" id="Node000013" href="$dd/d58/classml_1_1core_1_1_c_pattern_set.html#acd862d4a1264604cb342e91a03817455" title=" " alt="" coords="446,201,616,242"/>
+<area shape="poly" id="edge15_Node000006_Node000013" title=" " alt="" coords="391,175,451,194,449,199,390,180"/>
+<area shape="rect" id="Node000008" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a3c93c774f1385bee9d579c358ea7462b" title="The recursive building helper." alt="" coords="664,125,833,166"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="615,150,649,148,649,153,616,155"/>
+<area shape="rect" id="Node000011" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad06d73c85fb99d9a9888376159c88fd4" title="Pretty&#45;prints the tree." alt="" coords="664,191,833,231"/>
+<area shape="poly" id="edge12_Node000007_Node000011" title=" " alt="" coords="616,175,651,184,650,189,614,180"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="707,125,705,115,712,106,727,101,749,99,772,101,786,107,784,112,771,106,748,104,728,106,715,111,711,117,713,124"/>
+<area shape="rect" id="Node000009" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="881,125,1059,166"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="833,143,865,143,865,148,833,148"/>
+<area shape="rect" id="Node000010" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1107,166,1153,192"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1060,162,1092,169,1091,174,1059,167"/>
+<area shape="rect" id="Node000012" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="896,191,1044,231"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="833,208,881,208,881,214,833,214"/>
+<area shape="poly" id="edge14_Node000012_Node000010" title=" " alt="" coords="1043,194,1091,184,1092,189,1045,199"/>
+</map>

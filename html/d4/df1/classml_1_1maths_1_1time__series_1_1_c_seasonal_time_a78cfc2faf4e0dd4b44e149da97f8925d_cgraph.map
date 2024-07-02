@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CSeasonalTime::regression" name="ml::maths::time_series::CSeasonalTime::regression">
+<area shape="rect" id="Node000001" title="Extract the time of time in the current regression." alt="" coords="5,5,196,46"/>
+<area shape="rect" id="Node000002" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#ac8e0f47422c355d948c2884b5afcca4a" title="Get the scale to apply when computing the regression time." alt="" coords="244,5,496,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,23,228,23,228,28,196,28"/>
+</map>

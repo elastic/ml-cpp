@@ -1,0 +1,15 @@
+<map id="ml::model::CPopulationModel::memoryUsage" name="ml::model::CPopulationModel::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this model." alt="" coords="807,39,1000,79"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#ad47617536e09ea1dfb68cc8b9179f2ea" title="Get the non&#45;estimated memory used by this model." alt="" coords="540,5,759,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="792,47,759,43,760,37,792,42"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a1178dd641a340e005ac1776b202bf99c" title="Get the non&#45;estimated memory used by this model." alt="" coords="550,71,749,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="792,76,750,81,749,76,791,70"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b469657689b45cfd97253533dd22cf7" title="Get the memory used by this model." alt="" coords="273,5,492,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="524,28,492,28,492,23,524,23"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a4e7fae88f2658ec19770fa01c5d1472b" title="Update the correlation models." alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="257,28,225,28,225,23,257,23"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a2e196bcdc954a18403c0e72215621c90" title="Get the memory used by this model." alt="" coords="286,71,479,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="534,94,479,94,479,88,534,88"/>
+<area shape="rect" id="Node000007" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aa82ee3f5efba44916ffee8d1ebc14577" title="Update the correlation models." alt="" coords="10,71,220,111"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="270,94,220,94,220,88,270,88"/>
+</map>

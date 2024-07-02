@@ -1,0 +1,42 @@
+<map id="anonymous_namespace{CMultimodalPriorTest::cc}::makePrior" name="anonymous_namespace{CMultimodalPriorTest::cc}::makePrior">
+<area shape="rect" id="Node000001" title="Make a vanilla multimodal prior." alt="" coords="5,310,168,366"/>
+<area shape="rect" id="Node000002" href="$da/d2c/namespaceanonymous__namespace_02_c_multimodal_prior_test_8cc_03.html#aedc48afe9523124fd7a2bbe2875a667f" title="Make the default mode prior." alt="" coords="216,310,378,366"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,335,200,335,200,340,168,340"/>
+<area shape="rect" id="Node000003" href="$d1/dd8/classml_1_1_c_prior_test_interface_mixin.html#a8f9027d2b3f3b8cd16ce3faded412d48" title="Clone the object." alt="" coords="439,85,626,126"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="325,307,498,135,501,139,329,311"/>
+<area shape="rect" id="Node000005" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af6fec051336b8cee312a68fbb48f80c3" title=" " alt="" coords="437,310,628,366"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="378,335,421,335,421,340,378,340"/>
+<area shape="rect" id="Node000008" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#ad22d14f6934d43e725a4f0cc467de641" title=" " alt="" coords="450,494,614,550"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="327,364,373,409,428,456,468,483,465,488,424,460,369,413,323,368"/>
+<area shape="rect" id="Node000014" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa9e2bdebb6a033925f6fe61c2c4e57e0" title=" " alt="" coords="426,230,638,286"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="377,308,433,288,435,293,379,313"/>
+<area shape="rect" id="Node000018" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="437,390,628,446"/>
+<area shape="poly" id="edge19_Node000002_Node000018" title=" " alt="" coords="379,363,435,382,433,387,377,368"/>
+<area shape="rect" id="Node000004" href="$d1/dd8/classml_1_1_c_prior_test_interface_mixin.html#a9715786552f6e45a0dc006f2083b1b72" title=" " alt="" coords="703,5,890,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="598,82,686,55,708,48,709,54,687,60,600,87"/>
+<area shape="rect" id="Node000006" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="697,310,896,366"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="628,335,681,335,681,340,628,340"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="955,317,1115,358"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="897,335,939,335,939,340,897,340"/>
+<area shape="rect" id="Node000009" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a3e87240540da47015ac21d747c39f36c" title=" " alt="" coords="710,679,883,735"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="559,548,614,606,650,637,688,665,698,670,695,675,685,669,646,642,611,610,555,552"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="724,455,869,495"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="614,505,708,488,709,493,615,510"/>
+<area shape="rect" id="Node000011" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="724,389,869,430"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="582,491,685,441,709,432,710,437,687,445,584,496"/>
+<area shape="rect" id="Node000012" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#adde1b5856046af8a3ea806a7d8ca2236" title="Get the current offset." alt="" coords="714,519,879,575"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="615,527,699,535,699,540,615,532"/>
+<area shape="rect" id="Node000013" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#afc0f35d23ec67b354bfdf3c87dd53a2b" title=" " alt="" coords="714,599,879,655"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="599,548,687,585,703,591,701,596,685,589,597,553"/>
+<area shape="poly" id="edge15_Node000014_Node000010" title=" " alt="" coords="626,284,640,296,654,315,661,334,664,370,668,406,675,423,688,440,711,456,708,460,685,444,670,425,662,407,659,370,656,335,649,317,636,299,623,288"/>
+<area shape="poly" id="edge16_Node000014_Node000011" title=" " alt="" coords="623,284,640,296,657,317,664,337,672,357,688,376,711,389,708,394,685,380,667,360,659,339,652,319,637,300,620,288"/>
+<area shape="rect" id="Node000015" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa5c96a794a387e6c36a548be90adbd70" title=" " alt="" coords="686,150,907,206"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="626,227,687,208,688,213,627,232"/>
+<area shape="rect" id="Node000016" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a54f917af2e603edfa54be613056c4265" title="Get the current offset." alt="" coords="690,230,903,286"/>
+<area shape="poly" id="edge17_Node000014_Node000016" title=" " alt="" coords="639,255,675,255,675,260,639,260"/>
+<area shape="rect" id="Node000017" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a649d7f5cf38ff01ca9618e0aa2602f3a" title=" " alt="" coords="690,70,903,126"/>
+<area shape="poly" id="edge18_Node000014_Node000017" title=" " alt="" coords="562,227,617,181,685,135,695,130,697,135,688,140,620,185,565,231"/>
+<area shape="poly" id="edge20_Node000018_Node000006" title=" " alt="" coords="626,387,687,368,688,373,627,392"/>
+<area shape="poly" id="edge21_Node000018_Node000010" title=" " alt="" coords="629,436,709,453,708,459,628,441"/>
+<area shape="poly" id="edge22_Node000018_Node000011" title=" " alt="" coords="628,412,708,410,708,415,628,417"/>
+</map>

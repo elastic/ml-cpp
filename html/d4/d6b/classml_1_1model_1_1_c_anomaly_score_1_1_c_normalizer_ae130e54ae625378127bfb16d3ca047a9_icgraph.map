@@ -1,0 +1,25 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::normalize" name="ml::model::CAnomalyScore::CNormalizer::normalize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="494,171,675,212"/>
+<area shape="rect" id="Node000002" href="$db/dcc/_c_anomaly_score_test_8cc.html#ae114264c7ba113ad53554ceb8c0d6160" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="559,160,511,100,480,70,445,44,422,34,424,29,447,40,483,66,515,96,564,156"/>
+<area shape="rect" id="Node000003" href="$db/dcc/_c_anomaly_score_test_8cc.html#a481ea2d7a9a12b38aeb56d775fcc8439" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="548,163,501,127,445,94,417,83,418,78,447,89,504,122,551,159"/>
+<area shape="rect" id="Node000004" href="$db/dcc/_c_anomaly_score_test_8cc.html#ab858b89cfa840c047b0052e6fa11ae92" title=" " alt="" coords="250,104,446,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="516,168,445,143,407,133,409,128,447,138,518,163"/>
+<area shape="rect" id="Node000005" href="$db/dcc/_c_anomaly_score_test_8cc.html#ac6f92dfdc2c7155262fbc1fa7a6f9c9b" title=" " alt="" coords="250,153,446,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="478,183,446,179,447,174,479,178"/>
+<area shape="rect" id="Node000006" href="$db/dcc/_c_anomaly_score_test_8cc.html#a206765bd17937656a77564435f281407" title=" " alt="" coords="250,203,446,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="479,205,447,208,446,203,478,200"/>
+<area shape="rect" id="Node000007" href="$db/dcc/_c_anomaly_score_test_8cc.html#aee390ef4c32d155058a3b39238cf5a3b" title=" " alt="" coords="250,252,446,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="516,220,447,243,408,254,407,249,445,238,514,215"/>
+<area shape="rect" id="Node000008" href="$db/dcc/_c_anomaly_score_test_8cc.html#a7f4980c7ed547f1d9a03fcc64706f91e" title=" " alt="" coords="250,301,446,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="550,224,503,260,447,293,418,303,417,298,445,288,500,256,547,220"/>
+<area shape="rect" id="Node000009" href="$d0/d02/classml_1_1api_1_1_c_result_normalizer.html#a29f8ba360b99d9cb76efcfc345e8c0ea" title="Handle a record to be normalized." alt="" coords="258,351,438,392"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="563,226,514,285,482,315,447,342,426,353,424,348,445,337,479,311,510,281,558,223"/>
+<area shape="rect" id="Node000010" href="$d6/dbc/_c_result_normalizer_test_8cc.html#a12d34b0229b9e8638d007b7c863d3e03" title=" " alt="" coords="5,309,202,335"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="242,353,170,338,171,333,243,348"/>
+<area shape="rect" id="Node000011" href="$d6/dbc/_c_result_normalizer_test_8cc.html#aeef8465b7684a4e2f933f8f6490067f6" title=" " alt="" coords="5,359,202,384"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="243,374,202,374,202,369,243,369"/>
+<area shape="rect" id="Node000012" href="$da/d21/bin_2normalize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Normalise anomaly scores and/or probabilties in results." alt="" coords="79,408,128,434"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="243,395,129,419,128,413,242,390"/>
+</map>

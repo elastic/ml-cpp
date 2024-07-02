@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CNewTrendSummary::initialValues" name="ml::maths::time_series::CNewTrendSummary::initialValues">
+<area shape="rect" id="Node000001" title="Get the values to use to initialize the component." alt="" coords="324,46,556,87"/>
+<area shape="rect" id="Node000002" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a5208590c67d315bf8cab5fa0a4fb0225" title="Add new seasonal components." alt="" coords="5,5,276,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="308,55,276,51,276,46,309,49"/>
+<area shape="rect" id="Node000003" href="$d4/d97/_c_time_series_test_for_seasonality_test_8cc.html#ad110076f1f1d1f4e093dd1e7857d5bfd" title=" " alt="" coords="42,86,239,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="309,83,239,91,239,85,308,78"/>
+</map>

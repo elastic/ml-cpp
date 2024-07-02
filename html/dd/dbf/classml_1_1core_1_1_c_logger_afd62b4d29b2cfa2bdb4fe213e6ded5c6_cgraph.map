@@ -1,0 +1,12 @@
+<map id="ml::core::CLogger::CLogger" name="ml::core::CLogger::CLogger">
+<area shape="rect" id="Node000001" title="Constructor for a singleton is private." alt="" coords="5,39,139,79"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1core_1_1_c_crash_handler.html#abd199fb9ffcdf0d5792232110c950d16" title=" " alt="" coords="187,5,353,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,45,171,40,172,45,139,50"/>
+<area shape="rect" id="Node000003" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="203,71,337,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,67,188,75,188,80,138,72"/>
+<area shape="rect" id="Node000004" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="401,25,561,66"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="336,74,386,63,387,69,337,79"/>
+<area shape="rect" id="Node000005" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="414,115,548,155"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="337,102,399,115,398,121,336,107"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="441,115,439,105,446,96,460,90,481,88,504,90,518,97,515,101,503,96,481,93,461,95,449,100,444,106,446,113"/>
+</map>

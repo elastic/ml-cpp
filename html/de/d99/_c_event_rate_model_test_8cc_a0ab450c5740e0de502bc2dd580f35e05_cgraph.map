@@ -1,0 +1,24 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,172,223,197"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="331,78,410,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,169,200,142,270,114,315,101,316,106,272,119,202,147,143,173"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a6d1f078eba3bca1bef77846d0b82ba70" title="Get a checksum for this object." alt="" coords="298,128,443,169"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="210,168,282,158,283,163,211,174"/>
+<area shape="rect" id="Node000009" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa512cb953460d0677dac765cc2dbdbb0" title="Get the residual model." alt="" coords="271,193,470,248"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="211,195,256,202,255,207,210,200"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="297,272,444,313"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="141,195,200,226,272,258,287,264,285,269,270,263,198,230,139,200"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="518,13,692,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="410,79,504,56,505,61,411,84"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="748,71,907,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="410,88,733,88,733,94,410,94"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="740,5,915,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="693,28,725,27,725,32,693,33"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="687,52,734,64,732,69,686,57"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="963,71,1121,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="907,88,947,88,947,94,907,94"/>
+<area shape="rect" id="Node000008" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="528,128,682,169"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="443,146,513,146,513,151,443,151"/>
+<area shape="rect" id="Node000011" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="582,280,628,305"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="444,290,566,290,566,295,444,295"/>
+</map>

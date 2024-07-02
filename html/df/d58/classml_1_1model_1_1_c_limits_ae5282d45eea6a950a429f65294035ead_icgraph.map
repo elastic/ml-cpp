@@ -1,0 +1,30 @@
+<map id="ml::model::CLimits::unusualProbabilityThreshold" name="ml::model::CLimits::unusualProbabilityThreshold">
+<area shape="rect" id="Node000001" title=" " alt="" coords="757,157,950,197"/>
+<area shape="rect" id="Node000002" href="$d7/daf/_c_limits_test_8cc.html#ad77fd3a9d7120832bbec2c668f323937" title=" " alt="" coords="503,115,699,140"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="741,158,670,144,671,138,742,152"/>
+<area shape="rect" id="Node000003" href="$d7/daf/_c_limits_test_8cc.html#a1a2a417677aed6232b2ee71e26bd6e53" title=" " alt="" coords="503,164,699,190"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="742,180,699,180,699,174,742,174"/>
+<area shape="rect" id="Node000004" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a940f19c397c8958d3c47b8276b033d32" title="Check if we&#39;ll write a result for the node." alt="" coords="492,238,709,279"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="774,205,667,240,665,235,773,200"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="642,225,627,219,601,216,576,218,562,223,556,229,558,236,553,238,551,228,559,219,575,213,601,211,628,214,644,220"/>
+<area shape="rect" id="Node000005" href="$dc/dfe/_c_hierarchical_results_test_8cc.html#aeac65144d281f6842d7f75686dd50ccd" title=" " alt="" coords="247,5,443,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="525,232,506,220,490,204,476,182,470,161,468,121,465,82,457,64,442,45,425,34,428,29,446,42,462,61,470,81,473,121,475,160,481,180,494,200,509,215,528,228"/>
+<area shape="rect" id="Node000006" href="$d1/d56/classanonymous__namespace_02_c_event_rate_anomaly_detector_test_8cc_03_1_1_c_result_writer.html#aa35ccec0d3a53ae5f005b01958a5ee6e" title=" " alt="" coords="246,56,444,111"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="531,233,490,204,474,183,466,163,458,144,442,125,426,114,429,110,446,122,463,142,471,161,479,180,494,200,534,228"/>
+<area shape="rect" id="Node000007" href="$d9/d46/classanonymous__namespace_02_c_metric_anomaly_detector_test_8cc_03_1_1_c_result_writer.html#aa86d97e0110e9b283c5497f4661a031c" title="Visit a node." alt="" coords="246,136,444,191"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="529,235,421,194,423,189,530,230"/>
+<area shape="rect" id="Node000008" href="$d1/d77/class_c_result_writer.html#a939a13b7d2318cd9f8ffc90f2ede8934" title=" " alt="" coords="277,216,413,242"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="476,247,413,239,413,234,477,241"/>
+<area shape="rect" id="Node000009" href="$d7/d62/classml_1_1model_1_1_c_hierarchical_results_populator.html#a99749b0791539b084a8605a4790fe96a" title="Visit node." alt="" coords="262,266,428,307"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="477,274,428,280,428,274,476,269"/>
+<area shape="rect" id="Node000010" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#ac25fc5edeec8266029294a76efca6650" title=" " alt="" coords="249,331,441,372"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="533,287,445,321,410,333,408,328,443,316,532,282"/>
+<area shape="rect" id="Node000012" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a743a699f53ba9fdf84f2fae55229399a" title=" " alt="" coords="249,397,441,437"/>
+<area shape="poly" id="edge12_Node000004_Node000012" title=" " alt="" coords="569,291,514,339,445,386,419,398,416,393,443,381,511,335,566,287"/>
+<area shape="rect" id="Node000013" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a8c34c640a67e47e08aa6034cbc4c9a86" title=" " alt="" coords="249,462,441,503"/>
+<area shape="poly" id="edge14_Node000004_Node000013" title=" " alt="" coords="582,293,527,372,489,414,446,451,423,464,421,459,442,447,485,410,523,369,578,290"/>
+<area shape="rect" id="Node000011" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a299c45abf554a4a915e6c6e1a2a16b15" title="Write node." alt="" coords="5,397,198,437"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="253,379,181,398,179,393,251,374"/>
+<area shape="poly" id="edge13_Node000012_Node000011" title=" " alt="" coords="233,420,198,420,198,414,233,414"/>
+<area shape="poly" id="edge15_Node000013_Node000011" title=" " alt="" coords="251,460,179,440,181,435,253,455"/>
+</map>

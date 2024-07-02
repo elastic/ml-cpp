@@ -1,0 +1,61 @@
+<map id="ml::model::CMetricPopulationModel::refreshCorrelationModels" name="ml::model::CMetricPopulationModel::refreshCorrelationModels">
+<area shape="rect" id="Node000001" title="Update the correlation models." alt="" coords="5,335,215,375"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a719ae6399f5a9ea7b5fbb07070728687" title=" " alt="" coords="263,106,529,162"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,332,345,169,348,173,140,336"/>
+<area shape="rect" id="Node000012" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a2e196bcdc954a18403c0e72215621c90" title="Get the memory used by this model." alt="" coords="299,269,493,310"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="201,331,288,311,290,317,203,337"/>
+<area shape="rect" id="Node000024" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a82f863118f3385b956adaf98bcdcd014" title="Get the total number of people currently being modeled." alt="" coords="297,335,495,375"/>
+<area shape="poly" id="edge31_Node000001_Node000024" title=" " alt="" coords="215,352,282,352,282,358,215,358"/>
+<area shape="rect" id="Node000025" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="297,400,495,441"/>
+<area shape="poly" id="edge32_Node000001_Node000025" title=" " alt="" coords="203,373,290,393,288,399,201,379"/>
+<area shape="rect" id="Node000026" href="$d6/d5b/classml_1_1model_1_1_c_anomaly_detector_model_1_1_c_time_series_correlate_model_allocator.html#a1e98c64a3880bed87dc1b165f2466908" title="Set the prototype prior." alt="" coords="282,465,510,520"/>
+<area shape="poly" id="edge33_Node000001_Node000026" title=" " alt="" coords="140,374,196,412,264,450,278,456,276,461,261,455,193,416,137,378"/>
+<area shape="rect" id="Node000003" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#a4a46eb3f2a48722241b94e2840c0f23d" title=" " alt="" coords="824,48,1062,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="529,115,808,82,809,87,530,120"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a22de8c7b71a6b14569fb7f963cf1c9e2" title="Get the non&#45;estimated value of the the memory used by this model." alt="" coords="577,5,776,46"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="469,103,606,50,608,55,471,108"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aeea1467d5f9bd239110a075c8c03b22c" title=" " alt="" coords="577,171,776,211"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="530,158,562,165,561,170,529,164"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a621663c2b04973ffe8a7dbb7ed6cf98e" title="Get the model memory usage estimator." alt="" coords="840,113,1046,154"/>
+<area shape="poly" id="edge13_Node000002_Node000011" title=" " alt="" coords="529,131,824,131,824,136,529,136"/>
+<area shape="rect" id="Node000004" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="1134,81,1323,122"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1062,80,1119,86,1119,92,1062,85"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="1178,81,1175,71,1184,62,1201,57,1228,55,1257,57,1274,63,1273,68,1256,62,1228,60,1202,62,1187,67,1181,73,1183,80"/>
+<area shape="rect" id="Node000007" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#a8fcdc8ee3d34dca08481a0a5c8e2290b" title=" " alt="" coords="824,179,1062,219"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="777,191,809,192,809,198,777,197"/>
+<area shape="poly" id="edge12_Node000006_Node000011" title=" " alt="" coords="774,167,830,155,831,160,775,173"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="1021,176,1061,163,1162,126,1163,131,1063,168,1022,181"/>
+<area shape="rect" id="Node000008" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#ad255e1a3fa47f4a0bd0d48604a328ecb" title="Get the maximum amount by which we&#39;ll extrapolate the memory usage." alt="" coords="1110,179,1347,219"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="1062,196,1094,196,1094,202,1062,202"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="1413,212,1583,237"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="1348,208,1397,212,1397,218,1347,213"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="1415,162,1581,188"/>
+<area shape="poly" id="edge11_Node000008_Node000010" title=" " alt="" coords="1347,186,1399,181,1399,186,1348,191"/>
+<area shape="poly" id="edge26_Node000012_Node000006" title=" " alt="" coords="453,266,576,222,598,214,600,219,578,227,455,271"/>
+<area shape="rect" id="Node000013" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a1178dd641a340e005ac1776b202bf99c" title="Get the non&#45;estimated memory used by this model." alt="" coords="577,236,776,277"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="493,276,561,267,562,273,493,281"/>
+<area shape="rect" id="Node000020" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="578,301,775,342"/>
+<area shape="poly" id="edge25_Node000012_Node000020" title=" " alt="" coords="493,298,563,306,562,311,493,303"/>
+<area shape="rect" id="Node000021" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a45f85a2e19e95efee1d2cbdf7f33fa4f" title="Get the number of active attributes (not pruned)." alt="" coords="590,367,764,407"/>
+<area shape="poly" id="edge27_Node000012_Node000021" title=" " alt="" coords="494,308,530,321,555,336,578,351,594,358,591,363,576,356,552,340,528,325,492,313"/>
+<area shape="rect" id="Node000023" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a03f7b7e60a3a9537e8dc4a772b62278a" title="Get the number of active people (not pruned)." alt="" coords="590,432,764,473"/>
+<area shape="poly" id="edge29_Node000012_Node000023" title=" " alt="" coords="494,301,531,321,542,333,550,345,556,370,562,394,568,406,579,417,585,422,581,426,575,421,564,409,557,396,551,371,545,347,538,336,527,325,492,306"/>
+<area shape="rect" id="Node000014" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="1395,301,1601,327"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="777,252,1035,256,1191,264,1347,279,1430,294,1429,299,1347,284,1191,269,1035,261,776,257"/>
+<area shape="rect" id="Node000018" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a89911b70375ae3f96a4a0bfc72a37d3d" title="Get the memory used by this model." alt="" coords="847,293,1039,334"/>
+<area shape="poly" id="edge21_Node000013_Node000018" title=" " alt="" coords="775,275,833,287,831,292,774,280"/>
+<area shape="rect" id="Node000015" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1649,214,1821,270"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="1542,298,1633,270,1635,275,1544,303"/>
+<area shape="rect" id="Node000016" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1651,293,1819,334"/>
+<area shape="poly" id="edge18_Node000014_Node000016" title=" " alt="" coords="1602,311,1636,311,1636,316,1602,316"/>
+<area shape="rect" id="Node000017" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1869,315,2054,371"/>
+<area shape="poly" id="edge20_Node000014_Node000017" title=" " alt="" coords="1550,325,1650,343,1735,346,1821,343,1853,343,1853,348,1821,348,1735,352,1649,348,1549,330"/>
+<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="1819,322,1854,326,1853,332,1819,327"/>
+<area shape="poly" id="edge22_Node000018_Node000014" title=" " alt="" coords="1037,332,1110,343,1228,351,1347,343,1431,328,1432,333,1347,348,1228,356,1109,348,1036,337"/>
+<area shape="rect" id="Node000019" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aa6f1b1f094c0febb17de813c8a1473f6" title="Get the memory used by this model." alt="" coords="1130,293,1327,334"/>
+<area shape="poly" id="edge23_Node000018_Node000019" title=" " alt="" coords="1040,311,1114,311,1114,316,1040,316"/>
+<area shape="poly" id="edge24_Node000019_Node000014" title=" " alt="" coords="1328,311,1379,311,1379,316,1328,316"/>
+<area shape="rect" id="Node000022" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a3f3fee3d48ea194e385b822101c1ef4d" title="Get the number of active names (not pruned)." alt="" coords="837,399,1049,439"/>
+<area shape="poly" id="edge28_Node000021_Node000022" title=" " alt="" coords="765,395,822,402,822,407,764,400"/>
+<area shape="poly" id="edge30_Node000023_Node000022" title=" " alt="" coords="764,439,822,431,822,437,765,444"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="ml::maths::common::basic_statistics_detail::SCovariancesLedoitWolf::pow2" name="ml::maths::common::basic_statistics_detail::SCovariancesLedoitWolf::pow2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="992,76,1203,131"/>
+<area shape="rect" id="Node000002" href="$d7/dff/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf.html#ae279c75f55598280f6df675efe188b66" title=" " alt="" coords="745,16,918,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="976,82,918,71,919,66,977,77"/>
+<area shape="rect" id="Node000007" href="$d9/da3/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf_3_01_c_anbe712cdfdefc5a17046f288495b42801.html#ad66a68080cb46129377b0fd5c537f4c0" title=" " alt="" coords="719,111,944,197"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="977,129,945,135,944,130,976,124"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a869474414e0d0ea31da714ee41adee91" title=" " alt="" coords="474,24,671,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="730,54,672,54,672,49,730,49"/>
+<area shape="rect" id="Node000004" href="$d8/dfa/_c_basic_statistics_test_8cc.html#a5ea1badddfda2f6aa36a2b05a01c68d9" title=" " alt="" coords="230,5,426,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="458,39,426,34,427,29,459,33"/>
+<area shape="rect" id="Node000005" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a9b3a8d896fbb5c2059d2014523b5c8f6" title=" " alt="" coords="240,56,416,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="459,69,417,75,416,69,458,64"/>
+<area shape="rect" id="Node000006" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a810d7b339ac2d556dbad39f33378bd06" title=" " alt="" coords="5,56,182,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="224,86,182,86,182,81,224,81"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="131,43,117,37,93,34,73,36,59,41,53,47,53,55,48,55,48,45,57,36,72,31,94,29,118,32,133,38"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="ml::model::CPopulationModel::applyFilters" name="ml::model::CPopulationModel::applyFilters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,198,169"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7cd9e7940db39ea2f40373a80816fa5f" title="Get the predicate used for removing heavy hitting attributes." alt="" coords="246,5,443,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,125,182,91,244,57,260,50,262,55,247,61,185,96,133,130"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="250,95,439,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,132,235,127,235,133,198,138"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="246,160,443,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="198,158,230,163,230,168,198,164"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8b476cc32e08bcfbdd4ce9da77705556" title="Get the predicate used for removing heavy hitting people." alt="" coords="246,225,443,266"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="148,167,247,210,266,217,264,222,245,215,146,172"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="299,95,296,85,304,76,320,70,344,68,371,70,386,77,384,82,369,76,344,73,321,75,307,80,302,86,304,93"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,202,39"/>
+<area shape="rect" id="Node000002" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a315d9733c0ab1d1517f9f1221c7ba3c4" title="Parse from string. Returns false if unsuccessful." alt="" coords="250,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,23,234,23,234,28,202,28"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="478,5,625,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,23,462,23,462,28,430,28"/>
+</map>

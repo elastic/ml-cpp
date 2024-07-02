@@ -1,0 +1,8 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::stopHyperparameterOptimizationEarly" name="ml::maths::analytics::CBoostedTreeFactory::stopHyperparameterOptimizationEarly">
+<area shape="rect" id="Node000001" title="Set the flag to enable or disable early stopping." alt="" coords="250,29,500,85"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="419,17,403,11,375,8,351,10,335,15,328,21,327,29,322,29,323,19,332,10,350,5,375,3,404,5,421,13"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a520bad9b8962587ecabb0dbf08ef5c8f" title=" " alt="" coords="5,19,202,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,47,202,44,203,38,234,41"/>
+<area shape="rect" id="Node000003" href="$d2/d06/_c_boosted_tree_test_8cc.html#a113e717ca13d2ecc8be686b91aee8872" title=" " alt="" coords="5,68,202,94"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,72,203,75,202,70,234,67"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::model::CTokenListDataCategorizerBase::memoryUsage" name="ml::model::CTokenListDataCategorizerBase::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this categorizer." alt="" coords="5,85,217,126"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="504,92,710,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,99,265,99,456,99,488,99,488,104,456,104,265,104,217,105"/>
+<area shape="rect" id="Node000006" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#a719cf4cc502019a54e9f68e6cb52bfa4" title="Get the memory used by this categorizer." alt="" coords="265,113,456,154"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="218,114,250,118,249,123,217,120"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="758,5,930,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="651,89,742,61,744,66,653,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="760,85,928,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="711,103,745,103,745,108,711,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="978,107,1163,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="659,116,759,135,844,138,930,135,962,134,962,139,930,140,844,143,758,140,658,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="928,113,963,118,962,123,928,119"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="456,120,488,116,489,121,457,125"/>
+</map>

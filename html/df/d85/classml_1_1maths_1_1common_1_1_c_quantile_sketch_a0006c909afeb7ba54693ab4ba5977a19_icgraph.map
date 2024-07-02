@@ -1,0 +1,82 @@
+<map id="ml::maths::common::CQuantileSketch::reduceWithSuppliedCosts" name="ml::maths::common::CQuantileSketch::reduceWithSuppliedCosts">
+<area shape="rect" id="Node000001" title="Reduce to the maximum permitted size." alt="" coords="1214,437,1408,492"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a947c1ae935ba81ef8dae72195ff51c91" title="Reduce to target size." alt="" coords="999,444,1166,485"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1199,467,1167,467,1167,462,1199,462"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#aba93088d23bbbc835b01385e0e6db1c9" title="Get the c.d.f at x." alt="" coords="544,120,690,161"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1038,437,646,163,649,159,1041,433"/>
+<area shape="rect" id="Node000013" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#adbf1a32cb30469c679be749efc3e86ff" title="A possibly accelerated implementation of reduce." alt="" coords="755,411,951,451"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="983,453,951,448,951,443,984,447"/>
+<area shape="rect" id="Node000029" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ae7254da5c69cf118051e4aa26ec0bbbb" title="Combine two sketches." alt="" coords="757,476,949,517"/>
+<area shape="poly" id="edge35_Node000002_Node000029" title=" " alt="" coords="984,481,949,486,949,480,983,475"/>
+<area shape="rect" id="Node000030" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a6dce5cdf69b64a6b39b931db211d71bb" title="Get the quantile corresponding to percentage." alt="" coords="766,571,940,611"/>
+<area shape="poly" id="edge36_Node000002_Node000030" title=" " alt="" coords="1032,495,893,572,891,568,1029,490"/>
+<area shape="rect" id="Node000004" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a7f9a8af2f2f2f1fb62aa52a03bd14bc8" title="Correct probability to account for detector differences." alt="" coords="264,5,465,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="573,113,528,86,478,60,449,49,450,44,480,55,531,81,576,109"/>
+<area shape="rect" id="Node000007" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a215a430bcddcaa0f0c9df83967092abc" title="Check if there are calendar components." alt="" coords="273,120,456,161"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="528,143,457,143,457,138,528,138"/>
+<area shape="rect" id="Node000005" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a363628554e093dfa91de613a8214f4d8" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="248,28,202,28,202,23,248,23"/>
+<area shape="rect" id="Node000006" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a15a2aef056cea23154cfeb07b8b1a390" title=" " alt="" coords="5,62,202,88"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="249,50,176,64,175,59,248,45"/>
+<area shape="rect" id="Node000008" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a37eee8b832f4febaaebc1c9f05f187a9" title=" " alt="" coords="5,170,202,196"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="258,160,187,172,186,167,257,155"/>
+<area shape="rect" id="Node000009" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#ad9e2cc94e80c8604915b68ddc3aa5752" title=" " alt="" coords="5,238,202,264"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="267,169,251,176,227,193,203,211,141,240,139,235,200,206,224,188,248,171,265,164"/>
+<area shape="rect" id="Node000010" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a720f1331ae3b8d86f7fcae16e96d541c" title=" " alt="" coords="5,325,202,351"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="261,169,252,176,233,199,226,224,220,250,204,278,171,306,136,326,134,322,168,302,200,275,215,248,221,222,228,197,248,172,257,165"/>
+<area shape="rect" id="Node000011" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a366733c8c476fd204113d30efcbf97ec" title=" " alt="" coords="5,448,202,473"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="261,167,252,175,234,198,225,220,222,241,222,263,221,311,216,337,204,364,186,390,165,414,125,449,121,445,161,410,182,387,199,362,211,335,216,310,216,263,217,241,220,218,230,195,248,172,258,163"/>
+<area shape="rect" id="Node000012" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a455a37ad76d620e12e26b4a5308fa4c2" title=" " alt="" coords="5,644,202,669"/>
+<area shape="poly" id="edge11_Node000007_Node000012" title=" " alt="" coords="261,166,252,175,225,213,212,249,209,284,211,319,218,396,216,439,204,487,184,534,160,579,117,644,112,642,155,576,179,532,199,485,211,438,213,396,206,320,203,284,207,248,221,211,248,172,258,163"/>
+<area shape="rect" id="Node000014" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a6e4ff4e788fd8bf03c8542c201983cc7" title="Add x to the sketch." alt="" coords="543,411,692,451"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="740,434,692,434,692,428,740,428"/>
+<area shape="rect" id="Node000015" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a04632c1ffdd5a8dd9ca3c784dc96a9a1" title="Add error at time." alt="" coords="273,695,456,735"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="588,465,558,503,529,547,516,585,512,619,505,652,496,668,481,685,458,701,455,696,477,681,491,665,500,650,506,619,511,584,525,544,554,500,584,462"/>
+<area shape="rect" id="Node000017" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a3aac213e8d1073fc779c29672c4d13cd" title="Add probability to the detector&#39;s quantile sketch." alt="" coords="250,70,479,96"/>
+<area shape="poly" id="edge21_Node000014_Node000017" title=" " alt="" coords="603,397,580,325,548,239,513,160,495,130,477,110,459,99,461,94,481,106,499,127,517,158,553,237,585,324,608,395"/>
+<area shape="rect" id="Node000019" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a7ba5da9d0e0fef384a9bcbc681ccb34a" title="Add value to a median statistic." alt="" coords="274,185,455,226"/>
+<area shape="poly" id="edge25_Node000014_Node000019" title=" " alt="" coords="592,399,527,304,497,262,477,240,454,227,456,222,481,236,501,258,532,301,596,396"/>
+<area shape="rect" id="Node000020" href="$df/d30/_c_quantile_sketch_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="266,250,463,276"/>
+<area shape="poly" id="edge26_Node000014_Node000020" title=" " alt="" coords="592,399,544,342,512,313,478,289,454,279,456,274,480,285,516,309,547,338,596,396"/>
+<area shape="rect" id="Node000021" href="$de/de4/_c_data_frame_utils_test_8cc.html#a6ebd4965e765c6d346e0eb201be7e641" title=" " alt="" coords="266,300,463,325"/>
+<area shape="poly" id="edge27_Node000014_Node000021" title=" " alt="" coords="579,403,533,369,478,339,447,328,449,323,480,334,536,365,582,399"/>
+<area shape="rect" id="Node000022" href="$df/d30/_c_quantile_sketch_test_8cc.html#aada4e9dfb65eb01bc3c888bc74504617" title=" " alt="" coords="266,349,463,375"/>
+<area shape="poly" id="edge28_Node000014_Node000022" title=" " alt="" coords="542,408,478,388,434,378,436,372,480,383,544,403"/>
+<area shape="rect" id="Node000023" href="$df/d30/_c_quantile_sketch_test_8cc.html#aafa2449815f49c4ce1f8966fd508ff73" title=" " alt="" coords="266,398,463,424"/>
+<area shape="poly" id="edge29_Node000014_Node000023" title=" " alt="" coords="527,427,463,421,463,416,527,421"/>
+<area shape="rect" id="Node000024" href="$df/d30/_c_quantile_sketch_test_8cc.html#a165a8a0a48420480575cf5167e473b5e" title=" " alt="" coords="266,448,463,473"/>
+<area shape="poly" id="edge30_Node000014_Node000024" title=" " alt="" coords="528,444,463,452,463,446,527,439"/>
+<area shape="rect" id="Node000025" href="$df/d30/_c_quantile_sketch_test_8cc.html#a4456284527dfd2ad7edf94269b2a8a32" title=" " alt="" coords="266,645,463,671"/>
+<area shape="poly" id="edge31_Node000014_Node000025" title=" " alt="" coords="566,462,546,478,529,497,518,515,513,533,509,568,504,602,496,619,481,636,465,647,462,642,477,632,491,616,499,600,504,567,507,532,513,513,525,493,542,474,563,458"/>
+<area shape="rect" id="Node000026" href="$df/d30/_c_quantile_sketch_test_8cc.html#ad08decf3a8c9ef2fa2e228c43283456d" title=" " alt="" coords="266,497,463,523"/>
+<area shape="poly" id="edge32_Node000014_Node000026" title=" " alt="" coords="556,460,480,488,439,499,437,494,478,483,555,455"/>
+<area shape="rect" id="Node000027" href="$df/d30/_c_quantile_sketch_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="266,546,463,572"/>
+<area shape="poly" id="edge33_Node000014_Node000027" title=" " alt="" coords="575,463,529,497,506,519,480,537,452,548,450,543,478,533,502,515,525,493,572,459"/>
+<area shape="rect" id="Node000028" href="$df/d30/_c_quantile_sketch_test_8cc.html#a3346855806fb3ba3e950966403fa2dfa" title=" " alt="" coords="266,596,463,621"/>
+<area shape="poly" id="edge34_Node000014_Node000028" title=" " alt="" coords="569,462,529,497,514,521,508,543,500,565,481,586,462,597,459,593,477,582,495,562,503,541,510,518,525,493,565,458"/>
+<area shape="poly" id="edge15_Node000015_Node000008" title=" " alt="" coords="258,695,248,685,226,655,212,626,204,597,201,569,206,513,219,457,232,401,239,345,237,316,230,287,218,258,200,227,182,211,160,199,163,194,185,206,204,224,223,255,235,286,242,315,244,345,238,402,224,458,211,514,206,569,209,596,217,624,231,653,252,681,262,691"/>
+<area shape="poly" id="edge16_Node000015_Node000009" title=" " alt="" coords="258,695,248,685,230,661,218,638,206,592,208,547,216,503,225,458,229,412,222,364,213,339,199,314,187,299,172,286,139,267,142,262,175,282,191,295,204,311,218,337,228,363,234,412,230,458,221,504,213,548,212,591,223,636,234,658,252,681,262,691"/>
+<area shape="poly" id="edge18_Node000015_Node000010" title=" " alt="" coords="258,694,248,685,226,654,215,624,212,594,214,565,218,504,213,471,199,436,183,411,162,388,122,353,126,349,166,384,187,408,204,434,218,470,223,504,220,565,218,594,220,623,230,651,252,681,261,690"/>
+<area shape="poly" id="edge19_Node000015_Node000011" title=" " alt="" coords="258,692,248,685,212,646,172,585,109,475,114,472,177,582,217,642,251,681,261,687"/>
+<area shape="poly" id="edge20_Node000015_Node000012" title=" " alt="" coords="258,694,163,672,165,667,259,689"/>
+<area shape="rect" id="Node000016" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,702,202,728"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="258,718,202,718,202,712,258,712"/>
+<area shape="poly" id="edge22_Node000017_Node000005" title=" " alt="" coords="287,69,165,42,166,37,289,64"/>
+<area shape="poly" id="edge23_Node000017_Node000006" title=" " alt="" coords="234,82,202,81,202,75,234,76"/>
+<area shape="rect" id="Node000018" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,112,202,137"/>
+<area shape="poly" id="edge24_Node000017_Node000018" title=" " alt="" coords="264,102,189,114,188,108,263,96"/>
+<area shape="poly" id="edge43_Node000030_Node000007" title=" " alt="" coords="793,564,772,549,753,530,734,496,727,466,721,435,705,400,654,325,608,270,554,225,478,176,452,164,454,159,480,171,557,220,612,267,658,322,710,398,726,433,732,464,739,494,757,527,775,545,796,560"/>
+<area shape="poly" id="edge37_Node000030_Node000015" title=" " alt="" coords="763,570,707,561,646,560,585,569,556,578,528,592,517,601,510,611,504,635,499,660,492,673,481,685,457,700,454,695,477,681,488,670,494,658,499,634,505,609,513,598,526,587,554,573,583,563,645,554,707,556,764,564"/>
+<area shape="poly" id="edge38_Node000030_Node000025" title=" " alt="" coords="797,566,738,544,668,527,632,524,596,526,561,533,528,548,517,557,511,566,505,589,499,613,492,625,481,636,462,647,459,642,477,632,488,622,494,611,499,588,506,564,513,553,526,543,559,528,595,520,632,519,669,522,739,539,799,561"/>
+<area shape="poly" id="edge40_Node000030_Node000030" title=" " alt="" coords="890,558,876,552,853,549,831,551,818,556,813,562,815,569,810,571,808,561,815,552,830,546,853,544,878,546,893,553"/>
+<area shape="rect" id="Node000031" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a27eb6c2fa43de60123a334adf8b6af52" title="Get the estimated median absolute deviation." alt="" coords="541,601,694,642"/>
+<area shape="poly" id="edge39_Node000030_Node000031" title=" " alt="" coords="751,607,695,614,694,609,751,602"/>
+<area shape="rect" id="Node000032" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a5b32858860428f652fdb827d8406d5ca" title="Get an estimate of the value of the survival function for error." alt="" coords="540,666,694,722"/>
+<area shape="poly" id="edge41_Node000030_Node000032" title=" " alt="" coords="792,620,684,668,682,663,790,615"/>
+<area shape="rect" id="Node000033" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a08f74e2805d6948d4bc8e1a97a2a0aea" title="Get the value of a median statistic." alt="" coords="527,745,707,786"/>
+<area shape="poly" id="edge44_Node000030_Node000033" title=" " alt="" coords="828,625,776,681,744,710,709,736,688,747,685,742,706,731,741,706,773,677,824,622"/>
+<area shape="rect" id="Node000034" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a0c3513717fd49c8226a0ef695ccce7cc" title="Winsorise error." alt="" coords="540,810,694,866"/>
+<area shape="poly" id="edge45_Node000030_Node000034" title=" " alt="" coords="837,627,787,711,751,758,709,800,692,811,689,807,706,796,747,755,783,708,833,624"/>
+<area shape="poly" id="edge42_Node000032_Node000015" title=" " alt="" coords="525,704,456,710,456,705,524,699"/>
+<area shape="poly" id="edge46_Node000034_Node000015" title=" " alt="" coords="537,805,526,800,404,738,406,734,528,795,539,800"/>
+</map>

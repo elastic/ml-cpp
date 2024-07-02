@@ -1,0 +1,13 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::addFrequencyEncoding" name="ml::api::CBoostedTreeInferenceModelBuilder::addFrequencyEncoding">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,125,246,166"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#aa88b268880444b6217092a117bf7a8b5" title=" " alt="" coords="294,13,500,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,122,225,92,293,63,309,56,311,61,295,68,227,97,167,127"/>
+<area shape="rect" id="Node000004" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a596c51a324ef6639845a80dacfd6fd2c" title=" " alt="" coords="314,77,480,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="246,125,298,117,298,122,247,130"/>
+<area shape="rect" id="Node000005" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a694c0e2b546211f15100cfee6ccbe117" title=" " alt="" coords="309,157,485,213"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="247,160,294,167,294,173,246,166"/>
+<area shape="rect" id="Node000006" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a517cc5803783f43e494fd30d67583e29" title=" " alt="" coords="313,237,481,278"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="167,164,227,193,295,223,311,229,309,234,293,228,225,198,165,168"/>
+<area shape="rect" id="Node000003" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#ad433721d1a63cffcc95be24f81cec7f4" title=" " alt="" coords="548,5,714,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="500,31,532,31,532,36,500,36"/>
+</map>

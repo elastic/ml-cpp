@@ -1,0 +1,6 @@
+<map id="ml::maths::common::CIntegration::CSparseGaussLegendreQuadrature::CSparseGaussLegendreQuadrature" name="ml::maths::common::CIntegration::CSparseGaussLegendreQuadrature::CSparseGaussLegendreQuadrature">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,7,241,78"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="289,29,363,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,40,273,40,273,45,241,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="292,31,285,21,289,11,303,5,326,3,351,5,363,12,361,17,349,10,326,8,304,10,293,15,291,20,296,27"/>
+</map>

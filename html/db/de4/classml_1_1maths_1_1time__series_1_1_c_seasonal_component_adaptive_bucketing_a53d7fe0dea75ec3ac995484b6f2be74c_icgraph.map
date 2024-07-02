@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::slopeAccurate" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::slopeAccurate">
+<area shape="rect" id="Node000001" title="Check if this regression models have enough history to predict." alt="" coords="222,5,433,61"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#af9d8a38cc350555bfd5a431b4912a956" title="Check if the bucket regression models have enough history to predict." alt="" coords="5,5,174,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,36,174,36,174,31,206,31"/>
+</map>

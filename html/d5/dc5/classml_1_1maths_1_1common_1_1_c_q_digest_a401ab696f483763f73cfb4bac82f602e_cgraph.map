@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CQDigest::pdf" name="ml::maths::common::CQDigest::pdf">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,151,183"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ae3590925ecd3c35482c6a67f47d60222" title=" " alt="" coords="228,71,374,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,140,198,120,218,114,220,119,199,126,142,145"/>
+<area shape="rect" id="Node000007" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a10b5460f807ae25b03a63528e8ff14c1" title="Get the maximum knot point less than x." alt="" coords="199,135,403,191"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="151,160,183,160,183,166,151,166"/>
+<area shape="rect" id="Node000008" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#aff7ccb44839056a94b6c1778d0b833f5" title="Get the minimum knot point greater than x." alt="" coords="203,215,399,271"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="138,181,208,207,206,212,136,186"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a02d66bf0498d83ae405354adf2e7bec5" title="Get the lower bound for the c.d.f. at x." alt="" coords="451,5,677,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,70,464,48,465,53,375,76"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a64e6c91d87582a63a71bab40f631e1bb" title=" " alt="" coords="488,71,641,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="374,88,472,88,472,94,374,94"/>
+<area shape="rect" id="Node000006" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#acaead11bd58019619de30692752af93b" title="Get the upper bound for the c.d.f. at x." alt="" coords="451,136,677,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="375,106,465,129,464,134,373,112"/>
+<area shape="rect" id="Node000005" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#aca33548a3aad68a5e063512c9f29c65c" title="Get the total number of values added to the q&#45;digest." alt="" coords="725,71,871,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="641,88,709,88,709,94,641,94"/>
+</map>

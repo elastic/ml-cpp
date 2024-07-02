@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::estimateMemoryUsageForTrain" name="ml::maths::analytics::CBoostedTreeFactory::estimateMemoryUsageForTrain">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,218,153"/>
+<area shape="rect" id="Node000002" href="$de/d69/classml_1_1maths_1_1analytics_1_1_c_scope_boosted_tree_parameter_overrides.html#afbb9eee631045aa8b4d08e62c5d1cd56" title=" " alt="" coords="271,9,482,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,94,275,68,277,73,198,99"/>
+<area shape="rect" id="Node000004" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a5aba63a3c034be1a98b7d77377d17ffa" title="The maximum number of trees to use in the hyperparameter optimisation loop." alt="" coords="266,97,487,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="218,123,250,123,250,128,218,128"/>
+<area shape="rect" id="Node000006" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a703e1972c0070ad3f235ca3e98a940b9" title="Set the maximum number of trees in the ensemble." alt="" coords="294,201,459,257"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="185,151,290,193,288,198,183,156"/>
+<area shape="rect" id="Node000003" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="540,5,713,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="482,33,524,32,525,37,482,38"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="535,109,718,150"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="487,124,519,125,519,130,487,130"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="580,109,577,99,585,90,602,84,627,82,654,85,670,91,668,96,652,90,627,87,603,89,588,94,583,100,585,108"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="327,201,328,191,337,182,353,177,376,175,403,177,419,184,416,189,401,182,376,180,354,182,340,187,333,193,333,201"/>
+</map>

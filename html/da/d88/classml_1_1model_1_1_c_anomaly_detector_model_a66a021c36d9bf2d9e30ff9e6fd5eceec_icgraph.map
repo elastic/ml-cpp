@@ -1,0 +1,21 @@
+<map id="ml::model::CAnomalyDetectorModel::debugMemoryUsage" name="ml::model::CAnomalyDetectorModel::debugMemoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this model." alt="" coords="757,71,955,111"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a4ebd2dd12f780fb0b60a316dc72106e9" title="Get the memory used by this model." alt="" coords="522,5,705,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="763,69,691,49,692,44,764,64"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#adf84952a955969d6dc6f62d72e5bcc9f" title="Debug the memory used by this model." alt="" coords="520,71,706,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="742,94,707,94,707,88,742,88"/>
+<area shape="rect" id="Node000008" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a34db590cddb6d5cc9b8ca3e0c2c0922e" title="Debug the memory used by this model." alt="" coords="517,136,709,177"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="764,118,692,138,691,133,763,113"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a3351cbe3654fdfb23ba00edb71d26547" title="Debug the memory used by this model." alt="" coords="263,5,456,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="516,69,440,49,442,44,517,64"/>
+<area shape="rect" id="Node000006" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#aaf3e1eb93c0352c51538a883216de952" title="Debug the memory used by this model." alt="" coords="276,71,443,111"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="505,94,443,94,443,88,505,88"/>
+<area shape="rect" id="Node000005" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="247,28,202,28,202,23,247,23"/>
+<area shape="rect" id="Node000007" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,78,202,104"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="260,94,202,94,202,88,260,88"/>
+<area shape="rect" id="Node000009" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a164eb2dee954169f8a95d6b33fe0d1b2" title="Debug the memory used by this model." alt="" coords="250,136,469,177"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="501,159,469,159,469,154,501,154"/>
+<area shape="rect" id="Node000010" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a247b218b260ce590551888fcbb9bfcc9" title="Debug the memory used by this model." alt="" coords="263,201,456,242"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="517,184,442,203,440,198,516,179"/>
+</map>

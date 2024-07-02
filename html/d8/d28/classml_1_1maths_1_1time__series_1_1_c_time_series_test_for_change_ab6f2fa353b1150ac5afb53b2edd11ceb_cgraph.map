@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForChange::bucketPredictor" name="ml::maths::time_series::CTimeSeriesTestForChange::bucketPredictor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,200,97"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a419a7e8a44b8a68977aed448b017b7b4" title=" " alt="" coords="248,49,422,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,67,232,67,232,72,200,72"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="470,5,692,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,54,454,49,455,54,423,59"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="502,85,661,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,79,486,89,486,94,422,85"/>
+</map>

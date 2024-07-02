@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel" name="ml::maths::time_series::CUnivariateTimeSeriesModel">
+<area shape="rect" id="Node000001" title="A CModel implementation for modeling a univariate time series." alt="" coords="69,316,268,357"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html" title="The model interface." alt="" coords="5,213,151,253"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,263,153,314,149,318,104,267"/>
+<area shape="rect" id="Node000003" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html" title="Model parameters." alt="" coords="5,109,151,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="81,165,81,212,75,212,75,165"/>
+<area shape="rect" id="Node000004" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html" title="A model of the top k correlates." alt="" coords="174,213,350,253"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="236,266,189,318,185,314,232,263"/>
+<area shape="rect" id="Node000005" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html" title="Randomized linear complexity search for the most correlated pairs of variables." alt="" coords="189,109,335,150"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="265,165,265,212,259,212,259,165"/>
+<area shape="rect" id="Node000006" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html" title="The xorshift1024* pseudo&#45;random number generator." alt="" coords="168,5,356,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="265,62,265,109,259,109,259,62"/>
+</map>

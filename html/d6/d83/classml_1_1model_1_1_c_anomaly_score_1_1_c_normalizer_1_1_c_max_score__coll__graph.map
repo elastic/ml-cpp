@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::CMaxScore" name="ml::model::CAnomalyScore::CNormalizer::CMaxScore">
+<area shape="rect" id="Node000001" title="Wraps a maximum score." alt="" coords="5,124,187,165"/>
+<area shape="rect" id="Node000002" href="$da/df8/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_max.html" title=" " alt="" coords="15,5,177,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,76,99,124,93,124,93,76"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CKMeans&lt; POINT &gt;::CCentreFilter::CFurtherFrom" name="ml::maths::common::CKMeans&lt; POINT &gt;::CCentreFilter::CFurtherFrom">
+<area shape="rect" id="Node000001" title="Predicate used to compute whether a centre is further from the bounding box of a collection of points..." alt="" coords="5,109,236,165"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html" title="An axis aligned bounding box." alt="" coords="34,5,207,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,62,123,109,118,109,118,62"/>
+</map>

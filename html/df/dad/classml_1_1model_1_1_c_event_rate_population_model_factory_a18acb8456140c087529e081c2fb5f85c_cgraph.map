@@ -1,0 +1,19 @@
+<map id="ml::model::CEventRatePopulationModelFactory::defaultCorrelatePrior" name="ml::model::CEventRatePopulationModelFactory::defaultCorrelatePrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,118,233,159"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a0e3acae10c9f60c8d714ad08fe213011" title=" " alt="" coords="281,118,467,159"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,136,265,136,265,141,233,141"/>
+<area shape="rect" id="Node000005" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a7aa272b13d821a7fd58daf9add869f28" title=" " alt="" coords="286,53,462,94"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="200,115,277,95,278,100,202,120"/>
+<area shape="rect" id="Node000007" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a96a4130f094f5ec0792c8a10113af5cf" title=" " alt="" coords="286,184,462,224"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="202,157,278,177,277,182,200,162"/>
+<area shape="rect" id="Node000003" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a8188504494881af36332bc1f903923b6" title="Get the default data type for models from this factory." alt="" coords="536,85,711,126"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="467,123,520,116,521,122,468,129"/>
+<area shape="rect" id="Node000004" href="$d1/df8/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_factory.html#ac0b600e1034c8c6c636839f8bf300d85" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="530,149,718,205"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="468,150,515,158,514,163,467,156"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="462,82,521,89,521,95,462,87"/>
+<area shape="rect" id="Node000006" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate_factory.html#a4ac9fcb997cb27402ebc945a7ef78f1f" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="524,5,723,61"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="462,56,508,49,509,54,462,62"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="438,181,466,168,489,151,514,135,527,129,529,134,516,139,492,156,468,173,440,185"/>
+<area shape="rect" id="Node000008" href="$dd/dda/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior_factory.html#afa02cac10390a5bbb94a9dc306e642fd" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="515,229,732,285"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="463,220,500,228,499,233,461,225"/>
+</map>

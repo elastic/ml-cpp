@@ -1,0 +1,8 @@
+<map id="ml::model::CEventRatePopulationModel::CEventRatePopulationModel" name="ml::model::CEventRatePopulationModel::CEventRatePopulationModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,51,238,91"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#ae28345e4bfb587240bb2c0d1b141526e" title="Create a copy of the state we need to persist passing ownership to the caller." alt="" coords="299,5,492,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,49,283,41,284,47,239,54"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af92625c71c433efde0537885486e294d" title=" " alt="" coords="286,95,505,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,87,271,92,270,98,238,92"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="344,95,342,85,350,76,368,70,395,68,425,70,442,77,440,82,424,76,395,73,369,75,353,80,347,86,349,93"/>
+</map>

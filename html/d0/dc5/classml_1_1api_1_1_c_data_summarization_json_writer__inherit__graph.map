@@ -1,0 +1,9 @@
+<map id="ml::api::CDataSummarizationJsonWriter" name="ml::api::CDataSummarizationJsonWriter">
+<area shape="rect" id="Node000001" title="Writes the data summarization as a compressed, base64 encoded and chunked JSON blob." alt="" coords="100,183,294,223"/>
+<area shape="rect" id="Node000002" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="5,94,181,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,143,175,180,172,184,126,147"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="13,5,173,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="96,62,96,94,90,94,90,62"/>
+<area shape="rect" id="Node000004" href="$d2/d95/structml_1_1api_1_1_c_data_summarization_json_tags.html" title="Shared tags used by the JSON data summarization object." alt="" coords="204,94,398,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="268,147,222,184,219,180,264,143"/>
+</map>

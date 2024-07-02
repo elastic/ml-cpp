@@ -1,0 +1,27 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::swap" name="ml::maths::time_series::CAdaptiveBucketing::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of two bucketing objects." alt="" coords="726,252,914,292"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a6b76ee9c2ea89b4b1cc0d2451ae20366" title="Efficiently swap the contents of two bucketing objects." alt="" coords="468,111,677,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="766,246,625,169,627,165,768,241"/>
+<area shape="rect" id="Node000007" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#aaf5ace52bf9a3652dd5e106cfc9d52a1" title="Efficiently swap the contents of two bucketing objects." alt="" coords="467,312,678,368"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="729,299,677,314,675,309,728,294"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a3d0ccac2fbf94d821913eee5af039a52" title="Create by traversing a state document." alt="" coords="230,5,397,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="492,107,418,76,389,64,391,59,420,71,494,102"/>
+<area shape="rect" id="Node000004" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#ae5615bba900312c72b30fdd53e299b05" title="An efficient swap of the contents of two components." alt="" coords="215,85,412,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="452,126,412,121,413,115,453,120"/>
+<area shape="rect" id="Node000006" href="$db/dcf/namespaceml_1_1maths_1_1time__series.html#ac353706771f1cbddfb729a010b7d9103" title="Create a free function which will be found by Koenig lookup." alt="" coords="236,150,391,191"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="453,156,391,164,391,158,452,151"/>
+<area shape="rect" id="Node000005" href="$db/dcf/namespaceml_1_1maths_1_1time__series.html#aef8d2b93198f70ae2dfba85fdcba2c46" title="Create a free function which will be found by Koenig lookup." alt="" coords="5,85,160,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="200,108,160,108,160,103,200,103"/>
+<area shape="rect" id="Node000008" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ae958e6e1d0005e365f61b7d1860a1a56" title="Create by traversing a state document." alt="" coords="229,215,398,270"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="481,309,389,273,391,268,483,304"/>
+<area shape="rect" id="Node000009" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a9d63d724a22497ecdc14720985d34e5a" title=" " alt="" coords="215,295,412,321"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="451,328,412,323,412,317,452,322"/>
+<area shape="rect" id="Node000010" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a14775068b8908df7f9776752a497382a" title="Copy from rhs." alt="" coords="208,345,419,401"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="452,358,420,362,419,357,451,353"/>
+<area shape="rect" id="Node000011" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aa1171b969875547456fb6408515dde6c" title="An efficient swap of the contents of two components." alt="" coords="214,425,413,466"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="505,377,420,416,389,427,387,422,418,411,503,373"/>
+<area shape="rect" id="Node000013" href="$db/dcf/namespaceml_1_1maths_1_1time__series.html#a8f185c5a7ea56ebff1967d59eb37fb94" title="Create a free function which will be found by Koenig lookup." alt="" coords="236,490,391,531"/>
+<area shape="poly" id="edge12_Node000007_Node000013" title=" " alt="" coords="539,381,486,432,454,457,420,479,392,493,390,488,418,475,451,453,482,428,535,377"/>
+<area shape="rect" id="Node000012" href="$db/dcf/namespaceml_1_1maths_1_1time__series.html#a9b93b980a3d46ec7b34560f36a8b5ac9" title="Create a free function which will be picked up in Koenig lookup." alt="" coords="5,425,160,466"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="198,448,160,448,160,443,198,443"/>
+</map>

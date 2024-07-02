@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CVectorNx1::euclidean" name="ml::maths::common::CVectorNx1::euclidean">
+<area shape="rect" id="Node000001" title="Euclidean norm." alt="" coords="5,57,162,98"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#abcca910e9026ef13d4087e30ee3bcc03" title="Inner product." alt="" coords="210,57,355,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,75,194,75,194,80,162,80"/>
+<area shape="rect" id="Node000003" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a20d1bb135682b5741deae937d92e6dc2" title="Get read only reference." alt="" coords="403,5,548,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="355,58,387,51,388,56,356,63"/>
+<area shape="rect" id="Node000004" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a58169b3ce034b25724b509f49069311f" title=" " alt="" coords="403,85,548,155"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="356,91,388,98,387,103,355,96"/>
+</map>

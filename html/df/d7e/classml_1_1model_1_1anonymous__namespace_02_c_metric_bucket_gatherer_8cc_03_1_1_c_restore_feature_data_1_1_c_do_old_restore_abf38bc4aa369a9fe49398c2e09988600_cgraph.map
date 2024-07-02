@@ -1,0 +1,7 @@
+<map id="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::CRestoreFeatureData::CDoOldRestore::operator()" name="ml::model::anonymous_namespace{CMetricBucketGatherer::cc}::CRestoreFeatureData::CDoOldRestore::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,242,94"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a96707bd6d2f781ad546d70db455813cc" title="Get a reference to the owning data gatherer." alt="" coords="290,5,477,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,41,274,37,275,42,242,46"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="296,71,471,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,71,281,76,280,81,242,76"/>
+</map>

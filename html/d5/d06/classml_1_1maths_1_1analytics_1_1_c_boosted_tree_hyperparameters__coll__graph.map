@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters" name="ml::maths::analytics::CBoostedTreeHyperparameters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="456,206,669,247"/>
+<area shape="rect" id="Node000002" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html" title=" " alt="" coords="25,119,198,174"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,162,456,205,455,210,213,167"/>
+<area shape="rect" id="Node000003" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html" title=" " alt="" coords="25,199,198,254"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,224,455,224,455,229,214,229"/>
+<area shape="rect" id="Node000004" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,279,218,334"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,291,330,277,431,259,490,245,491,250,432,264,331,282,234,296"/>
+</map>

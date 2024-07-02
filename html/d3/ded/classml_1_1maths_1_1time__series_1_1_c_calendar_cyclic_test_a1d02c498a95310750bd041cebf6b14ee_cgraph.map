@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CCalendarCyclicTest::propagateForwardsByTime" name="ml::maths::time_series::CCalendarCyclicTest::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Age the bucket values to account for time elapsed time." alt="" coords="5,77,191,133"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="239,5,461,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,76,235,63,237,68,192,81"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#aa5ffb65761bce66610d034c69f06d19a" title="Age by scaling the counts." alt="" coords="275,85,425,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,103,260,103,260,108,191,108"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="273,150,427,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,127,259,144,257,149,190,132"/>
+</map>

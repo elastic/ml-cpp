@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::print" name="ml::maths::common::CLogNormalMeanPrecConjugate::print">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,218,126"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="567,5,779,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,72,265,64,414,47,551,36,552,42,414,52,266,69,219,77"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a62671217507eb150fd9b59ec8053fedc" title="Get the of the marginal likelihood." alt="" coords="266,78,518,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,96,250,96,250,101,218,101"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="293,149,491,205"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="214,124,278,143,277,148,212,129"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="482,75,551,59,553,64,483,80"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="579,85,767,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="519,99,563,100,563,105,519,104"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="566,149,780,205"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="491,175,551,175,551,180,491,180"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="591,229,756,270"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="492,200,576,222,575,227,491,205"/>
+</map>

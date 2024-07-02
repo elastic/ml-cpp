@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestResult" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestResult">
+<area shape="rect" id="Node000001" title="Test the amplitude of this hypothesis." alt="" coords="5,31,268,87"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a70bf713f8d8247006cc6e30affd03f7c" title=" " alt="" coords="316,5,461,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,39,300,35,301,40,269,44"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#acc30ff6979705b68c491f53b0fd60f0f" title=" " alt="" coords="316,71,461,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="269,73,301,77,300,83,268,78"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="509,39,670,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="462,35,494,41,493,46,461,40"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="461,77,493,72,494,77,462,82"/>
+</map>

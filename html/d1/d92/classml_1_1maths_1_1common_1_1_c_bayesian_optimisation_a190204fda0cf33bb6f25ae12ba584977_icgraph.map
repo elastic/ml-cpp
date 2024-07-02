@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CBayesianOptimisation::add" name="ml::maths::common::CBayesianOptimisation::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="790,31,978,72"/>
+<area shape="rect" id="Node000002" href="$dc/d91/_c_bayesian_optimisation_test_8cc.html#abf3ee4c1f7e4cb517ba9e3fbe6141007" title=" " alt="" coords="538,5,734,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="774,39,734,34,734,29,775,34"/>
+<area shape="rect" id="Node000003" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a8193c8124e3939444e85ec20890601b4" title=" " alt="" coords="529,56,742,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="775,68,743,72,742,67,775,63"/>
+<area shape="rect" id="Node000004" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a1c42ad59e563edd1cb0897ed3ae5131f" title=" " alt="" coords="268,56,481,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="513,86,481,86,481,81,513,81"/>
+<area shape="rect" id="Node000005" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a220b40720c12e2bc4c956da319c8747e" title=" " alt="" coords="5,56,220,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="252,86,220,86,220,81,252,81"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::maths::common::fabs" name="ml::maths::common::fabs">
+<area shape="rect" id="Node000001" title="Overload std::fabs for CVectorNx1." alt="" coords="271,129,441,155"/>
+<area shape="rect" id="Node000002" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#aa6f11147e0ec8e890f37a5a70c0fcdcb" title=" " alt="" coords="16,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="329,121,281,81,222,45,193,34,195,29,224,40,284,77,332,117"/>
+<area shape="rect" id="Node000003" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#af162eb99ecd0ec522c40c28d057ff799" title=" " alt="" coords="16,55,212,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="309,126,222,94,182,84,183,78,223,89,310,120"/>
+<area shape="rect" id="Node000004" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a6e7d56bd29004512e8558da7d4bdb879" title=" " alt="" coords="16,104,212,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="255,134,213,130,213,125,255,129"/>
+<area shape="rect" id="Node000005" href="$d6/d26/_c_linear_algebra_test_8cc.html#a3e742642f147ba59c97fbfb50245c5fd" title=" " alt="" coords="16,153,212,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="255,155,213,159,213,154,255,149"/>
+<area shape="rect" id="Node000006" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a6671bf65e1b60d9a6db130c124bdc2a0" title=" " alt="" coords="16,203,212,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="309,164,223,194,183,205,181,199,222,189,308,159"/>
+<area shape="rect" id="Node000007" href="$de/d77/_c_metric_model_test_8cc.html#a8c99a404d3b1252215e0de8accceccff" title=" " alt="" coords="5,252,223,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="332,168,284,207,224,243,194,254,193,249,222,238,281,202,328,164"/>
+</map>

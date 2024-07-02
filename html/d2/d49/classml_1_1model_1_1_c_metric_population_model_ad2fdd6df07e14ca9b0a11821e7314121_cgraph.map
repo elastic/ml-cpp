@@ -1,0 +1,24 @@
+<map id="ml::model::CMetricPopulationModel::correlates" name="ml::model::CMetricPopulationModel::correlates">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,185,199,226"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a723df93e21eba7a5aad0bcaa6ce05a3f" title="Get the correlated time series identifier pairs if any." alt="" coords="273,5,418,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,183,169,121,205,86,245,55,257,49,259,54,248,60,208,90,172,124,120,187"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="267,70,424,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="127,183,179,144,246,106,264,98,266,103,248,111,182,148,130,187"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a6a78bb3800805de96968d1e28728ad44" title="Extract the attribute identifier from a tuple." alt="" coords="258,120,433,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,182,251,163,253,168,181,187"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a4230fb002083a2394470544adfa51d46" title="Get the feature data corresponding to feature at time." alt="" coords="249,185,442,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="199,203,233,203,233,208,199,208"/>
+<area shape="rect" id="Node000009" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a9d01e0c353a938402db76b498a332b61" title=" " alt="" coords="249,275,442,315"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="161,224,274,266,273,271,159,229"/>
+<area shape="rect" id="Node000010" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="247,340,444,381"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="125,224,178,274,212,301,248,325,260,331,258,336,245,329,209,305,174,278,121,228"/>
+<area shape="rect" id="Node000011" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a07ce54312f4db453d4f9125a0c43b080" title=" " alt="" coords="249,405,442,446"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="116,225,136,260,166,305,204,351,248,390,257,396,254,400,245,394,200,354,162,308,132,263,111,228"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a7951796202ad947ddf4c17924632262a" title="Check if bucket statistics are available for the specified time." alt="" coords="492,185,685,226"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="442,203,476,203,476,208,442,208"/>
+<area shape="rect" id="Node000007" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="733,185,931,226"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="686,203,718,203,718,208,686,208"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="979,185,1153,226"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="931,203,963,203,963,208,931,208"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="300,275,297,265,305,256,321,250,345,248,372,250,387,257,385,262,370,256,345,253,322,255,308,260,303,266,305,273"/>
+</map>

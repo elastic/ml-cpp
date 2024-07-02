@@ -1,0 +1,15 @@
+<map id="versionNumber" name="versionNumber">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,115,80"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="174,5,323,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,51,181,33,182,38,113,57"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a025ebeb4a7c43e0932719c071061734e" title="Find the position within a string at which this regex first matches." alt="" coords="163,55,334,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,65,147,65,147,70,115,70"/>
+<area shape="rect" id="Node000006" href="$dd/d97/classml_1_1ver_1_1_c_build_info.html#a28ce94e8b93c524ffb24d228f6ad5019" title="Get the version number to be printed out." alt="" coords="183,105,314,145"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="106,78,169,98,168,103,104,83"/>
+<area shape="rect" id="Node000004" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="382,29,564,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="334,55,366,52,367,57,335,60"/>
+<area shape="rect" id="Node000005" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="612,55,760,80"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="335,65,597,65,597,70,335,70"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="438,31,431,21,435,11,449,5,473,3,499,5,513,12,510,17,498,10,473,8,451,10,439,15,436,20,442,27"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="565,50,598,54,597,60,565,56"/>
+</map>

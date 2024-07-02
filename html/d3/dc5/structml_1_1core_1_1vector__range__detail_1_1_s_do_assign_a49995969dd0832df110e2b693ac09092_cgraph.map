@@ -1,0 +1,15 @@
+<map id="ml::core::vector_range_detail::SDoAssign::dispatch" name="ml::core::vector_range_detail::SDoAssign::dispatch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,196,141"/>
+<area shape="rect" id="Node000002" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a5a64628f8c72a9e9dca3313407122a09" title="Assign from value." alt="" coords="244,71,406,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,105,228,101,228,106,196,111"/>
+<area shape="rect" id="Node000003" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a3f4d266a3c1ebb9791fae5adaf57401c" title="Input iterator to start of range." alt="" coords="469,5,631,46"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="140,97,188,75,243,56,351,36,453,26,453,31,352,41,244,62,190,80,142,102"/>
+<area shape="rect" id="Node000004" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ab6fbb4bab268325e51ba4f5230174cef" title="Input iterator to end of range." alt="" coords="454,136,645,161"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="196,124,439,139,438,144,196,129"/>
+<area shape="rect" id="Node000006" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a96829a2d1f96408b4c8005d2280a7e41" title="Get the base vector." alt="" coords="244,185,406,226"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="157,139,256,177,254,182,155,144"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,68,462,48,463,54,398,73"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="407,109,483,129,481,134,406,114"/>
+<area shape="rect" id="Node000005" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a024ada4a13ec2b5173eca2f0f4c77870" title="Size of range." alt="" coords="469,71,631,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="406,88,453,88,453,94,406,94"/>
+</map>

@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,157,202,183"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="270,5,445,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,155,168,100,206,68,248,41,264,34,266,39,251,46,209,72,172,103,118,159"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a88ac3d617f3b82716917b70999479d45" title=" " alt="" coords="284,55,431,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,154,249,106,271,99,272,104,251,111,135,159"/>
+<area shape="rect" id="Node000006" href="$d3/df3/classml_1_1core_1_1_c_xml_node_with_children_pool.html#a1ceacbe02c1094d3fa634c1f313a25bd" title="Recycle an XML node, plus any children it may have." alt="" coords="250,121,465,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,156,234,152,234,158,203,161"/>
+<area shape="rect" id="Node000007" href="$d1/dff/_c_container_throughput_test_8cc.html#acb99ee2c1bf9405788d8b79e238fc8a3" title=" " alt="" coords="311,185,404,211"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="203,178,296,189,296,194,202,184"/>
+<area shape="rect" id="Node000008" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a3738e7e1654cf56ba3220730f3502ebc" title=" " alt="" coords="284,259,431,300"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="137,181,296,250,293,255,135,186"/>
+<area shape="rect" id="Node000009" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aacc70e4361f1d93fe02f2b30dcf830e8" title=" " alt="" coords="286,325,429,365"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="117,182,170,243,208,278,251,309,273,320,271,325,248,314,205,283,166,247,113,185"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="513,23,660,64"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="431,63,497,53,498,59,432,68"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="513,89,660,129"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="432,84,498,93,497,99,431,89"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="314,259,312,249,319,240,334,235,357,233,382,235,397,241,395,246,381,240,357,238,335,240,322,244,317,250,319,258"/>
+<area shape="rect" id="Node000010" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="516,325,658,365"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="429,342,500,342,500,348,429,348"/>
+<area shape="rect" id="Node000011" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="708,291,852,332"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="658,330,692,324,693,329,659,335"/>
+<area shape="rect" id="Node000012" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="710,357,850,397"/>
+<area shape="poly" id="edge13_Node000010_Node000012" title=" " alt="" coords="659,354,695,360,694,365,658,359"/>
+<area shape="poly" id="edge12_Node000011_Node000011" title=" " alt="" coords="743,291,741,281,747,272,760,267,780,265,801,267,814,273,811,278,800,272,780,270,762,272,751,276,747,282,748,290"/>
+</map>

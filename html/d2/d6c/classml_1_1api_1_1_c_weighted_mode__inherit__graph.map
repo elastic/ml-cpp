@@ -1,0 +1,7 @@
+<map id="ml::api::CWeightedMode" name="ml::api::CWeightedMode">
+<area shape="rect" id="Node000001" title="Allows to use (weighted) majority vote for classification." alt="" coords="11,168,176,193"/>
+<area shape="rect" id="Node000002" href="$d4/d10/classml_1_1api_1_1_c_aggregate_output.html" title="Abstract class for output aggregation." alt="" coords="5,94,182,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,135,96,167,91,167,91,135"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="14,5,173,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="96,62,96,93,91,93,91,62"/>
+</map>

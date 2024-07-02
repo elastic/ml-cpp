@@ -1,0 +1,26 @@
+<map id="ml::maths::common::CTools::differentialEntropy" name="ml::maths::common::CTools::differentialEntropy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,215,181,255"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="229,164,406,189"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,212,250,191,251,196,174,217"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac476b9273936034b5333b76fd6e8a7de" title="Compute the p.d.f. at x for distribution." alt="" coords="461,222,624,248"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="181,232,445,232,445,238,181,238"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="697,353,842,394"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="182,250,682,353,681,358,181,255"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="454,157,631,183"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,171,438,170,438,175,406,176"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="679,70,860,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="585,154,664,128,666,133,586,159"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="680,149,859,190"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="632,167,664,167,664,172,632,172"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="697,5,842,46"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="555,154,606,107,641,80,678,55,687,51,690,55,681,60,644,84,610,111,559,158"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="687,215,852,255"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="591,180,682,207,681,212,589,186"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="581,219,606,208,630,193,644,179,653,165,662,151,678,136,683,132,686,136,681,140,666,154,658,168,648,182,633,197,609,212,584,224"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="589,219,681,192,682,197,591,224"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="625,232,671,232,671,238,625,238"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="559,246,610,291,644,316,681,339,690,344,688,349,678,344,641,321,607,295,556,250"/>
+<area shape="rect" id="Node000010" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="732,304,807,329"/>
+<area shape="poly" id="edge12_Node000008_Node000010" title=" " alt="" coords="582,246,719,296,717,301,580,251"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="732,305,724,295,729,285,744,279,770,277,797,280,811,286,809,291,796,285,769,282,745,284,733,289,730,294,736,301"/>
+</map>

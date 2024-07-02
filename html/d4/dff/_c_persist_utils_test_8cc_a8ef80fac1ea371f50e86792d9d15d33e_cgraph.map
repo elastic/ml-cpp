@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,202,118"/>
+<area shape="rect" id="Node000002" href="$dc/d31/namespaceanonymous__namespace_02_c_persist_utils_test_8cc_03.html#a2326b263c63bd4a3bd047712de39dc4f" title=" " alt="" coords="250,5,412,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,89,234,61,236,66,147,94"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="254,85,408,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,103,238,103,238,108,202,108"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="254,150,408,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,116,244,143,242,148,150,121"/>
+</map>

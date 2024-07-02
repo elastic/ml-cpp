@@ -1,0 +1,27 @@
+<map id="ml::maths::common::CKMostCorrelated::capture" name="ml::maths::common::CKMostCorrelated::capture">
+<area shape="rect" id="Node000001" title="Capture the projections of all variables added." alt="" coords="5,361,186,402"/>
+<area shape="rect" id="Node000002" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a3b078fbdfdcce4fadc70f3f0a3ce4fac" title="Add the value x for the variable X." alt="" coords="268,184,426,224"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,359,158,297,193,263,232,234,252,223,254,228,235,238,196,267,162,300,113,362"/>
+<area shape="rect" id="Node000009" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a921051eb0acbca540d51809ef71ccb16" title=" " alt="" coords="247,248,447,304"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="137,358,233,313,248,307,250,312,235,318,139,363"/>
+<area shape="rect" id="Node000010" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#aae429f3ade684c422d9f25ec88301131" title="Get the dimension." alt="" coords="255,328,439,368"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="186,367,239,359,240,365,187,372"/>
+<area shape="rect" id="Node000011" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a8099c4cbd9ef3dc7ee8b611290f2b701" title="Manhattan norm." alt="" coords="255,393,439,434"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="187,390,240,397,239,402,186,395"/>
+<area shape="rect" id="Node000012" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#af1cc73c542ac0e55492bb3b58a988b76" title="Get the most correlated variables." alt="" coords="234,458,460,499"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="139,400,235,443,256,450,255,455,233,448,136,405"/>
+<area shape="rect" id="Node000013" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a12c68aa0d30d58b45bb59d6c55e213ea" title="Generate the next projection and reinitialize related state." alt="" coords="237,524,457,564"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="115,400,165,454,199,483,235,508,247,515,245,519,232,513,195,487,162,458,111,404"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="508,5,730,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,181,427,127,465,97,507,71,516,66,519,70,509,75,469,102,430,131,370,185"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="540,85,699,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="395,180,507,136,530,128,532,133,509,141,397,185"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="540,150,699,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="426,192,524,179,525,185,427,197"/>
+<area shape="rect" id="Node000006" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ab6d5675bdb4104969cb24f6b16acaa38" title="Get the variable moments." alt="" coords="524,216,715,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="427,210,508,220,508,225,426,216"/>
+<area shape="rect" id="Node000007" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ac25371051c14bae4925cb663fda67da0" title="Get the projected residuals." alt="" coords="524,281,714,322"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="427,220,461,233,486,250,509,265,526,273,523,277,507,270,483,254,459,238,425,225"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="531,346,707,387"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="428,215,462,234,473,246,480,259,487,284,493,308,499,320,510,331,519,338,516,342,506,335,495,323,488,310,482,285,475,261,469,249,458,238,425,219"/>
+</map>

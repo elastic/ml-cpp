@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CModelStub::CModelStub" name="ml::maths::common::CModelStub::CModelStub">
+<area shape="rect" id="Node000001" title=" " alt="" coords="274,71,447,111"/>
+<area shape="rect" id="Node000002" href="$d0/db8/classml_1_1maths_1_1common_1_1_c_model_stub.html#a8c5f9302f52e8a2979dbe311b112f387" title="Create a copy of this model passing ownership to the caller." alt="" coords="43,5,188,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,69,188,48,189,42,268,64"/>
+<area shape="rect" id="Node000003" href="$d0/db8/classml_1_1maths_1_1common_1_1_c_model_stub.html#ab658ca719eb20f647f92045e088549b6" title="Create a copy of the state we need to run forecasting." alt="" coords="14,71,217,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,94,217,94,217,88,258,88"/>
+<area shape="rect" id="Node000004" href="$d0/db8/classml_1_1maths_1_1common_1_1_c_model_stub.html#a449c82f1083587dedbdd0a97db2fa9f6" title="Create a copy of the state we need to persist passing ownership to the caller." alt="" coords="5,136,226,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="267,118,195,138,194,133,266,113"/>
+</map>

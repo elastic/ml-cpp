@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::selectFeaturesAndEncodeCategories" name="ml::maths::analytics::CBoostedTreeFactory::selectFeaturesAndEncodeCategories">
+<area shape="rect" id="Node000001" title="Encode categorical fields and at the same time select the features to use." alt="" coords="5,5,251,61"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="299,13,450,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,31,283,31,283,36,251,36"/>
+</map>

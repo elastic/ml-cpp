@@ -1,0 +1,21 @@
+<map id="ml::api::CAnomalyJobConfig::CAnalysisConfig::categorizationFieldName" name="ml::api::CAnomalyJobConfig::CAnalysisConfig::categorizationFieldName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="507,194,723,250"/>
+<area shape="rect" id="Node000002" href="$d8/da8/namespaceanonymous__namespace_02_c_single_stream_data_adder_test_8cc_03.html#a997ead4be5fbba711383edd4f8900635" title=" " alt="" coords="254,114,455,170"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="507,192,447,173,448,168,509,187"/>
+<area shape="rect" id="Node000009" href="$db/d96/class_c_test_fixture.html#a6d619426bc0fa5108e38b4457caa319f" title=" " alt="" coords="250,194,459,250"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="491,225,459,225,459,220,491,220"/>
+<area shape="rect" id="Node000010" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="330,275,379,300"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="493,256,460,265,380,284,379,279,458,260,491,251"/>
+<area shape="rect" id="Node000003" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html#a75ad4b8089341662e0b26d376a85ed69" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="304,107,255,74,201,45,171,34,173,29,203,40,258,69,307,103"/>
+<area shape="rect" id="Node000004" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html#af2c7af5739204b12dd59b569a220d82c" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="257,112,201,94,162,84,163,78,202,89,259,107"/>
+<area shape="rect" id="Node000005" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html#aa0c3730f0f6051877915082e609e63fb" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="239,133,202,129,202,124,239,128"/>
+<area shape="rect" id="Node000006" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html#a8c06540cf8e7d0c4fe7ccae86cca0750" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="239,156,202,159,202,154,239,151"/>
+<area shape="rect" id="Node000007" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html#ae97da552fb754d47d61470cb35705db3" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="255,178,202,194,163,205,161,200,201,189,254,173"/>
+<area shape="rect" id="Node000008" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html#a372df859c8911f8b80d996e805390db1" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="257,180,251,184,237,199,228,214,219,229,203,243,181,254,179,249,200,239,215,225,224,211,233,196,248,180,254,176"/>
+</map>

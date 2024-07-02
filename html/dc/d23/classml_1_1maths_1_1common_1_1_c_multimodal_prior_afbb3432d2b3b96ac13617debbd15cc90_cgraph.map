@@ -1,0 +1,29 @@
+<map id="ml::maths::common::CMultimodalPrior::acceptRestoreTraverser" name="ml::maths::common::CMultimodalPrior::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Read parameters from traverser." alt="" coords="5,257,220,313"/>
+<area shape="rect" id="Node000002" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#ac79728e4af8a74813cc053eb405c0a41" title=" " alt="" coords="268,5,486,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,256,147,215,179,166,219,115,266,71,272,67,275,71,269,75,223,119,183,169,152,218,130,258"/>
+<area shape="rect" id="Node000003" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="281,85,473,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="134,255,190,195,226,162,266,135,276,130,278,134,269,139,230,167,193,198,138,259"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="288,150,466,175"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,255,203,219,267,185,287,178,289,183,269,190,206,223,152,259"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="268,200,486,240"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="220,256,276,242,278,247,221,261"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="268,265,486,306"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="220,283,252,283,252,288,220,288"/>
+<area shape="rect" id="Node000011" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="297,330,457,371"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="221,309,282,324,281,330,220,314"/>
+<area shape="rect" id="Node000012" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="303,396,451,436"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="154,311,207,346,269,380,290,389,288,394,267,385,204,351,151,316"/>
+<area shape="rect" id="Node000013" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="268,461,486,502"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="135,312,191,379,228,415,269,446,280,452,277,456,266,450,224,419,187,383,131,315"/>
+<area shape="rect" id="Node000014" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="268,526,486,567"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="128,312,149,356,180,410,220,464,269,511,277,516,274,521,266,515,216,468,175,413,144,359,123,315"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="534,29,714,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="454,147,485,135,499,126,509,116,532,95,540,90,543,95,536,99,512,120,502,130,487,140,456,152"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="535,109,714,150"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="466,148,519,141,520,146,467,153"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="552,174,697,215"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="466,171,537,181,536,186,466,177"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="542,240,707,280"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="455,173,487,185,502,195,512,205,535,224,547,230,544,235,533,229,509,209,499,199,485,190,454,178"/>
+</map>

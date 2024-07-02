@@ -1,0 +1,9 @@
+<map id="ml::torch::CResultWriter::writeSimpleAck" name="ml::torch::CResultWriter::writeSimpleAck">
+<area shape="rect" id="Node000001" title="Write a simple acknowledgement to the output stream." alt="" coords="347,23,509,64"/>
+<area shape="rect" id="Node000002" href="$dd/d97/_c_result_writer_test_8cc.html#a80d7a4eb78aae519b1468175e6554321" title=" " alt="" coords="103,5,299,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="331,35,299,32,300,26,331,30"/>
+<area shape="rect" id="Node000003" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a33100332b80e6f9f822a74ebab666229" title=" " alt="" coords="124,55,278,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="332,56,279,62,278,57,331,51"/>
+<area shape="rect" id="Node000004" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,55,55,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="108,70,55,70,55,65,108,65"/>
+</map>

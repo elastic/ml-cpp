@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,202,118"/>
+<area shape="rect" id="Node000002" href="$d4/dea/namespaceanonymous__namespace_02_c_sampling_test_8cc_03.html#ad45ec873b1c6dc054c7b7bd3cf6b41af" title=" " alt="" coords="283,5,446,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,89,267,57,269,62,154,94"/>
+<area shape="rect" id="Node000003" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a10d4fa1e2663c4d177f83e73881d418c" title=" " alt="" coords="250,85,479,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,103,234,103,234,108,202,108"/>
+<area shape="rect" id="Node000004" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a4185dae90d72f8e78cd3953bef9091e1" title="Reinitialize the random number generator." alt="" coords="292,150,437,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="158,116,277,146,276,151,157,121"/>
+<area shape="rect" id="Node000005" href="$d2/d96/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03_1_1_c_random_number_generator.html#aa878c3172b42f558732a180785196359" title="Seed the random number generator." alt="" coords="527,135,755,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="437,168,511,168,511,173,437,173"/>
+</map>

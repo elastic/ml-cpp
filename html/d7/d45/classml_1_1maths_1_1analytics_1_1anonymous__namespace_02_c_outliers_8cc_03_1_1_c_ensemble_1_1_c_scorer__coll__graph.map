@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers.cc}::CEnsemble&lt; POINT &gt;::CScorer" name="ml::maths::analytics::anonymous_namespace{COutliers.cc}::CEnsemble&lt; POINT &gt;::CScorer">
+<area shape="rect" id="Node000001" title="Manages computing the probability that a point is an outlier given its scores from a collection of en..." alt="" coords="17,199,196,270"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="5,95,208,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,151,109,198,104,198,104,151"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="30,5,183,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="109,62,109,95,104,95,104,62"/>
+</map>

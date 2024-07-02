@@ -1,0 +1,19 @@
+<map id="ml::model::SMetricFeatureData::debugMemoryUsage" name="ml::model::SMetricFeatureData::debugMemoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory usage of this component in a tree structure." alt="" coords="5,134,183,175"/>
+<area shape="rect" id="Node000002" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#af9da9b8dc9d9ea16d09112f4ac614c2c" title="Default implementation for non&#45;pointer types." alt="" coords="231,134,396,175"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,152,215,152,215,157,183,157"/>
+<area shape="rect" id="Node000003" href="$de/df0/structml_1_1core_1_1memory__detail_1_1_s_debug_memory_dynamic_size.html#a0b0baf0a3d6bf2367e46016e88a0ad32" title=" " alt="" coords="444,83,645,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,136,428,130,429,135,397,141"/>
+<area shape="rect" id="Node000008" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aa0a3d5d3341bb51e9df11ef0ea542a6a" title="Check if we expect an overloaded dynamicSize function." alt="" coords="694,188,899,228"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="396,161,679,192,678,198,396,166"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="693,95,900,121"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="646,107,678,106,678,112,646,112"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="948,5,1119,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="839,92,932,62,934,67,841,97"/>
+<area shape="rect" id="Node000006" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="950,85,1117,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="900,104,934,104,934,109,900,109"/>
+<area shape="rect" id="Node000007" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1167,135,1352,190"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="859,119,948,135,1053,146,1152,154,1151,159,1052,152,947,140,858,124"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1117,123,1152,133,1151,138,1115,129"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="899,198,1119,179,1151,175,1152,180,1119,184,900,203"/>
+</map>

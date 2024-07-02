@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CPrior::minusLogJointCdf" name="ml::maths::common::CPrior::minusLogJointCdf">
+<area shape="rect" id="Node000001" title=" " alt="" coords="763,124,935,165"/>
+<area shape="rect" id="Node000002" href="$d1/daf/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_time_series_model_8cc_03_1_1outliers.html#a8d0ef766143a1e812fa84f4ffe3c1e70" title="Compute the one tail p&#45;value of value." alt="" coords="531,29,701,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="773,122,701,96,703,91,775,116"/>
+<area shape="rect" id="Node000004" href="$d3/d60/classml_1_1_c_prior_test_interface.html#af4d70dddb4f6c6416f12d81e691b0b0e" title="Wrapper which takes care of weights." alt="" coords="538,124,694,165"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="748,147,695,147,695,142,748,142"/>
+<area shape="rect" id="Node000005" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ab6421aa97dca9f4d4ecad943e65b4fef" title="The common c.d.f. implementation." alt="" coords="517,189,715,245"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="768,172,709,191,708,186,766,167"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="653,18,639,11,616,8,597,10,584,14,577,21,575,29,570,28,572,18,581,10,596,5,616,3,640,5,655,13"/>
+<area shape="rect" id="Node000003" href="$d1/daf/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_time_series_model_8cc_03_1_1outliers.html#a1b466ed77bb70bd22892f995173a9486" title=" " alt="" coords="274,29,445,100"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="515,67,445,67,445,62,515,62"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="400,18,384,11,359,8,338,10,324,15,316,21,314,29,309,28,312,18,321,10,337,5,359,3,385,5,402,13"/>
+<area shape="rect" id="Node000006" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a86efb794ccd51fab8f1efaaf2f363743" title=" " alt="" coords="250,160,469,201"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="501,203,469,199,470,193,502,198"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a8807b328291eb5697dd496c039877c69" title=" " alt="" coords="260,225,459,281"/>
+<area shape="poly" id="edge10_Node000005_Node000009" title=" " alt="" coords="502,235,459,241,459,236,501,230"/>
+<area shape="rect" id="Node000007" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="5,175,202,200"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="234,187,202,187,202,182,234,181"/>
+<area shape="rect" id="Node000008" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,229,202,255"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="257,208,161,231,160,226,256,203"/>
+<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="245,226,156,203,158,198,246,221"/>
+<area shape="poly" id="edge12_Node000009_Node000008" title=" " alt="" coords="244,251,202,249,202,243,245,245"/>
+</map>

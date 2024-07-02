@@ -1,0 +1,14 @@
+<map id="ml::model::CMetricPopulationModel::currentBucketInterimCorrections" name="ml::model::CMetricPopulationModel::currentBucketInterimCorrections">
+<area shape="rect" id="Node000001" title="Get the interim corrections of the current bucket." alt="" coords="497,116,749,157"/>
+<area shape="rect" id="Node000002" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a62671b447ad01f481dfbaecf30570106" title=" " alt="" coords="251,5,445,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="564,111,448,61,414,49,416,44,450,57,566,107"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#ad1b7111685b6d39fa4be3325acbde9e8" title=" " alt="" coords="251,71,445,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="481,116,445,110,445,104,482,110"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="251,160,445,201"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="482,162,445,168,445,162,481,156"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aab1df5b44c7137345d39ea37dc476eda" title=" " alt="" coords="247,225,449,266"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="565,166,450,215,415,227,414,222,448,210,563,161"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="5,71,199,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="235,94,199,94,199,88,235,88"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="388,147,373,141,348,139,324,141,310,145,305,151,307,159,302,160,299,150,307,141,323,135,348,133,374,136,390,142"/>
+</map>

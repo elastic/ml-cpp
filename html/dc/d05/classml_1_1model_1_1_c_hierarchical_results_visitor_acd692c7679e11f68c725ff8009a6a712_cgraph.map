@@ -1,0 +1,9 @@
+<map id="ml::model::CHierarchicalResultsVisitor::isPerson" name="ml::model::CHierarchicalResultsVisitor::isPerson">
+<area shape="rect" id="Node000001" title="Check if the node is a named person." alt="" coords="5,71,171,111"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a8c652c45225c2e147f3881b6923e0e63" title=" " alt="" coords="219,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,68,223,48,225,54,160,73"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a074d1c1ecbc9e7c97ad336c1d4bc7b08" title="Check if the node is a population result." alt="" coords="219,71,402,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,88,203,88,203,94,171,94"/>
+<area shape="rect" id="Node000004" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3578a82308dd4efac1c213646600e326" title="Check if this node is the root node." alt="" coords="228,136,393,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="160,109,225,128,223,134,159,114"/>
+</map>

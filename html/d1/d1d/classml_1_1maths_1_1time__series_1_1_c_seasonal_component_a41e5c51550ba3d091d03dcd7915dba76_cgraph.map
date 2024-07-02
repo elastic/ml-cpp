@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CSeasonalComponent::shiftOrigin" name="ml::maths::time_series::CSeasonalComponent::shiftOrigin">
+<area shape="rect" id="Node000001" title="Shift the component&#39;s time origin to time." alt="" coords="5,113,174,169"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a08a91bd201e15065f6acb3dd43e281e9" title="Shift the regressions&#39; time origin to time." alt="" coords="222,77,433,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,126,206,121,207,126,174,131"/>
+<area shape="rect" id="Node000007" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ab27d693b34462e3d09bd6b455b375633" title="Get the time provider." alt="" coords="231,157,424,198"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="174,151,216,158,215,163,173,156"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="509,5,665,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="429,74,493,56,494,62,431,79"/>
+<area shape="rect" id="Node000005" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="514,85,659,126"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="433,103,499,103,499,108,433,108"/>
+<area shape="rect" id="Node000006" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="481,149,692,205"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="431,131,470,142,468,147,429,136"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="740,5,897,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,31,725,31,725,36,665,36"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="425,175,465,175,465,180,425,180"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::restoreBest" name="ml::maths::analytics::CBoostedTreeHyperparameters::restoreBest">
+<area shape="rect" id="Node000001" title="Restore the hyperparameters saved by captureBest." alt="" coords="293,40,506,95"/>
+<area shape="rect" id="Node000002" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a37fd6cac82a7ddb795e04fba38975a08" title=" " alt="" coords="27,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="277,48,200,34,201,29,278,43"/>
+<area shape="rect" id="Node000003" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a9f588347bc5306f084ac12d50d113614" title=" " alt="" coords="27,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="277,70,223,70,223,65,277,65"/>
+<area shape="rect" id="Node000004" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="5,105,245,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="278,96,226,106,225,101,277,90"/>
+</map>

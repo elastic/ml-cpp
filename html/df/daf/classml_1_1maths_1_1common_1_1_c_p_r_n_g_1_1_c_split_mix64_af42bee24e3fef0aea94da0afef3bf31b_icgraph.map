@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CPRNG::CSplitMix64::discard" name="ml::maths::common::CPRNG::CSplitMix64::discard">
+<area shape="rect" id="Node000001" title="Discard the next n random numbers." alt="" coords="250,5,407,61"/>
+<area shape="rect" id="Node000002" href="$d6/d83/_c_p_r_n_g_test_8cc.html#a8c2c9930f4fd3c9b4ebbf2c38ca1118d" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

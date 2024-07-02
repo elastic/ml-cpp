@@ -1,0 +1,14 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,5,435,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,43,234,38,234,43,201,48"/>
+<area shape="rect" id="Node000004" href="$db/dc5/namespaceml_1_1core.html#ad33a8c894a51d4c037dc16c63a6fdd7a" title=" " alt="" coords="252,71,433,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,70,236,74,236,79,202,75"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,5,668,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="435,23,467,23,467,28,435,28"/>
+<area shape="rect" id="Node000005" href="$db/dc5/namespaceml_1_1core.html#aac4e088f4a6bdb18132433afd6260fdf" title=" " alt="" coords="486,71,666,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="434,88,470,88,470,94,434,94"/>
+<area shape="rect" id="Node000006" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="716,100,868,141"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="421,109,483,120,535,124,575,124,668,120,701,120,701,125,668,126,576,129,535,130,483,126,420,115"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="667,101,701,105,701,111,666,106"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,147,202,173"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="250,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,144,178,108,248,69,258,65,261,70,251,74,180,113,125,149"/>
+<area shape="rect" id="Node000003" href="$d2/dbc/classanonymous__namespace_02_c_seasonal_component_test_8cc_03_1_1_c_test_seasonal_component.html#a6ac0020e7549461d539a0a337077a0c4" title=" " alt="" coords="255,85,467,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,144,239,136,240,141,191,149"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="268,180,454,220"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="191,171,253,180,253,186,190,176"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="281,245,441,286"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="130,171,184,199,251,229,271,237,269,242,249,234,182,204,127,175"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="520,180,705,220"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="454,197,504,197,504,203,454,203"/>
+</map>

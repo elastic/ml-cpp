@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CIntegration::sparseGaussLegendre" name="ml::maths::common::CIntegration::sparseGaussLegendre">
+<area shape="rect" id="Node000001" title=" " alt="" coords="510,47,740,88"/>
+<area shape="rect" id="Node000002" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="258,5,454,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="495,46,430,34,430,29,496,41"/>
+<area shape="rect" id="Node000003" href="$d1/d56/_c_integration_test_8cc.html#a5f94f10f899d045edb139673525cff3f" title=" " alt="" coords="258,55,454,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="494,70,454,70,454,65,494,65"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a871802b7378f5781e980abd8c81425d7" title="Get the variance of the marginal likelihood." alt="" coords="250,105,462,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="525,95,463,110,462,104,523,89"/>
+<area shape="rect" id="Node000005" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="5,95,202,120"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,123,202,120,203,115,235,118"/>
+<area shape="rect" id="Node000006" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,144,202,170"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="235,147,203,150,202,145,234,142"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::detrend" name="ml::maths::time_series::CTimeSeriesDecomposition::detrend">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,198,174"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#ad9c482d83e793ddaa2742f058c8196a3" title="Check if the decomposition has any initialized components." alt="" coords="246,5,438,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,116,245,71,256,65,259,70,247,76,157,120"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a18165cb2a991133e699e6541b396a195" title=" " alt="" coords="258,85,426,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,130,242,124,242,130,199,136"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="514,235,684,261"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="199,158,314,177,439,201,540,228,538,233,437,206,313,182,198,163"/>
+<area shape="rect" id="Node000009" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#afdcd8ff75da6b504042205027b9790b8" title=" " alt="" coords="246,240,438,296"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="160,173,273,230,270,235,157,177"/>
+<area shape="rect" id="Node000003" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a484f8f20b8acc0e40b845689835786f1" title="Check if the decomposition has any initialized components." alt="" coords="486,5,712,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,31,470,31,470,36,438,36"/>
+<area shape="rect" id="Node000005" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a6991aa4d28fbb05caccfa0a0ba81af6b" title=" " alt="" coords="515,89,684,130"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="427,109,499,108,499,113,427,115"/>
+<area shape="rect" id="Node000006" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ab27d693b34462e3d09bd6b455b375633" title="Get the time provider." alt="" coords="503,154,696,195"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="427,131,496,147,495,153,426,136"/>
+<area shape="rect" id="Node000007" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="760,147,972,202"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="696,172,745,172,745,177,696,177"/>
+<area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="438,258,498,253,499,258,439,263"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="295,239,295,229,304,221,319,215,342,213,367,216,382,223,380,228,366,221,342,219,321,221,307,225,300,232,300,240"/>
+</map>

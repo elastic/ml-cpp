@@ -1,0 +1,11 @@
+<map id="ml::model::SAnnotatedProbability" name="ml::model::SAnnotatedProbability">
+<area shape="rect" id="Node000001" title="A collection of data describing the result of a model probability calculation." alt="" coords="610,70,826,96"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="211,5,388,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="404,36,587,60,631,67,630,72,586,66,403,41"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,5,159,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,23,210,23,210,28,174,28"/>
+<area shape="rect" id="Node000004" href="$d6/d9a/classml_1_1model__t_1_1_c_result_type.html" title="Describes the result type." alt="" coords="213,70,386,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="402,80,610,80,610,86,402,86"/>
+<area shape="rect" id="Node000005" href="$dc/d00/structml_1_1maths_1_1common_1_1_s_anomaly_score_explanation.html" title="Describes the impact of different factors on the anomaly score." alt="" coords="208,120,391,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="407,125,586,101,632,94,633,99,587,106,407,130"/>
+</map>

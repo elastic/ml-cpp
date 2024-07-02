@@ -1,0 +1,26 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,231,202,256"/>
+<area shape="rect" id="Node000002" href="$d2/db8/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_state_machine_clearer.html#a6799e38da3ab783fc0476c54ff4c96e4" title=" " alt="" coords="263,5,442,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,228,166,162,205,122,248,85,252,82,255,87,251,89,208,126,170,166,116,232"/>
+<area shape="rect" id="Node000005" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html#a88d332c11334b367a807819ae1b7623f" title=" " alt="" coords="250,100,455,155"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="127,228,249,165,261,159,264,164,251,170,130,232"/>
+<area shape="rect" id="Node000006" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html#abd9c4a744f438ad90e4ab0d890c1090a" title=" " alt="" coords="266,180,439,235"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="196,227,250,219,251,225,197,233"/>
+<area shape="rect" id="Node000007" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#ae6ba9475c7015828e97d37ca7bee37c3" title="Print all the state machines." alt="" coords="269,259,436,300"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="197,254,254,263,254,268,196,259"/>
+<area shape="rect" id="Node000009" href="$d9/d00/namespaceanonymous__namespace_02_c_state_machine_test_8cc_03.html#a5457ee6bbccdfe6b75a807e02795f756" title=" " alt="" coords="271,324,434,379"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="133,254,251,309,265,315,262,320,249,314,131,259"/>
+<area shape="rect" id="Node000012" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html#a8244dfdf7d281ebea7629cbfde00a13e" title=" " alt="" coords="513,389,679,445"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="115,255,135,285,166,322,205,360,251,389,312,410,376,422,439,426,497,425,497,430,439,431,375,427,310,415,249,394,202,364,162,326,131,288,111,258"/>
+<area shape="rect" id="Node000003" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#a2e2d60e79daabdc67e663bc6945b48b3" title="Clear all machines (for test only)." alt="" coords="513,20,679,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="443,38,497,38,497,43,443,43"/>
+<area shape="rect" id="Node000004" href="$df/d93/classml_1_1core_1_1_c_state_machine_1_1_c_machine_deque.html#aebbc4cb08637a5bdf2f3b4120328b6b3" title="Remove all elements." alt="" coords="746,20,912,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="679,38,730,38,730,43,679,43"/>
+<area shape="rect" id="Node000008" href="$df/d93/classml_1_1core_1_1_c_state_machine_1_1_c_machine_deque.html#acb660e8fb5c0c8bae512ba4e7dacfafe" title="Get the number of elements in this container." alt="" coords="513,259,679,300"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="436,277,497,277,497,282,436,282"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="503,324,688,365"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="434,346,488,345,488,350,434,352"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="435,371,498,388,497,393,433,376"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="736,324,922,365"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="689,342,721,342,721,347,689,347"/>
+</map>

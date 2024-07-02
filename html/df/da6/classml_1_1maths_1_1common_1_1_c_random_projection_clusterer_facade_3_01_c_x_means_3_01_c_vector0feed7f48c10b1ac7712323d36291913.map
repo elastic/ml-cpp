@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CRandomProjectionClustererFacade&lt; CXMeans&lt; CVectorNx1&lt; double, N &gt;, COST &gt; &gt;" name="ml::maths::common::CRandomProjectionClustererFacade&lt; CXMeans&lt; CVectorNx1&lt; double, N &gt;, COST &gt; &gt;">
+<area shape="rect" id="Node000001" title="Adapts x&#45;means for use by the random projection clusterer." alt="" coords="976,26,1195,97"/>
+<area shape="rect" id="Node000002" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html" title=" " alt="" coords="695,34,858,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="874,59,976,59,976,64,874,64"/>
+<area shape="rect" id="Node000003" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html" title="The xorshift1024* pseudo&#45;random number generator." alt="" coords="389,5,577,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="593,36,695,49,694,54,592,42"/>
+<area shape="rect" id="Node000004" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html" title=" " alt="" coords="401,70,565,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="580,83,694,69,695,74,580,88"/>
+<area shape="rect" id="Node000005" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html" title=" " alt="" coords="5,62,282,133"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="297,95,401,95,401,100,297,100"/>
+</map>

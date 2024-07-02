@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CMultimodalPrior::dataType" name="ml::maths::common::CMultimodalPrior::dataType">
+<area shape="rect" id="Node000001" title="Set the data type." alt="" coords="5,90,188,131"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="252,61,397,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,96,236,90,237,95,188,101"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="236,126,413,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,119,221,123,220,128,188,124"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="461,5,641,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="383,123,412,111,436,92,459,71,467,66,470,71,463,75,439,96,414,115,385,128"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="462,85,641,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="413,123,445,118,446,123,414,128"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="479,150,624,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="414,148,464,156,463,161,413,154"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="469,216,634,256"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="353,149,462,200,479,207,477,212,460,205,351,154"/>
+</map>

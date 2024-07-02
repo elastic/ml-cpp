@@ -1,0 +1,11 @@
+<map id="ml::core::CBlockingCallCancellerThread" name="ml::core::CBlockingCallCancellerThread">
+<area shape="rect" id="Node000001" title="Abstract base for classes that cancels blocking IO on some event." alt="" coords="393,39,607,79"/>
+<area shape="rect" id="Node000004" href="$d1/daa/classml_1_1controller_1_1_c_blocking_call_cancelling_stream_monitor.html" title="Cancels blocking IO in one thread if a stream reaches end&#45;of&#45;file." alt="" coords="670,5,861,46"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="623,41,669,35,670,40,623,46"/>
+<area shape="rect" id="Node000005" href="$dd/d78/classml_1_1core_1_1_c_blocking_call_cancelling_timer.html" title="Cancels a blocking IO call after a supplied timeout has elapsed." alt="" coords="655,71,876,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="623,71,655,75,655,80,623,76"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="219,46,345,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="361,56,393,56,393,62,361,62"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,46,171,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,56,218,56,218,62,186,62"/>
+</map>

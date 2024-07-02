@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CSignal::bucketPredictor" name="ml::maths::time_series::CSignal::bucketPredictor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,180,90"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="228,5,450,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,54,211,49,212,54,180,59"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="259,85,419,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,79,244,89,243,94,180,85"/>
+</map>

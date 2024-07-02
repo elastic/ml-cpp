@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,72,202,98"/>
+<area shape="rect" id="Node000002" href="$d2/dbc/classanonymous__namespace_02_c_seasonal_component_test_8cc_03_1_1_c_test_seasonal_component.html#a6ac0020e7549461d539a0a337077a0c4" title=" " alt="" coords="250,5,461,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,69,234,59,235,64,181,74"/>
+<area shape="rect" id="Node000003" href="$d3/d91/namespaceanonymous__namespace_02_c_seasonal_component_test_8cc_03.html#a52764b93efca5ba2950a24ed6775b919" title=" " alt="" coords="256,100,455,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,96,241,105,240,111,183,101"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="509,74,694,114"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="455,111,493,106,494,111,455,117"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="529,139,674,180"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="455,138,514,145,513,151,455,143"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="742,74,928,114"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="695,91,727,91,727,97,695,97"/>
+</map>

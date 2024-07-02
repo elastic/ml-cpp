@@ -1,0 +1,20 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood" name="ml::maths::common::CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,218,198"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a6136b1f0a0cb338a17dcf693b6fb7209" title="Full debug dump of the state of this prior." alt="" coords="266,5,478,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,140,204,105,264,71,276,65,278,70,267,76,207,110,154,144"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="292,85,452,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,141,276,126,278,131,219,146"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="299,150,445,191"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="218,168,284,168,284,173,218,173"/>
+<area shape="rect" id="Node000007" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="266,215,478,270"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="215,196,255,207,253,212,214,202"/>
+<area shape="rect" id="Node000008" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#a82db2f212f8908863edae25e2ea1be84" title=" " alt="" coords="268,294,476,335"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="146,197,201,239,267,280,279,286,276,290,264,285,198,244,143,201"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="526,53,671,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="452,91,510,83,511,88,453,97"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="526,118,671,159"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="453,114,511,123,510,128,452,120"/>
+<area shape="rect" id="Node000009" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="560,302,638,327"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="476,312,544,312,544,317,476,317"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="561,303,554,293,558,283,573,277,599,275,626,278,641,285,638,289,625,283,599,280,575,282,562,287,559,292,565,300"/>
+</map>

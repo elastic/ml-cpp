@@ -1,0 +1,9 @@
+<map id="ml::api::CJsonOutputWriter::addInfluences" name="ml::api::CJsonOutputWriter::addInfluences">
+<area shape="rect" id="Node000001" title="Write the influence results." alt="" coords="5,71,185,111"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="233,5,415,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,68,235,48,236,53,169,73"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1be4161314de57fc4dfd54336d37329b" title="Return a new boost::json array." alt="" coords="233,71,415,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,88,217,88,217,94,185,94"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abf4d06b98db199c538b352f260909019" title=" " alt="" coords="233,136,415,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,109,236,129,235,134,168,114"/>
+</map>

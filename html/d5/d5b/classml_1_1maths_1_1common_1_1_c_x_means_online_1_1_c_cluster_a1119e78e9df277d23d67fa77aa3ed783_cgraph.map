@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CXMeansOnline::CCluster::propagateForwardsByTime" name="ml::maths::common::CXMeansOnline::CCluster::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Propagate the cluster forwards by time." alt="" coords="5,63,191,119"/>
+<area shape="rect" id="Node000002" href="$de/da4/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_covariances.html#abc91d194378abb9c664c47767bc75ab6" title=" " alt="" coords="239,5,521,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,67,274,48,275,53,192,72"/>
+<area shape="rect" id="Node000003" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a21c3777fff70f52bc890c175d45ae815" title="Age by a factor alpha, which should be in the range (0, 1)." alt="" coords="307,71,453,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,88,291,88,291,94,191,94"/>
+<area shape="rect" id="Node000004" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#abff96806f72e15bbf3e4ad3b2c2d8840" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="292,135,468,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,112,277,134,276,139,190,117"/>
+</map>

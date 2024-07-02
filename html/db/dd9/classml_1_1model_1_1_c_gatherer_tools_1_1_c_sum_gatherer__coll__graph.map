@@ -1,0 +1,7 @@
+<map id="ml::model::CGathererTools::CSumGatherer" name="ml::model::CGathererTools::CSumGatherer">
+<area shape="rect" id="Node000001" title="Bucket sum gatherer." alt="" coords="106,109,284,150"/>
+<area shape="rect" id="Node000002" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html" title="Classifies a collection of values." alt="" coords="5,13,185,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,48,178,107,174,110,115,51"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html" title=" " alt="" coords="209,5,384,46"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="268,59,216,110,213,107,265,55"/>
+</map>

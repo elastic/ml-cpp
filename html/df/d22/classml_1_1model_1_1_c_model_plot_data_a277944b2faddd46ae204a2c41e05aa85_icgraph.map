@@ -1,0 +1,12 @@
+<map id="ml::model::CModelPlotData::get" name="ml::model::CModelPlotData::get">
+<area shape="rect" id="Node000001" title=" " alt="" coords="476,70,684,96"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#aae6a98db6ca88c66c6a7ad3831537ca5" title="Add the model plot data for all by field values which match terms." alt="" coords="226,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="505,69,419,49,421,44,506,64"/>
+<area shape="rect" id="Node000004" href="$d2/de8/_c_model_plot_data_json_writer_test_8cc.html#a16123fc7ea8dd5d5805ed3f0c04b3b14" title=" " alt="" coords="229,70,425,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="460,86,425,86,425,80,460,80"/>
+<area shape="rect" id="Node000005" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a8532c48ab20d62810e459bd038d7c1a0" title="Get the model plot data for the specified by field value." alt="" coords="232,120,422,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="506,102,421,122,419,117,505,97"/>
+<area shape="rect" id="Node000003" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a65d16260e160c3a0de4d599a4871a7fe" title=" " alt="" coords="5,63,178,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="227,53,178,65,177,59,226,48"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="226,118,177,107,178,101,227,113"/>
+</map>

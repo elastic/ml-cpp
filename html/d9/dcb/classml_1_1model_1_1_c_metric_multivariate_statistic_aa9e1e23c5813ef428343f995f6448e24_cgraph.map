@@ -1,0 +1,11 @@
+<map id="ml::model::CMetricMultivariateStatistic::add" name="ml::model::CMetricMultivariateStatistic::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,205,79"/>
+<area shape="rect" id="Node000002" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#a639d596d77b1b342a6cba8a71769ced7" title="Returns the count of all the measurements." alt="" coords="253,5,452,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,43,237,39,238,44,206,48"/>
+<area shape="rect" id="Node000004" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#ace91557663982eabb2a654ecb82cdede" title="Returns the aggregated value of all the measurements." alt="" coords="253,71,452,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="205,69,238,73,237,79,205,75"/>
+<area shape="rect" id="Node000003" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a97fd56f20988fde7e7a1981f9ae6bcbc" title="Returns 1.0 since this is not available." alt="" coords="500,5,680,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,23,484,23,484,28,452,28"/>
+<area shape="rect" id="Node000005" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a661bd8a0db4975639e7b2a7555610989" title="Get the median value of an order statistic." alt="" coords="500,71,680,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="452,88,484,88,484,94,452,94"/>
+</map>

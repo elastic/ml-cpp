@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CDerivatives" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CDerivatives">
+<area shape="rect" id="Node000001" title="Accumulates aggregate derivatives." alt="" coords="608,45,833,101"/>
+<area shape="rect" id="Node000002" href="$d1/df3/classml_1_1maths_1_1common_1_1_c_memory_mapped_dense_vector.html" title=" " alt="" coords="281,5,481,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="497,44,608,57,607,63,496,49"/>
+<area shape="rect" id="Node000003" href="$db/d69/class_eigen_1_1_map.html" title=" " alt="" coords="5,13,232,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="247,31,281,31,281,36,247,36"/>
+<area shape="rect" id="Node000004" href="$db/d0a/classml_1_1maths_1_1common_1_1_c_memory_mapped_dense_matrix.html" title=" " alt="" coords="282,85,480,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="496,97,607,84,608,89,496,102"/>
+<area shape="rect" id="Node000005" href="$db/d69/class_eigen_1_1_map.html" title=" " alt="" coords="5,93,232,134"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="247,111,282,111,282,116,247,116"/>
+</map>

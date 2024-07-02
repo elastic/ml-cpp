@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::jointLogMarginalLikelihood" name="ml::maths::common::CPoissonMeanConjugate::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,105,187,161"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="235,5,426,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,102,179,70,234,41,252,34,254,39,236,46,182,75,135,107"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="250,55,411,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,108,235,96,236,101,188,113"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="474,113,619,153"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="187,130,458,130,458,136,187,136"/>
+<area shape="rect" id="Node000006" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="246,170,415,226"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="188,156,232,168,230,173,186,161"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="250,250,411,291"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="130,159,178,198,236,236,246,241,244,246,233,240,175,203,126,163"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="474,47,619,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="411,70,458,68,459,73,411,75"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="410,94,460,107,458,112,409,99"/>
+</map>

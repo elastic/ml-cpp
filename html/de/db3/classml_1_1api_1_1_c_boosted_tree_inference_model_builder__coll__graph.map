@@ -1,0 +1,17 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder" name="ml::api::CBoostedTreeInferenceModelBuilder">
+<area shape="rect" id="Node000001" title="Builds a serialisable trained model object by visiting a maths::analytics::CBoostedTree object." alt="" coords="834,150,1040,191"/>
+<area shape="rect" id="Node000002" href="$da/df0/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_1_1_c_visitor.html" title=" " alt="" coords="469,85,637,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="653,119,834,150,833,156,652,125"/>
+<area shape="rect" id="Node000003" href="$de/d81/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_visitor.html" title="Visits each encoding type." alt="" coords="214,5,419,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,64,484,82,483,87,424,69"/>
+<area shape="rect" id="Node000004" href="$da/d0e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node_1_1_c_visitor.html" title=" " alt="" coords="217,85,416,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="432,103,468,103,468,108,432,108"/>
+<area shape="rect" id="Node000005" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html" title="Technical details required for model evaluation." alt="" coords="469,150,637,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="652,168,833,168,833,173,652,173"/>
+<area shape="rect" id="Node000006" href="$d3/d07/classml_1_1api_1_1_c_serializable_to_compressed_chunked_json.html" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="229,150,404,191"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="420,168,469,168,469,173,420,173"/>
+<area shape="rect" id="Node000007" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="5,150,165,191"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="180,168,229,168,229,173,180,173"/>
+<area shape="rect" id="Node000008" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html" title="Provides feature names." alt="" coords="470,216,636,256"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="651,217,833,185,834,191,652,222"/>
+</map>

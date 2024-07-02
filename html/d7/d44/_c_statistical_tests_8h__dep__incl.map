@@ -1,0 +1,27 @@
+<map id="include/maths/common/CStatisticalTests.h" name="include/maths/common/CStatisticalTests.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1162,5,1318,46"/>
+<area shape="rect" id="Node000002" href="$d3/d81/_c_statistical_tests_8cc.html" title=" " alt="" coords="5,94,206,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1147,33,742,52,481,71,218,97,207,98,206,93,217,91,481,65,742,47,1146,27"/>
+<area shape="rect" id="Node000003" href="$d6/d83/_c_p_r_n_g_test_8cc.html" title=" " alt="" coords="230,94,405,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1147,34,823,55,621,73,418,97,406,98,405,93,417,91,621,68,823,50,1146,29"/>
+<area shape="rect" id="Node000004" href="$d2/d9c/_c_sampling_test_8cc.html" title=" " alt="" coords="430,94,605,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1147,37,907,61,618,97,606,98,605,93,617,91,906,55,1146,32"/>
+<area shape="rect" id="Node000005" href="$d3/d84/_c_statistical_tests_test_8cc.html" title=" " alt="" coords="630,94,805,135"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1147,44,817,97,806,98,805,93,816,91,1146,38"/>
+<area shape="rect" id="Node000006" href="$db/dd2/_c_signal_8cc.html" title=" " alt="" coords="829,94,974,135"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1149,53,975,97,974,92,1148,48"/>
+<area shape="rect" id="Node000007" href="$da/dcd/_c_time_series_decomposition_detail_8cc.html" title=" " alt="" coords="999,94,1239,135"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1202,57,1148,96,1145,91,1199,53"/>
+<area shape="rect" id="Node000008" href="$db/d07/_c_time_series_segmentation_8cc.html" title=" " alt="" coords="1263,94,1463,135"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1282,53,1337,91,1334,96,1279,57"/>
+<area shape="rect" id="Node000009" href="$d4/d4c/_c_time_series_test_for_change_8cc.html" title=" " alt="" coords="1487,94,1695,135"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1334,47,1512,91,1511,96,1333,53"/>
+<area shape="rect" id="Node000010" href="$da/d92/_c_time_series_test_for_seasonality_8cc.html" title=" " alt="" coords="1719,94,1948,135"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1334,38,1707,91,1719,93,1718,98,1706,97,1333,43"/>
+<area shape="rect" id="Node000011" href="$d5/d03/_c_trend_component_8cc.html" title=" " alt="" coords="1973,94,2126,135"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1334,30,1615,51,1788,69,1961,91,1973,93,1972,99,1960,97,1787,74,1615,56,1334,35"/>
+<area shape="rect" id="Node000012" href="$dc/dd6/_c_detector_equalizer_test_8cc.html" title=" " alt="" coords="2150,94,2333,135"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1334,28,1688,48,1913,66,2139,91,2150,93,2149,98,2139,97,1912,72,1688,53,1334,33"/>
+<area shape="rect" id="Node000013" href="$dc/dfe/_c_hierarchical_results_test_8cc.html" title=" " alt="" coords="2357,94,2550,135"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="1334,26,1771,45,2056,64,2344,91,2357,93,2357,98,2344,97,2056,69,1770,50,1334,32"/>
+</map>

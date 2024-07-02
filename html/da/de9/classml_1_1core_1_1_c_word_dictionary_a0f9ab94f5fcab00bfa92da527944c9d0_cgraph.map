@@ -1,0 +1,15 @@
+<map id="ml::core::CWordDictionary::CWordDictionary" name="ml::core::CWordDictionary::CWordDictionary">
+<area shape="rect" id="Node000001" title="Constructor for a singleton is private." alt="" coords="5,71,181,111"/>
+<area shape="rect" id="Node000002" href="$da/de9/classml_1_1core_1_1_c_word_dictionary.html#a6febde37add40cd4fb7357b6b7571daf" title=" " alt="" coords="234,5,409,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,68,232,48,234,53,167,73"/>
+<area shape="rect" id="Node000003" href="$d6/dc1/classml_1_1core_1_1_c_resource_locator.html#ad2340bd6b0c702ee790254ac93a94f96" title=" " alt="" coords="229,71,414,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,88,213,88,213,94,181,94"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a35b1abce0123c6332e361d19f2c92a04" title="Trim whitespace characters from the beginning and end of a string." alt="" coords="248,136,395,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="167,109,234,129,232,134,166,114"/>
+<area shape="rect" id="Node000004" href="$d0/d85/classml_1_1core_1_1_c_prog_name.html#a4903d729ac7d94ca4d8886411424389e" title=" " alt="" coords="468,5,616,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="392,68,456,48,457,54,393,73"/>
+<area shape="rect" id="Node000005" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a98a081fefcfcac50f60f2471273a0fad" title=" " alt="" coords="462,71,622,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="415,88,446,88,446,94,415,94"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a735030108b69ffc78cd71c89e6ffe322" title="Trim certain characters from the beginning and end of a string." alt="" coords="469,136,616,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="395,154,453,154,453,159,395,159"/>
+</map>

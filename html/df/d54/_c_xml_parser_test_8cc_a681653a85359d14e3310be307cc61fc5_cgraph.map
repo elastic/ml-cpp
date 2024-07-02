@@ -1,0 +1,14 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,124,202,149"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a9b5cb396d70323afcb44a5aed363546e" title=" " alt="" coords="253,5,401,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,121,248,57,261,51,264,55,251,61,130,125"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#ad95b42c28aa2f264bd01cf5ff2daae4b" title="Dump the document to stdout." alt="" coords="253,71,401,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,120,238,106,239,112,171,125"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="250,160,404,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,147,235,160,234,165,172,152"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a7a37cae098c44515678bac80f67bf5c7" title="Set root name." alt="" coords="253,225,401,266"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="130,147,251,210,264,216,262,221,248,215,128,152"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="289,160,287,150,293,141,307,135,327,133,348,136,361,142,359,147,347,141,327,139,308,141,297,145,292,151,294,159"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="452,225,599,266"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="401,243,436,243,436,248,401,248"/>
+</map>

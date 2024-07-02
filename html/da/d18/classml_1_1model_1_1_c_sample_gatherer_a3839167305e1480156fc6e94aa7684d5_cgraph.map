@@ -1,0 +1,5 @@
+<map id="ml::model::CSampleGatherer::isRedundant" name="ml::model::CSampleGatherer::isRedundant">
+<area shape="rect" id="Node000001" title="Is the gatherer holding redundant data?" alt="" coords="5,5,196,46"/>
+<area shape="rect" id="Node000002" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#ad4172289ba2ce516a31db8372ea4bde6" title=" " alt="" coords="244,5,422,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,23,228,23,228,28,196,28"/>
+</map>

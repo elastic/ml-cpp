@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CSignal::residualVariance" name="ml::maths::time_series::CSignal::residualVariance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,121,184,162"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="242,5,464,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,118,231,71,247,64,249,69,233,76,135,123"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="273,85,433,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,126,257,116,258,121,185,131"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="232,149,474,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,151,217,155,216,161,184,156"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="273,229,433,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="129,160,177,188,233,215,259,224,257,229,231,220,174,193,126,164"/>
+</map>

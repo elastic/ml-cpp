@@ -1,0 +1,7 @@
+<map id="ml::model::CResourceMonitor::CResourceMonitor" name="ml::model::CResourceMonitor::CResourceMonitor">
+<area shape="rect" id="Node000001" title="Default constructor." alt="" coords="5,5,201,46"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a48617536e82f59b14f00cde169e2d3d4" title=" " alt="" coords="249,5,513,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,23,233,23,233,28,201,28"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="561,5,791,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="514,23,545,23,545,28,514,28"/>
+</map>

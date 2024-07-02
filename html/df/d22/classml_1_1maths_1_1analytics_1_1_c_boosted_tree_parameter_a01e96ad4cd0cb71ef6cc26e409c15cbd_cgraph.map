@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeParameter::setToRangeMidpointOr" name="ml::maths::analytics::CBoostedTreeParameter::setToRangeMidpointOr">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,179,174"/>
+<area shape="rect" id="Node000002" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a4b1bc60fbd95431a11c5425c9774a778" title="Check if the value is fixed." alt="" coords="227,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,116,225,71,235,66,238,71,228,76,144,121"/>
+<area shape="rect" id="Node000003" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a018e589f30c4fb2d13b9fab64257d766" title="Convert value from its value used by BO for fine tuning." alt="" coords="227,85,400,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,131,211,126,212,131,180,136"/>
+<area shape="rect" id="Node000005" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="448,151,621,206"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="179,150,433,169,433,174,179,155"/>
+<area shape="rect" id="Node000006" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a75b0ce2554d3b35d9f49556aa932010d" title="Get the unscaled value converted to a search value." alt="" coords="227,240,400,296"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="146,173,249,230,246,234,143,177"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="462,86,607,127"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="400,108,447,106,447,112,401,113"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="401,136,434,146,432,151,400,141"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="270,239,270,230,278,221,293,215,313,213,337,216,351,223,349,228,335,221,313,219,294,221,281,225,275,232,275,240"/>
+</map>

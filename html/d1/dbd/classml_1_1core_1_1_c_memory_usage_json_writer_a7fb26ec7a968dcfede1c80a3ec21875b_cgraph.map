@@ -1,0 +1,14 @@
+<map id="ml::core::CMemoryUsageJsonWriter::startObject" name="ml::core::CMemoryUsageJsonWriter::startObject">
+<area shape="rect" id="Node000001" title="Calls underlying JSON writer startObject." alt="" coords="5,39,205,79"/>
+<area shape="rect" id="Node000002" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html#ae308c1ff681335d376672f2550cbaa36" title="Overwrites the Writer::onObjectBegin in order to count nested objects." alt="" coords="253,39,425,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,56,237,56,237,62,205,62"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a0bfaf41d409565d4b091676c48750501" title=" " alt="" coords="473,5,655,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,44,457,39,458,44,426,49"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a688d4dc1c2cdab063e0bc24f22b7ce9f" title=" " alt="" coords="473,71,655,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="426,69,458,73,457,78,425,74"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="703,5,886,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="655,23,688,23,688,28,655,28"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="637,68,705,48,706,53,639,73"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="703,71,886,111"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="655,88,688,88,688,94,655,94"/>
+</map>

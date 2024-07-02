@@ -1,0 +1,7 @@
+<map id="ml::api::CEnsemble::featureNames" name="ml::api::CEnsemble::featureNames">
+<area shape="rect" id="Node000001" title="Names of the features used by the model." alt="" coords="254,39,390,79"/>
+<area shape="rect" id="Node000002" href="$d9/dcd/classml_1_1api_1_1_c_trained_model.html#a4d0d040db231e71b44526912c22fbb8a" title="Names of the features used by the model." alt="" coords="27,5,184,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,49,184,40,184,35,239,44"/>
+<area shape="rect" id="Node000003" href="$de/de4/classml_1_1api_1_1_c_tree.html#aa70b267600dcc3159e7cc042dc5d178b" title=" " alt="" coords="5,71,206,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,74,206,79,206,73,238,69"/>
+</map>

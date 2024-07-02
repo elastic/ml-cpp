@@ -1,0 +1,5 @@
+<map id="ml::api::CInferenceModelMetadata::trainedModelMemoryUsage" name="ml::api::CInferenceModelMetadata::trainedModelMemoryUsage">
+<area shape="rect" id="Node000001" title="Set the trained model memory usage." alt="" coords="246,13,488,54"/>
+<area shape="rect" id="Node000002" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a64a41f746d066bbc38609231cb6d0cf6" title=" " alt="" coords="5,5,198,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,36,198,36,198,31,230,31"/>
+</map>

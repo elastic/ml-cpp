@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CEventRateAnomalyDetectorTest.cc}::CResultWriter" name="anonymous_namespace{CEventRateAnomalyDetectorTest.cc}::CResultWriter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1115,63,1314,119"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="791,5,956,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="972,42,1116,69,1115,75,971,47"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html" title="Responsible for configuring anomaly detection models." alt="" coords="775,71,972,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="988,88,1115,88,1115,94,988,94"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="808,136,939,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="954,132,1115,105,1116,110,955,137"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="411,136,606,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="622,146,807,146,807,151,622,151"/>
+<area shape="rect" id="Node000006" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="5,121,218,176"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="233,146,410,146,410,151,233,151"/>
+</map>

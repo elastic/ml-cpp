@@ -1,0 +1,15 @@
+<map id="ml::model::SAttributeProbability" name="ml::model::SAttributeProbability">
+<area shape="rect" id="Node000001" title="A collection of data describing an attribute&#39;s probability." alt="" coords="570,95,776,120"/>
+<area shape="rect" id="Node000002" href="$d6/d9a/classml_1_1model__t_1_1_c_result_type.html" title="Describes the result type." alt="" coords="208,5,381,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="396,32,547,64,636,92,634,97,546,69,395,37"/>
+<area shape="rect" id="Node000003" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="216,55,373,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="389,81,570,96,570,101,389,86"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,121,159,161"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="164,113,225,94,227,99,166,118"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="216,121,373,161"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="174,138,216,138,216,144,174,144"/>
+<area shape="rect" id="Node000006" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="216,186,373,227"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="166,164,227,183,225,188,164,169"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="389,130,570,114,570,119,389,135"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="389,195,466,183,546,164,601,142,647,119,650,123,603,147,547,169,467,189,389,201"/>
+</map>

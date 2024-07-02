@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultinomialConjugate::swap" name="ml::maths::common::CMultinomialConjugate::swap">
+<area shape="rect" id="Node000001" title="Efficient swap of the contents of this prior and other." alt="" coords="5,35,201,75"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4ef6e7ff28c4e5a1c85a17a841b373fb" title="Swap the contents of this prior and other." alt="" coords="249,5,394,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,39,233,35,234,40,201,45"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="442,42,520,68"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="201,54,394,55,426,54,426,60,394,60,201,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="395,36,427,43,427,48,394,42"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="454,43,449,34,452,24,463,18,481,16,501,18,511,25,508,29,499,23,481,21,465,23,456,27,454,33,458,40"/>
+</map>

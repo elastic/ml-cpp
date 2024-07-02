@@ -1,0 +1,20 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::marginalLikelihoodVariance" name="ml::maths::common::CLogNormalMeanPrecConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="5,121,218,176"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="291,5,471,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,118,209,89,265,62,296,49,298,54,267,67,211,94,161,122"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="844,81,1057,136"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,117,265,106,417,92,569,88,711,91,829,96,829,102,711,96,569,94,417,98,266,111,207,122"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a8d3cd570687f57cdbe98699321428182" title="Get the mean of the marginal likelihood function." alt="" coords="275,121,487,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="218,146,259,146,259,151,218,151"/>
+<area shape="rect" id="Node000008" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="281,200,481,241"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="219,174,288,193,287,198,218,179"/>
+<area shape="rect" id="Node000009" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#a291337a58b62b8a46c361c5367c9c8af" title=" " alt="" coords="266,265,496,306"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="149,174,203,213,267,250,284,257,282,262,264,255,200,218,146,179"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="598,120,743,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="487,143,582,140,582,145,487,148"/>
+<area shape="rect" id="Node000006" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a62671217507eb150fd9b59ec8053fedc" title="Get the of the marginal likelihood." alt="" coords="544,185,796,226"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="488,167,550,179,549,184,487,172"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="755,182,795,170,872,140,874,145,797,175,757,187"/>
+<area shape="rect" id="Node000007" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="856,185,1045,226"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="797,203,841,203,841,208,797,208"/>
+</map>

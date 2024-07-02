@@ -1,0 +1,18 @@
+<map id="ml::api::CAnomalyJob::isPersistenceNeeded" name="ml::api::CAnomalyJob::isPersistenceNeeded">
+<area shape="rect" id="Node000001" title="Is persistence needed?" alt="" coords="707,55,861,96"/>
+<area shape="rect" id="Node000002" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a1c24b7586202d7618f6a3a05c35f6dc1" title=" " alt="" coords="204,5,400,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="696,54,659,46,524,30,400,23,401,18,525,25,660,41,697,48"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#afa31b4a9d8f47c7b64b1e8efac8a6866" title="Perform any final processing once all input data has been seen." alt="" coords="479,55,629,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="692,78,629,78,629,73,692,73"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#afaa846accd3b57d399afb40da2ad468a" title=" " alt="" coords="448,137,659,177"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="711,104,614,138,613,133,709,99"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="463,58,361,34,362,29,464,52"/>
+<area shape="rect" id="Node000004" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a825eccea72c0de79e8382aaef2a5bf1c" title=" " alt="" coords="204,55,400,80"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="463,75,400,73,400,68,463,70"/>
+<area shape="rect" id="Node000005" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a65554f04dc6ee6b276ec61e57cef29c5" title=" " alt="" coords="204,104,400,130"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="463,93,385,106,384,101,463,88"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="221,154,383,195"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="432,168,384,171,383,166,432,163"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,154,156,195"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="205,177,156,177,156,172,205,172"/>
+</map>

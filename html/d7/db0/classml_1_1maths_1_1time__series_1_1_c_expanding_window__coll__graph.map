@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CExpandingWindow" name="ml::maths::time_series::CExpandingWindow">
+<area shape="rect" id="Node000001" title="Implements a fixed memory expanding time window." alt="" coords="464,117,618,158"/>
+<area shape="rect" id="Node000002" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html" title=" " alt="" coords="30,5,193,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,36,321,57,441,88,502,114,500,119,439,94,320,62,208,41"/>
+<area shape="rect" id="Node000003" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="5,70,218,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,106,463,128,463,133,233,112"/>
+<area shape="rect" id="Node000004" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,150,218,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,165,439,146,463,144,463,149,440,151,233,170"/>
+<area shape="rect" id="Node000005" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,230,218,286"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="232,237,334,215,439,185,502,156,504,161,441,190,335,220,233,242"/>
+</map>

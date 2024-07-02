@@ -1,0 +1,14 @@
+<map id="ml::api::COneHotEncoding::CSizeInfo" name="ml::api::COneHotEncoding::CSizeInfo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="84,303,262,343"/>
+<area shape="rect" id="Node000002" href="$d7/d88/classml_1_1api_1_1_c_encoding_1_1_c_size_info.html" title=" " alt="" coords="19,199,151,240"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,250,158,301,154,304,110,253"/>
+<area shape="rect" id="Node000003" href="$d3/d04/classml_1_1api_1_1_c_serializable_to_json_document.html" title="Interface for adding all elements of an inference model definition to a JSON writer." alt="" coords="5,95,165,136"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="88,152,88,199,82,199,82,152"/>
+<area shape="rect" id="Node000004" href="$d7/d50/classml_1_1api_1_1_c_encoding.html" title=" " alt="" coords="192,103,325,129"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="223,138,180,162,117,201,114,196,177,158,220,134"/>
+<area shape="rect" id="Node000006" href="$d9/d6f/classml_1_1api_1_1_c_one_hot_encoding.html" title="Application of the one&#45;hot encoding function on a single column." alt="" coords="175,207,352,232"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="262,144,266,206,260,206,257,144"/>
+<area shape="rect" id="Node000005" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="179,5,338,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="261,62,261,102,256,102,256,62"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="245,245,193,304,189,300,241,242"/>
+</map>

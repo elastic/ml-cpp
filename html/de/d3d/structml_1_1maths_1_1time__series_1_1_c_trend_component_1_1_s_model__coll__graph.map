@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CTrendComponent::SModel" name="ml::maths::time_series::CTrendComponent::SModel">
+<area shape="rect" id="Node000001" title="A model of the trend at a specific time scale." alt="" coords="759,93,950,134"/>
+<area shape="rect" id="Node000002" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="414,5,626,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="641,59,767,90,766,95,640,65"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html" title=" " alt="" coords="413,85,627,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="643,111,759,111,759,116,643,116"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,6,260,77"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="275,65,413,91,412,96,274,70"/>
+<area shape="rect" id="Node000005" href="$d2/d43/classml_1_1core_1_1_c_persistence_tag.html" title="Convenience container class for holding persistence tags." alt="" coords="44,100,221,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="236,111,412,111,412,116,236,116"/>
+<area shape="rect" id="Node000006" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="26,151,239,206"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="253,156,412,129,413,134,254,161"/>
+<area shape="rect" id="Node000007" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="414,165,626,221"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="640,162,766,132,767,137,641,167"/>
+</map>

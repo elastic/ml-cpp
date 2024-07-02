@@ -1,0 +1,20 @@
+<map id="ml::core::CBoostJsonConcurrentLineWriter" name="ml::core::CBoostJsonConcurrentLineWriter">
+<area shape="rect" id="Node000001" title="A Json line writer for concurrently writing to a shared output stream." alt="" coords="1119,61,1332,102"/>
+<area shape="rect" id="Node000002" href="$d8/dab/classml_1_1core_1_1_c_string_buf_writer.html" title=" " alt="" coords="736,32,910,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="926,51,1119,69,1119,74,925,56"/>
+<area shape="rect" id="Node000003" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="307,13,510,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="526,28,735,38,735,43,525,34"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="214,23,306,23,306,28,214,28"/>
+<area shape="rect" id="Node000005" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html" title="A wrapper around a shared output stream for concurrent writes, handling writes." alt="" coords="725,89,920,130"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="935,101,1095,90,1119,88,1119,94,1096,95,936,106"/>
+<area shape="rect" id="Node000006" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="19,72,185,97"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="200,82,429,84,701,95,725,97,725,102,701,100,429,90,200,87"/>
+<area shape="rect" id="Node000008" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html" title=" " alt="" coords="309,113,508,154"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="201,97,309,115,308,120,200,103"/>
+<area shape="rect" id="Node000007" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="314,179,503,219"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="517,181,607,165,700,145,759,128,761,133,702,150,608,170,518,186"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="523,124,724,113,725,118,523,130"/>
+<area shape="rect" id="Node000009" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="8,124,196,165"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="212,142,283,141,308,139,309,145,283,146,212,148"/>
+</map>

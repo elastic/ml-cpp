@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::centres" name="ml::maths::time_series::CAdaptiveBucketing::centres">
+<area shape="rect" id="Node000001" title="Get the bucket value centres." alt="" coords="683,165,840,221"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a106727d4b77cfe616ae14d4be7b6d6c5" title="Get the memory used by this component." alt="" coords="425,5,634,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="725,156,684,114,634,75,613,64,616,59,637,71,687,110,729,152"/>
+<area shape="rect" id="Node000003" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ad592766733b9afbaf5c5caaa975e1e9e" title="Get the memory used by this component." alt="" coords="424,85,635,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="668,164,612,144,613,139,670,159"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#affbabff8a6643cde69a078f9ec4dcdc9" title="Linearly scale the regressions by scale at time." alt="" coords="424,165,635,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="668,196,636,196,636,191,668,191"/>
+<area shape="rect" id="Node000007" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#ae8956b52f45a863a658fda2c02b2c370" title=" " alt="" coords="425,245,634,301"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="670,227,613,247,612,242,668,222"/>
+<area shape="rect" id="Node000008" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ae66a9e8b24faf14042bb7bca8a52fbc0" title=" " alt="" coords="424,325,635,381"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="729,234,687,276,637,315,616,327,613,322,634,311,684,272,725,231"/>
+<area shape="rect" id="Node000005" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ac4bc65a11d95ba4e8449f4b8fe997aac" title="Linearly scale the component&#39;s by scale." alt="" coords="208,165,376,221"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="408,196,377,196,377,191,408,191"/>
+<area shape="rect" id="Node000006" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html#a466e04eb941540e537a5b5dd3d48433b" title=" " alt="" coords="5,173,160,214"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="192,196,160,196,160,191,192,191"/>
+</map>

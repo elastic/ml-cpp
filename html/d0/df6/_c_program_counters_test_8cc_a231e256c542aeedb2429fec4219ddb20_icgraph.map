@@ -1,0 +1,27 @@
+<map id="restore" name="restore">
+<area shape="rect" id="Node000001" title=" " alt="" coords="821,346,883,371"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a3bf2206087136a99729b50b0c25dbbce" title="Internal restore function." alt="" coords="546,5,765,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="849,330,846,276,835,208,825,172,812,137,794,104,771,75,758,63,761,59,775,71,799,101,817,135,830,171,840,207,851,276,854,330"/>
+<area shape="rect" id="Node000005" href="$d0/df6/_c_program_counters_test_8cc.html#adf635acb63ddf908e4c517bd6a600803" title=" " alt="" coords="547,86,764,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="847,330,843,285,831,229,808,172,792,147,772,125,757,114,760,110,775,120,796,143,813,170,836,227,848,284,853,330"/>
+<area shape="rect" id="Node000006" href="$d0/df6/_c_program_counters_test_8cc.html#a4dc66c5549c3e564446badfeaff2cf9a" title=" " alt="" coords="547,135,764,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="845,331,837,294,824,252,802,209,772,174,755,163,758,159,775,170,807,206,829,250,842,293,850,330"/>
+<area shape="rect" id="Node000007" href="$d0/d05/structml_1_1core_1_1persist__utils__detail_1_1_c_restorer_impl_3_01_container_restore_01_4_1_1_s_sub_level.html#ab15b43162c6cbf1df4558a34de6bb114" title=" " alt="" coords="546,185,764,255"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="832,334,806,301,772,269,755,258,758,254,775,264,810,297,836,331"/>
+<area shape="rect" id="Node000008" href="$d0/d05/structml_1_1core_1_1persist__utils__detail_1_1_c_restorer_impl_3_01_container_restore_01_4_1_1_s_sub_level.html#a8a68bf1f50479e44fd31829d732e990b" title=" " alt="" coords="546,279,764,350"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="805,351,764,342,766,336,807,346"/>
+<area shape="rect" id="Node000009" href="$de/df9/classml_1_1maths_1_1common_1_1_c_prior_state_serialiser.html#ac6186ac9bce585b004b4c5a870232e7c" title=" " alt="" coords="583,373,728,429"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="806,371,729,388,728,383,805,366"/>
+<area shape="rect" id="Node000010" href="$de/df9/classml_1_1maths_1_1common_1_1_c_prior_state_serialiser.html#a5a6edf58c02f10c7673960c2461a364b" title=" " alt="" coords="583,453,728,509"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="835,385,808,415,775,443,729,465,727,460,772,439,805,412,831,382"/>
+<area shape="rect" id="Node000011" href="$df/d12/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_state_serialiser.html#a8c1f2294360e61465514226c6281d6a8" title=" " alt="" coords="544,533,767,589"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="847,387,823,455,803,491,775,523,759,535,756,531,772,519,798,488,818,452,842,385"/>
+<area shape="rect" id="Node000012" href="$df/d12/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_state_serialiser.html#a42bdd08e11a79270fca9558149da5699" title=" " alt="" coords="544,613,767,669"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="852,387,847,433,835,491,812,551,795,578,775,603,761,615,758,611,771,599,791,575,807,548,830,490,842,433,847,387"/>
+<area shape="rect" id="Node000013" href="$d0/d8c/classml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_c_restore_feature_data.html#adebb0703bd24dd7a8762e693a97cc578" title=" " alt="" coords="537,693,773,763"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="850,387,840,457,824,544,802,627,790,660,775,683,764,694,760,690,771,679,785,657,797,625,819,543,835,456,845,387"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ab60939b8735a07e8c2db1b54768e8e83" title="Fill in the state from traverser." alt="" coords="270,13,489,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="530,36,489,36,489,31,530,31"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa56151076ac089b82ccaa49b1823a15b" title="Construct from a state document." alt="" coords="5,13,222,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="254,36,222,36,222,31,254,31"/>
+</map>

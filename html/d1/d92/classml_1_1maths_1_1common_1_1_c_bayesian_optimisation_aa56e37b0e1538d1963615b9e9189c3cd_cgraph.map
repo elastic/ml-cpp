@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CBayesianOptimisation::kinvf" name="ml::maths::common::CBayesianOptimisation::kinvf">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,109,164,165"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="212,5,370,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,106,219,66,222,71,143,111"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="212,109,370,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,135,196,135,196,140,164,140"/>
+<area shape="rect" id="Node000005" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="212,189,370,245"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="159,163,204,181,202,186,157,168"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="250,109,251,99,258,90,271,85,291,83,313,85,326,92,324,97,311,90,291,88,273,90,261,95,256,101,255,109"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="425,117,570,158"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="371,135,410,135,410,140,371,140"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="418,197,577,238"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="371,215,403,215,403,220,371,220"/>
+</map>

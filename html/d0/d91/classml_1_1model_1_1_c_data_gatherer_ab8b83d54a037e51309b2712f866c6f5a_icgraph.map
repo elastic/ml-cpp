@@ -1,0 +1,15 @@
+<map id="ml::model::CDataGatherer::effectiveSampleCount" name="ml::model::CDataGatherer::effectiveSampleCount">
+<area shape="rect" id="Node000001" title=" " alt="" coords="303,138,477,179"/>
+<area shape="rect" id="Node000002" href="$dc/d42/_c_metric_population_data_gatherer_test_8cc.html#adf3915591ada3c51f7b2afecf4ad2be4" title=" " alt="" coords="21,5,239,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="359,128,312,84,284,62,254,45,226,34,228,29,256,40,287,58,316,80,363,124"/>
+<area shape="rect" id="Node000003" href="$dc/d42/_c_metric_population_data_gatherer_test_8cc.html#acfe4168d39a9a850c6dbefda5fdc9270" title=" " alt="" coords="21,55,239,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="337,133,297,113,254,95,211,84,212,78,256,90,299,108,340,128"/>
+<area shape="rect" id="Node000004" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#a4ec8fcce257e3c9ae930e30d81d8146b" title=" " alt="" coords="26,105,234,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="287,148,234,141,235,136,287,142"/>
+<area shape="rect" id="Node000005" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a7a22f4083e6f639c08b2dafbd37762ec" title=" " alt="" coords="5,170,255,211"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="287,173,255,177,255,172,287,168"/>
+<area shape="rect" id="Node000006" href="$dc/d7f/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_extract_feature_data.html#ac01a85520edc62939c15e2a879c060ab" title="Population model specialization." alt="" coords="12,235,248,306"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="334,188,256,225,227,237,225,232,254,220,332,183"/>
+<area shape="rect" id="Node000007" href="$dc/d7f/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_extract_feature_data.html#a513a82112a32fd8b8f22ab09d68e52f7" title="Individual model specialization." alt="" coords="12,330,248,400"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="370,193,322,256,291,290,256,319,236,331,234,327,253,315,287,286,318,253,366,190"/>
+</map>

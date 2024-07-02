@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CModel::addCountWeights" name="ml::maths::common::CModel::addCountWeights">
+<area shape="rect" id="Node000001" title="Add to trendWeights and residualWeights." alt="" coords="273,51,450,91"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,54,224,49,225,43,258,49"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="18,95,212,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,92,212,100,212,95,257,87"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="155,82,140,76,115,73,91,75,77,80,72,86,74,93,69,95,66,85,74,76,90,70,115,68,142,70,157,77"/>
+</map>

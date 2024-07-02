@@ -1,0 +1,5 @@
+<map id="ml::model::CMetricPartialStatistic::value" name="ml::model::CMetricPartialStatistic::value">
+<area shape="rect" id="Node000001" title="Returns the aggregated value of all the measurements." alt="" coords="5,5,175,46"/>
+<area shape="rect" id="Node000002" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a661bd8a0db4975639e7b2a7555610989" title="Get the median value of an order statistic." alt="" coords="223,5,403,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,23,207,23,207,28,175,28"/>
+</map>

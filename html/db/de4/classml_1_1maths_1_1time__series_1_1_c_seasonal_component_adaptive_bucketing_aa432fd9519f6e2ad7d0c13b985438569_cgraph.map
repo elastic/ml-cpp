@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore by traversing a state document." alt="" coords="5,149,233,205"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#af39a42583cc98fe29ed979fd796108b9" title=" " alt="" coords="281,5,513,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,147,213,108,279,71,292,65,294,70,282,76,216,113,160,151"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="288,85,506,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,146,301,127,302,132,230,151"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a07466ad5aef811954276969bfd7b3db8" title="Name of component." alt="" coords="291,149,503,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,175,276,175,276,180,233,180"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="288,229,506,270"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="230,203,302,222,301,227,228,208"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="288,294,506,335"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="158,203,215,242,282,279,300,286,297,291,280,284,212,246,155,207"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a259b158f8ed05aa83b21cc6bdbf2b64a" title="Get the rate at which the bucketing loses information." alt="" coords="561,109,717,165"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="503,157,545,150,546,155,503,162"/>
+<area shape="rect" id="Node000006" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a32605235cceb5f6493ac0f9c7cdf78b0" title="Get the minimum permitted bucket length." alt="" coords="561,189,717,245"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="503,192,546,199,545,204,503,197"/>
+</map>

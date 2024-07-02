@@ -1,0 +1,38 @@
+<map id="ml::model::CBucketGatherer::currentBucketStartTime" name="ml::model::CBucketGatherer::currentBucketStartTime">
+<area shape="rect" id="Node000001" title="Get the start of the current bucketing time interval." alt="" coords="1020,341,1207,382"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a29ecbfa8bd97b9689233e3ea918111d5" title="The earliest time for which data can still arrive." alt="" coords="760,225,947,266"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1051,337,900,269,902,264,1053,332"/>
+<area shape="rect" id="Node000005" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a32f7941b2eb5ac819d0adc0a3fe73905" title=" " alt="" coords="253,5,452,46"/>
+<area shape="poly" id="edge14_Node000001_Node000005" title=" " alt="" coords="1096,328,1077,287,1049,240,1014,193,970,153,908,116,842,87,772,65,701,48,632,37,566,30,452,25,452,20,567,25,633,32,702,43,773,60,843,82,911,112,973,149,1018,189,1054,237,1082,285,1101,326"/>
+<area shape="rect" id="Node000006" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a3ac7068a6e7b92681b6a61af2658d0a7" title=" " alt="" coords="266,71,439,111"/>
+<area shape="poly" id="edge15_Node000001_Node000006" title=" " alt="" coords="1087,330,1037,272,1005,242,970,216,905,181,835,153,762,131,690,115,552,97,439,92,440,87,553,92,691,110,764,126,837,148,907,176,973,211,1009,238,1041,268,1091,327"/>
+<area shape="rect" id="Node000008" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43784d519db9888cbf7799677939e3f4" title=" " alt="" coords="259,356,446,397"/>
+<area shape="poly" id="edge17_Node000001_Node000008" title=" " alt="" coords="1004,358,972,356,853,354,735,356,447,372,446,367,735,351,853,349,972,351,1004,352"/>
+<area shape="rect" id="Node000013" href="$d7/df3/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_add_value.html#af8be63fc6aa934cc10ebdcae4b6427cb" title=" " alt="" coords="735,366,972,422"/>
+<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="1004,378,973,382,972,376,1004,372"/>
+<area shape="rect" id="Node000014" href="$df/d7e/classml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_c_restore_feature_data_1_1_c_do_old_restore.html#a5079bd0ee6e6db3f7200e3a57b521bf2" title=" " alt="" coords="735,445,972,516"/>
+<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="1061,392,973,436,948,447,946,442,971,431,1059,387"/>
+<area shape="rect" id="Node000015" href="$dd/da8/classml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_c_restore_feature_data_1_1_c_do_new_restore.html#a5e345c403aa5ceaa0859d1042b6bfe26" title=" " alt="" coords="735,540,972,610"/>
+<area shape="poly" id="edge19_Node000001_Node000015" title=" " alt="" coords="1093,397,1043,463,1010,499,973,530,956,541,953,537,970,526,1007,495,1039,460,1089,393"/>
+<area shape="rect" id="Node000016" href="$df/d7e/classml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_c_restore_feature_data_1_1_c_do_old_restore.html#afc04c0c533908a671c9912328894e80a" title=" " alt="" coords="735,634,972,705"/>
+<area shape="poly" id="edge20_Node000001_Node000016" title=" " alt="" coords="1104,398,1086,448,1059,508,1022,570,999,599,973,625,959,636,956,632,970,621,995,596,1017,567,1054,506,1081,446,1099,396"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="500,135,687,175"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="778,222,653,178,655,173,780,217"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43989a5e695ec681148be575458e3ee3" title="Check if data is available at time." alt="" coords="500,200,687,241"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="744,238,687,232,688,227,745,232"/>
+<area shape="rect" id="Node000011" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a913845fb0b570d71229a85c9ce664e53" title="Start a new bucket." alt="" coords="266,291,439,331"/>
+<area shape="poly" id="edge13_Node000002_Node000011" title=" " alt="" coords="745,262,440,302,439,297,744,257"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="502,193,498,189,485,172,478,156,474,123,469,92,463,76,450,61,434,49,437,45,454,57,467,73,474,90,479,122,483,154,490,170,502,185,506,189"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="507,195,498,189,482,173,474,157,465,141,450,126,429,114,432,110,454,122,470,138,478,154,487,170,502,185,510,190"/>
+<area shape="rect" id="Node000007" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a3655c1bcf787a15454a64dce843f566b" title=" " alt="" coords="259,136,446,177"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="499,198,431,180,432,175,500,193"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="562,253,504,306,453,345,427,358,425,353,451,341,500,302,558,249"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="524,249,410,293,408,288,523,244"/>
+<area shape="rect" id="Node000012" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a78efdf211d82c13e39669b489a895ed8" title=" " alt="" coords="259,201,446,242"/>
+<area shape="poly" id="edge12_Node000004_Node000012" title=" " alt="" coords="484,224,446,224,446,218,484,218"/>
+<area shape="rect" id="Node000009" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ab0d59a6b6336b0fc2ad87a70c8ccf6d4" title="Reset bucket and return true if bucket was successfully reset or false otherwise." alt="" coords="5,323,205,363"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="243,364,205,359,206,354,243,359"/>
+<area shape="rect" id="Node000010" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a1dd2d544b77a79ab83cfd6adc5903da7" title="Reset bucket and return true if bucket was successfully reset or false otherwise." alt="" coords="18,388,192,429"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="244,393,193,400,192,394,243,388"/>
+<area shape="poly" id="edge11_Node000011_Node000011" title=" " alt="" coords="392,278,377,272,352,269,329,271,315,276,310,282,312,289,307,291,305,281,312,272,328,266,352,264,378,266,394,273"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="include/core/CThread.h" name="include/core/CThread.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="134,5,291,31"/>
+<area shape="rect" id="Node000002" href="$d2/d78/_c_mutex_8h.html" title=" " alt="" coords="159,79,266,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,31,215,63,210,63,210,31"/>
+<area shape="rect" id="Node000003" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="21,153,172,178"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="199,34,174,55,149,81,128,111,111,141,106,138,123,108,145,77,170,51,195,30"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="28,226,165,252"/>
+<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="176,34,135,51,89,77,45,111,27,131,12,154,9,172,18,189,35,204,56,217,53,221,31,208,14,192,4,173,7,152,23,128,42,107,86,72,133,47,174,29"/>
+<area shape="rect" id="Node000005" href="$da/d3e/_windows_safe_8h.html" title=" " alt="" coords="245,153,388,178"/>
+<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="231,30,256,50,280,77,298,107,310,137,305,139,293,110,276,81,252,54,228,34"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="412,153,488,178"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="234,29,419,142,416,147,231,34"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="194,107,130,147,127,142,191,103"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="213,106,205,141,185,180,162,203,137,221,134,216,159,199,181,177,200,139,208,105"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="232,103,288,141,285,146,229,107"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="254,103,398,146,396,151,252,108"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="99,179,99,211,94,211,94,179"/>
+</map>

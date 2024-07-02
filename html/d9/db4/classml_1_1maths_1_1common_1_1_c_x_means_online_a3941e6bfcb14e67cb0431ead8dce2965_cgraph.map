@@ -1,0 +1,24 @@
+<map id="ml::maths::common::CXMeansOnline::acceptPersistInserter" name="ml::maths::common::CXMeansOnline::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,200,210,256"/>
+<area shape="rect" id="Node000002" href="$d5/d01/classml_1_1maths_1_1common_1_1_c_clusterer_types_1_1_c_index_generator.html#a566dc8ffc6ed1de651bb174789492c10" title="Persist state by passing information to the supplied inserter." alt="" coords="258,5,484,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,198,181,135,217,101,256,71,264,66,267,71,259,75,220,105,185,138,131,201"/>
+<area shape="rect" id="Node000004" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a064fa6dd7a75362d732046a98332c4d6" title=" " alt="" coords="289,109,453,150"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,197,257,160,279,152,281,157,259,165,170,202"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="270,174,472,215"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="210,212,254,207,254,212,210,218"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="270,240,472,280"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="210,238,254,243,254,248,210,243"/>
+<area shape="rect" id="Node000008" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html#a7c35fbd89f1e059926cccf0d53d6f62f" title="Convert to a string." alt="" coords="291,305,451,346"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="171,254,259,289,282,297,280,302,257,294,169,259"/>
+<area shape="rect" id="Node000009" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#ade2dfc116d155a15eb089bf70a67e174" title="Persist to a string." alt="" coords="273,369,469,425"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="137,254,191,305,224,331,259,355,268,360,265,364,256,359,221,336,187,309,133,258"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="533,13,687,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="485,31,518,31,518,36,485,36"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="326,109,324,99,331,90,347,84,371,82,397,85,412,91,410,96,395,90,371,87,348,89,334,94,329,100,331,108"/>
+<area shape="rect" id="Node000005" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a3596fdd65798421a6755966082b8d22f" title="The total count of points." alt="" coords="532,109,688,150"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="453,135,517,135,517,141,453,140"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="532,123,468,123,468,118,532,118"/>
+<area shape="poly" id="edge7_Node000005_Node000005" title=" " alt="" coords="565,109,563,99,570,90,586,84,610,82,636,85,651,91,649,96,635,90,610,87,587,89,573,94,568,100,570,108"/>
+<area shape="rect" id="Node000010" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="533,377,687,418"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="469,395,518,395,518,400,469,400"/>
+</map>

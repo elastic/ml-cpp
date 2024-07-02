@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CQuantileSketch" name="ml::maths::common::CQuantileSketch">
+<area shape="rect" id="Node000001" title="A sketch suitable for c.d.f. queries on a 1d double valued random variable." alt="" coords="230,39,375,79"/>
+<area shape="rect" id="Node000003" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html" title="This tunes the quantile sketch for performance when space is less important." alt="" coords="443,5,589,46"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="390,43,442,34,443,40,391,48"/>
+<area shape="rect" id="Node000004" href="$dc/d1d/classml_1_1maths_1_1common_1_1_c_fixed_quantile_sketch.html" title="Template wrapper for fixed size sketches which can be default constructed." alt="" coords="423,71,609,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="390,69,423,74,422,80,390,75"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,39,182,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,56,229,56,229,62,197,62"/>
+</map>

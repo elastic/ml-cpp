@@ -1,0 +1,26 @@
+<map id="ml::torch::CThreadSettings::numAllocations" name="ml::torch::CThreadSettings::numAllocations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="593,79,772,120"/>
+<area shape="rect" id="Node000002" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a33100332b80e6f9f822a74ebab666229" title=" " alt="" coords="124,5,278,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="633,73,591,53,545,37,475,24,405,17,278,16,278,10,405,11,476,18,546,32,593,48,635,69"/>
+<area shape="rect" id="Node000004" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#a1ee259bc9f9c4f8bac3e2377aa7b1fc9" title=" " alt="" coords="357,46,535,87"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="577,87,536,81,536,76,578,82"/>
+<area shape="rect" id="Node000005" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#aae8e6e20b3236d38e12c03da67f15fb3" title=" " alt="" coords="347,177,545,217"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="628,129,546,166,513,178,511,173,544,161,626,124"/>
+<area shape="rect" id="Node000012" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#afffa0d6534748af519cb641d9b013428" title="Write thread settings to the output stream." alt="" coords="365,111,527,152"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="578,116,528,123,528,118,577,111"/>
+<area shape="rect" id="Node000003" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,5,55,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,21,55,21,55,16,108,16"/>
+<area shape="rect" id="Node000006" href="$d2/d90/_c_thread_settings_test_8cc.html#ad530f26e1806f1f84a4401afec597acd" title=" " alt="" coords="103,75,299,100"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="355,172,345,166,330,152,321,139,312,126,298,114,275,103,277,98,300,109,316,122,325,136,334,149,349,161,358,167"/>
+<area shape="rect" id="Node000007" href="$d2/d90/_c_thread_settings_test_8cc.html#a7dc613ce2f9d4a1235376377ea894d8d" title=" " alt="" coords="103,124,299,150"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="345,175,256,153,257,148,346,170"/>
+<area shape="rect" id="Node000008" href="$d2/d90/_c_thread_settings_test_8cc.html#a778b6025a3af29a9060c13439408ea97" title=" " alt="" coords="103,173,299,199"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="331,195,299,193,300,188,332,189"/>
+<area shape="rect" id="Node000009" href="$d2/d90/_c_thread_settings_test_8cc.html#a3a8dfe3deb241a5ff0e0f481ec1734fe" title=" " alt="" coords="103,223,299,248"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="332,218,287,225,286,219,331,212"/>
+<area shape="rect" id="Node000010" href="$d2/d90/_c_thread_settings_test_8cc.html#ae0fbd45a6c63bb89b3deddf377479d29" title=" " alt="" coords="103,272,299,298"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="390,226,300,263,264,274,262,269,298,258,388,222"/>
+<area shape="rect" id="Node000011" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#a6d5c107b6d8b7921cca857e671090d3b" title=" " alt="" coords="112,322,290,363"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="414,230,362,272,300,313,276,324,274,319,298,308,359,268,410,226"/>
+<area shape="poly" id="edge12_Node000012_Node000002" title=" " alt="" coords="360,107,346,100,321,83,298,64,235,34,237,29,300,60,324,78,348,96,362,103"/>
+</map>

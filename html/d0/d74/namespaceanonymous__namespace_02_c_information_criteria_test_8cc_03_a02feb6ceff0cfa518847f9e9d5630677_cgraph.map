@@ -1,0 +1,19 @@
+<map id="anonymous_namespace{CInformationCriteriaTest::cc}::logfGaussian" name="anonymous_namespace{CInformationCriteriaTest::cc}::logfGaussian">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,173,134"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a0d06d1c6b6083605599feb67956c3919" title=" " alt="" coords="233,56,386,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,92,217,86,218,91,174,97"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="221,122,398,147"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,115,206,119,205,124,173,120"/>
+<area shape="rect" id="Node000003" href="$d6/d1b/namespaceml_1_1maths_1_1common_1_1linear__algebra__tools__detail.html#af9bbc362dbe306030ae49f7ef1fc5c53" title=" " alt="" coords="446,45,644,101"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="386,72,430,72,430,77,386,78"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="457,126,634,151"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="398,133,441,134,441,139,398,139"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="692,5,873,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="613,123,643,111,667,92,691,71,699,66,701,71,694,75,670,96,646,115,615,128"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="693,85,872,126"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="634,123,677,117,678,123,635,129"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="710,150,855,191"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="635,148,695,156,694,161,634,153"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="700,216,865,256"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="577,150,693,200,711,207,709,212,691,205,575,154"/>
+</map>

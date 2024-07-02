@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CXMeansOnline1d::maybeSplit" name="ml::maths::common::CXMeansOnline1d::maybeSplit">
+<area shape="rect" id="Node000001" title="Split cluster if we find a good split." alt="" coords="5,27,209,68"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#abcabb7b5750133a0f54c4d9bee6973fe" title=" " alt="" coords="519,42,696,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,24,256,13,364,3,411,5,472,13,545,33,543,38,470,18,411,10,364,8,257,18,191,29"/>
+<area shape="rect" id="Node000004" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#ab45fb80d5020067beaa42956b2359fdb" title="Get the callback function to invoke when a cluster is split." alt="" coords="291,27,437,68"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="209,45,276,45,276,50,209,50"/>
+<area shape="rect" id="Node000005" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a330bb576c0f87f4441258f95517745d3" title="Get the Winsorization interval." alt="" coords="257,92,471,147"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="183,66,248,84,247,89,181,71"/>
+<area shape="rect" id="Node000003" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a27a8cb85db7bf18509c0a8b9cd4e76e0" title="The total count of points." alt="" coords="744,42,915,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="697,68,729,68,728,74,697,74"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="744,56,712,56,712,50,744,51"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="788,42,786,32,792,23,807,17,830,15,854,17,868,24,866,29,852,23,829,20,808,22,796,27,791,33,793,40"/>
+<area shape="poly" id="edge7_Node000005_Node000002" title=" " alt="" coords="471,91,503,84,504,89,472,97"/>
+<area shape="poly" id="edge8_Node000005_Node000003" title=" " alt="" coords="471,113,580,105,696,91,736,84,737,89,697,97,581,111,472,118"/>
+</map>

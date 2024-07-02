@@ -1,0 +1,10 @@
+<map id="ml::CPriorTestInterface::addSamples" name="ml::CPriorTestInterface::addSamples">
+<area shape="rect" id="Node000001" title="Wrapper which takes care of weights." alt="" coords="5,29,162,70"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="210,29,355,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,47,194,47,194,52,162,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="244,29,243,19,249,10,262,5,282,3,304,5,317,11,315,16,303,10,282,8,264,10,252,15,248,20,250,28"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="403,8,594,33"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="355,37,387,33,388,38,356,42"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="422,57,575,98"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="356,56,407,63,406,68,355,62"/>
+</map>

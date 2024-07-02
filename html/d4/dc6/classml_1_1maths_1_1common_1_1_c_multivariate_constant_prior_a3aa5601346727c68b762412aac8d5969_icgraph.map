@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::marginalLikelihoodMean" name="ml::maths::common::CMultivariateConstantPrior::marginalLikelihoodMean">
+<area shape="rect" id="Node000001" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="494,41,672,97"/>
+<area shape="rect" id="Node000002" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="479,49,410,34,411,29,480,44"/>
+<area shape="rect" id="Node000003" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,89,202,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="479,79,202,98,202,93,479,73"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#affd8ffe835112d5ce58fda6758289f15" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="259,106,437,162"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="480,100,438,112,437,107,479,95"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="243,123,202,118,203,112,243,118"/>
+</map>

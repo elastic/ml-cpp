@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CKdTree::nearestNeighbour" name="ml::maths::common::CKdTree::nearestNeighbour">
+<area shape="rect" id="Node000001" title="Recursively find the nearest point to point." alt="" coords="5,181,189,222"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="468,5,613,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,180,127,148,156,110,192,74,235,45,289,25,346,15,401,11,452,12,452,18,402,16,346,20,291,30,238,49,196,78,160,114,132,151,112,182"/>
+<area shape="rect" id="Node000004" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a0a5c3c60cd89ac5046fb58f6d10a8b1c" title="Branch and bound search for nearest neighbour of point." alt="" coords="237,83,420,123"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="139,178,236,134,253,127,255,132,238,139,141,183"/>
+<area shape="rect" id="Node000006" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#ab40d4248c0b14b9ef36e0a74f2fc798e" title="Get the next coordinate." alt="" coords="244,148,413,189"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="188,186,228,180,228,185,189,191"/>
+<area shape="rect" id="Node000007" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="256,213,401,254"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="189,212,240,219,240,224,188,217"/>
+<area shape="rect" id="Node000008" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="289,302,368,328"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="141,220,288,293,286,297,139,225"/>
+<area shape="rect" id="Node000009" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="258,352,399,377"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="115,221,166,279,200,311,238,338,247,343,245,348,235,343,196,315,162,283,111,224"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="661,43,807,83"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="614,37,646,43,645,49,613,42"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="288,83,286,73,293,64,307,58,328,56,351,58,365,65,363,69,350,64,328,61,308,63,296,68,291,74,293,81"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="468,75,613,115"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="420,97,452,96,452,101,421,102"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="613,80,645,75,646,80,614,86"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="293,303,286,294,290,284,305,278,328,276,354,278,368,285,365,290,353,283,328,281,306,283,294,288,291,293,297,300"/>
+</map>

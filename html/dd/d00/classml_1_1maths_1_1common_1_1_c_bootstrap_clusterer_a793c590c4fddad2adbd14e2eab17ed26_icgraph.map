@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CBootstrapClusterer::thickets" name="ml::maths::common::CBootstrapClusterer::thickets">
+<area shape="rect" id="Node000001" title=" " alt="" coords="924,75,1069,131"/>
+<area shape="rect" id="Node000002" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a4517878593056f5244b08369013e597f" title=" " alt="" coords="694,31,839,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="908,89,839,76,840,70,909,84"/>
+<area shape="rect" id="Node000008" href="$d4/d0e/classanonymous__namespace_02_c_bootstrap_clusterer_test_8cc_03_1_1_c_bootstrap_clusterer_for_test.html#a94dc5f652dd8726e2e3f66b60156154b" title=" " alt="" coords="657,110,876,181"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="909,122,877,128,876,123,908,117"/>
+<area shape="rect" id="Node000003" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#aa8c417f49afcfd1c33880c7e2bd4dcfd" title=" " alt="" coords="443,39,609,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="678,62,610,62,610,56,678,56"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aabd7128384bbfcd2736cf13d2ce453c2" title="Cluster points using B bootstrap samples using k&#45;means." alt="" coords="250,5,395,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="427,46,395,40,396,35,428,40"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa90935097a74d25465b30b362d82da7d" title=" " alt="" coords="250,71,395,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="428,77,396,82,395,77,427,72"/>
+<area shape="rect" id="Node000006" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a827f72a6bc2775ceff50425a5649ba21" title=" " alt="" coords="5,53,202,79"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,83,202,80,203,74,234,78"/>
+<area shape="rect" id="Node000007" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a8b6fd6dbbc11dcbb38b70853d4a6f621" title=" " alt="" coords="5,102,202,128"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="234,103,203,107,202,102,234,98"/>
+</map>

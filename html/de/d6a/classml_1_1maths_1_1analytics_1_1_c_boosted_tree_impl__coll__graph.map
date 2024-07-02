@@ -1,0 +1,29 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl" name="ml::maths::analytics::CBoostedTreeImpl">
+<area shape="rect" id="Node000001" title="Implementation of CBoostedTree." alt="" coords="921,423,1060,463"/>
+<area shape="rect" id="Node000002" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="515,9,710,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="726,16,771,18,817,27,860,43,899,69,918,96,935,135,962,237,980,344,990,422,985,422,975,344,957,239,930,137,914,98,895,73,858,48,815,32,770,24,725,21"/>
+<area shape="rect" id="Node000003" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html" title=" " alt="" coords="506,327,719,367"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="735,365,816,383,898,404,941,420,939,425,896,410,814,388,734,371"/>
+<area shape="rect" id="Node000004" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html" title=" " alt="" coords="50,138,223,194"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="212,129,251,116,291,106,345,96,387,92,430,94,482,106,553,127,611,149,660,173,705,199,791,264,899,349,940,385,973,420,969,424,936,389,895,353,788,268,702,204,658,178,609,154,551,132,481,111,429,100,387,97,345,102,292,111,252,121,214,134"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="182,202,233,239,293,271,344,286,385,291,428,293,482,302,555,324,553,329,481,307,428,298,385,296,343,292,291,276,230,243,179,206"/>
+<area shape="rect" id="Node000005" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html" title=" " alt="" coords="50,373,223,428"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="239,403,921,437,921,442,239,408"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="239,388,481,362,505,359,505,364,482,367,239,393"/>
+<area shape="rect" id="Node000006" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="30,293,243,348"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="259,329,292,332,505,341,505,347,292,337,258,335"/>
+<area shape="rect" id="Node000007" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html" title="A compact representation of binary vector." alt="" coords="520,474,705,500"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="720,476,897,457,920,453,921,458,897,462,720,481"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="5,452,268,522"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="283,484,520,484,520,490,283,490"/>
+<area shape="rect" id="Node000009" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html" title=" " alt="" coords="528,524,697,565"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="712,535,803,521,896,495,930,480,959,462,962,466,932,485,898,501,804,526,713,540"/>
+<area shape="rect" id="Node000010" href="$d2/d2d/class_eigen_1_1_matrix.html" title=" " alt="" coords="60,547,213,587"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="228,560,527,546,528,551,229,565"/>
+<area shape="rect" id="Node000011" href="$dc/d4d/classml_1_1maths_1_1analytics_1_1_c_data_frame_train_boosted_tree_instrumentation_interface.html" title="Instrumentation interface for Supervised Learning jobs." alt="" coords="509,589,716,644"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="731,605,815,587,857,572,896,552,921,532,944,508,976,462,980,465,948,512,925,536,898,556,859,576,816,592,732,611"/>
+<area shape="rect" id="Node000012" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="14,611,259,667"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="274,630,508,619,508,624,274,635"/>
+<area shape="rect" id="Node000013" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html" title="Manages recording the progress of a loop." alt="" coords="529,669,696,695"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="711,681,757,676,806,666,853,649,895,624,914,607,930,587,956,543,973,499,983,463,988,465,978,500,961,545,935,590,918,611,899,628,855,654,807,671,758,681,711,686"/>
+</map>

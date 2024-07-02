@@ -1,0 +1,19 @@
+<map id="ml::api::CForecastRunner" name="ml::api::CForecastRunner">
+<area shape="rect" id="Node000001" title="Forecast Worker to create forecasts of timeseries/ml models." alt="" coords="1139,65,1311,90"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="17,7,182,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,6,218,4,278,4,514,9,698,15,881,28,1116,55,1158,61,1157,67,1115,60,881,34,697,20,514,14,278,10,218,10,198,11"/>
+<area shape="rect" id="Node000003" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html" title="A wrapper around a shared output stream for concurrent writes, handling writes." alt="" coords="729,57,924,98"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="198,20,430,32,705,55,729,58,729,63,705,60,429,37,198,26"/>
+<area shape="rect" id="Node000005" href="$de/d19/classml_1_1core_1_1_c_concurrent_wrapper.html" title=" " alt="" coords="309,57,507,98"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="188,34,309,56,308,62,187,39"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="940,75,1139,75,1139,80,940,80"/>
+<area shape="rect" id="Node000004" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="314,123,502,163"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="517,124,705,95,728,91,729,97,705,100,518,129"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="522,75,729,75,729,80,522,80"/>
+<area shape="rect" id="Node000006" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html" title=" " alt="" coords="5,68,194,109"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="209,86,278,85,308,83,308,88,278,90,209,91"/>
+<area shape="rect" id="Node000007" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="729,162,924,188"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="897,155,1168,88,1170,94,898,160"/>
+<area shape="rect" id="Node000008" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="302,187,514,243"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="530,201,705,185,729,182,729,187,705,190,530,206"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTrendComponent::add" name="ml::maths::time_series::CTrendComponent::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="284,53,452,94"/>
+<area shape="rect" id="Node000002" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#ab310e94c211f7c164d413348e89515e7" title=" " alt="" coords="5,5,236,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,60,236,54,236,49,269,55"/>
+<area shape="rect" id="Node000003" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a4e714db14171a8177051d639a423ce90" title="Fit the trend component component to values." alt="" coords="7,85,234,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="269,92,235,97,234,92,268,87"/>
+</map>

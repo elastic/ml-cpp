@@ -1,0 +1,9 @@
+<map id="ml::model::CAnomalyDetectorModel::printPeople" name="ml::model::CAnomalyDetectorModel::printPeople">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,71,470,111"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#ae3cf9891594d7715fcd2916260d665f8" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="273,69,197,49,198,44,275,64"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a078f3e3af6507244197534f4af22b82f" title=" " alt="" coords="22,71,208,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,94,209,94,209,88,257,88"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a85882ed6b58e6c5fd11cb647dbc77b86" title=" " alt="" coords="18,136,212,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="275,118,198,138,197,133,273,113"/>
+</map>

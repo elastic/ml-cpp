@@ -1,0 +1,24 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity" name="ml::api::CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,295,213,351"/>
+<area shape="rect" id="Node000002" href="$db/dc5/namespaceml_1_1core.html#aac4e088f4a6bdb18132433afd6260fdf" title=" " alt="" coords="280,85,461,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,293,331,134,335,138,146,297"/>
+<area shape="rect" id="Node000004" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ab5d92ec6920c4feb11104c29b8b64832" title=" " alt="" coords="261,230,480,286"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="213,294,245,286,246,291,214,300"/>
+<area shape="rect" id="Node000009" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="544,404,737,445"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="213,310,275,309,344,313,414,324,481,346,497,356,507,368,515,379,529,390,539,395,537,400,527,395,512,383,502,371,493,360,479,351,413,329,343,318,275,314,213,315"/>
+<area shape="rect" id="Node000010" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a8c10d39e8bc346494ab8a6ff8dd8d983" title=" " alt="" coords="274,360,467,401"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="214,343,260,354,259,359,213,348"/>
+<area shape="rect" id="Node000011" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a202824a9b6daece9df21fabb3955aa83" title=" " alt="" coords="273,425,468,466"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="153,349,204,380,262,410,280,417,278,422,260,415,201,385,150,353"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="565,5,716,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,82,527,55,551,48,552,53,529,60,440,87"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a1e1bf3cc3be96595a8e49502d9bd61cb" title="Estimate the number of columns computing encodings will add to the data frame." alt="" coords="528,70,753,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="401,227,457,181,527,135,537,130,539,135,529,140,460,185,404,231"/>
+<area shape="rect" id="Node000006" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#afc1100eb0dab127c61adc8ff4b451cbf" title="Estimate the number of columns predicting the model will add to the data frame." alt="" coords="530,150,752,206"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="466,227,529,208,531,213,468,232"/>
+<area shape="rect" id="Node000007" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a59da41dbb217927587b688060dc929a5" title="Estimate the number of columns training the model will add to the data frame." alt="" coords="536,230,746,286"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="481,255,520,255,520,260,481,260"/>
+<area shape="rect" id="Node000008" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a80c6b07df14eab56310d8b229a638455" title="Estimate the number of columns updating the model will add to the data frame." alt="" coords="536,309,746,380"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="461,284,522,303,520,309,459,289"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="456,284,482,302,499,326,506,348,513,370,530,390,534,394,531,398,526,394,508,372,501,350,494,328,478,306,452,288"/>
+</map>

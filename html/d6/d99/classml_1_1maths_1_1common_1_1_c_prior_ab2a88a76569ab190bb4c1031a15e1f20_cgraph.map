@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CPrior::addSamples" name="ml::maths::common::CPrior::addSamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,151,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="37,29,35,19,42,10,56,5,78,3,101,5,115,11,113,16,100,10,78,8,57,10,45,15,40,21,42,28"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="199,8,390,33"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="151,37,183,33,184,38,151,42"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="218,57,371,98"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="151,56,203,63,202,68,151,62"/>
+</map>

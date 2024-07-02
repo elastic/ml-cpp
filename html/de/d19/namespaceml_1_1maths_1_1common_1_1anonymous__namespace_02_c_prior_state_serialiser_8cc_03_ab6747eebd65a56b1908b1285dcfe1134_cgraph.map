@@ -1,0 +1,6 @@
+<map id="ml::maths::common::anonymous_namespace{CPriorStateSerialiser::cc}::doRestore" name="ml::maths::common::anonymous_namespace{CPriorStateSerialiser::cc}::doRestore">
+<area shape="rect" id="Node000001" title="Implements restore for std::unique_ptr." alt="" coords="5,29,168,100"/>
+<area shape="rect" id="Node000002" href="$de/d19/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_prior_state_serialiser_8cc_03.html#a9388e42b25bdba276a42fd4c67a1e7f0" title="Implements restore for std::shared_ptr." alt="" coords="216,29,378,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,62,200,62,200,67,168,67"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="255,28,257,18,265,10,278,5,297,3,318,5,332,12,329,17,316,10,297,8,280,10,268,14,262,21,260,29"/>
+</map>

@@ -1,0 +1,22 @@
+<map id="ml::maths::analytics::CMic::optimizeXAxis" name="ml::maths::analytics::CMic::optimizeXAxis">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,104,158,145"/>
+<area shape="rect" id="Node000002" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a725c9b8e73dd1244d334f406fe5090ff" title=" " alt="" coords="240,5,380,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,101,205,57,225,49,227,54,207,61,119,106"/>
+<area shape="rect" id="Node000004" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a0e95fbea187f79b08e136e87ef7b5a66" title=" " alt="" coords="228,71,392,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="158,111,212,103,212,108,158,116"/>
+<area shape="rect" id="Node000006" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a100602bc3b7dd9fdc7a44f94b7c0e44a" title="L1 norm." alt="" coords="237,136,383,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="158,132,222,141,221,147,158,138"/>
+<area shape="rect" id="Node000008" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a39c2eb20f26dffcc31888e0dda5bdd74" title=" " alt="" coords="206,205,414,260"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="122,143,207,186,228,195,225,200,205,191,120,148"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="476,5,621,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="380,23,460,23,460,28,380,28"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="463,72,633,97"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="392,86,447,84,447,90,392,91"/>
+<area shape="rect" id="Node000007" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a4abe9f756785bbf9b4aed04852d005f4" title=" " alt="" coords="473,121,623,192"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="383,154,457,154,457,159,383,159"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="462,216,634,257"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="415,231,446,232,446,237,414,237"/>
+<area shape="rect" id="Node000010" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="682,224,761,249"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="635,234,667,234,667,239,635,239"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="692,225,686,215,690,205,702,199,722,197,743,199,754,206,751,211,741,204,721,202,703,204,694,209,692,214,697,222"/>
+</map>

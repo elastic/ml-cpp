@@ -1,0 +1,4 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::rowsPerFeature" name="ml::maths::analytics::CBoostedTreeFactory::rowsPerFeature">
+<area shape="rect" id="Node000001" title="Set the number of training examples we need per feature we&#39;ll include." alt="" coords="5,29,163,85"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="52,29,53,19,58,10,69,5,84,3,101,5,111,12,108,16,99,10,84,8,71,10,62,14,58,21,58,29"/>
+</map>

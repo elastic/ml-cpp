@@ -1,0 +1,26 @@
+<map id="ml::maths::common::CGammaRateConjugate::marginalLikelihoodConfidenceInterval" name="ml::maths::common::CGammaRateConjugate::marginalLikelihoodConfidenceInterval">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,218,208,289"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="266,5,446,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,217,146,179,176,136,212,94,254,57,262,51,265,56,257,61,216,98,180,140,151,182,128,219"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="283,71,429,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="142,216,193,171,254,127,277,116,279,120,257,132,196,175,145,220"/>
+<area shape="rect" id="Node000004" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a6f32d138689c010c6dc54ab247ef7d9a" title="Check if this is a non&#45;informative prior." alt="" coords="274,186,438,242"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="208,235,258,227,259,232,209,240"/>
+<area shape="rect" id="Node000006" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a04fe7c04ef3a6bdcd7c2d666cbac3ed5" title=" " alt="" coords="504,251,668,307"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="160,287,206,312,256,331,311,343,355,346,400,342,455,331,517,311,518,316,457,336,400,347,356,351,311,348,255,336,204,317,158,292"/>
+<area shape="rect" id="Node000008" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#aced01b0f963873bf3ef1221e66370d42" title="Get the support for the marginal likelihood function." alt="" coords="265,266,447,322"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="209,267,250,274,249,279,208,273"/>
+<area shape="rect" id="Node000009" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af8aace96dd553dc5fd86360da33fbacb" title=" " alt="" coords="504,121,668,176"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="160,215,205,191,255,171,314,157,375,149,488,143,489,148,376,154,315,162,256,176,207,196,163,220"/>
+<area shape="rect" id="Node000010" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="256,396,456,437"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="145,287,196,332,257,375,279,387,277,392,254,380,193,336,142,291"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="283,461,429,502"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="128,288,151,325,180,368,216,410,257,446,271,454,268,459,254,450,212,414,176,371,146,328,124,291"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="716,193,876,234"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="438,211,701,211,701,216,438,216"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="439,234,490,249,488,254,437,239"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="668,251,713,237,715,242,670,256"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="716,259,876,299"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="669,276,701,276,701,282,669,282"/>
+<area shape="poly" id="edge11_Node000009_Node000005" title=" " alt="" coords="670,171,715,186,713,191,668,177"/>
+</map>

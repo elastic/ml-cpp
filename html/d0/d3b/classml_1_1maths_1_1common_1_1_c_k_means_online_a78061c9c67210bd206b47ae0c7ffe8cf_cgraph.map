@@ -1,0 +1,36 @@
+<map id="ml::maths::common::CKMeansOnline::reduce" name="ml::maths::common::CKMeansOnline::reduce">
+<area shape="rect" id="Node000001" title="Reduce the number of clusters to m_K by k&#45;means clustering." alt="" coords="5,209,169,250"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#af7c398f7831388042299dd9641929fb6" title="Get the clusters being maintained." alt="" coords="491,160,661,201"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,206,167,186,216,171,283,161,351,158,476,164,475,169,351,163,284,167,217,176,169,191,126,211"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="497,5,656,46"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="95,208,112,173,138,131,172,90,215,57,247,41,281,30,350,15,419,10,481,12,481,17,419,16,351,21,282,35,249,46,218,61,176,94,142,134,116,176,99,210"/>
+<area shape="rect" id="Node000004" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#ac5a7e176bb8c3050633c86ff225a69fd" title=" " alt="" coords="217,71,407,111"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="109,207,157,168,215,127,238,116,240,120,218,132,160,172,113,211"/>
+<area shape="rect" id="Node000006" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a2ae31608b2d7a5bee1d90d50ad55ff50" title=" " alt="" coords="227,209,397,250"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="169,236,211,236,211,241,169,241"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="225,275,399,315"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="160,248,225,267,224,272,158,253"/>
+<area shape="rect" id="Node000010" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a04e7ee0b2323e54551ab8839ff8b6e6a" title="Get the spherically symmetric variance from moments." alt="" coords="225,407,399,447"/>
+<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="102,249,147,318,180,356,218,390,229,397,226,401,215,394,176,360,143,321,97,252"/>
+<area shape="rect" id="Node000014" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="239,340,385,381"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="113,248,160,286,218,325,231,331,229,336,215,329,156,291,109,252"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="528,160,525,150,533,141,550,135,576,133,604,136,621,142,619,147,603,141,576,139,551,141,536,145,530,151,533,159"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="375,109,500,152,498,157,374,114"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="396,67,481,46,482,52,398,73"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="497,71,656,111"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="408,88,481,88,481,94,408,94"/>
+<area shape="poly" id="edge13_Node000006_Node000001" title=" " alt="" coords="226,224,184,223,184,218,226,218"/>
+<area shape="poly" id="edge9_Node000006_Node000002" title=" " alt="" coords="397,211,475,196,476,202,398,216"/>
+<area shape="poly" id="edge10_Node000006_Node000006" title=" " alt="" coords="269,209,267,199,274,190,289,185,312,183,336,185,351,191,348,196,335,190,312,188,290,190,277,195,273,201,275,208"/>
+<area shape="rect" id="Node000007" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#aceedf5580a55dbfb838bc7db91b7ebb9" title="Print this classifier for debug." alt="" coords="502,225,651,266"/>
+<area shape="poly" id="edge11_Node000006_Node000007" title=" " alt="" coords="398,232,486,238,486,243,397,237"/>
+<area shape="rect" id="Node000008" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="745,225,926,266"/>
+<area shape="poly" id="edge12_Node000007_Node000008" title=" " alt="" coords="651,243,730,243,730,248,651,248"/>
+<area shape="rect" id="Node000011" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="504,337,649,378"/>
+<area shape="poly" id="edge16_Node000010_Node000011" title=" " alt="" coords="392,403,487,378,489,383,393,409"/>
+<area shape="rect" id="Node000012" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad1c10c15673da0ed43885524eb88b2cd" title="Get the Manhattan norm of one of our internal vector classes." alt="" coords="504,481,649,522"/>
+<area shape="poly" id="edge17_Node000010_Node000012" title=" " alt="" coords="382,445,456,467,489,476,488,482,454,472,380,450"/>
+<area shape="rect" id="Node000013" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="455,402,697,458"/>
+<area shape="poly" id="edge18_Node000010_Node000013" title=" " alt="" coords="399,425,440,426,440,431,399,431"/>
+<area shape="poly" id="edge20_Node000014_Node000011" title=" " alt="" coords="385,357,488,356,488,361,385,362"/>
+</map>

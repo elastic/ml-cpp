@@ -1,0 +1,11 @@
+<map id="ml::test::CThreadDataReader" name="ml::test::CThreadDataReader">
+<area shape="rect" id="Node000001" title="Reads a file in a thread." alt="" coords="53,244,246,270"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="32,169,158,195"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,206,143,242,138,245,111,209"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,5,171,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,47,97,169,92,169,86,47"/>
+<area shape="rect" id="Node000004" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="110,80,232,106"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="115,39,159,78,156,82,111,43"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="186,120,189,130,189,145,174,202,157,245,152,243,169,200,184,145,184,130,181,121"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="136,117,120,132,108,151,100,170,96,168,103,148,116,128,133,113"/>
+</map>

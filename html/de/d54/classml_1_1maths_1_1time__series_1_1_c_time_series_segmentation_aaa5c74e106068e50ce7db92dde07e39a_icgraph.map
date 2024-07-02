@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::fitTopDownPiecewiseTimeShifted" name="ml::maths::time_series::CTimeSeriesSegmentation::fitTopDownPiecewiseTimeShifted">
+<area shape="rect" id="Node000001" title=" " alt="" coords="483,29,708,85"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="636,17,621,10,596,8,573,10,559,15,552,21,552,29,546,29,547,19,556,10,572,5,596,3,622,5,638,12"/>
+<area shape="rect" id="Node000002" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a29f707c8e762cc3c05c04fce9a88d666" title=" " alt="" coords="250,29,435,85"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="467,60,435,60,435,55,467,55"/>
+<area shape="rect" id="Node000003" href="$dd/d0d/_c_time_series_segmentation_test_8cc.html#ad096e540b32e47a933e28620acc586df" title=" " alt="" coords="5,44,202,70"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="234,60,202,60,202,55,234,55"/>
+</map>

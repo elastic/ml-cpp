@@ -1,0 +1,39 @@
+<map id="ml::maths::common::sqrt" name="ml::maths::common::sqrt">
+<area shape="rect" id="Node000001" title="Overload sqrt for CVectorNx1." alt="" coords="531,343,698,368"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#aa7c13f02ff492258f23a6f319a53ec2f" title="Add values and time." alt="" coords="250,99,483,140"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="601,329,584,289,558,242,524,194,481,154,463,143,466,138,485,149,528,191,562,239,588,287,606,327"/>
+<area shape="rect" id="Node000003" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a5ee1b6f8de1e4db31d06e76f06875e1d" title=" " alt="" coords="272,188,461,243"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="586,334,539,296,482,258,457,246,459,241,484,253,542,291,590,330"/>
+<area shape="rect" id="Node000013" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#ab16c369a2fea1232a8435f0bca6a2675" title=" " alt="" coords="268,268,465,294"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="569,339,482,307,441,297,442,292,484,302,570,334"/>
+<area shape="rect" id="Node000014" href="$d6/d26/_c_linear_algebra_test_8cc.html#a0df2a5d2e85e11b5900298934011ae38" title=" " alt="" coords="268,317,465,343"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="515,348,465,343,465,338,516,343"/>
+<area shape="rect" id="Node000015" href="$d6/d26/_c_linear_algebra_test_8cc.html#a3e742642f147ba59c97fbfb50245c5fd" title=" " alt="" coords="268,367,465,392"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="516,368,465,373,465,367,515,362"/>
+<area shape="rect" id="Node000016" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a02790fa2ead779d1ed7ff62c896ac1da" title=" " alt="" coords="272,417,461,473"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="565,377,484,407,451,419,449,414,482,402,564,372"/>
+<area shape="rect" id="Node000017" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ade9140a8cffff689b9efe3a29919e72f" title=" " alt="" coords="267,497,466,553"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="596,382,549,435,518,463,484,487,463,499,460,494,482,483,515,459,545,431,592,379"/>
+<area shape="rect" id="Node000018" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#aba395e1333b496208b8e6da1376b0d83" title="Get the mode of the marginal likelihood function." alt="" coords="272,577,461,633"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="606,384,588,425,562,474,527,524,485,567,462,581,459,577,481,563,523,520,557,471,583,422,601,382"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="406,175,391,169,366,166,344,168,330,173,323,179,323,187,318,187,318,177,327,168,343,163,366,161,392,164,408,170"/>
+<area shape="rect" id="Node000004" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="282,181,248,153,237,138,230,123,225,95,219,69,212,57,200,44,184,34,186,29,203,40,216,53,224,67,230,94,235,122,241,136,252,150,285,177"/>
+<area shape="rect" id="Node000005" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="289,182,248,154,233,137,224,121,216,107,200,94,179,83,182,79,203,89,220,104,229,119,237,134,251,149,292,178"/>
+<area shape="rect" id="Node000006" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="5,432,202,458"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="261,249,252,257,237,277,230,297,229,338,227,380,220,401,204,421,186,434,183,429,200,418,215,398,222,379,224,338,225,296,232,275,248,254,258,245"/>
+<area shape="rect" id="Node000007" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="295,183,201,143,166,133,167,128,203,138,297,178"/>
+<area shape="rect" id="Node000008" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="256,198,175,182,176,177,257,192"/>
+<area shape="rect" id="Node000009" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge9_Node000003_Node000009" title=" " alt="" coords="257,218,202,218,202,213,257,213"/>
+<area shape="rect" id="Node000010" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge10_Node000003_Node000010" title=" " alt="" coords="257,239,176,254,175,249,256,233"/>
+<area shape="rect" id="Node000011" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#af133468c156efe4d950954c80ef77729" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge11_Node000003_Node000011" title=" " alt="" coords="263,252,251,258,227,275,203,293,174,303,172,298,200,288,224,271,248,253,260,247"/>
+<area shape="rect" id="Node000012" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ac30dccd96d4df01362a88a15fb3cc953" title="Implements value semantics for copy construction." alt="" coords="5,352,202,407"/>
+<area shape="poly" id="edge12_Node000003_Node000012" title=" " alt="" coords="260,251,252,257,235,278,228,298,220,320,204,341,187,353,184,349,200,338,216,317,223,296,230,275,248,254,257,247"/>
+<area shape="poly" id="edge17_Node000016_Node000006" title=" " alt="" coords="257,448,202,448,202,442,257,442"/>
+</map>

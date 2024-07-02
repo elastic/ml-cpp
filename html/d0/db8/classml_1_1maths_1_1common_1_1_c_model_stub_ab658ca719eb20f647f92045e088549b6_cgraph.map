@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CModelStub::cloneForForecast" name="ml::maths::common::CModelStub::cloneForForecast">
+<area shape="rect" id="Node000001" title="Create a copy of the state we need to run forecasting." alt="" coords="5,5,208,46"/>
+<area shape="rect" id="Node000002" href="$d0/db8/classml_1_1maths_1_1common_1_1_c_model_stub.html#a6217f7d99e7c537c012959d74618b323" title=" " alt="" coords="256,5,429,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,23,240,23,240,28,208,28"/>
+</map>

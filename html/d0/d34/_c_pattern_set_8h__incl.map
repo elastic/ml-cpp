@@ -1,0 +1,16 @@
+<map id="include/core/CPatternSet.h" name="include/core/CPatternSet.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="160,5,339,31"/>
+<area shape="rect" id="Node000002" href="$de/df5/_c_flat_prefix_tree_8h.html" title=" " alt="" coords="116,79,269,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,33,213,68,209,65,238,30"/>
+<area shape="rect" id="Node000003" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="5,153,142,178"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="190,34,145,52,123,65,105,81,88,108,79,138,74,136,83,106,101,77,120,61,142,47,188,29"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="251,153,304,178"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="261,30,274,52,284,78,287,109,285,138,280,137,282,109,279,80,269,54,256,33"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="329,153,386,178"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="263,30,304,77,345,138,340,141,299,81,259,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="173,107,108,147,105,142,171,103"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="166,153,226,178"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="195,105,197,137,192,137,190,105"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="208,103,253,141,250,145,205,107"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="221,103,317,144,314,149,219,108"/>
+</map>

@@ -1,0 +1,37 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketMean::value" name="ml::maths::time_series::CTimeSeriesMultibucketMean::value">
+<area shape="rect" id="Node000001" title="Get the feature value and weight." alt="" coords="5,373,210,428"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a287d728b30e26873a45b562b3524bab1" title="Compute the weighted count of the values in the window." alt="" coords="258,167,462,223"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,370,319,231,322,235,153,374"/>
+<area shape="rect" id="Node000007" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a6f0e9cfe3fc64e47f8ad5a8820cc19e1" title="Compute the weighted mean of the values in the window." alt="" coords="762,380,1007,421"/>
+<area shape="poly" id="edge23_Node000001_Node000007" title=" " alt="" coords="210,404,473,407,747,405,747,410,473,412,210,410"/>
+<area shape="rect" id="Node000011" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="275,504,445,529"/>
+<area shape="poly" id="edge21_Node000001_Node000011" title=" " alt="" coords="157,427,259,479,301,496,299,501,257,484,155,431"/>
+<area shape="poly" id="edge20_Node000002_Node000001" title=" " alt="" coords="317,226,149,365,145,360,314,222"/>
+<area shape="rect" id="Node000003" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a6f6af3e2e4a46d27b33b9c987a19b2e4" title=" " alt="" coords="776,95,993,151"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="462,179,761,137,761,143,463,184"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="1055,86,1214,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="383,165,436,113,471,87,509,66,580,38,643,19,699,7,754,3,809,5,867,13,1007,42,1050,56,1089,75,1087,80,1048,61,1006,47,866,18,808,10,754,8,700,13,644,24,582,43,511,71,474,91,440,117,387,169"/>
+<area shape="rect" id="Node000005" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a72e8c9ed1ed3d3e888ce8e10e36e92b0" title="Compute the weighted mean of function on the sliding window." alt="" coords="510,295,714,351"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="418,221,543,286,541,290,415,226"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1055,248,1214,289"/>
+<area shape="poly" id="edge19_Node000002_Node000006" title=" " alt="" coords="409,164,521,111,594,83,674,60,759,44,844,40,887,43,928,51,969,63,1008,81,1028,102,1056,142,1115,234,1110,237,1052,145,1023,105,1005,85,967,68,927,56,886,49,844,45,759,49,675,65,596,88,523,116,411,169"/>
+<area shape="poly" id="edge18_Node000005_Node000001" title=" " alt="" coords="510,337,258,372,226,378,225,373,257,367,509,332"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="631,293,685,227,721,192,761,161,769,156,771,161,764,165,724,196,688,231,635,297"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="714,299,762,291,908,277,1039,269,1039,274,908,282,763,297,715,304"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="670,349,748,374,747,379,669,354"/>
+<area shape="rect" id="Node000008" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#ab6490c969bd2562cfc9d12348e94a8c2" title="Compute the time range of window." alt="" coords="782,469,987,524"/>
+<area shape="poly" id="edge12_Node000005_Node000008" title=" " alt="" coords="651,350,703,389,764,430,814,459,811,464,761,435,700,393,648,354"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="847,330,922,356"/>
+<area shape="poly" id="edge15_Node000005_Node000009" title=" " alt="" coords="715,328,832,337,831,342,714,333"/>
+<area shape="rect" id="Node000010" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a71f96cfad9c132d7673b82a4cfb13f72" title=" " alt="" coords="776,175,993,231"/>
+<area shape="poly" id="edge17_Node000005_Node000010" title=" " alt="" coords="667,292,761,247,792,235,794,240,763,252,669,297"/>
+<area shape="poly" id="edge11_Node000007_Node000001" title=" " alt="" coords="762,396,493,394,225,397,225,391,493,389,762,391"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="990,378,1005,367,1019,351,1027,337,1035,307,1040,274,1052,235,1080,183,1108,138,1113,141,1085,186,1057,238,1045,276,1040,308,1032,339,1023,355,1008,371,993,382"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="841,382,762,359,729,350,730,344,763,354,843,377"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="979,377,1005,366,1057,333,1100,297,1103,302,1060,338,1008,371,981,382"/>
+<area shape="poly" id="edge14_Node000008_Node000001" title=" " alt="" coords="782,487,225,418,226,412,782,481"/>
+<area shape="poly" id="edge13_Node000008_Node000008" title=" " alt="" coords="836,468,836,458,845,449,861,444,885,442,911,445,927,451,925,456,909,450,884,447,862,449,848,454,841,460,841,468"/>
+<area shape="poly" id="edge16_Node000009_Node000009" title=" " alt="" coords="845,333,835,323,839,312,856,306,885,304,919,308,933,317,930,321,917,313,884,309,857,311,843,316,841,322,849,329"/>
+<area shape="rect" id="Node000012" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="523,500,702,541"/>
+<area shape="poly" id="edge22_Node000011_Node000012" title=" " alt="" coords="445,515,507,516,507,522,445,521"/>
+</map>

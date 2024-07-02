@@ -1,0 +1,18 @@
+<map id="ml::model::CInterimBucketCorrector::corrections" name="ml::model::CInterimBucketCorrector::corrections">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,148,183,188"/>
+<area shape="rect" id="Node000002" href="$da/d78/classml_1_1model_1_1_c_interim_bucket_corrector.html#a1f051096771a0e8365131fbc32841522" title=" " alt="" coords="231,118,408,159"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,154,215,149,215,155,183,159"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="472,176,617,216"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="183,171,456,188,456,193,183,176"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="456,126,633,151"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,136,440,136,440,141,408,141"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="402,157,458,171,457,176,401,162"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="681,5,862,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="572,123,680,71,691,66,694,70,682,76,575,127"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="682,85,861,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="634,123,666,118,667,123,634,128"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="699,150,844,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="634,148,684,156,683,161,634,154"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="689,216,854,256"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="606,150,635,162,659,181,683,200,694,206,692,211,680,205,656,185,632,166,604,154"/>
+</map>

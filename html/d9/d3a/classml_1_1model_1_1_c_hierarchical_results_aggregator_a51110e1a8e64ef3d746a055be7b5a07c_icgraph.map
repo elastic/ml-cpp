@@ -1,0 +1,7 @@
+<map id="ml::model::CHierarchicalResultsAggregator::acceptRestoreTraverser" name="ml::model::CHierarchicalResultsAggregator::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore reading state from traverser." alt="" coords="250,20,472,75"/>
+<area shape="rect" id="Node000002" href="$dc/dfe/_c_hierarchical_results_test_8cc.html#a2232b72afbcf8296c8df09fbe46e4d4c" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,32,202,27,234,30"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a910f607ad3397b1023628cfbf9a46328" title="Attempt to restore the detectors." alt="" coords="28,55,179,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,64,180,70,179,65,234,59"/>
+</map>

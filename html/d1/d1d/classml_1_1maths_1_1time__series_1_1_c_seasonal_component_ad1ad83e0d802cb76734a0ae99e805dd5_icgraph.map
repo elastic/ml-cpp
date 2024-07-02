@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::CSeasonalComponent::jitter" name="ml::maths::time_series::CSeasonalComponent::jitter">
+<area shape="rect" id="Node000001" title="Get a jitter to apply to the prediction time." alt="" coords="243,29,411,85"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="363,17,349,10,327,8,307,10,294,15,288,21,288,29,282,29,283,19,291,10,306,5,327,3,351,5,365,12"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a954c2f848dce54b210cb10453008d50a" title=" " alt="" coords="5,37,195,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,60,195,60,195,55,227,55"/>
+</map>

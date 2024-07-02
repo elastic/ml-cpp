@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::marginalLikelihoodVariance" name="ml::maths::common::CNormalMeanPrecConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="5,70,197,126"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="255,5,435,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,67,258,48,260,53,198,72"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="249,70,441,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,95,233,95,233,100,197,100"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="245,149,445,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,123,260,142,258,147,197,129"/>
+</map>

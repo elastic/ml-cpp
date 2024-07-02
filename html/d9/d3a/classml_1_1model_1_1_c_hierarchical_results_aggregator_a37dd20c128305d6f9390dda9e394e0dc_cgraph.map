@@ -1,0 +1,7 @@
+<map id="ml::model::CHierarchicalResultsAggregator::checksum" name="ml::model::CHierarchicalResultsAggregator::checksum">
+<area shape="rect" id="Node000001" title="Get a checksum of this object." alt="" coords="5,41,203,82"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="295,5,450,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,46,279,35,280,41,203,51"/>
+<area shape="rect" id="Node000003" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#acee97f3d50c3f6fd815150889d075e65" title=" " alt="" coords="251,70,494,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,72,236,77,235,82,203,78"/>
+</map>

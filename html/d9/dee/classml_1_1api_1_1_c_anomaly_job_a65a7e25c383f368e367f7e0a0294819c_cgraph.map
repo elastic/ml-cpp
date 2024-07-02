@@ -1,0 +1,18 @@
+<map id="ml::api::CAnomalyJob::generateModelPlot" name="ml::api::CAnomalyJob::generateModelPlot">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,103,156,143"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a6ba4a6e35c8e8faceb87241de25c8281" title=" " alt="" coords="236,37,434,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,101,203,88,236,80,238,85,204,94,157,106"/>
+<area shape="rect" id="Node000007" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a8983640ec1aad4d4561f3775f14f8a1a" title=" " alt="" coords="204,103,466,143"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="156,120,188,120,188,126,156,126"/>
+<area shape="rect" id="Node000008" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a6e7823d9cf1004871c716b0d75e8b621" title=" " alt="" coords="236,168,434,209"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="157,140,204,152,238,161,236,166,203,158,155,145"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a0bd562ebde300c9318a312a9020420fc" title="Get the bucket length." alt="" coords="514,5,711,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,44,498,36,499,41,434,49"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="514,71,711,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="434,67,499,75,498,80,434,72"/>
+<area shape="rect" id="Node000005" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="759,71,957,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="712,88,744,88,744,94,712,94"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="815,71,813,61,820,52,835,46,858,44,883,46,897,53,895,58,881,52,858,49,836,51,823,56,818,62,820,69"/>
+<area shape="rect" id="Node000006" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="1005,71,1165,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="957,88,989,88,989,94,957,94"/>
+</map>

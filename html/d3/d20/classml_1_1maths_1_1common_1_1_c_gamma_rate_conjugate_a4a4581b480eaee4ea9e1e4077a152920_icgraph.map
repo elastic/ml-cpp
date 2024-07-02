@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CGammaRateConjugate::clone" name="ml::maths::common::CGammaRateConjugate::clone">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,146,437,202"/>
+<area shape="rect" id="Node000002" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="17,5,213,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="322,135,279,87,252,64,223,45,199,34,201,29,226,40,256,60,283,83,326,132"/>
+<area shape="rect" id="Node000003" href="$df/d0f/_c_multimodal_prior_test_8cc.html#ac0349afd36d7dd5bf3c1124c6a286766" title=" " alt="" coords="17,55,213,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="303,139,265,115,224,94,192,83,194,78,226,89,268,110,306,135"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="17,104,213,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="257,153,224,145,174,133,175,128,225,140,258,148"/>
+<area shape="rect" id="Node000005" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a9a9c1ec344485a1a5265d163c7c0f312" title=" " alt="" coords="18,154,212,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="257,177,212,177,212,172,257,172"/>
+<area shape="rect" id="Node000006" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#a3ab98cd34165e78d7ddaf8d0994891eb" title=" " alt="" coords="5,219,225,260"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="259,203,193,221,192,216,258,198"/>
+<area shape="rect" id="Node000007" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#a81ab4d3924f55a8285294fcd4b1f00b2" title=" " alt="" coords="9,285,221,325"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="313,214,272,245,226,274,197,286,195,281,223,269,269,241,310,210"/>
+<area shape="rect" id="Node000008" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#af231a0eff97605c30487253f9e2c699a" title=" " alt="" coords="18,350,212,391"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="333,217,289,280,259,312,226,339,203,352,201,347,223,335,256,308,284,276,328,214"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::acceptPersistInserter" name="ml::maths::analytics::CBoostedTreeHyperparameters::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,31,219,87"/>
+<area shape="rect" id="Node000002" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="267,5,421,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,41,251,36,251,42,220,46"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a0b886656631603fdd10c62bf11e50739" title=" " alt="" coords="267,71,421,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,71,251,76,251,81,219,76"/>
+</map>

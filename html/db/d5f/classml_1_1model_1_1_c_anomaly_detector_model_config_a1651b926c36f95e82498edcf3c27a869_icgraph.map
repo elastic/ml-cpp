@@ -1,0 +1,9 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::latencyBuckets" name="ml::model::CAnomalyDetectorModelConfig::latencyBuckets">
+<area shape="rect" id="Node000001" title=" " alt="" coords="626,5,824,46"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,5,578,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="611,28,579,28,579,23,611,23"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,5,366,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,28,367,28,367,23,399,23"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,5,156,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="188,28,156,28,156,23,188,23"/>
+</map>

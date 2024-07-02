@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::CCalendarFeature::features" name="ml::maths::time_series::CCalendarFeature::features">
+<area shape="rect" id="Node000001" title="Get all the features for time." alt="" coords="5,29,196,70"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="244,29,387,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,47,228,47,228,52,196,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="275,29,273,19,279,10,294,5,315,3,339,5,352,11,350,16,337,10,315,8,295,10,283,15,278,20,280,28"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::sample" name="ml::maths::time_series::CTimeSeriesAnomalyModel::sample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,197,101"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="54,45,55,35,63,26,79,21,101,19,126,21,141,28,139,33,125,26,101,24,80,26,66,31,60,37,59,45"/>
+<area shape="rect" id="Node000002" href="$df/d8c/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model.html#ab0c96cad4e3c63a59cc2ea6ce49165c9" title="Get the largest probability the model counts as anomalous." alt="" coords="245,5,436,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,54,229,49,230,54,198,60"/>
+<area shape="rect" id="Node000003" href="$df/d8c/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model.html#ae2909723f8467ad61b61870db055bc98" title="Get the scaled time." alt="" coords="245,85,436,141"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="198,87,230,92,229,97,197,92"/>
+</map>

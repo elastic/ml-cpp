@@ -1,0 +1,7 @@
+<map id="ml::model::CModelFactory::multivariateMultimodalPrior" name="ml::model::CModelFactory::multivariateMultimodalPrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,192,82"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a8188504494881af36332bc1f903923b6" title="Get the default data type for models from this factory." alt="" coords="246,5,422,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,45,230,39,231,44,193,50"/>
+<area shape="rect" id="Node000003" href="$d1/df8/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_factory.html#ac0b600e1034c8c6c636839f8bf300d85" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="240,70,428,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,73,225,78,224,84,192,79"/>
+</map>

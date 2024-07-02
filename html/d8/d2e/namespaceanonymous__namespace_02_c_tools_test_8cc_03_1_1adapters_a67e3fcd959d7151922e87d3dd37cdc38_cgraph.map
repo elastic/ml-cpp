@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CToolsTest::cc}::adapters::stationaryPoint" name="anonymous_namespace{CToolsTest::cc}::adapters::stationaryPoint">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,111,181,166"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="229,126,406,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,136,213,136,213,141,181,141"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="454,5,634,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,123,453,71,464,66,466,70,455,76,347,127"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="455,85,634,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="406,123,438,118,439,123,407,128"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="472,150,617,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="407,148,457,156,456,161,406,154"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="462,216,627,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="346,149,455,200,472,207,470,212,453,205,344,154"/>
+</map>

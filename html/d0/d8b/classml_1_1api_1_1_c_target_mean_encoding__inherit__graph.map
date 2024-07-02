@@ -1,0 +1,7 @@
+<map id="ml::api::CTargetMeanEncoding" name="ml::api::CTargetMeanEncoding">
+<area shape="rect" id="Node000001" title="Mapping from categorical columns to numerical values related to the target value." alt="" coords="5,168,206,193"/>
+<area shape="rect" id="Node000002" href="$d7/d50/classml_1_1api_1_1_c_encoding.html" title=" " alt="" coords="39,94,172,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,135,108,167,103,167,103,135"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="26,5,185,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,62,108,93,103,93,103,62"/>
+</map>

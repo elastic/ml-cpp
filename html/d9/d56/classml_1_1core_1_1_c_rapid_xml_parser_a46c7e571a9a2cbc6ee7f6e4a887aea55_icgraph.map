@@ -1,0 +1,13 @@
+<map id="ml::core::CRapidXmlParser::parseString" name="ml::core::CRapidXmlParser::parseString">
+<area shape="rect" id="Node000001" title="Parse XML stored in a string." alt="" coords="250,97,431,137"/>
+<area shape="rect" id="Node000002" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#af4c96088782be6e71d804932925df641" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="292,91,249,66,201,45,168,34,170,29,203,40,251,62,295,86"/>
+<area shape="rect" id="Node000003" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3d93654c434fc4dab7edf676a0724641" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,97,168,84,169,78,235,92"/>
+<area shape="rect" id="Node000004" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a9ea89ec3facaf823378a08ff0a0b62d6" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="234,120,202,120,202,114,234,114"/>
+<area shape="rect" id="Node000005" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#ac5291555eb6a8e0e86883e0efd3dbaea" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="235,141,169,155,168,150,234,136"/>
+<area shape="rect" id="Node000006" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#af471b1726701c94765f665e7d854356a" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="295,148,251,172,203,194,170,205,168,199,201,189,249,167,292,143"/>
+</map>

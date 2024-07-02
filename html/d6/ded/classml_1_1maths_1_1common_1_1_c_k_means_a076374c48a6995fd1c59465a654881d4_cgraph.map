@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CKMeans::updateCentres" name="ml::maths::common::CKMeans::updateCentres">
+<area shape="rect" id="Node000001" title="Single iteration of Lloyd&#39;s algorithm to update centres." alt="" coords="5,169,178,210"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="241,5,387,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,167,156,113,189,83,224,57,234,51,236,56,227,61,192,87,160,117,111,171"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="234,71,394,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="132,166,225,122,240,115,242,120,227,127,134,171"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="241,136,387,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="177,174,225,167,226,172,178,179"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="226,266,402,292"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="133,208,227,251,247,258,246,264,225,256,130,213"/>
+<area shape="rect" id="Node000008" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="667,291,746,317"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="110,208,158,258,191,283,227,302,283,319,342,329,401,334,460,335,567,327,652,314,653,319,568,332,460,340,401,340,341,335,282,324,225,307,188,288,155,262,107,212"/>
+<area shape="rect" id="Node000009" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="241,201,387,242"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="178,199,226,206,225,212,177,205"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="462,97,607,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="372,44,403,57,476,88,473,93,401,61,370,49"/>
+<area shape="rect" id="Node000007" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="450,255,619,295"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="403,275,434,274,434,279,403,280"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="620,287,652,292,651,298,619,292"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="677,293,672,283,675,273,687,267,707,265,727,267,738,274,736,279,726,272,706,270,689,272,679,277,677,282,682,290"/>
+<area shape="poly" id="edge11_Node000009_Node000003" title=" " alt="" coords="372,198,401,186,483,144,486,148,403,191,374,203"/>
+</map>

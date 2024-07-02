@@ -1,0 +1,101 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,744,223,769"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="328,190,407,216"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,742,351,229,356,231,124,744"/>
+<area shape="rect" id="Node000007" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#aaf8e553af0bb2df4c681e88df9c1891e" title="Set the features which will be modeled." alt="" coords="512,572,705,613"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="124,741,181,682,223,649,270,623,326,604,384,593,442,586,496,584,497,590,443,592,385,598,327,610,272,628,226,654,185,686,128,745"/>
+<area shape="rect" id="Node000008" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="301,768,434,809"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="221,767,286,775,286,781,221,772"/>
+<area shape="rect" id="Node000013" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#ac39d32dff2fccf89a8eabed8865d7876" title="Set the name of the field whose values will be counted." alt="" coords="271,833,464,874"/>
+<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="148,767,272,818,292,825,290,830,270,823,146,772"/>
+<area shape="rect" id="Node000014" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a553cdc2fae590e949962be0fe8468dbb" title=" " alt="" coords="271,637,464,678"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="144,741,270,689,289,681,291,686,272,693,146,745"/>
+<area shape="rect" id="Node000016" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#af8177565d908ba4af0abe242c72d87eb" title=" " alt="" coords="271,703,464,743"/>
+<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="216,740,255,735,255,740,217,746"/>
+<area shape="rect" id="Node000038" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="277,899,458,939"/>
+<area shape="poly" id="edge54_Node000001_Node000038" title=" " alt="" coords="130,768,188,823,228,855,272,883,284,889,281,894,269,888,225,859,185,827,126,771"/>
+<area shape="rect" id="Node000041" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="280,988,455,1029"/>
+<area shape="poly" id="edge57_Node000001_Node000041" title=" " alt="" coords="126,768,182,849,224,901,272,949,313,978,310,982,269,953,221,904,178,852,121,771"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="522,125,696,166"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,191,506,167,507,173,408,196"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="778,153,937,194"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="407,198,763,177,763,182,407,203"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="770,88,945,129"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="696,130,755,121,756,126,697,135"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="697,153,763,160,763,166,696,158"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="1041,5,1199,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="936,153,960,138,976,119,983,99,991,78,1008,57,1025,46,1028,50,1011,61,995,80,988,100,981,122,963,142,939,157"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="563,572,561,562,569,553,584,547,609,545,635,548,650,554,648,559,633,553,609,551,586,553,572,557,566,563,568,571"/>
+<area shape="rect" id="Node000009" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="543,936,675,977"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="410,807,465,831,525,877,574,923,570,927,522,881,463,836,408,812"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="594,937,541,875,504,841,463,812,447,803,449,799,465,807,507,837,545,872,598,934"/>
+<area shape="rect" id="Node000010" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="791,936,924,977"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="675,962,776,962,776,967,675,967"/>
+<area shape="rect" id="Node000011" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="796,1001,919,1027"/>
+<area shape="poly" id="edge14_Node000009_Node000011" title=" " alt="" coords="676,969,784,994,783,999,675,974"/>
+<area shape="poly" id="edge13_Node000010_Node000009" title=" " alt="" coords="791,951,690,950,690,945,791,946"/>
+<area shape="rect" id="Node000012" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1097,1001,1143,1027"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="919,1011,1081,1011,1081,1016,919,1016"/>
+<area shape="rect" id="Node000015" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a4c2361335ef97eebb66e5e2852ef0f4e" title="Get global model configuration parameters." alt="" coords="521,637,696,678"/>
+<area shape="poly" id="edge18_Node000014_Node000015" title=" " alt="" coords="464,655,505,655,505,660,464,660"/>
+<area shape="poly" id="edge52_Node000016_Node000007" title=" " alt="" coords="441,700,462,688,477,672,486,656,494,640,510,624,519,618,522,622,514,628,499,643,490,659,482,675,466,692,444,704"/>
+<area shape="poly" id="edge53_Node000016_Node000015" title=" " alt="" coords="444,700,515,680,517,685,446,705"/>
+<area shape="rect" id="Node000017" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#aed315608bc93abfc72ed2c6a8dd81247" title="Get the default models to use for features and bucketLength." alt="" coords="521,703,696,743"/>
+<area shape="poly" id="edge20_Node000016_Node000017" title=" " alt="" coords="464,720,505,720,505,726,464,726"/>
+<area shape="rect" id="Node000035" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#aab7361ce0151912da40bf417f6b7ac64" title="Get the influence calculators to use for each feature in features." alt="" coords="515,768,702,809"/>
+<area shape="poly" id="edge47_Node000016_Node000035" title=" " alt="" coords="446,741,517,761,515,766,444,746"/>
+<area shape="rect" id="Node000018" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a1961ea5d20eb1c551949538400bd96b7" title="Get the default model to use for features and bucketLength." alt="" coords="770,393,945,434"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="685,700,704,688,722,667,732,647,739,624,751,596,835,446,839,449,756,599,744,626,737,649,727,670,707,692,688,704"/>
+<area shape="rect" id="Node000021" href="$df/d9c/namespaceml_1_1model__t.html#a5cb06e59ebd2f51812cfd4357eeda4eb" title=" " alt="" coords="1290,589,1463,615"/>
+<area shape="poly" id="edge45_Node000017_Node000021" title=" " alt="" coords="696,702,753,692,887,678,992,673,1097,665,1229,644,1325,617,1326,623,1231,650,1097,671,993,678,888,683,754,698,697,707"/>
+<area shape="rect" id="Node000031" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#ae52b5c039d64222aab52483d8db79a3b" title="Get the minimum seasonal variance scale, specific to the model." alt="" coords="1010,595,1230,635"/>
+<area shape="poly" id="edge46_Node000017_Node000031" title=" " alt="" coords="678,700,704,687,718,677,727,667,737,657,752,649,812,629,875,617,937,610,994,607,994,612,937,615,876,622,814,634,754,653,740,662,731,671,721,681,707,692,680,704"/>
+<area shape="rect" id="Node000034" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#af1c2cf6bb7da8eef74e563062aa0f49b" title="Set the features which will be modeled." alt="" coords="770,707,945,747"/>
+<area shape="poly" id="edge44_Node000017_Node000034" title=" " alt="" coords="697,722,754,723,754,728,697,727"/>
+<area shape="rect" id="Node000019" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a58077700acbed8333461d1adf61c0a40" title=" " alt="" coords="1032,364,1208,405"/>
+<area shape="poly" id="edge22_Node000018_Node000019" title=" " alt="" coords="945,401,1016,393,1017,398,946,407"/>
+<area shape="poly" id="edge39_Node000018_Node000021" title=" " alt="" coords="914,432,1010,464,1072,479,1121,486,1170,496,1231,515,1293,545,1345,577,1342,582,1290,550,1229,520,1169,501,1121,492,1071,484,1009,470,912,437"/>
+<area shape="rect" id="Node000022" href="$df/d9c/namespaceml_1_1model__t.html#a3e8b4899466756ed85a5fb2bcda946ae" title=" " alt="" coords="1297,201,1457,227"/>
+<area shape="poly" id="edge40_Node000018_Node000022" title=" " alt="" coords="862,392,878,344,907,282,927,250,950,220,977,193,1008,171,1050,154,1094,146,1139,144,1185,148,1268,168,1334,192,1333,197,1267,173,1184,154,1139,149,1095,151,1052,159,1011,176,981,197,954,223,931,253,912,284,883,346,867,394"/>
+<area shape="rect" id="Node000028" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a337561c40efa21c759f4a912f7c1e8db" title="Get the default prior to use for multivariate feature." alt="" coords="1032,209,1208,250"/>
+<area shape="poly" id="edge34_Node000018_Node000028" title=" " alt="" coords="872,391,927,327,966,291,1008,261,1020,254,1023,259,1011,265,969,296,931,331,876,395"/>
+<area shape="rect" id="Node000029" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#af08bef081bdde0c94de10d602ae389b7" title="Get the default prior to use for feature." alt="" coords="1032,299,1208,339"/>
+<area shape="poly" id="edge36_Node000018_Node000029" title=" " alt="" coords="906,390,1009,350,1032,342,1034,347,1011,355,908,395"/>
+<area shape="rect" id="Node000030" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="1042,429,1198,455"/>
+<area shape="poly" id="edge38_Node000018_Node000030" title=" " alt="" coords="946,420,1026,429,1026,434,945,426"/>
+<area shape="poly" id="edge41_Node000018_Node000031" title=" " alt="" coords="874,433,928,505,967,545,1011,579,1022,585,1019,590,1008,584,963,549,924,508,870,436"/>
+<area shape="rect" id="Node000032" href="$df/d9c/namespaceml_1_1model__t.html#abaffc1928e7f94b7535df29b1fe95837" title=" " alt="" coords="1038,529,1202,570"/>
+<area shape="poly" id="edge42_Node000018_Node000032" title=" " alt="" coords="888,432,944,470,1011,509,1039,521,1037,526,1008,513,941,475,885,437"/>
+<area shape="rect" id="Node000033" href="$df/d9c/namespaceml_1_1model__t.html#aa4f54582a87800e33b74fc1ca9c6d7ca" title=" " alt="" coords="1010,71,1230,111"/>
+<area shape="poly" id="edge43_Node000018_Node000033" title=" " alt="" coords="866,392,940,244,980,169,1008,128,1023,117,1026,121,1012,132,985,172,944,247,871,394"/>
+<area shape="rect" id="Node000020" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#abf3f523003ad85c6d6698b72e06d1b0d" title="Set the decay rate used for initializing the models." alt="" coords="1289,453,1464,494"/>
+<area shape="poly" id="edge23_Node000019_Node000020" title=" " alt="" coords="1197,403,1231,414,1313,445,1311,450,1229,419,1195,408"/>
+<area shape="poly" id="edge25_Node000019_Node000021" title=" " alt="" coords="1210,401,1232,414,1251,436,1260,457,1266,479,1280,504,1315,544,1350,577,1346,581,1311,547,1276,507,1262,482,1254,459,1246,439,1228,418,1207,405"/>
+<area shape="poly" id="edge26_Node000019_Node000022" title=" " alt="" coords="1204,361,1229,349,1244,338,1254,327,1276,300,1347,235,1350,239,1280,304,1258,330,1247,342,1231,353,1206,366"/>
+<area shape="rect" id="Node000023" href="$df/d9c/namespaceml_1_1model__t.html#a6c18445fef48c42f02bbf130c2405704" title="Check if feature is modeling time of day or week." alt="" coords="1303,314,1451,340"/>
+<area shape="poly" id="edge27_Node000019_Node000023" title=" " alt="" coords="1207,362,1300,341,1302,346,1209,367"/>
+<area shape="rect" id="Node000024" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#abec77981754bf46c664dc4fee8bd134e" title=" " alt="" coords="1278,364,1475,405"/>
+<area shape="poly" id="edge28_Node000019_Node000024" title=" " alt="" coords="1208,382,1262,382,1262,387,1208,387"/>
+<area shape="poly" id="edge24_Node000020_Node000020" title=" " alt="" coords="1329,453,1326,443,1334,434,1351,429,1377,427,1404,429,1421,435,1419,440,1403,434,1377,432,1352,434,1337,439,1331,445,1334,452"/>
+<area shape="rect" id="Node000025" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a928bc41c16aebf4138d3bb3c8d27e256" title="Get the bucket length." alt="" coords="1535,268,1733,309"/>
+<area shape="poly" id="edge29_Node000024_Node000025" title=" " alt="" coords="1448,361,1474,350,1498,334,1522,318,1536,312,1538,317,1525,323,1501,338,1477,355,1450,366"/>
+<area shape="rect" id="Node000026" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a2d8f7017909a6d10f11f815b33211c5c" title=" " alt="" coords="1523,357,1745,412"/>
+<area shape="poly" id="edge30_Node000024_Node000026" title=" " alt="" coords="1476,382,1508,382,1508,387,1476,387"/>
+<area shape="rect" id="Node000027" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="1597,461,1671,487"/>
+<area shape="poly" id="edge32_Node000024_Node000027" title=" " alt="" coords="1440,403,1476,415,1583,453,1581,458,1474,420,1438,408"/>
+<area shape="poly" id="edge31_Node000026_Node000026" title=" " alt="" coords="1584,356,1585,346,1594,337,1610,332,1634,330,1661,332,1677,339,1675,344,1660,338,1634,335,1611,337,1596,342,1589,348,1589,356"/>
+<area shape="poly" id="edge33_Node000027_Node000027" title=" " alt="" coords="1595,464,1584,454,1587,443,1605,436,1634,434,1671,438,1681,443,1685,450,1680,452,1678,447,1670,443,1634,439,1606,442,1591,447,1589,452,1598,460"/>
+<area shape="poly" id="edge35_Node000028_Node000028" title=" " alt="" coords="1072,209,1069,199,1077,190,1094,185,1120,183,1147,185,1164,191,1162,196,1146,190,1120,188,1095,190,1080,195,1075,201,1077,208"/>
+<area shape="poly" id="edge37_Node000029_Node000029" title=" " alt="" coords="1072,299,1069,289,1077,280,1094,274,1120,272,1147,274,1164,281,1162,286,1146,280,1120,277,1095,279,1080,284,1075,290,1077,297"/>
+<area shape="poly" id="edge50_Node000035_Node000021" title=" " alt="" coords="703,783,826,775,961,756,1098,726,1156,707,1229,678,1288,650,1340,621,1342,625,1291,654,1231,683,1158,712,1099,731,962,762,827,780,703,788"/>
+<area shape="poly" id="edge48_Node000035_Node000034" title=" " alt="" coords="693,765,757,749,758,754,695,770"/>
+<area shape="rect" id="Node000036" href="$df/d9c/namespaceml_1_1model__t.html#ae18999793583b551943e533eb0a947ba" title="Get the influence calculator for feature." alt="" coords="753,886,962,912"/>
+<area shape="poly" id="edge49_Node000035_Node000036" title=" " alt="" coords="640,807,692,840,754,871,776,879,774,884,752,876,690,844,637,811"/>
+<area shape="rect" id="Node000037" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#aff02396554ebf83c020f27bad1ec634d" title="Get the field values which partition the data for modeling." alt="" coords="770,821,945,862"/>
+<area shape="poly" id="edge51_Node000035_Node000037" title=" " alt="" coords="703,806,755,817,754,822,702,811"/>
+<area shape="rect" id="Node000039" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="515,1025,702,1066"/>
+<area shape="poly" id="edge55_Node000038_Node000039" title=" " alt="" coords="438,938,465,950,490,967,514,986,559,1015,556,1019,510,991,487,972,463,955,436,942"/>
+<area shape="rect" id="Node000040" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="767,1051,948,1091"/>
+<area shape="poly" id="edge56_Node000039_Node000040" title=" " alt="" coords="703,1053,751,1058,751,1063,702,1058"/>
+<area shape="poly" id="edge58_Node000041_Node000041" title=" " alt="" coords="322,988,320,978,327,969,343,963,367,961,393,964,409,970,407,975,392,969,367,967,344,969,330,973,325,979,327,987"/>
+</map>

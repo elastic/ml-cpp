@@ -1,0 +1,26 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::centredResidualMoments" name="ml::maths::time_series::CTimeSeriesSegmentation::centredResidualMoments">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,194,191,250"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="583,136,742,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,191,238,179,325,167,413,159,567,153,568,159,413,165,325,172,239,184,188,196"/>
+<area shape="rect" id="Node000003" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a046dcad5672ac8897f20aa29e5d76f13" title="Fit a linear model to the values in [begin, end)." alt="" coords="273,63,459,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="140,191,186,163,237,135,266,123,268,128,240,140,189,167,143,196"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="279,273,453,314"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="192,246,239,259,267,266,265,271,238,264,190,251"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="239,339,493,379"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="131,248,180,287,240,323,256,330,254,335,237,328,177,291,128,252"/>
+<area shape="rect" id="Node000008" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#ade0740c32139b44f9940357d1c20f494" title=" " alt="" coords="273,194,459,250"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="191,219,258,219,258,224,191,224"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="460,109,569,133,567,138,458,114"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#afc80e7cf91ba8533fc744f369404bb6f" title=" " alt="" coords="541,5,784,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="458,68,552,47,553,52,460,73"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="583,71,742,111"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="459,88,567,88,567,94,459,94"/>
+<area shape="poly" id="edge10_Node000008_Node000002" title=" " alt="" coords="458,199,567,174,569,180,460,204"/>
+<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="410,191,470,156,540,122,567,112,569,117,542,127,473,160,412,195"/>
+<area shape="rect" id="Node000009" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="552,201,774,256"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="459,221,536,223,536,228,459,226"/>
+<area shape="rect" id="Node000010" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b7faad96d97de516da6d0bb3e363123" title=" " alt="" coords="556,281,770,336"/>
+<area shape="poly" id="edge12_Node000008_Node000010" title=" " alt="" coords="460,246,551,273,550,278,458,251"/>
+<area shape="rect" id="Node000011" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="556,361,770,416"/>
+<area shape="poly" id="edge13_Node000008_Node000011" title=" " alt="" coords="460,239,495,260,512,282,520,304,526,326,543,346,547,350,544,354,539,350,522,328,515,306,508,284,491,264,457,244"/>
+</map>

@@ -1,0 +1,25 @@
+<map id="ml::maths::common::las::max" name="ml::maths::common::las::max">
+<area shape="rect" id="Node000001" title="In&#45;place maximum, writing to y." alt="" coords="1053,164,1198,204"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#af0af31126b6e5df47aaffad0657c5c99" title=" " alt="" coords="805,41,951,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1089,156,1050,125,1004,97,950,78,952,73,1006,92,1053,120,1093,151"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a4e68128aad2c2f7e8a3cfc377e407da3" title=" " alt="" coords="805,106,951,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1037,166,951,146,952,141,1038,161"/>
+<area shape="rect" id="Node000010" href="$d6/d26/_c_linear_algebra_test_8cc.html#acc80dd395d463f62036e0cf5859e3362" title=" " alt="" coords="780,171,976,197"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1038,187,977,187,977,181,1038,181"/>
+<area shape="rect" id="Node000011" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a8093e6557824f11b1ea97be1d64b1d4d" title=" " alt="" coords="783,221,973,262"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1039,207,969,223,968,218,1037,201"/>
+<area shape="rect" id="Node000012" href="$de/da4/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_covariances.html#a7bc93aa3612d095d33d055a89dca59a8" title=" " alt="" coords="751,285,1005,341"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1092,216,1052,247,1006,276,980,287,978,282,1003,271,1049,243,1089,212"/>
+<area shape="rect" id="Node000004" href="$dd/df3/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_kd_tree_node_data.html#a4f002bae0964021745f33a9e6c752d73" title="Combine the bounding boxes and centroids." alt="" coords="476,13,703,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="789,109,750,96,726,82,702,69,669,57,671,52,704,64,729,78,752,91,791,104"/>
+<area shape="rect" id="Node000007" href="$dd/df3/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_kd_tree_node_data.html#a460298b3dad83dc62eb072d3a1f661ee" title="Add x to the bounding box and centroid." alt="" coords="476,78,703,119"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="790,121,704,112,704,107,790,115"/>
+<area shape="rect" id="Node000008" href="$d9/dff/_c_bounding_box_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="492,143,688,169"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="790,138,688,149,688,143,790,133"/>
+<area shape="rect" id="Node000009" href="$d9/dff/_c_bounding_box_test_8cc.html#af2b26e638ed33ba40202d0e7fe2b78aa" title=" " alt="" coords="492,192,688,218"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="791,149,752,161,729,172,704,184,667,194,665,189,702,179,726,168,750,156,789,144"/>
+<area shape="rect" id="Node000005" href="$d5/de3/structml_1_1maths_1_1common_1_1_c_k_means_1_1_s_data_propagator.html#a2ad37d5b80e528b0d03cc0edd7479bb3" title="Update data with the data from child." alt="" coords="241,5,428,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="460,36,428,36,428,31,460,31"/>
+<area shape="rect" id="Node000006" href="$d5/de3/structml_1_1maths_1_1common_1_1_c_k_means_1_1_s_data_propagator.html#a6fbfb273fde5fe8eee9ef6c901da5e3d" title="Propagate the data to node." alt="" coords="5,5,193,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="225,36,193,36,193,31,225,31"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="anonymous_namespace{CEventRateAnomalyDetectorTest::cc}::importData" name="anonymous_namespace{CEventRateAnomalyDetectorTest::cc}::importData">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,204,184"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a9fe3f391606e4a75419e14a31f47e583" title="Extract and add the necessary details of an event record." alt="" coords="252,71,449,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,127,256,113,257,119,205,133"/>
+<area shape="rect" id="Node000007" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a146c7ffc1ffc2d4f1951d2288854bf30" title=" " alt="" coords="278,136,423,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="204,154,262,154,262,159,204,159"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="277,201,424,242"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="205,180,262,196,261,201,203,185"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#ad04d7526f123b756fbc0a155db041b2e" title=" " alt="" coords="497,5,694,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="429,67,501,48,503,53,430,73"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="530,71,661,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="449,88,515,88,515,94,449,94"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="517,136,675,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="430,109,503,129,501,134,429,115"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="742,136,901,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="675,154,727,154,727,159,675,159"/>
+</map>

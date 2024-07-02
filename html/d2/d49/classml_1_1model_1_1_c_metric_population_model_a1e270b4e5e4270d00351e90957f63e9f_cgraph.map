@@ -1,0 +1,21 @@
+<map id="ml::model::CMetricPopulationModel::currentBucketValue" name="ml::model::CMetricPopulationModel::currentBucketValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,199,111"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a1b074ce91d1a85ea5e4006c3a0e8511e" title="Extract the bucket value for count feature data." alt="" coords="247,5,440,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,68,250,48,251,53,180,73"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a4230fb002083a2394470544adfa51d46" title="Get the feature data corresponding to feature at time." alt="" coords="247,71,440,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="199,88,231,88,231,94,199,94"/>
+<area shape="rect" id="Node000008" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#afc0596ae4af7276e459c945032d27c53" title=" " alt="" coords="247,136,440,177"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="180,109,251,129,250,134,179,114"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="498,5,672,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,23,482,23,482,28,440,28"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a7951796202ad947ddf4c17924632262a" title="Check if bucket statistics are available for the specified time." alt="" coords="488,71,681,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="440,88,473,88,473,94,440,94"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="729,71,927,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="682,88,714,88,714,94,682,94"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="975,71,1149,111"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="927,88,959,88,959,94,927,94"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a6a78bb3800805de96968d1e28728ad44" title="Extract the attribute identifier from a tuple." alt="" coords="498,136,672,177"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="440,154,482,154,482,159,440,159"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaa2f42f2be5d74bd04fa6567fe95860c" title="Extract the person identifier from a tuple." alt="" coords="498,201,672,242"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="422,175,493,194,491,199,420,180"/>
+</map>

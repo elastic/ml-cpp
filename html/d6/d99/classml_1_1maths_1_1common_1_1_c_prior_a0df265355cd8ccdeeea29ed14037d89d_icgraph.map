@@ -1,0 +1,224 @@
+<map id="ml::maths::common::CPrior::numberSamples" name="ml::maths::common::CPrior::numberSamples">
+<area shape="rect" id="Node000001" title="Get the number of samples received to date." alt="" coords="808,3069,969,3109"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a89578d5c0c34f39f36bdbfaf5f0c18da" title="Persist state by passing information to the supplied inserter." alt="" coords="561,13,725,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="884,3053,874,2471,850,1503,833,1006,812,572,787,253,773,154,758,103,743,86,723,71,726,67,746,82,763,101,778,153,792,253,817,572,838,1006,855,1503,879,2471,889,3053"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aaf1029641fae1970878d98d5f61e6480" title="Persist state by passing information to the supplied inserter." alt="" coords="537,114,749,170"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="884,3053,871,2493,845,1567,827,1092,806,677,783,371,771,275,758,226,734,196,702,172,706,168,737,192,763,224,776,274,789,370,812,676,832,1092,850,1567,877,2493,889,3053"/>
+<area shape="rect" id="Node000006" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a56fde52a0945b795cf8d3b658af13945" title="Persist state by passing information to the supplied inserter." alt="" coords="538,2154,747,2210"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="884,3053,878,2879,860,2631,844,2504,822,2387,794,2290,777,2253,758,2224,746,2212,750,2208,762,2220,782,2250,799,2288,828,2385,850,2503,866,2631,884,2879,889,3053"/>
+<area shape="rect" id="Node000008" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a685ed04c3bce8ae4a3fedd0df7e27b71" title="Persist state by passing information to the supplied inserter." alt="" coords="565,2234,721,2290"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="883,3053,876,2894,856,2670,839,2555,818,2450,791,2363,776,2330,758,2304,741,2289,720,2278,723,2273,744,2284,762,2300,780,2327,796,2361,823,2448,845,2554,861,2669,881,2894,889,3053"/>
+<area shape="rect" id="Node000012" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a8f695febeae598e6c15944717df58e3f" title="Persist state by passing information to the supplied inserter." alt="" coords="547,1058,738,1114"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="883,3053,871,2688,845,2110,828,1812,807,1545,784,1338,771,1266,758,1219,742,1189,722,1162,677,1116,681,1113,726,1158,746,1186,763,1217,776,1264,789,1337,812,1544,833,1811,851,2110,876,2688,889,3053"/>
+<area shape="rect" id="Node000015" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a253870d39e5ac274a0ad645bc79b4451" title="Persist state by passing information to the supplied inserter." alt="" coords="266,2436,461,2491"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="883,3053,873,2921,852,2743,836,2654,815,2575,789,2511,775,2487,759,2470,725,2448,689,2433,649,2424,609,2420,528,2424,455,2438,454,2432,528,2419,609,2414,650,2418,690,2427,728,2443,762,2465,779,2484,794,2508,820,2573,841,2653,857,2742,879,2920,888,3052"/>
+<area shape="rect" id="Node000017" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a29f061380100f24cfa2a601702650662" title="Persist state by passing information to the supplied inserter." alt="" coords="558,1784,727,1839"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="883,3053,871,2798,846,2417,829,2224,809,2053,785,1924,772,1880,758,1853,744,1840,726,1829,729,1825,747,1835,762,1850,777,1878,790,1922,814,2053,834,2223,852,2416,876,2798,888,3053"/>
+<area shape="rect" id="Node000019" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af39ddc43fabe83eb891cd270f44dea86" title="Read parameters from traverser." alt="" coords="558,2480,727,2535"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="881,3053,866,2939,840,2789,824,2713,804,2644,782,2588,758,2549,744,2537,727,2527,729,2522,747,2532,762,2546,787,2585,809,2642,829,2712,845,2787,871,2938,886,3053"/>
+<area shape="rect" id="Node000020" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#ae6ea7d949305f4726d8e064a850bd572" title="Read parameters from traverser." alt="" coords="537,2560,749,2615"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="885,3053,881,2968,875,2913,865,2855,849,2794,826,2735,797,2679,758,2629,745,2618,748,2614,762,2626,801,2676,831,2733,854,2793,870,2854,881,2913,887,2967,891,3053"/>
+<area shape="rect" id="Node000021" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#afbb3432d2b3b96ac13617debbd15cc90" title="Read parameters from traverser." alt="" coords="536,2640,750,2695"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="883,3053,875,2982,855,2890,839,2841,818,2793,791,2749,758,2709,744,2698,748,2694,762,2706,795,2746,822,2791,843,2839,860,2888,880,2981,888,3053"/>
+<area shape="rect" id="Node000022" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a1b818eae8512e8eb599d0ec1822a9830" title="Read parameters from traverser." alt="" coords="558,2720,727,2775"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="879,3053,867,2996,844,2925,808,2852,786,2819,759,2790,726,2769,729,2764,762,2785,790,2816,813,2850,849,2923,872,2995,884,3052"/>
+<area shape="rect" id="Node000023" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a1d0609a73c04cd5d1beb465d66b20e70" title="Read parameters from traverser." alt="" coords="547,2800,738,2855"/>
+<area shape="poly" id="edge22_Node000001_Node000023" title=" " alt="" coords="873,3054,857,3012,832,2962,799,2913,759,2870,737,2855,740,2851,762,2865,804,2909,837,2960,861,3010,878,3053"/>
+<area shape="rect" id="Node000024" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a226c797db7aa6a87e010b021959952a8" title="Read parameters from traverser." alt="" coords="543,2880,742,2935"/>
+<area shape="poly" id="edge23_Node000001_Node000024" title=" " alt="" coords="863,3058,819,3002,790,2974,759,2950,739,2938,741,2934,762,2945,794,2970,823,2999,867,3054"/>
+<area shape="rect" id="Node000026" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a314645d0f69983963b48f6feb58fcc48" title="Read parameters from traverser." alt="" coords="558,2960,727,3015"/>
+<area shape="poly" id="edge25_Node000001_Node000026" title=" " alt="" coords="833,3064,759,3030,727,3017,729,3012,761,3025,835,3059"/>
+<area shape="rect" id="Node000027" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#adde3e8faf3f35640095ec4bdb155ff5b" title=" " alt="" coords="537,533,749,589"/>
+<area shape="poly" id="edge26_Node000001_Node000027" title=" " alt="" coords="884,3053,872,2680,847,2066,830,1734,809,1418,785,1145,758,941,734,838,705,738,653,590,658,588,710,737,740,837,763,940,790,1145,814,1418,835,1733,852,2066,877,2680,889,3053"/>
+<area shape="rect" id="Node000047" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#aeead2ae5249ef6aad6b45bc3991b5f49" title=" " alt="" coords="547,1526,738,1582"/>
+<area shape="poly" id="edge47_Node000001_Node000047" title=" " alt="" coords="883,3053,871,2810,846,2437,828,2239,808,2052,784,1891,758,1772,737,1718,712,1666,662,1584,666,1581,716,1663,742,1716,763,1771,790,1890,813,2051,834,2238,851,2437,876,2810,888,3053"/>
+<area shape="rect" id="Node000069" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a3c212c1e12ff4d0fd7ace0acbcda6eca" title=" " alt="" coords="270,2371,457,2412"/>
+<area shape="poly" id="edge67_Node000001_Node000069" title=" " alt="" coords="883,3053,875,2913,854,2723,838,2627,817,2541,790,2471,775,2445,759,2426,738,2413,709,2404,631,2392,542,2388,457,2389,457,2384,542,2383,631,2387,710,2398,740,2408,762,2421,779,2442,795,2469,822,2539,843,2626,859,2722,880,2913,888,3053"/>
+<area shape="rect" id="Node000085" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aaecfd47149c25c9d39e2d39c16db79f6" title=" " alt="" coords="558,1864,727,1919"/>
+<area shape="poly" id="edge69_Node000001_Node000085" title=" " alt="" coords="883,3053,869,2814,843,2461,825,2282,805,2125,783,2005,771,1965,758,1940,744,1926,727,1914,729,1910,747,1921,762,1937,776,1963,788,2004,810,2124,830,2282,848,2460,874,2813,888,3053"/>
+<area shape="rect" id="Node000086" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3a130962f14186a49d17b9fb2dd28d23" title=" " alt="" coords="279,2061,448,2117"/>
+<area shape="poly" id="edge74_Node000001_Node000086" title=" " alt="" coords="883,3053,872,2819,848,2477,832,2305,811,2155,786,2042,773,2005,758,1984,730,1962,703,1949,676,1942,648,1941,620,1945,591,1955,526,1984,510,1998,502,2015,495,2033,479,2051,450,2068,447,2063,475,2047,490,2030,497,2012,506,1995,524,1980,589,1950,619,1940,648,1936,676,1936,705,1944,733,1958,762,1980,778,2003,792,2041,816,2154,837,2305,854,2476,877,2818,888,3053"/>
+<area shape="rect" id="Node000101" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab82606a46bea23ff725b9356188d04cb" title="Get a set of sample for the prior to use in adjust offset." alt="" coords="541,3039,744,3080"/>
+<area shape="poly" id="edge75_Node000001_Node000101" title=" " alt="" coords="793,3080,745,3074,745,3069,793,3075"/>
+<area shape="rect" id="Node000115" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a2b4217c715aa6a2bab8967004072d2ae" title=" " alt="" coords="545,3104,741,3130"/>
+<area shape="poly" id="edge76_Node000001_Node000115" title=" " alt="" coords="793,3102,742,3108,741,3103,792,3097"/>
+<area shape="rect" id="Node000123" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a302b7b2d7b05e3ba3d81145cc290b730" title="Check if the class invariants hold." alt="" coords="532,3154,753,3195"/>
+<area shape="poly" id="edge77_Node000001_Node000123" title=" " alt="" coords="828,3118,761,3145,726,3156,724,3151,759,3140,826,3113"/>
+<area shape="rect" id="Node000126" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a70aba51454f7ed2a8bb02d6cb0972d32" title="Implements value semantics for copy construction." alt="" coords="542,3218,744,3274"/>
+<area shape="poly" id="edge78_Node000001_Node000126" title=" " alt="" coords="862,3123,817,3167,762,3208,739,3220,736,3216,759,3204,814,3163,858,3119"/>
+<area shape="rect" id="Node000127" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#aa5423ab0cabab1a80c5d4d139ea71667" title=" " alt="" coords="561,3298,725,3354"/>
+<area shape="poly" id="edge79_Node000001_Node000127" title=" " alt="" coords="876,3125,858,3163,833,3206,801,3250,762,3288,727,3308,724,3304,759,3284,797,3247,828,3203,853,3160,871,3122"/>
+<area shape="rect" id="Node000128" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="543,3378,742,3434"/>
+<area shape="poly" id="edge80_Node000001_Node000128" title=" " alt="" coords="883,3125,869,3178,845,3243,810,3310,788,3341,762,3368,744,3381,741,3377,759,3364,784,3337,806,3307,840,3241,864,3177,878,3124"/>
+<area shape="rect" id="Node000186" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a09ace1d5ee1bdef609ed551f5dc8c270" title="Implements value semantics for copy construction." alt="" coords="543,3458,742,3499"/>
+<area shape="poly" id="edge81_Node000001_Node000186" title=" " alt="" coords="888,3125,879,3194,858,3280,842,3326,821,3370,795,3412,762,3448,745,3461,741,3456,759,3444,790,3409,816,3368,837,3324,853,3279,874,3193,882,3124"/>
+<area shape="rect" id="Node000187" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a7dfaedb0da1709246d28c809a1635bcf" title=" " alt="" coords="536,3522,749,3578"/>
+<area shape="poly" id="edge82_Node000001_Node000187" title=" " alt="" coords="889,3125,883,3204,865,3307,849,3362,827,3416,798,3467,762,3512,748,3524,745,3520,758,3508,794,3464,822,3414,844,3360,860,3306,878,3203,884,3125"/>
+<area shape="rect" id="Node000188" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a44165d20e344eab83c9778755214eaed" title=" " alt="" coords="552,3602,733,3658"/>
+<area shape="poly" id="edge83_Node000001_Node000188" title=" " alt="" coords="885,3125,869,3231,843,3370,826,3440,807,3503,786,3556,762,3592,735,3612,732,3608,758,3588,781,3553,802,3502,821,3439,838,3369,864,3230,880,3124"/>
+<area shape="rect" id="Node000190" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a0dfe532c96b277832d11003624ef3be8" title=" " alt="" coords="552,1994,733,2050"/>
+<area shape="poly" id="edge84_Node000001_Node000190" title=" " alt="" coords="885,3053,884,2852,879,2710,870,2556,854,2402,831,2261,817,2199,800,2144,780,2099,758,2064,732,2043,736,2039,762,2060,785,2096,805,2142,822,2197,837,2260,859,2401,875,2555,884,2709,889,2852,890,3053"/>
+<area shape="rect" id="Node000191" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a810a4e604787843a057c2a269bb007c1" title=" " alt="" coords="531,3682,755,3723"/>
+<area shape="poly" id="edge86_Node000001_Node000191" title=" " alt="" coords="887,3124,874,3246,850,3410,833,3493,813,3568,789,3630,762,3672,749,3683,745,3679,758,3668,785,3627,808,3566,828,3491,844,3409,869,3246,882,3124"/>
+<area shape="rect" id="Node000192" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a95b6914ccab07869fbfb765f295d4367" title=" " alt="" coords="541,3746,744,3802"/>
+<area shape="poly" id="edge87_Node000001_Node000192" title=" " alt="" coords="887,3125,876,3258,852,3441,836,3533,815,3618,791,3687,777,3715,762,3736,746,3750,743,3746,758,3732,773,3712,786,3685,810,3616,830,3532,847,3440,870,3258,882,3124"/>
+<area shape="rect" id="Node000193" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#aeb73819e5cffc6620cb66bd8e6dcfc60" title=" " alt="" coords="563,3826,723,3867"/>
+<area shape="poly" id="edge88_Node000001_Node000193" title=" " alt="" coords="888,3125,880,3274,859,3481,842,3586,821,3682,795,3761,779,3792,762,3816,745,3830,725,3840,722,3835,742,3826,758,3812,775,3789,790,3759,816,3681,837,3585,853,3480,874,3274,883,3125"/>
+<area shape="rect" id="Node000194" href="$db/d3c/classml_1_1maths_1_1common_1_1_c_multimodal_prior_1_1_c_mode_split_callback.html#a03b3cde78d816fb71b9a10edc59933af" title=" " alt="" coords="544,3890,741,3946"/>
+<area shape="poly" id="edge89_Node000001_Node000194" title=" " alt="" coords="889,3125,881,3285,861,3510,845,3625,823,3731,796,3819,780,3853,762,3880,743,3896,740,3892,758,3876,776,3851,791,3817,818,3730,839,3625,856,3509,876,3284,884,3125"/>
+<area shape="rect" id="Node000195" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a3ce4d6efd0fa6afff4faed346d4e7aae" title=" " alt="" coords="570,3970,715,4011"/>
+<area shape="poly" id="edge90_Node000001_Node000195" title=" " alt="" coords="890,3125,885,3299,878,3420,868,3549,852,3678,830,3796,800,3893,782,3931,762,3960,741,3976,717,3986,715,3981,739,3972,758,3956,778,3928,795,3891,825,3795,847,3677,862,3549,873,3420,880,3299,884,3125"/>
+<area shape="rect" id="Node000196" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a7c44260a641896d2c2ecb19615bb944a" title=" " alt="" coords="550,4034,735,4090"/>
+<area shape="poly" id="edge91_Node000001_Node000196" title=" " alt="" coords="890,3125,886,3310,880,3439,869,3578,854,3717,831,3845,801,3950,783,3992,762,4024,737,4044,734,4040,758,4020,778,3989,796,3949,826,3844,848,3716,864,3578,875,3439,881,3310,884,3125"/>
+<area shape="rect" id="Node000197" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a6d25d72f207686ea0b7e28bdd3262bea" title=" " alt="" coords="537,237,749,293"/>
+<area shape="poly" id="edge92_Node000001_Node000197" title=" " alt="" coords="885,3053,882,2614,877,2267,868,1877,852,1475,830,1094,815,921,799,766,780,631,758,521,737,456,710,392,659,294,664,292,715,390,742,454,763,520,785,630,804,765,821,921,835,1094,858,1475,873,1876,883,2267,888,2614,890,3053"/>
+<area shape="rect" id="Node000198" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a79629ca691767bb95df0e186dec6dd34" title=" " alt="" coords="550,4114,736,4170"/>
+<area shape="poly" id="edge99_Node000001_Node000198" title=" " alt="" coords="890,3125,888,3325,884,3465,874,3617,859,3768,836,3908,821,3969,804,4023,785,4069,762,4104,738,4124,735,4120,758,4100,780,4066,799,4022,816,3968,831,3907,853,3768,869,3616,878,3465,883,3324,885,3125"/>
+<area shape="rect" id="Node000199" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a93c259e83a19457adfab10a3e505b489" title=" " alt="" coords="550,4194,735,4250"/>
+<area shape="poly" id="edge100_Node000001_Node000199" title=" " alt="" coords="888,3125,874,3354,847,3689,830,3858,810,4007,787,4120,775,4159,762,4184,737,4204,734,4200,758,4180,770,4157,782,4119,805,4006,824,3857,842,3689,868,3353,883,3125"/>
+<area shape="rect" id="Node000204" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a4ef795d9c29b489364dc81fe5f32b3e2" title=" " alt="" coords="547,1230,738,1286"/>
+<area shape="poly" id="edge101_Node000001_Node000204" title=" " alt="" coords="883,3053,872,2769,847,2321,830,2081,810,1855,786,1660,758,1515,736,1449,710,1386,659,1288,663,1285,714,1384,741,1447,763,1514,791,1659,815,1854,836,2081,853,2321,877,2769,889,3053"/>
+<area shape="rect" id="Node000207" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a745d4b84a35d18acf0e4b2d55e1442cf" title=" " alt="" coords="530,4274,755,4330"/>
+<area shape="poly" id="edge107_Node000001_Node000207" title=" " alt="" coords="888,3125,875,3369,850,3730,832,3912,812,4073,789,4195,776,4237,762,4264,750,4276,747,4272,758,4261,771,4235,784,4194,807,4072,827,3911,844,3729,870,3369,883,3125"/>
+<area shape="rect" id="Node000208" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a6d7ffbd13caf7772f4d1a8d6e410ef41" title=" " alt="" coords="550,4354,735,4410"/>
+<area shape="poly" id="edge108_Node000001_Node000208" title=" " alt="" coords="888,3125,877,3384,852,3770,835,3966,814,4138,790,4270,777,4315,762,4344,738,4364,734,4360,758,4340,772,4313,785,4269,809,4138,830,3965,847,3770,871,3383,883,3125"/>
+<area shape="rect" id="Node000209" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#aa152cdd897ed47cad92a30ad5465f6fb" title="Remove the categories in categoriesToRemove." alt="" coords="565,4434,721,4490"/>
+<area shape="poly" id="edge109_Node000001_Node000209" title=" " alt="" coords="889,3125,878,3398,854,3810,837,4019,817,4204,792,4345,778,4393,762,4424,744,4440,723,4452,720,4447,741,4436,758,4421,773,4392,787,4344,811,4203,832,4018,849,3810,873,3398,883,3124"/>
+<area shape="rect" id="Node000213" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#aa8f3e47341d8d701ed4256ae3e0fa8ea" title="Get numberSamples times the constant." alt="" coords="538,4514,748,4570"/>
+<area shape="poly" id="edge110_Node000001_Node000213" title=" " alt="" coords="889,3125,879,3413,857,3850,840,4073,819,4270,793,4420,779,4472,762,4504,750,4516,746,4512,758,4501,774,4470,788,4419,814,4269,835,4072,851,3850,874,3412,884,3125"/>
+<area shape="rect" id="Node000214" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a230e7ddf1db9b3c9c58c8c25b1f6ae90" title=" " alt="" coords="554,4594,732,4650"/>
+<area shape="poly" id="edge111_Node000001_Node000214" title=" " alt="" coords="889,3125,880,3427,859,3890,842,4126,821,4335,795,4495,779,4550,762,4584,749,4597,733,4607,731,4602,746,4593,758,4581,774,4548,790,4494,816,4334,837,4126,854,3890,875,3427,884,3125"/>
+<area shape="rect" id="Node000215" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a2206b71f61a09f01f08a91243edd2edf" title=" " alt="" coords="537,953,749,1009"/>
+<area shape="poly" id="edge112_Node000001_Node000215" title=" " alt="" coords="884,3053,879,2655,862,2019,846,1691,824,1398,810,1275,795,1173,777,1096,758,1048,741,1027,718,1011,722,1007,744,1023,763,1045,783,1094,800,1172,816,1274,829,1398,851,1690,867,2019,885,2655,890,3053"/>
+<area shape="rect" id="Node000216" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a5e4edf4eef242f12b5cde910ab7ad3fd" title=" " alt="" coords="533,4674,753,4730"/>
+<area shape="poly" id="edge114_Node000001_Node000216" title=" " alt="" coords="889,3125,882,3442,861,3930,845,4180,823,4401,810,4493,796,4570,780,4628,763,4664,751,4676,747,4672,758,4661,775,4626,791,4569,805,4492,818,4400,839,4179,856,3930,876,3442,884,3125"/>
+<area shape="rect" id="Node000218" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a78d0579d7008ddbab109ca18672a8a61" title=" " alt="" coords="554,4754,732,4810"/>
+<area shape="poly" id="edge115_Node000001_Node000218" title=" " alt="" coords="889,3125,883,3456,863,3970,847,4233,825,4466,812,4564,798,4645,781,4706,763,4744,749,4757,734,4767,731,4762,746,4753,758,4741,776,4704,792,4644,807,4563,820,4466,842,4233,858,3970,877,3456,884,3125"/>
+<area shape="rect" id="Node000220" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#ae96f18fa428c3598348b0639e1170af9" title=" " alt="" coords="547,4834,738,4890"/>
+<area shape="poly" id="edge116_Node000001_Node000220" title=" " alt="" coords="890,3124,884,3469,866,4009,850,4286,828,4531,814,4634,799,4719,782,4784,762,4824,741,4843,737,4839,758,4821,777,4782,794,4718,809,4633,822,4531,844,4286,860,4009,879,3469,884,3124"/>
+<area shape="rect" id="Node000221" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a26bffab4ed2931a547982c0be3e7d85b" title=" " alt="" coords="540,4914,745,4970"/>
+<area shape="poly" id="edge117_Node000001_Node000221" title=" " alt="" coords="890,3125,885,3485,879,3756,868,4050,852,4340,830,4597,816,4705,801,4794,783,4862,762,4904,748,4918,744,4914,758,4901,778,4860,795,4793,811,4704,825,4597,847,4339,863,4050,873,3755,880,3484,884,3125"/>
+<area shape="rect" id="Node000222" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a63aff10621982fdf0398a5859f5ec065" title=" " alt="" coords="554,2074,732,2130"/>
+<area shape="poly" id="edge118_Node000001_Node000222" title=" " alt="" coords="885,3053,881,2866,875,2735,865,2593,849,2453,827,2324,813,2267,797,2217,779,2176,758,2144,731,2122,734,2118,762,2140,783,2173,802,2215,818,2265,832,2323,855,2452,870,2593,880,2734,886,2865,890,3053"/>
+<area shape="rect" id="Node000223" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a50122ad7e37fa64e71f02281431d45e0" title="Reset the prior to non&#45;informative." alt="" coords="550,4994,735,5050"/>
+<area shape="poly" id="edge120_Node000001_Node000223" title=" " alt="" coords="890,3125,886,3498,880,3781,870,4089,854,4393,832,4662,818,4776,802,4869,784,4940,762,4984,737,5005,734,5001,758,4981,779,4938,797,4868,813,4775,827,4662,849,4392,865,4089,875,3781,881,3498,884,3125"/>
+<area shape="rect" id="Node000224" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a107dc6fc6c4d51e1c1ca832957076696" title="Reset the prior to non&#45;informative." alt="" coords="525,2314,760,2355"/>
+<area shape="poly" id="edge121_Node000001_Node000224" title=" " alt="" coords="883,3053,873,2906,852,2703,835,2600,814,2505,789,2428,774,2398,758,2375,736,2357,740,2353,762,2371,779,2395,794,2426,819,2504,840,2599,857,2702,878,2906,888,3052"/>
+<area shape="rect" id="Node000003" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="265,5,462,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="545,36,462,29,462,23,545,30"/>
+<area shape="rect" id="Node000005" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="265,55,462,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="539,112,476,94,431,83,433,78,478,89,541,107"/>
+<area shape="rect" id="Node000007" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="265,2141,462,2167"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="523,2173,461,2167,462,2161,523,2168"/>
+<area shape="rect" id="Node000009" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#afeb022f8b17e8546a8f8855842b0da3a" title="Persist state by passing information to inserter." alt="" coords="267,2191,460,2232"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="548,2248,460,2232,461,2226,549,2243"/>
+<area shape="rect" id="Node000010" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7b15945e4bed81aef355a0cea18a60b9" title="Persist state by passing information to the supplied inserter." alt="" coords="254,2257,473,2297"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="549,2270,474,2274,473,2268,549,2264"/>
+<area shape="rect" id="Node000011" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="265,2321,462,2347"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="550,2292,478,2311,428,2323,427,2318,476,2306,549,2287"/>
+<area shape="rect" id="Node000013" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#ac8bb1f9bac38f3959138e6eac1c4765c" title="Persist state by passing information to inserter." alt="" coords="250,993,477,1049"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="531,1063,477,1050,478,1045,532,1058"/>
+<area shape="rect" id="Node000014" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="265,1073,462,1099"/>
+<area shape="poly" id="edge13_Node000012_Node000014" title=" " alt="" coords="532,1089,462,1089,462,1084,532,1084"/>
+<area shape="rect" id="Node000016" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,2415,202,2440"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="250,2451,201,2444,201,2438,251,2445"/>
+<area shape="rect" id="Node000018" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="265,2011,462,2036"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="546,1839,527,1853,513,1871,507,1889,505,1927,502,1964,494,1983,479,2001,463,2012,460,2008,475,1998,490,1980,497,1963,499,1926,502,1888,509,1869,523,1850,543,1834"/>
+<area shape="rect" id="Node000025" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ab4c9f531f6dafab42a9e723b6b1a2f71" title="Construct from part of a state document." alt="" coords="264,2887,463,2928"/>
+<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="527,2910,463,2910,463,2905,527,2905"/>
+<area shape="poly" id="edge40_Node000027_Node000005" title=" " alt="" coords="617,521,570,424,522,306,514,272,512,242,513,189,512,165,507,142,495,118,475,93,460,82,463,78,479,90,500,115,512,140,517,164,518,189,517,242,520,272,528,304,575,422,622,518"/>
+<area shape="rect" id="Node000028" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#ac27f2bd18c833ced31631748c67458a3" title=" " alt="" coords="265,351,462,376"/>
+<area shape="poly" id="edge27_Node000027_Node000028" title=" " alt="" coords="612,522,554,453,517,418,476,390,452,379,454,375,478,385,520,414,558,449,616,518"/>
+<area shape="rect" id="Node000029" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a9e20d4075095de6aa6f34f74b203a493" title=" " alt="" coords="265,597,462,623"/>
+<area shape="poly" id="edge28_Node000027_Node000029" title=" " alt="" coords="522,585,441,599,440,594,521,580"/>
+<area shape="rect" id="Node000030" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="265,647,462,672"/>
+<area shape="poly" id="edge29_Node000027_Node000030" title=" " alt="" coords="574,598,478,638,439,649,438,644,476,633,572,593"/>
+<area shape="rect" id="Node000031" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#af162eb99ecd0ec522c40c28d057ff799" title=" " alt="" coords="265,696,462,722"/>
+<area shape="poly" id="edge30_Node000027_Node000031" title=" " alt="" coords="603,601,546,647,513,669,478,687,449,698,447,693,476,682,510,664,543,642,599,597"/>
+<area shape="rect" id="Node000032" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a55bbf7636623fd2a7f99058f166e8005" title=" " alt="" coords="265,745,462,771"/>
+<area shape="poly" id="edge31_Node000027_Node000032" title=" " alt="" coords="616,603,558,673,520,707,478,736,454,747,452,742,476,732,517,703,554,669,612,600"/>
+<area shape="rect" id="Node000033" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="265,104,462,130"/>
+<area shape="poly" id="edge32_Node000027_Node000033" title=" " alt="" coords="618,520,572,423,522,306,512,257,509,216,502,179,492,161,475,143,460,132,464,128,479,139,496,158,507,177,515,215,517,256,528,304,576,421,622,518"/>
+<area shape="rect" id="Node000034" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="265,795,462,820"/>
+<area shape="poly" id="edge33_Node000027_Node000034" title=" " alt="" coords="625,604,601,648,568,697,527,745,478,786,457,796,455,792,476,781,523,742,564,694,596,645,620,601"/>
+<area shape="rect" id="Node000035" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="265,844,462,870"/>
+<area shape="poly" id="edge34_Node000027_Node000035" title=" " alt="" coords="630,605,609,658,577,721,534,783,508,811,479,835,459,846,457,841,475,831,504,807,530,780,572,718,604,656,625,603"/>
+<area shape="rect" id="Node000036" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="265,893,462,919"/>
+<area shape="poly" id="edge35_Node000027_Node000036" title=" " alt="" coords="634,605,616,668,585,744,564,783,540,820,511,855,479,884,460,895,458,891,475,880,508,851,536,817,560,780,580,742,611,666,629,603"/>
+<area shape="rect" id="Node000037" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#ac277074ea3869a51720dabd9830b0a07" title=" " alt="" coords="265,153,462,179"/>
+<area shape="poly" id="edge36_Node000027_Node000037" title=" " alt="" coords="619,520,523,306,512,271,506,242,497,217,475,192,459,182,462,177,479,188,502,214,511,241,517,270,527,304,624,518"/>
+<area shape="rect" id="Node000038" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="265,400,462,426"/>
+<area shape="poly" id="edge37_Node000027_Node000038" title=" " alt="" coords="599,525,543,479,510,458,476,439,447,429,449,424,478,434,513,453,546,475,603,520"/>
+<area shape="rect" id="Node000039" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a2b4217c715aa6a2bab8967004072d2ae" title=" " alt="" coords="265,449,462,475"/>
+<area shape="poly" id="edge38_Node000027_Node000039" title=" " alt="" coords="572,528,476,489,438,478,439,473,478,484,574,523"/>
+<area shape="rect" id="Node000040" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a77f1f759557467d97e8fb0d39da3db95" title=" " alt="" coords="265,203,462,228"/>
+<area shape="poly" id="edge39_Node000027_Node000040" title=" " alt="" coords="620,520,542,356,502,281,475,241,458,231,460,226,479,238,507,278,547,354,625,518"/>
+<area shape="rect" id="Node000041" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a785ccb6287a8333a942bce8bc2513c00" title=" " alt="" coords="265,252,462,278"/>
+<area shape="poly" id="edge41_Node000027_Node000041" title=" " alt="" coords="625,519,604,466,572,404,530,342,504,315,475,291,457,281,459,276,479,287,508,311,534,339,577,401,609,464,630,517"/>
+<area shape="rect" id="Node000042" href="$dd/d6c/_c_maths_memory_test_8cc.html#a7d9e2f543a1acdf0e079edab6d22a60e" title=" " alt="" coords="265,1961,462,1987"/>
+<area shape="poly" id="edge42_Node000027_Node000042" title=" " alt="" coords="627,604,575,752,549,845,528,941,523,1013,522,1133,524,1455,522,1622,515,1772,502,1887,492,1927,479,1952,463,1965,460,1961,475,1949,487,1925,497,1886,510,1772,516,1622,518,1455,517,1133,518,1012,522,940,543,844,570,750,622,602"/>
+<area shape="rect" id="Node000043" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="265,499,462,524"/>
+<area shape="poly" id="edge43_Node000027_Node000043" title=" " alt="" coords="521,542,440,528,441,522,522,537"/>
+<area shape="rect" id="Node000044" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="265,301,462,327"/>
+<area shape="poly" id="edge44_Node000027_Node000044" title=" " alt="" coords="620,520,596,477,564,428,523,380,476,340,455,330,457,325,478,336,527,376,568,425,601,474,625,518"/>
+<area shape="rect" id="Node000045" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="265,943,462,968"/>
+<area shape="poly" id="edge45_Node000027_Node000045" title=" " alt="" coords="638,605,622,677,593,766,572,813,546,857,515,898,479,934,462,944,459,940,475,929,511,895,542,854,567,810,588,764,617,676,632,604"/>
+<area shape="rect" id="Node000046" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a6671bf65e1b60d9a6db130c124bdc2a0" title=" " alt="" coords="265,548,462,574"/>
+<area shape="poly" id="edge46_Node000027_Node000046" title=" " alt="" coords="521,564,462,564,462,558,521,558"/>
+<area shape="poly" id="edge62_Node000047_Node000014" title=" " alt="" coords="617,1514,571,1417,522,1299,515,1270,512,1243,511,1196,509,1175,504,1154,494,1134,475,1112,461,1101,464,1097,479,1108,498,1131,509,1152,515,1174,516,1196,517,1243,520,1269,528,1297,576,1415,622,1511"/>
+<area shape="poly" id="edge64_Node000047_Node000042" title=" " alt="" coords="618,1597,573,1677,527,1772,519,1799,516,1824,515,1868,513,1889,508,1910,497,1931,479,1952,464,1963,461,1959,475,1948,493,1928,503,1908,508,1888,509,1868,510,1823,514,1798,523,1771,568,1674,613,1594"/>
+<area shape="rect" id="Node000048" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#ac27f2bd18c833ced31631748c67458a3" title=" " alt="" coords="265,1123,462,1148"/>
+<area shape="poly" id="edge48_Node000047_Node000048" title=" " alt="" coords="618,1513,573,1416,522,1299,512,1258,508,1223,499,1192,490,1177,475,1162,460,1151,463,1147,479,1157,494,1174,504,1190,513,1222,517,1257,528,1297,578,1414,623,1511"/>
+<area shape="rect" id="Node000049" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a9e20d4075095de6aa6f34f74b203a493" title=" " alt="" coords="265,1665,462,1691"/>
+<area shape="poly" id="edge49_Node000047_Node000049" title=" " alt="" coords="593,1593,539,1627,478,1657,445,1667,443,1662,476,1652,536,1622,590,1589"/>
+<area shape="rect" id="Node000050" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="265,1715,462,1740"/>
+<area shape="poly" id="edge50_Node000047_Node000050" title=" " alt="" coords="611,1595,553,1653,517,1682,478,1706,451,1717,449,1712,476,1701,514,1678,550,1649,607,1592"/>
+<area shape="rect" id="Node000051" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#aa6f11147e0ec8e890f37a5a70c0fcdcb" title=" " alt="" coords="265,1764,462,1790"/>
+<area shape="poly" id="edge51_Node000047_Node000051" title=" " alt="" coords="621,1597,596,1635,564,1678,524,1720,478,1755,456,1766,453,1761,476,1751,521,1716,560,1675,592,1632,617,1594"/>
+<area shape="rect" id="Node000052" href="$d1/d27/_c_prior_test_8cc.html#a1c84e3447139da8e30194d4cd171d188" title=" " alt="" coords="265,1813,462,1839"/>
+<area shape="poly" id="edge52_Node000047_Node000052" title=" " alt="" coords="628,1598,605,1646,573,1703,531,1758,506,1783,478,1804,458,1815,455,1811,476,1800,502,1779,527,1755,568,1700,600,1644,623,1595"/>
+<area shape="rect" id="Node000053" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#af162eb99ecd0ec522c40c28d057ff799" title=" " alt="" coords="265,1863,462,1888"/>
+<area shape="poly" id="edge53_Node000047_Node000053" title=" " alt="" coords="622,1596,536,1753,479,1853,460,1864,457,1860,475,1850,532,1751,617,1594"/>
+<area shape="rect" id="Node000054" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a55bbf7636623fd2a7f99058f166e8005" title=" " alt="" coords="265,1912,462,1938"/>
+<area shape="poly" id="edge54_Node000047_Node000054" title=" " alt="" coords="619,1597,575,1677,527,1772,516,1810,512,1843,503,1873,493,1888,479,1903,463,1914,460,1909,475,1899,489,1884,498,1870,506,1842,511,1809,523,1771,570,1675,615,1594"/>
+<area shape="rect" id="Node000055" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="265,1172,462,1198"/>
+<area shape="poly" id="edge55_Node000047_Node000055" title=" " alt="" coords="620,1513,537,1332,497,1249,475,1211,458,1200,461,1196,479,1207,502,1247,542,1329,625,1511"/>
+<area shape="rect" id="Node000056" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="265,1369,462,1395"/>
+<area shape="poly" id="edge56_Node000047_Node000056" title=" " alt="" coords="606,1516,549,1460,514,1432,476,1409,449,1398,451,1393,478,1404,517,1427,553,1456,610,1513"/>
+<area shape="rect" id="Node000057" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="265,1419,462,1444"/>
+<area shape="poly" id="edge57_Node000047_Node000057" title=" " alt="" coords="589,1520,536,1487,476,1458,443,1447,444,1442,478,1453,538,1482,592,1515"/>
+<area shape="rect" id="Node000058" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="265,1468,462,1494"/>
+<area shape="poly" id="edge58_Node000047_Node000058" title=" " alt="" coords="536,1524,476,1507,431,1497,433,1492,478,1502,538,1519"/>
+<area shape="rect" id="Node000059" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#ac277074ea3869a51720dabd9830b0a07" title=" " alt="" coords="265,1221,462,1247"/>
+<area shape="poly" id="edge59_Node000047_Node000059" title=" " alt="" coords="627,1512,607,1454,576,1385,532,1317,506,1287,475,1260,457,1250,460,1245,479,1256,509,1283,537,1314,581,1383,612,1452,632,1510"/>
+<area shape="rect" id="Node000060" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#ac0dfc8e2021da3a34a0dbda966c14405" title=" " alt="" coords="265,1517,462,1543"/>
+<area shape="poly" id="edge60_Node000047_Node000060" title=" " alt="" coords="531,1547,461,1541,462,1536,532,1542"/>
+<area shape="rect" id="Node000061" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="265,1567,462,1592"/>
+<area shape="poly" id="edge61_Node000047_Node000061" title=" " alt="" coords="532,1567,462,1573,461,1568,531,1562"/>
+<area shape="rect" id="Node000062" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a785ccb6287a8333a942bce8bc2513c00" title=" " alt="" coords="265,1271,462,1296"/>
+<area shape="poly" id="edge63_Node000047_Node000062" title=" " alt="" coords="623,1513,600,1465,568,1409,526,1355,502,1331,476,1310,455,1299,458,1294,478,1305,506,1327,530,1351,573,1406,605,1462,628,1511"/>
+<area shape="rect" id="Node000063" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="265,1616,462,1642"/>
+<area shape="poly" id="edge65_Node000047_Node000063" title=" " alt="" coords="541,1589,478,1607,433,1618,431,1613,476,1602,539,1584"/>
+<area shape="rect" id="Node000064" href="$d4/dad/_c_normal_mean_prec_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="265,1320,462,1346"/>
+<area shape="poly" id="edge66_Node000047_Node000064" title=" " alt="" coords="616,1515,592,1476,559,1434,520,1393,476,1359,453,1349,456,1344,478,1355,524,1389,563,1431,596,1473,621,1512"/>
+<area shape="poly" id="edge68_Node000069_Node000016" title=" " alt="" coords="255,2409,202,2417,201,2411,254,2404"/>
+<area shape="poly" id="edge72_Node000085_Node000018" title=" " alt="" coords="546,1928,527,1940,512,1955,504,1971,495,1987,478,2002,456,2013,454,2008,476,1997,491,1983,499,1968,508,1952,523,1936,543,1923"/>
+<area shape="poly" id="edge73_Node000085_Node000042" title=" " alt="" coords="555,1928,478,1953,435,1963,434,1958,476,1948,553,1923"/>
+<area shape="poly" id="edge70_Node000085_Node000086" title=" " alt="" coords="562,1928,527,1952,516,1966,509,1979,504,2006,498,2034,491,2049,479,2063,450,2082,447,2078,475,2059,487,2046,493,2032,499,2005,504,1977,511,1963,523,1948,559,1924"/>
+<area shape="poly" id="edge71_Node000086_Node000085" title=" " alt="" coords="451,2052,475,2035,487,2022,493,2008,499,1981,504,1953,511,1939,523,1924,556,1902,559,1906,527,1928,516,1942,509,1955,504,1982,498,2010,491,2025,479,2039,454,2056"/>
+<area shape="poly" id="edge85_Node000190_Node000086" title=" " alt="" coords="538,2050,449,2071,448,2066,536,2045"/>
+<area shape="poly" id="edge93_Node000197_Node000028" title=" " alt="" coords="574,302,478,342,439,353,438,348,476,337,572,297"/>
+<area shape="poly" id="edge94_Node000197_Node000033" title=" " alt="" coords="586,230,523,184,500,162,476,143,449,133,451,128,478,139,504,158,527,180,589,226"/>
+<area shape="poly" id="edge95_Node000197_Node000037" title=" " alt="" coords="572,232,476,193,438,182,439,177,478,188,574,227"/>
+<area shape="poly" id="edge96_Node000197_Node000040" title=" " alt="" coords="521,246,440,232,441,226,522,241"/>
+<area shape="poly" id="edge97_Node000197_Node000041" title=" " alt="" coords="521,268,462,268,462,262,521,262"/>
+<area shape="poly" id="edge98_Node000197_Node000044" title=" " alt="" coords="522,289,441,303,440,298,521,284"/>
+<area shape="poly" id="edge102_Node000204_Node000048" title=" " alt="" coords="589,1224,536,1191,476,1162,443,1151,444,1146,478,1157,538,1186,592,1219"/>
+<area shape="poly" id="edge103_Node000204_Node000055" title=" " alt="" coords="536,1228,476,1211,431,1201,433,1196,478,1206,538,1223"/>
+<area shape="poly" id="edge104_Node000204_Node000059" title=" " alt="" coords="531,1251,461,1245,462,1240,532,1246"/>
+<area shape="poly" id="edge105_Node000204_Node000062" title=" " alt="" coords="532,1271,462,1277,461,1272,531,1266"/>
+<area shape="poly" id="edge106_Node000204_Node000064" title=" " alt="" coords="541,1293,478,1311,433,1322,431,1317,476,1306,539,1288"/>
+<area shape="poly" id="edge113_Node000215_Node000045" title=" " alt="" coords="521,972,462,967,462,962,521,967"/>
+<area shape="poly" id="edge119_Node000222_Node000086" title=" " alt="" coords="538,2100,448,2096,448,2090,538,2095"/>
+<area shape="poly" id="edge122_Node000224_Node000069" title=" " alt="" coords="526,2361,457,2375,456,2370,525,2356"/>
+</map>

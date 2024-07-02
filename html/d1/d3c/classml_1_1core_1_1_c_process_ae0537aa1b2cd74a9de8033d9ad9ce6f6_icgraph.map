@@ -1,0 +1,38 @@
+<map id="ml::core::CProcess::instance" name="ml::core::CProcess::instance">
+<area shape="rect" id="Node000001" title="Access to singleton." alt="" coords="881,114,1015,155"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="983,101,970,95,948,92,928,94,915,99,911,105,913,113,907,114,905,104,912,95,926,89,948,87,971,90,985,96"/>
+<area shape="rect" id="Node000002" href="$d1/d60/_c_command_processor_test_8cc.html#af0c36ab9201f4f97e26ffd8515397296" title=" " alt="" coords="636,23,833,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="907,106,871,83,832,62,802,52,804,46,834,57,874,78,910,102"/>
+<area shape="rect" id="Node000003" href="$dd/d33/_c_process_test_8cc.html#a3b1341b73f825a83691b7f29d62a387a" title=" " alt="" coords="636,72,833,98"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="865,118,793,101,794,96,866,113"/>
+<area shape="rect" id="Node000004" href="$d9/d56/bin_2controller_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Controller to start other ML processes." alt="" coords="710,121,759,147"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="865,137,759,137,759,132,865,132"/>
+<area shape="rect" id="Node000005" href="$d2/d09/_main_for_services_8h.html#a0ddf1224851353fc92bfbff6f499fa97" title="Boilerplate implentation of the main() function for applications that mayneed to be run as a Windows ..." alt="" coords="710,171,759,196"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="866,156,760,181,759,175,865,151"/>
+<area shape="rect" id="Node000006" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="668,221,801,261"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="908,166,873,190,834,211,802,224,800,219,832,206,870,185,905,162"/>
+<area shape="rect" id="Node000007" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a22aa1a9b718cf54a4332c50eb5d705da" title=" " alt="" coords="382,5,578,31"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="652,224,634,211,619,189,612,167,611,125,609,83,602,64,586,44,572,34,575,29,590,40,607,61,615,82,616,124,617,166,624,187,638,207,655,220"/>
+<area shape="rect" id="Node000008" href="$d4/d7c/_c_anomaly_job_test_8cc.html#a9e1f8accc853a42a4bb11f9d4b96a0b9" title=" " alt="" coords="382,55,578,80"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="652,224,635,211,622,196,615,180,610,150,606,121,599,107,587,94,571,83,573,79,590,89,603,104,611,119,616,149,620,179,626,193,638,207,655,219"/>
+<area shape="rect" id="Node000009" href="$d2/d06/_c_boosted_tree_test_8cc.html#a55781e4752c1920382c3b222b3671d88" title=" " alt="" coords="382,104,578,130"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="652,222,635,211,618,193,610,175,602,159,587,143,566,133,569,128,590,139,607,155,615,173,623,190,638,207,655,217"/>
+<area shape="rect" id="Node000010" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a61f30cdbee8cefe63c804f375a4d0973" title=" " alt="" coords="382,153,578,179"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="653,218,635,211,588,193,548,182,549,177,589,188,637,206,655,213"/>
+<area shape="rect" id="Node000011" href="$d9/d0c/_c_logger_test_8cc.html#a13e35836600091d9541185be0a021fdb" title=" " alt="" coords="371,203,588,228"/>
+<area shape="poly" id="edge11_Node000006_Node000011" title=" " alt="" coords="652,235,588,229,589,224,653,230"/>
+<area shape="rect" id="Node000012" href="$d0/df6/_c_program_counters_test_8cc.html#a8f4588c3d076bce15a974c794f97f7cb" title=" " alt="" coords="371,252,588,278"/>
+<area shape="poly" id="edge12_Node000006_Node000012" title=" " alt="" coords="653,251,589,257,588,252,652,246"/>
+<area shape="rect" id="Node000013" href="$d9/d0c/_c_logger_test_8cc.html#a64d26afee452e6cd48d4ca6cb3dffc64" title=" " alt="" coords="371,301,588,327"/>
+<area shape="poly" id="edge13_Node000006_Node000013" title=" " alt="" coords="663,269,589,293,547,303,546,298,588,288,662,264"/>
+<area shape="rect" id="Node000014" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#afd62b4d29b2cfa2bdb4fe213e6ded5c6" title="Constructor for a singleton is private." alt="" coords="413,351,546,392"/>
+<area shape="poly" id="edge14_Node000006_Node000014" title=" " alt="" coords="697,273,648,309,589,342,548,358,546,353,587,337,645,304,694,269"/>
+<area shape="rect" id="Node000015" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a87cb3473ef9f7e5ae4a372be02f056d8" title="Helper for other reconfiguration methods." alt="" coords="398,417,561,457"/>
+<area shape="poly" id="edge15_Node000006_Node000015" title=" " alt="" coords="714,276,662,342,628,376,590,406,563,419,561,415,587,401,625,372,658,338,710,272"/>
+<area shape="rect" id="Node000018" href="$d9/d9e/classanonymous__namespace_02_c_logger_test_8cc_03_1_1_c_test_fixture.html#aa36507f08572437801e5f905447b8020" title=" " alt="" coords="376,481,584,537"/>
+<area shape="poly" id="edge18_Node000006_Node000018" title=" " alt="" coords="722,277,702,320,673,372,636,425,590,471,573,483,570,478,587,467,631,422,668,370,697,318,717,274"/>
+<area shape="rect" id="Node000016" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a184001083a9acfc742e5fc48c92b70c0" title=" " alt="" coords="187,417,323,457"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="382,440,323,440,323,434,382,434"/>
+<area shape="rect" id="Node000017" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a51c7c58bb9b9355b36f79d0881658c82" title=" " alt="" coords="5,417,139,457"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="171,440,139,440,139,434,171,434"/>
+</map>

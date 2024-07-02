@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::swap" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of two bucketing objects." alt="" coords="5,14,217,70"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a85cb234aec56c89b52edf564c5a2e2ed" title="Efficiently swap the contents of two bucketing objects." alt="" coords="265,22,452,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,40,249,40,249,45,217,45"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="500,29,578,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,40,484,40,484,45,452,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="509,30,503,21,506,11,519,5,539,3,561,5,573,12,570,16,559,10,539,8,520,10,510,15,508,20,513,28"/>
+</map>

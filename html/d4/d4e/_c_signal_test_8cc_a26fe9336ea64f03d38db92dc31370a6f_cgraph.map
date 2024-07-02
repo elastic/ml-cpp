@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,146,202,172"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a395c664814fb97af115aa71ef2b985d5" title=" " alt="" coords="265,81,420,122"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,143,249,121,251,126,161,148"/>
+<area shape="rect" id="Node000004" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a142cdd074a53c9767fbdc99e820c3208" title=" " alt="" coords="499,136,653,177"/>
+<area shape="poly" id="edge12_Node000001_Node000004" title=" " alt="" coords="202,156,483,154,483,160,202,161"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,197,435,238"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="160,170,242,190,241,196,158,175"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="298,81,296,71,303,62,319,57,342,55,368,57,382,63,380,68,366,62,342,60,320,62,307,67,301,73,304,80"/>
+<area shape="rect" id="Node000003" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a186d572e4b8e600162833b1d2c2e0b47" title="Compute the Hadamard product of fx and fy." alt="" coords="499,5,653,46"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="406,78,496,49,497,54,408,83"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="400,120,484,141,483,146,398,125"/>
+<area shape="rect" id="Node000007" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#ab1ff99bf159b9988d30f115f34a3a933" title=" " alt="" coords="492,71,660,111"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="420,95,476,93,476,98,420,101"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="518,138,434,117,435,112,520,133"/>
+<area shape="rect" id="Node000005" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#ac7ad188bc6d92945541cc2abe5f6e7be" title="Compute the conjugate of f." alt="" coords="716,95,871,135"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="653,139,700,130,701,135,654,144"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="756,184,831,209"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="654,168,741,184,740,189,653,173"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="757,185,750,175,754,165,769,159,794,157,820,160,834,166,831,171,819,165,793,162,770,164,758,169,755,174,762,181"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,201,668,242"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="436,217,467,217,467,222,435,222"/>
+</map>

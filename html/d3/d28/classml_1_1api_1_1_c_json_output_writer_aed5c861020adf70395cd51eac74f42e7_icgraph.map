@@ -1,0 +1,13 @@
+<map id="ml::api::CJsonOutputWriter::limitNumberRecords" name="ml::api::CJsonOutputWriter::limitNumberRecords">
+<area shape="rect" id="Node000001" title=" " alt="" coords="496,55,675,96"/>
+<area shape="rect" id="Node000002" href="$d8/dc0/_c_json_output_writer_test_8cc.html#a8a9de054f7d982129bea9300da31a3cf" title=" " alt="" coords="251,5,447,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="484,54,404,34,406,29,485,48"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2e4b68625f7ef27e4dcce8a0377d1511" title=" " alt="" coords="274,55,424,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="480,78,424,78,424,73,480,73"/>
+<area shape="rect" id="Node000004" href="$dd/d5a/namespaceanonymous__namespace_02_c_json_output_writer_test_8cc_03.html#a02f4a5cc8573d63394152ba35a2ab78e" title=" " alt="" coords="250,120,448,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="510,104,449,124,448,119,508,99"/>
+<area shape="rect" id="Node000005" href="$d8/dc0/_c_json_output_writer_test_8cc.html#a21dd18c962b3c436a79fafcf5d9ebf70" title=" " alt="" coords="5,117,202,143"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,146,202,143,202,138,234,141"/>
+<area shape="rect" id="Node000006" href="$d8/dc0/_c_json_output_writer_test_8cc.html#aaececfea90f9b46784098c92d2b7dc33" title=" " alt="" coords="5,167,202,192"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="234,169,202,173,202,167,234,164"/>
+</map>

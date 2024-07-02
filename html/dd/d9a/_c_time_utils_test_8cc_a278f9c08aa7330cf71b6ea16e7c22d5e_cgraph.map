@@ -1,0 +1,19 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,202,118"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#af5dc9b5d3ef8f09dd2808fce728eaa08" title=" " alt="" coords="250,85,452,125"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,102,234,102,234,108,202,108"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="516,5,665,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,82,499,41,523,33,525,38,501,46,399,87"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="517,55,664,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="452,90,501,84,502,89,453,95"/>
+<area shape="rect" id="Node000005" href="$dd/dea/classml_1_1core_1_1_c_regex.html#accf2085b2c74e7d8b0c771c5677f50c5" title=" " alt="" coords="500,120,681,146"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="453,114,485,118,484,123,452,119"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#afe172d321b5ba2b6c5e67144455b86b2" title="Convert a string to lower case." alt="" coords="517,170,664,211"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="411,123,501,156,518,162,516,167,499,161,409,128"/>
+<area shape="rect" id="Node000006" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="729,95,912,120"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="681,120,714,117,714,122,682,125"/>
+<area shape="rect" id="Node000007" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="960,120,1107,146"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="682,130,944,130,944,136,682,136"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="785,96,778,86,782,76,797,70,821,68,847,71,860,78,857,82,845,76,820,73,798,75,786,80,783,85,789,93"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="913,116,945,120,944,125,912,121"/>
+</map>

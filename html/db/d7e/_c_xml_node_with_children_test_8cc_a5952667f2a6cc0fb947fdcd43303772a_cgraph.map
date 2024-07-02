@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,124,202,149"/>
+<area shape="rect" id="Node000002" href="$d1/d16/classml_1_1core_1_1_c_xml_node_with_children.html#abe9fa1db897d07f2623aa6b1d572df6b" title="Add a child with no children of its own." alt="" coords="250,5,465,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,121,180,89,249,57,268,49,270,54,251,61,183,94,128,125"/>
+<area shape="rect" id="Node000003" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#a1d7f245b0efe73b94b93ec1e512e676a" title=" " alt="" coords="287,71,428,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,120,271,104,272,109,180,125"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a58bad4787f00d61ecdcab48d074a8cd4" title=" " alt="" coords="284,160,431,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,147,269,162,268,168,181,152"/>
+<area shape="rect" id="Node000005" href="$d1/d16/classml_1_1core_1_1_c_xml_node_with_children.html#a1c9c73674e0e06dcefe158d66de7db6c" title="Debug dump of hierarchy." alt="" coords="250,249,465,290"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="131,147,305,239,302,244,129,152"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="310,160,307,150,315,141,332,135,357,133,385,136,401,142,399,147,383,141,357,139,333,141,318,145,313,151,315,159"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="310,249,307,239,315,230,332,225,357,223,385,225,401,231,399,236,383,230,357,228,333,230,318,235,313,241,315,248"/>
+</map>

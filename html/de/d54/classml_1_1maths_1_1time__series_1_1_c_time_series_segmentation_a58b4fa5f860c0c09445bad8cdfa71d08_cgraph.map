@@ -1,0 +1,22 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::selectSegmentation" name="ml::maths::time_series::CTimeSeriesSegmentation::selectSegmentation">
+<area shape="rect" id="Node000001" title="Choose the final segmentation we&#39;ll use." alt="" coords="5,95,191,150"/>
+<area shape="rect" id="Node000002" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="260,29,441,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,96,244,82,245,87,192,101"/>
+<area shape="rect" id="Node000005" href="$db/dc5/namespaceml_1_1core.html#a2b5881ff0585e795579611e3a7f2707a" title="Make a vector subrange." alt="" coords="277,110,424,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="191,120,261,120,261,125,191,125"/>
+<area shape="rect" id="Node000006" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#aaf1103e5c428d67f245c11be5ee75024" title=" " alt="" coords="239,160,462,200"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="192,141,243,153,242,158,191,146"/>
+<area shape="rect" id="Node000003" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="510,29,691,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,55,494,55,494,60,441,60"/>
+<area shape="rect" id="Node000004" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="739,29,921,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="692,55,724,55,724,60,692,60"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="795,29,795,19,801,10,813,5,830,3,849,5,861,12,858,17,847,10,830,8,815,10,805,14,800,21,800,29"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="513,143,689,169"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="462,166,497,163,497,168,463,172"/>
+<area shape="rect" id="Node000009" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="969,170,1047,195"/>
+<area shape="poly" id="edge11_Node000006_Node000009" title=" " alt="" coords="462,180,675,183,921,183,953,182,953,187,921,188,675,188,462,185"/>
+<area shape="rect" id="Node000008" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="745,133,915,174"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="689,152,730,152,730,157,689,157"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="916,165,953,171,953,176,915,170"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="978,171,972,161,975,151,988,145,1008,143,1029,146,1041,152,1038,157,1028,151,1008,148,989,150,979,155,977,160,982,168"/>
+</map>

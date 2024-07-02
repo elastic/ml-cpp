@@ -1,0 +1,5 @@
+<map id="ml::model::CHierarchicalResults" name="ml::model::CHierarchicalResults">
+<area shape="rect" id="Node000001" title="Represents the bucket result of running a full analysis." alt="" coords="9,94,175,135"/>
+<area shape="rect" id="Node000002" href="$d6/d9a/classml_1_1model__t_1_1_c_result_type.html" title="Describes the result type." alt="" coords="5,5,179,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,46,95,93,89,93,89,46"/>
+</map>

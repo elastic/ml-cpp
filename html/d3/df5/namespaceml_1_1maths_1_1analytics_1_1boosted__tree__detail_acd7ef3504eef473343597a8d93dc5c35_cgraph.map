@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree_detail::missingSplit" name="ml::maths::analytics::boosted_tree_detail::missingSplit">
+<area shape="rect" id="Node000001" title="Get the split used for storing missing values." alt="" coords="5,5,148,61"/>
+<area shape="rect" id="Node000002" href="$de/d65/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_search_tree.html#ada369ef4953c0250107dfde868481a62" title="Get the number of items in the set." alt="" coords="196,5,338,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,31,180,31,180,36,148,36"/>
+</map>

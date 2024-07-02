@@ -1,0 +1,9 @@
+<map id="ml::model::CSampleQueue::SSubSample::acceptRestoreTraverser" name="ml::model::CSampleQueue::SSubSample::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore from a state document." alt="" coords="476,35,729,75"/>
+<area shape="rect" id="Node000002" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a4038d37803356a616d916f54776c89ec" title="Restore by getting information from the state document traverser." alt="" coords="250,35,428,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,58,429,58,429,52,460,52"/>
+<area shape="rect" id="Node000003" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#acb986ed2182f4aca7213a7cad5919c2f" title="Create from part of a state document." alt="" coords="8,5,199,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,45,199,40,199,35,235,39"/>
+<area shape="rect" id="Node000004" href="$d5/df7/_c_sample_queue_test_8cc.html#a198486660676a176453a9cfe2c6324c6" title=" " alt="" coords="5,70,202,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="235,70,203,74,202,69,234,65"/>
+</map>

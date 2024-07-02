@@ -1,0 +1,20 @@
+<map id="ml::api::CResultNormalizer" name="ml::api::CResultNormalizer">
+<area shape="rect" id="Node000001" title="Create normalized anomaly scores." alt="" coords="1092,88,1272,113"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html" title="Responsible for configuring anomaly detection models." alt="" coords="418,5,615,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="631,31,835,50,1069,78,1110,84,1109,89,1068,83,834,55,630,37"/>
+<area shape="rect" id="Node000004" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html" title="A collection of normalizers for some hierarchical results." alt="" coords="771,80,936,121"/>
+<area shape="poly" id="edge9_Node000004_Node000002" title=" " alt="" coords="601,48,640,58,771,84,770,90,638,63,600,53"/>
+<area shape="rect" id="Node000003" href="$df/d34/classml_1_1api_1_1_c_simple_output_writer.html" title="Interface for simple output of homogenous key/value pairs." alt="" coords="758,145,949,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="948,139,1068,118,1106,111,1107,116,1069,123,949,144"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="952,98,1092,98,1092,103,952,103"/>
+<area shape="rect" id="Node000005" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="419,70,614,141"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="630,101,770,99,771,104,630,107"/>
+<area shape="rect" id="Node000006" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="49,28,215,69"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="230,59,394,83,419,87,418,92,393,88,229,64"/>
+<area shape="rect" id="Node000007" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title="A space efficient representation of a dictionary." alt="" coords="5,93,259,119"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="274,103,418,103,418,108,274,108"/>
+<area shape="rect" id="Node000008" href="$dd/d46/structml_1_1model_1_1hierarchical__results__normalizer__detail_1_1_s_normalizer.html" title="A normalizer instance and a descriptive string." alt="" coords="46,143,218,199"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="233,151,418,120,419,125,234,156"/>
+<area shape="rect" id="Node000009" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="434,165,599,191"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="590,158,770,117,771,122,591,163"/>
+</map>

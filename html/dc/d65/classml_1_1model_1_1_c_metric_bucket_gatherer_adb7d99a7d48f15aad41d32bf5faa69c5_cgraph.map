@@ -1,0 +1,7 @@
+<map id="ml::model::CMetricBucketGatherer::resize" name="ml::model::CMetricBucketGatherer::resize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,179,79"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="227,5,401,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,43,211,38,212,44,180,49"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abd172e8c2863d4cac01520e48fe7ed07" title="Get the sample counts." alt="" coords="227,71,401,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,69,212,74,211,79,179,74"/>
+</map>

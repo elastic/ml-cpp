@@ -1,0 +1,6 @@
+<map id="ml::model::hierarchical_results_detail::SNode::propagateFields" name="ml::model::hierarchical_results_detail::SNode::propagateFields">
+<area shape="rect" id="Node000001" title="Propagate consistent field names and values from the nodes children." alt="" coords="277,37,430,93"/>
+<area shape="rect" id="Node000002" href="$d2/d61/namespaceml_1_1model_1_1hierarchical__results__detail_1_1anonymous__namespace_02_c_hierarchical_results_8cc_03.html#a5e34263c4b642a7a45c55ed9fe944993" title="Aggregate the nodes in a layer." alt="" coords="5,29,229,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="261,67,229,67,229,62,261,62"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="154,18,140,11,117,8,98,10,84,14,77,21,75,29,70,28,73,18,82,10,97,5,117,3,141,5,156,13"/>
+</map>

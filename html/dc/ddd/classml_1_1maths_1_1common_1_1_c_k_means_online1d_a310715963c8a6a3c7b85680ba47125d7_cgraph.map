@@ -1,0 +1,4 @@
+<map id="ml::maths::common::CKMeansOnline1d::decayRate" name="ml::maths::common::CKMeansOnline1d::decayRate">
+<area shape="rect" id="Node000001" title="Set the rate at which information is aged out." alt="" coords="5,29,207,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="68,29,66,19,72,10,86,5,106,3,128,5,141,11,139,16,126,10,106,8,87,10,75,15,71,20,73,28"/>
+</map>

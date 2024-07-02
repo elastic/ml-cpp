@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,181,202,207"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a3ea9eae87751ba58e0d185105ee1b5fe" title=" " alt="" coords="294,29,440,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,178,171,130,208,103,248,79,278,67,281,72,251,84,211,107,175,134,120,182"/>
+<area shape="rect" id="Node000003" href="$d7/db8/classanonymous__namespace_02_c_k_means_test_8cc_03_1_1_c_centre_filter_checker.html#a65befc1493b19c1a7c43b9974a55f08f" title=" " alt="" coords="250,94,484,150"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="153,178,247,152,249,157,154,183"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="274,173,460,214"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="202,191,259,191,259,196,202,196"/>
+<area shape="rect" id="Node000006" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a2edb4631ca5869b569b972d0a4b3365e" title=" " alt="" coords="269,263,465,303"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="145,205,291,255,289,260,143,210"/>
+<area shape="rect" id="Node000007" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a5d18de8837c49ef82c77e00ba074e300" title=" " alt="" coords="272,352,462,393"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="120,205,175,255,251,313,305,343,302,347,248,317,172,259,117,209"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="319,29,316,19,324,10,341,5,367,3,395,5,411,11,409,16,393,10,367,8,342,10,327,15,321,21,324,28"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="532,173,717,214"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="460,191,517,191,517,196,460,196"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="319,263,316,253,324,244,341,238,367,236,395,238,411,245,409,250,393,244,367,241,342,243,327,248,321,254,324,261"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="319,352,316,342,324,333,341,327,367,325,395,328,411,334,409,339,393,333,367,331,342,333,327,337,321,343,324,351"/>
+</map>

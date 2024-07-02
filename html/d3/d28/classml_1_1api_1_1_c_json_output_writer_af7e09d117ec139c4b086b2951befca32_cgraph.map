@@ -1,0 +1,12 @@
+<map id="ml::api::CJsonOutputWriter::addInfluencerFields" name="ml::api::CJsonOutputWriter::addInfluencerFields">
+<area shape="rect" id="Node000001" title="Add the influencer fields to the doc." alt="" coords="5,71,185,111"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa83f6b8bf6f7cbeecdd920880a43afab" title=" " alt="" coords="245,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,68,243,48,244,53,173,73"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ac40688d77c7e2cb06f91410e15377644" title=" " alt="" coords="233,71,440,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,88,217,88,217,94,185,94"/>
+<area shape="rect" id="Node000005" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="260,135,413,191"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="166,109,245,133,244,138,165,114"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="488,39,670,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="429,36,473,42,472,47,428,41"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="440,75,472,70,473,76,441,80"/>
+</map>

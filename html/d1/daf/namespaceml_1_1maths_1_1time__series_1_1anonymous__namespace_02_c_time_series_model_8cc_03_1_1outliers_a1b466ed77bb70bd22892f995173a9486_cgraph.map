@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::anonymous_namespace{CTimeSeriesModel::cc}::outliers::weight" name="ml::maths::time_series::anonymous_namespace{CTimeSeriesModel::cc}::outliers::weight">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,89,176,160"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="43,88,45,78,55,70,70,65,91,63,115,65,131,73,128,78,114,71,90,68,71,70,57,74,50,81,48,89"/>
+<area shape="rect" id="Node000002" href="$d1/daf/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_time_series_model_8cc_03_1_1outliers.html#a8d0ef766143a1e812fa84f4ffe3c1e70" title="Compute the one tail p&#45;value of value." alt="" coords="246,29,417,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,101,231,87,232,92,177,106"/>
+<area shape="rect" id="Node000005" href="$d1/daf/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_time_series_model_8cc_03_1_1outliers.html#a6b4b7f5a6a062750568438f993cbeec5" title="Derate the minimum outlier weight." alt="" coords="224,148,439,219"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="177,143,209,151,208,156,175,148"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="284,28,286,18,295,10,310,5,331,3,356,5,371,13,369,18,355,11,331,8,312,10,298,14,291,21,289,29"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a34df96d6ecba9a002f6bede21255f172" title=" " alt="" coords="524,12,695,53"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="417,52,508,42,509,47,417,58"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a2644ca70d842a56ee28f5fe10855c95c" title=" " alt="" coords="487,78,732,118"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="417,72,472,79,471,84,417,77"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="284,147,286,137,295,129,310,123,331,121,356,124,371,131,369,136,355,129,331,127,312,128,298,133,291,140,289,148"/>
+</map>

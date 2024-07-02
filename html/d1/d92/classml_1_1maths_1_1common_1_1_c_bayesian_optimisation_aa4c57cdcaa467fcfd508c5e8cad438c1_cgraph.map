@@ -1,0 +1,20 @@
+<map id="ml::maths::common::CBayesianOptimisation::anovaMainEffect" name="ml::maths::common::CBayesianOptimisation::anovaMainEffect">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,223,164,278"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab632e8fd2b6bf043ed7726e3a6c48668" title="Get the constant factor of the ANOVA decomposition of the Gaussian process." alt="" coords="212,189,370,245"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,235,196,230,197,235,164,240"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="838,229,983,270"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="164,253,212,255,497,260,783,255,823,253,823,258,783,260,497,265,212,260,164,258"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="250,189,251,179,258,170,271,165,291,163,313,165,326,172,324,177,311,170,291,168,273,170,261,175,256,181,255,189"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#aa56e37b0e1538d1963615b9e9189c3cd" title=" " alt="" coords="418,137,576,193"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="370,195,402,186,404,191,371,200"/>
+<area shape="rect" id="Node000004" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="624,85,783,141"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="576,143,609,134,610,139,577,148"/>
+<area shape="rect" id="Node000005" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="624,189,783,245"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="577,183,610,191,609,196,576,188"/>
+<area shape="rect" id="Node000007" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="624,5,783,61"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="532,135,623,71,630,67,632,71,626,75,535,139"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="663,189,663,179,671,170,684,165,704,163,725,165,739,172,736,177,724,170,703,168,685,170,674,175,668,181,668,189"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="784,227,823,233,822,238,783,232"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="831,13,990,54"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="783,31,815,31,815,36,783,36"/>
+</map>

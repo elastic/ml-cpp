@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::setToNonInformative" name="ml::maths::common::CLogNormalMeanPrecConjugate::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,142,218,198"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="564,5,709,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,139,547,47,549,52,217,144"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa9e2bdebb6a033925f6fe61c2c4e57e0" title=" " alt="" coords="266,142,478,198"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,167,250,167,250,172,218,172"/>
+<area shape="rect" id="Node000007" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a649d7f5cf38ff01ca9618e0aa2602f3a" title=" " alt="" coords="530,294,742,350"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="211,196,523,286,522,292,210,201"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="403,139,458,96,525,55,548,45,550,50,527,60,461,101,407,143"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa5c96a794a387e6c36a548be90adbd70" title=" " alt="" coords="526,70,746,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="476,139,516,128,518,133,477,144"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="564,149,709,190"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="478,167,548,167,548,172,478,172"/>
+<area shape="rect" id="Node000006" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a54f917af2e603edfa54be613056c4265" title="Get the current offset." alt="" coords="530,214,742,270"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="477,196,518,207,516,212,476,201"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="408,196,462,238,527,279,537,285,535,289,525,284,459,242,404,200"/>
+</map>

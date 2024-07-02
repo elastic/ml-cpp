@@ -1,0 +1,8 @@
+<map id="ml::maths::common::swap" name="ml::maths::common::swap">
+<area shape="rect" id="Node000001" title="Free swap picked up by std:: algorithms etc." alt="" coords="5,29,182,55"/>
+<area shape="rect" id="Node000002" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="230,22,399,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,40,214,40,214,45,182,45"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="447,29,525,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,40,431,40,431,45,399,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="457,30,451,21,455,11,467,5,486,3,507,5,518,12,515,16,505,10,486,8,468,10,459,15,457,20,462,28"/>
+</map>

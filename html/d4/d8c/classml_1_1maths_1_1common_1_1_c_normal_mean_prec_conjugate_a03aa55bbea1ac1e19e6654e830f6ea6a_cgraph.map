@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::probabilityOfLessLikelySamples" name="ml::maths::common::CNormalMeanPrecConjugate::probabilityOfLessLikelySamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,89,221,144"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="270,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,85,290,49,292,54,193,90"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="551,103,696,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,107,269,106,364,103,460,106,535,111,535,116,460,111,364,109,269,111,221,113"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="269,121,460,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="222,127,254,132,253,137,221,133"/>
+<area shape="rect" id="Node000005" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a06f43db6da759e71f00c4953c054205e" title="Get the mean of the marginal likelihood function." alt="" coords="269,201,460,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,142,270,186,283,192,280,196,268,191,173,147"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="434,198,557,147,559,152,436,202"/>
+<area shape="rect" id="Node000006" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="508,208,739,249"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="461,226,492,226,492,231,461,231"/>
+</map>

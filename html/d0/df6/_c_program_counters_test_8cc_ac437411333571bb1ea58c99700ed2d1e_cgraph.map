@@ -1,0 +1,20 @@
+<map id="persist" name="persist">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,124,66,149"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a80c1d35799ce21207c0bd98eafa8ea22" title="Copy the collection of live counters to a cache." alt="" coords="117,5,305,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="45,121,73,89,112,57,123,51,125,55,115,61,77,93,49,125"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#ad956a15161016f02afbf6d16025bb823" title=" " alt="" coords="117,71,305,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="65,126,115,113,116,118,67,131"/>
+<area shape="rect" id="Node000004" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a4ca628e01e5053d4d8dc9db65dc1ee80" title="Persist the static members of this class." alt="" coords="114,160,308,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="67,141,113,153,112,158,65,146"/>
+<area shape="rect" id="Node000008" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="124,249,298,290"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="50,148,79,178,115,210,158,239,155,244,112,214,75,182,47,152"/>
+<area shape="poly" id="edge8_Node000004_Node000004" title=" " alt="" coords="177,160,176,150,181,141,193,135,211,133,230,136,242,142,239,147,228,141,211,139,194,141,185,145,181,151,182,159"/>
+<area shape="rect" id="Node000005" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a35d2a2807ba99f434c1ab92502d66fc8" title="Clear the collection of cached counters." alt="" coords="363,71,551,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="263,157,355,122,377,114,379,119,357,127,265,162"/>
+<area shape="rect" id="Node000006" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="363,160,551,201"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="308,178,347,178,347,183,308,183"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="356,225,558,266"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="291,199,364,218,362,223,290,204"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="411,160,409,150,416,141,433,135,457,133,484,136,499,142,497,147,482,141,457,139,434,141,419,145,414,151,416,159"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="177,249,176,239,181,230,193,225,211,223,230,225,242,231,239,236,228,230,211,228,194,230,185,234,181,240,182,248"/>
+</map>

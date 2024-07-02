@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CBayesianOptimisation::acceptRestoreTraverser" name="ml::maths::common::CBayesianOptimisation::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Populate the object from serialized data." alt="" coords="5,191,175,246"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a9309afcbf96a9b86cb440ba3700e8723" title=" " alt="" coords="245,5,419,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,188,156,130,187,98,221,71,230,66,233,70,224,75,190,102,159,133,113,192"/>
+<area shape="rect" id="Node000003" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#a9771d67fe51c5c69087ca7f74e07cd72" title="Restore from a string." alt="" coords="234,85,430,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,188,222,151,236,145,238,150,224,156,146,193"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="223,165,441,206"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,204,207,200,208,205,176,209"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="223,230,441,271"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="176,227,208,231,207,237,175,232"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="255,296,409,336"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="146,244,224,280,244,288,242,293,222,285,144,249"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="223,361,441,402"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="115,245,162,296,192,323,224,346,235,352,233,356,221,350,188,327,158,300,111,249"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="489,93,643,134"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="430,111,473,111,473,116,430,116"/>
+</map>

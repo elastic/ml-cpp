@@ -1,0 +1,74 @@
+<map id="ml::maths::common::linear_algebra_detail::SVector::base" name="ml::maths::common::linear_algebra_detail::SVector::base">
+<area shape="rect" id="Node000001" title="Get read only reference." alt="" coords="701,646,847,702"/>
+<area shape="rect" id="Node000002" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a252e1dd81510f22188bf63b322fa96fc" title="Inner product." alt="" coords="499,88,644,129"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="764,632,751,552,729,447,696,331,675,273,651,218,621,170,590,131,594,128,626,167,656,215,680,271,701,329,734,446,757,551,770,631"/>
+<area shape="rect" id="Node000006" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#abcca910e9026ef13d4087e30ee3bcc03" title="Inner product." alt="" coords="499,228,644,269"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="769,631,761,558,742,465,727,417,707,369,682,324,651,284,636,272,640,267,655,280,687,321,712,367,732,415,747,464,766,557,774,631"/>
+<area shape="rect" id="Node000021" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a2db67254371cfef1d3d00d9e1628949e" title="Componentwise multiplication." alt="" coords="499,294,644,334"/>
+<area shape="poly" id="edge21_Node000001_Node000021" title=" " alt="" coords="765,631,754,569,734,494,700,417,678,381,651,349,636,337,639,333,655,345,682,378,705,415,739,493,760,568,771,630"/>
+<area shape="rect" id="Node000022" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#ad68bd22523f61e34d14047cfffa70d7f" title="Componentwise multiplication." alt="" coords="491,359,652,400"/>
+<area shape="poly" id="edge22_Node000001_Node000022" title=" " alt="" coords="761,631,746,582,724,524,693,466,674,439,652,415,635,402,638,398,655,411,678,435,697,463,729,522,752,580,766,630"/>
+<area shape="rect" id="Node000023" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a858f56d2fceb83b18e1ae96000db432c" title="Vector addition." alt="" coords="499,424,644,465"/>
+<area shape="poly" id="edge23_Node000001_Node000023" title=" " alt="" coords="754,633,714,556,686,515,652,480,633,468,636,463,655,476,690,512,719,553,759,631"/>
+<area shape="rect" id="Node000024" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#acc2b3a70fdfe9632096c3137c1a3ea69" title="Vector addition." alt="" coords="489,490,653,530"/>
+<area shape="poly" id="edge24_Node000001_Node000024" title=" " alt="" coords="742,635,702,589,652,546,631,533,633,529,655,541,705,585,746,632"/>
+<area shape="rect" id="Node000025" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a40d48d0e82fc5891229e357d6a499ac7" title="Vector subtraction." alt="" coords="499,555,644,596"/>
+<area shape="poly" id="edge25_Node000001_Node000025" title=" " alt="" coords="710,641,652,611,624,599,627,594,654,606,712,636"/>
+<area shape="rect" id="Node000026" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a195e2e53aa7aa0b1d39e5dedfbcbb64a" title="Vector subtraction." alt="" coords="491,620,651,661"/>
+<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="686,662,651,657,652,651,687,657"/>
+<area shape="rect" id="Node000027" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a8f0033026f8a1652d7fbe6fc7cfdca9e" title="Componentwise division." alt="" coords="499,686,644,726"/>
+<area shape="poly" id="edge27_Node000001_Node000027" title=" " alt="" coords="686,690,645,697,644,692,686,685"/>
+<area shape="rect" id="Node000028" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#aa6b49c8371735485e56e949565d58278" title="Componentwise division." alt="" coords="491,751,651,792"/>
+<area shape="poly" id="edge28_Node000001_Node000028" title=" " alt="" coords="711,712,654,740,627,753,624,748,652,736,708,707"/>
+<area shape="rect" id="Node000029" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#ad5c35fd7ed58a5e9dcba5ab281628ac3" title="Lexicographical total ordering." alt="" coords="499,816,644,857"/>
+<area shape="poly" id="edge29_Node000001_Node000029" title=" " alt="" coords="746,716,705,762,655,806,633,818,631,813,652,801,701,758,742,712"/>
+<area shape="rect" id="Node000030" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a8dda81603f716f2413b78cdc1055352e" title="Lexicographical total ordering." alt="" coords="493,882,649,922"/>
+<area shape="poly" id="edge30_Node000001_Node000030" title=" " alt="" coords="759,717,718,794,689,835,655,871,636,883,633,879,652,867,685,832,714,792,754,715"/>
+<area shape="rect" id="Node000031" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#abd10c67689a2fc3e9ddd7e8105090d86" title=" " alt="" coords="499,947,644,988"/>
+<area shape="poly" id="edge31_Node000001_Node000031" title=" " alt="" coords="766,718,751,767,729,825,697,884,678,911,655,936,638,949,635,944,652,932,673,908,693,881,724,823,746,766,761,716"/>
+<area shape="rect" id="Node000033" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#acde7aba7c841710c0fb6347b0198c53a" title="Assignment if the underlying type is implicitly convertible." alt="" coords="493,1012,649,1053"/>
+<area shape="poly" id="edge33_Node000001_Node000033" title=" " alt="" coords="771,718,759,780,738,855,705,932,682,969,655,1001,639,1014,636,1010,651,997,678,966,700,930,733,853,754,779,765,717"/>
+<area shape="rect" id="Node000035" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#aee51bc0dedbfe6a5f8691c1661e23028" title="Check if two vectors are identically equal." alt="" coords="499,1078,644,1118"/>
+<area shape="poly" id="edge35_Node000001_Node000035" title=" " alt="" coords="774,717,766,791,747,883,732,932,712,980,687,1026,655,1067,640,1079,636,1075,651,1063,682,1023,707,978,727,930,742,882,761,790,768,717"/>
+<area shape="rect" id="Node000036" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a2abc600038ad2134212d74373af4a431" title="Check if two vectors are identically equal." alt="" coords="489,1143,653,1184"/>
+<area shape="poly" id="edge36_Node000001_Node000036" title=" " alt="" coords="776,717,772,802,755,912,740,970,719,1028,691,1083,655,1132,640,1144,637,1140,651,1128,687,1080,714,1026,735,969,750,911,767,802,771,717"/>
+<area shape="rect" id="Node000003" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a7d59751fd80a656057dac0fc09ebe791" title="Euclidean norm." alt="" coords="273,22,418,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="484,86,416,66,418,60,486,81"/>
+<area shape="rect" id="Node000005" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a14a5c3e69b3cdf571b0fbd420c3ea253" title="Inner product." alt="" coords="273,88,418,129"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="483,111,418,111,418,106,483,106"/>
+<area shape="rect" id="Node000004" href="$d6/de6/structml_1_1maths_1_1common_1_1equal__with__tolerance__detail_1_1_s_norm_3_01_c_vector_3_01_t_01_4_01_4.html#a30c923e629065b8ed29ad4c402fd94fa" title=" " alt="" coords="19,5,188,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="257,44,188,44,188,38,257,39"/>
+<area shape="rect" id="Node000007" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#aa52244557777b9d58e335d0de2bb7db1" title="Add projected data for x." alt="" coords="250,156,441,211"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="484,226,441,214,442,209,485,221"/>
+<area shape="rect" id="Node000008" href="$d9/d55/_c_orthogonaliser_test_8cc.html#ac535670f15b4aa20d0f67ba4c388a126" title=" " alt="" coords="5,100,202,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="483,266,427,268,366,265,305,252,276,240,248,226,236,216,229,205,222,182,216,159,210,149,200,139,182,128,185,124,203,135,214,145,221,157,227,180,234,202,240,212,251,221,278,236,306,247,367,260,427,263,483,260"/>
+<area shape="rect" id="Node000009" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#ac954927b9335015bfcce14a8a6f310d3" title="Euclidean norm." alt="" coords="267,290,424,330"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="484,275,424,292,422,286,483,270"/>
+<area shape="rect" id="Node000020" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a992bdf59345165213d741769df218995" title="Inner product." alt="" coords="273,355,418,396"/>
+<area shape="poly" id="edge20_Node000006_Node000020" title=" " alt="" coords="498,279,491,284,476,299,467,314,458,329,443,344,420,357,417,353,439,340,454,326,463,311,472,296,487,280,495,275"/>
+<area shape="poly" id="edge18_Node000009_Node000008" title=" " alt="" coords="265,284,248,269,235,252,228,234,224,201,220,169,213,154,200,139,185,128,188,124,203,135,217,151,225,167,230,200,233,233,240,249,252,266,268,279"/>
+<area shape="rect" id="Node000010" href="$d8/dfa/_c_basic_statistics_test_8cc.html#aa90991f875cd7503529f02c7112c2479" title=" " alt="" coords="5,149,202,175"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="268,284,248,269,231,248,224,226,217,207,200,188,182,178,184,173,203,184,221,204,229,225,236,245,252,265,272,280"/>
+<area shape="rect" id="Node000011" href="$d6/d26/_c_linear_algebra_test_8cc.html#a5f9c6ea72a30c27646ef9592ebadefeb" title=" " alt="" coords="5,199,202,224"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="279,285,248,270,225,253,201,238,171,227,173,222,203,233,228,248,251,265,281,280"/>
+<area shape="rect" id="Node000012" href="$d6/d26/_c_linear_algebra_test_8cc.html#a7886940345b06a1ec00b88ee9b6be9af" title=" " alt="" coords="5,248,202,274"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="252,294,170,277,171,272,253,288"/>
+<area shape="rect" id="Node000013" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="5,297,202,323"/>
+<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="252,313,202,313,202,307,252,307"/>
+<area shape="rect" id="Node000014" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,347,202,372"/>
+<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="253,332,171,348,170,343,252,326"/>
+<area shape="rect" id="Node000015" href="$d6/d26/_c_linear_algebra_test_8cc.html#a8b09c1bbbfa0852cf912472236edf1b3" title=" " alt="" coords="5,396,202,422"/>
+<area shape="poly" id="edge14_Node000009_Node000015" title=" " alt="" coords="263,340,251,346,237,356,228,366,218,377,203,387,177,398,175,393,200,382,215,373,224,363,234,352,248,341,260,335"/>
+<area shape="rect" id="Node000016" href="$d8/dd1/_c_k_means_online_test_8cc.html#a45cd79edeef18ab0be3817a1a7a80557" title=" " alt="" coords="5,445,202,471"/>
+<area shape="poly" id="edge15_Node000009_Node000016" title=" " alt="" coords="257,341,252,345,235,367,229,390,222,413,203,436,185,447,182,442,200,432,217,411,224,389,230,365,248,341,253,337"/>
+<area shape="rect" id="Node000017" href="$d6/d26/_c_linear_algebra_test_8cc.html#af2dce9c3ea2d44267307d89a1778b0a6" title=" " alt="" coords="5,495,202,520"/>
+<area shape="poly" id="edge16_Node000009_Node000017" title=" " alt="" coords="256,341,252,345,239,362,232,379,229,414,226,450,218,468,203,485,188,496,185,492,200,481,213,465,221,449,224,414,227,378,234,360,248,342,253,337"/>
+<area shape="rect" id="Node000018" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,544,202,570"/>
+<area shape="poly" id="edge17_Node000009_Node000018" title=" " alt="" coords="256,340,252,345,236,369,229,392,229,439,231,463,230,487,221,511,204,535,189,545,186,541,200,531,217,508,224,486,226,463,224,439,223,391,231,366,248,342,253,337"/>
+<area shape="rect" id="Node000019" href="$d3/d55/structml_1_1maths_1_1common_1_1equal__with__tolerance__detail_1_1_s_norm_3_01_c_vector_nx1_3_01_t_00_01_n_01_4_01_4.html#a7ab040e4e3b5787b211281c7f65fd84f" title=" " alt="" coords="7,593,200,664"/>
+<area shape="poly" id="edge19_Node000009_Node000019" title=" " alt="" coords="257,340,252,345,232,375,224,403,223,432,227,461,230,490,230,520,222,552,204,584,193,595,189,591,200,580,217,550,225,520,225,491,221,462,218,432,219,403,228,372,248,342,253,336"/>
+<area shape="rect" id="Node000032" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a7408848c090c3e2d116002e78ab4f08f" title=" " alt="" coords="273,947,418,988"/>
+<area shape="poly" id="edge32_Node000031_Node000032" title=" " alt="" coords="483,970,418,970,418,965,483,965"/>
+<area shape="rect" id="Node000034" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a5c7bca28ae3a523ecf10140bd91289eb" title=" " alt="" coords="259,1012,432,1053"/>
+<area shape="poly" id="edge34_Node000033_Node000034" title=" " alt="" coords="477,1035,432,1035,432,1030,477,1030"/>
+</map>

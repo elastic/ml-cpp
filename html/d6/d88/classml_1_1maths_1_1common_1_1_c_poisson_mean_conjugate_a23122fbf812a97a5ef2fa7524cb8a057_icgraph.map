@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::marginalLikelihoodVariance" name="ml::maths::common::CPoissonMeanConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="286,40,472,95"/>
+<area shape="rect" id="Node000002" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="23,5,220,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="270,49,192,34,193,29,271,44"/>
+<area shape="rect" id="Node000003" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="23,55,220,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="270,70,220,70,220,65,270,65"/>
+<area shape="rect" id="Node000004" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#af0eda2c90c7c91dc03fd5075203b1fbd" title=" " alt="" coords="5,105,238,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="271,98,235,107,233,102,270,92"/>
+</map>

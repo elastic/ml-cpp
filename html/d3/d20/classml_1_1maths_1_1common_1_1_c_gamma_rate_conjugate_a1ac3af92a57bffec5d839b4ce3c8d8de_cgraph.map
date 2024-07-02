@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CGammaRateConjugate::marginalLikelihoodVariance" name="ml::maths::common::CGammaRateConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="5,154,192,210"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="250,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,152,176,107,238,62,261,50,263,55,241,67,179,111,129,155"/>
+<area shape="rect" id="Node000003" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a6f32d138689c010c6dc54ab247ef7d9a" title="Check if this is a non&#45;informative prior." alt="" coords="258,121,422,176"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,166,242,159,243,164,192,171"/>
+<area shape="rect" id="Node000005" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a04fe7c04ef3a6bdcd7c2d666cbac3ed5" title=" " alt="" coords="488,186,652,242"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="192,185,473,204,472,210,192,191"/>
+<area shape="rect" id="Node000007" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af8aace96dd553dc5fd86360da33fbacb" title=" " alt="" coords="488,55,652,111"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="141,151,187,126,239,106,298,92,359,84,472,78,472,83,360,89,299,97,240,111,189,131,144,156"/>
+<area shape="rect" id="Node000008" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="240,251,440,291"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="176,207,269,242,267,247,174,212"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="252,316,428,357"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="128,208,178,255,208,279,241,301,253,307,251,312,238,305,205,284,174,259,124,212"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="700,128,860,169"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="422,146,685,146,685,151,422,151"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="423,169,474,184,472,189,421,174"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="652,185,697,171,699,176,654,191"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="700,193,860,234"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="653,211,685,211,685,216,653,216"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="654,106,699,120,697,125,652,111"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CSymmetricMatrix::dimension" name="ml::maths::common::CSymmetricMatrix::dimension">
+<area shape="rect" id="Node000001" title="Compute the dimension from the number of elements." alt="" coords="471,78,668,119"/>
+<area shape="rect" id="Node000002" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#a220092731d56ea3e7eeb3b2fff9a6d8a" title=" " alt="" coords="208,5,419,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="472,76,419,63,420,58,473,71"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac0d65eaccfcf7990e123ecef81c76d9d" title="Overload std::fabs for CSymmetricMatrix." alt="" coords="228,86,399,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="456,101,399,101,399,96,456,96"/>
+<area shape="rect" id="Node000004" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#adabca55ac4b917d8755863f26967fe95" title="Create from a delimited string." alt="" coords="204,136,423,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="461,125,408,137,407,132,460,120"/>
+<area shape="rect" id="Node000005" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a531d398e0faee0b3b254422a5b71d96a" title="Function to do conversion from string to a symmetric matrix." alt="" coords="5,128,156,184"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="188,159,156,159,156,153,188,153"/>
+</map>

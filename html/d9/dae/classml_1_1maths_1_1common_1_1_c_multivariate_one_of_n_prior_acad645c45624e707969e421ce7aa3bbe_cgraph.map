@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::acceptPersistInserter" name="ml::maths::common::CMultivariateOneOfNPrior::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,111,179,166"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="241,5,415,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,108,226,71,239,65,241,70,228,76,150,113"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="227,85,429,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,124,211,119,212,124,179,129"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="227,150,429,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,148,212,152,211,157,178,153"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="255,215,401,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="151,164,228,200,242,206,240,211,226,205,149,169"/>
+</map>

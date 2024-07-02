@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,216,202,241"/>
+<area shape="rect" id="Node000002" href="$df/dba/classanonymous__namespace_02_c_k_means_online_test_8cc_03_1_1_c_k_means_online_for_test.html#af226129041c269b713920960f04748c2" title=" " alt="" coords="263,129,479,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,212,250,186,251,191,155,218"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="588,5,747,46"/>
+<area shape="poly" id="edge12_Node000001_Node000004" title=" " alt="" coords="116,213,170,164,208,137,249,114,331,82,417,58,499,42,571,32,572,37,500,47,418,64,333,87,251,119,211,141,174,168,120,217"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="278,208,464,249"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="202,226,263,226,263,231,202,231"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="250,273,492,328"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="155,239,251,265,250,271,153,244"/>
+<area shape="rect" id="Node000012" href="$dd/d2b/namespaceanonymous__namespace_02_c_k_means_online_test_8cc_03.html#a4ee50d9dc848a96e827e995d783f4bfa" title=" " alt="" coords="290,353,452,408"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="120,240,175,287,212,314,251,338,276,350,274,355,248,343,209,318,172,291,117,244"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="588,71,747,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="478,130,572,109,573,114,480,135"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="413,126,471,90,539,57,571,45,573,50,541,61,474,95,415,130"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="540,136,794,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="479,154,524,154,524,159,479,159"/>
+<area shape="rect" id="Node000006" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af184aba3d3646637687e34b55c15f09a" title="Get the concomitant ones vector." alt="" coords="595,201,740,242"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="480,178,580,200,579,205,478,183"/>
+<area shape="rect" id="Node000008" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="595,267,740,307"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="473,182,494,194,509,209,518,224,527,238,541,251,581,269,579,274,539,256,522,242,513,227,505,212,490,198,470,187"/>
+<area shape="rect" id="Node000007" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="842,235,988,275"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="740,229,827,241,827,246,740,234"/>
+<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="740,275,827,264,827,269,740,280"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="575,332,760,373"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="465,244,494,258,510,273,518,288,527,303,542,317,562,328,559,332,538,321,522,306,514,291,505,276,490,263,463,249"/>
+</map>

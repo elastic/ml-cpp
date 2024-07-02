@@ -1,0 +1,16 @@
+<map id="ml::model::CProbabilityAndInfluenceCalculator::calculate" name="ml::model::CProbabilityAndInfluenceCalculator::calculate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="565,148,758,189"/>
+<area shape="rect" id="Node000002" href="$d0/da9/_c_probability_and_influence_calculator_test_8cc.html#adacf1c21ee64f9bdf5b1c4471078449a" title=" " alt="" coords="5,162,202,188"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="635,138,584,84,552,59,516,40,443,16,383,8,323,16,251,40,206,66,167,101,136,136,116,164,111,161,132,132,163,97,202,62,249,36,322,11,383,3,445,11,518,36,555,55,588,80,638,134"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="287,50,480,90"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="605,144,516,106,476,93,478,88,518,101,607,139"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="274,115,493,156"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="550,158,493,151,494,146,550,153"/>
+<area shape="rect" id="Node000005" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a730885952a2719bff06c7134ea5459a8" title=" " alt="" coords="300,180,467,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="550,184,468,194,467,188,549,179"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="287,246,480,286"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="607,198,518,235,477,248,476,243,516,230,604,193"/>
+<area shape="rect" id="Node000007" href="$da/d82/namespaceanonymous__namespace_02_c_probability_and_influence_calculator_test_8cc_03.html#a219259c6d79d4b107831957ec59d7950" title=" " alt="" coords="250,310,517,366"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="635,202,584,252,552,278,518,300,494,312,492,307,516,296,549,274,580,249,631,199"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="259,306,248,300,207,274,170,243,115,191,119,187,173,239,210,270,251,296,262,301"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CEventRateBucketGatherer::bucketCompressedLengthPerPersonAttribute" name="ml::model::CEventRateBucketGatherer::bucketCompressedLengthPerPersonAttribute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,237,83"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="285,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,39,269,35,269,40,237,44"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="311,70,433,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,65,295,72,295,77,237,71"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="507,70,553,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="433,80,491,80,491,86,433,86"/>
+</map>

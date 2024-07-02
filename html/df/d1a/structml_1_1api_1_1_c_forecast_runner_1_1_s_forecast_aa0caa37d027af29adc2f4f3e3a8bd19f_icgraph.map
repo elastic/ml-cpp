@@ -1,0 +1,28 @@
+<map id="ml::api::CForecastRunner::SForecast::forecastEnd" name="ml::api::CForecastRunner::SForecast::forecastEnd">
+<area shape="rect" id="Node000001" title="get the the end time" alt="" coords="1490,103,1661,143"/>
+<area shape="rect" id="Node000002" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a7d8c08b07ee409abf5bc83772887ee78" title="The worker loop." alt="" coords="1270,25,1442,66"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1500,100,1415,69,1417,64,1502,95"/>
+<area shape="rect" id="Node000004" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#abefca559a49bf15ca9a67b03e9a6b763" title="send a message using write" alt="" coords="1270,103,1442,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1474,126,1442,126,1442,120,1474,120"/>
+<area shape="rect" id="Node000012" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a02df0c7b73d3a30116e8d839bca837b2" title="send a scheduled message" alt="" coords="832,193,1003,234"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="1480,150,1442,158,1323,176,1204,191,1004,210,1003,205,1204,186,1323,171,1441,152,1479,145"/>
+<area shape="rect" id="Node000003" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a7c3b0698d5c05092e8556570ce92ac69" title=" " alt="" coords="1051,5,1222,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1255,39,1223,36,1223,31,1255,34"/>
+<area shape="rect" id="Node000005" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a2b5245c332ee26153530e0ba3cb41a81" title="send an error message" alt="" coords="1051,71,1222,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1255,111,1222,106,1223,101,1256,106"/>
+<area shape="rect" id="Node000011" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a39596898246241b58962c7cf80e2889d" title="send a final message" alt="" coords="832,128,1003,169"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="1255,131,1004,146,1003,141,1255,126"/>
+<area shape="rect" id="Node000006" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a62c5af6f1d46a8a1e3d1baa9fcb87f44" title="pushes new jobs into the internal &#39;queue&#39; (thread boundary)" alt="" coords="832,13,1003,54"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1041,69,997,57,998,52,1043,64"/>
+<area shape="rect" id="Node000007" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#ad8607aeb873f1214a5abd71746d22211" title=" " alt="" coords="612,100,784,141"/>
+<area shape="poly" id="edge10_Node000005_Node000007" title=" " alt="" coords="1036,100,784,117,784,112,1035,95"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="851,63,753,102,751,97,849,58"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#aa7cbbc4df294ffac26166f761afb236f" title="Update configuration." alt="" coords="414,100,564,141"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="597,123,565,123,565,118,597,118"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,100,366,141"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="399,123,367,123,367,118,399,118"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,100,156,141"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="188,123,156,123,156,118,188,118"/>
+<area shape="poly" id="edge12_Node000011_Node000007" title=" " alt="" coords="816,138,784,134,785,129,817,133"/>
+<area shape="poly" id="edge14_Node000012_Node000007" title=" " alt="" coords="847,190,831,183,743,144,745,139,833,178,849,185"/>
+</map>

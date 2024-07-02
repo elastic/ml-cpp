@@ -1,0 +1,7 @@
+<map id="ml::core::CJsonLogLayout::cropPath" name="ml::core::CJsonLogLayout::cropPath">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,27,424,68"/>
+<area shape="rect" id="Node000002" href="$d5/d85/_c_json_log_layout_test_8cc.html#a37f74920ab13eae96ee07edbed7edf14" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,37,202,33,202,28,235,32"/>
+<area shape="rect" id="Node000003" href="$d6/de6/classml_1_1core_1_1_c_json_log_layout.html#a72e7b23ce7cced614328c75bf69c94b6" title="Formats a Boost.Log record as JSON." alt="" coords="16,55,191,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,62,192,68,191,62,234,57"/>
+</map>

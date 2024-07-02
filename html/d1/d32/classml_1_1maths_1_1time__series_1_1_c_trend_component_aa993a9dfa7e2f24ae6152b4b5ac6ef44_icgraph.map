@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTrendComponent::maximumForecastInterval" name="ml::maths::time_series::CTrendComponent::maximumForecastInterval">
+<area shape="rect" id="Node000001" title="Get the maximum interval for which the trend model can be forecast." alt="" coords="246,5,501,61"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a236602e714d5991b2fa29abc528d6f90" title="Get the maximum interval for which the time series can be forecast." alt="" coords="5,5,198,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,36,198,36,198,31,230,31"/>
+</map>

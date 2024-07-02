@@ -1,0 +1,10 @@
+<map id="ml::maths::common::anonymous_namespace{CBayesianOptimisation::cc}::integrate1dKernelProduct" name="ml::maths::common::anonymous_namespace{CBayesianOptimisation::cc}::integrate1dKernelProduct">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,207,126"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="62,54,64,45,73,36,87,31,106,29,128,32,142,39,140,43,127,37,106,34,88,36,76,41,69,47,67,56"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="255,5,400,46"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="206,59,241,48,242,54,208,64"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a94bfaf7bfdeb4d2466949bde27e48cc9" title="Compute a value from x which will be stable across platforms." alt="" coords="255,71,400,111"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="207,88,239,88,239,94,207,94"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="255,136,400,177"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="208,118,242,128,241,134,206,123"/>
+</map>

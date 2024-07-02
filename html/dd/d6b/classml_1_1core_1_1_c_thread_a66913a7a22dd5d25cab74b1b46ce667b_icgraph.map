@@ -1,0 +1,9 @@
+<map id="ml::core::CThread::cancelBlockedIo" name="ml::core::CThread::cancelBlockedIo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,85,407,126"/>
+<area shape="rect" id="Node000002" href="$d4/df2/classanonymous__namespace_02_c_named_pipe_factory_test_8cc_03_1_1_c_thread_block_canceller.html#a5572a0c546a55b5b19ced77f126a4f69" title=" " alt="" coords="5,5,225,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="259,82,203,64,205,59,261,77"/>
+<area shape="rect" id="Node000003" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a417dc4229f16eba208070a4a2effabc5" title="Called when the thread is started." alt="" coords="8,85,222,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,108,222,108,222,103,257,103"/>
+<area shape="rect" id="Node000004" href="$d1/daa/classml_1_1controller_1_1_c_blocking_call_cancelling_stream_monitor.html#a0881f97017d53c0b0e08facadb2b7752" title="Interrupts the wait for end&#45;of&#45;file." alt="" coords="20,149,210,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="261,133,205,151,203,146,259,128"/>
+</map>

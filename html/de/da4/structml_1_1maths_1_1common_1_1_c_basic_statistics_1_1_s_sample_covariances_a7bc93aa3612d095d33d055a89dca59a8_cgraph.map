@@ -1,0 +1,26 @@
+<map id="ml::maths::common::CBasicStatistics::SSampleCovariances::operator&#45;=" name="ml::maths::common::CBasicStatistics::SSampleCovariances::operator&#45;=">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,211,259,267"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#afd48e4708e3a901320e72de745613ffa" title="Expose componentwise operations for our internal vectors." alt="" coords="307,5,452,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,209,219,139,261,99,305,62,320,52,323,56,308,66,264,103,223,143,158,213"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="500,185,645,226"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="157,209,220,153,261,126,306,106,346,94,379,90,413,94,453,106,480,119,505,135,546,172,542,176,502,140,477,123,451,111,412,99,379,95,347,99,308,111,264,131,223,157,161,213"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ac5663b883dec939f2661857d2fe43afd" title="Check if a vector is a zero vector." alt="" coords="307,120,452,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,208,311,164,313,169,204,213"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="307,185,452,226"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="259,219,291,215,292,220,260,224"/>
+<area shape="rect" id="Node000006" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af184aba3d3646637687e34b55c15f09a" title="Get the concomitant ones vector." alt="" coords="307,251,452,291"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="260,253,292,257,291,262,259,258"/>
+<area shape="rect" id="Node000007" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad47e71d2642bb0a1bcd46b27d3929fef" title="Get the outer product of one of our internal vector types." alt="" coords="307,316,452,357"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="206,265,312,307,310,312,204,270"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="307,447,452,487"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="155,266,218,346,261,391,308,432,315,436,312,441,305,436,257,395,214,349,151,269"/>
+<area shape="rect" id="Node000010" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="307,381,452,422"/>
+<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="169,265,232,315,308,366,317,371,315,376,305,371,229,319,165,270"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="442,159,497,177,495,182,441,164"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="452,203,484,203,484,208,452,208"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="441,248,495,229,497,234,442,253"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="536,454,610,480"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="452,464,520,464,520,470,452,470"/>
+<area shape="poly" id="edge12_Node000009_Node000009" title=" " alt="" coords="540,455,534,446,538,436,551,430,573,428,596,430,609,437,606,442,595,435,573,433,552,435,542,440,539,445,545,452"/>
+<area shape="poly" id="edge14_Node000010_Node000003" title=" " alt="" coords="432,378,450,366,482,336,510,302,551,238,556,241,514,305,486,340,454,370,435,383"/>
+</map>

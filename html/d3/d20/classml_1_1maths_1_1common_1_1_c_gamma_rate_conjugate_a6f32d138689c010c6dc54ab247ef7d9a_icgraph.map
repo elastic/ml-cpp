@@ -1,0 +1,86 @@
+<map id="ml::maths::common::CGammaRateConjugate::isNonInformative" name="ml::maths::common::CGammaRateConjugate::isNonInformative">
+<area shape="rect" id="Node000001" title="Check if this is a non&#45;informative prior." alt="" coords="757,539,922,594"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#ab2a22e686f9ec38393c9390aed52e361" title=" " alt="" coords="520,5,684,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="830,524,812,417,785,283,750,157,729,107,707,74,683,55,686,51,711,70,734,105,755,155,790,282,818,416,835,523"/>
+<area shape="rect" id="Node000004" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a3145e12bf2150f35d9d9ab9c580beef3" title=" " alt="" coords="511,339,692,394"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="812,527,768,466,739,436,708,409,689,397,692,393,711,404,743,432,772,463,816,524"/>
+<area shape="rect" id="Node000009" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#add7d2aea62cbee30d1537f3cbf4fed2c" title="The current expected rate for the variable." alt="" coords="520,259,684,314"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="823,525,806,479,781,427,749,374,708,329,683,312,686,308,711,324,753,371,786,424,811,477,828,523"/>
+<area shape="rect" id="Node000011" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a336e12181fa82b9f976ec2f38c6a408a" title=" " alt="" coords="501,85,703,155"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="833,524,824,449,802,354,786,305,765,256,739,210,707,168,696,158,700,154,711,165,744,207,770,254,791,303,808,353,829,448,838,523"/>
+<area shape="rect" id="Node000013" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#acd34fe002057add4246a0dc266d1d8a7" title="Get the mode of the marginal likelihood function." alt="" coords="264,671,432,726"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="791,606,753,629,710,649,639,670,565,685,433,699,432,693,564,680,637,665,708,644,750,625,788,601"/>
+<area shape="rect" id="Node000015" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a1ac3af92a57bffec5d839b4ce3c8d8de" title="Get the variance of the marginal likelihood." alt="" coords="509,873,695,929"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="832,611,817,665,792,730,758,797,736,828,711,856,686,875,683,871,708,853,732,825,753,794,787,728,811,664,827,609"/>
+<area shape="rect" id="Node000018" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a8afd988aafdbda6185c3deddf76fa690" title="Get the of the marginal likelihood." alt="" coords="500,758,704,799"/>
+<area shape="poly" id="edge21_Node000001_Node000018" title=" " alt="" coords="807,608,763,656,711,706,638,760,635,755,708,702,759,653,803,605"/>
+<area shape="rect" id="Node000024" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a230e7ddf1db9b3c9c58c8c25b1f6ae90" title=" " alt="" coords="259,1004,437,1060"/>
+<area shape="poly" id="edge50_Node000001_Node000024" title=" " alt="" coords="830,610,814,658,790,713,756,767,735,791,711,813,682,830,654,837,626,838,600,837,574,835,548,837,522,845,496,863,483,878,475,894,471,926,468,960,461,978,448,995,436,1005,432,1001,444,991,456,975,463,959,466,926,470,892,478,875,492,859,520,840,547,832,574,830,600,831,626,833,653,832,680,825,708,808,731,788,751,764,785,710,809,656,825,608"/>
+<area shape="rect" id="Node000025" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#ab6fe8b4f59de3101ef463f85d01ba793" title=" " alt="" coords="520,419,684,474"/>
+<area shape="poly" id="edge31_Node000001_Node000025" title=" " alt="" coords="783,532,708,489,683,477,685,473,711,484,786,527"/>
+<area shape="rect" id="Node000027" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#adcd876f634d8849adbc8fb8613265712" title=" " alt="" coords="498,499,706,554"/>
+<area shape="poly" id="edge34_Node000001_Node000027" title=" " alt="" coords="742,553,706,547,707,541,743,548"/>
+<area shape="rect" id="Node000028" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#acb7c4ac44794dc1278f627cfee4f674e" title=" " alt="" coords="520,953,684,1009"/>
+<area shape="poly" id="edge36_Node000001_Node000028" title=" " alt="" coords="838,610,828,681,806,770,790,816,769,862,743,905,711,943,686,962,683,957,708,939,738,902,764,859,785,814,801,768,822,680,832,609"/>
+<area shape="rect" id="Node000029" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a91d58270ed196cff4e8c50b657806b03" title=" " alt="" coords="513,1033,690,1089"/>
+<area shape="poly" id="edge37_Node000001_Node000029" title=" " alt="" coords="841,610,835,695,816,805,800,863,778,920,748,975,711,1023,693,1038,689,1034,707,1019,744,972,773,918,795,861,811,804,830,695,836,610"/>
+<area shape="rect" id="Node000030" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#ac2f4167ade68deded863ea5ee89aa9a9" title=" " alt="" coords="494,579,709,634"/>
+<area shape="poly" id="edge38_Node000001_Node000030" title=" " alt="" coords="743,585,710,591,709,586,742,580"/>
+<area shape="rect" id="Node000033" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a7c44260a641896d2c2ecb19615bb944a" title=" " alt="" coords="509,179,694,234"/>
+<area shape="poly" id="edge44_Node000001_Node000033" title=" " alt="" coords="829,524,816,463,793,389,758,314,735,279,707,248,693,237,697,233,711,245,739,276,762,311,798,387,822,462,835,523"/>
+<area shape="rect" id="Node000003" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a30added95ac5f71e03392b344f2ffb2a" title=" " alt="" coords="250,20,446,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="504,36,446,36,446,31,504,31"/>
+<area shape="rect" id="Node000005" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="250,218,446,243"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="504,334,493,329,421,286,365,246,368,242,423,281,495,324,506,329"/>
+<area shape="rect" id="Node000006" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a77f1f759557467d97e8fb0d39da3db95" title=" " alt="" coords="250,319,446,345"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="495,355,446,348,447,343,496,349"/>
+<area shape="rect" id="Node000007" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="5,470,202,495"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="497,397,447,409,169,472,168,466,445,404,495,391"/>
+<area shape="rect" id="Node000008" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a6671bf65e1b60d9a6db130c124bdc2a0" title=" " alt="" coords="250,368,446,394"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="495,375,447,378,446,373,495,370"/>
+<area shape="poly" id="edge9_Node000009_Node000007" title=" " alt="" coords="504,275,444,272,379,274,313,286,251,309,225,325,202,345,161,390,132,436,113,470,109,468,127,433,157,387,198,341,222,321,248,304,312,281,378,269,444,266,504,269"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="507,323,495,329,472,345,447,360,417,370,415,365,445,355,469,340,493,324,505,319"/>
+<area shape="rect" id="Node000010" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="250,168,446,194"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="504,255,493,249,478,238,468,227,459,217,445,208,419,197,421,192,447,203,462,213,472,223,482,234,495,244,507,251"/>
+<area shape="poly" id="edge14_Node000011_Node000005" title=" " alt="" coords="501,165,496,169,472,189,462,199,447,209,420,220,418,215,445,204,459,195,469,185,492,164,498,161"/>
+<area shape="rect" id="Node000012" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a55bbf7636623fd2a7f99058f166e8005" title=" " alt="" coords="250,70,446,95"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="484,105,439,99,440,93,485,100"/>
+<area shape="poly" id="edge17_Node000013_Node000007" title=" " alt="" coords="254,665,248,661,202,619,162,573,110,497,115,494,166,570,206,616,251,656,257,660"/>
+<area shape="rect" id="Node000014" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,686,202,711"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="248,701,202,701,202,696,248,696"/>
+<area shape="rect" id="Node000016" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="250,1135,446,1161"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="498,941,496,943,481,965,474,986,473,1029,472,1073,464,1095,448,1118,420,1137,417,1132,444,1114,459,1093,467,1072,468,1029,469,985,476,962,492,939,494,937"/>
+<area shape="rect" id="Node000017" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,1019,202,1045"/>
+<area shape="poly" id="edge20_Node000015_Node000017" title=" " alt="" coords="498,941,496,943,484,959,478,976,475,1010,471,1043,463,1059,448,1074,407,1094,364,1104,318,1104,273,1098,230,1088,190,1074,129,1048,131,1043,192,1069,231,1083,274,1093,318,1099,363,1098,406,1089,444,1070,459,1056,466,1042,470,1009,473,975,479,957,492,939,495,937"/>
+<area shape="poly" id="edge28_Node000018_Node000013" title=" " alt="" coords="520,756,432,728,433,723,521,751"/>
+<area shape="rect" id="Node000019" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a89578d5c0c34f39f36bdbfaf5f0c18da" title="Persist state by passing information to the supplied inserter." alt="" coords="266,751,430,806"/>
+<area shape="poly" id="edge22_Node000018_Node000019" title=" " alt="" coords="484,781,431,781,431,776,484,776"/>
+<area shape="rect" id="Node000021" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#af9f04fd68572305397d4ac116766b4ca" title=" " alt="" coords="259,910,437,981"/>
+<area shape="poly" id="edge24_Node000018_Node000021" title=" " alt="" coords="511,808,496,819,480,839,472,858,464,879,448,900,434,912,431,907,444,897,460,876,467,856,475,836,492,815,508,804"/>
+<area shape="rect" id="Node000022" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a9b4020578655ca67d7385fa348a331f4" title="Get the mean of the marginal likelihood function." alt="" coords="264,831,432,886"/>
+<area shape="poly" id="edge25_Node000018_Node000022" title=" " alt="" coords="521,806,433,834,432,829,520,801"/>
+<area shape="poly" id="edge29_Node000018_Node000024" title=" " alt="" coords="506,810,496,819,481,841,474,862,472,905,471,949,464,972,448,995,437,1005,433,1001,444,991,459,970,466,948,467,905,468,861,476,838,492,815,503,806"/>
+<area shape="rect" id="Node000020" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,766,202,791"/>
+<area shape="poly" id="edge23_Node000019_Node000020" title=" " alt="" coords="250,781,202,781,202,776,250,776"/>
+<area shape="poly" id="edge27_Node000022_Node000017" title=" " alt="" coords="259,896,251,901,210,931,173,964,118,1020,114,1017,169,960,207,927,248,896,256,892"/>
+<area shape="rect" id="Node000023" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="5,846,202,871"/>
+<area shape="poly" id="edge26_Node000022_Node000023" title=" " alt="" coords="248,861,202,861,202,856,248,856"/>
+<area shape="poly" id="edge30_Node000024_Node000017" title=" " alt="" coords="243,1035,202,1035,202,1029,243,1029"/>
+<area shape="poly" id="edge33_Node000025_Node000005" title=" " alt="" coords="505,418,492,408,473,383,465,359,459,335,444,308,407,272,370,246,373,242,411,268,448,305,464,333,471,358,478,381,496,405,508,414"/>
+<area shape="rect" id="Node000026" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="250,470,446,495"/>
+<area shape="poly" id="edge32_Node000025_Node000026" title=" " alt="" coords="504,463,444,472,443,466,504,458"/>
+<area shape="poly" id="edge35_Node000027_Node000026" title=" " alt="" coords="482,508,425,499,426,493,483,503"/>
+<area shape="poly" id="edge41_Node000030_Node000006" title=" " alt="" coords="493,570,492,568,474,541,467,513,466,486,469,459,471,433,470,408,462,383,444,358,430,347,434,343,448,354,467,380,476,407,477,434,474,460,471,486,472,512,479,538,496,565,497,566"/>
+<area shape="poly" id="edge42_Node000030_Node000007" title=" " alt="" coords="498,576,445,561,299,526,172,498,173,493,301,520,447,556,500,571"/>
+<area shape="poly" id="edge43_Node000030_Node000008" title=" " alt="" coords="495,571,492,568,472,541,465,515,459,488,444,459,408,423,371,397,374,392,411,419,448,456,464,486,470,513,477,539,496,565,499,567"/>
+<area shape="rect" id="Node000031" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#a9e20d4075095de6aa6f34f74b203a493" title=" " alt="" coords="250,571,446,597"/>
+<area shape="poly" id="edge39_Node000030_Node000031" title=" " alt="" coords="478,598,446,595,447,590,479,593"/>
+<area shape="rect" id="Node000032" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#af162eb99ecd0ec522c40c28d057ff799" title=" " alt="" coords="250,620,446,646"/>
+<area shape="poly" id="edge40_Node000030_Node000032" title=" " alt="" coords="479,622,447,625,446,620,478,617"/>
+<area shape="poly" id="edge49_Node000033_Node000003" title=" " alt="" coords="495,171,492,168,480,154,473,140,468,111,463,84,456,72,444,59,428,49,431,44,448,55,460,69,468,83,473,110,478,138,485,151,496,165,499,167"/>
+<area shape="poly" id="edge46_Node000033_Node000005" title=" " alt="" coords="494,219,447,224,446,219,493,214"/>
+<area shape="poly" id="edge47_Node000033_Node000006" title=" " alt="" coords="507,243,495,249,426,286,371,321,368,316,423,282,493,244,505,239"/>
+<area shape="poly" id="edge48_Node000033_Node000010" title=" " alt="" coords="493,198,446,194,447,188,494,193"/>
+<area shape="rect" id="Node000034" href="$d3/d04/_c_gamma_rate_conjugate_test_8cc.html#ac27f2bd18c833ced31631748c67458a3" title=" " alt="" coords="250,119,446,145"/>
+<area shape="poly" id="edge45_Node000033_Node000034" title=" " alt="" coords="502,176,445,158,406,148,407,143,447,153,504,171"/>
+</map>

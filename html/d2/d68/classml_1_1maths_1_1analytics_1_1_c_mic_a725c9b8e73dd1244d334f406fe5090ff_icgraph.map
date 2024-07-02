@@ -1,0 +1,32 @@
+<map id="ml::maths::analytics::CMic::entropy" name="ml::maths::analytics::CMic::entropy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="714,217,854,257"/>
+<area shape="rect" id="Node000002" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#afe3f1ca0e85e9f0b71caee5678698b59" title=" " alt="" coords="514,217,666,257"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="699,240,667,240,667,234,699,234"/>
+<area shape="rect" id="Node000003" href="$d1/dfe/_c_mic_test_8cc.html#a97cbd34912f58376db4d163ad22eb8a8" title=" " alt="" coords="270,195,466,220"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="499,227,466,223,467,218,499,222"/>
+<area shape="rect" id="Node000004" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a6a1b3ebe8e310b688863321d206d0ecd" title="Compute MICe for the samples added." alt="" coords="298,245,438,285"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="500,251,438,259,438,253,499,246"/>
+<area shape="rect" id="Node000005" href="$d1/dfe/_c_mic_test_8cc.html#a660abeb3186c7ba99a31e671fb1440e0" title=" " alt="" coords="15,5,212,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="283,247,268,235,251,210,243,185,242,160,244,136,246,112,245,89,237,66,220,44,206,34,209,30,224,40,242,64,250,88,251,112,249,137,247,161,248,184,255,208,272,231,286,243"/>
+<area shape="rect" id="Node000006" href="$d1/dfe/_c_mic_test_8cc.html#abfdbb32816c7702ebae5ad061749253f" title=" " alt="" coords="15,55,212,80"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="283,246,268,235,254,216,247,198,244,161,241,126,234,110,220,93,205,83,208,79,223,90,238,107,246,125,249,161,252,197,258,214,272,231,286,242"/>
+<area shape="rect" id="Node000007" href="$d1/dfe/_c_mic_test_8cc.html#a4dad3c2c7a1baaf08ef78001d36a8177" title=" " alt="" coords="15,104,212,130"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="283,245,268,235,250,211,244,187,237,164,220,143,203,133,205,128,223,139,242,162,249,185,255,209,272,231,286,241"/>
+<area shape="rect" id="Node000008" href="$d1/dfe/_c_mic_test_8cc.html#abfca39809f361c9966f57a7359e389f6" title=" " alt="" coords="15,153,212,179"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="283,242,268,235,253,224,244,213,235,202,220,193,194,182,196,177,223,188,238,198,248,209,257,220,271,231,285,238"/>
+<area shape="rect" id="Node000009" href="$d1/dfe/_c_mic_test_8cc.html#afd28e44e2a105260606abe8c01d7b666" title=" " alt="" coords="15,203,212,228"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="282,251,183,232,184,226,283,246"/>
+<area shape="rect" id="Node000010" href="$de/de4/_c_data_frame_utils_test_8cc.html#a983088e9fa0277add60f9e5ac44c987c" title=" " alt="" coords="15,252,212,278"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="283,268,212,268,212,262,283,262"/>
+<area shape="rect" id="Node000011" href="$de/de4/_c_data_frame_utils_test_8cc.html#a6571ebea4b82d44f0919e78f3ebd099f" title=" " alt="" coords="15,301,212,327"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="283,284,184,303,183,298,282,279"/>
+<area shape="rect" id="Node000012" href="$d1/dfe/_c_mic_test_8cc.html#a68f0aa9ebf151c3e54d6e393367e5eba" title=" " alt="" coords="15,351,212,376"/>
+<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="321,295,274,320,223,342,187,353,185,348,221,337,272,315,318,291"/>
+<area shape="rect" id="Node000013" href="$d1/dfe/_c_mic_test_8cc.html#afd19a1ad82e89a9b389a4086e1b2597b" title=" " alt="" coords="15,400,212,426"/>
+<area shape="poly" id="edge12_Node000004_Node000013" title=" " alt="" coords="340,298,289,347,257,371,223,391,196,402,194,397,220,386,254,366,285,343,337,295"/>
+<area shape="rect" id="Node000014" href="$d4/d07/namespaceml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_data_frame_utils_8cc_03.html#a5130ee806f44added8a1fc58456f9deb" title=" " alt="" coords="22,474,205,544"/>
+<area shape="poly" id="edge13_Node000004_Node000014" title=" " alt="" coords="345,300,293,367,223,440,177,475,174,471,220,436,289,364,341,297"/>
+<area shape="rect" id="Node000015" href="$df/df6/classml_1_1maths_1_1analytics_1_1_c_data_frame_utils.html#ab01e64758836584826924e52d1763471" title=" " alt="" coords="5,568,222,623"/>
+<area shape="poly" id="edge15_Node000004_Node000015" title=" " alt="" coords="361,301,343,357,316,425,276,496,252,528,223,558,207,569,204,565,220,553,247,525,272,493,311,423,338,355,355,299"/>
+<area shape="poly" id="edge14_Node000014_Node000014" title=" " alt="" coords="154,462,138,455,113,452,93,454,78,459,71,465,68,474,63,472,66,462,76,454,92,449,114,447,139,450,156,457"/>
+</map>

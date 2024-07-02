@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CBasicStatistics::skewness" name="ml::maths::common::CBasicStatistics::skewness">
+<area shape="rect" id="Node000001" title="Extract the skewness from an accumulator object." alt="" coords="250,73,436,113"/>
+<area shape="rect" id="Node000002" href="$d8/dfa/_c_basic_statistics_test_8cc.html#a96c76036ad14c8a0e34305dd1382d88a" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="273,69,201,45,163,34,164,29,202,40,275,64"/>
+<area shape="rect" id="Node000003" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,84,202,81,203,75,235,79"/>
+<area shape="rect" id="Node000004" href="$d8/dfa/_c_basic_statistics_test_8cc.html#a623f90321b01503e6df338cdd873f0e9" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,106,203,110,202,104,234,101"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0aa65f38c36eb93d9b33a11a44f25b98" title="Print a mean, variance and skew accumulator." alt="" coords="27,154,180,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="270,121,203,145,170,156,168,151,201,140,268,116"/>
+</map>

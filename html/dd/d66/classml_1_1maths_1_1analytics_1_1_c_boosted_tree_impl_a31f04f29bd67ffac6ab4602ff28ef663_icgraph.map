@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::correctedMemoryUsageForTraining" name="ml::maths::analytics::CBoostedTreeImpl::correctedMemoryUsageForTraining">
+<area shape="rect" id="Node000001" title="Correct from worst case memory usage to a more realistic estimate." alt="" coords="472,5,672,61"/>
+<area shape="rect" id="Node000002" href="$d2/d6c/class_c_boosted_tree_impl_for_test.html#a770cc938f0c66c46b78d45ace70c025b" title=" " alt="" coords="250,13,424,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="456,36,424,36,424,31,456,31"/>
+<area shape="rect" id="Node000003" href="$d2/d06/_c_boosted_tree_test_8cc.html#a217d4a99d3f9bdbad2736762f852e86d" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="235,36,202,36,202,31,235,31"/>
+</map>

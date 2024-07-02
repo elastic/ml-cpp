@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers.cc}::CEnsemble&lt; POINT &gt;::CModel" name="ml::maths::analytics::anonymous_namespace{COutliers.cc}::CEnsemble&lt; POINT &gt;::CModel">
+<area shape="rect" id="Node000001" title="A model of the points used as part of the ensemble." alt="" coords="578,34,757,105"/>
+<area shape="rect" id="Node000002" href="$d9/ded/structml_1_1maths_1_1common_1_1_s_conformable_matrix.html" title=" " alt="" coords="230,5,378,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="393,39,578,58,578,63,393,45"/>
+<area shape="rect" id="Node000003" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="208,85,399,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="415,92,578,75,578,81,415,97"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,85,159,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="175,103,208,103,208,108,175,108"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate" name="ml::maths::common::CLogNormalMeanPrecConjugate">
+<area shape="rect" id="Node000001" title="A conjugate prior distribution for a log&#45;normal variable." alt="" coords="5,94,218,135"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="39,5,184,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,62,114,94,109,94,109,62"/>
+</map>

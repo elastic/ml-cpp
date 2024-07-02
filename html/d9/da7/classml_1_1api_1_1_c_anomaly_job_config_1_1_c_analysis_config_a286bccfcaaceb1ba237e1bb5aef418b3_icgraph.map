@@ -1,0 +1,11 @@
+<map id="ml::api::CAnomalyJobConfig::CAnalysisConfig::init" name="ml::api::CAnomalyJobConfig::CAnalysisConfig::init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="347,47,535,88"/>
+<area shape="rect" id="Node000002" href="$db/d51/_c_anomaly_job_config_test_8cc.html#a857d4d3fe4099e74f8c066a82a8d7598" title=" " alt="" coords="103,5,299,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="332,48,266,34,267,29,333,43"/>
+<area shape="rect" id="Node000003" href="$db/d51/_c_anomaly_job_config_test_8cc.html#ad29cb8d8a93a07515b6322084cd4fe11" title=" " alt="" coords="103,55,299,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="332,70,299,70,299,65,332,65"/>
+<area shape="rect" id="Node000004" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#ad9ae623b77a1a25c854ac51622be1e4d" title=" " alt="" coords="107,105,295,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="339,95,290,106,289,101,338,89"/>
+<area shape="rect" id="Node000005" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="5,112,55,138"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="91,128,55,128,55,122,91,122"/>
+</map>

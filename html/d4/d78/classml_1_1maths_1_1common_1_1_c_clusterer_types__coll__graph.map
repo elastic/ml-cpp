@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CClustererTypes" name="ml::maths::common::CClustererTypes">
+<area shape="rect" id="Node000001" title="Factors out the non&#45;template part of CClusterer for improved compile times." alt="" coords="21,124,166,165"/>
+<area shape="rect" id="Node000002" href="$d2/d43/classml_1_1core_1_1_c_persistence_tag.html" title="Convenience container class for holding persistence tags." alt="" coords="5,5,182,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,47,96,124,91,124,91,47"/>
+</map>

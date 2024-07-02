@@ -1,0 +1,9 @@
+<map id="ml::api::CDataFrameOutliersInstrumentation::writeParameters" name="ml::api::CDataFrameOutliersInstrumentation::writeParameters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,220,111"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="273,5,456,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,67,268,48,269,53,194,73"/>
+<area shape="rect" id="Node000003" href="$dc/dc6/classml_1_1maths_1_1analytics_1_1_c_outliers.html#a65c7a676c4f10c7a611a362ce7c83301" title="Return string representation of the method." alt="" coords="295,71,434,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,88,279,88,279,94,220,94"/>
+<area shape="rect" id="Node000004" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html#a360add64494012fba9cb743452aafbb8" title=" " alt="" coords="268,136,461,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,109,269,129,268,134,193,115"/>
+</map>

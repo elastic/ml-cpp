@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::handle" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::handle">
+<area shape="rect" id="Node000001" title="Update the components with a new value." alt="" coords="5,40,232,95"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a97443791d51e7e2ac90ce6ad0590bc59" title="Extract the effective sample count from a collection of weights." alt="" coords="310,5,441,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,43,294,31,295,36,233,48"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="280,55,471,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,65,264,65,264,70,232,70"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="338,128,413,154"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="219,93,324,124,323,129,218,99"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="336,131,325,121,329,110,346,104,375,101,412,106,423,111,426,117,421,119,419,114,411,111,375,107,347,109,332,114,330,120,340,127"/>
+</map>

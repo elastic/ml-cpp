@@ -1,0 +1,44 @@
+<map id="ml::api::COneHotEncoding::addToJsonStream" name="ml::api::COneHotEncoding::addToJsonStream">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,233,183,274"/>
+<area shape="rect" id="Node000002" href="$d7/d50/classml_1_1api_1_1_c_encoding.html#a54a6dcfba9f8df26500291bd90457683" title=" " alt="" coords="231,233,365,274"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,251,215,251,215,256,183,256"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3e682c1a84193d87d74cf25162d8b209" title=" " alt="" coords="413,200,595,241"/>
+<area shape="poly" id="edge12_Node000001_Node000003" title=" " alt="" coords="170,230,230,219,315,213,397,213,397,218,316,218,231,224,171,235"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abc2850b89685437da0d9d93504ff6aa9" title=" " alt="" coords="413,281,595,322"/>
+<area shape="poly" id="edge26_Node000001_Node000006" title=" " alt="" coords="174,272,231,283,316,292,398,297,398,302,316,298,230,288,173,277"/>
+<area shape="rect" id="Node000010" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html#ae308c1ff681335d376672f2550cbaa36" title="Overwrites the Writer::onObjectBegin in order to count nested objects." alt="" coords="418,71,590,111"/>
+<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="147,230,436,115,438,120,149,235"/>
+<area shape="rect" id="Node000013" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html#ab672c16b5f9ed1b44cb2d29a28c879b5" title=" " alt="" coords="418,411,590,451"/>
+<area shape="poly" id="edge19_Node000001_Node000013" title=" " alt="" coords="144,272,442,402,440,407,142,277"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,240,397,235,398,240,366,245"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="366,267,400,275,399,280,365,272"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="910,157,1092,198"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="553,197,596,182,643,171,707,163,773,161,894,164,894,170,773,166,708,169,644,176,598,187,555,202"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="910,276,1092,317"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="596,232,895,278,894,283,595,237"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="643,300,862,341"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="596,306,628,308,628,314,596,311"/>
+<area shape="rect" id="Node000009" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="661,185,844,226"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="558,278,683,230,684,235,560,283"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="788,297,950,204,952,208,791,302"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="862,307,894,304,894,309,863,312"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="910,341,1092,382"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="863,336,895,341,894,347,862,341"/>
+<area shape="poly" id="edge11_Node000009_Node000004" title=" " alt="" coords="844,193,894,187,894,192,845,198"/>
+<area shape="rect" id="Node000011" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a0bfaf41d409565d4b091676c48750501" title=" " alt="" coords="661,5,844,46"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="584,67,657,48,658,53,585,73"/>
+<area shape="rect" id="Node000012" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a688d4dc1c2cdab063e0bc24f22b7ce9f" title=" " alt="" coords="661,71,844,111"/>
+<area shape="poly" id="edge16_Node000010_Node000012" title=" " alt="" coords="591,88,646,88,646,94,591,94"/>
+<area shape="poly" id="edge15_Node000011_Node000004" title=" " alt="" coords="835,44,863,57,923,99,972,144,968,148,920,103,860,61,833,49"/>
+<area shape="poly" id="edge17_Node000012_Node000004" title=" " alt="" coords="814,109,927,149,925,154,812,114"/>
+<area shape="poly" id="edge18_Node000012_Node000005" title=" " alt="" coords="784,110,863,172,968,263,964,267,860,176,781,114"/>
+<area shape="rect" id="Node000014" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a5c143d822ec423894dc475bb343616a9" title=" " alt="" coords="661,365,844,406"/>
+<area shape="poly" id="edge20_Node000013_Node000014" title=" " alt="" coords="590,413,646,402,647,408,591,418"/>
+<area shape="rect" id="Node000015" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a86c7ffb5926b088e920d4b52e76ea6af" title=" " alt="" coords="661,496,844,537"/>
+<area shape="poly" id="edge23_Node000013_Node000015" title=" " alt="" coords="559,449,644,480,668,488,666,493,642,486,557,454"/>
+<area shape="rect" id="Node000016" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3b00b82d137a049ffeb3042ceb62ded3" title=" " alt="" coords="661,431,844,471"/>
+<area shape="poly" id="edge24_Node000013_Node000016" title=" " alt="" coords="591,435,646,440,646,445,591,441"/>
+<area shape="poly" id="edge21_Node000014_Node000004" title=" " alt="" coords="841,363,860,350,878,330,886,310,893,288,907,263,934,233,961,206,965,210,937,236,912,266,898,290,891,312,882,333,863,354,844,367"/>
+<area shape="poly" id="edge22_Node000014_Node000008" title=" " alt="" coords="844,374,894,369,894,375,845,379"/>
+<area shape="poly" id="edge25_Node000016_Node000005" title=" " alt="" coords="841,428,860,416,877,395,883,373,890,351,908,328,914,323,917,327,912,332,895,353,889,375,881,397,863,420,844,432"/>
+</map>

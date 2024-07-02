@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::SSampleData" name="ml::maths::time_series::CTimeSeriesCorrelations::SSampleData">
+<area shape="rect" id="Node000001" title="Wraps up the sampled data for a feature." alt="" coords="482,97,658,152"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="208,5,365,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="365,49,459,82,492,93,490,98,457,87,363,54"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,112,159,153"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="128,101,207,57,233,44,235,49,209,61,130,106"/>
+<area shape="rect" id="Node000004" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="208,71,365,111"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="174,111,207,104,208,110,175,116"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="208,136,365,177"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="174,140,208,144,207,150,174,146"/>
+<area shape="rect" id="Node000006" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="208,201,365,242"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="144,157,209,186,238,198,236,203,207,191,142,162"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="381,99,482,111,481,117,381,105"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="380,146,458,138,482,135,482,140,459,143,381,151"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="373,194,457,166,500,150,502,155,459,171,375,199"/>
+</map>

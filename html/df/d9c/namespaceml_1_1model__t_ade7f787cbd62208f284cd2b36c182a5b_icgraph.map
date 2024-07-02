@@ -1,0 +1,18 @@
+<map id="ml::model_t::learnRate" name="ml::model_t::learnRate">
+<area shape="rect" id="Node000001" title="Get the rate at which feature learns." alt="" coords="762,112,916,137"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#adb1417675ecb9c9377e7b9eceb37aa1d" title=" " alt="" coords="517,104,714,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="747,127,715,127,715,122,747,122"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="263,5,456,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="557,99,468,61,432,49,434,44,470,57,559,95"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="250,71,469,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="501,112,469,108,470,103,502,107"/>
+<area shape="rect" id="Node000006" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="276,136,443,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="502,141,444,149,443,143,501,136"/>
+<area shape="rect" id="Node000008" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="263,225,456,266"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="558,154,406,227,403,222,556,149"/>
+<area shape="rect" id="Node000004" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="247,28,202,28,202,23,247,23"/>
+<area shape="rect" id="Node000007" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,144,202,169"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="260,159,202,159,202,154,260,154"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="401,212,386,206,359,204,335,206,320,211,314,217,317,224,311,225,309,215,317,206,334,201,359,199,387,201,403,207"/>
+</map>

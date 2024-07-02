@@ -1,0 +1,30 @@
+<map id="ml::maths::common::CQDigest::CNode::numberDescendants" name="ml::maths::common::CQDigest::CNode::numberDescendants">
+<area shape="rect" id="Node000001" title="Get the number of descendants." alt="" coords="1272,126,1528,167"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a9a8dcfb6b6279db313c8a77d3e58ee9d" title="Take the descendants of node." alt="" coords="986,126,1224,167"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1257,149,1224,149,1224,144,1257,144"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a5d1c722a4dfa25d2a541fc5eb75b1c58" title=" " alt="" coords="769,126,938,167"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="970,149,938,149,938,144,970,144"/>
+<area shape="poly" id="edge14_Node000003_Node000003" title=" " alt="" coords="894,113,879,107,853,104,830,106,816,111,810,117,813,125,807,126,805,116,813,107,829,101,854,99,880,102,896,108"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#abd724b3e68201b465f54912c4aad2c77" title="Create from an XML node tree." alt="" coords="494,19,721,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="790,122,656,63,658,58,792,117"/>
+<area shape="rect" id="Node000006" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ad7fa8d16967a5dbca4e0ace80eedecbd" title="Add n values value to the q&#45;digest." alt="" coords="535,126,680,167"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="753,149,681,149,681,144,753,144"/>
+<area shape="rect" id="Node000013" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ab07683726c0768aad600d5be60e3b02e" title="Merge this and digest." alt="" coords="535,191,680,232"/>
+<area shape="poly" id="edge15_Node000003_Node000013" title=" " alt="" coords="760,174,681,195,680,190,759,168"/>
+<area shape="rect" id="Node000005" href="$db/d32/_c_q_digest_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="478,32,446,29,447,24,479,26"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="561,119,445,45,415,34,417,29,447,40,564,115"/>
+<area shape="rect" id="Node000007" href="$db/d32/_c_q_digest_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="534,123,445,94,406,83,407,78,447,89,535,118"/>
+<area shape="rect" id="Node000008" href="$db/d32/_c_q_digest_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="250,104,446,130"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="519,139,446,131,447,125,520,134"/>
+<area shape="rect" id="Node000009" href="$db/d32/_c_q_digest_test_8cc.html#afeec754f0da6511188570bb040d8a231" title=" " alt="" coords="250,153,446,179"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="520,156,447,161,446,156,519,150"/>
+<area shape="rect" id="Node000010" href="$db/d32/_c_q_digest_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,259,202,284"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="521,174,447,194,167,261,165,255,445,189,520,169"/>
+<area shape="rect" id="Node000011" href="$db/d32/_c_q_digest_test_8cc.html#a5cbafdc07efaf526c2d772259395c248" title=" " alt="" coords="250,255,446,280"/>
+<area shape="poly" id="edge11_Node000006_Node000011" title=" " alt="" coords="522,168,496,182,481,195,472,209,463,223,447,238,408,257,406,252,445,233,459,220,468,206,477,191,492,177,520,163"/>
+<area shape="rect" id="Node000012" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a4979e7ef438c7e50142ce809d29126fb" title=" " alt="" coords="275,305,421,345"/>
+<area shape="poly" id="edge12_Node000006_Node000012" title=" " alt="" coords="522,165,496,182,484,195,477,208,472,236,467,265,460,280,448,295,422,311,419,307,444,291,456,277,462,264,467,235,472,207,480,192,492,177,519,161"/>
+<area shape="poly" id="edge13_Node000012_Node000010" title=" " alt="" coords="259,308,165,288,166,282,260,303"/>
+</map>

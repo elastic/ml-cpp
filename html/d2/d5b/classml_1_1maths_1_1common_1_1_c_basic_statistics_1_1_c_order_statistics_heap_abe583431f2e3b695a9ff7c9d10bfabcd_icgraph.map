@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CBasicStatistics::COrderStatisticsHeap::fromDelimited" name="ml::maths::common::CBasicStatistics::COrderStatisticsHeap::fromDelimited">
+<area shape="rect" id="Node000001" title="Create a member function template so this class works with CPersistUtils::restore." alt="" coords="281,5,505,61"/>
+<area shape="rect" id="Node000002" href="$d8/d42/classml_1_1maths_1_1common_1_1_c_log_probability_of_m_from_n_extreme_samples.html#a11cdbe00adb2cfbe223aec512c102c33" title="Initialize from value if possible." alt="" coords="5,5,233,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="265,36,233,36,233,31,265,31"/>
+</map>

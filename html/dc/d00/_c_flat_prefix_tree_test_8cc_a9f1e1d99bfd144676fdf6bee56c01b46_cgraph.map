@@ -1,0 +1,25 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,132,202,157"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ac9c0287e7f45f33df1ec6065e6ddd1ec" title=" " alt="" coords="250,37,418,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,128,262,81,264,86,141,133"/>
+<area shape="rect" id="Node000006" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad06d73c85fb99d9a9888376159c88fd4" title="Pretty&#45;prints the tree." alt="" coords="466,95,634,135"/>
+<area shape="poly" id="edge13_Node000001_Node000006" title=" " alt="" coords="202,135,450,119,451,124,202,141"/>
+<area shape="rect" id="Node000008" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a709fd22341339d9c4e4e95cb7599cdf9" title="Returns true if the key fully matches a prefix present in the tree." alt="" coords="250,152,418,193"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="202,154,235,158,234,163,202,159"/>
+<area shape="rect" id="Node000010" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a0d0fbc913278f92a8286c097fa887ff8" title="Returns true if the key starts with a prefix present in the tree." alt="" coords="250,217,418,258"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="138,155,251,202,267,209,265,214,249,207,136,160"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a3c93c774f1385bee9d579c358ea7462b" title="The recursive building helper." alt="" coords="466,29,634,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,52,450,51,451,56,418,57"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="414,76,457,88,455,93,412,81"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="509,29,507,19,514,10,528,5,550,3,574,5,588,11,585,16,572,10,550,8,530,10,517,15,512,21,514,28"/>
+<area shape="rect" id="Node000004" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="682,29,861,70"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="635,47,667,47,667,52,635,52"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="909,70,955,96"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="861,66,894,73,893,78,860,71"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="698,95,845,135"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="635,112,683,112,683,118,635,118"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="845,98,893,88,894,93,846,103"/>
+<area shape="rect" id="Node000009" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a8e87239a9ad8c6fe1b76774e3cf0b9ee" title="Implementation of the search algorithm." alt="" coords="466,188,634,229"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="419,184,451,189,450,194,418,189"/>
+<area shape="poly" id="edge12_Node000010_Node000009" title=" " alt="" coords="418,224,450,219,451,224,419,229"/>
+</map>

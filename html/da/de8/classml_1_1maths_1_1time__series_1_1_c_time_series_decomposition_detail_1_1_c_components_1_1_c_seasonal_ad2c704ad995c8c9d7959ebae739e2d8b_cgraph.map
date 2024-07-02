@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CSeasonal::acceptPersistInserter" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CSeasonal::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="5,56,279,126"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="327,5,529,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="279,57,320,47,322,53,280,62"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="327,71,529,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="279,88,311,88,311,94,279,94"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="351,136,505,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="280,120,336,133,335,138,279,125"/>
+</map>

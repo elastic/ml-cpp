@@ -1,0 +1,10 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,202,96"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a22d889a0f2629eb58466141a29a975e0" title=" " alt="" coords="250,63,392,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,80,234,80,234,86,202,86"/>
+<area shape="rect" id="Node000003" href="$da/deb/classml_1_1core_1_1_c_time_utils_1_1_c_date_word_cache.html#a5796a889746d3f40136871e8b4a42059" title="Get the singleton instance." alt="" coords="450,29,642,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,70,434,64,435,69,393,75"/>
+<area shape="rect" id="Node000004" href="$da/deb/classml_1_1core_1_1_c_time_utils_1_1_c_date_word_cache.html#a455efc161dcba8d27b17a639c4773568" title="Check if a word is a date word." alt="" coords="440,95,651,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="393,90,425,95,424,100,392,96"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="503,29,501,19,508,10,523,5,546,3,570,5,584,11,582,16,569,10,546,8,524,10,511,15,506,21,508,28"/>
+</map>

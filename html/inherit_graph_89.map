@@ -1,0 +1,74 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="77,943,184,968"/>
+<area shape="rect" id="Node000001" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html" title=" " alt="" coords="347,964,530,1019"/>
+<area shape="poly" id="edge2_Node000000_Node000001" title=" " alt="" coords="199,961,347,978,346,983,199,966"/>
+<area shape="rect" id="Node000002" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title=" " alt="" coords="326,1732,551,1787"/>
+<area shape="poly" id="edge3_Node000000_Node000002" title=" " alt="" coords="144,982,197,1154,229,1271,258,1392,266,1466,270,1562,281,1654,291,1691,306,1718,328,1736,324,1740,302,1721,286,1693,275,1655,265,1562,260,1466,253,1393,224,1273,192,1155,138,984"/>
+<area shape="rect" id="Node000008" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title=" " alt="" coords="326,9,551,80"/>
+<area shape="poly" id="edge4_Node000000_Node000008" title=" " alt="" coords="138,927,191,735,224,602,253,466,260,384,264,277,275,172,285,130,302,98,324,76,328,80,306,101,290,131,280,173,269,277,265,384,258,466,229,603,196,736,143,928"/>
+<area shape="rect" id="Node000004" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title=" " alt="" coords="326,1812,551,1867"/>
+<area shape="poly" id="edge5_Node000000_Node000004" title=" " alt="" coords="144,982,198,1154,230,1271,258,1392,263,1433,265,1484,267,1603,270,1663,277,1718,288,1765,306,1798,327,1816,324,1820,302,1801,283,1766,271,1719,265,1664,262,1603,260,1484,258,1433,253,1393,225,1272,193,1155,139,984"/>
+<area shape="rect" id="Node000010" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="304,112,573,167"/>
+<area shape="poly" id="edge6_Node000000_Node000010" title=" " alt="" coords="137,927,189,735,253,466,259,422,260,382,255,313,256,281,262,249,276,216,302,180,318,166,322,169,306,184,281,218,267,250,261,282,261,313,265,382,265,422,258,466,194,736,142,928"/>
+<area shape="rect" id="Node000012" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="326,195,551,265"/>
+<area shape="poly" id="edge7_Node000000_Node000012" title=" " alt="" coords="136,927,301,275,324,256,328,261,306,278,141,928"/>
+<area shape="rect" id="Node000014" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="326,289,551,360"/>
+<area shape="poly" id="edge8_Node000000_Node000014" title=" " alt="" coords="136,927,213,623,262,460,284,402,302,370,324,352,327,356,306,373,289,404,267,461,218,625,141,928"/>
+<area shape="rect" id="Node000016" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="326,384,551,439"/>
+<area shape="poly" id="edge9_Node000000_Node000016" title=" " alt="" coords="130,927,139,836,149,775,165,708,186,638,216,570,254,506,302,449,324,433,328,437,305,453,258,509,221,572,191,640,170,709,154,776,144,836,136,927"/>
+<area shape="rect" id="Node000018" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="326,1412,551,1467"/>
+<area shape="poly" id="edge10_Node000000_Node000018" title=" " alt="" coords="137,983,149,1065,177,1176,199,1236,227,1295,263,1350,305,1397,327,1413,324,1417,302,1401,258,1353,223,1297,194,1238,172,1178,144,1066,132,984"/>
+<area shape="rect" id="Node000005" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="326,1492,551,1547"/>
+<area shape="poly" id="edge11_Node000000_Node000005" title=" " alt="" coords="142,982,220,1255,269,1400,289,1451,306,1478,327,1494,324,1498,302,1481,285,1453,264,1402,215,1257,137,984"/>
+<area shape="rect" id="Node000020" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html" title=" " alt="" coords="331,1044,546,1099"/>
+<area shape="poly" id="edge12_Node000000_Node000020" title=" " alt="" coords="174,973,305,1029,338,1040,336,1045,303,1034,172,978"/>
+<area shape="rect" id="Node000021" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html" title=" " alt="" coords="331,1124,546,1179"/>
+<area shape="poly" id="edge13_Node000000_Node000021" title=" " alt="" coords="154,978,218,1043,260,1079,305,1109,332,1122,330,1127,302,1114,256,1083,214,1047,151,982"/>
+<area shape="rect" id="Node000022" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html" title=" " alt="" coords="316,1203,561,1244"/>
+<area shape="poly" id="edge14_Node000000_Node000022" title=" " alt="" coords="146,981,169,1027,204,1083,250,1141,276,1167,305,1189,325,1200,323,1205,302,1194,273,1171,246,1145,200,1086,164,1029,141,983"/>
+<area shape="rect" id="Node000023" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html" title=" " alt="" coords="331,1268,546,1323"/>
+<area shape="poly" id="edge15_Node000000_Node000023" title=" " alt="" coords="142,982,163,1039,196,1112,244,1188,273,1223,305,1253,332,1269,329,1274,302,1257,269,1227,239,1191,191,1115,158,1041,137,984"/>
+<area shape="rect" id="Node000024" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html" title="A mutual information based measure of the dependence between two variables." alt="" coords="369,1347,508,1388"/>
+<area shape="poly" id="edge16_Node000000_Node000024" title=" " alt="" coords="139,983,154,1055,184,1150,206,1200,233,1249,266,1294,305,1333,335,1351,369,1360,367,1365,333,1356,302,1337,262,1298,229,1252,201,1202,179,1152,149,1056,133,984"/>
+<area shape="rect" id="Node000025" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html" title="An accumulator of the minimum and maximum value in a collection." alt="" coords="347,464,530,519"/>
+<area shape="poly" id="edge17_Node000000_Node000025" title=" " alt="" coords="132,926,146,848,175,741,197,684,225,628,260,575,302,529,322,515,345,504,347,509,325,519,305,533,264,579,230,630,202,686,180,743,151,849,138,927"/>
+<area shape="rect" id="Node000006" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title="A heap based accumulator class for order statistics." alt="" coords="326,1572,551,1627"/>
+<area shape="poly" id="edge18_Node000000_Node000006" title=" " alt="" coords="142,982,306,1558,327,1574,324,1578,301,1561,137,984"/>
+<area shape="rect" id="Node000007" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title="A stack based accumulator class for order statistics." alt="" coords="326,1652,551,1707"/>
+<area shape="poly" id="edge19_Node000000_Node000007" title=" " alt="" coords="143,982,195,1154,258,1392,265,1431,266,1465,264,1526,265,1553,271,1580,283,1608,306,1637,327,1655,324,1659,302,1641,279,1611,266,1582,260,1554,259,1526,261,1465,259,1431,253,1393,190,1156,138,984"/>
+<area shape="rect" id="Node000026" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html" title="Computes the joint probability of seeing a more extreme collection of samples." alt="" coords="340,544,537,599"/>
+<area shape="poly" id="edge20_Node000000_Node000026" title=" " alt="" coords="136,927,155,863,188,780,210,736,236,693,267,652,302,616,338,593,341,598,305,620,271,655,240,696,214,739,192,782,160,865,141,928"/>
+<area shape="rect" id="Node000027" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_log_joint_probability_of_less_likely_samples.html" title="Computes log of the joint probability of seeing a more extreme collection of samples." alt="" coords="623,577,806,633"/>
+<area shape="poly" id="edge23_Node000000_Node000027" title=" " alt="" coords="137,926,156,869,189,795,211,757,237,721,268,688,302,660,327,648,359,638,442,622,535,612,622,606,622,611,536,617,443,627,361,643,329,653,305,664,271,692,241,724,216,760,194,798,161,871,142,928"/>
+<area shape="rect" id="Node000028" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html" title=" " alt="" coords="331,674,546,730"/>
+<area shape="poly" id="edge22_Node000000_Node000028" title=" " alt="" coords="144,927,169,886,205,835,250,784,302,740,329,725,332,730,305,744,253,788,209,839,173,889,148,930"/>
+<area shape="rect" id="Node000029" href="$d8/d42/classml_1_1maths_1_1common_1_1_c_log_probability_of_m_from_n_extreme_samples.html" title="Computes the probability of seeing the M most extreme samples in a collection of N samples." alt="" coords="325,754,552,810"/>
+<area shape="poly" id="edge24_Node000000_Node000029" title=" " alt="" coords="154,930,218,875,259,845,302,820,328,808,330,813,305,824,262,850,222,879,158,934"/>
+<area shape="rect" id="Node000030" href="$d8/d71/classml_1_1maths_1_1common_1_1_c_probability_of_extreme_sample.html" title="Computes probability of seeing the most extreme sample in a collection of N samples." alt="" coords="339,834,538,874"/>
+<area shape="poly" id="edge25_Node000000_Node000030" title=" " alt="" coords="175,934,303,885,345,872,347,878,305,890,177,939"/>
+<area shape="rect" id="Node000031" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html" title="A sketch suitable for c.d.f. queries on a 1d double valued random variable." alt="" coords="366,899,511,940"/>
+<area shape="poly" id="edge26_Node000000_Node000031" title=" " alt="" coords="199,945,365,925,366,930,199,950"/>
+<area shape="poly" id="edge21_Node000026_Node000027" title=" " alt="" coords="553,582,623,591,622,596,552,588"/>
+<area shape="rect" id="Node000032" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html" title="This tunes the quantile sketch for performance when space is less important." alt="" coords="641,932,787,973"/>
+<area shape="poly" id="edge27_Node000031_Node000032" title=" " alt="" coords="527,927,641,941,640,946,526,933"/>
+<area shape="rect" id="Node000033" href="$dc/d1d/classml_1_1maths_1_1common_1_1_c_fixed_quantile_sketch.html" title="Template wrapper for fixed size sketches which can be default constructed." alt="" coords="621,867,807,908"/>
+<area shape="poly" id="edge28_Node000031_Node000033" title=" " alt="" coords="526,907,620,896,621,901,527,912"/>
+<area shape="rect" id="Node000003" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title="Implementation of an accumulator class for order statistics." alt="" coords="18,1652,243,1707"/>
+<area shape="poly" id="edge29_Node000003_Node000002" title=" " alt="" coords="256,1709,329,1728,328,1733,254,1714"/>
+<area shape="poly" id="edge30_Node000003_Node000004" title=" " alt="" coords="179,1715,237,1757,305,1797,332,1808,330,1813,302,1802,234,1762,175,1719"/>
+<area shape="poly" id="edge31_Node000003_Node000005" title=" " alt="" coords="175,1640,234,1597,302,1557,330,1545,332,1550,305,1562,237,1601,179,1644"/>
+<area shape="poly" id="edge32_Node000003_Node000006" title=" " alt="" coords="254,1644,328,1625,329,1630,256,1650"/>
+<area shape="poly" id="edge33_Node000003_Node000007" title=" " alt="" coords="259,1677,326,1677,326,1682,259,1682"/>
+<area shape="rect" id="Node000015" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="18,289,243,360"/>
+<area shape="poly" id="edge34_Node000015_Node000014" title=" " alt="" coords="259,322,326,322,326,327,259,327"/>
+<area shape="rect" id="Node000013" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="18,195,243,265"/>
+<area shape="poly" id="edge35_Node000013_Node000012" title=" " alt="" coords="259,227,326,227,326,233,259,233"/>
+<area shape="rect" id="Node000009" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="18,5,243,76"/>
+<area shape="poly" id="edge36_Node000009_Node000008" title=" " alt="" coords="259,40,326,41,326,46,259,45"/>
+<area shape="rect" id="Node000019" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="18,1404,243,1475"/>
+<area shape="poly" id="edge37_Node000019_Node000018" title=" " alt="" coords="259,1437,326,1437,326,1442,259,1442"/>
+<area shape="rect" id="Node000017" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="18,384,243,455"/>
+<area shape="poly" id="edge38_Node000017_Node000016" title=" " alt="" coords="259,413,326,412,326,417,259,419"/>
+<area shape="rect" id="Node000011" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="5,100,256,171"/>
+<area shape="poly" id="edge39_Node000011_Node000010" title=" " alt="" coords="271,134,303,135,303,140,271,140"/>
+</map>

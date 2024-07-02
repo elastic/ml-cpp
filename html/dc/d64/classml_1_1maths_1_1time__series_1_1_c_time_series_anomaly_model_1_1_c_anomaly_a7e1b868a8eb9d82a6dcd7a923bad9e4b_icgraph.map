@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::CAnomaly::length" name="ml::maths::time_series::CTimeSeriesAnomalyModel::CAnomaly::length">
+<area shape="rect" id="Node000001" title="Return the number of seconds from the first anomalous bucket until time." alt="" coords="245,5,436,61"/>
+<area shape="rect" id="Node000002" href="$dc/d64/classml_1_1maths_1_1time__series_1_1_c_time_series_anomaly_model_1_1_c_anomaly.html#a674607d13986c1b33795a8df9dcd766b" title="Get the weight to apply to this anomaly on update." alt="" coords="5,5,197,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,36,197,36,197,31,229,31"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="ml::maths::time_series::CCountMinSketch::memoryUsage" name="ml::maths::time_series::CCountMinSketch::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this sketch." alt="" coords="5,172,235,212"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="283,122,489,147"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,168,307,149,308,154,218,173"/>
+<area shape="rect" id="Node000006" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="294,200,478,240"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="236,201,279,206,279,211,235,207"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="537,5,708,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,119,540,65,543,70,419,123"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="539,85,706,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="489,119,523,115,524,120,490,124"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="756,117,942,173"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="489,134,741,140,741,145,489,140"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="707,117,741,123,740,129,706,123"/>
+<area shape="rect" id="Node000007" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="540,200,705,240"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="478,226,525,226,525,231,478,231"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="540,214,493,214,493,208,540,209"/>
+<area shape="rect" id="Node000008" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="761,218,937,259"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="706,224,746,227,745,233,705,229"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="761,251,708,254,623,259,537,254,485,246,486,241,537,249,623,254,708,249,760,245"/>
+</map>

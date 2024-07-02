@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod&lt; POINT, NEAREST_NEIGHBOURS &gt;" name="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod&lt; POINT, NEAREST_NEIGHBOURS &gt;">
+<area shape="rect" id="Node000001" title="The interface for a nearest neighbour outlier calculation method." alt="" coords="5,158,252,229"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_distancek_n_n.html" title="Computes the distance to the k&#39;th nearest neighbour score." alt="" coords="315,5,589,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,146,236,106,299,71,327,59,329,64,301,76,239,111,185,150"/>
+<area shape="rect" id="Node000003" href="$da/dc9/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_ldof.html" title="Computes the local distance based outlier score." alt="" coords="325,85,579,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="266,157,336,139,337,144,267,162"/>
+<area shape="rect" id="Node000004" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html" title="Computes the local outlier factor score." alt="" coords="325,165,579,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="267,191,324,191,324,196,267,196"/>
+<area shape="rect" id="Node000005" href="$d8/ddf/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_multiple_methods.html" title="A composite method." alt="" coords="300,245,604,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="267,225,337,242,336,247,266,230"/>
+<area shape="rect" id="Node000006" href="$d4/d6c/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_total_distancek_n_n.html" title="Computes the total distance to the k nearest neighbours score." alt="" coords="315,325,589,381"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="185,236,239,276,301,311,329,322,327,327,299,316,236,280,182,241"/>
+</map>

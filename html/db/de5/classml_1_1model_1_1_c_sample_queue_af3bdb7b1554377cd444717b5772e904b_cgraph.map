@@ -1,0 +1,55 @@
+<map id="ml::model::CSampleQueue::addHistorical" name="ml::model::CSampleQueue::addHistorical">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,365,184,406"/>
+<area shape="rect" id="Node000002" href="$db/d17/structml_1_1model_1_1_c_sample_queue_1_1_s_sub_sample.html#ac7b8d0f146f49c882b6517025f4059af" title=" " alt="" coords="247,69,426,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,364,113,315,139,249,177,181,202,149,230,121,236,116,239,120,233,125,206,152,182,184,144,252,118,317,103,366"/>
+<area shape="rect" id="Node000007" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a4458307df4ab8f653908bf0bf2194bd6" title="Returns the combined count of all the measurements." alt="" coords="745,301,914,342"/>
+<area shape="poly" id="edge12_Node000001_Node000007" title=" " alt="" coords="174,362,231,351,366,336,501,326,729,319,729,324,501,331,366,341,232,356,175,367"/>
+<area shape="rect" id="Node000013" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#ae8756f41f10bc83805d289f655073b5a" title=" " alt="" coords="247,200,426,241"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="111,363,162,311,195,282,230,257,252,245,255,250,233,261,198,286,165,315,115,367"/>
+<area shape="rect" id="Node000014" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#aa20bda7f6630b7345c6341aca23aa1b7" title=" " alt="" coords="491,200,669,241"/>
+<area shape="poly" id="edge26_Node000001_Node000014" title=" " alt="" coords="126,362,174,334,231,307,327,280,477,242,478,248,329,285,233,312,177,339,129,367"/>
+<area shape="rect" id="Node000015" href="$db/d17/structml_1_1model_1_1_c_sample_queue_1_1_s_sub_sample.html#af1c864f06a9de9d8d249583046cc0708" title=" " alt="" coords="247,365,426,406"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="184,383,232,383,232,388,184,388"/>
+<area shape="rect" id="Node000016" href="$db/d17/structml_1_1model_1_1_c_sample_queue_1_1_s_sub_sample.html#aefb8feabc9ddadc8699d23cc1ce7feb7" title=" " alt="" coords="232,431,441,471"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="173,404,244,423,243,429,171,409"/>
+<area shape="rect" id="Node000018" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="246,495,427,551"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="122,404,172,442,233,481,243,486,241,491,230,485,169,446,119,408"/>
+<area shape="rect" id="Node000021" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a5e900be80759ee5fff540da114ada038" title=" " alt="" coords="246,135,427,175"/>
+<area shape="poly" id="edge23_Node000001_Node000021" title=" " alt="" coords="102,364,120,326,148,278,185,229,230,186,238,181,241,185,233,190,189,232,153,281,125,329,107,366"/>
+<area shape="rect" id="Node000022" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#ac1a15906e05fa9a3c652ee9108ae7b1e" title=" " alt="" coords="247,575,426,615"/>
+<area shape="poly" id="edge27_Node000001_Node000022" title=" " alt="" coords="109,405,128,439,156,481,191,524,233,561,240,565,237,569,230,565,187,528,151,484,123,442,104,408"/>
+<area shape="rect" id="Node000023" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a8ad4085f4be0f3864ddb84fc99b8a5ad" title=" " alt="" coords="247,640,426,681"/>
+<area shape="poly" id="edge28_Node000001_Node000023" title=" " alt="" coords="104,406,120,451,147,510,184,572,207,600,233,625,240,630,236,634,230,629,203,604,180,575,142,513,115,453,99,407"/>
+<area shape="rect" id="Node000024" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#ae1d077a315751eb31449afcc68509517" title=" " alt="" coords="247,705,426,746"/>
+<area shape="poly" id="edge29_Node000001_Node000024" title=" " alt="" coords="102,406,114,462,138,539,155,580,177,620,203,658,233,690,239,695,235,699,230,694,199,661,172,623,151,582,133,541,109,464,96,407"/>
+<area shape="rect" id="Node000003" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#afa902aa9888a67384b9bf1be89500db5" title=" " alt="" coords="495,135,664,175"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="415,108,487,127,486,133,414,113"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="718,135,941,191"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,155,703,156,703,162,665,160"/>
+<area shape="rect" id="Node000005" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#abf37cd764badc8c0cfbb2a51c4a93906" title="Add value to an order statistic." alt="" coords="739,215,920,255"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="639,173,719,200,740,207,739,212,718,206,638,178"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="653,174,672,186,689,206,697,226,705,245,720,265,759,292,756,296,717,269,700,248,692,228,685,209,669,190,650,178"/>
+<area shape="rect" id="Node000009" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ad9152389320356c28a74d4840a929e59" title="Returns the mean time of all the measurements." alt="" coords="745,5,914,46"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="604,132,655,94,717,57,733,49,736,54,720,61,658,98,607,136"/>
+<area shape="rect" id="Node000011" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ae949469432decbaff601c88431943d6a" title="Returns the aggregated value of all the measurements." alt="" coords="745,71,914,111"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="661,131,732,113,734,118,663,137"/>
+<area shape="rect" id="Node000006" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="989,207,1213,263"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="920,232,973,232,973,238,920,238"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="1021,301,1181,342"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="915,319,1006,319,1006,324,915,324"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1021,5,1181,46"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="915,23,1006,23,1006,28,915,28"/>
+<area shape="rect" id="Node000012" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a661bd8a0db4975639e7b2a7555610989" title="Get the median value of an order statistic." alt="" coords="1011,71,1191,111"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="915,88,995,88,995,94,915,94"/>
+<area shape="poly" id="edge14_Node000013_Node000003" title=" " alt="" coords="414,197,486,177,487,183,415,202"/>
+<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="426,218,475,218,475,223,426,223"/>
+<area shape="rect" id="Node000017" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="507,431,652,471"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="441,448,491,448,491,454,441,454"/>
+<area shape="rect" id="Node000019" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="489,495,670,551"/>
+<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="428,520,473,520,473,526,428,526"/>
+<area shape="rect" id="Node000020" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="739,495,920,551"/>
+<area shape="poly" id="edge21_Node000019_Node000020" title=" " alt="" coords="671,520,723,520,723,526,671,526"/>
+<area shape="poly" id="edge22_Node000020_Node000020" title=" " alt="" coords="781,495,781,485,790,476,806,470,830,469,856,471,872,478,870,483,854,476,829,474,807,476,793,480,786,487,786,495"/>
+<area shape="poly" id="edge24_Node000021_Node000003" title=" " alt="" coords="428,152,480,152,480,158,428,158"/>
+<area shape="poly" id="edge25_Node000021_Node000014" title=" " alt="" coords="415,173,487,193,486,198,414,178"/>
+</map>

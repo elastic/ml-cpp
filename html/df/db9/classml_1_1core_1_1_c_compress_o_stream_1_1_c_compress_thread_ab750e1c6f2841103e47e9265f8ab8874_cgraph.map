@@ -1,0 +1,15 @@
+<map id="ml::core::CCompressOStream::CCompressThread::shutdown" name="ml::core::CCompressOStream::CCompressThread::shutdown">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,209,87"/>
+<area shape="rect" id="Node000002" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="257,47,452,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,64,241,64,241,70,209,70"/>
+<area shape="rect" id="Node000003" href="$d1/d57/classml_1_1core_1_1_c_condition.html#adf8ff0b46ed94d5031927e967b854b1b" title="Wake up a single thread that is blocked in wait." alt="" coords="743,5,885,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,56,727,31,728,36,453,61"/>
+<area shape="rect" id="Node000004" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="500,75,695,115"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="453,76,485,79,484,85,452,81"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="663,71,733,49,735,54,665,77"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="775,94,853,120"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="696,98,760,101,760,107,696,103"/>
+<area shape="rect" id="Node000006" href="$d1/d57/classml_1_1core_1_1_c_condition.html#a3b7521bdef190c38a10e67b14ec0b5d0" title=" " alt="" coords="743,144,885,185"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="665,113,735,136,733,141,663,119"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="778,95,771,86,775,76,790,70,814,68,840,70,854,77,852,82,839,75,814,73,791,75,779,80,776,85,782,92"/>
+</map>

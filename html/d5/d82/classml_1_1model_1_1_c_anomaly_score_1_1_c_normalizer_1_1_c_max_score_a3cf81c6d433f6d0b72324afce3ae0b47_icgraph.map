@@ -1,0 +1,25 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::CMaxScore::score" name="ml::model::CAnomalyScore::CNormalizer::CMaxScore::score">
+<area shape="rect" id="Node000001" title="Get the score." alt="" coords="502,221,721,261"/>
+<area shape="rect" id="Node000002" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#a6fc0797d04763081e560e9502b1913c4" title=" " alt="" coords="250,221,454,261"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="487,244,455,244,455,238,487,238"/>
+<area shape="rect" id="Node000003" href="$db/dcc/_c_anomaly_score_test_8cc.html#ae114264c7ba113ad53554ceb8c0d6160" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="332,208,311,170,281,125,244,81,200,44,180,34,182,29,203,40,248,77,285,122,315,167,337,206"/>
+<area shape="rect" id="Node000004" href="$db/dcc/_c_anomaly_score_test_8cc.html#a481ea2d7a9a12b38aeb56d775fcc8439" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="324,210,272,150,238,119,200,94,177,83,179,79,203,89,241,115,275,146,328,206"/>
+<area shape="rect" id="Node000005" href="$db/dcc/_c_anomaly_score_test_8cc.html#ad799547209b7440e472635b30f9c76e7" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="312,213,261,177,201,143,171,133,173,128,203,138,264,172,315,209"/>
+<area shape="rect" id="Node000006" href="$db/dcc/_c_anomaly_score_test_8cc.html#ab858b89cfa840c047b0052e6fa11ae92" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="278,218,201,193,162,182,163,177,202,188,279,212"/>
+<area shape="rect" id="Node000007" href="$db/dcc/_c_anomaly_score_test_8cc.html#ac6f92dfdc2c7155262fbc1fa7a6f9c9b" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="234,231,202,228,202,223,234,226"/>
+<area shape="rect" id="Node000008" href="$db/dcc/_c_anomaly_score_test_8cc.html#a206765bd17937656a77564435f281407" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="234,255,202,258,202,253,234,250"/>
+<area shape="rect" id="Node000009" href="$db/dcc/_c_anomaly_score_test_8cc.html#aee390ef4c32d155058a3b39238cf5a3b" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="277,269,202,293,163,303,162,298,201,288,276,264"/>
+<area shape="rect" id="Node000010" href="$db/dcc/_c_anomaly_score_test_8cc.html#a7f4980c7ed547f1d9a03fcc64706f91e" title=" " alt="" coords="5,351,202,376"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="315,273,263,309,203,342,173,353,171,348,201,337,261,304,312,269"/>
+<area shape="rect" id="Node000011" href="$db/dcc/_c_anomaly_score_test_8cc.html#a99a610f377a192869df12de832f96767" title=" " alt="" coords="5,400,202,426"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="328,275,275,335,241,365,203,391,178,402,176,397,200,386,238,361,272,331,324,272"/>
+<area shape="rect" id="Node000012" href="$db/dcc/_c_anomaly_score_test_8cc.html#a3762211201633346d940bcce73429185" title=" " alt="" coords="5,449,202,475"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="337,276,315,314,285,359,248,403,203,440,182,451,180,446,200,436,244,399,281,356,311,312,332,273"/>
+</map>

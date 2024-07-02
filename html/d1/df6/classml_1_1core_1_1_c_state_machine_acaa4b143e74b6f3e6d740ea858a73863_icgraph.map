@@ -1,0 +1,7 @@
+<map id="ml::core::CStateMachine::apply" name="ml::core::CStateMachine::apply">
+<area shape="rect" id="Node000001" title="Apply symbol to the machine." alt="" coords="250,31,416,72"/>
+<area shape="rect" id="Node000002" href="$d4/d99/_c_state_machine_test_8cc.html#a6131ef48578579de807e302fa76d331f" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,40,196,34,197,29,234,35"/>
+<area shape="rect" id="Node000003" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html#a1698b48b5dd6802edc079db5fe82becf" title=" " alt="" coords="22,56,185,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,68,185,75,185,70,234,63"/>
+</map>

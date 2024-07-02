@@ -1,0 +1,21 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::addSamples" name="ml::maths::time_series::CTimeSeriesCorrelations::addSamples">
+<area shape="rect" id="Node000001" title="Add a sample for the time series identified by id." alt="" coords="5,241,181,297"/>
+<area shape="rect" id="Node000002" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a3b078fbdfdcce4fadc70f3f0a3ce4fac" title="Add the value x for the variable X." alt="" coords="249,184,408,224"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,242,237,226,239,231,182,247"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#af85715f6cd6628a014dbe48cbd74da74" title="Compute the sample median." alt="" coords="244,249,413,290"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="181,267,228,267,228,272,181,272"/>
+<area shape="rect" id="Node000010" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="229,313,428,369"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="182,293,222,306,220,311,180,299"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="476,5,698,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="346,181,401,127,436,97,475,71,483,66,486,71,477,75,439,102,404,131,350,185"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="508,85,667,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="372,180,475,136,497,128,499,133,477,141,374,185"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="508,150,667,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="408,191,492,180,492,185,408,196"/>
+<area shape="rect" id="Node000006" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ab6d5675bdb4104969cb24f6b16acaa38" title="Get the variable moments." alt="" coords="492,216,683,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="408,211,476,219,476,225,408,216"/>
+<area shape="rect" id="Node000007" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ac25371051c14bae4925cb663fda67da0" title="Get the projected residuals." alt="" coords="492,281,682,322"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="399,222,429,235,453,250,477,265,494,273,492,278,475,270,450,255,427,240,397,227"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="499,346,675,387"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="409,222,430,235,448,260,454,285,461,308,478,331,487,338,484,342,474,335,456,311,449,286,443,262,426,239,407,226"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::variance" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::variance">
+<area shape="rect" id="Node000001" title="Get the variance of bucket." alt="" coords="5,45,215,101"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="306,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,55,290,44,290,49,215,61"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="263,85,505,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="215,86,247,91,247,96,215,91"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="553,5,709,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="463,31,537,31,537,36,463,36"/>
+</map>

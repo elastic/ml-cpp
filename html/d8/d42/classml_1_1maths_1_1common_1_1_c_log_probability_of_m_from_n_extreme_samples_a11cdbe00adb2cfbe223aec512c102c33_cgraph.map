@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples::fromDelimited" name="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples::fromDelimited">
+<area shape="rect" id="Node000001" title="Initialize from value if possible." alt="" coords="5,41,233,97"/>
+<area shape="rect" id="Node000002" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html#abe583431f2e3b695a9ff7c9d10bfabcd" title="Create a member function template so this class works with CPersistUtils::restore." alt="" coords="281,5,505,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,52,265,47,265,53,233,57"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="319,85,467,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,81,304,91,303,96,233,87"/>
+</map>

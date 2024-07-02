@@ -1,0 +1,13 @@
+<map id="ml::model::CIndividualModel" name="ml::model::CIndividualModel">
+<area shape="rect" id="Node000001" title="The most basic individual model interface." alt="" coords="110,94,297,120"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html" title="The event rate model common functionality." alt="" coords="5,168,199,193"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,131,121,169,118,165,172,127"/>
+<area shape="rect" id="Node000005" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html" title="The metric model common functionality." alt="" coords="222,168,390,193"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="234,126,290,165,287,169,231,131"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="105,5,302,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,62,206,93,201,93,201,62"/>
+<area shape="rect" id="Node000004" href="$d6/dcc/class_c_mock_event_rate_model.html" title=" " alt="" coords="22,241,182,267"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="105,209,105,241,99,241,99,209"/>
+<area shape="rect" id="Node000006" href="$d2/d1d/class_c_mock_metric_model.html" title=" " alt="" coords="239,241,373,267"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="309,209,309,241,303,241,303,209"/>
+</map>

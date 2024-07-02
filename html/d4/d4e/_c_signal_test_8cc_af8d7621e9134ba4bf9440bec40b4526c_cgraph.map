@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a36a516ff678660fad1b7ea2a59bbf235" title=" " alt="" coords="250,5,472,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,75,263,48,264,53,158,80"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="268,71,454,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,88,252,88,252,94,202,94"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="281,136,441,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="158,102,267,130,266,135,156,107"/>
+<area shape="rect" id="Node000003" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#af4cf4570e39f7f7129edd0e65d30a8e2" title=" " alt="" coords="520,5,760,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="472,23,504,23,504,28,472,28"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="548,71,733,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="454,88,532,88,532,94,454,94"/>
+</map>

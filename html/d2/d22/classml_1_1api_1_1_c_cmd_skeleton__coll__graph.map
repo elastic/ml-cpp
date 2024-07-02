@@ -1,0 +1,15 @@
+<map id="ml::api::CCmdSkeleton" name="ml::api::CCmdSkeleton">
+<area shape="rect" id="Node000001" title="Basic implementation of an API command." alt="" coords="554,79,712,105"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,30,171,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,24,220,15,308,6,378,3,446,11,531,34,577,54,614,76,611,81,574,59,529,39,445,16,377,8,308,12,220,20,162,29"/>
+<area shape="rect" id="Node000003" href="$da/d5c/classml_1_1core_1_1_c_data_searcher.html" title="Interface class for retrieving data by running a search." alt="" coords="220,30,386,56"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="186,40,219,40,219,46,186,46"/>
+<area shape="rect" id="Node000004" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html" title="Abstract interface for data adder." alt="" coords="229,79,377,105"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="163,57,244,76,243,81,162,62"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="402,52,531,71,561,76,560,81,530,76,401,58"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="393,90,554,90,554,95,393,95"/>
+<area shape="rect" id="Node000005" href="$db/d1a/classml_1_1api_1_1_c_input_parser.html" title="Input parser interface." alt="" coords="231,129,376,154"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="391,129,530,110,568,103,568,108,531,115,392,134"/>
+<area shape="rect" id="Node000006" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html" title="Abstract interface for classes that process data records." alt="" coords="221,178,386,204"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="400,177,465,165,529,146,574,126,611,103,613,108,576,130,531,151,466,170,401,182"/>
+</map>

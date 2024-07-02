@@ -1,0 +1,23 @@
+<map id="ml::maths::time_series::CDecompositionComponent::meanValue" name="ml::maths::time_series::CDecompositionComponent::meanValue">
+<area shape="rect" id="Node000001" title="Get the mean value of the function." alt="" coords="1030,70,1223,126"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#afa5a4a5743f70ec7b4560b16cd14f2c3" title=" " alt="" coords="785,5,982,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1015,67,954,49,955,44,1017,62"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a2d21c2d7ef54a074d258ed1e0a27df4d" title="Get the mean value of the component." alt="" coords="800,70,967,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1014,100,967,100,967,95,1014,95"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#afbd3692ae31df6650644c4210f798da8" title="Get the mean value of the component." alt="" coords="799,150,968,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1026,133,969,152,967,147,1024,128"/>
+<area shape="rect" id="Node000005" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a69952413851ded5195f1999cb240791f" title="Get the mean value of the baseline in the vicinity of time." alt="" coords="511,150,737,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="783,180,738,180,738,175,783,175"/>
+<area shape="rect" id="Node000006" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a7b54f245ed48fad96716b542a959a498" title="Get the mean value of the time series in the vicinity of time." alt="" coords="271,150,463,206"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="495,180,463,180,463,175,495,175"/>
+<area shape="rect" id="Node000007" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aa6e7191d99df015fef8879cc35acabcf" title=" " alt="" coords="5,66,223,92"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="304,144,222,105,187,95,188,90,224,101,306,139"/>
+<area shape="rect" id="Node000008" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#ae59d63e9eddb311544f1069371d55d2d" title=" " alt="" coords="5,116,223,141"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="255,159,183,144,184,139,256,153"/>
+<area shape="rect" id="Node000009" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aef5a8857b10a60709470dd25cc8fe10e" title=" " alt="" coords="5,165,223,191"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="255,180,223,180,223,175,255,175"/>
+<area shape="rect" id="Node000010" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aab271baedce8409a164cc1b5d2fd8f4a" title=" " alt="" coords="5,214,223,240"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="256,202,184,216,183,211,255,197"/>
+<area shape="rect" id="Node000011" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a1b19faa9fbce83f5f41bdb2ae950b300" title=" " alt="" coords="5,264,223,289"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="306,216,224,255,188,265,187,260,222,250,304,211"/>
+</map>

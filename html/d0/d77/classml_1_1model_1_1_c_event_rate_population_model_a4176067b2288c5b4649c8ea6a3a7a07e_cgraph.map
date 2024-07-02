@@ -1,0 +1,5 @@
+<map id="ml::model::CEventRatePopulationModel::clearPrunedResources" name="ml::model::CEventRatePopulationModel::clearPrunedResources">
+<area shape="rect" id="Node000001" title="Clear out large state objects for people/attributes that are pruned." alt="" coords="5,5,225,46"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a870e50638a0720baf58616db0ba12381" title=" " alt="" coords="273,5,470,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,23,257,23,257,28,225,28"/>
+</map>

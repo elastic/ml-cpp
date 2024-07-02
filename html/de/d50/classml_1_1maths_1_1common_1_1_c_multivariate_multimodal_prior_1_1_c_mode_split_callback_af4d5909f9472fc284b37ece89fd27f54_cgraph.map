@@ -1,0 +1,25 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::CModeSplitCallback::operator()" name="ml::maths::common::CMultivariateMultimodalPrior::CModeSplitCallback::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,207,217,263"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="274,61,444,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,204,323,93,326,97,157,209"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="270,157,448,183"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,205,292,184,293,190,218,210"/>
+<area shape="rect" id="Node000009" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ad153dc5e727108a73c1f9ff24cd78d45" title="Get the modes." alt="" coords="265,207,453,263"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="217,232,249,232,249,238,217,238"/>
+<area shape="rect" id="Node000010" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="286,287,432,343"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="200,261,272,284,271,289,199,266"/>
+<area shape="rect" id="Node000011" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#ae692d60215647fbc7a7247a3cd182e04" title=" " alt="" coords="265,367,453,423"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="145,261,200,307,266,353,274,357,271,362,263,357,197,311,142,265"/>
+<area shape="rect" id="Node000003" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="506,5,685,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,58,490,44,491,50,426,63"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="505,70,685,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="403,154,490,127,491,132,404,159"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="506,149,685,190"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="448,167,490,167,490,172,448,172"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="523,215,668,255"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="411,181,454,192,508,208,507,213,452,198,409,186"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="513,280,678,321"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="432,181,455,193,472,211,480,229,487,247,503,265,510,270,507,274,499,269,483,250,475,232,467,214,451,197,429,185"/>
+<area shape="rect" id="Node000012" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#aff534434b4cdddb810db17251126f149" title="Check if this is a non&#45;informative prior." alt="" coords="501,367,689,423"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="454,392,486,392,486,398,454,398"/>
+</map>

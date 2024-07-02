@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CConstantPrior::jointLogMarginalLikelihood" name="ml::maths::common::CConstantPrior::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,48,219,103"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="280,5,472,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,50,298,32,299,38,220,55"/>
+<area shape="rect" id="Node000003" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a18ac4f9868ec665e64bf7cf5350b7d61" title="Check if this is a non&#45;informative prior." alt="" coords="267,55,485,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="219,73,251,73,251,78,219,78"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="296,121,456,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,99,282,115,280,120,219,105"/>
+</map>

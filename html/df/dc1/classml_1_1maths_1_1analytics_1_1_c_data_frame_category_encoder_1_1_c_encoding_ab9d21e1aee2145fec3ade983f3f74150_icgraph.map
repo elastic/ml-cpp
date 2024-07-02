@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CDataFrameCategoryEncoder::CEncoding::type" name="ml::maths::analytics::CDataFrameCategoryEncoder::CEncoding::type">
+<area shape="rect" id="Node000001" title="Get the encoding type." alt="" coords="503,5,708,61"/>
+<area shape="rect" id="Node000002" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#a2b9a8967edd347a7426d30ee49e59f4d" title="Visit the encodings." alt="" coords="250,5,455,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="487,36,456,36,456,31,487,31"/>
+<area shape="rect" id="Node000003" href="$d7/d1e/classml_1_1api_1_1_c_data_summarization_json_writer.html#a200c8281011e7e085e69e2389a3a54fa" title="Write the JSON data summarisation." alt="" coords="5,13,202,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::adjustOffset" name="ml::maths::common::CMultivariateOneOfNPrior::adjustOffset">
+<area shape="rect" id="Node000001" title="Forward the offset to the model priors." alt="" coords="5,5,179,61"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#aa8cfb658b8e19df24a363561ceed55eb" title="Get the current values for the model weights." alt="" coords="227,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,31,211,31,211,36,179,36"/>
+<area shape="rect" id="Node000003" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a57dfff2ba8085af06b89dd6c9104f9cf" title="Get the current values for the log model weights." alt="" coords="448,5,621,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="400,31,432,31,432,36,400,36"/>
+</map>

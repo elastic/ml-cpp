@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::marginalLikelihoodSupport" name="ml::maths::common::CMultivariateMultimodalPrior::marginalLikelihoodSupport">
+<area shape="rect" id="Node000001" title="Get the support for the marginal likelihood function." alt="" coords="5,120,194,176"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a4d6d5d0e9b5365e9c4ed381447e1d5c5" title=" " alt="" coords="257,5,404,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,117,240,71,251,66,253,70,243,76,154,122"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="245,86,416,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,125,252,113,253,118,195,130"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="247,135,414,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,145,232,145,232,151,194,151"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="242,184,419,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="195,165,253,178,252,183,194,171"/>
+<area shape="rect" id="Node000010" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a9404d8cd6ee730e26669fd2860ac62a1" title=" " alt="" coords="257,235,404,290"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="154,174,243,220,253,225,251,230,240,225,151,179"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="467,64,647,120"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="393,181,418,171,432,161,442,151,465,130,473,125,476,130,469,134,445,155,435,165,420,176,395,186"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="468,144,647,184"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="419,181,451,177,452,182,420,187"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="485,209,630,250"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="420,207,470,214,469,219,419,212"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="475,274,640,315"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="391,208,420,220,445,239,468,259,480,265,477,270,466,263,442,244,418,225,389,213"/>
+</map>

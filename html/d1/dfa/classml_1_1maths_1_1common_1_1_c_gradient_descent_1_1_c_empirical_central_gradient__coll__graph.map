@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CGradientDescent::CEmpiricalCentralGradient" name="ml::maths::common::CGradientDescent::CEmpiricalCentralGradient">
+<area shape="rect" id="Node000001" title="Computes the gradient using the central difference method." alt="" coords="670,85,872,140"/>
+<area shape="rect" id="Node000002" href="$da/dc2/classml_1_1maths_1_1common_1_1_c_gradient_descent_1_1_c_gradient.html" title="The interface for the gradient calculation." alt="" coords="365,5,561,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="553,48,671,81,669,87,552,53"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="380,70,545,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="561,90,670,100,670,105,561,95"/>
+<area shape="rect" id="Node000004" href="$d6/dd2/classml_1_1maths_1_1common_1_1_c_gradient_descent_1_1_c_function.html" title="The interface for the function calculation." alt="" coords="364,120,561,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="577,127,670,119,670,124,577,133"/>
+<area shape="rect" id="Node000005" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html" title=" " alt="" coords="390,185,535,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="546,178,676,138,677,143,548,183"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="5,55,315,215"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="330,172,390,186,389,191,329,177"/>
+<area shape="rect" id="Node000007" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html" title=" " alt="" coords="85,240,235,310"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="250,252,389,220,390,225,251,257"/>
+</map>

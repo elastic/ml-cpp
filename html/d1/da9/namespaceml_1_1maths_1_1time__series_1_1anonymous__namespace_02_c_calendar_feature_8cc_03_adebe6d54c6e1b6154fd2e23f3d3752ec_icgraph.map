@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::anonymous_namespace{CCalendarFeature::cc}::isLeapYear" name="ml::maths::time_series::anonymous_namespace{CCalendarFeature::cc}::isLeapYear">
+<area shape="rect" id="Node000001" title="Check if year (years since 1900) is a leap year." alt="" coords="224,29,394,100"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="342,17,329,10,309,8,291,10,279,14,272,21,271,29,265,28,268,18,276,10,290,5,309,3,331,5,345,12"/>
+<area shape="rect" id="Node000002" href="$d1/da9/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_calendar_feature_8cc_03.html#a7c394e2d92252ae1acbf9158a5d3f3e4" title="Get the number of days in month of year." alt="" coords="5,29,176,100"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="208,67,176,67,176,62,208,62"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="124,17,111,10,90,8,73,10,61,14,54,21,52,29,47,28,49,18,58,10,71,5,91,3,113,5,126,12"/>
+</map>

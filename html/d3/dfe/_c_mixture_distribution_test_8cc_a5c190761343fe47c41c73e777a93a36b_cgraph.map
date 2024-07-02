@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,296,202,322"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a60cfac60a7086ae3449408c2a79beee5" title="Compute the c.d.f. at x for distribution." alt="" coords="261,223,424,249"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,293,283,251,284,256,149,298"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a404ada1c9b84c0049e143865cb425e2f" title=" " alt="" coords="250,362,435,403"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="149,320,260,354,258,360,147,325"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="486,5,666,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="350,221,400,152,438,109,481,71,487,67,490,71,485,75,442,113,404,155,354,224"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="503,85,648,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="358,220,412,180,482,136,495,130,498,134,484,141,415,184,362,224"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="486,150,665,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="390,220,485,193,487,198,392,225"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3b1d398255cd218c09ddfe9f75cfa829" title=" " alt="" coords="503,216,648,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="424,233,488,233,488,239,424,239"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="493,281,658,322"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="392,247,487,274,485,279,390,252"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="539,370,613,395"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="363,247,416,286,484,331,535,360,533,364,482,335,413,290,360,251"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="537,371,529,361,534,351,550,345,576,343,604,346,619,353,616,357,603,351,576,348,551,350,538,355,535,360,541,368"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="435,380,523,380,523,385,435,385"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,420,668,460"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="428,401,476,413,475,418,427,406"/>
+</map>

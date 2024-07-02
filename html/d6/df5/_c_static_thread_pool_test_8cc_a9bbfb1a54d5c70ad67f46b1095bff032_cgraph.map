@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,202,126"/>
+<area shape="rect" id="Node000002" href="$da/d2c/namespaceanonymous__namespace_02_c_static_thread_pool_test_8cc_03.html#ae1c07190553c5bc65857de6852f194a3" title=" " alt="" coords="250,5,412,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,97,235,64,236,69,143,102"/>
+<area shape="rect" id="Node000003" href="$da/d2c/namespaceanonymous__namespace_02_c_static_thread_pool_test_8cc_03.html#ab920e7f1997016cb0d46d920abec720f" title=" " alt="" coords="250,85,412,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,111,234,111,234,116,202,116"/>
+<area shape="rect" id="Node000004" href="$d7/d51/classml_1_1core_1_1_c_stop_watch.html#a6b3d0226f0409ca0b2ff2313db3e6521" title="Stop the stop watch and retrieve the accumulated reading." alt="" coords="256,165,406,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,124,250,157,249,162,146,129"/>
+<area shape="rect" id="Node000005" href="$d7/d51/classml_1_1core_1_1_c_stop_watch.html#a0a4c7bb4ca488a75565ac936e6a68568" title=" " alt="" coords="460,165,610,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="406,183,445,183,445,188,406,188"/>
+<area shape="rect" id="Node000006" href="$d4/d5d/classml_1_1core_1_1_c_monotonic_time.html#af9bc6485a84eee2bfa186b2e54b0115c" title="Get the number of milliseconds since some fixed point in the past." alt="" coords="658,165,834,206"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="610,183,643,183,643,188,610,188"/>
+</map>

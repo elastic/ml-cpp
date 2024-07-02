@@ -1,0 +1,14 @@
+<map id="ml::api::CEnsemble::CSizeInfo" name="ml::api::CEnsemble::CSizeInfo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="112,303,248,343"/>
+<area shape="rect" id="Node000002" href="$d6/d83/classml_1_1api_1_1_c_trained_model_1_1_c_size_info.html" title="A measure of the model complexity." alt="" coords="18,199,174,240"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,250,166,301,161,304,119,253"/>
+<area shape="rect" id="Node000003" href="$d3/d04/classml_1_1api_1_1_c_serializable_to_json_document.html" title="Interface for adding all elements of an inference model definition to a JSON writer." alt="" coords="5,95,165,136"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="91,151,96,198,91,199,86,152"/>
+<area shape="rect" id="Node000004" href="$d9/dcd/classml_1_1api_1_1_c_trained_model.html" title=" " alt="" coords="188,103,345,129"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="215,137,162,162,116,200,113,196,160,158,213,132"/>
+<area shape="rect" id="Node000006" href="$da/d46/classml_1_1api_1_1_c_ensemble.html" title="Ensemble of a collection of trained models." alt="" coords="198,207,335,232"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="269,144,269,206,264,206,264,144"/>
+<area shape="rect" id="Node000005" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="187,5,346,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="269,62,269,102,264,102,264,62"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="248,246,198,304,194,300,244,242"/>
+</map>

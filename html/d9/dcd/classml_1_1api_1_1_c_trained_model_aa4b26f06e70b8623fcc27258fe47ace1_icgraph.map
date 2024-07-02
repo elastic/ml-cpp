@@ -1,0 +1,7 @@
+<map id="ml::api::CTrainedModel::addToJsonStream" name="ml::api::CTrainedModel::addToJsonStream">
+<area shape="rect" id="Node000001" title=" " alt="" coords="229,39,385,79"/>
+<area shape="rect" id="Node000002" href="$da/d46/classml_1_1api_1_1_c_ensemble.html#a6eea3c2bd5087db21e48e08ab52161cf" title=" " alt="" coords="25,5,161,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,47,161,39,162,34,213,42"/>
+<area shape="rect" id="Node000003" href="$de/de4/classml_1_1api_1_1_c_tree.html#a6f888bd0158bfb93cb317d91c4ea5e29" title=" " alt="" coords="5,71,181,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,76,181,80,181,75,213,70"/>
+</map>

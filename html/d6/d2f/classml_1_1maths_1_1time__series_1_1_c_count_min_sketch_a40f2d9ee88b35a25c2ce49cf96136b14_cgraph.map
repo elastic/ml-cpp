@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CCountMinSketch::count" name="ml::maths::time_series::CCountMinSketch::count">
+<area shape="rect" id="Node000001" title="Get the count of category category." alt="" coords="5,35,182,75"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="230,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,41,214,37,214,42,182,46"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="461,5,626,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,32,445,32,445,37,413,37"/>
+<area shape="poly" id="edge3_Node000003_Node000001" title=" " alt="" coords="471,49,413,60,302,67,197,65,197,60,302,62,413,55,470,44"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="460,20,428,19,428,14,460,14"/>
+</map>

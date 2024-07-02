@@ -1,0 +1,8 @@
+<map id="ml::model::CAnomalyDetectorModel::prune" name="ml::model::CAnomalyDetectorModel::prune">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,203,70"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="58,29,56,19,63,10,79,5,104,3,130,5,146,11,144,16,129,10,104,8,81,10,66,15,61,21,63,28"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7cda63130d8d53db095c586e49c24f7c" title=" " alt="" coords="251,29,448,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,47,235,47,235,52,203,52"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="496,29,693,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,47,480,47,480,52,448,52"/>
+</map>

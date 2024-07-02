@@ -1,0 +1,5 @@
+<map id="ml::api::CJsonOutputWriter::getOutputMemoryAllocatorUsage" name="ml::api::CJsonOutputWriter::getOutputMemoryAllocatorUsage">
+<area shape="rect" id="Node000001" title="Return the number of bytes currently used to output JSON documents. ." alt="" coords="5,5,228,46"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a4131b673163f07db277668ca7bd4ef66" title=" " alt="" coords="276,5,528,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,23,260,23,260,28,228,28"/>
+</map>

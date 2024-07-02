@@ -1,0 +1,8 @@
+<map id="ml::core::CWordExtractor::extractWordsFromMessage" name="ml::core::CWordExtractor::extractWordsFromMessage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,29,439,70"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="384,16,369,10,344,8,321,10,307,15,302,21,304,28,299,29,297,19,304,10,320,5,344,3,370,5,386,11"/>
+<area shape="rect" id="Node000002" href="$d5/d32/_c_word_extractor_test_8cc.html#a6a6de232617a1978e085d87ae825db08" title=" " alt="" coords="5,12,202,37"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,41,202,37,202,32,234,35"/>
+<area shape="rect" id="Node000003" href="$d5/d32/_c_word_extractor_test_8cc.html#a64ebb881adc288e5772539809e47169b" title=" " alt="" coords="5,61,202,87"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,63,202,67,202,61,234,58"/>
+</map>

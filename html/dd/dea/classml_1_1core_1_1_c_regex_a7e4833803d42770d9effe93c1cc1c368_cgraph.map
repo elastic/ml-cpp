@@ -1,0 +1,6 @@
+<map id="ml::core::CRegex::matches" name="ml::core::CRegex::matches">
+<area shape="rect" id="Node000001" title="Simple match test for a string." alt="" coords="5,29,188,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="61,31,54,21,58,11,73,5,97,3,123,5,136,12,133,17,121,10,96,8,74,10,62,15,59,20,65,27"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="236,29,383,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="188,40,220,40,220,45,188,45"/>
+</map>

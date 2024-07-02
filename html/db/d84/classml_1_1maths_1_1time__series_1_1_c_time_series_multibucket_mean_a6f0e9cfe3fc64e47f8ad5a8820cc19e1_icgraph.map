@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketMean::mean" name="ml::maths::time_series::CTimeSeriesMultibucketMean::mean">
+<area shape="rect" id="Node000001" title="Compute the weighted mean of the values in the window." alt="" coords="1015,139,1259,180"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a72e8c9ed1ed3d3e888ce8e10e36e92b0" title="Compute the weighted mean of function on the sliding window." alt="" coords="762,93,967,148"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="999,151,967,147,968,141,999,146"/>
+<area shape="rect" id="Node000004" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#ad146de4a1ddaa284201165019400e59a" title="Get the feature value and weight." alt="" coords="258,74,462,130"/>
+<area shape="poly" id="edge11_Node000001_Node000004" title=" " alt="" coords="999,175,967,175,864,178,762,175,603,157,461,133,462,128,604,152,763,170,864,173,967,170,999,170"/>
+<area shape="poly" id="edge10_Node000002_Node000001" title=" " alt="" coords="983,126,1049,136,1048,141,982,131"/>
+<area shape="rect" id="Node000003" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a287d728b30e26873a45b562b3524bab1" title="Compute the weighted count of the values in the window." alt="" coords="510,42,714,98"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="747,100,714,93,715,88,748,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="495,96,463,100,462,95,494,91"/>
+<area shape="poly" id="edge6_Node000004_Node000001" title=" " alt="" coords="478,111,614,130,763,146,864,149,967,146,1014,146,1014,151,967,151,864,154,762,151,613,135,477,116"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="478,106,510,107,762,115,762,121,510,113,477,111"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="477,75,509,71,510,77,478,81"/>
+<area shape="rect" id="Node000005" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#ab6490c969bd2562cfc9d12348e94a8c2" title="Compute the time range of window." alt="" coords="5,42,210,98"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="242,90,210,86,211,80,243,84"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="224,37,330,17,454,5,519,3,586,5,651,13,715,27,747,39,778,55,831,90,828,94,776,60,745,44,714,32,650,19,585,11,519,8,454,10,331,23,225,42"/>
+<area shape="poly" id="edge9_Node000005_Node000005" title=" " alt="" coords="148,30,133,23,107,21,85,23,71,27,64,34,64,42,58,42,59,32,68,23,84,17,108,15,134,18,150,25"/>
+</map>

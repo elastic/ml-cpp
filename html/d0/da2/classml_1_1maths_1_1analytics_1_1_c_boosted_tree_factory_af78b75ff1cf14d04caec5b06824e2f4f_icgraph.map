@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::stratifyRegressionCrossValidation" name="ml::maths::analytics::CBoostedTreeFactory::stratifyRegressionCrossValidation">
+<area shape="rect" id="Node000001" title="Stratify the cross&#45;validation we do for regression." alt="" coords="369,5,595,61"/>
+<area shape="rect" id="Node000002" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a84cb359b0d4f4aca8f410900fa7e75c5" title="This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory." alt="" coords="5,5,321,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="353,36,321,36,321,31,353,31"/>
+</map>

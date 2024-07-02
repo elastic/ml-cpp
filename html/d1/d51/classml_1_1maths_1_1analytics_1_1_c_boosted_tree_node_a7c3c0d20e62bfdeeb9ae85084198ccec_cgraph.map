@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::leafIndex" name="ml::maths::analytics::CBoostedTreeNode::leafIndex">
+<area shape="rect" id="Node000001" title="Get the leaf index for row." alt="" coords="5,71,211,111"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a9263c3eadfeda8e21a61b3d07d7f3c66" title="Check if we should assign row to the left leaf." alt="" coords="259,37,485,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,75,243,71,243,77,211,81"/>
+<area shape="rect" id="Node000006" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a184e1a3b02f20b79fa20cb52d4da8367" title="Check if this is a leaf node." alt="" coords="278,103,466,143"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="211,101,263,107,262,112,211,106"/>
+<area shape="rect" id="Node000003" href="$df/df6/classml_1_1maths_1_1analytics_1_1_c_data_frame_utils.html#aa4695c1863c12e673abe74b375fd5fde" title="Check if a data frame value is missing." alt="" coords="533,5,727,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="485,41,517,37,518,42,486,46"/>
+<area shape="rect" id="Node000005" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#affc1f52e63caa1e8eaf6eeda3ba0ad72" title="Get the value of this node." alt="" coords="539,71,722,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="486,70,523,75,523,80,485,75"/>
+<area shape="rect" id="Node000004" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a5167693f695b2c245f3eeb8ebb99e6f1" title="Check if value is missing." alt="" coords="775,5,927,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="728,23,760,23,760,28,728,28"/>
+</map>

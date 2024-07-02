@@ -1,0 +1,9 @@
+<map id="ml::api::CPersistenceManager::useForegroundPersistence" name="ml::api::CPersistenceManager::useForegroundPersistence">
+<area shape="rect" id="Node000001" title="Configure persistence to be performed in the foreground." alt="" coords="373,39,570,79"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7192b0f547cd4fa07df19f3e440c4071" title=" " alt="" coords="103,5,325,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="357,47,325,43,326,37,358,42"/>
+<area shape="rect" id="Node000003" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a8871ea9a8d160bfbe974b0f9f2fed247" title=" " alt="" coords="103,71,325,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="358,76,326,80,325,75,357,71"/>
+<area shape="rect" id="Node000004" href="$de/d5e/bin_2categorize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Group machine generated messages into categories by similarity." alt="" coords="5,78,55,104"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="87,94,55,94,55,88,87,88"/>
+</map>

@@ -1,0 +1,38 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,478,202,503"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="254,5,477,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,477,110,407,131,298,149,238,174,178,207,121,248,71,250,69,254,73,252,75,211,124,179,180,154,240,136,300,115,407,108,477"/>
+<area shape="rect" id="Node000003" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#af6126f43cd6db0aa6072261d0aec5da5" title="Add a value of the cumulative density function." alt="" coords="274,85,457,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="104,477,115,418,140,331,159,283,183,235,212,191,248,151,259,142,262,146,252,155,217,194,188,238,164,285,145,333,121,419,109,478"/>
+<area shape="rect" id="Node000004" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#aeefaeaa162bf81dadbe17fd1586b4a3b" title="Discard the next n random numbers." alt="" coords="268,165,463,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="106,476,122,430,150,364,192,293,218,260,248,231,253,227,257,231,251,235,222,264,196,296,155,367,127,432,111,478"/>
+<area shape="rect" id="Node000005" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#a9771d67fe51c5c69087ca7f74e07cd72" title="Restore from a string." alt="" coords="268,245,463,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="110,476,161,399,201,352,248,311,255,307,258,311,251,315,205,356,165,402,114,479"/>
+<area shape="rect" id="Node000007" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#aa1b6d57b8d022189ae87ec85843c9c44" title=" " alt="" coords="268,325,463,381"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="120,475,175,435,248,391,260,385,263,390,251,396,178,439,123,479"/>
+<area shape="rect" id="Node000008" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#a4799a5a460d52761f332985247d7e477" title=" " alt="" coords="250,405,481,446"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="157,475,266,447,267,452,159,480"/>
+<area shape="rect" id="Node000009" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#a94b182505fcde6c5803a7985a3d85940" title="The maximum value returnable by operator()." alt="" coords="251,470,480,511"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="202,488,235,488,235,493,202,493"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="280,535,451,561"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="166,501,289,529,288,534,165,507"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="529,606,688,647"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="124,502,179,537,214,555,251,571,318,590,387,604,514,619,513,625,386,609,316,595,249,576,212,560,177,541,122,506"/>
+<area shape="rect" id="Node000012" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#a66bfb9b3bb707bf1b525d0cfd5ba519a" title="The minimum value returnable by operator()." alt="" coords="253,636,478,676"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="119,502,173,556,210,587,251,615,276,627,273,632,248,619,207,592,169,560,115,506"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="282,700,449,726"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="113,502,131,539,160,590,201,642,225,666,251,686,269,695,266,700,248,690,221,670,197,645,156,593,126,542,108,505"/>
+<area shape="rect" id="Node000014" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#afaba2cb9e5e813c992b070f090ce78f8" title=" " alt="" coords="274,751,457,806"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="111,503,127,547,156,610,197,677,223,709,251,736,262,744,259,749,248,741,219,712,193,681,151,612,122,549,106,504"/>
+<area shape="rect" id="Node000017" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#ade2dfc116d155a15eb089bf70a67e174" title="Persist to a string." alt="" coords="268,831,463,886"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="109,503,121,560,146,644,165,690,189,736,217,779,252,817,257,821,253,825,248,820,213,782,184,739,160,693,141,646,116,562,104,504"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="532,253,686,294"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="464,271,516,271,516,276,464,276"/>
+<area shape="poly" id="edge15_Node000014_Node000011" title=" " alt="" coords="455,749,480,736,494,724,504,713,527,686,565,654,568,659,531,690,508,716,498,728,482,741,458,754"/>
+<area shape="rect" id="Node000015" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="529,700,688,740"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="456,754,513,740,514,745,458,759"/>
+<area shape="rect" id="Node000016" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="536,765,681,806"/>
+<area shape="poly" id="edge16_Node000014_Node000016" title=" " alt="" coords="457,778,521,780,521,785,457,784"/>
+<area shape="rect" id="Node000018" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="532,838,686,879"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="464,856,516,856,516,861,464,861"/>
+</map>

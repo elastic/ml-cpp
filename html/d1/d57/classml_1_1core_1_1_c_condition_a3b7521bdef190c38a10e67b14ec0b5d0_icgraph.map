@@ -1,0 +1,25 @@
+<map id="ml::core::CCondition::wait" name="ml::core::CCondition::wait">
+<area shape="rect" id="Node000001" title=" " alt="" coords="743,104,885,145"/>
+<area shape="rect" id="Node000002" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#a02a54132c8b5c1592cf7a6c395ae2273" title=" " alt="" coords="513,5,682,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="765,98,694,61,663,49,665,44,696,57,767,93"/>
+<area shape="rect" id="Node000003" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#ac9ec4144c58a6778e6d0b8eff984ec42" title=" " alt="" coords="513,71,682,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="727,114,682,107,683,101,728,108"/>
+<area shape="rect" id="Node000004" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a6764bea6fc641f4b83772b6b4529a018" title=" " alt="" coords="500,136,695,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="728,140,696,144,695,139,727,134"/>
+<area shape="rect" id="Node000005" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="500,201,695,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="766,155,696,191,665,203,663,198,694,186,764,150"/>
+<area shape="rect" id="Node000006" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="257,168,452,209"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="484,209,452,204,453,199,485,204"/>
+<area shape="rect" id="Node000012" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a1f0f227dfff69eee020af75f12941cdb" title=" " alt="" coords="257,233,452,274"/>
+<area shape="poly" id="edge11_Node000005_Node000012" title=" " alt="" coords="485,239,453,243,452,238,484,234"/>
+<area shape="rect" id="Node000007" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a43c67f9d7a9bb5e3525ef9d25213c0fa" title=" " alt="" coords="9,77,205,103"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="304,162,258,138,208,116,174,106,175,100,210,111,260,133,307,158"/>
+<area shape="rect" id="Node000008" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a8f1c7553cd10918ce4c30da5a1806cbb" title=" " alt="" coords="9,126,205,152"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="241,168,174,155,175,150,242,163"/>
+<area shape="rect" id="Node000009" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a81f4a96bc254bfee7f76cded942511ec" title=" " alt="" coords="9,176,205,201"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="241,191,206,191,206,186,241,186"/>
+<area shape="rect" id="Node000010" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a53b5ec34d27fa4199633ea75b7549158" title=" " alt="" coords="9,225,205,251"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="242,213,175,227,174,222,241,208"/>
+<area shape="rect" id="Node000011" href="$df/db9/classml_1_1core_1_1_c_compress_o_stream_1_1_c_compress_thread.html#ab750e1c6f2841103e47e9265f8ab8874" title=" " alt="" coords="5,275,209,315"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="270,218,258,224,244,234,235,244,225,255,210,265,186,276,184,272,207,261,221,251,231,241,241,230,255,219,268,213"/>
+</map>

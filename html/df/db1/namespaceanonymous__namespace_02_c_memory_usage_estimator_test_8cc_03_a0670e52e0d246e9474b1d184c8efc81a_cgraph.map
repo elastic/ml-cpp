@@ -1,0 +1,14 @@
+<map id="anonymous_namespace{CMemoryUsageEstimatorTest::cc}::estimate" name="anonymous_namespace{CMemoryUsageEstimatorTest::cc}::estimate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,207,111"/>
+<area shape="rect" id="Node000002" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#a8fcdc8ee3d34dca08481a0a5c8e2290b" title=" " alt="" coords="255,63,492,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,80,239,80,239,86,207,86"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="565,29,753,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="492,66,549,60,550,65,493,72"/>
+<area shape="rect" id="Node000004" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#ad255e1a3fa47f4a0bd0d48604a328ecb" title="Get the maximum amount by which we&#39;ll extrapolate the memory usage." alt="" coords="540,95,777,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="493,94,525,97,524,103,492,99"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="611,29,609,19,617,10,633,5,659,3,686,5,702,11,700,16,685,10,659,8,635,10,620,15,614,21,617,28"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="825,77,996,103"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="777,100,809,97,810,102,778,106"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="827,126,994,152"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="778,124,812,127,812,132,777,129"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CModelAddSamplesParams::bucketOccupancy" name="ml::maths::common::CModelAddSamplesParams::bucketOccupancy">
+<area shape="rect" id="Node000001" title="Set the proportion of non&#45;empty buckets." alt="" coords="1055,40,1240,95"/>
+<area shape="rect" id="Node000002" href="$de/d99/_c_event_rate_model_test_8cc.html#afbf5771947069fba0cb453004a4a4d67" title=" " alt="" coords="775,5,992,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1039,50,956,34,957,29,1040,45"/>
+<area shape="rect" id="Node000003" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a643715f989121577e525d568ff1f20db" title=" " alt="" coords="775,55,992,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1039,70,992,70,992,65,1039,65"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a72f05e1a21ee909104337288657b148a" title=" " alt="" coords="760,105,1007,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1040,97,999,107,998,102,1039,92"/>
+<area shape="rect" id="Node000005" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abf9f4648dfe56cf1076407a088ab24f6" title="Update the trend with samples." alt="" coords="505,105,712,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="745,136,713,136,713,130,745,130"/>
+<area shape="rect" id="Node000006" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="250,105,457,161"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="489,136,457,136,457,130,489,130"/>
+<area shape="rect" id="Node000007" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,120,202,146"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="234,136,202,136,202,130,234,130"/>
+</map>

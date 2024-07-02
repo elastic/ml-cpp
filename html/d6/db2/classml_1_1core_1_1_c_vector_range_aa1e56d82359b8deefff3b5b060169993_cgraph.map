@@ -1,0 +1,9 @@
+<map id="ml::core::CVectorRange::clear" name="ml::core::CVectorRange::clear">
+<area shape="rect" id="Node000001" title="Clear the contents." alt="" coords="5,63,168,103"/>
+<area shape="rect" id="Node000002" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a3f4d266a3c1ebb9791fae5adaf57401c" title="Input iterator to start of range." alt="" coords="230,5,393,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,60,214,48,215,53,169,65"/>
+<area shape="rect" id="Node000003" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ab6fbb4bab268325e51ba4f5230174cef" title="Input iterator to end of range." alt="" coords="216,70,407,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,80,200,80,200,86,168,86"/>
+<area shape="rect" id="Node000004" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ae83b260eb8c1a6509387f5368ad89981" title="Remove the element at pos." alt="" coords="230,120,393,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,101,215,113,214,118,167,106"/>
+</map>

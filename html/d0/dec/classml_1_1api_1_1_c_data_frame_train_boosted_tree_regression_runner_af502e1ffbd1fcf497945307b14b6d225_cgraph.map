@@ -1,0 +1,24 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition" name="ml::api::CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,209,184"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#acc3b40db273c62478ca23a0efc14c4e6" title="Write the boosted tree and custom processors to builder." alt="" coords="268,75,452,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,129,258,117,259,122,210,134"/>
+<area shape="rect" id="Node000005" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad38582202a6b0a5e186d836c2c5f2a04" title=" " alt="" coords="518,136,735,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="209,154,502,154,502,159,209,159"/>
+<area shape="rect" id="Node000006" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a35f625a159c6ef5f47a3dccba34e9327" title=" " alt="" coords="257,299,463,339"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="153,182,315,288,312,292,150,187"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#af766d3ce9f11fdfcc85cc301e675fdd5" title="Visit this tree trainer." alt="" coords="546,5,706,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,71,530,48,532,53,442,77"/>
+<area shape="rect" id="Node000004" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a402dd52abad41870d31f2b2cc02887b6" title=" " alt="" coords="511,71,741,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="453,91,496,90,496,96,453,96"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="452,113,521,129,519,135,451,119"/>
+<area shape="rect" id="Node000007" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a5a4522a3bc86b9ed38dc9952717a15d0" title=" " alt="" coords="521,201,732,242"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="405,296,510,253,533,245,535,250,512,257,407,301"/>
+<area shape="rect" id="Node000008" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a517cc5803783f43e494fd30d67583e29" title=" " alt="" coords="543,267,710,307"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="463,304,527,296,528,301,464,309"/>
+<area shape="rect" id="Node000009" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#ab3ba7a6c24107583e8d935cce0ea0091" title=" " alt="" coords="516,332,736,373"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="464,329,501,334,500,339,463,335"/>
+<area shape="rect" id="Node000010" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a00792a09ea46e29d2255ca63b719ed85" title=" " alt="" coords="523,397,729,438"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="406,337,512,382,535,390,533,395,510,387,404,342"/>
+<area shape="rect" id="Node000011" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a72052c57e93733e1e75ec20604df916b" title=" " alt="" coords="543,463,710,503"/>
+<area shape="poly" id="edge11_Node000006_Node000011" title=" " alt="" coords="381,338,437,392,473,422,512,447,529,456,527,460,510,452,470,426,433,396,378,342"/>
+</map>

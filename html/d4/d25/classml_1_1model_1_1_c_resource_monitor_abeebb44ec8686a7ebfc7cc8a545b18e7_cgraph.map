@@ -1,0 +1,42 @@
+<map id="ml::model::CResourceMonitor::sendMemoryUsageReport" name="ml::model::CResourceMonitor::sendMemoryUsageReport">
+<area shape="rect" id="Node000001" title="Send a memory usage report." alt="" coords="5,59,201,99"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="756,29,945,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,55,248,43,371,22,467,9,564,7,688,15,745,23,744,28,687,20,564,12,467,15,371,27,249,48,188,61"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5f82e91dd4ca8a852f8429b1c8a05477" title="Create a memory usage report." alt="" coords="249,87,444,127"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="201,88,234,91,233,97,201,93"/>
+<area shape="rect" id="Node000006" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="492,29,687,70"/>
+<area shape="poly" id="edge23_Node000001_Node000006" title=" " alt="" coords="201,70,476,54,477,59,201,76"/>
+<area shape="rect" id="Node000007" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#abedfc9148cb757e009bec2f83b645354" title=" " alt="" coords="249,415,444,455"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="121,98,325,400,320,403,116,101"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="803,29,801,19,809,10,825,5,851,3,878,5,894,11,892,16,877,10,850,8,826,10,811,15,806,21,808,28"/>
+<area shape="poly" id="edge7_Node000003_Node000002" title=" " alt="" coords="444,100,561,92,687,79,741,70,741,76,688,84,561,98,445,106"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a666a89154a86726709e80b1800861a8f" title=" " alt="" coords="492,219,687,259"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="387,126,538,209,536,213,385,130"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="735,179,966,219"/>
+<area shape="poly" id="edge8_Node000003_Node000005" title=" " alt="" coords="445,122,721,173,720,178,444,127"/>
+<area shape="poly" id="edge9_Node000003_Node000006" title=" " alt="" coords="435,83,485,72,486,77,436,89"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="544,219,542,209,549,200,565,194,590,192,616,194,631,201,629,206,615,200,590,197,566,199,552,204,547,210,549,217"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="687,221,719,216,720,222,688,227"/>
+<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="688,47,741,47,741,52,688,52"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="510,284,669,325"/>
+<area shape="poly" id="edge12_Node000007_Node000008" title=" " alt="" coords="372,412,426,374,491,335,505,329,508,333,493,340,429,378,376,416"/>
+<area shape="rect" id="Node000009" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="517,349,662,390"/>
+<area shape="poly" id="edge13_Node000007_Node000009" title=" " alt="" coords="424,412,501,391,502,396,425,417"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="510,415,669,455"/>
+<area shape="poly" id="edge14_Node000007_Node000010" title=" " alt="" coords="445,432,494,432,494,438,445,438"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="501,480,678,505"/>
+<area shape="poly" id="edge15_Node000007_Node000011" title=" " alt="" coords="436,453,518,473,517,478,435,459"/>
+<area shape="rect" id="Node000015" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1031,529,1177,570"/>
+<area shape="poly" id="edge21_Node000007_Node000015" title=" " alt="" coords="376,453,428,487,460,503,493,515,562,532,633,545,776,558,908,560,1015,555,1016,560,908,565,776,563,633,550,561,538,491,520,458,508,426,492,373,458"/>
+<area shape="rect" id="Node000017" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="502,580,678,621"/>
+<area shape="poly" id="edge22_Node000007_Node000017" title=" " alt="" coords="369,454,422,506,457,534,493,559,515,571,512,576,491,564,454,538,419,510,365,458"/>
+<area shape="rect" id="Node000012" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="762,472,939,497"/>
+<area shape="poly" id="edge16_Node000011_Node000012" title=" " alt="" coords="679,487,746,485,746,490,679,492"/>
+<area shape="rect" id="Node000013" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1014,319,1194,375"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="871,469,933,430,1012,385,1022,380,1025,384,1015,389,936,434,874,473"/>
+<area shape="rect" id="Node000014" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1014,399,1194,439"/>
+<area shape="poly" id="edge18_Node000012_Node000014" title=" " alt="" coords="902,468,1007,441,1008,446,904,474"/>
+<area shape="poly" id="edge19_Node000012_Node000015" title=" " alt="" coords="904,495,1017,525,1015,530,902,500"/>
+<area shape="rect" id="Node000016" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1021,464,1187,505"/>
+<area shape="poly" id="edge20_Node000012_Node000016" title=" " alt="" coords="940,482,1006,482,1006,487,940,487"/>
+</map>

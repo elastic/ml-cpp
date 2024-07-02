@@ -1,0 +1,15 @@
+<map id="ml::model::CBucketGatherer" name="ml::model::CBucketGatherer">
+<area shape="rect" id="Node000001" title="Time series data gathering interface." alt="" coords="1168,113,1356,139"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html" title="Time series data gathering interface and common functionality." alt="" coords="767,23,941,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="957,46,1049,61,1145,82,1228,110,1227,115,1144,87,1048,66,956,51"/>
+<area shape="rect" id="Node000003" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html" title="Register string names and map them to unique identifiers." alt="" coords="385,15,567,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="583,33,766,33,766,38,583,38"/>
+<area shape="rect" id="Node000004" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title=" " alt="" coords="5,23,256,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="271,33,384,33,384,38,271,38"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html" title=" " alt="" coords="758,72,950,113"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="965,99,1168,116,1168,121,965,104"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html" title=" " alt="" coords="766,138,941,178"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="957,158,1048,157,1144,149,1210,137,1211,142,1145,155,1048,162,957,163"/>
+<area shape="rect" id="Node000007" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html" title=" " alt="" coords="742,202,965,258"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="981,215,1062,201,1144,180,1194,159,1237,137,1239,142,1196,164,1145,185,1063,206,981,220"/>
+</map>

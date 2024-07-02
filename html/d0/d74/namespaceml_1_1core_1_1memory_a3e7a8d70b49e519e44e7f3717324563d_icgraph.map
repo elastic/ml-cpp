@@ -1,0 +1,33 @@
+<map id="ml::core::memory::elementDynamicSize" name="ml::core::memory::elementDynamicSize">
+<area shape="rect" id="Node000001" title="Helper to compute container element dynamic memory usage." alt="" coords="260,343,437,384"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#acfb3be547abb3914f642875507150b55" title=" " alt="" coords="5,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="340,329,328,266,304,189,287,149,266,111,240,75,210,44,194,34,197,29,213,40,244,72,271,108,292,147,309,187,333,265,345,327"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a9083474bc35fecc2c0f316ae7db66790" title=" " alt="" coords="5,55,212,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="337,328,322,275,297,212,260,147,237,119,210,94,193,83,196,79,213,89,241,115,264,144,302,209,327,274,342,327"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a10a27ad7765ab19822e86a3dd16633ff" title=" " alt="" coords="5,104,212,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="333,330,316,286,289,236,254,185,233,163,210,143,191,132,194,128,213,139,237,159,258,182,294,233,320,284,338,328"/>
+<area shape="rect" id="Node000005" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a20a38d771a10f4075c91f37885e11be8" title=" " alt="" coords="5,153,212,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="327,331,307,297,281,260,248,223,210,192,189,182,192,177,213,188,252,219,285,256,312,294,332,328"/>
+<area shape="rect" id="Node000006" href="$d0/d74/namespaceml_1_1core_1_1memory.html#ab5ad203adec009b0122cf9fe2eef7db2" title=" " alt="" coords="5,203,212,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="319,333,271,285,242,262,210,242,185,231,187,226,213,237,245,257,275,282,323,330"/>
+<area shape="rect" id="Node000007" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a5a99c39ea0a1c76d5d30d2096480988c" title=" " alt="" coords="5,252,212,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="301,337,258,313,211,291,178,281,179,276,213,286,260,308,304,332"/>
+<area shape="rect" id="Node000008" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a915f367afcf3061533023ccc3a55f0a3" title=" " alt="" coords="5,301,212,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="244,345,174,330,175,325,245,339"/>
+<area shape="rect" id="Node000009" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a38adedf5a96636deac233beeaf81fb52" title=" " alt="" coords="5,351,212,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="244,366,212,366,212,361,244,361"/>
+<area shape="rect" id="Node000010" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a1340532e0a6cc3a2aef087c54a987b2b" title=" " alt="" coords="5,400,212,426"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="245,388,175,402,174,397,244,382"/>
+<area shape="rect" id="Node000011" href="$d0/d74/namespaceml_1_1core_1_1memory.html#ae870cacb579ca0affae647b6b0544df8" title=" " alt="" coords="5,449,212,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="304,395,260,419,213,441,179,451,178,446,211,436,258,414,301,390"/>
+<area shape="rect" id="Node000012" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a9169b290507c1824abef8f48364414b4" title=" " alt="" coords="5,499,212,524"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="323,397,275,445,245,470,213,490,187,501,185,496,210,485,242,465,271,442,319,394"/>
+<area shape="rect" id="Node000013" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a3807efe0e18b6d6aa76f80d01bb6a153" title=" " alt="" coords="5,548,212,574"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="332,399,312,433,285,471,252,508,213,539,192,550,189,545,210,535,248,504,281,467,307,430,327,396"/>
+<area shape="rect" id="Node000014" href="$d0/d74/namespaceml_1_1core_1_1memory.html#ae04807d72a882febbdd25af1d80ac742" title=" " alt="" coords="5,597,212,623"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="338,399,320,443,294,494,258,545,237,568,213,588,194,599,191,595,210,584,233,564,254,542,289,491,316,441,333,397"/>
+<area shape="rect" id="Node000015" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a0bf96462904d258608db5d1b13a72b26" title=" " alt="" coords="5,647,212,672"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="342,400,327,453,302,518,264,583,241,612,213,638,196,648,193,644,210,633,237,608,260,580,297,515,322,452,337,399"/>
+<area shape="rect" id="Node000016" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a66152dc2882e6c5b2190267a21080f07" title=" " alt="" coords="5,696,212,722"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="345,400,333,462,309,540,292,580,271,619,244,655,213,687,197,698,194,693,210,683,240,652,266,616,287,578,304,538,328,461,340,398"/>
+</map>

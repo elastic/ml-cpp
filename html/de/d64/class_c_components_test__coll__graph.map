@@ -1,0 +1,18 @@
+<map id="CComponentsTest" name="CComponentsTest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="21,376,151,402"/>
+<area shape="rect" id="Node000002" href="$db/d96/class_c_test_fixture.html" title=" " alt="" coords="38,301,134,327"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,342,89,376,83,376,83,342"/>
+<area shape="rect" id="Node000003" href="$dc/dec/class_c_model_test_fixture_base.html" title=" " alt="" coords="5,213,167,238"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="56,252,53,277,63,300,58,302,48,278,50,252"/>
+<area shape="poly" id="edge5_Node000002_Node000003" title=" " alt="" coords="72,254,71,278,76,300,71,302,66,279,67,254"/>
+<area shape="poly" id="edge6_Node000002_Node000003" title=" " alt="" coords="89,254,89,301,83,301,83,254"/>
+<area shape="poly" id="edge7_Node000002_Node000003" title=" " alt="" coords="105,254,106,279,101,302,96,300,101,278,100,254"/>
+<area shape="poly" id="edge8_Node000002_Node000003" title=" " alt="" coords="122,252,124,278,114,302,109,300,119,277,116,252"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="74,124,269,150"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="122,159,103,175,94,194,89,213,84,212,89,192,99,172,119,155"/>
+<area shape="rect" id="Node000006" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="191,213,322,238"/>
+<area shape="poly" id="edge10_Node000006_Node000004" title=" " alt="" coords="206,157,224,172,252,210,248,214,220,175,203,161"/>
+<area shape="rect" id="Node000005" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="65,5,278,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="174,77,174,123,169,123,169,77"/>
+<area shape="poly" id="edge9_Node000002_Node000006" title=" " alt="" coords="221,248,111,303,109,298,218,243"/>
+</map>

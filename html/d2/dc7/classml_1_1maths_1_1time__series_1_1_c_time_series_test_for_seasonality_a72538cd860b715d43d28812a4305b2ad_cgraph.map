@@ -1,0 +1,22 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::toPeriod" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::toPeriod">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,113,223,168"/>
+<area shape="rect" id="Node000002" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a555ae559c855e6ba4728fe9f3d5fc8b9" title="Get the period." alt="" coords="310,5,476,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,110,270,62,305,49,307,54,272,67,170,114"/>
+<area shape="rect" id="Node000003" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a68a9faf3953009eb734e852100246e55" title="Get the window." alt="" coords="584,51,758,91"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,114,270,106,427,87,568,75,568,80,427,92,271,111,224,119"/>
+<area shape="rect" id="Node000006" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a9ed0ba68c828a9847b3c335db34cfce1" title="Check if this applies to a time window." alt="" coords="299,120,487,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="223,138,283,138,283,143,223,143"/>
+<area shape="rect" id="Node000008" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a112c55e9251ae108f9fda1670452cbd5" title="Get the repeat interval for the window pattern." alt="" coords="563,181,779,222"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="224,162,271,170,414,185,548,194,548,199,414,190,270,175,223,167"/>
+<area shape="rect" id="Node000009" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a0d1174c2ef0e69bba09af71e7d837fb4" title="Get the start of the window pattern." alt="" coords="271,235,515,275"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="170,166,272,214,307,227,305,232,270,219,167,171"/>
+<area shape="rect" id="Node000004" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#aa80f9d59a04ae6faff00d0282f51d8e7" title="Get the end of the window." alt="" coords="830,116,1027,157"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="755,89,832,109,830,114,753,95"/>
+<area shape="rect" id="Node000005" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6584008b4716036277991ff9622c092a" title="Get the start of the window." alt="" coords="827,51,1030,91"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="759,68,812,68,812,74,759,74"/>
+<area shape="rect" id="Node000007" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a55b7710264b38c1ae35d611dce275055" title="Get the window length." alt="" coords="565,116,778,157"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="487,136,549,135,549,141,488,142"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="488,158,561,175,560,180,487,164"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="778,134,814,134,814,139,778,139"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="753,113,830,93,832,98,755,118"/>
+</map>

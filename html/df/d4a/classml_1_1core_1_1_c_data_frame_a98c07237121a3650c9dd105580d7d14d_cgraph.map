@@ -1,0 +1,9 @@
+<map id="ml::core::CDataFrame::categoricalColumnValues" name="ml::core::CDataFrame::categoricalColumnValues">
+<area shape="rect" id="Node000001" title="Write the values of the categories for each column." alt="" coords="5,77,182,118"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#adbec6b52ba93143243d78a66e41ff9f6" title=" " alt="" coords="234,5,411,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,74,240,49,242,54,161,79"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aeca9fb679495b0b198bfa68310278f80" title=" " alt="" coords="230,70,415,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,95,214,95,214,100,182,100"/>
+<area shape="rect" id="Node000004" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="232,149,413,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,116,242,142,240,147,159,121"/>
+</map>

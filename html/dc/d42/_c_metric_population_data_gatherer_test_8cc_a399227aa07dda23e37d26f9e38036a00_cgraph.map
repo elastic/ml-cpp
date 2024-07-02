@@ -1,0 +1,33 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,298,223,324"/>
+<area shape="rect" id="Node000002" href="$d1/d74/namespaceanonymous__namespace_02_c_metric_population_data_gatherer_test_8cc_03.html#a710a77a1c89810cfbd8173c9f36acdbf" title=" " alt="" coords="272,83,482,139"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,296,269,182,320,146,323,150,272,186,133,300"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a20519215050fbf5112c19cd17a283070" title=" " alt="" coords="290,196,464,237"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="146,295,270,247,292,239,294,244,272,252,148,300"/>
+<area shape="rect" id="Node000011" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="287,261,467,302"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="223,296,271,291,271,296,223,302"/>
+<area shape="rect" id="Node000012" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="316,326,438,352"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="223,320,300,328,300,334,223,325"/>
+<area shape="rect" id="Node000014" href="$d3/dc5/structanonymous__namespace_02_c_metric_population_data_gatherer_test_8cc_03_1_1_s_message.html#ad8261a3cb0c25758380659c9c204a3c3" title=" " alt="" coords="271,377,483,432"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="154,322,283,368,281,373,152,327"/>
+<area shape="rect" id="Node000015" href="$d1/d74/namespaceanonymous__namespace_02_c_metric_population_data_gatherer_test_8cc_03.html#a326e060736359d8fe00510b126bc4823" title=" " alt="" coords="272,457,482,512"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="130,323,188,379,228,412,272,442,281,447,278,452,269,447,225,417,185,383,126,326"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="531,17,705,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,80,533,61,535,66,472,85"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="761,71,920,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="482,104,746,92,746,98,482,109"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="545,132,692,173"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="483,126,529,134,529,140,482,132"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="753,5,928,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="706,30,738,29,738,34,706,36"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="706,56,746,66,745,71,705,61"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="976,71,1134,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="920,88,960,88,960,94,920,94"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="771,136,910,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="692,151,756,152,756,157,692,156"/>
+<area shape="rect" id="Node000010" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="579,221,657,247"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="465,220,564,227,564,232,464,225"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="581,222,574,212,578,202,593,196,618,194,645,197,659,204,657,208,644,202,618,199,595,202,582,206,579,212,585,219"/>
+<area shape="rect" id="Node000013" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="595,326,641,352"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="438,336,579,336,579,342,438,342"/>
+</map>

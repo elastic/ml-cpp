@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CXMeansOnline::CCluster::scaledDecayRate" name="ml::maths::common::CXMeansOnline::CCluster::scaledDecayRate">
+<area shape="rect" id="Node000001" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="239,5,415,61"/>
+<area shape="rect" id="Node000002" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a1119e78e9df277d23d67fa77aa3ed783" title="Propagate the cluster forwards by time." alt="" coords="5,5,191,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,36,191,36,191,31,223,31"/>
+</map>

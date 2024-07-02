@@ -1,0 +1,10 @@
+<map id="ml::core::CDataFrame::resizeRows" name="ml::core::CDataFrame::resizeRows">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,157,111"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a6b106cb583aa1cdc6d7d7d3a7ddefa16" title=" " alt="" coords="205,5,356,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,68,201,49,203,54,146,73"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="205,71,356,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="157,88,189,88,189,94,157,94"/>
+<area shape="rect" id="Node000004" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#ae209341c84c1e72678540db4b3bd1fd6" title=" " alt="" coords="205,160,356,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="130,110,220,151,218,156,127,114"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="242,160,241,150,247,141,260,135,280,133,302,136,315,142,313,147,301,141,280,139,261,141,250,145,246,151,248,159"/>
+</map>

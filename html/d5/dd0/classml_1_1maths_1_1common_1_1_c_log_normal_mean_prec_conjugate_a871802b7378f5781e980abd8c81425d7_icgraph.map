@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::marginalLikelihoodVariance" name="ml::maths::common::CLogNormalMeanPrecConjugate::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="250,16,462,71"/>
+<area shape="rect" id="Node000002" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,34,202,31,203,25,235,29"/>
+<area shape="rect" id="Node000003" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,58,203,61,202,55,234,52"/>
+</map>

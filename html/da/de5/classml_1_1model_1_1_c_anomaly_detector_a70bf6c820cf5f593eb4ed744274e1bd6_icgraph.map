@@ -1,0 +1,50 @@
+<map id="ml::model::CAnomalyDetector::isSimpleCount" name="ml::model::CAnomalyDetector::isSimpleCount">
+<area shape="rect" id="Node000001" title="Check if this is a simple count detector." alt="" coords="1713,446,1910,487"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a4931536e55af37fcd9eef6df2799f51e" title=" " alt="" coords="1467,417,1665,457"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1697,455,1665,451,1666,446,1698,450"/>
+<area shape="rect" id="Node000023" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad2b28f31d440e533eef48730774bdc45" title="Persist current state in the background." alt="" coords="566,474,734,515"/>
+<area shape="poly" id="edge24_Node000001_Node000023" title=" " alt="" coords="1697,479,1521,491,1323,497,1099,497,734,497,734,492,1099,492,1322,492,1521,486,1697,474"/>
+<area shape="rect" id="Node000003" href="$d1/dde/_c_event_rate_anomaly_detector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="1223,367,1419,392"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1461,415,1379,396,1380,390,1462,410"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#aa4752cf9b617f8a17548d5d040aef2eb" title=" " alt="" coords="1235,417,1408,457"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1452,440,1408,440,1408,434,1452,434"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a934b4affca82afff1cc27b638f1625ec" title="Persist the detectors to a stream." alt="" coords="1025,417,1175,457"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1219,440,1175,440,1175,434,1219,434"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af33db42fb84075c95cb8d388feb05715" title=" " alt="" coords="785,347,977,388"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1018,414,947,391,948,386,1020,409"/>
+<area shape="rect" id="Node000022" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af744645d15412b972a02e57b312aab50" title=" " alt="" coords="802,417,960,457"/>
+<area shape="poly" id="edge21_Node000005_Node000022" title=" " alt="" coords="1009,440,960,440,960,434,1009,434"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9d9fbf0ddfa5a7ee7df24b1f74eb0442" title=" " alt="" coords="562,346,737,387"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="770,370,738,369,738,364,770,364"/>
+<area shape="rect" id="Node000008" href="$d7/d70/namespaceanonymous__namespace_02_c_restore_previous_state_test_8cc_03.html#ad510e3e3e957af0ca88ec08fd7cc04c9" title=" " alt="" coords="276,114,514,170"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="612,338,426,172,430,168,616,334"/>
+<area shape="rect" id="Node000014" href="$d9/d63/namespaceanonymous__namespace_02_c_multi_file_data_adder_test_8cc_03.html#a99cddf0bb721206a82c630d4bce4fc8f" title=" " alt="" coords="304,336,486,391"/>
+<area shape="poly" id="edge13_Node000007_Node000014" title=" " alt="" coords="546,368,486,367,486,362,547,362"/>
+<area shape="rect" id="Node000020" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af98214b934ff0645aa0c4b3dd2c98eb9" title="This function is called from the persistence manager when foreground persistence is triggered." alt="" coords="318,415,472,456"/>
+<area shape="poly" id="edge19_Node000007_Node000020" title=" " alt="" coords="559,394,515,406,472,418,471,413,513,401,558,389"/>
+<area shape="rect" id="Node000009" href="$d1/d67/_c_restore_previous_state_test_8cc.html#aa3f1087e72eead6d4f215ef785709e5f" title=" " alt="" coords="8,5,225,31"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="341,108,287,74,227,45,194,34,195,29,229,40,290,70,344,103"/>
+<area shape="rect" id="Node000010" href="$d1/d67/_c_restore_previous_state_test_8cc.html#a0c3f619167958fb549a50ac416e74e66" title=" " alt="" coords="8,55,225,80"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="290,112,227,94,183,84,184,78,228,89,292,107"/>
+<area shape="rect" id="Node000011" href="$d1/d67/_c_restore_previous_state_test_8cc.html#a298265d7c889d1570b3b8eaef7067891" title=" " alt="" coords="8,104,225,130"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="260,133,225,129,226,124,260,127"/>
+<area shape="rect" id="Node000012" href="$d1/d67/_c_restore_previous_state_test_8cc.html#a7bf2e1d16d4e8adad0e27a867229344f" title=" " alt="" coords="8,153,225,179"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="260,156,226,159,225,154,260,151"/>
+<area shape="rect" id="Node000013" href="$d1/d67/_c_restore_previous_state_test_8cc.html#acdd9adbe50133dc4187e536e7b60e5b6" title=" " alt="" coords="8,203,225,228"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="289,177,228,194,184,205,182,199,227,189,287,172"/>
+<area shape="rect" id="Node000015" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html#a75ad4b8089341662e0b26d376a85ed69" title=" " alt="" coords="18,252,215,278"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="324,331,227,291,189,281,191,276,229,286,326,326"/>
+<area shape="rect" id="Node000016" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html#aa0c3730f0f6051877915082e609e63fb" title=" " alt="" coords="18,301,215,327"/>
+<area shape="poly" id="edge15_Node000014_Node000016" title=" " alt="" coords="288,347,192,330,193,325,289,342"/>
+<area shape="rect" id="Node000017" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html#a8c06540cf8e7d0c4fe7ccae86cca0750" title=" " alt="" coords="18,351,215,376"/>
+<area shape="poly" id="edge16_Node000014_Node000017" title=" " alt="" coords="288,366,215,366,215,361,288,361"/>
+<area shape="rect" id="Node000018" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html#ae97da552fb754d47d61470cb35705db3" title=" " alt="" coords="18,400,215,426"/>
+<area shape="poly" id="edge17_Node000014_Node000018" title=" " alt="" coords="289,385,193,402,192,397,288,380"/>
+<area shape="rect" id="Node000019" href="$d0/da1/_c_multi_file_data_adder_test_8cc.html#a372df859c8911f8b80d996e805390db1" title=" " alt="" coords="18,449,215,475"/>
+<area shape="poly" id="edge18_Node000014_Node000019" title=" " alt="" coords="291,399,277,406,253,423,229,441,199,451,197,446,226,436,250,419,274,401,289,394"/>
+<area shape="rect" id="Node000021" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7192b0f547cd4fa07df19f3e440c4071" title=" " alt="" coords="5,499,228,540"/>
+<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="304,463,277,471,229,490,194,501,192,496,227,485,275,466,302,458"/>
+<area shape="poly" id="edge22_Node000022_Node000023" title=" " alt="" coords="788,462,735,476,734,471,787,457"/>
+<area shape="rect" id="Node000024" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af278b58a62e36a96deadced80d5f37ee" title="Persist current state due to the periodic persistence being triggered." alt="" coords="282,481,508,521"/>
+<area shape="poly" id="edge23_Node000023_Node000024" title=" " alt="" coords="550,499,509,501,509,495,550,494"/>
+</map>

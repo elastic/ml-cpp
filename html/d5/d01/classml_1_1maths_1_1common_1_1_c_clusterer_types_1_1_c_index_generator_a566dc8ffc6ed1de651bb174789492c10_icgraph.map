@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CClustererTypes::CIndexGenerator::acceptPersistInserter" name="ml::maths::common::CClustererTypes::CIndexGenerator::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="516,45,742,101"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a04bced720f6ba88da8d270015b20bf66" title="Persist state by passing information to the supplied inserter." alt="" coords="250,5,468,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="500,57,468,52,469,47,501,51"/>
+<area shape="rect" id="Node000004" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a3941e6bfcb14e67cb0431ead8dce2965" title="Persist state by passing information to the supplied inserter." alt="" coords="257,85,461,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="501,95,462,101,461,95,500,90"/>
+<area shape="rect" id="Node000003" href="$d2/dd5/_c_x_means_online1d_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+<area shape="rect" id="Node000005" href="$d2/d17/_c_x_means_online_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,100,202,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="241,116,202,116,202,111,241,111"/>
+</map>

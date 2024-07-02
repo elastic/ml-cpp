@@ -1,0 +1,11 @@
+<map id="ml::api::CDataFrameAnalysisRunner::numberPartitions" name="ml::api::CDataFrameAnalysisRunner::numberPartitions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="603,85,796,126"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad2e309fe35a18fef293ac9a7aaf4d698" title=" " alt="" coords="305,5,524,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="601,83,523,63,524,58,602,78"/>
+<area shape="rect" id="Node000004" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#ac8dc5ac3ff0d60e0816e6ec937ad1fb3" title=" " alt="" coords="274,85,555,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="587,108,555,108,555,103,587,103"/>
+<area shape="rect" id="Node000005" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a32b0d6e6db2f1ed87b8cf8d63141d91f" title=" " alt="" coords="320,150,509,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="594,132,507,152,506,147,592,127"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a4b88e865564434d9be4a3298a6f6bebc" title=" " alt="" coords="5,5,226,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="290,36,226,36,226,31,290,31"/>
+</map>

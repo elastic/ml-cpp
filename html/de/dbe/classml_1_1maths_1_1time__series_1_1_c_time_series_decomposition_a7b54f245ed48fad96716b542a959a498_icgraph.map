@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::meanValue" name="ml::maths::time_series::CTimeSeriesDecomposition::meanValue">
+<area shape="rect" id="Node000001" title="Get the mean value of the time series in the vicinity of time." alt="" coords="271,89,463,145"/>
+<area shape="rect" id="Node000002" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aa6e7191d99df015fef8879cc35acabcf" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="304,83,222,45,187,34,188,29,224,40,306,78"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#ae59d63e9eddb311544f1069371d55d2d" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,98,183,84,184,78,256,92"/>
+<area shape="rect" id="Node000004" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aef5a8857b10a60709470dd25cc8fe10e" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="255,120,223,120,223,114,255,114"/>
+<area shape="rect" id="Node000005" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aab271baedce8409a164cc1b5d2fd8f4a" title=" " alt="" coords="5,153,223,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="256,141,184,155,183,150,255,136"/>
+<area shape="rect" id="Node000006" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a1b19faa9fbce83f5f41bdb2ae950b300" title=" " alt="" coords="5,203,223,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="306,155,224,194,188,205,187,199,222,189,304,150"/>
+</map>

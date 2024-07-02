@@ -1,0 +1,7 @@
+<map id="ml::model::CDataCategorizer::CDataCategorizer" name="ml::model::CDataCategorizer::CDataCategorizer">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,197,79"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a91c6d4a7dbdf5f4acdf2cc281686d59e" title=" " alt="" coords="245,5,440,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,43,229,39,229,44,197,48"/>
+<area shape="rect" id="Node000003" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="277,71,408,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,69,262,78,261,83,197,74"/>
+</map>

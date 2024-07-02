@@ -1,0 +1,45 @@
+<map id="ml::maths::time_series::CCalendarComponent::acceptPersistInserter" name="ml::maths::time_series::CCalendarComponent::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="5,85,172,141"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a4d112235091ab42f595681013a79eae1" title="Persist by passing information to the supplied inserter." alt="" coords="220,200,431,256"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,139,254,191,251,195,147,144"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="1047,85,1249,126"/>
+<area shape="poly" id="edge25_Node000001_Node000005" title=" " alt="" coords="127,83,169,57,219,37,335,15,454,4,573,4,690,12,800,25,900,42,1060,78,1058,83,899,48,799,31,689,17,573,9,454,10,335,20,220,42,172,62,129,87"/>
+<area shape="rect" id="Node000012" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="479,121,681,162"/>
+<area shape="poly" id="edge24_Node000001_Node000012" title=" " alt="" coords="172,115,464,132,463,137,172,121"/>
+<area shape="rect" id="Node000015" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a96c332a26092fad4b7677a2793c1be57" title="Persist state by passing information to inserter." alt="" coords="229,52,422,108"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="171,99,213,93,213,98,172,104"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6a792bfd62f5be866d0d38af51199167" title="Get the accept persist function bound to this object." alt="" coords="498,287,663,342"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="410,254,484,279,482,284,409,259"/>
+<area shape="poly" id="edge12_Node000002_Node000005" title=" " alt="" coords="431,215,572,196,635,184,680,171,694,163,703,153,713,143,728,135,805,113,884,100,961,95,1031,94,1031,100,961,100,885,105,806,118,730,140,716,148,707,157,697,167,682,176,637,189,573,201,432,220"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="409,197,503,165,505,170,410,202"/>
+<area shape="rect" id="Node000013" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="503,366,657,407"/>
+<area shape="poly" id="edge13_Node000002_Node000013" title=" " alt="" coords="356,254,411,304,445,330,480,352,490,357,488,362,478,357,442,334,407,308,352,258"/>
+<area shape="rect" id="Node000014" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a8563020cb3f0bfc8bec78c8cd65c895e" title="Convert to a delimited string." alt="" coords="754,229,963,270"/>
+<area shape="poly" id="edge14_Node000002_Node000014" title=" " alt="" coords="432,229,739,242,738,247,431,235"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a092dd41c0e723bf1939f280c99bcc53e" title="Persist by passing information to the supplied inserter." alt="" coords="780,293,937,349"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="664,314,765,316,764,322,663,319"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="936,307,963,296,986,279,999,262,1006,245,1009,209,1012,172,1019,154,1034,135,1036,133,1040,137,1038,139,1024,156,1017,173,1014,209,1011,246,1004,265,990,283,965,301,938,312"/>
+<area shape="rect" id="Node000006" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="1036,293,1260,349"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="937,319,1020,319,1020,324,937,324"/>
+<area shape="rect" id="Node000007" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#aaef61f5660b9649997b6fc2879e4bec7" title="Convert to a delimited string." alt="" coords="1037,373,1259,429"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="938,340,1031,366,1029,371,936,345"/>
+<area shape="rect" id="Node000011" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="1071,229,1225,270"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="936,299,1055,270,1056,275,938,304"/>
+<area shape="rect" id="Node000008" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="1330,373,1480,429"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1260,399,1314,399,1314,404,1260,404"/>
+<area shape="rect" id="Node000009" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="1549,381,1697,422"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1480,399,1533,399,1533,404,1480,404"/>
+<area shape="rect" id="Node000010" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="1745,381,1883,422"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1697,399,1729,399,1729,404,1697,404"/>
+<area shape="poly" id="edge15_Node000014_Node000011" title=" " alt="" coords="964,247,1055,247,1055,252,964,252"/>
+<area shape="poly" id="edge23_Node000015_Node000005" title=" " alt="" coords="423,76,479,76,681,76,835,81,988,91,1031,94,1031,99,987,96,834,87,681,81,479,81,423,82"/>
+<area shape="poly" id="edge22_Node000015_Node000012" title=" " alt="" coords="423,101,479,114,478,119,422,106"/>
+<area shape="rect" id="Node000016" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a1f3ab39ebbea8c24fb7415199d4fef34" title="Persist state by passing information to inserter." alt="" coords="729,149,988,205"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="423,78,547,86,615,94,682,107,734,122,783,140,782,145,732,127,681,112,614,99,546,91,422,83"/>
+<area shape="poly" id="edge20_Node000016_Node000005" title=" " alt="" coords="972,146,1048,127,1049,132,974,151"/>
+<area shape="poly" id="edge21_Node000016_Node000011" title=" " alt="" coords="974,203,1056,224,1055,229,972,208"/>
+<area shape="rect" id="Node000017" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a97df4201d641144adf5b18796772b2f8" title="Check if the seasonal component has been estimated." alt="" coords="1051,149,1245,205"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="988,175,1035,175,1035,180,988,180"/>
+<area shape="rect" id="Node000018" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a638a84f6600ed79cb6063c02dd83b38b" title="Check if the splines have been initialized." alt="" coords="1308,149,1501,205"/>
+<area shape="poly" id="edge19_Node000017_Node000018" title=" " alt="" coords="1245,175,1293,175,1293,180,1245,180"/>
+</map>

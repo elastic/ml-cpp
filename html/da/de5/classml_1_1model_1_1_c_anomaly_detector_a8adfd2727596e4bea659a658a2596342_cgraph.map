@@ -1,0 +1,16 @@
+<map id="ml::model::CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser" name="ml::model::CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,101,253,156"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a2542013fc02cfa0940f4185efb4f8d9e" title=" " alt="" coords="301,108,552,149"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,126,285,126,285,131,253,131"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="600,5,818,46"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="210,97,300,72,447,47,584,32,585,37,448,53,301,78,211,102"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="600,75,818,115"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="253,100,300,94,448,86,584,87,584,92,448,91,301,99,254,105"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="600,148,818,189"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="254,151,301,158,448,167,584,169,584,174,448,172,300,163,253,157"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="317,223,536,263"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="191,154,302,202,339,215,338,220,300,207,188,159"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,105,599,60,632,49,633,54,601,66,482,110"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="552,111,584,107,584,112,553,116"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="553,144,585,148,584,153,552,149"/>
+</map>

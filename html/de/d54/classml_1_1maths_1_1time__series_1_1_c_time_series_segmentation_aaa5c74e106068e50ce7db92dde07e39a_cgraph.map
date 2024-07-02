@@ -1,0 +1,28 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::fitTopDownPiecewiseTimeShifted" name="ml::maths::time_series::CTimeSeriesSegmentation::fitTopDownPiecewiseTimeShifted">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,215,231,270"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="63,214,64,204,74,195,92,190,118,188,148,191,166,198,164,203,147,196,118,193,93,195,77,200,69,206,69,214"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="569,5,791,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,213,198,154,236,124,277,99,346,72,417,53,488,41,553,34,554,39,489,46,418,59,347,77,280,104,239,128,201,158,144,216"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="601,85,760,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,212,207,170,241,150,278,135,357,114,438,102,516,97,585,97,585,102,517,103,439,107,358,119,280,140,244,155,210,175,153,216"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="279,280,521,336"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="232,266,264,274,263,279,231,271"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="601,309,760,350"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="231,233,298,233,372,237,448,247,522,265,547,279,570,295,587,301,585,306,568,300,544,284,520,270,447,253,371,242,298,238,231,238"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a5374365b490685fa702741c968a98697" title=" " alt="" coords="290,360,510,400"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="156,269,213,308,280,345,294,351,292,356,278,350,210,313,153,273"/>
+<area shape="rect" id="Node000008" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#ade0740c32139b44f9940357d1c20f494" title=" " alt="" coords="307,149,493,205"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="231,214,291,200,292,205,232,219"/>
+<area shape="rect" id="Node000011" href="$da/ddf/classml_1_1maths_1_1common_1_1_c_statistical_tests.html#adc5785fa3e77f2867e550c55e8c9e089" title=" " alt="" coords="313,448,487,504"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="143,269,202,337,240,375,280,410,325,438,322,443,277,414,236,379,198,341,139,273"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a739275d40cae59a9a72b42b772b113fc" title=" " alt="" coords="608,374,753,415"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="511,383,592,387,592,393,510,388"/>
+<area shape="poly" id="edge9_Node000008_Node000002" title=" " alt="" coords="440,147,499,109,568,71,580,65,583,70,570,76,502,113,443,151"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="492,151,585,127,586,132,494,156"/>
+<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="494,203,523,222,539,241,547,260,555,278,571,295,588,305,585,310,567,299,550,281,542,262,535,244,519,226,491,208"/>
+<area shape="rect" id="Node000009" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b7faad96d97de516da6d0bb3e363123" title=" " alt="" coords="573,149,787,205"/>
+<area shape="poly" id="edge12_Node000008_Node000009" title=" " alt="" coords="493,175,558,175,558,180,493,180"/>
+<area shape="rect" id="Node000010" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="573,229,787,285"/>
+<area shape="poly" id="edge13_Node000008_Node000010" title=" " alt="" coords="494,201,566,222,565,227,492,206"/>
+<area shape="poly" id="edge15_Node000011_Node000011" title=" " alt="" coords="345,447,346,437,356,429,374,423,400,421,430,424,448,431,446,436,428,429,400,427,375,429,359,433,351,440,351,448"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="ml::model::CResourceMonitor::totalMemory" name="ml::model::CResourceMonitor::totalMemory">
+<area shape="rect" id="Node000001" title="Returns the sum of used memory plus any extra memory." alt="" coords="5,29,201,70"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="249,29,437,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,47,233,47,233,52,201,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="298,29,296,19,303,10,319,5,343,3,369,5,384,11,382,16,367,10,343,8,320,10,306,15,301,21,303,28"/>
+</map>

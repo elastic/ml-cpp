@@ -1,0 +1,6 @@
+<map id="ml::model::CTokenListDataCategorizerBase::makeForegroundPersistFunc" name="ml::model::CTokenListDataCategorizerBase::makeForegroundPersistFunc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,229,85"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ac89d7d8db04227f4fdfdb4406172568f" title="Persist state by passing information to the supplied inserter." alt="" coords="277,29,483,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,55,261,55,261,60,229,60"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="329,29,329,19,339,10,355,5,380,3,407,5,424,12,422,17,406,10,380,8,357,10,341,15,334,21,334,29"/>
+</map>

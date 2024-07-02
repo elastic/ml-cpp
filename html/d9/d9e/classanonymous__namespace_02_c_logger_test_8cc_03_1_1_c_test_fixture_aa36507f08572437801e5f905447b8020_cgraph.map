@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CLoggerTest::cc}::CTestFixture::~CTestFixture" name="anonymous_namespace{CLoggerTest::cc}::CTestFixture::~CTestFixture">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,214,111"/>
+<area shape="rect" id="Node000002" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#acf1a4d893bb267652eda4d3c8f197f7d" title=" " alt="" coords="262,29,395,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,64,246,60,246,65,214,70"/>
+<area shape="rect" id="Node000003" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="262,95,395,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="214,96,246,100,246,106,213,101"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="291,29,289,19,295,10,309,5,328,3,350,5,362,11,360,16,348,10,328,8,310,10,299,15,295,20,296,28"/>
+<area shape="rect" id="Node000004" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="443,49,603,90"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="395,97,427,89,428,94,396,102"/>
+<area shape="rect" id="Node000005" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="456,139,590,179"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="396,127,442,138,441,143,395,133"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="486,139,484,129,490,120,503,114,523,112,544,114,557,121,555,125,543,120,523,117,505,119,494,124,489,130,491,137"/>
+</map>

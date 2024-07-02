@@ -1,0 +1,27 @@
+<map id="ml::maths::common::CQuantileSketch::quantile" name="ml::maths::common::CQuantileSketch::quantile">
+<area shape="rect" id="Node000001" title="Get the quantile corresponding to percentage." alt="" coords="5,49,179,90"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="48,49,46,39,53,30,69,24,92,22,117,25,132,31,130,36,116,30,92,27,70,29,56,34,51,40,53,48"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a512d452c8d6edc72c3407743e8fc9101" title="Get the target size for fastReduce." alt="" coords="227,5,422,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,53,211,48,212,53,179,58"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a947c1ae935ba81ef8dae72195ff51c91" title="Reduce to target size." alt="" coords="241,85,408,126"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="179,80,225,87,225,92,178,85"/>
+<area shape="rect" id="Node000004" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#afac48cf1ac00c289ffa00e612dc0430b" title="Combine any co&#45;located values." alt="" coords="714,21,909,62"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="394,82,421,71,444,55,454,48,469,41,527,29,587,23,699,25,699,30,587,28,528,34,471,46,457,52,447,59,423,76,396,87"/>
+<area shape="rect" id="Node000005" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a9489402a0c3a783b1b5543d35c0a1a3c" title="Compute the cost of combining vl and vr." alt="" coords="715,110,908,151"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="409,107,700,122,700,127,408,112"/>
+<area shape="rect" id="Node000006" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac9813f7e83bf8bc406b4586c7e1cc075" title="Fully order the values." alt="" coords="489,56,646,96"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="408,92,473,85,473,90,409,98"/>
+<area shape="rect" id="Node000007" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a0006c909afeb7ba54693ab4ba5977a19" title="Reduce to the maximum permitted size." alt="" coords="470,172,664,228"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="379,123,480,163,478,168,377,128"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="646,62,699,54,699,60,647,67"/>
+<area shape="poly" id="edge13_Node000007_Node000005" title=" " alt="" coords="664,170,722,153,723,158,665,175"/>
+<area shape="rect" id="Node000008" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="721,175,902,230"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="665,198,705,199,705,204,665,204"/>
+<area shape="rect" id="Node000011" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a15fce53ec3d0f0b8823ed427cbaa2767" title="The result of merging knots at positions l and r." alt="" coords="712,254,911,295"/>
+<area shape="poly" id="edge14_Node000007_Node000011" title=" " alt="" coords="661,226,729,246,727,252,660,231"/>
+<area shape="rect" id="Node000009" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="959,175,1140,230"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="903,200,943,200,943,205,903,205"/>
+<area shape="rect" id="Node000010" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="1188,175,1369,230"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1140,200,1173,200,1173,205,1140,205"/>
+<area shape="poly" id="edge12_Node000010_Node000010" title=" " alt="" coords="1234,174,1234,164,1242,155,1257,150,1279,148,1303,151,1318,157,1315,162,1301,156,1279,153,1258,155,1245,160,1239,166,1239,174"/>
+</map>

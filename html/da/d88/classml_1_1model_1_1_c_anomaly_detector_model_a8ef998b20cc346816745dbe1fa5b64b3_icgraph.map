@@ -1,0 +1,9 @@
+<map id="ml::model::CAnomalyDetectorModel::baselineBucketMean" name="ml::model::CAnomalyDetectorModel::baselineBucketMean">
+<area shape="rect" id="Node000001" title=" " alt="" coords="476,39,673,79"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#af1e1c0010e023820d6f3d05f234e299a" title="Test the condition against a series." alt="" coords="250,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,45,428,41,429,36,461,40"/>
+<area shape="rect" id="Node000004" href="$d7/d62/classml_1_1model_1_1_c_hierarchical_results_populator.html#a99749b0791539b084a8605a4790fe96a" title="Visit node." alt="" coords="256,71,422,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="461,77,422,82,422,77,460,72"/>
+<area shape="rect" id="Node000003" href="$d2/dc4/_c_rule_condition_test_8cc.html#a732eed3897a4ca2e3512bef30cd6a55c" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="235,28,202,28,202,23,235,23"/>
+</map>

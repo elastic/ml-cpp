@@ -1,0 +1,29 @@
+<map id="ml::maths::common::CMultivariateNormalConjugateFactory::nonInformative" name="ml::maths::common::CMultivariateNormalConjugateFactory::nonInformative">
+<area shape="rect" id="Node000001" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="804,63,1004,119"/>
+<area shape="rect" id="Node000002" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a774795705f2fde05e0c4ef08afa73952" title=" " alt="" coords="560,21,756,47"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="788,67,716,50,717,44,790,62"/>
+<area shape="rect" id="Node000003" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a06f88dc8661011008746446c458a91e0" title=" " alt="" coords="571,71,746,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="788,94,746,94,746,88,788,88"/>
+<area shape="rect" id="Node000007" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a7aa272b13d821a7fd58daf9add869f28" title=" " alt="" coords="571,201,746,242"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="838,129,699,203,697,199,835,124"/>
+<area shape="rect" id="Node000004" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#a08409a18c23d0057c80e75fcc5c75774" title=" " alt="" coords="286,5,497,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="557,69,477,49,478,44,558,64"/>
+<area shape="rect" id="Node000006" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#a2cd66121616e44c942e703b95a6e5bc7" title=" " alt="" coords="271,71,512,111"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="555,94,513,94,513,88,555,88"/>
+<area shape="rect" id="Node000005" href="$de/d77/_c_metric_model_test_8cc.html#a8c99a404d3b1252215e0de8accceccff" title=" " alt="" coords="5,13,223,39"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="270,28,223,28,223,23,270,23"/>
+<area shape="poly" id="edge13_Node000007_Node000004" title=" " alt="" coords="622,192,558,125,536,90,527,75,510,61,488,49,490,44,514,57,531,72,541,87,562,121,626,189"/>
+<area shape="poly" id="edge14_Node000007_Node000006" title=" " alt="" coords="618,194,569,159,511,127,479,114,481,109,513,122,571,155,621,190"/>
+<area shape="rect" id="Node000008" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a3d3de4d332302fe71340e515251f1497" title=" " alt="" coords="295,136,488,177"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="557,200,477,180,478,175,558,194"/>
+<area shape="rect" id="Node000009" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#a18acb8456140c087529e081c2fb5f85c" title=" " alt="" coords="278,201,505,242"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="555,224,506,224,506,219,555,219"/>
+<area shape="rect" id="Node000010" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#aa7b86886ff6219f20d92ef2bd9c1fbc5" title=" " alt="" coords="286,267,497,307"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="558,249,478,269,477,263,557,244"/>
+<area shape="rect" id="Node000011" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#a82d070ccd1a649269177a7428f34bc07" title=" " alt="" coords="278,332,505,373"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="621,254,571,289,513,321,481,334,479,329,511,317,569,284,618,249"/>
+<area shape="rect" id="Node000012" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a90e79691642800c7a9cefc02e8905339" title=" " alt="" coords="288,397,495,438"/>
+<area shape="poly" id="edge11_Node000007_Node000012" title=" " alt="" coords="638,257,586,323,552,357,513,387,489,399,486,394,511,382,549,353,582,319,634,254"/>
+<area shape="rect" id="Node000013" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#ade1ceda9bc3f003a345ef030cc391489" title=" " alt="" coords="271,463,512,503"/>
+<area shape="poly" id="edge12_Node000007_Node000013" title=" " alt="" coords="646,258,627,302,598,355,560,407,514,452,492,465,489,460,510,448,556,404,594,352,622,300,642,256"/>
+</map>

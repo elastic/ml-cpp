@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CKMostCorrelated::acceptPersistInserter" name="ml::maths::common::CKMostCorrelated::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing to the supplied inserter." alt="" coords="5,63,223,119"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="271,5,473,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,61,274,48,275,53,224,66"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="295,71,449,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,88,279,88,279,94,223,94"/>
+<area shape="rect" id="Node000004" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a0aa5a18640c301ae43736612dae81f77" title="Persist to a string." alt="" coords="278,135,466,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="217,117,263,130,262,135,215,122"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="521,109,675,150"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="466,147,505,141,506,146,466,152"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="525,175,672,215"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="466,174,509,180,509,185,466,179"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="723,182,770,208"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="672,192,708,192,708,198,672,198"/>
+</map>

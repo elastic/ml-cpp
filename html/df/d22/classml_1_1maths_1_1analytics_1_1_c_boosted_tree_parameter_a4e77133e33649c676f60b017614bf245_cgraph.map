@@ -1,0 +1,12 @@
+<map id="ml::maths::analytics::CBoostedTreeParameter::fixTo" name="ml::maths::analytics::CBoostedTreeParameter::fixTo">
+<area shape="rect" id="Node000001" title="Fix to either a single value or range depending on the length of value." alt="" coords="5,71,179,126"/>
+<area shape="rect" id="Node000002" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#acadbd9143cdbec3554932380a7e58590" title="Fix to value." alt="" coords="227,5,400,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,70,211,61,212,66,180,75"/>
+<area shape="rect" id="Node000003" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="448,35,621,90"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="179,89,433,68,433,73,179,94"/>
+<area shape="rect" id="Node000004" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a33fa0a291ebf5e126f0e0279c7bd4bc4" title=" " alt="" coords="227,136,400,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,122,212,131,211,136,178,127"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,42,433,46,432,52,400,47"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="462,144,607,184"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="400,161,447,161,447,167,400,167"/>
+</map>

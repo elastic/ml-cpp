@@ -1,0 +1,28 @@
+<map id="ml::maths::analytics::boosted_tree_detail::rootIndex" name="ml::maths::analytics::boosted_tree_detail::rootIndex">
+<area shape="rect" id="Node000001" title="Get the index of the root node in a canonical tree node vector." alt="" coords="903,306,1046,362"/>
+<area shape="rect" id="Node000002" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#ab5bde7f67080748a880ddab191c35c92" title="Compute the probabilities with which to select each tree for retraining." alt="" coords="653,148,835,203"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="940,296,901,255,854,218,833,206,835,201,857,213,904,251,943,292"/>
+<area shape="rect" id="Node000003" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a28dd812434f4a84942591c0ec8c04998" title="Get the root node of tree." alt="" coords="658,227,830,268"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="890,302,854,288,806,271,808,266,856,284,892,297"/>
+<area shape="rect" id="Node000008" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a2ee1f7025a9ea41fd94bd7100c4b4a16" title=" " alt="" coords="353,340,578,395"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="888,333,855,333,744,328,695,328,633,333,578,342,577,336,633,327,695,323,744,323,855,327,888,328"/>
+<area shape="rect" id="Node000010" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a25501901a4c067b5c31b4316585da094" title="Get the root node of tree." alt="" coords="658,342,830,382"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="889,347,831,354,830,349,888,342"/>
+<area shape="rect" id="Node000011" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a6b587afc32217241779f8b5f6ce6076c" title="Train one forest on the rows of frame in the mask trainingRowMask." alt="" coords="640,407,848,448"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="910,372,856,396,821,409,820,404,854,392,908,367"/>
+<area shape="rect" id="Node000012" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a39d124c494641725ff03425656eed3f2" title=" " alt="" coords="633,472,855,513"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="946,376,907,421,857,462,832,474,830,469,854,457,903,417,942,373"/>
+<area shape="rect" id="Node000004" href="$d9/dec/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_incremental_impl.html#a92d965dd0aba2bc5a784b13c1cb025d0" title=" " alt="" coords="364,5,567,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="643,226,631,217,618,201,610,185,606,152,602,120,595,105,583,89,566,75,569,71,587,85,600,102,607,119,611,152,615,183,622,198,635,213,646,222"/>
+<area shape="rect" id="Node000005" href="$d7/d37/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_incremental_impl.html#ad389bb61277d128d82180dc3cff4626b" title=" " alt="" coords="352,100,579,155"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="643,224,632,218,616,205,607,193,598,181,584,170,562,158,565,153,586,165,602,178,611,190,620,202,634,213,645,219"/>
+<area shape="rect" id="Node000006" href="$d6/df5/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_binomial_logistic_loss_incremental.html#a5e85c59bbab1ca20616d5d6b1ab299c2" title=" " alt="" coords="357,180,574,235"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="642,235,574,226,575,220,643,230"/>
+<area shape="rect" id="Node000007" href="$d7/d64/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_mse_incremental.html#acdf2a8294578935d23fa839663962ded" title=" " alt="" coords="358,260,573,315"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="643,264,574,275,573,269,642,259"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="658,276,634,288,611,309,586,330,563,341,561,336,584,325,607,305,632,284,656,272"/>
+<area shape="rect" id="Node000009" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a58fd2782d8c92cc89789b5307d1dd44e" title=" " alt="" coords="5,332,298,403"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="338,370,298,370,298,365,338,365"/>
+<area shape="rect" id="Node000013" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="346,472,585,513"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="618,495,585,495,585,490,618,490"/>
+</map>

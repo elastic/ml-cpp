@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::boosted_tree::CBinomialLogisticLossIncremental" name="ml::maths::analytics::boosted_tree::CBinomialLogisticLossIncremental">
+<area shape="rect" id="Node000001" title="The loss for incremental binomial logistic regression." alt="" coords="19,183,237,238"/>
+<area shape="rect" id="Node000002" href="$dc/d39/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_binomial_logistic_loss.html" title="The loss for binomial logistic regression." alt="" coords="5,94,251,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,150,131,182,125,182,125,150"/>
+<area shape="rect" id="Node000003" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html" title="Defines the loss function for the regression or classification problem." alt="" coords="53,5,203,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="131,62,131,94,125,94,125,62"/>
+</map>

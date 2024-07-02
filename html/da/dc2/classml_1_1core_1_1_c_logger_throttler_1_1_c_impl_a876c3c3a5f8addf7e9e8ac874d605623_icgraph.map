@@ -1,0 +1,9 @@
+<map id="ml::core::CLoggerThrottler::CImpl::minimumLogIntervalMs" name="ml::core::CLoggerThrottler::CImpl::minimumLogIntervalMs">
+<area shape="rect" id="Node000001" title=" " alt="" coords="471,29,678,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="614,16,599,10,575,8,552,10,538,15,533,21,535,28,530,29,528,19,535,10,551,5,575,3,600,5,616,11"/>
+<area shape="rect" id="Node000002" href="$d4/dc4/classml_1_1core_1_1_c_logger_throttler.html#ad66d1bd2fe84366ccf976e833459a19e" title=" " alt="" coords="250,29,423,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="455,52,423,52,423,47,455,47"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="374,16,360,10,336,8,314,10,301,15,296,21,298,28,292,29,290,19,298,10,313,5,336,3,361,5,376,11"/>
+<area shape="rect" id="Node000003" href="$dc/df6/_c_logger_throttler_test_8cc.html#a5186cd971d52daa36fda6764fb2e185a" title=" " alt="" coords="5,37,202,63"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="234,52,202,52,202,47,234,47"/>
+</map>

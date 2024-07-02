@@ -1,0 +1,5 @@
+<map id="ml::model::CCountingModelFactory::defaultMultivariatePrior" name="ml::model::CCountingModelFactory::defaultMultivariatePrior">
+<area shape="rect" id="Node000001" title="Get the default prior for feature which is a stub." alt="" coords="5,5,212,46"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="260,13,416,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,23,244,23,244,28,212,28"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CNaiveBayesFeatureWeight" name="ml::maths::common::CNaiveBayesFeatureWeight">
+<area shape="rect" id="Node000001" title="Enables using custom feature weights in class prediction." alt="" coords="5,85,192,126"/>
+<area shape="rect" id="Node000002" href="$d6/d97/classanonymous__namespace_02_c_naive_bayes_test_8cc_03_1_1_c_test_feature_weight.html" title=" " alt="" coords="294,5,457,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,78,293,52,294,57,195,83"/>
+<area shape="rect" id="Node000003" href="$d5/d91/classml_1_1maths_1_1common_1_1_c_naive_bayes_1_1_c_unit_feature_weight.html" title="All features have unit weight in class prediction." alt="" coords="261,85,490,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,103,261,103,261,108,207,108"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_trend_component_8cc_03_1_1_c_change_forecast_feature_weight.html" title=" " alt="" coords="240,150,511,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,128,251,147,250,152,185,133"/>
+</map>

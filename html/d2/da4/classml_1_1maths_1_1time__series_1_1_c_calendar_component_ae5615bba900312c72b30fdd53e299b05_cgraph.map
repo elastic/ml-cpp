@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CCalendarComponent::swap" name="ml::maths::time_series::CCalendarComponent::swap">
+<area shape="rect" id="Node000001" title="An efficient swap of the contents of two components." alt="" coords="5,113,203,154"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a6b76ee9c2ea89b4b1cc0d2451ae20366" title="Efficiently swap the contents of two bucketing objects." alt="" coords="262,41,472,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,110,246,96,247,101,189,115"/>
+<area shape="rect" id="Node000004" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="772,121,851,147"/>
+<area shape="poly" id="edge10_Node000001_Node000004" title=" " alt="" coords="203,131,757,131,757,136,203,136"/>
+<area shape="rect" id="Node000005" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a55a66bcc4dc09c4d2894daeb9f87984b" title="An efficient swap of the contents of two components." alt="" coords="251,171,483,211"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="201,152,256,164,255,169,200,157"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a85cb234aec56c89b52edf564c5a2e2ed" title="Efficiently swap the contents of two bucketing objects." alt="" coords="534,5,721,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="472,49,518,41,519,46,472,54"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="472,77,594,92,725,112,758,119,757,124,724,118,593,98,472,82"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="689,44,726,62,759,85,787,108,784,112,755,89,723,67,687,49"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="780,122,774,112,778,103,791,96,812,94,834,97,845,103,843,108,832,102,811,99,792,101,782,106,780,112,785,119"/>
+<area shape="poly" id="edge9_Node000005_Node000004" title=" " alt="" coords="483,179,600,167,724,150,757,144,758,149,725,155,600,172,484,184"/>
+<area shape="rect" id="Node000006" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#ae70cc278752f70d13e962e8aba9bd6de" title="An efficient swap of the contents of two packed splines." alt="" coords="531,222,724,278"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="461,209,517,222,515,227,460,215"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="691,219,723,201,783,155,786,159,726,205,693,224"/>
+</map>

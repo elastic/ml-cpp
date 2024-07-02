@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CNaiveBayes::dataType" name="ml::maths::common::CNaiveBayes::dataType">
+<area shape="rect" id="Node000001" title="Set the data type." alt="" coords="254,29,417,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="373,16,359,10,335,8,313,10,300,15,295,21,297,28,292,29,290,19,297,10,312,5,335,3,360,5,375,11"/>
+<area shape="rect" id="Node000002" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#ab3f8a6cc81e660a28889a99bc7b57d8c" title="Set the data type." alt="" coords="5,29,206,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="238,52,206,52,206,47,238,47"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="143,16,129,10,105,8,84,10,70,15,65,21,67,28,62,29,60,19,67,10,82,5,106,3,130,5,145,11"/>
+</map>

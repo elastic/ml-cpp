@@ -1,0 +1,27 @@
+<map id="ml::model::CDataCategorizer::restoreExamplesCollector" name="ml::model::CDataCategorizer::restoreExamplesCollector">
+<area shape="rect" id="Node000001" title="Restore the examples collector." alt="" coords="5,201,197,242"/>
+<area shape="rect" id="Node000002" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a0aa3dafbc782fc2d9b03222411c673be" title="Populate the object from part of a state document." alt="" coords="245,136,466,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,198,258,179,259,184,184,203"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="780,332,999,373"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="198,235,765,329,765,334,197,240"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="514,201,732,242"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="197,219,498,219,498,224,197,224"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="780,5,999,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,133,455,112,513,92,642,62,764,40,765,45,643,67,515,98,457,117,404,138"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="780,71,999,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="450,133,514,122,643,106,764,96,765,101,643,112,514,127,451,138"/>
+<area shape="rect" id="Node000005" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aa35d1589ba432a9c8c8f7e06c93be177" title=" " alt="" coords="520,136,727,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="466,154,504,154,504,159,466,159"/>
+<area shape="poly" id="edge12_Node000002_Node000011" title=" " alt="" coords="442,175,523,194,521,200,441,180"/>
+<area shape="poly" id="edge9_Node000005_Node000003" title=" " alt="" coords="651,133,709,95,779,57,797,49,799,54,781,61,711,100,654,138"/>
+<area shape="poly" id="edge10_Node000005_Node000004" title=" " alt="" coords="708,133,788,113,790,118,710,138"/>
+<area shape="rect" id="Node000006" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aacd44abd96032a41d0c29327e15fc2a9" title=" " alt="" coords="786,201,993,242"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="710,175,790,194,788,200,708,180"/>
+<area shape="rect" id="Node000007" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a315d9733c0ab1d1517f9f1221c7ba3c4" title="Parse from string. Returns false if unsuccessful." alt="" coords="799,267,980,307"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="711,175,734,188,750,204,759,220,767,236,782,252,791,257,788,262,779,256,762,239,754,223,746,207,731,192,709,179"/>
+<area shape="rect" id="Node000009" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="799,136,980,177"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="727,154,784,154,784,159,727,159"/>
+<area shape="poly" id="edge11_Node000005_Node000010" title=" " alt="" coords="717,175,734,188,748,204,755,221,759,254,763,286,770,302,782,317,787,321,783,325,778,321,765,304,758,288,754,255,750,222,743,207,730,192,714,179"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="1047,267,1194,307"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="980,284,1031,284,1031,290,980,290"/>
+</map>

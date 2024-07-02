@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketMean::evaluateOnWindow" name="ml::maths::time_series::CTimeSeriesMultibucketMean::evaluateOnWindow">
+<area shape="rect" id="Node000001" title="Compute the weighted mean of function on the sliding window." alt="" coords="802,5,1007,61"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a287d728b30e26873a45b562b3524bab1" title="Compute the weighted count of the values in the window." alt="" coords="550,71,754,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="788,66,756,75,754,69,787,61"/>
+<area shape="rect" id="Node000004" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#a6f0e9cfe3fc64e47f8ad5a8820cc19e1" title="Compute the weighted mean of the values in the window." alt="" coords="5,13,250,54"/>
+<area shape="poly" id="edge11_Node000001_Node000004" title=" " alt="" coords="787,44,298,46,250,47,250,41,298,41,787,39"/>
+<area shape="rect" id="Node000003" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#ad146de4a1ddaa284201165019400e59a" title="Get the feature value and weight." alt="" coords="298,44,502,100"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="534,98,502,94,503,89,535,92"/>
+<area shape="poly" id="edge4_Node000003_Node000001" title=" " alt="" coords="517,59,550,56,802,37,802,43,550,61,518,64"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="518,73,550,76,549,81,517,78"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="282,67,216,57,216,52,282,61"/>
+<area shape="rect" id="Node000005" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_mean.html#ab6490c969bd2562cfc9d12348e94a8c2" title="Compute the time range of window." alt="" coords="25,111,230,166"/>
+<area shape="poly" id="edge8_Node000003_Node000005" title=" " alt="" coords="283,103,231,116,229,111,282,98"/>
+<area shape="poly" id="edge6_Node000004_Node000001" title=" " alt="" coords="265,17,298,17,571,17,802,21,802,27,571,23,298,22,265,23"/>
+<area shape="poly" id="edge7_Node000004_Node000003" title=" " alt="" coords="266,41,298,46,297,51,265,46"/>
+<area shape="poly" id="edge9_Node000005_Node000001" title=" " alt="" coords="245,156,355,168,484,173,552,171,620,165,688,153,753,136,788,121,820,102,873,59,877,64,823,106,790,126,755,141,689,158,621,170,552,176,484,179,354,174,245,162"/>
+<area shape="poly" id="edge10_Node000005_Node000005" title=" " alt="" coords="172,99,155,92,127,89,103,91,88,96,80,102,80,110,75,110,75,100,85,91,102,86,128,84,157,87,174,94"/>
+</map>

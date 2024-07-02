@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::anonymous_namespace{CTrendComponent::cc}::initialProbabilityOfChangeModel" name="ml::maths::time_series::anonymous_namespace{CTrendComponent::cc}::initialProbabilityOfChangeModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,212,141"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="62,69,64,59,73,50,88,45,109,43,133,46,148,53,146,58,131,51,108,48,89,50,76,55,69,62,67,70"/>
+<area shape="rect" id="Node000002" href="$d4/dc2/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_trend_component_8cc_03.html#a1c117a131bb78fdbb7ce47469f76f9de" title=" " alt="" coords="260,70,430,141"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="212,103,244,103,244,108,212,108"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="299,69,302,59,311,50,325,45,345,43,368,46,383,53,381,58,367,51,345,48,326,50,313,55,306,61,305,70"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="478,77,669,133"/>
+<area shape="poly" id="edge4_Node000002_Node000003" title=" " alt="" coords="430,103,462,103,462,108,430,108"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="717,5,917,61"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="669,74,705,63,707,69,671,79"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="744,85,890,126"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="670,103,729,103,729,108,670,108"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="744,150,890,191"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="670,128,730,144,729,150,669,133"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="965,13,1125,54"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="917,31,949,31,949,36,917,36"/>
+</map>

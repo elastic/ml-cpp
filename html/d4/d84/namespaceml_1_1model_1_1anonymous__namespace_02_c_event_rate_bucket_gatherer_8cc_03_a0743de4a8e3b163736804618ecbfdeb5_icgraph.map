@@ -1,0 +1,10 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::UNIQUE_VALUES_TAG" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::UNIQUE_VALUES_TAG">
+<area shape="rect" id="Node000001" title=" " alt="" coords="271,81,520,137"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="441,69,424,63,395,60,370,62,354,67,346,73,346,81,341,81,341,71,351,62,369,57,395,55,425,57,443,64"/>
+<area shape="rect" id="Node000002" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#ac10ce33b9a8b9194f7e69f24e0c889ee" title="Serialize featureData." alt="" coords="6,29,222,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,86,222,80,223,75,256,81"/>
+<area shape="rect" id="Node000003" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#aad6e4198f00303dc0db0db429766e768" title="Extract featureData from a state document." alt="" coords="5,133,223,189"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="256,138,224,144,223,138,255,132"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="160,17,143,11,114,8,89,10,73,15,65,21,65,29,59,29,60,19,70,10,88,5,114,3,144,5,162,12"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="160,121,143,115,114,112,89,114,73,119,65,125,65,133,59,133,60,123,70,114,88,109,114,107,144,109,162,116"/>
+</map>

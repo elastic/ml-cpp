@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::outliers_detail::CLdof&lt; POINT, NEAREST_NEIGHBOURS &gt;" name="ml::maths::analytics::outliers_detail::CLdof&lt; POINT, NEAREST_NEIGHBOURS &gt;">
+<area shape="rect" id="Node000001" title="Computes the local distance based outlier score." alt="" coords="300,13,554,69"/>
+<area shape="rect" id="Node000002" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html" title="The interface for a nearest neighbour outlier calculation method." alt="" coords="5,5,252,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="267,38,299,38,299,43,267,43"/>
+</map>

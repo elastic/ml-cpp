@@ -1,0 +1,7 @@
+<map id="ml::model::CForecastDataSink::numRecordsWritten" name="ml::model::CForecastDataSink::numRecordsWritten">
+<area shape="rect" id="Node000001" title="get the number of forecast records written" alt="" coords="444,5,619,46"/>
+<area shape="rect" id="Node000002" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a7d8c08b07ee409abf5bc83772887ee78" title="The worker loop." alt="" coords="225,5,396,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="429,28,396,28,396,23,429,23"/>
+<area shape="rect" id="Node000003" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#a7c3b0698d5c05092e8556570ce92ac69" title=" " alt="" coords="5,5,177,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="209,28,177,28,177,23,209,23"/>
+</map>

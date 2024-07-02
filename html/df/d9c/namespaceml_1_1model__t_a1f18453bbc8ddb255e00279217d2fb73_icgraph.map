@@ -1,0 +1,27 @@
+<map id="ml::model_t::offsetCountToZero" name="ml::model_t::offsetCountToZero">
+<area shape="rect" id="Node000001" title="Offset count features so that their range starts at zero." alt="" coords="540,219,705,260"/>
+<area shape="rect" id="Node000002" href="$d8/d9e/_c_model_types_test_8cc.html#a9b4a3994bc0c6e5b43c31dc372f95d4b" title=" " alt="" coords="284,5,481,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="606,206,588,168,563,124,531,80,490,44,471,34,473,29,494,40,534,77,568,121,593,165,611,204"/>
+<area shape="rect" id="Node000003" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a643715f989121577e525d568ff1f20db" title=" " alt="" coords="274,55,491,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="599,208,554,148,524,119,491,94,468,83,470,78,493,89,528,114,558,145,603,204"/>
+<area shape="rect" id="Node000004" href="$de/d99/_c_event_rate_model_test_8cc.html#a48f6894f37ce2b39f82580faf8d66009" title=" " alt="" coords="274,104,491,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="587,211,543,176,491,145,458,133,460,128,493,140,546,171,590,207"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6ab02a238c5ad4ffdcd811c520ce1a03" title=" " alt="" coords="286,154,479,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="530,217,459,198,461,193,532,212"/>
+<area shape="rect" id="Node000006" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7f47e57e3eba38ccdfb4924902dd8af8" title=" " alt="" coords="286,219,479,260"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="524,242,480,242,480,237,524,237"/>
+<area shape="rect" id="Node000008" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a3df1f489824a7a890c2c3a5742d444af" title=" " alt="" coords="273,285,492,325"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="532,267,461,286,459,281,530,262"/>
+<area shape="rect" id="Node000010" href="$df/d9c/namespaceml_1_1model__t.html#a035f537f86d9b0406fcf5cb22f123608" title="Offset count features so that their range starts at zero." alt="" coords="300,350,465,391"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="589,272,545,307,493,339,464,352,462,347,491,334,542,303,586,268"/>
+<area shape="rect" id="Node000011" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="286,415,479,456"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="605,275,560,341,529,375,493,404,471,417,468,412,491,400,525,371,556,337,601,272"/>
+<area shape="rect" id="Node000013" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="273,481,492,521"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="613,275,596,320,571,372,537,424,494,470,474,482,471,478,490,465,533,421,567,369,592,317,608,273"/>
+<area shape="rect" id="Node000007" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="18,219,212,260"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="270,242,212,242,212,237,270,237"/>
+<area shape="rect" id="Node000009" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="5,285,225,325"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="257,308,225,308,225,302,257,302"/>
+<area shape="rect" id="Node000012" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="17,423,213,448"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="270,438,214,438,214,433,270,433"/>
+</map>

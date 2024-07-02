@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CDataFrameOutliersInstrumentationStub" name="ml::maths::analytics::CDataFrameOutliersInstrumentationStub">
+<area shape="rect" id="Node000001" title="Dummies out all instrumentation for outlier detection." alt="" coords="5,213,272,253"/>
+<area shape="rect" id="Node000002" href="$d3/d41/classml_1_1maths_1_1analytics_1_1_c_data_frame_outliers_instrumentation_interface.html" title="Instrumentation interface for Outlier Detection jobs." alt="" coords="19,109,258,165"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,180,141,212,136,212,136,180"/>
+<area shape="rect" id="Node000003" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="16,5,261,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="141,77,141,108,136,108,136,77"/>
+</map>

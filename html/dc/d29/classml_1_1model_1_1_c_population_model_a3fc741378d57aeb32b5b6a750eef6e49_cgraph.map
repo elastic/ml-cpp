@@ -1,0 +1,22 @@
+<map id="ml::model::CPopulationModel::peopleAndAttributesToRemove" name="ml::model::CPopulationModel::peopleAndAttributesToRemove">
+<area shape="rect" id="Node000001" title="Get the people and attributes to remove if any." alt="" coords="5,225,215,266"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a92ae7d8205e44f988b79208fb8da93e5" title=" " alt="" coords="274,29,449,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,223,178,154,217,115,261,81,271,75,274,79,264,85,221,119,182,158,127,227"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="274,95,449,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="138,223,193,185,261,146,277,139,279,144,264,151,196,189,141,227"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="263,160,460,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="190,222,265,203,266,208,192,227"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a01a461f14a805f86bfc44c38b015ba47" title="Check that the person is no longer being modeled." alt="" coords="274,225,449,266"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="215,243,259,243,259,248,215,248"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad433daea23da24cfde03e0c13ec15e99" title="Check that the person is no longer being modeled." alt="" coords="274,291,449,331"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="192,264,266,284,265,289,190,269"/>
+<area shape="rect" id="Node000008" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a2b41e9260ab8c78bf87a137679c500a9" title="Returns true if the the is an unset first bucket time." alt="" coords="263,356,460,397"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="141,264,196,302,264,341,279,347,277,352,261,345,193,307,138,269"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="274,445,449,486"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="129,265,186,331,224,370,264,406,307,435,304,440,261,410,220,374,182,335,125,268"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="317,29,314,19,322,10,337,5,361,3,387,5,402,11,400,16,386,10,361,8,339,10,325,15,320,21,322,28"/>
+<area shape="rect" id="Node000006" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="508,259,690,299"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="449,255,493,261,492,267,449,261"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="449,297,492,291,493,296,449,302"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="317,445,314,435,322,426,337,421,361,419,387,421,402,427,400,432,386,426,361,424,339,426,325,431,320,437,322,444"/>
+</map>

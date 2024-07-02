@@ -1,0 +1,5 @@
+<map id="ml::api::CTrainedModel::classificationLabels" name="ml::api::CTrainedModel::classificationLabels">
+<area shape="rect" id="Node000001" title="Set the labels to use for each class." alt="" coords="5,5,162,46"/>
+<area shape="rect" id="Node000002" href="$da/d46/classml_1_1api_1_1_c_ensemble.html#a3e9814e4b4e2527aac788745619b4ce1" title="Get the labels to use for each class." alt="" coords="210,5,353,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,23,194,23,194,28,162,28"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::model::CAnnotatedProbabilityBuilder::multiBucketImpact" name="ml::model::CAnnotatedProbabilityBuilder::multiBucketImpact">
+<area shape="rect" id="Node000001" title=" " alt="" coords="247,39,463,79"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="396,26,381,20,355,17,331,19,316,24,310,30,313,37,307,39,305,29,313,20,330,14,355,12,382,14,398,21"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,45,199,41,200,36,232,40"/>
+<area shape="rect" id="Node000003" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a730885952a2719bff06c7134ea5459a8" title=" " alt="" coords="18,71,186,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,77,186,83,186,78,231,72"/>
+</map>

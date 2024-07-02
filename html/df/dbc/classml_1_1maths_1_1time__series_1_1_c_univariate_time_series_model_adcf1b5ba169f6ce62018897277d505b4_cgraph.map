@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::addCountWeights" name="ml::maths::time_series::CUnivariateTimeSeriesModel::addCountWeights">
+<area shape="rect" id="Node000001" title="Add to trendWeights and residualWeights." alt="" coords="5,5,205,61"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a27d0609294633ca4e93fca86644afc03" title="Add weight to the count weight of weights." alt="" coords="253,20,407,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,31,237,31,237,36,205,36"/>
+<area shape="rect" id="Node000003" href="$da/d3d/structml_1_1maths__t_1_1maths__types__detail_1_1_s_weight_arithmetic.html#af64f8ddb86f3ab1c5137251e2acd0526" title=" " alt="" coords="455,13,698,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,31,439,31,439,36,407,36"/>
+</map>

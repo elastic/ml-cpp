@@ -1,0 +1,9 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::addOneHotEncoding" name="ml::api::CBoostedTreeInferenceModelBuilder::addOneHotEncoding">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,93,230,134"/>
+<area shape="rect" id="Node000002" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#ad433721d1a63cffcc95be24f81cec7f4" title=" " alt="" coords="278,5,444,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,90,262,63,264,68,182,95"/>
+<area shape="rect" id="Node000003" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a596c51a324ef6639845a80dacfd6fd2c" title=" " alt="" coords="278,85,444,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,111,262,111,262,116,230,116"/>
+<area shape="rect" id="Node000004" href="$d8/dcd/classml_1_1api_1_1_c_trained_model_1_1_c_feature_name_provider.html#a5fab331a1b683b047230438b3ffb5492" title=" " alt="" coords="278,165,444,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,131,264,158,262,164,181,137"/>
+</map>

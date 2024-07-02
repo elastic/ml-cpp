@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::fitPiecewiseLinear" name="ml::maths::time_series::CTimeSeriesSegmentation::fitPiecewiseLinear">
+<area shape="rect" id="Node000001" title="Fit a piecewise linear model to values for the segmentation segmentation." alt="" coords="5,143,191,199"/>
+<area shape="rect" id="Node000002" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a046dcad5672ac8897f20aa29e5d76f13" title="Fit a linear model to the values in [begin, end)." alt="" coords="253,63,439,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,140,242,122,244,127,187,145"/>
+<area shape="rect" id="Node000006" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="239,143,453,199"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="191,168,223,168,223,174,191,174"/>
+<area shape="rect" id="Node000007" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a0f4174befdbb15759143f5adbfa7d0a2" title=" " alt="" coords="257,247,435,287"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="173,197,278,238,276,243,171,202"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#afc80e7cf91ba8533fc744f369404bb6f" title=" " alt="" coords="501,5,744,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,67,518,48,519,53,439,72"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="543,71,702,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="439,88,527,88,527,94,439,94"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="543,136,702,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="439,110,528,131,527,137,438,115"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="299,247,297,237,305,228,321,222,346,220,373,222,388,229,386,234,371,228,346,225,322,227,308,232,302,238,304,245"/>
+</map>

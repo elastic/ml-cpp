@@ -1,0 +1,5 @@
+<map id="ml::core::CStopWatch" name="ml::core::CStopWatch">
+<area shape="rect" id="Node000001" title="Can be used for timing within a program." alt="" coords="18,94,168,120"/>
+<area shape="rect" id="Node000002" href="$d4/d5d/classml_1_1core_1_1_c_monotonic_time.html" title="Get a time that should never decrease." alt="" coords="5,5,181,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,47,96,94,90,94,90,47"/>
+</map>

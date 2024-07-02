@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::selectTreesToRetrain" name="ml::maths::analytics::CBoostedTreeImpl::selectTreesToRetrain">
+<area shape="rect" id="Node000001" title="Select the trees of the best forest to retrain." alt="" coords="5,5,220,61"/>
+<area shape="rect" id="Node000002" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a921051eb0acbca540d51809ef71ccb16" title=" " alt="" coords="268,5,468,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,31,252,31,252,36,220,36"/>
+</map>

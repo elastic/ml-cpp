@@ -1,0 +1,7 @@
+<map id="ml::model::hierarchical_results_detail::SResultSpec" name="ml::model::hierarchical_results_detail::SResultSpec">
+<area shape="rect" id="Node000001" title="The data fully describing a result node." alt="" coords="5,199,196,240"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="22,95,179,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,152,103,199,98,199,98,152"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="24,5,177,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="103,62,103,95,98,95,98,62"/>
+</map>

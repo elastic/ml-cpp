@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CXMeansOnline1d::cluster" name="ml::maths::common::CXMeansOnline1d::cluster">
+<area shape="rect" id="Node000001" title="Get the cluster with the index index." alt="" coords="5,29,183,70"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#abcabb7b5750133a0f54c4d9bee6973fe" title=" " alt="" coords="231,29,408,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,47,215,47,215,52,183,52"/>
+<area shape="rect" id="Node000003" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a27a8cb85db7bf18509c0a8b9cd4e76e0" title="The total count of points." alt="" coords="456,29,626,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="409,56,440,56,440,61,409,61"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="455,44,424,43,424,38,456,38"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="499,29,497,19,504,10,519,5,541,3,565,5,579,11,577,16,564,10,541,8,520,10,507,15,502,21,504,28"/>
+</map>

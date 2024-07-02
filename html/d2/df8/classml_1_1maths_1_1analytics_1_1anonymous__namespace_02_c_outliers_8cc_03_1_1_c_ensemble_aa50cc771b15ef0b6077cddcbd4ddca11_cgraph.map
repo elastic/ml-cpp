@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::estimateMemoryUsage" name="ml::maths::analytics::anonymous_namespace{COutliers::cc}::CEnsemble::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title="Estimate the amount of memory that will be used by the ensemble." alt="" coords="5,26,188,97"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6a3cd00c6fa74f6a65c087dff4dde84b" title=" " alt="" coords="236,41,417,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,59,220,59,220,64,188,64"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="484,5,629,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,45,468,37,469,42,418,50"/>
+<area shape="rect" id="Node000004" href="$d8/d2a/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_vector_memory_usage.html#a9bc22250998a90f679020a079365bb3a" title=" " alt="" coords="465,70,648,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="418,73,450,78,449,84,417,79"/>
+</map>

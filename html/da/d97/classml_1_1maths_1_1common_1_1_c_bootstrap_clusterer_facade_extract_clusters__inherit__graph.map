@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBootstrapClustererFacadeExtractClusters&lt; POINT &gt;" name="ml::maths::common::CBootstrapClustererFacadeExtractClusters&lt; POINT &gt;">
+<area shape="rect" id="Node000001" title="Extracts the clusters in canonical form (by index into the point vector) for the facade implementatio..." alt="" coords="5,45,231,101"/>
+<area shape="rect" id="Node000002" href="$d2/dcf/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_facade_3_01_c_k_means_3_01_p_o_i_n_t_01_4_01_4.html" title="Adapts the x&#45;means implementation for use by the bootstrap clusterer." alt="" coords="293,5,476,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,51,292,44,293,50,246,57"/>
+<area shape="rect" id="Node000003" href="$df/dc3/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer_facade_3_01_c_x_means_3_01_p_o_i_n_t_00_01_c_o_s_t_01_4_01_4.html" title="Adapts the x&#45;means implementation for use by the bootstrap clusterer." alt="" coords="279,85,490,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,90,279,95,278,100,246,95"/>
+</map>

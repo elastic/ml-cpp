@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CVector::swap" name="ml::maths::common::CVector::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of two vectors." alt="" coords="230,5,375,46"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ae1b2050cabfa73d72ba184319473a661" title="Free swap picked up by std:: algorithms etc." alt="" coords="5,13,182,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,28,182,28,182,23,214,23"/>
+</map>

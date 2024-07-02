@@ -1,0 +1,7 @@
+<map id="ml::core::CUname::mlPlatform" name="ml::core::CUname::mlPlatform">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,205,60"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_uname.html#aeb7acc00e0d965a27e69cf526512db2c" title="uname &#45;m" alt="" coords="253,5,438,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,33,237,29,237,34,205,38"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#afe172d321b5ba2b6c5e67144455b86b2" title="Convert a string to lower case." alt="" coords="272,55,419,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,56,257,63,256,68,205,62"/>
+</map>

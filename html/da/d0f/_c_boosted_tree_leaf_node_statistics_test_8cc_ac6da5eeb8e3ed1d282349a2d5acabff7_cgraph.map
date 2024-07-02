@@ -1,0 +1,12 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,202,111"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="308,5,493,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,82,249,55,292,45,293,50,250,60,152,87"/>
+<area shape="rect" id="Node000004" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#ac3655115eca3b48b782edffc3e21b29b" title="Compute the number of threads which optimises throughput given totalWork." alt="" coords="250,70,551,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,95,234,95,234,100,202,100"/>
+<area shape="rect" id="Node000005" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#afc6b2e1c24405a7f9674a8cc2c7ea796" title="Get the overhead of using numberThreads." alt="" coords="599,102,823,158"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="143,108,194,123,250,135,336,143,424,145,583,139,584,145,424,151,336,148,249,140,192,129,142,114"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="619,5,804,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,23,603,23,603,28,493,28"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="552,111,584,114,583,119,551,116"/>
+</map>

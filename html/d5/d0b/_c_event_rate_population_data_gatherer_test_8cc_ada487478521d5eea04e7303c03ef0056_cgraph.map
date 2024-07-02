@@ -1,0 +1,41 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,244,223,269"/>
+<area shape="rect" id="Node000002" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#ab1a21ce60c75bb9b8a3e9a154a37a0af" title=" " alt="" coords="292,29,528,84"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,241,179,171,221,130,269,94,278,89,281,94,272,99,224,134,183,175,127,245"/>
+<area shape="rect" id="Node000007" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#a715aa312be4ce554b6da8336cdcec664" title=" " alt="" coords="292,109,528,164"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="137,241,196,208,270,174,288,167,289,172,272,179,198,213,139,245"/>
+<area shape="rect" id="Node000009" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#aabbabca2d2b6bfbac4eb5989975a8667" title=" " alt="" coords="271,189,549,244"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="214,240,255,235,255,240,215,245"/>
+<area shape="rect" id="Node000010" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#a34f4587abd2dfe8dee11e96e021c317b" title=" " alt="" coords="292,269,528,324"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="215,267,277,276,276,281,214,272"/>
+<area shape="rect" id="Node000011" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#a40380189089c8777ffc51bdd9e5d5698" title=" " alt="" coords="292,349,528,404"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="139,267,198,300,272,334,289,341,288,346,270,339,196,305,137,272"/>
+<area shape="rect" id="Node000018" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="320,428,500,469"/>
+<area shape="poly" id="edge21_Node000001_Node000018" title=" " alt="" coords="126,268,182,338,224,379,272,414,306,429,304,434,269,419,220,384,178,342,122,271"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="628,13,802,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="528,45,612,39,613,44,529,50"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="895,71,1053,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="529,61,879,83,879,88,528,66"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="887,5,1061,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="803,28,871,26,872,31,803,34"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="803,50,880,68,879,73,802,56"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="1115,71,1273,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1054,88,1099,88,1099,94,1054,94"/>
+<area shape="rect" id="Node000008" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#ad4be8aec0a3482f67f11c6d6e110657d" title=" " alt="" coords="597,139,833,195"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="529,146,581,151,581,156,528,151"/>
+<area shape="poly" id="edge10_Node000009_Node000008" title=" " alt="" coords="549,191,581,186,582,191,550,196"/>
+<area shape="poly" id="edge12_Node000010_Node000008" title=" " alt="" coords="525,266,548,254,562,242,571,230,580,218,595,205,603,200,606,205,599,209,584,221,575,233,566,246,550,259,528,270"/>
+<area shape="rect" id="Node000012" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#ab8ba64c4af902253228097899dec61eb" title=" " alt="" coords="597,219,833,275"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="525,346,548,334,562,322,571,310,580,298,595,285,603,280,606,285,599,289,584,301,575,313,566,326,550,339,528,350"/>
+<area shape="rect" id="Node000013" href="$dc/d52/namespaceanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03.html#afae63bd15233a6c1eaaf98d19b867086" title=" " alt="" coords="597,299,833,355"/>
+<area shape="poly" id="edge15_Node000011_Node000013" title=" " alt="" coords="528,355,581,346,582,351,529,360"/>
+<area shape="rect" id="Node000014" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a841f18a9941172185842c3a7248eb22d" title=" " alt="" coords="623,379,808,419"/>
+<area shape="poly" id="edge16_Node000011_Node000014" title=" " alt="" coords="529,382,607,388,607,394,528,388"/>
+<area shape="rect" id="Node000016" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="623,444,808,485"/>
+<area shape="poly" id="edge18_Node000011_Node000016" title=" " alt="" coords="511,402,550,414,598,428,626,437,624,442,596,434,548,419,509,407"/>
+<area shape="rect" id="Node000017" href="$dd/d45/structanonymous__namespace_02_c_event_rate_population_data_gatherer_test_8cc_03_1_1_s_message.html#a76fcdf920e6d315d3a3e1cbd415bd3ce" title=" " alt="" coords="597,509,833,564"/>
+<area shape="poly" id="edge20_Node000011_Node000017" title=" " alt="" coords="530,401,551,414,568,434,576,455,583,475,599,494,603,498,600,502,595,498,578,478,571,457,564,437,547,418,527,406"/>
+<area shape="rect" id="Node000015" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="881,411,1067,451"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="809,408,866,415,865,420,808,413"/>
+<area shape="poly" id="edge19_Node000016_Node000015" title=" " alt="" coords="808,450,865,442,866,448,809,455"/>
+</map>

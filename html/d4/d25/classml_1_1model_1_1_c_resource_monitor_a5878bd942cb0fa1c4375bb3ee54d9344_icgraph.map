@@ -1,0 +1,30 @@
+<map id="ml::model::CResourceMonitor::updateMoments" name="ml::model::CResourceMonitor::updateMoments">
+<area shape="rect" id="Node000001" title="Update the moments that are used to determine whether memory is stable." alt="" coords="1465,73,1661,113"/>
+<area shape="rect" id="Node000002" href="$db/d96/class_c_test_fixture.html#a9552787d9c98889661f815d763a67ddd" title=" " alt="" coords="1220,5,1398,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1492,69,1417,45,1375,34,1376,29,1418,40,1494,64"/>
+<area shape="rect" id="Node000003" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a0f727a816db62e7c2c4a09c87eee633e" title=" " alt="" coords="1200,55,1417,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1450,84,1418,81,1418,76,1450,79"/>
+<area shape="rect" id="Node000004" href="$d3/d6e/_c_resource_monitor_test_8cc.html#afcd1df0e0aa5c49f0947ae1cd8036a6e" title=" " alt="" coords="1200,104,1417,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1450,106,1418,109,1418,104,1450,101"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a85d9611262d432e1555f171adae6b216" title=" " alt="" coords="1211,154,1406,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1489,121,1418,145,1383,156,1381,151,1417,140,1487,116"/>
+<area shape="rect" id="Node000006" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a6ffc63841436e87d0a410cf7260e8ae2" title=" " alt="" coords="626,129,844,155"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1195,171,844,151,844,146,1195,165"/>
+<area shape="rect" id="Node000007" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#adf4b8b3817555b0276318c2c8b01ef65" title="Send a memory usage report if it&#39;s changed by more than a certain percentage." alt="" coords="892,178,1152,234"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="1196,189,1153,194,1152,189,1195,184"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="879,177,796,158,797,153,880,172"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="646,249,824,289"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="877,241,825,252,824,247,876,235"/>
+<area shape="rect" id="Node000012" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9f65dd0e424bca17de0073ad974fa819" title=" " alt="" coords="642,183,828,224"/>
+<area shape="poly" id="edge13_Node000007_Node000012" title=" " alt="" coords="876,207,828,207,828,202,876,202"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="421,249,571,289"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="630,272,572,272,572,266,630,266"/>
+<area shape="rect" id="Node000011" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,278,156,319"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="633,295,579,303,463,311,348,313,156,306,156,301,348,307,463,306,578,298,632,290"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,249,366,289"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="406,272,366,272,366,266,406,266"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="188,285,156,290,156,285,188,280"/>
+<area shape="rect" id="Node000013" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,183,578,224"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="626,206,579,206,579,201,626,201"/>
+<area shape="poly" id="edge15_Node000013_Node000010" title=" " alt="" coords="415,231,354,250,352,245,413,226"/>
+</map>

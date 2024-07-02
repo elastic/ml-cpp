@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultivariatePrior::remainingVariables" name="ml::maths::common::CMultivariatePrior::remainingVariables">
+<area shape="rect" id="Node000001" title="Get the remaining variables." alt="" coords="253,125,398,181"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a0cf582eab6aea5aa0a7988a3942d9ee7" title="Compute the bivariate const bivariate prior." alt="" coords="16,5,194,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="272,118,203,76,179,64,182,59,206,71,275,114"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a0ae3bdbfa168c8b373d03a875dcdd778" title=" " alt="" coords="5,85,205,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,140,205,134,206,129,238,135"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a5a1b852d7cb6f8dd51cb1400dd3205dd" title="Get the corresponding constant univariate prior." alt="" coords="16,165,194,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="238,172,195,180,194,174,237,166"/>
+<area shape="rect" id="Node000005" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#aacb3826ad0f7e7dc4b26001c2b0efd9a" title=" " alt="" coords="5,245,205,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="275,193,206,236,182,247,179,242,203,231,272,188"/>
+</map>

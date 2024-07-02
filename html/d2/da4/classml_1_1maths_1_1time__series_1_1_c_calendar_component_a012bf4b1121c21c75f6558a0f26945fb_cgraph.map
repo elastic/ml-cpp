@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CCalendarComponent::shouldInterpolate" name="ml::maths::time_series::CCalendarComponent::shouldInterpolate">
+<area shape="rect" id="Node000001" title="Check whether to reinterpolate the component predictions." alt="" coords="5,85,172,141"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a33ede80a59d48272a5912f65df1f5f7c" title="Get the calendar feature." alt="" coords="224,5,390,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,82,214,64,216,69,167,87"/>
+<area shape="rect" id="Node000004" href="$d5/d30/classml_1_1maths_1_1time__series_1_1_c_calendar_feature_and_t_z.html#a1f2b1cc2615ab8f9d5d622e3a53ea05c" title=" " alt="" coords="220,85,394,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="172,111,204,111,204,116,172,116"/>
+<area shape="rect" id="Node000007" href="$d5/d30/classml_1_1maths_1_1time__series_1_1_c_calendar_feature_and_t_z.html#af8e9c6db0f01dfe776dcc13610d98c19" title="Get this feature&#39;s window." alt="" coords="220,165,394,221"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="167,139,216,157,214,162,166,144"/>
+<area shape="rect" id="Node000003" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#ab95df8fb3c0db917e4acac8547c58b84" title="Get the calendar feature." alt="" coords="442,5,651,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,31,426,31,426,36,390,36"/>
+<area shape="rect" id="Node000005" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#af5feca49312bf37c506b4c15204bde0f" title=" " alt="" coords="459,93,635,134"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="394,111,443,111,443,116,394,116"/>
+<area shape="rect" id="Node000006" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="699,93,843,134"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="635,111,684,111,684,116,635,116"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="729,93,727,83,734,74,748,68,771,66,795,69,810,75,808,80,794,74,771,71,750,73,737,78,732,84,734,92"/>
+<area shape="rect" id="Node000008" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a383db66bf90ea9dd68ac211166aad5af" title="Get this feature&#39;s window." alt="" coords="453,173,640,214"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="394,191,438,191,438,196,394,196"/>
+</map>

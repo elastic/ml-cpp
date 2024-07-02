@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CCountMinSketch::acceptPersistInserter" name="ml::maths::time_series::CCountMinSketch::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Convert to a node tree." alt="" coords="5,97,230,152"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="278,5,480,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,94,277,57,298,49,299,54,279,61,186,98"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="278,71,480,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,107,262,103,262,109,230,113"/>
+<area shape="rect" id="Node000004" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="287,136,471,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="230,135,272,141,271,146,230,141"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="302,201,456,242"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="188,150,279,186,299,193,298,198,277,191,186,155"/>
+<area shape="rect" id="Node000005" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="528,136,693,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="471,162,513,163,513,168,471,168"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="528,150,486,150,486,145,528,145"/>
+<area shape="rect" id="Node000006" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="741,165,918,206"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="694,165,726,169,725,174,693,170"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="741,190,693,191,611,194,528,191,476,183,477,178,528,186,611,189,693,186,741,185"/>
+</map>

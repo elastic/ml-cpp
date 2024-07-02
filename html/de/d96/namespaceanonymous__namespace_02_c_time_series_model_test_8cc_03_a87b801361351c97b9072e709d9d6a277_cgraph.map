@@ -1,0 +1,27 @@
+<map id="anonymous_namespace{CTimeSeriesModelTest::cc}::reinitializeResidualModel" name="anonymous_namespace{CTimeSeriesModelTest::cc}::reinitializeResidualModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,280,205,335"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ada6573abab2048e3c536ce7c226a2fb9" title=" " alt="" coords="269,60,414,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,278,179,211,213,174,251,139,274,122,277,126,254,143,217,177,183,215,129,281"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="501,136,646,191"/>
+<area shape="poly" id="edge10_Node000001_Node000004" title=" " alt="" coords="128,277,181,227,215,202,252,182,311,164,372,155,432,152,486,152,486,158,432,157,373,160,312,170,254,187,217,206,184,231,132,281"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="262,197,421,237"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="175,277,252,246,267,240,269,245,254,251,177,282"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="256,261,427,287"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="205,291,240,286,241,291,205,296"/>
+<area shape="rect" id="Node000009" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="269,312,414,367"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="205,318,254,325,253,330,205,324"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="262,391,421,432"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="162,333,254,377,267,383,265,388,252,382,159,338"/>
+<area shape="rect" id="Node000011" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ad9cb0836ed3de45178ba0133c21d5a08" title="Update the prior for the specified elapsed time." alt="" coords="253,456,430,511"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="134,334,187,387,254,441,261,445,258,450,251,446,183,391,130,338"/>
+<area shape="rect" id="Node000012" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a02270c3e7ca180a94b3db34679f8c439" title="Reset the prior to non&#45;informative." alt="" coords="269,536,414,591"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="121,334,142,375,172,425,210,476,254,522,258,525,255,529,251,525,206,479,168,428,138,378,117,337"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="296,59,296,49,305,40,320,35,341,33,366,36,381,42,378,47,364,41,341,38,321,40,308,45,301,51,301,59"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="478,5,669,31"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="414,61,477,41,505,33,507,38,479,46,415,66"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="415,109,487,132,485,137,413,114"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a27608c97cfbc7931a896cd1bfbaca9c8" title="Get the smallest component of x." alt="" coords="501,56,646,111"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="414,84,485,82,485,88,414,89"/>
+<area shape="rect" id="Node000008" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="484,254,663,295"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="427,272,469,272,469,277,427,277"/>
+</map>

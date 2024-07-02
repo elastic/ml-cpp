@@ -1,0 +1,32 @@
+<map id="ml::maths::common::CQuantileSketch::age" name="ml::maths::common::CQuantileSketch::age">
+<area shape="rect" id="Node000001" title="Age by scaling the counts." alt="" coords="1841,63,1990,104"/>
+<area shape="rect" id="Node000002" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#ac4da813330cc3aa9eb9478cce03bf63c" title="Age the sketches by reducing the count." alt="" coords="1564,37,1793,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1825,74,1774,66,1775,61,1826,68"/>
+<area shape="rect" id="Node000014" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a1d02c498a95310750bd041cebf6b14ee" title="Age the bucket values to account for time elapsed time." alt="" coords="1586,88,1771,143"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="1826,98,1772,106,1771,100,1826,93"/>
+<area shape="rect" id="Node000003" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a363628554e093dfa91de613a8214f4d8" title=" " alt="" coords="1319,5,1516,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1553,37,1516,33,1516,28,1553,32"/>
+<area shape="rect" id="Node000004" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a73fbf17f6750f369d5a68c9a8944e774" title="Age the quantile sketches." alt="" coords="1320,56,1515,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1558,68,1515,74,1515,68,1558,63"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a28eec09a3ea0d3fb98ba8303b0542cd7" title="Update equalizers if not interim and aggregate." alt="" coords="1058,63,1271,104"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1305,86,1272,86,1272,81,1305,81"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af8bea3a425a0f4edfe99bb0ef525fb13" title="Write out interim results for the bucket starting at bucketStartTime." alt="" coords="860,30,1010,71"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1042,68,1010,64,1011,58,1043,63"/>
+<area shape="rect" id="Node000011" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a13e6b57c735a0fbab0c720e3f82b6f7d" title="Write out the results for the bucket starting at bucketStartTime." alt="" coords="860,95,1010,136"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="1043,103,1011,108,1010,102,1042,98"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9f65dd0e424bca17de0073ad974fa819" title=" " alt="" coords="626,30,812,71"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="844,53,812,53,812,48,844,48"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,30,578,71"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="611,53,579,53,579,48,611,48"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,95,366,136"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="415,78,354,97,352,92,413,73"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,125,156,165"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="188,132,156,137,156,131,188,127"/>
+<area shape="poly" id="edge15_Node000011_Node000007" title=" " alt="" coords="850,93,788,74,790,69,852,88"/>
+<area shape="rect" id="Node000012" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="630,95,808,136"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="844,118,808,118,808,113,844,113"/>
+<area shape="poly" id="edge14_Node000012_Node000010" title=" " alt="" coords="626,142,579,150,463,159,348,160,156,153,156,148,348,155,463,153,578,145,625,137"/>
+<area shape="rect" id="Node000013" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="421,95,571,136"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="614,118,572,118,572,113,614,113"/>
+<area shape="poly" id="edge13_Node000013_Node000009" title=" " alt="" coords="406,118,366,118,366,113,406,113"/>
+</map>

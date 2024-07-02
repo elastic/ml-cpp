@@ -1,0 +1,28 @@
+<map id="ml::model::CMetricModelFactory::defaultMultivariatePrior" name="ml::model::CMetricModelFactory::defaultMultivariatePrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,138,217,179"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="280,5,436,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,135,189,87,225,62,263,40,277,34,279,39,266,45,228,66,192,92,135,139"/>
+<area shape="rect" id="Node000003" href="$df/d9c/namespaceml_1_1model__t.html#adbffb95389e6a14a3e10385772e24adb" title="Check if feature is modeling latitude and longitude." alt="" coords="281,55,435,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,135,264,90,288,83,289,88,266,95,157,140"/>
+<area shape="rect" id="Node000004" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a06f88dc8661011008746446c458a91e0" title=" " alt="" coords="270,170,446,211"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="218,169,255,174,254,179,217,175"/>
+<area shape="rect" id="Node000008" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a0e3acae10c9f60c8d714ad08fe213011" title=" " alt="" coords="265,105,451,145"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="217,141,249,137,250,142,218,146"/>
+<area shape="rect" id="Node000009" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a7aa272b13d821a7fd58daf9add869f28" title=" " alt="" coords="270,235,446,276"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="161,177,266,220,285,227,283,232,264,225,159,182"/>
+<area shape="rect" id="Node000010" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a96a4130f094f5ec0792c8a10113af5cf" title=" " alt="" coords="270,301,446,341"/>
+<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="134,177,190,230,227,259,266,285,277,291,275,296,263,290,224,264,187,234,130,181"/>
+<area shape="rect" id="Node000005" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a8188504494881af36332bc1f903923b6" title="Get the default data type for models from this factory." alt="" coords="520,170,695,211"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="446,188,505,188,505,193,446,193"/>
+<area shape="rect" id="Node000006" href="$d1/df8/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_factory.html#ac0b600e1034c8c6c636839f8bf300d85" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="514,90,702,146"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="430,167,498,147,499,152,431,172"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate_factory.html#a4ac9fcb997cb27402ebc945a7ef78f1f" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="508,234,707,290"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="431,208,495,227,494,232,430,214"/>
+<area shape="poly" id="edge8_Node000008_Node000005" title=" " alt="" coords="439,143,513,163,512,168,438,148"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="451,120,498,118,498,124,452,125"/>
+<area shape="poly" id="edge11_Node000009_Node000005" title=" " alt="" coords="438,232,512,212,513,218,439,237"/>
+<area shape="poly" id="edge12_Node000009_Node000007" title=" " alt="" coords="446,255,493,256,493,262,446,261"/>
+<area shape="poly" id="edge14_Node000010_Node000005" title=" " alt="" coords="429,298,449,285,464,270,472,253,481,237,497,220,505,215,508,220,501,224,485,240,477,256,469,273,453,290,431,302"/>
+<area shape="rect" id="Node000011" href="$dd/dda/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior_factory.html#afa02cac10390a5bbb94a9dc306e642fd" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="499,314,716,370"/>
+<area shape="poly" id="edge15_Node000010_Node000011" title=" " alt="" coords="446,326,484,329,483,334,446,331"/>
+</map>

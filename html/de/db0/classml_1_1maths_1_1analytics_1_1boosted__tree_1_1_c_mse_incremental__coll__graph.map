@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::boosted_tree::CMseIncremental" name="ml::maths::analytics::boosted_tree::CMseIncremental">
+<area shape="rect" id="Node000001" title="The MSE loss function for incremental training." alt="" coords="5,183,221,223"/>
+<area shape="rect" id="Node000002" href="$d7/dc0/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_mse.html" title="The MSE loss function." alt="" coords="39,94,187,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,150,116,182,110,182,110,150"/>
+<area shape="rect" id="Node000003" href="$de/ddb/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_loss.html" title="Defines the loss function for the regression or classification problem." alt="" coords="38,5,188,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="116,62,116,94,110,94,110,62"/>
+</map>

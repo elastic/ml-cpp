@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CQDigest" name="ml::maths::common::CQDigest">
+<area shape="rect" id="Node000001" title="This class implements the q&#45;digest quantile approximation." alt="" coords="337,94,482,135"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="12,5,178,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,33,185,40,346,91,345,96,184,45,161,38"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html" title=" " alt="" coords="22,94,168,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,112,336,112,336,117,183,117"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="66,76,77,70,95,67,112,69,123,75,129,84,127,94,122,93,123,85,120,79,110,74,95,72,78,75,69,81"/>
+<area shape="rect" id="Node000004" href="$d0/d9b/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node_allocator.html" title="Manages the creation and recycling of nodes." alt="" coords="5,159,185,200"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="200,155,312,132,336,127,337,132,313,137,201,161"/>
+</map>

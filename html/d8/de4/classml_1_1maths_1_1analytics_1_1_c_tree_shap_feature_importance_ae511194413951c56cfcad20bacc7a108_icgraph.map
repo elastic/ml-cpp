@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CTreeShapFeatureImportance::shapRecursive" name="ml::maths::analytics::CTreeShapFeatureImportance::shapRecursive">
+<area shape="rect" id="Node000001" title=" " alt="" coords="785,81,990,137"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="932,69,915,63,887,60,864,62,848,67,840,73,840,81,835,81,836,71,845,62,862,57,888,55,916,57,934,65"/>
+<area shape="rect" id="Node000002" href="$d8/de4/classml_1_1maths_1_1analytics_1_1_c_tree_shap_feature_importance.html#a1eb5da143c11ded3e38c1660dd1f906b" title=" " alt="" coords="497,89,737,130"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="770,121,738,121,738,115,770,115"/>
+<area shape="poly" id="edge5_Node000002_Node000001" title=" " alt="" coords="753,98,785,98,785,103,753,103"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#acab8466cf6d732c2322ab42aa2c0834f" title=" " alt="" coords="278,53,428,94"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,93,428,86,428,81,482,88"/>
+<area shape="rect" id="Node000006" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#abaf8a348158ee1099330bdcaa43267e9" title=" " alt="" coords="257,117,449,173"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="482,130,450,135,449,129,481,125"/>
+<area shape="rect" id="Node000004" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#a64a41f746d066bbc38609231cb6d0cf6" title=" " alt="" coords="11,5,203,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="262,61,203,51,204,46,263,56"/>
+<area shape="rect" id="Node000005" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a7c60d2fbb946ab7e1bc93cf07a7f0d3e" title=" " alt="" coords="5,85,209,141"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="263,90,210,99,209,94,262,85"/>
+</map>

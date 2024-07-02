@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::split" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::split">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1097,113,1322,169"/>
+<area shape="rect" id="Node000002" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#add2f9a15ce5d175905d149616654804f" title=" " alt="" coords="346,61,660,117"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1095,112,1049,103,949,93,847,87,661,86,661,80,847,82,949,88,1050,98,1096,106"/>
+<area shape="rect" id="Node000005" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a8c9aa3adac5b15a52f41037afee07cea" title=" " alt="" coords="346,153,660,209"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1097,175,1050,183,949,192,847,196,660,194,661,188,847,191,949,187,1049,178,1096,170"/>
+<area shape="rect" id="Node000006" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a77ea64b3fea48703a3d12a2b85647ac3" title=" " alt="" coords="708,113,1049,169"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1082,143,1050,143,1050,138,1082,138"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,5,298,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="330,68,298,63,299,58,330,62"/>
+<area shape="rect" id="Node000004" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,100,286,171"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="330,114,287,120,286,115,329,109"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="692,118,660,113,661,108,693,112"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="693,163,661,167,660,161,692,158"/>
+</map>

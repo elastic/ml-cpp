@@ -1,0 +1,22 @@
+<map id="ml::core::CLogger::reconfigure" name="ml::core::CLogger::reconfigure">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,139,169"/>
+<area shape="rect" id="Node000002" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a184001083a9acfc742e5fc48c92b70c0" title=" " alt="" coords="213,83,349,124"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,132,197,119,198,124,140,137"/>
+<area shape="rect" id="Node000009" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#af12b9dca38b3351bdb5cc885df07047f" title="Tell the logger to log to a named pipe rather than a file." alt="" coords="187,173,375,213"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="140,160,172,167,171,172,139,165"/>
+<area shape="rect" id="Node000003" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a87cb3473ef9f7e5ae4a372be02f056d8" title="Helper for other reconfiguration methods." alt="" coords="423,50,586,91"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="349,91,407,82,408,87,350,96"/>
+<area shape="rect" id="Node000008" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a98a081fefcfcac50f60f2471273a0fad" title=" " alt="" coords="425,115,585,156"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="350,111,410,119,409,125,349,116"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_uname.html#a7f04ec5f4ceca6a6e50c60161f615a79" title="uname &#45;a (or possibly a cut down version on some platforms)" alt="" coords="634,29,784,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="586,56,619,52,619,57,587,62"/>
+<area shape="rect" id="Node000005" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="642,79,776,120"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="587,79,628,85,627,90,586,85"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="675,31,668,21,672,11,686,5,709,3,734,5,747,12,744,17,732,10,709,8,688,10,676,15,674,20,679,27"/>
+<area shape="rect" id="Node000006" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="832,34,992,75"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="775,82,816,73,817,78,776,87"/>
+<area shape="rect" id="Node000007" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="845,123,979,164"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="776,111,830,123,829,128,775,117"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="873,123,871,113,878,104,891,99,912,97,934,99,947,105,945,110,932,104,912,102,893,104,881,108,877,114,878,122"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="241,172,239,163,246,154,260,148,281,146,304,148,317,154,315,159,302,153,281,151,261,153,249,158,245,164,246,171"/>
+</map>

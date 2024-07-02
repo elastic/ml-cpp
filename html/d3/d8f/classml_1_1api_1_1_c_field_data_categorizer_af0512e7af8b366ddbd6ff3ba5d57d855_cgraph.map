@@ -1,0 +1,9 @@
+<map id="ml::api::CFieldDataCategorizer::categorizerPtrForKey" name="ml::api::CFieldDataCategorizer::categorizerPtrForKey">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,207,111"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="258,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,67,260,48,261,53,187,73"/>
+<area shape="rect" id="Node000003" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#adf2efcf213f98449915ad0847c9352b0" title=" " alt="" coords="255,71,456,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,88,239,88,239,94,207,94"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="290,136,421,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,109,275,133,274,138,186,115"/>
+</map>

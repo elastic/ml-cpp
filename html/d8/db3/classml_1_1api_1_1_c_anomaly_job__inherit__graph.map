@@ -1,0 +1,7 @@
+<map id="ml::api::CAnomalyJob" name="ml::api::CAnomalyJob">
+<area shape="rect" id="Node000001" title="The Ml anomaly detector." alt="" coords="13,79,163,105"/>
+<area shape="rect" id="Node000003" href="$d2/dd3/class_c_test_anomaly_job.html" title="A test convenience wrapper for the ML anomaly detector." alt="" coords="24,153,152,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="91,120,91,152,85,152,85,120"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html" title="Abstract interface for classes that process data records." alt="" coords="5,5,171,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,46,91,79,85,79,85,46"/>
+</map>

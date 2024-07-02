@@ -1,0 +1,13 @@
+<map id="ml::api::CHierarchicalResultsWriter" name="ml::api::CHierarchicalResultsWriter">
+<area shape="rect" id="Node000001" title="Writes out hierarchical results using a callback to write individual results." alt="" coords="181,316,374,357"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="5,213,171,253"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,259,242,314,240,318,137,263"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="195,220,360,246"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="280,262,280,316,275,316,275,262"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="384,220,515,246"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="417,256,312,318,309,313,415,252"/>
+<area shape="rect" id="Node000005" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="352,124,547,150"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="452,165,452,220,447,220,447,165"/>
+<area shape="rect" id="Node000006" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="343,5,556,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="452,77,452,123,447,123,447,77"/>
+</map>

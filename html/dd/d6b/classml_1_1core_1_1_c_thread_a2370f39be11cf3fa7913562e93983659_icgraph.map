@@ -1,0 +1,17 @@
+<map id="ml::core::CThread::shutdown" name="ml::core::CThread::shutdown">
+<area shape="rect" id="Node000001" title=" " alt="" coords="742,77,877,118"/>
+<area shape="rect" id="Node000002" href="$df/d12/_c_thread_mutex_condition_test_8cc.html#a99e8f3222e269470909881dcd2270290" title=" " alt="" coords="498,60,694,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="727,91,695,87,695,81,727,85"/>
+<area shape="rect" id="Node000003" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a814dcabc28a39c3896ba170f7a5aa14c" title=" " alt="" coords="517,109,676,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="727,110,677,115,676,110,727,104"/>
+<area shape="rect" id="Node000004" href="$d1/db3/classml_1_1core_1_1_c_compress_o_stream.html#a1b121fee8277e968db7fc7d93a4fca97" title="Close the stream." alt="" coords="252,5,450,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="510,106,497,100,482,90,472,80,463,70,449,60,425,49,427,44,451,55,466,66,476,76,485,86,499,95,512,101"/>
+<area shape="rect" id="Node000006" href="$d1/dca/namespaceml_1_1api_1_1anonymous__namespace_02_c_io_manager_8cc_03.html#ae4081c185451271b4481aeee75174410" title=" " alt="" coords="266,94,436,150"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="501,124,436,124,436,119,501,119"/>
+<area shape="rect" id="Node000007" href="$d1/dca/namespaceml_1_1api_1_1anonymous__namespace_02_c_io_manager_8cc_03.html#a439b786d142e4e04fcca5e789ae360c8" title=" " alt="" coords="266,198,436,254"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="551,143,420,200,417,195,549,139"/>
+<area shape="rect" id="Node000005" href="$d1/db3/classml_1_1core_1_1_c_compress_o_stream.html#a298274d382e674a1c940f6159282bb3a" title="Destructor will close the stream." alt="" coords="5,5,204,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="236,28,204,28,204,23,236,23"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="390,81,375,75,351,72,329,74,315,79,308,85,308,94,303,93,304,83,312,75,328,69,351,67,377,70,392,77"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="390,185,375,179,351,176,329,178,315,183,308,189,308,198,303,197,304,187,312,179,328,173,351,171,377,174,392,181"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::api::CJsonOutputWriter::writeCategoryDefinition" name="ml::api::CJsonOutputWriter::writeCategoryDefinition">
+<area shape="rect" id="Node000001" title="Write a category definition." alt="" coords="318,77,497,117"/>
+<area shape="rect" id="Node000002" href="$d8/dc0/_c_json_output_writer_test_8cc.html#afb323c2a4340b793602742c238912782" title=" " alt="" coords="39,5,236,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="346,73,269,45,225,34,227,29,270,40,348,68"/>
+<area shape="rect" id="Node000003" href="$d8/dc0/_c_json_output_writer_test_8cc.html#af17da953dfe405717471a89db121c83a" title=" " alt="" coords="39,55,236,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="302,88,236,81,236,76,302,83"/>
+<area shape="rect" id="Node000004" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a1a7e3b54775933fdee1c44400c67d1e4" title=" " alt="" coords="5,105,270,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="302,110,271,114,270,108,302,105"/>
+<area shape="rect" id="Node000005" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#adf7aafa1f71582f9940594f94c9c2a55" title=" " alt="" coords="49,170,226,211"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="351,126,271,159,227,173,225,168,269,154,349,121"/>
+</map>

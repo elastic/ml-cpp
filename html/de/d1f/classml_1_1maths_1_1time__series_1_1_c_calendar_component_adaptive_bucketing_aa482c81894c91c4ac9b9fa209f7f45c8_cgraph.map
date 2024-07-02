@@ -1,0 +1,25 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore by traversing a state document." alt="" coords="5,251,233,306"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a5410f9959f2d0ad7d9e756397e351e15" title=" " alt="" coords="281,5,513,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,249,157,209,190,162,231,113,279,71,286,67,289,71,282,75,235,117,194,165,161,212,138,251"/>
+<area shape="rect" id="Node000003" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#aae1b2c9650958e418072df389017b9f8" title="Initialize from value." alt="" coords="285,85,509,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,248,202,192,239,162,279,136,294,129,296,134,282,141,242,166,206,196,147,252"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="288,150,506,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="173,248,280,200,299,193,301,198,282,205,175,253"/>
+<area shape="rect" id="Node000006" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#abc5a12a1df466a0f52d6174633414cba" title="Name of component." alt="" coords="292,215,502,270"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="233,261,276,255,277,261,233,266"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="288,294,506,335"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="233,291,273,296,272,301,233,296"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="323,360,471,400"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="183,304,282,344,309,353,307,358,280,349,181,309"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="288,425,506,466"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="149,305,207,358,243,386,282,409,296,416,294,421,279,414,240,390,204,362,145,309"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="288,490,506,531"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="138,305,161,344,194,390,235,436,282,475,292,481,289,485,279,479,231,440,190,393,157,347,133,308"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="562,85,716,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="510,103,547,103,547,108,510,108"/>
+<area shape="rect" id="Node000007" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a259b158f8ed05aa83b21cc6bdbf2b64a" title="Get the rate at which the bucketing loses information." alt="" coords="561,183,717,238"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="502,226,546,220,546,225,502,231"/>
+<area shape="rect" id="Node000008" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a32605235cceb5f6493ac0f9c7cdf78b0" title="Get the minimum permitted bucket length." alt="" coords="561,263,717,318"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="502,261,546,269,545,275,501,266"/>
+</map>

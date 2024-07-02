@@ -1,0 +1,9 @@
+<map id="ml::model::CTokenListDataCategorizerBase::updateModelSizeStats" name="ml::model::CTokenListDataCategorizerBase::updateModelSizeStats">
+<area shape="rect" id="Node000001" title="Update the model size stats with information from this categorizer." alt="" coords="5,53,263,94"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a76f97a0d2d236185eb029bf46b2fca56" title="Update categorizer stats with information from this categorizer." alt="" coords="311,53,574,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="263,71,295,71,295,76,263,76"/>
+<area shape="rect" id="Node000003" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a127a7eb38f807d9bf13d88accce4a68e" title=" " alt="" coords="622,5,884,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="574,54,606,49,607,55,575,59"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#acd213f32ffb92b9feec1f2cf4d60f1cf" title="Is the category considered frequent?" alt="" coords="641,85,865,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="575,87,626,94,625,99,574,93"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::boosted_tree_detail::zeroLossGradient" name="ml::maths::analytics::boosted_tree_detail::zeroLossGradient">
+<area shape="rect" id="Node000001" title="Zero the loss gradient of row." alt="" coords="5,5,148,61"/>
+<area shape="rect" id="Node000002" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#a3fd27bc81c860b76ee120c2473b3ffad" title="Write value to column of the row." alt="" coords="196,13,402,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,31,180,31,180,36,148,36"/>
+</map>

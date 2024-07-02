@@ -1,0 +1,5 @@
+<map id="ml::core::CPatternSet" name="ml::core::CPatternSet">
+<area shape="rect" id="Node000001" title="A set that allows efficient lookups of strings." alt="" coords="15,139,164,165"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html" title="A flat prefix tree that allows efficient string lookups." alt="" coords="5,5,174,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,47,92,138,87,138,87,47"/>
+</map>

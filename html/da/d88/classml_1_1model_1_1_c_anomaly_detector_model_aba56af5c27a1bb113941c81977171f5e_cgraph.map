@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyDetectorModel::bucketLength" name="ml::model::CAnomalyDetectorModel::bucketLength">
+<area shape="rect" id="Node000001" title="Get the length of the time interval used to aggregate data." alt="" coords="5,5,203,46"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="251,5,425,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,23,235,23,235,28,203,28"/>
+</map>

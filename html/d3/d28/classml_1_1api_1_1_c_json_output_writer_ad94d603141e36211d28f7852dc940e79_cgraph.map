@@ -1,0 +1,20 @@
+<map id="ml::api::CJsonOutputWriter::acceptInfluencer" name="ml::api::CJsonOutputWriter::acceptInfluencer">
+<area shape="rect" id="Node000001" title="Accept the influencer." alt="" coords="5,143,185,183"/>
+<area shape="rect" id="Node000002" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#af7e09d117ec139c4b086b2951befca32" title="Add the influencer fields to the doc." alt="" coords="234,107,414,147"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,146,218,141,219,146,185,152"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9f48d1a4655e515b1b38826f0e33b570" title=" " alt="" coords="233,175,415,215"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="185,173,217,177,217,183,185,178"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa83f6b8bf6f7cbeecdd920880a43afab" title=" " alt="" coords="475,5,658,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="363,104,462,57,481,49,483,54,464,61,365,109"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ac40688d77c7e2cb06f91410e15377644" title=" " alt="" coords="463,71,670,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="414,111,447,106,448,111,414,116"/>
+<area shape="rect" id="Node000006" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="490,135,643,191"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="414,138,475,147,474,152,414,143"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="718,39,901,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="659,36,703,42,703,47,658,41"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="671,75,703,70,703,76,671,80"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a32db0bc2a291141e60a96d39ed8bb5ad" title=" " alt="" coords="476,215,658,255"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="416,207,461,215,460,220,415,213"/>
+<area shape="rect" id="Node000009" href="$dc/db5/classml_1_1core_1_1_c_boost_json_pool_allocator.html#a98200c8989d605f86f133014ba20b34e" title=" " alt="" coords="722,215,897,255"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="658,232,707,232,707,238,658,238"/>
+</map>

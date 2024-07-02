@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CMultivariatePrior::scaledDecayRate" name="ml::maths::common::CMultivariatePrior::scaledDecayRate">
+<area shape="rect" id="Node000001" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="497,95,642,150"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a9635a2b0d5ae7412e4bc3cca1ffb7e12" title="Update the prior for the specified elapsed time." alt="" coords="255,5,444,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="484,91,419,64,421,59,486,86"/>
+<area shape="rect" id="Node000004" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a019cd2a7a325fa6f823cdfc3b48fb353" title="Update the prior for the specified elapsed time." alt="" coords="250,95,449,150"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="481,125,450,125,450,120,481,120"/>
+<area shape="rect" id="Node000008" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a18e4cbfa646d2a2fac53e8dbca989e09" title=" " alt="" coords="257,193,442,249"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="493,160,415,195,412,190,491,155"/>
+<area shape="rect" id="Node000003" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,11,202,37"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="239,32,202,30,202,25,240,26"/>
+<area shape="rect" id="Node000005" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a52d38ad1a8f1b294f4b166e4c5b88fe9" title=" " alt="" coords="5,60,202,86"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,102,171,89,172,84,235,97"/>
+<area shape="rect" id="Node000006" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7713d2e9c0cc33ac218648f23444bfc5" title=" " alt="" coords="5,110,202,135"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="234,125,202,125,202,120,234,120"/>
+<area shape="rect" id="Node000007" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,159,202,185"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="235,148,172,161,171,156,234,143"/>
+<area shape="rect" id="Node000009" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="5,208,202,234"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="241,224,202,224,202,219,241,219"/>
+<area shape="rect" id="Node000010" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a9bedcd2ca2b273d88afc27815d12cd07" title=" " alt="" coords="5,258,202,283"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="242,245,172,260,171,254,241,240"/>
+</map>

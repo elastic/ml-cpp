@@ -1,0 +1,9 @@
+<map id="ml::model::CModelFactory::defaultCorrelates" name="ml::model::CModelFactory::defaultCorrelates">
+<area shape="rect" id="Node000001" title="Get the default models for correlations of features." alt="" coords="5,55,181,96"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="238,5,395,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,52,248,33,249,38,175,57"/>
+<area shape="rect" id="Node000003" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#af1c2cf6bb7da8eef74e563062aa0f49b" title="Set the features which will be modeled." alt="" coords="229,55,404,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,73,213,73,213,78,181,78"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a5cb06e59ebd2f51812cfd4357eeda4eb" title=" " alt="" coords="230,120,403,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="175,94,249,113,248,118,174,99"/>
+</map>

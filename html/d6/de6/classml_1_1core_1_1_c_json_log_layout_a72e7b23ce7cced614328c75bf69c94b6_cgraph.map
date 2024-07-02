@@ -1,0 +1,12 @@
+<map id="ml::core::CJsonLogLayout::operator()" name="ml::core::CJsonLogLayout::operator()">
+<area shape="rect" id="Node000001" title="Formats a Boost.Log record as JSON." alt="" coords="5,116,180,157"/>
+<area shape="rect" id="Node000002" href="$d6/de6/classml_1_1core_1_1_c_json_log_layout.html#adee8ea66604ab4d2bbf02ea742e54627" title=" " alt="" coords="228,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,113,226,57,241,50,243,55,229,61,128,118"/>
+<area shape="rect" id="Node000003" href="$d6/de6/classml_1_1core_1_1_c_json_log_layout.html#affb58a3e1bfff5203b6bd904c9682a71" title=" " alt="" coords="228,71,402,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,116,212,109,213,114,181,121"/>
+<area shape="rect" id="Node000004" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#acf1a4d893bb267652eda4d3c8f197f7d" title=" " alt="" coords="248,160,382,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="181,151,233,162,232,167,179,156"/>
+<area shape="rect" id="Node000005" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a71dff589239b8d171dd8760ede2b73d1" title="Map the level enum to a string." alt="" coords="248,225,382,266"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="128,155,229,210,243,216,241,221,226,215,126,159"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="273,160,271,150,278,141,292,135,315,133,339,136,353,142,351,147,338,141,315,139,294,141,281,145,276,151,278,159"/>
+</map>

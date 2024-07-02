@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CPrior::marginalLikelihoodPlot" name="ml::maths::common::CPrior::marginalLikelihoodPlot">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,202,111"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="276,5,442,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,67,261,48,263,53,186,73"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a98b6f04128cfad47070cbc826cba4c91" title=" " alt="" coords="250,71,468,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,88,234,88,234,94,202,94"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c4f72902c27c46005cd085d824c1364" title=" " alt="" coords="251,136,467,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,109,263,129,261,134,185,115"/>
+</map>

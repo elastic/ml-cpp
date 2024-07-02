@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CSeasonalComponent::meanVariance" name="ml::maths::time_series::CSeasonalComponent::meanVariance">
+<area shape="rect" id="Node000001" title="Get the mean variance of the component residuals." alt="" coords="785,45,954,101"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a9385f3bf7a005668d1ba4b19637ed8b9" title=" " alt="" coords="540,5,708,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="770,60,709,50,709,44,771,54"/>
+<area shape="rect" id="Node000003" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a703382c629df9cf8114b799aa7f3ba91" title="Get the mean variance of the baseline." alt="" coords="511,85,737,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="771,92,738,97,737,92,770,87"/>
+<area shape="rect" id="Node000004" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#ab562a4ffc88bfe6bda6bfb98c9ceb486" title="Get the mean variance of the baseline." alt="" coords="271,85,463,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="495,116,463,116,463,111,495,111"/>
+<area shape="rect" id="Node000005" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a5cd5006a4b218f7446eb333f91a0942c" title=" " alt="" coords="5,18,223,43"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="288,81,222,57,183,46,184,41,223,52,290,76"/>
+<area shape="rect" id="Node000006" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a82430f863f5febc6eb3c86e6a4311050" title=" " alt="" coords="5,67,223,93"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="255,101,216,96,217,91,256,96"/>
+<area shape="rect" id="Node000007" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#af48fad15657dd25f7f13c1e16b319e3d" title=" " alt="" coords="18,117,210,173"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="255,130,211,136,210,130,255,125"/>
+<area shape="rect" id="Node000008" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a9a96365f38ebfb0d8156486139573cff" title="Compute the variance scale weight to apply at time." alt="" coords="18,197,210,253"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="300,151,224,188,195,199,193,194,222,183,298,146"/>
+</map>

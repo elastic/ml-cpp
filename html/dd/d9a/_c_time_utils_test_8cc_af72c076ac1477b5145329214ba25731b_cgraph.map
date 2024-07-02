@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,202,153"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#aa4953c57f3aa6ce92b37a50d9148cb49" title="Convenience wrapper around the setter for timezone name." alt="" coords="250,87,393,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,124,234,118,235,123,192,130"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a434c88caec4e09188ee0a69fd2d1b29d" title=" " alt="" coords="250,152,393,193"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="196,151,235,157,234,162,195,156"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="648,29,791,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,83,441,72,540,59,632,51,633,56,540,64,441,78,393,89"/>
+<area shape="rect" id="Node000004" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a9c7f8f529afaf758d76c8888c1391fad" title=" " alt="" coords="441,87,584,127"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="393,104,426,104,426,110,393,110"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="680,29,678,19,685,10,699,5,720,3,742,5,755,11,753,16,741,10,719,8,700,10,688,15,684,20,685,28"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a4d638b4d2e1922398083c83f4505f268" title="Same strptime interface as above, but doesn&#39;t print any error messages." alt="" coords="442,152,584,193"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="393,170,426,170,426,175,393,175"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="563,149,583,137,597,123,606,109,615,95,631,81,639,75,642,80,634,85,619,99,610,112,601,126,586,141,566,154"/>
+<area shape="rect" id="Node000007" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a5fd3ab180b8213700bbb129bb31d79fd" title=" " alt="" coords="648,95,791,135"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="584,150,632,136,634,142,585,155"/>
+<area shape="rect" id="Node000008" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="632,160,807,185"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="584,170,617,170,617,175,584,175"/>
+<area shape="rect" id="Node000009" href="$d1/da1/classml_1_1core_1_1_c_str_p_time.html#a33a5ec8b16f0d92b9d31c2adcd5024f6" title=" " alt="" coords="649,209,790,250"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="585,189,635,203,633,209,584,195"/>
+<area shape="rect" id="Node000010" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a105014c82ea43b365e7f7431d81f6dc7" title="Convert a UTC time to local time in the current timezone." alt="" coords="648,275,791,315"/>
+<area shape="poly" id="edge11_Node000006_Node000010" title=" " alt="" coords="539,191,582,225,634,259,645,265,643,270,631,264,579,230,536,195"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CBucketGatherer::recycleAttributes" name="ml::model::CBucketGatherer::recycleAttributes">
+<area shape="rect" id="Node000001" title="Stop gathering data on the attributes identified by attributesToRemove." alt="" coords="5,35,193,75"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ab27631f14f5ae505aeb401f3d56f57a9" title=" " alt="" coords="241,35,428,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,52,225,52,225,58,193,58"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aaac5e7883124c0e9e52148da200bf513" title=" " alt="" coords="491,5,666,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,41,474,35,475,41,429,46"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a9ec72fa26aac807ff6f7f2df6a6aea47" title="Returns an iterator pointing to the end of the queue." alt="" coords="476,70,680,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="429,63,461,67,460,72,428,68"/>
+</map>

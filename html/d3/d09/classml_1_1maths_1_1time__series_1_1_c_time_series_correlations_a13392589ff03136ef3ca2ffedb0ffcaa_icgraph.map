@@ -1,0 +1,36 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::correlationModels" name="ml::maths::time_series::CTimeSeriesCorrelations::correlationModels">
+<area shape="rect" id="Node000001" title="Get the correlation joint distribution models." alt="" coords="747,165,923,221"/>
+<area shape="rect" id="Node000002" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a18bd1295009706fe570d460c4d288867" title=" " alt="" coords="512,61,687,117"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="761,161,698,132,671,120,673,115,700,127,763,156"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4497db416823b24756a4849b24e0427b" title=" " alt="" coords="500,165,699,221"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="732,196,700,196,700,191,732,191"/>
+<area shape="rect" id="Node000009" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aad9b9c11a364b24996fe0b2ad36de985" title="Get the best (least MSE) predicted value at time." alt="" coords="500,360,699,416"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="790,233,637,362,633,357,787,229"/>
+<area shape="poly" id="edge7_Node000003_Node000003" title=" " alt="" coords="637,153,623,146,600,144,579,146,565,151,559,157,559,165,554,165,554,155,563,146,578,141,600,139,624,141,639,148"/>
+<area shape="rect" id="Node000004" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a6bafa8fd1529e7a1b24b538c3191d403" title="Compute the probability for correlated series." alt="" coords="253,5,452,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="534,159,498,131,484,116,475,102,465,89,450,75,432,64,435,59,454,71,469,85,479,99,488,112,502,127,538,154"/>
+<area shape="rect" id="Node000006" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a2b5c91aa7f696a1ce4a27df0ebe00bbd" title=" " alt="" coords="253,85,452,141"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="496,163,440,144,442,139,498,158"/>
+<area shape="rect" id="Node000007" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#add0e727556bea054ba91db9dd85233ba" title="Get the correlated time series identifier pairs if any." alt="" coords="253,165,452,221"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="484,196,452,196,452,191,484,191"/>
+<area shape="rect" id="Node000008" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa82bbb853d097c3a42f01423bbfeccab" title="Remove any trend components from value." alt="" coords="253,245,452,301"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="498,229,442,247,440,242,496,224"/>
+<area shape="rect" id="Node000005" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a24874bc00a4f05cb755223d282eeea0b" title="Compute the probability of drawing value at time." alt="" coords="5,5,205,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="237,36,205,36,205,31,237,31"/>
+<area shape="rect" id="Node000010" href="$d1/dde/_c_forecast_test_8cc.html#ad42e086bd0f9327a48da0ca36b1f8a92" title=" " alt="" coords="254,326,451,351"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="484,367,420,355,421,349,485,362"/>
+<area shape="rect" id="Node000011" href="$d0/da9/_c_probability_and_influence_calculator_test_8cc.html#ae2ef16122dce9511ab0798fba4c9f253" title=" " alt="" coords="254,375,451,401"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="484,391,451,391,451,385,484,385"/>
+<area shape="rect" id="Node000012" href="$d1/dde/_c_forecast_test_8cc.html#a70cc70fe7d81a6f242ec06a81071f5bd" title=" " alt="" coords="254,424,451,450"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="485,413,421,426,420,421,484,408"/>
+<area shape="rect" id="Node000013" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#a6ede2ad9f3a7a40577da81f22f10d7bf" title=" " alt="" coords="271,475,434,530"/>
+<area shape="poly" id="edge13_Node000009_Node000013" title=" " alt="" coords="533,426,453,465,426,477,424,472,451,460,531,421"/>
+<area shape="rect" id="Node000014" href="$d1/dde/_c_forecast_test_8cc.html#a28992938b93647afb83a53246e509905" title=" " alt="" coords="7,415,203,441"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="258,472,204,454,165,444,166,439,205,449,260,467"/>
+<area shape="rect" id="Node000015" href="$d1/dde/_c_forecast_test_8cc.html#a19e2174c93ee23be6129488081463518" title=" " alt="" coords="7,464,203,490"/>
+<area shape="poly" id="edge15_Node000013_Node000015" title=" " alt="" coords="255,495,203,490,204,485,256,490"/>
+<area shape="rect" id="Node000016" href="$d1/dde/_c_forecast_test_8cc.html#a6f0a097737936cba7ec32a5bce60ca3d" title=" " alt="" coords="7,514,203,539"/>
+<area shape="poly" id="edge16_Node000013_Node000016" title=" " alt="" coords="256,515,204,520,203,514,255,509"/>
+<area shape="rect" id="Node000017" href="$d1/dde/_c_forecast_test_8cc.html#a3bf9a5986a59219078bac60c69302d4b" title=" " alt="" coords="7,563,203,589"/>
+<area shape="poly" id="edge17_Node000013_Node000017" title=" " alt="" coords="257,538,205,554,165,565,164,560,204,549,256,533"/>
+</map>

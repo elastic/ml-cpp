@@ -1,0 +1,11 @@
+<map id="ml::model::CEventRateBucketGatherer::bucketCompressedLengthPerPerson" name="ml::model::CEventRateBucketGatherer::bucketCompressedLengthPerPerson">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,237,119"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="285,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,60,276,48,277,53,231,65"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaa2f42f2be5d74bd04fa6567fe95860c" title="Extract the person identifier from a tuple." alt="" coords="285,71,459,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,88,269,88,269,94,237,94"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="311,136,433,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="238,115,298,129,297,134,236,120"/>
+<area shape="rect" id="Node000005" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="507,136,553,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="433,146,491,146,491,151,433,151"/>
+</map>

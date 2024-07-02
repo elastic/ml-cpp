@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::minimumGain" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::minimumGain">
+<area shape="rect" id="Node000001" title="Get the minimum leaf gain which will generate a split." alt="" coords="346,297,570,353"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a35d65536888b061faf1fb6a447347a99" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,5,298,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,284,414,238,383,186,343,134,296,89,280,79,283,74,299,85,347,130,387,183,419,236,441,281"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,100,298,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="420,287,365,234,332,208,296,184,276,174,278,169,299,180,335,203,368,230,424,284"/>
+<area shape="rect" id="Node000004" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a58fd2782d8c92cc89789b5307d1dd44e" title=" " alt="" coords="5,195,298,265"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="350,294,267,268,269,263,352,289"/>
+<area shape="rect" id="Node000005" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a7bc4acc23ebf2e84fbbbad033bae6113" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,289,286,360"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="330,327,286,327,286,322,330,322"/>
+<area shape="rect" id="Node000006" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,384,286,455"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="352,360,269,386,267,381,350,355"/>
+<area shape="rect" id="Node000007" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a01bd47ba3a2b2abbc45d007a428820da" title=" " alt="" coords="17,479,286,549"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="423,366,368,418,334,445,299,468,275,481,273,476,296,464,331,441,364,414,419,362"/>
+<area shape="rect" id="Node000008" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a25437ae7571e9d4a760726f7511ae938" title="Train one tree on the rows of frame in the mask trainingRowMask." alt="" coords="53,574,250,614"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="442,368,420,414,389,467,348,519,299,563,276,576,251,585,250,580,274,571,296,558,344,516,384,464,415,412,437,366"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,336,202,361"/>
+<area shape="rect" id="Node000002" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#a917bb9adfa2dde0ed756a928f3c1c45e" title="Get the bucket length." alt="" coords="264,5,462,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,334,118,283,145,208,164,167,187,127,215,90,248,57,254,52,257,56,251,61,219,93,192,130,169,170,150,210,123,284,110,336"/>
+<area shape="rect" id="Node000003" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#a6fabc03370d1e9937259b4fa4f19cf9f" title="Get the model decay rate." alt="" coords="272,71,454,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="107,334,124,293,154,236,195,175,220,147,248,122,257,116,260,121,251,126,224,150,199,178,158,238,129,295,112,336"/>
+<area shape="rect" id="Node000004" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#af075461933550e88a2fe27fca3da944c" title="Get the model learn rate." alt="" coords="275,136,451,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="111,333,163,263,202,222,248,186,259,180,262,185,251,191,206,226,167,267,115,336"/>
+<area shape="rect" id="Node000005" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#a5491dd926aec82a2883a8c1cad0cc141" title="Get the maximum time to test for a change point in the model." alt="" coords="253,201,473,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="125,333,180,301,249,266,262,260,264,265,251,271,183,305,128,337"/>
+<area shape="rect" id="Node000006" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#ac4b771d3bc3314c27073ba2edb7c306c" title="Get the minimum seasonal variance scale." alt="" coords="250,281,476,336"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="191,332,234,326,235,331,192,337"/>
+<area shape="rect" id="Node000007" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#a11ded44a09bbf09e272e35942d804044" title="Get the minimum time to detect a change point in the model." alt="" coords="255,361,471,416"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="192,359,240,367,239,372,191,364"/>
+<area shape="rect" id="Node000008" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="273,440,453,481"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="127,360,182,392,251,426,267,432,265,437,249,431,179,397,124,364"/>
+<area shape="rect" id="Node000009" href="$d6/d52/namespaceml_1_1maths__t.html#ae2ff578b5be677ada1f09d21d92ba335" title="Set the count variance scale weight in weights to weight." alt="" coords="262,505,464,546"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="117,360,169,422,208,459,251,490,263,496,260,501,248,495,204,463,165,426,112,363"/>
+<area shape="rect" id="Node000010" href="$d6/d52/namespaceml_1_1maths__t.html#a4e2ff9d2a64df68ffeb890db05b17709" title="Set the seasonal variance scale weight in weights to weight." alt="" coords="278,571,448,611"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="113,360,130,399,160,452,201,508,225,533,251,556,265,564,262,569,248,560,221,537,196,511,155,454,126,401,108,363"/>
+<area shape="rect" id="Node000011" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="273,636,453,677"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="110,361,125,410,152,480,171,518,193,556,220,591,251,621,261,628,258,632,248,625,216,594,189,559,166,521,147,482,120,412,105,362"/>
+</map>

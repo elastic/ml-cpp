@@ -1,0 +1,7 @@
+<map id="ml::api::CLogisticRegression" name="ml::api::CLogisticRegression">
+<area shape="rect" id="Node000001" title="Logistic regression aggregation." alt="" coords="5,168,195,193"/>
+<area shape="rect" id="Node000002" href="$d4/d10/classml_1_1api_1_1_c_aggregate_output.html" title="Abstract class for output aggregation." alt="" coords="12,94,188,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,135,103,167,97,167,97,135"/>
+<area shape="rect" id="Node000003" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="20,5,180,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="103,62,103,93,97,93,97,62"/>
+</map>

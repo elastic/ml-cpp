@@ -1,0 +1,14 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::retraining" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::retraining">
+<area shape="rect" id="Node000001" title="Define the tree to retrain." alt="" coords="623,85,847,141"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a91cb56e58fa20778825771e5a5d10307" title=" " alt="" coords="348,5,573,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="622,83,558,64,559,59,623,78"/>
+<area shape="rect" id="Node000004" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#ae4e184d9dc60b5fbe305bdb3d508d320" title=" " alt="" coords="346,85,575,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="607,116,576,116,576,111,607,111"/>
+<area shape="rect" id="Node000005" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a2ee1f7025a9ea41fd94bd7100c4b4a16" title=" " alt="" coords="348,165,573,221"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="623,148,559,167,558,162,622,143"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,31,298,102"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="333,50,298,53,298,48,332,44"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="330,96,298,91,298,86,331,91"/>
+<area shape="rect" id="Node000006" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a58fd2782d8c92cc89789b5307d1dd44e" title=" " alt="" coords="5,158,298,229"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="332,196,298,196,298,191,332,191"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::core::CJsonOutputStreamWrapper::acquireBuffer" name="ml::core::CJsonOutputStreamWrapper::acquireBuffer">
+<area shape="rect" id="Node000001" title="Acquires a buffer from the pool and attaches it to the given writer object." alt="" coords="5,68,201,109"/>
+<area shape="rect" id="Node000002" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#a1b6f1ed67561ea8929d67bec38effc5d" title="Pop an item out of the queue, this blocks until an item is available." alt="" coords="249,46,466,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,74,233,71,233,76,202,80"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a0d9c3fa4ff07abefa8372c4c9592c305" title=" " alt="" coords="266,96,449,137"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,96,251,102,251,107,201,102"/>
+<area shape="rect" id="Node000003" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#a0ebfa64493246e60dd80b511cccaccae" title=" " alt="" coords="514,5,702,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="459,43,498,38,499,43,459,48"/>
+<area shape="rect" id="Node000004" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#aa293f8977055dfbc599cecc5cc7459b8" title=" " alt="" coords="514,71,702,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="464,70,499,74,498,80,463,75"/>
+</map>

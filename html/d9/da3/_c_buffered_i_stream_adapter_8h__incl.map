@@ -1,0 +1,9 @@
+<map id="bin/pytorch_inference/CBufferedIStreamAdapter.h" name="bin/pytorch_inference/CBufferedIStreamAdapter.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="106,5,292,46"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,94,145,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,49,117,87,114,83,169,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="169,102,229,127"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,47,202,86,196,86,196,47"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="253,102,321,127"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="221,45,266,89,262,93,217,48"/>
+</map>

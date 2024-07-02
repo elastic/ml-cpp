@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::SMessage" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::SMessage">
+<area shape="rect" id="Node000001" title="The base message passed." alt="" coords="5,109,232,165"/>
+<area shape="rect" id="Node000002" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html" title="The memory circuit breaker interface." alt="" coords="33,5,204,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,62,121,109,116,109,116,62"/>
+</map>

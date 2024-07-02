@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossIncrementalImpl::add" name="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossIncrementalImpl::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,165,209,236"/>
+<area shape="rect" id="Node000002" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a83dea5f7a7fc3494f945e4d743948a85" title=" " alt="" coords="261,5,465,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,163,199,124,255,86,264,81,267,86,258,91,202,129,152,167"/>
+<area shape="rect" id="Node000003" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a86fe66601db1049b6d8ec0555b1299b1" title="Update the statistic with the collection x." alt="" coords="257,100,469,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,165,256,150,278,143,279,148,257,155,210,170"/>
+<area shape="rect" id="Node000004" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a79b89ebcbddce019cf305e424d2f5914" title=" " alt="" coords="261,165,465,236"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="209,198,245,198,245,203,209,203"/>
+<area shape="rect" id="Node000006" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a28dd812434f4a84942591c0ec8c04998" title="Get the root node of tree." alt="" coords="277,260,449,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="210,231,257,246,279,253,278,258,256,251,208,236"/>
+<area shape="rect" id="Node000008" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a5facc329dd077dc73d2a34f7ba1b64f9" title="Get the value predicted by tree for the feature vector row." alt="" coords="271,326,455,366"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="150,234,200,274,258,310,272,317,270,322,255,315,197,278,146,239"/>
+<area shape="rect" id="Node000005" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ad95b6f7fc8146f0e12e9791b03ec6027" title="Get the minimum value." alt="" coords="517,180,729,221"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="465,198,501,198,501,203,465,203"/>
+<area shape="rect" id="Node000007" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a16bfd25e0568da0e227b67ff19eafc0d" title="Get the index of the root node in a canonical tree node vector." alt="" coords="552,253,694,309"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="450,278,536,278,536,283,450,283"/>
+</map>

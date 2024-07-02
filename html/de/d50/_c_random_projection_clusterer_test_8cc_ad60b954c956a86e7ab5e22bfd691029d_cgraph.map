@@ -1,0 +1,15 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,220,202,246"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="282,5,505,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,218,162,148,202,105,248,70,266,60,269,65,251,74,205,109,166,151,115,222"/>
+<area shape="rect" id="Node000003" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html#ab732b63fe74f6910e270a878b0836705" title=" " alt="" coords="250,85,537,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,217,249,165,267,158,269,163,251,170,133,222"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="314,180,473,220"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,219,298,208,299,213,202,225"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="303,245,484,286"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,241,288,251,287,256,202,247"/>
+<area shape="rect" id="Node000006" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html#a2622eff0f037852790c69dc7fd7611c8" title=" " alt="" coords="268,310,519,381"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="134,244,251,295,269,301,267,306,249,300,132,249"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="305,405,482,446"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="115,245,135,275,166,315,205,355,251,390,291,407,289,412,248,394,202,359,162,318,131,278,111,248"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::maxScore" name="ml::model::CAnomalyScore::CNormalizer::maxScore">
+<area shape="rect" id="Node000001" title="Retrieve the maximum score for a partition." alt="" coords="250,5,431,46"/>
+<area shape="rect" id="Node000002" href="$db/dcc/_c_anomaly_score_test_8cc.html#ad799547209b7440e472635b30f9c76e7" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

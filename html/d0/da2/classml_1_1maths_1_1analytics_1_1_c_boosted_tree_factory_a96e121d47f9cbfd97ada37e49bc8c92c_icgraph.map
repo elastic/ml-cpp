@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::initialHyperparameterScaling" name="ml::maths::analytics::CBoostedTreeFactory::initialHyperparameterScaling">
+<area shape="rect" id="Node000001" title=" " alt="" coords="470,40,665,95"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab7060973c3b4db5d50fb9769b328f6c7" title="Build a boosted tree object for incremental training on frame." alt="" coords="250,40,422,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="455,70,423,70,423,65,455,65"/>
+<area shape="rect" id="Node000003" href="$d2/d06/_c_boosted_tree_test_8cc.html#a33e664eb43c16fe682412ebf3e8aada7" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,49,167,34,168,29,235,43"/>
+<area shape="rect" id="Node000004" href="$d2/d06/_c_boosted_tree_test_8cc.html#a9c4ded5b2384e12fc7bc1db63b4412fc" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="235,70,202,70,202,65,235,65"/>
+<area shape="rect" id="Node000005" href="$d2/d06/_c_boosted_tree_test_8cc.html#ade2c22791fe24f882b5212cac26d7e3c" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="235,92,168,106,167,101,234,86"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CEventRatePopulationModel::bucketStatsAvailable" name="ml::model::CEventRatePopulationModel::bucketStatsAvailable">
+<area shape="rect" id="Node000001" title="Check if bucket statistics are available for the specified time." alt="" coords="5,5,225,46"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="273,5,470,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,23,257,23,257,28,225,28"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="518,5,692,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,23,502,23,502,28,470,28"/>
+</map>

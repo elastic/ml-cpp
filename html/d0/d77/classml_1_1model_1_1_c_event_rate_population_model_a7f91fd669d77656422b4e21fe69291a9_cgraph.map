@@ -1,0 +1,9 @@
+<map id="ml::model::CEventRatePopulationModel::featureData" name="ml::model::CEventRatePopulationModel::featureData">
+<area shape="rect" id="Node000001" title="Get the feature data corresponding to feature at time." alt="" coords="5,5,225,46"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#aa3342e2e5773af3f39d810405de46e35" title="Check if bucket statistics are available for the specified time." alt="" coords="273,5,492,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,23,257,23,257,28,225,28"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="540,5,737,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="492,23,525,23,525,28,492,28"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="785,5,960,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="738,23,769,23,769,28,738,28"/>
+</map>

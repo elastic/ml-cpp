@@ -1,0 +1,35 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,381,202,407"/>
+<area shape="rect" id="Node000002" href="$d9/d4c/namespaceanonymous__namespace_02_c_hierarchical_results_test_8cc_03.html#aabd643dc250214fd01d952f600169ad1" title=" " alt="" coords="257,277,432,332"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,378,252,336,254,341,141,383"/>
+<area shape="rect" id="Node000011" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#aad3807cd6d37fe4373f10a1fa3d51565" title=" " alt="" coords="262,373,427,414"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="202,391,246,391,246,396,202,396"/>
+<area shape="rect" id="Node000016" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a3cb0d73b4995982503e9da87641648f2" title="Post&#45;order depth first visit the tree." alt="" coords="250,463,439,503"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="141,405,274,454,272,459,140,410"/>
+<area shape="rect" id="Node000003" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a3025adbfa186fbaa313b56be03c1e00d" title=" " alt="" coords="504,201,672,242"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,273,511,245,512,250,430,278"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="737,5,935,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="601,199,655,130,693,91,736,57,745,51,748,56,739,61,696,95,659,134,605,203"/>
+<area shape="rect" id="Node000006" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a85b7baebf081bd3691b407274032651e" title="Get the by field name." alt="" coords="756,71,916,111"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="615,199,670,161,736,122,751,115,754,120,739,127,672,165,618,203"/>
+<area shape="rect" id="Node000007" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="737,136,935,177"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="667,198,741,179,742,184,669,203"/>
+<area shape="rect" id="Node000008" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#af0c1c424e1387b17b3fc3d3512e24364" title="Create a new leaf node for the simple search simpleSearch." alt="" coords="753,201,919,242"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="673,219,737,219,737,224,673,224"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad52ab469da0ee958cf60af651e5e3dea" title="Return the search key for which this is gathering data." alt="" coords="749,267,923,307"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="669,240,742,260,741,265,667,245"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4cfa47ec8e427ce644d9c1296c3bb935" title="Have we been configured to use NULL values?" alt="" coords="749,332,923,373"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="618,240,672,278,739,317,754,323,751,328,736,321,670,283,615,245"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="983,5,1157,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="935,23,967,23,967,28,935,28"/>
+<area shape="rect" id="Node000012" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a19f6a07cbd73c79814a325555675b407" title="Bottom up first visit the tree." alt="" coords="487,332,689,373"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="427,377,471,369,472,375,428,382"/>
+<area shape="rect" id="Node000014" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a595d0faa2f5cb9f80cb2bfcccbc5408b" title="Create a new node." alt="" coords="506,397,671,438"/>
+<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="428,399,490,405,490,411,427,404"/>
+<area shape="rect" id="Node000015" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#a7ce1e700bf5b94a191a83559cdbf6ecd" title="Get the root node of the hierarchy." alt="" coords="506,463,671,503"/>
+<area shape="poly" id="edge14_Node000011_Node000015" title=" " alt="" coords="408,412,440,425,488,447,507,454,505,459,486,452,438,429,406,417"/>
+<area shape="rect" id="Node000013" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#ac3fe83d076bee348f9169fd64aa6f2e9" title="Visit a node." alt="" coords="753,397,919,438"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="669,371,742,390,741,395,667,376"/>
+<area shape="poly" id="edge17_Node000016_Node000015" title=" " alt="" coords="440,480,490,480,490,486,440,486"/>
+<area shape="poly" id="edge16_Node000016_Node000016" title=" " alt="" coords="299,463,297,453,304,444,320,438,344,436,370,438,386,445,384,450,369,444,344,441,321,443,307,448,302,454,304,461"/>
+</map>

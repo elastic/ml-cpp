@@ -1,0 +1,7 @@
+<map id="ml::model::CMetricPopulationModel::computeMemoryUsage" name="ml::model::CMetricPopulationModel::computeMemoryUsage">
+<area shape="rect" id="Node000001" title="Get the non&#45;estimated memory used by this model." alt="" coords="504,5,703,46"/>
+<area shape="rect" id="Node000002" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a2e196bcdc954a18403c0e72215621c90" title="Get the memory used by this model." alt="" coords="263,5,456,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,28,456,28,456,23,488,23"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aa82ee3f5efba44916ffee8d1ebc14577" title="Update the correlation models." alt="" coords="5,5,215,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="247,28,215,28,215,23,247,23"/>
+</map>

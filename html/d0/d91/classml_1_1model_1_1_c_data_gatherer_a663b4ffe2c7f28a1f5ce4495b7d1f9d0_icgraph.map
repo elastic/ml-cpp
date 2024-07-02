@@ -1,0 +1,46 @@
+<map id="ml::model::CDataGatherer::personFieldName" name="ml::model::CDataGatherer::personFieldName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="720,149,895,189"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4466baf24e54c548b985f6768e740ed3" title="Restore state from supplied traverser." alt="" coords="273,13,448,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="784,137,764,109,738,79,707,52,671,31,616,15,558,9,500,10,448,16,448,11,500,5,558,3,617,10,673,26,710,48,742,76,768,106,788,134"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a9b2048cbba78065b47fa4cb1fe1263e0" title="Construct from a state document." alt="" coords="27,13,201,53"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="705,152,270,67,201,53,202,48,271,62,706,147"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad8e677951c8c13cb3eb1c01a564a38a1" title=" " alt="" coords="273,155,448,196"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="705,173,448,177,448,172,705,168"/>
+<area shape="rect" id="Node000006" href="$db/d04/classml_1_1model_1_1_c_rule_scope.html#add2c25c919fba5d8771de4d29efc2ec0" title="Check whether the given series is in the rule scope." alt="" coords="505,287,665,328"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="765,200,674,260,625,289,623,284,671,256,762,196"/>
+<area shape="rect" id="Node000018" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a49ba26e3d0cfddd003e479d1ea38cc51" title="Create the bucket specific data gatherer." alt="" coords="498,206,672,247"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="712,196,667,208,666,203,711,191"/>
+<area shape="rect" id="Node000019" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#aff9755dcaa203344419c743543484360" title="Check if the model has a by field." alt="" coords="499,353,671,393"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="790,204,742,273,710,309,674,342,653,354,650,350,671,337,707,306,738,270,785,201"/>
+<area shape="rect" id="Node000021" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4c0fefa76fa5bc653329ab253f0fa955" title="Restore a bucket gatherer from the supplied traverser." alt="" coords="498,41,672,81"/>
+<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="753,143,671,102,633,84,635,79,673,97,755,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="258,36,201,36,201,30,258,30"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaf88be1374704f493655039b0ec35fa7" title=" " alt="" coords="27,78,201,119"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="283,152,222,133,186,122,187,116,223,128,284,147"/>
+<area shape="rect" id="Node000007" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#afefe332637dda78b3f8c3476f3ec99e9" title=" " alt="" coords="271,318,450,359"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="490,323,451,329,450,323,489,318"/>
+<area shape="rect" id="Node000008" href="$d2/d5e/_c_detection_rule_test_8cc.html#ab74b81f93055a7b2b354c82e33b725d3" title=" " alt="" coords="5,143,223,168"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="337,306,290,242,258,209,221,182,199,171,201,167,224,177,261,205,294,238,342,303"/>
+<area shape="rect" id="Node000009" href="$d2/d5e/_c_detection_rule_test_8cc.html#ab3d2c36d20c60308c08300fa2be5e6a7" title=" " alt="" coords="5,192,223,218"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="327,309,279,268,221,231,194,221,196,216,224,226,283,264,330,305"/>
+<area shape="rect" id="Node000010" href="$d2/d5e/_c_detection_rule_test_8cc.html#aadd0ea9b59db8d007b6249ea3b7f7d15" title=" " alt="" coords="5,241,223,267"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="303,313,222,281,184,270,185,265,224,276,305,308"/>
+<area shape="rect" id="Node000011" href="$d2/d5e/_c_detection_rule_test_8cc.html#af101a172986d01a9758a38077292916a" title=" " alt="" coords="5,291,223,316"/>
+<area shape="poly" id="edge11_Node000007_Node000011" title=" " alt="" coords="255,326,210,320,210,314,256,321"/>
+<area shape="rect" id="Node000012" href="$d2/d5e/_c_detection_rule_test_8cc.html#ac7e6fc8e60de54f665acfa59f26de5b9" title=" " alt="" coords="5,340,223,366"/>
+<area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="256,347,223,349,223,344,255,342"/>
+<area shape="rect" id="Node000013" href="$d2/d5e/_c_detection_rule_test_8cc.html#a34b245c51f485fb95af670e23af32903" title=" " alt="" coords="5,389,223,415"/>
+<area shape="poly" id="edge13_Node000007_Node000013" title=" " alt="" coords="277,366,223,381,179,391,178,386,222,376,276,361"/>
+<area shape="rect" id="Node000014" href="$d2/d5e/_c_detection_rule_test_8cc.html#a8f526915f8c0a50c0fcfce4d2bed430b" title=" " alt="" coords="5,439,223,464"/>
+<area shape="poly" id="edge14_Node000007_Node000014" title=" " alt="" coords="281,368,272,374,258,387,249,402,240,416,224,430,201,441,199,436,221,425,236,413,245,399,254,384,269,369,278,364"/>
+<area shape="rect" id="Node000015" href="$d2/d5e/_c_detection_rule_test_8cc.html#ad55f30d621848ecaa77f9260b71b6af3" title=" " alt="" coords="5,488,223,514"/>
+<area shape="poly" id="edge15_Node000007_Node000015" title=" " alt="" coords="277,369,273,373,262,386,255,399,250,426,244,453,237,466,224,479,207,490,204,485,221,475,233,463,239,451,245,425,250,397,257,383,269,370,274,365"/>
+<area shape="rect" id="Node000016" href="$d2/d5e/_c_detection_rule_test_8cc.html#a276f5510011b5bad16640e03f564c0c0" title=" " alt="" coords="5,537,223,563"/>
+<area shape="poly" id="edge16_Node000007_Node000016" title=" " alt="" coords="276,370,273,373,259,392,252,411,251,450,248,489,240,509,224,528,209,539,206,535,221,524,236,506,243,488,245,450,247,410,254,390,269,370,272,366"/>
+<area shape="rect" id="Node000017" href="$d2/d5e/_c_detection_rule_test_8cc.html#a7624c19d169513801571d590219c5239" title=" " alt="" coords="5,587,223,612"/>
+<area shape="poly" id="edge17_Node000007_Node000017" title=" " alt="" coords="275,370,273,373,256,399,249,424,249,449,251,475,253,501,252,526,244,552,225,577,210,588,207,584,221,574,239,550,247,525,248,501,246,475,243,450,244,423,251,397,269,370,272,367"/>
+<area shape="poly" id="edge19_Node000018_Node000004" title=" " alt="" coords="483,206,447,198,449,193,484,201"/>
+<area shape="rect" id="Node000020" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a65d16260e160c3a0de4d599a4871a7fe" title=" " alt="" coords="274,383,447,424"/>
+<area shape="poly" id="edge21_Node000019_Node000020" title=" " alt="" coords="484,389,447,394,447,389,483,384"/>
+<area shape="poly" id="edge23_Node000021_Node000002" title=" " alt="" coords="482,51,448,46,448,41,483,45"/>
+</map>

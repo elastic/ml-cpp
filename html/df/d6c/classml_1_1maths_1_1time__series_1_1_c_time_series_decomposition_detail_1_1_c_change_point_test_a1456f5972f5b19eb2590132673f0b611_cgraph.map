@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest::testUndoLastChange" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest::testUndoLastChange">
+<area shape="rect" id="Node000001" title="Test whether to undo the last change which was applied." alt="" coords="5,5,276,61"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a97443791d51e7e2ac90ce6ad0590bc59" title="Extract the effective sample count from a collection of weights." alt="" coords="324,20,454,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="276,31,308,31,308,36,276,36"/>
+</map>

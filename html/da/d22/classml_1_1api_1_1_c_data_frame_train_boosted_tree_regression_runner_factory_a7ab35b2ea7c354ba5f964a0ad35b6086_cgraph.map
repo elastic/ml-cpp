@@ -1,0 +1,15 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl" name="ml::api::CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,253,97"/>
+<area shape="rect" id="Node000002" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a6732ea16b92ea16d0d176c7b07b69fa3" title=" " alt="" coords="301,5,504,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,50,285,46,286,51,253,55"/>
+<area shape="rect" id="Node000005" href="$dd/ddc/classml_1_1api_1_1_c_data_frame_analysis_config_reader.html#ad3e65d9d55edc7b615f8d7f8e7dc7762" title="Extract the parameters from a JSON object." alt="" coords="306,85,499,126"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="253,83,291,88,290,93,253,88"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a3b9f0a4e0602073ab6607c5b7ee93c93" title=" " alt="" coords="560,5,763,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="504,31,544,31,544,36,504,36"/>
+<area shape="rect" id="Node000004" href="$dd/ddc/classml_1_1api_1_1_c_data_frame_analysis_config_reader.html#a2d134cf71f684abad746563583623f09" title=" " alt="" coords="819,13,1013,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="764,31,804,31,804,36,764,36"/>
+<area shape="rect" id="Node000006" href="$d5/dca/classml_1_1api_1_1_c_data_frame_analysis_parameters.html#a057154834fd1ef0dd5e206486ffa5afb" title="Add parameter." alt="" coords="565,85,758,126"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="500,103,549,103,549,108,500,108"/>
+<area shape="rect" id="Node000007" href="$d8/db3/classml_1_1api_1_1_c_data_frame_analysis_config_reader_1_1_c_parameter.html#a31e2bc25af6f5b369f1c2cee98f1ed15" title="Get the name of the parameter." alt="" coords="552,150,771,191"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="487,124,564,143,563,148,485,129"/>
+</map>

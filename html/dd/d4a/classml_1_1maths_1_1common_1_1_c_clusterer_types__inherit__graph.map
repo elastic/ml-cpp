@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CClustererTypes" name="ml::maths::common::CClustererTypes">
+<area shape="rect" id="Node000001" title="Factors out the non&#45;template part of CClusterer for improved compile times." alt="" coords="5,56,151,97"/>
+<area shape="rect" id="Node000002" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html" title=" " alt="" coords="199,13,367,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,59,198,53,199,58,167,64"/>
+<area shape="rect" id="Node000005" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html" title="Interface for clustering functionality." alt="" coords="208,92,358,133"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="167,89,208,97,207,102,166,95"/>
+<area shape="rect" id="Node000003" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html" title="A single pass online clusterer based on the x&#45;means algorithm of Pelleg and Moore." alt="" coords="429,20,593,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,38,429,38,429,43,383,43"/>
+<area shape="rect" id="Node000004" href="$d0/dcd/classanonymous__namespace_02_c_x_means_online_test_8cc_03_1_1_c_x_means_online_for_test.html" title=" " alt="" coords="655,5,824,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="609,38,655,38,655,43,609,43"/>
+<area shape="rect" id="Node000006" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html" title="A single pass online clusterer which assigns points to a fixed clustering of the data." alt="" coords="415,88,607,129"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="373,108,414,108,414,113,373,114"/>
+<area shape="rect" id="Node000007" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html" title="A single pass online clusterer based on the x&#45;means algorithm of Pelleg and Moore." alt="" coords="415,154,607,194"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="373,134,433,150,432,156,372,139"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,202,137"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a395c664814fb97af115aa71ef2b985d5" title=" " alt="" coords="254,71,408,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,108,238,102,239,107,196,114"/>
+<area shape="rect" id="Node000008" href="$d3/dcf/namespaceanonymous__namespace_02_c_signal_test_8cc_03.html#a248fd0476e4abdcc085c5047694638c4" title=" " alt="" coords="250,136,412,177"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="200,135,235,140,234,145,199,140"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,71,288,61,295,52,309,46,331,44,354,46,368,53,366,57,353,52,331,49,311,51,298,56,294,62,296,69"/>
+<area shape="rect" id="Node000003" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a186d572e4b8e600162833b1d2c2e0b47" title="Compute the Hadamard product of fx and fy." alt="" coords="467,5,621,46"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="399,68,460,49,461,54,400,73"/>
+<area shape="rect" id="Node000004" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a142cdd074a53c9767fbdc99e820c3208" title=" " alt="" coords="467,71,621,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="408,97,452,97,452,103,408,102"/>
+<area shape="rect" id="Node000007" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#ab1ff99bf159b9988d30f115f34a3a933" title=" " alt="" coords="460,136,628,177"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="400,109,461,128,460,133,399,114"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="467,85,423,85,423,79,467,80"/>
+<area shape="rect" id="Node000005" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#ac7ad188bc6d92945541cc2abe5f6e7be" title="Compute the conjugate of f." alt="" coords="676,29,831,70"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="621,73,661,65,662,70,622,78"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="716,118,791,144"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="622,103,702,118,701,124,621,108"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="719,119,712,110,716,100,730,94,754,92,779,94,792,101,790,106,778,99,753,97,731,99,720,104,717,109,723,116"/>
+</map>

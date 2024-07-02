@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CCountMinSketch::SSketch::acceptPersistInserter" name="ml::maths::time_series::CCountMinSketch::SSketch::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Convert to a node tree." alt="" coords="5,91,200,147"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="261,33,437,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,91,254,76,255,81,201,96"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="248,99,450,139"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="200,116,232,116,232,122,200,122"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="272,164,426,205"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="201,142,257,157,256,163,199,147"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="498,5,681,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="437,41,482,35,483,41,438,46"/>
+<area shape="rect" id="Node000004" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="729,5,895,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="682,32,713,32,713,37,682,37"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="740,49,682,60,563,67,452,65,452,59,563,62,681,55,739,44"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="729,20,697,19,697,14,729,14"/>
+</map>

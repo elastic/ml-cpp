@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::SAddValue" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::SAddValue">
+<area shape="rect" id="Node000001" title="The message passed to add a point." alt="" coords="1101,41,1327,97"/>
+<area shape="rect" id="Node000002" href="$d7/d7f/structml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_s_message.html" title="The base message passed." alt="" coords="721,5,948,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="963,43,1101,56,1100,61,962,48"/>
+<area shape="rect" id="Node000003" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html" title="The memory circuit breaker interface." alt="" coords="318,13,489,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="505,31,721,31,721,36,505,36"/>
+<area shape="rect" id="Node000004" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html" title="Decomposes a time series into a linear combination of trend and cyclical functions and a stationary r..." alt="" coords="738,85,931,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="945,92,1100,77,1100,83,946,97"/>
+<area shape="rect" id="Node000005" href="$d0/d56/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_interface.html" title="The interface for decomposing times series into seasonal, calendar cyclical and trend components." alt="" coords="282,80,525,120"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="541,99,738,101,738,107,541,104"/>
+<area shape="rect" id="Node000006" href="$d5/d9e/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_types.html" title="Type definitions shared by the CTimeSeriesDecompositionInterface hierarchy and CTimeSeriesDecompositi..." alt="" coords="5,113,233,154"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="248,115,281,111,282,117,248,121"/>
+<area shape="rect" id="Node000007" href="$d0/da4/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail.html" title="Utilities for computing the decomposition." alt="" coords="291,145,517,186"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="248,145,290,150,290,155,248,150"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="532,145,737,116,738,121,533,150"/>
+</map>

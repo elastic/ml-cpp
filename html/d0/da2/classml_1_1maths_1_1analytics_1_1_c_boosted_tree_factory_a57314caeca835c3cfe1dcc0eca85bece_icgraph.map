@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::maximumNumberRows" name="ml::maths::analytics::CBoostedTreeFactory::maximumNumberRows">
+<area shape="rect" id="Node000001" title="Get the maximum number of rows we&#39;ll train on." alt="" coords="480,5,646,61"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a4f3740b8492643b34f1e0056c6f75104" title="Validate if frame is suitable for running the analysis on." alt="" coords="242,13,432,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="465,36,433,36,433,31,465,31"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a953f26e0a0895039f15c11b6623c9130" title=" " alt="" coords="5,13,194,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="226,36,194,36,194,31,226,31"/>
+</map>

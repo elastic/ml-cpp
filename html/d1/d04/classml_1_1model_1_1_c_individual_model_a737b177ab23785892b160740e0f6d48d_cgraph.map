@@ -1,0 +1,10 @@
+<map id="ml::model::CIndividualModel::createNewModels" name="ml::model::CIndividualModel::createNewModels">
+<area shape="rect" id="Node000001" title="Create the time series models for &quot;n&quot; newly observed people." alt="" coords="5,63,192,103"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aeac745eb145b2477f1d698c76973955c" title=" " alt="" coords="240,5,437,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,59,235,48,236,53,187,65"/>
+<area shape="rect" id="Node000003" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#a3597ed3463d58538c43e8f1f2898591e" title="Resize a container using a 10% capacity increase." alt="" coords="485,35,677,75"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="192,75,470,59,470,64,192,80"/>
+<area shape="rect" id="Node000004" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#ab9e8734a9f0c99d83d562be94bf5dc46" title="Reserve a container working around implementation&#45;specific silliness." alt="" coords="242,120,435,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,101,236,113,235,118,186,107"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,35,470,39,469,44,437,40"/>
+</map>

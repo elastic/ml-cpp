@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CQDigest::clear" name="ml::maths::common::CQDigest::clear">
+<area shape="rect" id="Node000001" title="Reset the quantiles to the state before any values were added." alt="" coords="443,5,588,46"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a4979e7ef438c7e50142ce809d29126fb" title=" " alt="" coords="250,5,395,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="428,28,396,28,396,23,428,23"/>
+<area shape="rect" id="Node000003" href="$db/d32/_c_q_digest_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

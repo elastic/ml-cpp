@@ -1,0 +1,25 @@
+<map id="ml::api::CRetrainableModelJsonReader::bestForestFromJsonStream" name="ml::api::CRetrainableModelJsonReader::bestForestFromJsonStream">
+<area shape="rect" id="Node000001" title="Retrieve the best forest from a JSON blob." alt="" coords="5,365,225,421"/>
+<area shape="rect" id="Node000002" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a92e17acd17c9d8b439d2f48577530f55" title=" " alt="" coords="273,365,508,421"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,391,257,391,257,396,225,396"/>
+<area shape="rect" id="Node000003" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#ad50be95ed9e9b05714be0ff68b2ab9f0" title=" " alt="" coords="558,5,741,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,364,416,304,448,227,494,144,522,106,554,71,557,68,561,72,558,75,526,109,498,147,453,229,421,306,402,366"/>
+<area shape="rect" id="Node000004" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#aca6052374a080b7b0c29a4b391f571e9" title=" " alt="" coords="558,85,741,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="402,364,425,318,459,262,503,203,554,151,558,148,562,152,558,155,507,207,464,265,430,321,407,366"/>
+<area shape="rect" id="Node000005" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a31f7c18d990e5c284be5bb4b63aca1ab" title=" " alt="" coords="558,165,741,221"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="413,363,473,299,512,263,554,231,561,227,564,231,558,235,516,267,477,302,417,367"/>
+<area shape="rect" id="Node000006" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a3ce116cdd046d19624560699171695a5" title=" " alt="" coords="558,245,741,301"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="447,362,555,311,567,305,569,310,557,316,450,367"/>
+<area shape="rect" id="Node000007" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#ac67ef8c66b3e4f0ab7a7c96c322114d1" title=" " alt="" coords="558,325,741,381"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="508,372,542,367,542,372,509,378"/>
+<area shape="rect" id="Node000008" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a36675eb852fb39898967e81728705678" title=" " alt="" coords="558,405,741,461"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="509,409,542,414,542,419,508,414"/>
+<area shape="rect" id="Node000009" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#af8788fae99f224784f7d4addd27a7686" title=" " alt="" coords="558,485,741,541"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="450,419,557,471,569,476,567,481,555,476,447,424"/>
+<area shape="rect" id="Node000010" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a837a6cf1a0926c7b194c0be91a7e1fe2" title=" " alt="" coords="558,565,741,621"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="417,419,477,484,516,519,558,551,564,555,561,560,554,555,512,523,473,488,413,423"/>
+<area shape="rect" id="Node000011" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#af8a0fb9b990f08db02a87c2d029db2c9" title=" " alt="" coords="558,645,741,701"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="407,420,430,465,464,521,507,580,558,631,562,634,558,638,554,635,503,583,459,524,425,468,402,423"/>
+<area shape="rect" id="Node000012" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="556,725,742,766"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="401,421,419,481,451,559,472,600,496,640,525,678,558,711,561,714,558,718,554,715,521,682,492,643,467,603,446,561,414,483,396,422"/>
+</map>

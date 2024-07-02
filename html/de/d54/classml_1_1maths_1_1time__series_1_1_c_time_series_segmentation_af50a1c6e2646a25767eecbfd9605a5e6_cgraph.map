@@ -1,0 +1,22 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal" name="ml::maths::time_series::CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,339,267,394"/>
+<area shape="rect" id="Node000002" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#ae400a1bb4e41a0a376a155c56533a752" title=" " alt="" coords="315,232,544,288"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,336,336,291,338,296,216,341"/>
+<area shape="rect" id="Node000008" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a51147b595b313b0d5a857f7e8ec6136e" title=" " alt="" coords="611,379,796,434"/>
+<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="267,371,544,389,595,393,595,399,544,394,267,376"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="342,404,517,444"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="267,389,328,401,327,407,266,395"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="592,5,814,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="446,230,504,152,545,109,590,71,597,67,600,71,594,75,548,113,508,155,450,233"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="624,85,783,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="460,230,518,182,591,136,608,128,610,133,593,141,521,186,463,234"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="624,150,783,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="510,229,591,201,616,193,618,198,593,206,511,234"/>
+<area shape="rect" id="Node000006" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a0f4174befdbb15759143f5adbfa7d0a2" title=" " alt="" coords="615,240,792,280"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="544,257,599,257,599,263,544,263"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="666,328,740,354"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="526,286,652,323,651,329,525,291"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="469,286,526,325,593,364,605,370,603,375,591,369,523,330,466,290"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="652,240,650,229,658,220,676,215,703,213,733,215,750,221,748,226,731,220,703,218,677,220,661,225,655,231,657,238"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="664,333,650,322,653,311,671,304,703,302,746,307,756,314,756,322,751,322,751,316,745,312,703,307,672,309,657,315,655,320,667,328"/>
+</map>

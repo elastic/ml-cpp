@@ -1,0 +1,7 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRegressionRunner" name="ml::api::CDataFrameTrainBoostedTreeRegressionRunner">
+<area shape="rect" id="Node000001" title="Runs boosted tree regression on a core::CDataFrame." alt="" coords="5,183,209,223"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html" title="Runs boosted tree regression on a core::CDataFrame." alt="" coords="21,94,193,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,150,110,182,104,182,104,150"/>
+<area shape="rect" id="Node000003" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html" title="Hierarchy for running a specific core::CDataFrame analyses." alt="" coords="10,5,204,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="110,62,110,94,104,94,104,62"/>
+</map>

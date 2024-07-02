@@ -1,0 +1,52 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,386,223,412"/>
+<area shape="rect" id="Node000002" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#afa902aa9888a67384b9bf1be89500db5" title=" " alt="" coords="295,183,465,223"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,383,337,231,340,235,135,388"/>
+<area shape="rect" id="Node000008" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ad9152389320356c28a74d4840a929e59" title="Returns the mean time of all the measurements." alt="" coords="564,280,733,321"/>
+<area shape="poly" id="edge23_Node000001_Node000008" title=" " alt="" coords="139,383,198,356,270,331,342,317,415,307,548,298,548,303,416,312,343,322,271,336,200,361,141,388"/>
+<area shape="rect" id="Node000012" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="289,345,471,386"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="221,383,273,376,274,382,222,388"/>
+<area shape="rect" id="Node000015" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a632ae1f375af21ec9cb82af0ca9bda3f" title="Persist to a state document." alt="" coords="295,411,465,451"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="223,409,280,416,279,422,223,415"/>
+<area shape="rect" id="Node000023" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="293,500,467,541"/>
+<area shape="poly" id="edge24_Node000001_Node000023" title=" " alt="" coords="146,410,321,491,319,496,143,415"/>
+<area shape="rect" id="Node000024" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="271,565,489,606"/>
+<area shape="poly" id="edge26_Node000001_Node000024" title=" " alt="" coords="127,410,184,477,225,516,272,550,283,556,281,561,269,555,222,520,180,481,123,414"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="537,70,759,126"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,180,536,135,553,129,554,134,538,140,430,185"/>
+<area shape="rect" id="Node000004" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#abf37cd764badc8c0cfbb2a51c4a93906" title="Add value to an order statistic." alt="" coords="558,149,738,190"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="465,190,542,180,543,185,465,195"/>
+<area shape="rect" id="Node000006" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a4458307df4ab8f653908bf0bf2194bd6" title="Returns the combined count of all the measurements." alt="" coords="564,215,733,255"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="465,210,548,220,548,226,465,216"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="430,221,538,264,561,272,559,277,536,270,428,226"/>
+<area shape="rect" id="Node000010" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ae949469432decbaff601c88431943d6a" title="Returns the aggregated value of all the measurements." alt="" coords="564,5,733,46"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="396,181,453,119,492,85,536,55,548,49,550,54,538,60,496,89,457,123,400,184"/>
+<area shape="rect" id="Node000005" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="807,135,1032,191"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="739,165,792,163,792,169,739,170"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="840,215,999,255"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="733,232,824,232,824,238,733,238"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="840,280,999,321"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="733,298,824,298,824,303,733,303"/>
+<area shape="rect" id="Node000011" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a661bd8a0db4975639e7b2a7555610989" title="Get the median value of an order statistic." alt="" coords="829,5,1010,46"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="733,23,814,23,814,28,733,28"/>
+<area shape="rect" id="Node000013" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="555,345,742,386"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="471,363,540,363,540,368,471,368"/>
+<area shape="rect" id="Node000014" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="829,345,1010,386"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="742,363,813,363,813,368,742,368"/>
+<area shape="rect" id="Node000016" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="818,411,1021,451"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="465,428,803,428,803,434,465,434"/>
+<area shape="rect" id="Node000017" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#acdd2eb762845cbbe86d18fcd6ce357f0" title="Persist an order statistic." alt="" coords="558,468,738,509"/>
+<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="465,446,543,463,542,468,464,452"/>
+<area shape="rect" id="Node000019" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#aaef61f5660b9649997b6fc2879e4bec7" title="Convert to a delimited string." alt="" coords="537,543,759,599"/>
+<area shape="poly" id="edge19_Node000015_Node000019" title=" " alt="" coords="466,449,491,462,506,476,516,490,524,504,539,518,562,533,559,538,535,522,520,507,511,493,502,480,487,467,464,454"/>
+<area shape="poly" id="edge17_Node000017_Node000016" title=" " alt="" coords="738,467,805,452,806,458,740,472"/>
+<area shape="rect" id="Node000018" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="807,475,1032,531"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="739,491,792,493,792,499,739,496"/>
+<area shape="rect" id="Node000020" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="844,555,995,611"/>
+<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="760,573,829,576,829,582,760,579"/>
+<area shape="rect" id="Node000021" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="1080,563,1227,603"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="995,580,1065,580,1065,586,995,586"/>
+<area shape="rect" id="Node000022" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="1275,563,1413,603"/>
+<area shape="poly" id="edge22_Node000021_Node000022" title=" " alt="" coords="1227,580,1260,580,1260,586,1227,586"/>
+<area shape="poly" id="edge25_Node000023_Node000023" title=" " alt="" coords="330,500,328,490,336,481,353,475,380,473,408,476,425,482,423,487,407,481,380,479,354,481,339,485,333,491,335,499"/>
+</map>

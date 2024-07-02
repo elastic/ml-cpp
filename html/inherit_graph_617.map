@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d2/d48/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_offset_parameters.html" title="Defines a set of operations to adjust the offset parameter of those priors with non&#45;negative support." alt="" coords="5,39,185,79"/>
+<area shape="rect" id="Node000001" href="$da/dab/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_apply_offset.html" title="Apply a specified offset to a prior." alt="" coords="233,5,378,46"/>
+<area shape="poly" id="edge439_Node000000_Node000001" title=" " alt="" coords="200,40,232,35,233,40,200,45"/>
+<area shape="rect" id="Node000002" href="$d7/d56/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_offset_cost.html" title="Computes the likelihood of a collection of samples and resamples at different offsets." alt="" coords="233,71,378,111"/>
+<area shape="poly" id="edge440_Node000000_Node000002" title=" " alt="" coords="200,72,233,77,232,83,200,78"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::core::CThread::stop" name="ml::core::CThread::stop">
+<area shape="rect" id="Node000001" title=" " alt="" coords="498,109,657,135"/>
+<area shape="rect" id="Node000002" href="$d1/db3/classml_1_1core_1_1_c_compress_o_stream.html#a1b121fee8277e968db7fc7d93a4fca97" title="Close the stream." alt="" coords="252,5,450,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="538,104,449,60,420,49,421,44,451,55,541,99"/>
+<area shape="rect" id="Node000004" href="$d1/dca/namespaceml_1_1api_1_1anonymous__namespace_02_c_io_manager_8cc_03.html#ae4081c185451271b4481aeee75174410" title=" " alt="" coords="266,94,436,150"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="483,124,437,124,437,119,483,119"/>
+<area shape="rect" id="Node000005" href="$d1/dca/namespaceml_1_1api_1_1anonymous__namespace_02_c_io_manager_8cc_03.html#a439b786d142e4e04fcca5e789ae360c8" title=" " alt="" coords="266,198,436,254"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="535,144,415,200,412,195,533,139"/>
+<area shape="rect" id="Node000003" href="$d1/db3/classml_1_1core_1_1_c_compress_o_stream.html#a298274d382e674a1c940f6159282bb3a" title="Destructor will close the stream." alt="" coords="5,5,204,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="236,28,204,28,204,23,236,23"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="387,81,373,75,351,72,331,74,318,79,312,85,312,94,306,93,307,83,315,75,330,69,351,67,375,70,389,77"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="387,185,373,179,351,176,331,178,318,183,312,189,312,198,306,197,307,187,315,179,330,173,351,171,375,174,389,181"/>
+</map>

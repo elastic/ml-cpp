@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,177,202,203"/>
+<area shape="rect" id="Node000002" href="$db/d5e/classml_1_1core_1_1_c_memory_usage.html#a7bc3c308d63189412f745d76020b18e8" title="Create a child node." alt="" coords="250,5,421,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,175,169,119,207,86,248,57,258,51,261,56,251,61,210,90,173,123,118,178"/>
+<area shape="rect" id="Node000004" href="$db/d5e/classml_1_1core_1_1_c_memory_usage.html#a014a513d79a41d26a92989b5f8e4b8d7" title="Create a memory usage member item." alt="" coords="250,71,421,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="132,174,249,122,265,115,267,120,251,127,135,179"/>
+<area shape="rect" id="Node000005" href="$db/d5e/classml_1_1core_1_1_c_memory_usage.html#ae7656ba981cfac7462da19b7b9fefeb3" title="Aggregate big collections of child items together." alt="" coords="250,136,421,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="197,174,234,168,235,173,198,179"/>
+<area shape="rect" id="Node000006" href="$db/d5e/classml_1_1core_1_1_c_memory_usage.html#ab0d7a54185be361f3da3e23339ad98f6" title=" " alt="" coords="250,201,421,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,201,234,205,234,210,201,206"/>
+<area shape="rect" id="Node000007" href="$db/d5e/classml_1_1core_1_1_c_memory_usage.html#a6d277eabcaf97d4ccc26e31c6710a4da" title="Set the name and size of this node." alt="" coords="250,267,421,307"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="135,201,251,251,267,258,265,263,249,256,133,205"/>
+<area shape="rect" id="Node000008" href="$db/d5e/classml_1_1core_1_1_c_memory_usage.html#a28bad1689a00cbd53f108d43546e6da1" title="Get the memory used by this node and all child nodes." alt="" coords="250,332,421,373"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="119,201,173,256,210,288,251,317,261,322,258,327,248,321,207,292,169,260,115,205"/>
+<area shape="rect" id="Node000003" href="$d4/d20/classml_1_1core_1_1_c_memory_usage_1_1_c_impl.html#a946077f5357db65abb23548e857e4dc6" title=" " alt="" coords="469,5,640,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="421,23,453,23,453,28,421,28"/>
+</map>

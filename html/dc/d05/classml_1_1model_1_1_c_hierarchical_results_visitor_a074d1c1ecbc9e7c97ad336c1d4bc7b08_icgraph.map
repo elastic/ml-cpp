@@ -1,0 +1,35 @@
+<map id="ml::model::CHierarchicalResultsVisitor::isPopulation" name="ml::model::CHierarchicalResultsVisitor::isPopulation">
+<area shape="rect" id="Node000001" title="Check if the node is a population result." alt="" coords="1052,200,1234,241"/>
+<area shape="rect" id="Node000002" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a3cf25728d7b2cc0735b57d86640dc712" title="Compute the probability for each of the detectors." alt="" coords="492,29,747,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1111,191,1063,147,1034,126,1003,109,940,87,874,71,808,60,747,54,748,49,809,55,875,65,941,81,1005,105,1037,122,1066,143,1115,187"/>
+<area shape="rect" id="Node000005" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#ab30d76d999d4bdfebdced4be8f0f6b50" title="Check if the node is an attribute of a person." alt="" coords="535,95,705,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="1100,193,1055,165,1003,143,926,125,847,115,771,112,705,112,705,107,771,107,847,110,927,120,1004,138,1057,160,1103,188"/>
+<area shape="rect" id="Node000007" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#a9ff79d613deecb15d1517bb3911ea063" title=" " alt="" coords="795,241,1004,296"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="1037,244,1005,250,1004,245,1036,239"/>
+<area shape="rect" id="Node000009" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#acd692c7679e11f68c725ff8009a6a712" title="Check if the node is a named person." alt="" coords="817,152,982,193"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="1036,202,982,191,983,186,1037,197"/>
+<area shape="rect" id="Node000012" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#ac25fc5edeec8266029294a76efca6650" title=" " alt="" coords="803,320,996,361"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="1103,252,1057,282,1005,311,977,322,975,317,1003,306,1054,278,1100,248"/>
+<area shape="rect" id="Node000014" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a8c34c640a67e47e08aa6034cbc4c9a86" title=" " alt="" coords="803,385,996,426"/>
+<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="1122,255,1073,316,1041,347,1005,375,981,387,978,383,1002,370,1037,343,1069,312,1117,252"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="666,16,649,10,620,8,593,10,576,15,570,21,573,28,568,29,565,19,574,10,592,5,620,3,650,5,667,11"/>
+<area shape="rect" id="Node000003" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a7cdca7a4e250095934a9b812eb3ea7a7" title="Aggregate at internal node." alt="" coords="219,29,444,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,52,444,52,444,47,476,47"/>
+<area shape="rect" id="Node000004" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#aaaf9f722a5855913332ae94c8364d178" title="Compute the aggregate probability for node." alt="" coords="5,63,171,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="204,70,171,74,171,69,203,65"/>
+<area shape="rect" id="Node000006" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a1deda1ed5dfa7726f0cd2eb646442dce" title="Aggregate at a leaf node." alt="" coords="222,95,441,135"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="519,118,441,118,441,112,519,112"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="206,101,171,97,172,91,207,96"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="938,228,924,222,899,219,878,221,864,226,857,232,857,240,852,240,853,230,861,221,877,216,900,214,925,216,941,223"/>
+<area shape="rect" id="Node000008" href="$df/d93/classml_1_1model_1_1_c_hierarchical_results_normalizer.html#a9cb313c2f99ef07256898e6ec713e032" title="Update the normalizer with the node&#39;s anomaly score." alt="" coords="537,291,702,331"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="780,289,703,301,702,296,779,284"/>
+<area shape="poly" id="edge12_Node000009_Node000002" title=" " alt="" coords="855,145,804,114,746,85,712,73,714,68,748,81,807,110,858,141"/>
+<area shape="poly" id="edge15_Node000009_Node000005" title=" " alt="" coords="801,155,705,135,706,130,802,150"/>
+<area shape="rect" id="Node000010" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#a0740c5f41f1555d14604e7ed0aff051e" title="Get and possibly add a normalizer for node." alt="" coords="531,160,709,201"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="801,178,709,180,709,175,801,172"/>
+<area shape="rect" id="Node000011" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a9f7b5e71648b4a1912f91c1f2740867d" title=" " alt="" coords="523,225,716,266"/>
+<area shape="poly" id="edge14_Node000009_Node000011" title=" " alt="" coords="805,200,748,215,701,227,700,222,747,210,804,195"/>
+<area shape="rect" id="Node000013" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a299c45abf554a4a915e6c6e1a2a16b15" title="Write node." alt="" coords="524,371,716,411"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="788,363,717,376,716,371,787,358"/>
+<area shape="poly" id="edge19_Node000014_Node000013" title=" " alt="" coords="788,402,716,399,716,393,788,397"/>
+</map>

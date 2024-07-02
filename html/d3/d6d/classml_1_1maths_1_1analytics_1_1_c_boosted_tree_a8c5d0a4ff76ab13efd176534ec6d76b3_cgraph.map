@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTree::train" name="ml::maths::analytics::CBoostedTree::train">
+<area shape="rect" id="Node000001" title="Train on the examples in the data frame supplied to the constructor." alt="" coords="5,93,152,134"/>
+<area shape="rect" id="Node000002" href="$d8/d9d/classml_1_1maths_1_1analytics_1_1_c_data_frame_predictive_model.html#a2208ae04b206f1f549966b331c54be89" title=" " alt="" coords="200,5,397,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,90,205,64,207,69,137,95"/>
+<area shape="rect" id="Node000003" href="$d8/d9d/classml_1_1maths_1_1analytics_1_1_c_data_frame_predictive_model.html#a3b5c2edb14740d0740c7f5de08764e01" title="Train on the examples in the data frame supplied to the constructor." alt="" coords="200,85,397,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,111,184,111,184,116,152,116"/>
+<area shape="rect" id="Node000004" href="$d8/d9d/classml_1_1maths_1_1analytics_1_1_c_data_frame_predictive_model.html#a8a8a425a2f034ab5d70b8f7e65e1679b" title=" " alt="" coords="200,165,397,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="137,131,207,157,205,162,135,136"/>
+</map>

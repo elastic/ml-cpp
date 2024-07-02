@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::statistic" name="ml::maths::common::CLeastSquaresOnlineRegression::statistic">
+<area shape="rect" id="Node000001" title="Get the vector statistic." alt="" coords="268,96,482,151"/>
+<area shape="rect" id="Node000002" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="14,5,211,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="312,90,267,67,219,46,180,34,181,29,221,41,269,62,315,85"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#aa41808d8fbeaac08f2ba5695e3eb32f1" title=" " alt="" coords="5,56,220,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="252,107,220,102,220,97,252,102"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a2ff573db305ed6e476664624f7038e03" title=" " alt="" coords="5,136,220,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="252,145,220,150,220,145,252,140"/>
+<area shape="rect" id="Node000005" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a763f3d0d9e64f7184f57f586450e84e2" title="Set the statistics from rhs." alt="" coords="5,216,220,271"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="310,161,221,206,193,217,191,213,219,201,308,157"/>
+</map>

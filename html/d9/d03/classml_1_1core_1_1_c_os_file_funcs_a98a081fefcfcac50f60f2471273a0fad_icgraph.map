@@ -1,0 +1,22 @@
+<map id="ml::core::COsFileFuncs::stat" name="ml::core::COsFileFuncs::stat">
+<area shape="rect" id="Node000001" title=" " alt="" coords="496,149,656,189"/>
+<area shape="rect" id="Node000002" href="$d7/d09/_c_os_file_funcs_test_8cc.html#a5827df3d9b484343d7a8f1ea47c9a001" title=" " alt="" coords="251,5,447,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="546,138,502,94,447,52,404,34,406,29,449,48,505,90,550,135"/>
+<area shape="rect" id="Node000003" href="$d3/d8e/_c_resource_locator_test_8cc.html#a77a18255ee883a15474dc23330290300" title=" " alt="" coords="5,139,202,164"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="535,141,494,116,447,97,393,85,349,82,306,87,250,97,185,116,131,141,129,136,183,111,249,92,305,81,349,77,394,79,449,92,497,111,538,137"/>
+<area shape="rect" id="Node000004" href="$d6/d79/_c_detached_process_spawner_test_8cc.html#a21da98a62cea8f53af9a8f15b088a236" title=" " alt="" coords="251,107,447,132"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="480,151,411,136,412,130,481,146"/>
+<area shape="rect" id="Node000005" href="$d3/d8e/_c_resource_locator_test_8cc.html#ab00b1375745bb244a8629dd0a7683515" title=" " alt="" coords="251,156,447,182"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="480,172,448,172,448,166,480,166"/>
+<area shape="rect" id="Node000006" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#aeb3d422daa98c105e53b00c44a29c0a1" title="Does the supplied file name refer to a named pipe?" alt="" coords="250,206,448,247"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="482,195,433,208,431,203,480,190"/>
+<area shape="rect" id="Node000007" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a184001083a9acfc742e5fc48c92b70c0" title=" " alt="" coords="281,337,417,377"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="557,204,513,266,483,298,449,326,419,342,416,337,447,321,480,294,509,262,553,201"/>
+<area shape="rect" id="Node000009" href="$d6/dc1/classml_1_1core_1_1_c_resource_locator.html#ad2340bd6b0c702ee790254ac93a94f96" title=" " alt="" coords="256,271,442,312"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="540,201,497,232,449,261,421,273,419,268,447,256,495,227,537,197"/>
+<area shape="rect" id="Node000008" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a51c7c58bb9b9355b36f79d0881658c82" title=" " alt="" coords="37,337,170,377"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="265,360,171,360,171,354,265,354"/>
+<area shape="poly" id="edge9_Node000009_Node000003" title=" " alt="" coords="263,267,248,261,210,237,173,212,118,167,121,163,176,207,212,233,251,256,265,262"/>
+<area shape="rect" id="Node000010" href="$da/de9/classml_1_1core_1_1_c_word_dictionary.html#a0f9ab94f5fcab00bfa92da527944c9d0" title="Constructor for a singleton is private." alt="" coords="16,271,191,312"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="241,294,191,294,191,289,241,289"/>
+</map>

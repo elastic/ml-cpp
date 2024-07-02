@@ -1,0 +1,28 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::fineTuneTestLoss" name="ml::maths::analytics::CBoostedTreeHyperparameters::fineTuneTestLoss">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,302,219,358"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a190204fda0cf33bb6f25ae12ba584977" title=" " alt="" coords="296,143,483,183"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,300,191,245,227,217,265,193,280,185,283,190,268,197,230,221,195,249,139,304"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="608,5,767,46"/>
+<area shape="poly" id="edge11_Node000001_Node000005" title=" " alt="" coords="125,300,147,261,178,215,218,168,265,129,304,106,346,87,432,58,517,39,592,29,592,34,518,45,433,63,348,92,307,111,268,133,222,172,183,218,151,264,129,303"/>
+<area shape="rect" id="Node000009" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a3b86fb3b47a82c945bd3ab0654721ffe" title=" " alt="" coords="283,208,496,278"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="203,299,267,278,269,283,204,304"/>
+<area shape="rect" id="Node000010" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a55d5abed49a9f3c02718403e47e3b437" title=" " alt="" coords="267,302,512,358"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="219,327,251,327,251,332,219,332"/>
+<area shape="rect" id="Node000011" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a06c888a44035bc3baac323959040943c" title="Get the maximum number of iterations used in testLossLineSearch." alt="" coords="283,382,496,438"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="212,356,276,374,275,379,210,361"/>
+<area shape="rect" id="Node000012" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a793e574592c519413539fde43d755da4" title=" " alt="" coords="272,462,507,518"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="145,356,200,402,268,447,279,453,276,458,265,452,197,407,141,360"/>
+<area shape="rect" id="Node000013" href="$d5/d02/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters_1_1_c_initialize_fine_tune_arguments.html#a422f805721a2bc6cb5e67e4d492e92ce" title=" " alt="" coords="283,541,496,612"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="130,356,153,395,185,440,223,487,268,528,272,530,269,535,265,532,219,491,180,443,149,397,126,359"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="611,71,764,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,139,595,111,596,116,477,145"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="566,135,808,191"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="484,160,551,160,551,166,484,166"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="421,140,495,93,559,57,592,45,593,50,561,61,497,97,424,144"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="560,215,814,255"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="477,181,586,208,584,213,476,187"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="615,280,760,321"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="485,177,514,193,531,211,538,230,546,248,562,265,601,284,598,289,558,269,541,251,534,232,526,214,510,197,482,182"/>
+<area shape="rect" id="Node000008" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a6fbf2cd8167040e143f95af1658cd535" title=" " alt="" coords="592,345,783,386"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="485,175,514,193,528,210,535,228,539,263,542,298,549,314,562,330,579,343,576,347,558,334,544,317,537,299,533,264,530,229,523,213,510,197,482,179"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::core::CXmlNodeWithChildrenPool::newNode" name="ml::core::CXmlNodeWithChildrenPool::newNode">
+<area shape="rect" id="Node000001" title=" " alt="" coords="269,104,484,145"/>
+<area shape="rect" id="Node000002" href="$d3/df3/classml_1_1core_1_1_c_xml_node_with_children_pool.html#a1af6b3077ee6409e51bf819090d99c5f" title=" " alt="" coords="5,5,221,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="314,100,220,61,184,49,185,44,222,57,316,95"/>
+<area shape="rect" id="Node000003" href="$d3/df3/classml_1_1core_1_1_c_xml_node_with_children_pool.html#a4daf6cc3915fcdc0a8d51a727720f287" title="Allocate a new XML node with the provided name and value." alt="" coords="5,71,221,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="253,111,221,107,221,102,253,106"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a69a4b118514aee14b4ce50e51c0e497d" title="Called recursively by the public toNodeHierarchy() method." alt="" coords="22,136,204,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="254,142,205,148,204,143,253,137"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a2d0303fff1f44af6874596b4cdc830cb" title="Called recursively by the public toNodeHierarchy() method." alt="" coords="39,201,187,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="315,154,222,191,185,203,184,198,220,186,313,149"/>
+</map>

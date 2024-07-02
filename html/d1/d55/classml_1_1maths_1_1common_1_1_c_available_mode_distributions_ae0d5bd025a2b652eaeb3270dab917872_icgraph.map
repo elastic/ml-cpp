@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CAvailableModeDistributions::haveLogNormal" name="ml::maths::common::CAvailableModeDistributions::haveLogNormal">
+<area shape="rect" id="Node000001" title="Check if the log&#45;normal distribution is available." alt="" coords="663,37,853,93"/>
+<area shape="rect" id="Node000002" href="$d1/ddd/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_x_means_online1d_8cc_03_1_1detail.html#a4272b1252aa4a82ba08e9ee3b231d2f3" title=" " alt="" coords="216,29,378,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="647,61,615,59,426,59,379,62,378,56,426,54,615,54,648,55"/>
+<area shape="rect" id="Node000004" href="$d1/d55/classml_1_1maths_1_1common_1_1_c_available_mode_distributions.html#aee88bed60fb4c3aedd04a9cef7e0e1ba" title="Get the number of parameters used to model a mode." alt="" coords="426,69,615,125"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="648,82,616,86,616,81,648,77"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="329,17,316,10,297,8,280,10,268,14,262,21,260,29,255,28,257,18,265,10,278,5,297,3,318,5,332,12"/>
+<area shape="rect" id="Node000003" href="$d1/ddd/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_x_means_online1d_8cc_03_1_1detail.html#aff28339f2faf6f7093bc187123891e9d" title=" " alt="" coords="5,29,168,100"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="200,67,168,67,168,62,200,62"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="119,17,106,10,86,8,69,10,58,14,51,21,50,29,44,28,47,18,55,10,68,5,87,3,108,5,121,12"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="410,84,378,79,379,74,411,78"/>
+</map>

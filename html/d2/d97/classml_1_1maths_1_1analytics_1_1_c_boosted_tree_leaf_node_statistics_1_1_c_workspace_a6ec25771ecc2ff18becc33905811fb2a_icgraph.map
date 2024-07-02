@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::reducedMask" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace::reducedMask">
+<area shape="rect" id="Node000001" title="Get the reduction of the per thread masks." alt="" coords="346,156,570,211"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a35d65536888b061faf1fb6a447347a99" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,5,298,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,149,351,118,297,90,271,79,273,74,299,85,354,114,404,144"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,100,298,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="330,166,297,161,298,156,331,161"/>
+<area shape="rect" id="Node000004" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a7bc4acc23ebf2e84fbbbad033bae6113" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,195,286,265"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="331,205,287,212,286,207,330,200"/>
+<area shape="rect" id="Node000005" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,289,286,360"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="403,222,353,251,299,279,270,291,268,286,297,274,350,247,400,217"/>
+</map>

@@ -1,0 +1,28 @@
+<map id="ml::maths::time_series::CExpandingWindow::valuesMinusPrediction" name="ml::maths::time_series::CExpandingWindow::valuesMinusPrediction">
+<area shape="rect" id="Node000001" title="Get the bucket values in bucketValues minus the predictions of predictor." alt="" coords="5,292,234,348"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a275cf950c6a539e4c71d115b25537843" title="Get the time of the first window value." alt="" coords="282,166,536,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,289,348,212,350,216,183,294"/>
+<area shape="rect" id="Node000003" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a824a6446df32e6fa757a8d236bff4604" title="Get the current bucket length." alt="" coords="877,10,1111,51"/>
+<area shape="poly" id="edge9_Node000001_Node000003" title=" " alt="" coords="141,290,200,223,238,186,280,152,358,100,423,65,492,40,583,17,654,7,727,3,797,4,862,9,862,14,797,10,727,8,655,12,585,23,494,45,425,70,361,105,283,157,242,190,204,226,145,293"/>
+<area shape="rect" id="Node000009" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a419a7e8a44b8a68977aed448b017b7b4" title=" " alt="" coords="322,300,496,340"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="234,317,306,317,306,323,234,323"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="329,365,489,406"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="235,343,314,361,313,367,234,348"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="322,430,496,471"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="162,346,218,381,283,415,308,424,306,429,281,420,215,386,159,350"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,164,492,106,536,76,583,53,653,34,725,22,796,17,862,17,862,23,796,23,726,27,654,39,585,58,538,81,496,110,431,168"/>
+<area shape="rect" id="Node000004" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a146c7ffc1ffc2d4f1951d2288854bf30" title=" " alt="" coords="634,198,779,239"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="537,198,619,207,618,212,536,203"/>
+<area shape="rect" id="Node000005" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab8000e6b7e7cb9ec3e9ac86ea5881230" title="Get the end time of the window." alt="" coords="604,133,809,174"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="536,170,588,164,589,169,537,175"/>
+<area shape="rect" id="Node000006" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="634,68,779,108"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="461,163,583,119,619,108,620,113,585,124,463,168"/>
+<area shape="rect" id="Node000007" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a56d95bb679296928343f2b9b24bcbb40" title=" " alt="" coords="584,263,829,318"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="466,205,585,248,604,255,602,260,583,253,465,210"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="793,130,828,117,891,88,946,57,948,62,893,93,830,122,795,135"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="914,302,1074,343"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="830,302,899,309,899,315,830,307"/>
+<area shape="poly" id="edge12_Node000009_Node000008" title=" " alt="" coords="496,324,584,328,707,330,829,328,899,325,899,331,829,333,707,336,584,333,496,329"/>
+<area shape="rect" id="Node000010" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="596,393,818,449"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="497,338,537,351,585,372,617,385,615,390,583,377,535,356,496,343"/>
+</map>

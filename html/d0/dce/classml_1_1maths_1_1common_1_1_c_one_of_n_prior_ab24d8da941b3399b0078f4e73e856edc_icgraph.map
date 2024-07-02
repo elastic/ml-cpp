@@ -1,0 +1,19 @@
+<map id="ml::maths::common::COneOfNPrior::models" name="ml::maths::common::COneOfNPrior::models">
+<area shape="rect" id="Node000001" title="Get the current constituent models." alt="" coords="446,146,602,187"/>
+<area shape="rect" id="Node000002" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a6e03a65bdfc44d88e8938ed03318cc3f" title=" " alt="" coords="200,5,397,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="497,136,453,88,426,64,397,45,373,34,375,29,399,40,429,60,457,84,501,132"/>
+<area shape="rect" id="Node000003" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a8c7d3b980d93b3e6cb061c05e716d798" title=" " alt="" coords="200,55,397,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="480,139,441,115,397,94,366,84,367,78,399,89,443,111,483,135"/>
+<area shape="rect" id="Node000004" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="200,104,397,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="430,148,360,133,361,128,431,143"/>
+<area shape="rect" id="Node000005" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="200,153,397,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="430,169,397,169,397,164,430,164"/>
+<area shape="rect" id="Node000006" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="200,203,397,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="431,189,361,205,360,199,430,184"/>
+<area shape="rect" id="Node000007" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#af951cc75d177c1d25a345d873bde8eef" title=" " alt="" coords="199,253,398,293"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="482,197,399,243,371,254,369,250,397,238,479,193"/>
+<area shape="rect" id="Node000008" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f10669aef42c5f4bba32750921c1915" title=" " alt="" coords="199,318,398,359"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="503,201,459,255,431,283,399,307,376,320,373,315,397,303,427,279,455,252,498,198"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ab811078d60e2ab834fd4e6d29c514c08" title=" " alt="" coords="5,318,151,359"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="183,341,151,341,151,336,183,336"/>
+</map>

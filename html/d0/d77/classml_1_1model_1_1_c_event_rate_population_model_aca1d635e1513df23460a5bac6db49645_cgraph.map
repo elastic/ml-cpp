@@ -1,0 +1,35 @@
+<map id="ml::model::CEventRatePopulationModel::createNewModels" name="ml::model::CEventRatePopulationModel::createNewModels">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,471,225,511"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a567b2377b2c355f68a3de55317742586" title=" " alt="" coords="273,231,492,271"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,468,345,280,349,284,141,472"/>
+<area shape="rect" id="Node000013" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a5581d57905795519fd9bd5b509aea2d8" title=" " alt="" coords="286,471,479,511"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="225,488,271,488,271,494,225,494"/>
+<area shape="rect" id="Node000016" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#ab9e8734a9f0c99d83d562be94bf5dc46" title="Reserve a container working around implementation&#45;specific silliness." alt="" coords="286,536,479,577"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="202,509,282,529,281,534,201,515"/>
+<area shape="rect" id="Node000003" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a723df93e21eba7a5aad0bcaa6ce05a3f" title="Get the correlated time series identifier pairs if any." alt="" coords="577,5,722,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="393,229,415,191,448,145,489,97,539,55,562,43,564,48,541,60,493,100,452,148,419,194,397,231"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a9ac31e9688577d75c839165d8ac1b667" title="Get the dimension of the feature feature." alt="" coords="572,70,728,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="398,229,456,167,495,134,539,106,556,98,558,103,541,111,498,138,459,171,402,232"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a6a78bb3800805de96968d1e28728ad44" title="Extract the attribute identifier from a tuple." alt="" coords="563,120,737,161"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="420,228,476,199,539,171,560,164,561,169,541,176,478,204,423,233"/>
+<area shape="rect" id="Node000006" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a7f91fd669d77656422b4e21fe69291a9" title="Get the feature data corresponding to feature at time." alt="" coords="540,185,759,226"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="492,230,524,224,525,230,493,235"/>
+<area shape="rect" id="Node000010" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af92625c71c433efde0537885486e294d" title=" " alt="" coords="540,275,759,315"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="493,266,525,272,524,277,492,272"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="551,340,748,381"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="423,269,478,297,541,325,561,332,560,337,539,329,476,302,421,274"/>
+<area shape="rect" id="Node000012" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a07ce54312f4db453d4f9125a0c43b080" title=" " alt="" coords="554,405,746,446"/>
+<area shape="poly" id="edge12_Node000002_Node000012" title=" " alt="" coords="403,270,461,329,499,362,541,390,554,397,552,401,539,395,496,366,457,333,399,274"/>
+<area shape="rect" id="Node000007" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#aa3342e2e5773af3f39d810405de46e35" title="Check if bucket statistics are available for the specified time." alt="" coords="807,185,1027,226"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="760,203,792,203,792,208,760,208"/>
+<area shape="rect" id="Node000008" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="1075,185,1272,226"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1027,203,1059,203,1059,208,1027,208"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="1320,185,1494,226"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1272,203,1304,203,1304,208,1272,208"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="600,275,597,265,605,256,623,250,650,248,678,250,695,257,694,262,677,256,650,253,624,255,608,260,602,266,605,273"/>
+<area shape="rect" id="Node000014" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aeac745eb145b2477f1d698c76973955c" title=" " alt="" coords="551,471,748,511"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="479,488,535,488,535,494,479,494"/>
+<area shape="rect" id="Node000015" href="$dc/de7/classml_1_1core_1_1_c_allocation_strategy.html#a3597ed3463d58538c43e8f1f2898591e" title="Resize a container using a 10% capacity increase." alt="" coords="821,499,1013,539"/>
+<area shape="poly" id="edge16_Node000013_Node000015" title=" " alt="" coords="471,509,540,520,678,527,805,524,805,529,678,532,540,526,470,515"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="749,499,806,505,805,510,749,504"/>
+</map>

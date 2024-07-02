@@ -1,0 +1,18 @@
+<map id="ml::model::CDataGatherer::valueFieldName" name="ml::model::CDataGatherer::valueFieldName">
+<area shape="rect" id="Node000001" title="Get the name of the field containing the metric value." alt="" coords="672,87,847,128"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4466baf24e54c548b985f6768e740ed3" title="Restore state from supplied traverser." alt="" coords="228,30,402,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="723,79,678,46,651,32,624,21,560,9,495,10,434,19,381,32,380,26,433,14,495,5,561,4,625,15,654,27,681,42,726,75"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a9b2048cbba78065b47fa4cb1fe1263e0" title="Construct from a state document." alt="" coords="5,71,180,112"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="657,108,180,96,180,91,657,102"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad8e677951c8c13cb3eb1c01a564a38a1" title=" " alt="" coords="228,160,402,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="657,127,403,169,402,164,656,122"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a49ba26e3d0cfddd003e479d1ea38cc51" title="Create the bucket specific data gatherer." alt="" coords="450,195,624,236"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="707,138,625,179,587,197,585,192,623,174,705,133"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4c0fefa76fa5bc653329ab253f0fa955" title="Restore a bucket gatherer from the supplied traverser." alt="" coords="450,30,624,70"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="663,85,618,74,619,68,664,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="213,72,181,78,180,73,212,66"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aaf88be1374704f493655039b0ec35fa7" title=" " alt="" coords="5,160,180,201"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="212,183,180,183,180,178,212,178"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="434,202,402,197,403,192,435,197"/>
+<area shape="poly" id="edge9_Node000007_Node000002" title=" " alt="" coords="435,53,402,53,402,47,435,47"/>
+</map>

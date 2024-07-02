@@ -1,0 +1,19 @@
+<map id="ml::maths::time_series::CTrendComponent::propagateForwardsByTime" name="ml::maths::time_series::CTrendComponent::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Age the trend to account for interval elapsed time." alt="" coords="5,110,210,166"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#af85715f6cd6628a014dbe48cbd74da74" title="Compute the sample median." alt="" coords="284,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,107,203,80,257,55,273,49,275,54,259,60,205,85,156,112"/>
+<area shape="rect" id="Node000003" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html#a2ab53bfccf63d2983157139e11b9a393" title=" " alt="" coords="258,70,479,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,119,242,114,242,120,211,125"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a4ef795d9c29b489364dc81fe5f32b3e2" title=" " alt="" coords="273,150,464,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,151,258,158,257,163,210,156"/>
+<area shape="rect" id="Node000009" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#ab2827efd37dd5007c26d31958701bc4c" title="Get the smoothing factors for the different regression models." alt="" coords="265,230,472,286"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="159,164,259,215,272,221,270,226,257,220,156,169"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="550,56,695,97"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="451,147,478,135,526,107,542,100,544,105,528,112,480,140,453,152"/>
+<area shape="rect" id="Node000006" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="546,121,699,162"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="464,161,530,152,531,157,465,167"/>
+<area shape="rect" id="Node000007" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a270209d1b6f5597709546674d21012e0" title="Check if this is a non&#45;informative prior." alt="" coords="527,186,718,242"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="465,189,512,195,511,201,464,194"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="543,265,703,306"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="456,204,480,215,505,234,528,251,539,256,536,261,526,256,501,238,478,220,454,208"/>
+</map>

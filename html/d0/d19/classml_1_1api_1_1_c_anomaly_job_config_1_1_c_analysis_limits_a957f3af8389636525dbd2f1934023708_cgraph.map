@@ -1,0 +1,19 @@
+<map id="ml::api::CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb" name="ml::api::CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,266,125"/>
+<area shape="rect" id="Node000002" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a5ecdfe31e92713ed43af42b730322203" title=" " alt="" coords="314,85,498,125"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,102,298,102,298,108,266,108"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="562,5,711,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="449,81,545,41,568,33,570,38,547,46,451,86"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="563,55,710,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="498,90,547,84,548,89,499,96"/>
+<area shape="rect" id="Node000005" href="$dd/dea/classml_1_1core_1_1_c_regex.html#accf2085b2c74e7d8b0c771c5677f50c5" title=" " alt="" coords="546,120,727,146"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="499,113,531,117,530,123,498,119"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#afe172d321b5ba2b6c5e67144455b86b2" title="Convert a string to lower case." alt="" coords="563,170,710,211"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="461,123,547,156,563,162,561,167,545,161,460,128"/>
+<area shape="rect" id="Node000006" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="775,95,958,120"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="727,120,760,117,760,122,728,125"/>
+<area shape="rect" id="Node000007" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="1006,120,1153,146"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="728,130,990,130,990,136,728,136"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="831,96,824,86,828,76,843,70,867,68,893,71,906,78,903,82,891,76,866,73,844,75,832,80,829,85,835,93"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="959,116,991,120,990,125,958,121"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CUniqueStringFeatureData" name="ml::model::CUniqueStringFeatureData">
+<area shape="rect" id="Node000001" title="A structure to handle storing unique strings per person, attribute and influencer,..." alt="" coords="45,94,216,135"/>
+<area shape="rect" id="Node000002" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title=" " alt="" coords="5,5,256,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,46,133,93,128,93,128,46"/>
+</map>

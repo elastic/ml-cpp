@@ -1,0 +1,17 @@
+<map id="ml::core::CJsonStatePersistInserter::endLevel" name="ml::core::CJsonStatePersistInserter::endLevel">
+<area shape="rect" id="Node000001" title="End the current level." alt="" coords="5,103,192,143"/>
+<area shape="rect" id="Node000002" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html#ab672c16b5f9ed1b44cb2d29a28c879b5" title=" " alt="" coords="240,103,412,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,120,224,120,224,126,192,126"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a5c143d822ec423894dc475bb343616a9" title=" " alt="" coords="460,37,642,78"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,100,463,80,464,86,399,105"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a86c7ffb5926b088e920d4b52e76ea6af" title=" " alt="" coords="460,103,642,143"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="413,120,444,120,444,126,413,126"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3b00b82d137a049ffeb3042ceb62ded3" title=" " alt="" coords="460,168,642,209"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="399,141,464,160,463,166,397,146"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="690,5,873,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="642,42,674,38,675,43,643,48"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="690,71,873,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="643,68,675,73,674,78,642,73"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="690,168,873,209"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="642,186,675,186,675,191,642,191"/>
+</map>

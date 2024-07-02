@@ -1,0 +1,25 @@
+<map id="ml::maths::time_series::CCalendarFeature::window" name="ml::maths::time_series::CCalendarFeature::window">
+<area shape="rect" id="Node000001" title="Get this feature&#39;s window." alt="" coords="528,331,715,372"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#acdfe6bc38f68ac9feb1533852df71517" title=" " alt="" coords="271,114,480,170"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="583,323,408,173,411,169,587,319"/>
+<area shape="rect" id="Node000008" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#ad5af7d479b38ca9ac86593b0c56592e1" title="Check if time is in this feature&#39;s window." alt="" coords="275,331,476,372"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="512,354,476,354,476,349,512,349"/>
+<area shape="rect" id="Node000011" href="$d5/d30/classml_1_1maths_1_1time__series_1_1_c_calendar_feature_and_t_z.html#af8e9c6db0f01dfe776dcc13610d98c19" title="Get this feature&#39;s window." alt="" coords="288,400,463,455"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="539,380,464,403,462,398,538,374"/>
+<area shape="rect" id="Node000003" href="$d6/da3/_c_calendar_component_adaptive_bucketing_test_8cc.html#a23494086125aba2164d46f8ca465868c" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="326,107,277,74,222,45,191,34,192,29,224,40,280,69,329,103"/>
+<area shape="rect" id="Node000004" href="$d6/da3/_c_calendar_component_adaptive_bucketing_test_8cc.html#a0437f2c3296db4242ba92e5c1b1a69cf" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="279,112,222,94,180,83,181,78,223,89,281,107"/>
+<area shape="rect" id="Node000005" href="$d6/da3/_c_calendar_component_adaptive_bucketing_test_8cc.html#a8277ca9bc07645721267e224245287ae" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="255,133,223,130,224,125,256,128"/>
+<area shape="rect" id="Node000006" href="$d6/da3/_c_calendar_component_adaptive_bucketing_test_8cc.html#a21a89d07bd386c97e5d4fdf03040c446" title=" " alt="" coords="5,153,223,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="256,156,224,159,223,153,255,151"/>
+<area shape="rect" id="Node000007" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#abf93d70fb6c9be460d1b8046a33cdc91" title="Initialize the adaptive bucketing." alt="" coords="31,204,197,259"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="278,178,199,206,197,201,277,173"/>
+<area shape="rect" id="Node000009" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a7efd3363f8711e6a5ec1f985265064c1" title="Check if time is in the this component&#39;s window." alt="" coords="9,284,219,339"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="259,336,219,330,219,325,260,331"/>
+<area shape="rect" id="Node000010" href="$d5/d30/classml_1_1maths_1_1time__series_1_1_c_calendar_feature_and_t_z.html#a48bfda333f07f039472b46d6909abc1e" title="Check if time is in this feature&#39;s window." alt="" coords="27,364,201,419"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="260,372,202,381,201,376,260,367"/>
+<area shape="rect" id="Node000012" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a012bf4b1121c21c75f6558a0f26945fb" title="Check whether to reinterpolate the component predictions." alt="" coords="31,444,197,499"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="273,447,198,460,197,455,272,442"/>
+</map>

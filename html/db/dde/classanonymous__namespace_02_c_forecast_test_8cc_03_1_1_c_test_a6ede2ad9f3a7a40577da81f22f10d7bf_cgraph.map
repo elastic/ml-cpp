@@ -1,0 +1,130 @@
+<map id="anonymous_namespace{CForecastTest::cc}::CTest::run" name="anonymous_namespace{CForecastTest::cc}::CTest::run">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,1092,168,1148"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="1005,5,1227,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,1091,91,922,109,671,125,540,147,420,176,321,194,282,214,252,252,211,294,175,339,144,388,117,438,94,491,74,599,46,707,28,811,19,907,17,989,19,989,25,907,22,811,24,708,33,600,51,492,80,440,99,390,122,342,148,297,179,255,215,218,255,199,284,181,322,152,421,130,541,114,672,96,922,91,1092"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#abbc951e2c02da8dc7291c1e137066120" title="Update the model with new samples." alt="" coords="216,617,415,673"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="99,1090,292,686,297,688,104,1093"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1036,281,1196,322"/>
+<area shape="poly" id="edge60_Node000001_Node000007" title=" " alt="" coords="86,1091,94,1004,114,879,131,809,152,739,179,669,213,604,266,525,317,471,379,428,462,381,515,359,559,349,605,342,662,331,710,317,791,307,874,301,1021,297,1021,302,874,306,792,312,711,322,663,336,606,348,560,354,517,364,464,386,382,432,321,475,270,529,218,607,184,671,157,740,136,811,119,880,100,1005,92,1092"/>
+<area shape="rect" id="Node000031" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="1302,897,1481,938"/>
+<area shape="poly" id="edge72_Node000001_Node000031" title=" " alt="" coords="120,1089,163,1060,215,1037,324,1011,418,1000,503,1001,582,1008,662,1018,748,1026,844,1028,956,1019,1033,1006,1092,991,1226,955,1290,939,1291,944,1228,960,1093,997,1034,1011,957,1024,844,1033,747,1031,662,1023,582,1013,502,1006,419,1005,325,1016,217,1042,166,1065,123,1094"/>
+<area shape="rect" id="Node000036" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#ab65a4c0d53477ff1301cb34926ebfe85" title="Create a copy of the state we need to run forecasting." alt="" coords="216,1052,415,1108"/>
+<area shape="poly" id="edge49_Node000001_Node000036" title=" " alt="" coords="168,1103,200,1097,201,1103,169,1108"/>
+<area shape="rect" id="Node000037" href="$dc/d7b/namespaceanonymous__namespace_02_c_forecast_test_8cc_03.html#a73a06fef13b4521d069e53085e1b14d7" title=" " alt="" coords="234,1132,397,1188"/>
+<area shape="poly" id="edge50_Node000001_Node000037" title=" " alt="" coords="169,1131,219,1140,218,1146,168,1137"/>
+<area shape="rect" id="Node000038" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="223,1212,408,1252"/>
+<area shape="poly" id="edge51_Node000001_Node000038" title=" " alt="" coords="129,1146,170,1172,217,1197,230,1203,228,1208,215,1202,168,1177,126,1150"/>
+<area shape="rect" id="Node000046" href="$db/dc5/namespaceml_1_1core.html#a93bcdc8ec5834bac60be504a29341a09" title=" " alt="" coords="244,1276,387,1302"/>
+<area shape="poly" id="edge59_Node000001_Node000046" title=" " alt="" coords="108,1147,153,1206,183,1236,217,1262,230,1268,228,1273,214,1266,179,1240,149,1209,103,1150"/>
+<area shape="rect" id="Node000047" href="$dc/d7b/namespaceanonymous__namespace_02_c_forecast_test_8cc_03.html#a71743e9e22f79a7124ec7edaf2b02589" title=" " alt="" coords="234,1327,397,1382"/>
+<area shape="poly" id="edge61_Node000001_Node000047" title=" " alt="" coords="102,1147,120,1184,146,1228,178,1273,217,1313,223,1317,219,1321,214,1316,174,1277,141,1231,116,1187,97,1149"/>
+<area shape="rect" id="Node000048" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="220,1407,411,1462"/>
+<area shape="poly" id="edge62_Node000001_Node000048" title=" " alt="" coords="96,1147,110,1199,134,1264,170,1333,192,1364,218,1393,221,1395,217,1399,214,1396,188,1368,165,1335,129,1266,105,1200,91,1149"/>
+<area shape="rect" id="Node000053" href="$dc/d7b/namespaceanonymous__namespace_02_c_forecast_test_8cc_03.html#a4e703401e8639d51fdb435bdbaf02464" title=" " alt="" coords="234,1511,397,1566"/>
+<area shape="poly" id="edge67_Node000001_Node000053" title=" " alt="" coords="94,1148,107,1211,130,1296,166,1388,190,1432,218,1473,246,1500,242,1503,214,1476,185,1435,161,1390,124,1298,101,1212,89,1149"/>
+<area shape="rect" id="Node000055" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aad9b9c11a364b24996fe0b2ad36de985" title="Get the best (least MSE) predicted value at time." alt="" coords="216,265,415,321"/>
+<area shape="poly" id="edge69_Node000001_Node000055" title=" " alt="" coords="86,1091,96,938,117,715,134,598,155,491,181,401,197,366,214,338,221,329,225,333,218,341,201,368,186,403,160,492,139,599,123,715,101,939,92,1092"/>
+<area shape="rect" id="Node000004" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a7bec4885f4946d241434d4576793c3df" title="Add a sample for the time series identified by id." alt="" coords="475,396,650,452"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="346,615,517,460,521,464,350,619"/>
+<area shape="rect" id="Node000013" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="1043,750,1189,791"/>
+<area shape="poly" id="edge13_Node000003_Node000013" title=" " alt="" coords="415,643,552,646,708,654,854,669,913,680,958,693,973,703,983,714,992,725,1006,735,1030,746,1028,751,1003,739,989,728,979,717,970,707,956,698,912,685,853,674,708,659,551,651,415,648"/>
+<area shape="rect" id="Node000014" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="540,607,586,633"/>
+<area shape="poly" id="edge14_Node000003_Node000014" title=" " alt="" coords="415,632,524,621,524,626,416,638"/>
+<area shape="rect" id="Node000015" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4eea9c10d476a7439b6632c38cbfca63" title="Update the residual models." alt="" coords="463,708,662,764"/>
+<area shape="poly" id="edge15_Node000003_Node000015" title=" " alt="" coords="394,671,471,700,469,705,392,676"/>
+<area shape="rect" id="Node000024" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa7c97f17985bf16b0f1b937ab0f2e73b" title="Update the trend with samples." alt="" coords="463,527,662,582"/>
+<area shape="poly" id="edge31_Node000003_Node000024" title=" " alt="" coords="392,614,469,586,471,591,394,619"/>
+<area shape="rect" id="Node000005" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a3b078fbdfdcce4fadc70f3f0a3ce4fac" title="Add the value x for the variable X." alt="" coords="754,150,913,191"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="593,393,661,331,798,200,802,203,664,335,597,397"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#af85715f6cd6628a014dbe48cbd74da74" title="Compute the sample median." alt="" coords="749,332,918,372"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="650,397,710,381,737,374,738,379,711,386,651,403"/>
+<area shape="rect" id="Node000012" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="734,396,933,452"/>
+<area shape="poly" id="edge12_Node000004_Node000012" title=" " alt="" coords="651,421,718,421,718,427,651,427"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="892,147,955,115,979,93,988,82,1003,71,1012,66,1014,71,1006,75,992,86,982,97,958,119,894,152"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="1036,346,1196,387"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="853,189,915,259,958,297,1006,331,1023,339,1021,344,1003,335,955,302,912,263,849,193"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="914,186,958,207,974,222,983,237,991,252,1006,266,1023,275,1020,280,1003,270,987,255,978,240,970,225,955,211,912,190"/>
+<area shape="rect" id="Node000008" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ab6d5675bdb4104969cb24f6b16acaa38" title="Get the variable moments." alt="" coords="1020,85,1212,126"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="913,150,1010,127,1011,132,914,155"/>
+<area shape="rect" id="Node000009" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ac25371051c14bae4925cb663fda67da0" title="Get the projected residuals." alt="" coords="1021,150,1211,191"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="913,168,1005,168,1005,173,913,173"/>
+<area shape="rect" id="Node000010" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="1028,216,1204,256"/>
+<area shape="poly" id="edge10_Node000005_Node000010" title=" " alt="" coords="914,186,1013,209,1012,215,913,191"/>
+<area shape="poly" id="edge16_Node000015_Node000002" title=" " alt="" coords="605,705,636,678,660,644,673,597,678,535,675,386,674,310,676,239,687,180,696,156,708,137,722,127,745,118,814,96,989,56,990,61,816,102,747,123,724,132,712,140,701,158,692,182,682,240,679,310,680,386,683,535,678,598,665,646,640,681,609,709"/>
+<area shape="poly" id="edge18_Node000015_Node000007" title=" " alt="" coords="601,705,632,677,660,644,670,625,675,608,679,575,685,544,694,528,709,512,741,492,772,483,803,483,834,486,864,490,894,490,924,481,955,462,968,447,975,432,979,400,982,366,989,349,1003,333,1021,320,1024,324,1006,336,994,352,987,367,984,400,980,433,972,450,958,466,926,486,895,495,864,495,833,492,803,488,773,489,743,497,712,517,698,531,690,546,684,576,680,609,675,627,665,647,636,681,604,709"/>
+<area shape="poly" id="edge25_Node000015_Node000012" title=" " alt="" coords="602,706,633,678,660,644,672,619,677,597,679,554,683,513,692,491,708,469,719,458,723,462,712,472,697,494,688,514,684,555,683,598,677,621,665,647,637,681,606,710"/>
+<area shape="poly" id="edge19_Node000015_Node000013" title=" " alt="" coords="663,741,711,744,1027,763,1027,768,710,749,663,746"/>
+<area shape="rect" id="Node000016" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="738,708,929,734"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="663,728,722,725,722,730,663,733"/>
+<area shape="rect" id="Node000017" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a5ac0bda977188fef5f2e786f1b15c783" title="Fill in the seasonal variance scale at time." alt="" coords="734,809,933,865"/>
+<area shape="poly" id="edge20_Node000015_Node000017" title=" " alt="" coords="640,762,744,801,742,806,638,767"/>
+<area shape="rect" id="Node000019" href="$d6/d52/namespaceml_1_1maths__t.html#a4e2ff9d2a64df68ffeb890db05b17709" title="Set the seasonal variance scale weight in weights to weight." alt="" coords="748,969,919,1010"/>
+<area shape="poly" id="edge24_Node000015_Node000019" title=" " alt="" coords="577,763,597,806,626,858,664,911,687,934,712,955,735,968,732,973,709,959,683,938,660,914,621,861,592,808,572,765"/>
+<area shape="rect" id="Node000020" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a7570f658dcdfecb58c4be2cd295d2f7e" title=" " alt="" coords="734,889,933,945"/>
+<area shape="poly" id="edge26_Node000015_Node000020" title=" " alt="" coords="588,762,641,819,675,849,712,875,721,880,718,885,709,879,672,853,638,823,584,766"/>
+<area shape="poly" id="edge21_Node000017_Node000013" title=" " alt="" coords="933,811,1028,788,1029,794,934,816"/>
+<area shape="rect" id="Node000018" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="1079,839,1153,865"/>
+<area shape="poly" id="edge22_Node000017_Node000018" title=" " alt="" coords="934,840,1063,846,1063,852,934,845"/>
+<area shape="poly" id="edge23_Node000018_Node000018" title=" " alt="" coords="1077,844,1063,833,1065,822,1083,815,1116,812,1160,818,1169,825,1168,834,1163,833,1164,827,1158,823,1116,818,1085,820,1069,825,1068,831,1080,839"/>
+<area shape="poly" id="edge29_Node000020_Node000013" title=" " alt="" coords="932,889,955,875,971,857,978,839,986,819,1003,800,1028,786,1030,791,1006,805,990,822,983,841,975,860,958,879,935,894"/>
+<area shape="rect" id="Node000021" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#adc80547b717637b976a510ed4b1df6b0" title="Compute the prediction errors for sample." alt="" coords="1016,1084,1216,1140"/>
+<area shape="poly" id="edge27_Node000020_Node000021" title=" " alt="" coords="935,943,958,955,995,981,1030,1011,1085,1070,1081,1074,1026,1015,992,985,955,959,932,948"/>
+<area shape="rect" id="Node000023" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#acfa63b650770acc58f497da8de78f4a5" title="Set the model propagation interval." alt="" coords="1023,889,1209,945"/>
+<area shape="poly" id="edge30_Node000020_Node000023" title=" " alt="" coords="934,915,1007,915,1007,920,934,920"/>
+<area shape="rect" id="Node000022" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#aaafe76700ed595185e9cd64224b71fae" title="Get the error in the trend prediction for sample." alt="" coords="1313,1092,1471,1132"/>
+<area shape="poly" id="edge28_Node000021_Node000022" title=" " alt="" coords="1216,1109,1297,1109,1297,1115,1216,1115"/>
+<area shape="poly" id="edge48_Node000024_Node000012" title=" " alt="" coords="608,524,709,468,738,456,740,460,712,473,610,528"/>
+<area shape="poly" id="edge32_Node000024_Node000013" title=" " alt="" coords="663,579,711,592,782,603,841,606,868,609,896,616,926,629,958,650,976,671,984,693,990,715,1006,735,1030,749,1027,754,1003,739,985,717,978,695,972,674,955,654,923,633,895,621,867,614,840,611,782,608,710,597,662,585"/>
+<area shape="rect" id="Node000025" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#af70ae3b7e35842307abe81d11676369e" title=" " alt="" coords="710,527,957,582"/>
+<area shape="poly" id="edge33_Node000024_Node000025" title=" " alt="" coords="663,552,695,552,695,557,663,557"/>
+<area shape="poly" id="edge39_Node000025_Node000006" title=" " alt="" coords="929,524,955,506,966,493,972,479,977,452,983,424,991,410,1003,396,1020,385,1023,389,1006,401,995,413,988,426,983,453,977,481,970,495,958,510,933,528"/>
+<area shape="poly" id="edge45_Node000025_Node000007" title=" " alt="" coords="932,524,955,506,969,485,976,463,977,420,979,377,986,355,1003,333,1020,319,1024,323,1007,336,991,357,984,378,983,421,982,464,974,487,959,510,936,528"/>
+<area shape="poly" id="edge46_Node000025_Node000013" title=" " alt="" coords="934,581,959,599,972,617,979,635,983,669,986,703,993,719,1006,735,1031,752,1028,756,1003,739,989,722,981,704,977,670,974,636,967,620,955,603,931,585"/>
+<area shape="rect" id="Node000026" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a6e2bb65f71bc88dde8ff1805da317537" title="Clear all correlation information for time series identified id." alt="" coords="1028,555,1204,610"/>
+<area shape="poly" id="edge34_Node000025_Node000026" title=" " alt="" coords="957,564,1013,570,1013,575,957,569"/>
+<area shape="rect" id="Node000030" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="1031,635,1201,661"/>
+<area shape="poly" id="edge40_Node000025_Node000030" title=" " alt="" coords="911,580,958,599,1006,620,1033,628,1032,633,1004,625,956,604,909,585"/>
+<area shape="rect" id="Node000032" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#aaf6ef5243e0533d64e9a30fe7c6b086f" title=" " alt="" coords="1020,490,1212,531"/>
+<area shape="poly" id="edge42_Node000025_Node000032" title=" " alt="" coords="957,533,1005,525,1005,530,958,538"/>
+<area shape="rect" id="Node000034" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#af075461933550e88a2fe27fca3da944c" title="Get the model learn rate." alt="" coords="1028,685,1204,726"/>
+<area shape="poly" id="edge44_Node000025_Node000034" title=" " alt="" coords="929,581,958,599,975,618,983,637,991,654,1006,671,1016,677,1013,682,1003,675,986,657,978,639,970,621,955,603,926,585"/>
+<area shape="rect" id="Node000035" href="$d7/d8e/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_model_filter.html#aa8c6229b93fc3c93dbc56bf55d3e5ff5" title="Mark a model to be removed." alt="" coords="1043,411,1189,466"/>
+<area shape="poly" id="edge47_Node000025_Node000035" title=" " alt="" coords="914,524,955,505,1003,476,1028,465,1030,470,1006,481,958,510,916,529"/>
+<area shape="rect" id="Node000027" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a230bd35b8e13a152626a408d4b8a947c" title="Get the ids of the time series correlated with id." alt="" coords="1304,687,1479,742"/>
+<area shape="poly" id="edge35_Node000026_Node000027" title=" " alt="" coords="1201,608,1228,620,1276,648,1327,677,1324,681,1274,653,1226,625,1199,613"/>
+<area shape="rect" id="Node000028" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a4f3de1745d118b3a48dd2e0e49deb08a" title=" " alt="" coords="1304,519,1479,574"/>
+<area shape="poly" id="edge37_Node000026_Node000028" title=" " alt="" coords="1204,568,1288,557,1289,563,1204,574"/>
+<area shape="rect" id="Node000029" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a906adfbb27cb7dc20b2c4702eca645fb" title="Remove the variables remove." alt="" coords="1275,598,1508,639"/>
+<area shape="poly" id="edge38_Node000026_Node000029" title=" " alt="" coords="1204,591,1260,599,1259,604,1204,597"/>
+<area shape="poly" id="edge36_Node000027_Node000027" title=" " alt="" coords="1338,686,1339,676,1349,667,1366,662,1392,660,1421,663,1439,670,1437,675,1420,668,1392,665,1367,667,1351,672,1344,678,1343,686"/>
+<area shape="poly" id="edge41_Node000030_Node000031" title=" " alt="" coords="1203,657,1229,671,1248,690,1258,709,1265,729,1277,753,1368,883,1364,886,1273,756,1260,731,1253,711,1243,693,1225,675,1200,662"/>
+<area shape="rect" id="Node000033" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="1319,454,1464,495"/>
+<area shape="poly" id="edge43_Node000032_Node000033" title=" " alt="" coords="1212,495,1303,483,1304,489,1212,501"/>
+<area shape="rect" id="Node000039" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="470,1197,655,1238"/>
+<area shape="poly" id="edge52_Node000038_Node000039" title=" " alt="" coords="408,1224,454,1221,454,1226,409,1229"/>
+<area shape="rect" id="Node000040" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="474,1262,651,1287"/>
+<area shape="poly" id="edge53_Node000038_Node000040" title=" " alt="" coords="409,1245,470,1256,469,1261,408,1250"/>
+<area shape="rect" id="Node000041" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="745,1262,922,1287"/>
+<area shape="poly" id="edge54_Node000040_Node000041" title=" " alt="" coords="652,1272,729,1272,729,1277,652,1277"/>
+<area shape="rect" id="Node000042" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1026,1171,1206,1226"/>
+<area shape="poly" id="edge55_Node000041_Node000042" title=" " alt="" coords="883,1259,1010,1224,1012,1229,885,1264"/>
+<area shape="rect" id="Node000043" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1026,1250,1206,1291"/>
+<area shape="poly" id="edge56_Node000041_Node000043" title=" " alt="" coords="923,1271,1010,1269,1010,1275,923,1276"/>
+<area shape="rect" id="Node000044" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1043,1316,1189,1356"/>
+<area shape="poly" id="edge57_Node000041_Node000044" title=" " alt="" coords="897,1285,1029,1314,1028,1319,896,1291"/>
+<area shape="rect" id="Node000045" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1033,1381,1199,1422"/>
+<area shape="poly" id="edge58_Node000041_Node000045" title=" " alt="" coords="857,1285,922,1324,1006,1365,1025,1373,1023,1378,1004,1370,920,1329,854,1290"/>
+<area shape="rect" id="Node000049" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="463,1384,662,1440"/>
+<area shape="poly" id="edge63_Node000048_Node000049" title=" " alt="" coords="411,1423,447,1420,448,1425,412,1428"/>
+<area shape="rect" id="Node000051" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="490,1464,635,1504"/>
+<area shape="poly" id="edge65_Node000048_Node000051" title=" " alt="" coords="412,1451,475,1464,474,1469,411,1456"/>
+<area shape="rect" id="Node000052" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="490,1320,635,1360"/>
+<area shape="poly" id="edge66_Node000048_Node000052" title=" " alt="" coords="387,1404,414,1392,462,1369,478,1363,480,1368,464,1374,416,1397,389,1409"/>
+<area shape="rect" id="Node000050" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="753,1392,914,1432"/>
+<area shape="poly" id="edge64_Node000049_Node000050" title=" " alt="" coords="663,1409,738,1409,738,1415,663,1415"/>
+<area shape="rect" id="Node000054" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#ac3100a65ac283c09f9bd75d38264eea7" title=" " alt="" coords="482,1528,644,1584"/>
+<area shape="poly" id="edge68_Node000053_Node000054" title=" " alt="" coords="397,1542,467,1546,466,1552,397,1547"/>
+<area shape="poly" id="edge71_Node000055_Node000007" title=" " alt="" coords="406,262,463,251,538,243,616,241,769,246,908,262,1021,280,1021,285,908,267,768,252,616,246,539,249,463,256,407,267"/>
+<area shape="rect" id="Node000056" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a13392589ff03136ef3ca2ffedb0ffcaa" title="Get the correlation joint distribution models." alt="" coords="475,265,650,321"/>
+<area shape="poly" id="edge70_Node000055_Node000056" title=" " alt="" coords="415,291,459,291,459,296,415,296"/>
+</map>

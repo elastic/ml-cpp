@@ -1,0 +1,21 @@
+<map id="ml::maths::common::COneOfNPrior::sampleMarginalLikelihood" name="ml::maths::common::COneOfNPrior::sampleMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,241,211,297"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a8899952fa781599fd22ac5367e88e5e4" title="Get the support for the marginal likelihood function." alt="" coords="259,5,480,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,239,144,202,174,157,213,111,257,71,263,67,266,71,260,75,216,115,179,160,148,205,126,242"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="289,85,450,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,239,187,187,221,160,257,136,274,128,276,133,260,141,224,164,190,191,137,243"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a1a927a53dd2efb92b3f0eb99143a92de" title="Shift x to the left by eps times x." alt="" coords="297,150,442,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,238,258,201,281,193,283,198,260,206,171,243"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0988252aeab1e723b99ee7eaf1c8cd90" title="Shift x to the right by eps times x." alt="" coords="297,216,442,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="211,253,281,244,281,250,212,259"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a76cd2d98ee5eb75044bd14d645246a83" title="Get the support for a log&#45;t distribution." alt="" coords="297,281,442,322"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="212,279,281,288,281,293,211,284"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="297,346,442,387"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="173,295,260,331,283,339,281,344,258,336,171,300"/>
+<area shape="rect" id="Node000008" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a9ce168c59defc3b6cd3f0566a100e9b6" title=" " alt="" coords="275,412,464,452"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="137,295,191,347,224,373,260,396,273,403,271,408,257,401,221,378,187,351,133,299"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="290,477,449,518"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="126,296,148,334,178,378,216,423,260,462,277,471,274,476,257,466,212,427,174,382,143,337,121,299"/>
+<area shape="rect" id="Node000010" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="528,477,706,518"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="450,495,513,495,513,500,450,500"/>
+</map>

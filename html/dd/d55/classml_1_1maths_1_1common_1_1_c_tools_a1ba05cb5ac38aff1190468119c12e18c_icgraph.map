@@ -1,0 +1,18 @@
+<map id="ml::maths::common::CTools::lgamma" name="ml::maths::common::CTools::lgamma">
+<area shape="rect" id="Node000001" title="A wrapper around lgamma which handles corner cases if requested." alt="" coords="517,103,662,144"/>
+<area shape="rect" id="Node000002" href="$dd/d5e/maths_2common_2unittest_2_c_tools_test_8cc.html#a4cc611e1ed847948da3d34414f3e6f42" title=" " alt="" coords="261,5,458,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="550,96,512,69,468,46,433,34,435,29,470,41,514,65,553,92"/>
+<area shape="rect" id="Node000003" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ade9140a8cffff689b9efe3a29919e72f" title=" " alt="" coords="260,56,459,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="502,111,459,103,460,98,503,106"/>
+<area shape="rect" id="Node000004" href="$d7/d45/classml_1_1maths_1_1common_1_1_c_categorical_tools.html#a0c825d1624c7e7e6873ce108504090ac" title=" " alt="" coords="258,136,461,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="503,141,462,148,461,143,502,136"/>
+<area shape="rect" id="Node000007" href="$d7/d45/classml_1_1maths_1_1common_1_1_c_categorical_tools.html#abf0ab9bedf9c88db7135d01359266f8c" title=" " alt="" coords="250,216,469,271"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="551,155,513,181,470,206,445,218,443,213,468,201,510,177,548,151"/>
+<area shape="rect" id="Node000005" href="$d7/dfe/_c_categorical_tools_test_8cc.html#a89cea6d2168c8744f7a9c4fa3a060c2e" title=" " alt="" coords="5,59,202,84"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="261,132,248,126,225,111,201,98,169,87,171,82,203,93,227,107,251,121,263,127"/>
+<area shape="rect" id="Node000006" href="$d9/d19/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_categorical_tools_8cc_03.html#a6dd15b157593afb77c89ab78407cca9c" title=" " alt="" coords="22,132,185,203"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="242,168,185,169,185,164,242,163"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="144,120,128,113,103,111,82,113,68,117,60,124,58,132,53,131,56,121,65,113,81,107,104,106,130,108,146,116"/>
+<area shape="rect" id="Node000008" href="$d7/dfe/_c_categorical_tools_test_8cc.html#a8f0112f792f40ecbc9f901491e7ed94f" title=" " alt="" coords="5,231,202,256"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="234,246,202,246,202,241,234,241"/>
+</map>

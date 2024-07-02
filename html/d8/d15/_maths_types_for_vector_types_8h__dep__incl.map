@@ -1,0 +1,15 @@
+<map id="include/maths/common/MathsTypesForVectorTypes.h" name="include/maths/common/MathsTypesForVectorTypes.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="490,5,690,46"/>
+<area shape="rect" id="Node000002" href="$de/d5e/_c_multivariate_multimodal_prior_8h.html" title=" " alt="" coords="489,94,691,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="593,62,593,94,587,94,587,62"/>
+<area shape="rect" id="Node000003" href="$d8/d3b/_c_multivariate_multimodal_prior_8cc.html" title=" " alt="" coords="5,183,215,223"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="474,139,215,185,214,180,473,134"/>
+<area shape="rect" id="Node000004" href="$db/db0/_c_multivariate_multimodal_prior_factory_8cc.html" title=" " alt="" coords="239,183,448,223"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="521,143,400,185,399,180,519,138"/>
+<area shape="rect" id="Node000005" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html" title=" " alt="" coords="472,183,708,223"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="593,150,593,182,587,182,587,150"/>
+<area shape="rect" id="Node000006" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html" title=" " alt="" coords="732,183,952,223"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="663,138,785,180,784,185,661,143"/>
+<area shape="rect" id="Node000007" href="$d9/d15/_c_time_series_model_test_8cc.html" title=" " alt="" coords="977,183,1203,223"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="707,133,977,180,976,185,706,138"/>
+</map>

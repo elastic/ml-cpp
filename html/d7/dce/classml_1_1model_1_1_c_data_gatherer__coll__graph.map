@@ -1,0 +1,7 @@
+<map id="ml::model::CDataGatherer" name="ml::model::CDataGatherer">
+<area shape="rect" id="Node000001" title="Time series data gathering interface and common functionality." alt="" coords="43,213,218,238"/>
+<area shape="rect" id="Node000002" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html" title="Register string names and map them to unique identifiers." alt="" coords="39,94,222,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,150,133,212,128,212,128,150"/>
+<area shape="rect" id="Node000003" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title=" " alt="" coords="5,5,256,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="133,46,133,93,128,93,128,46"/>
+</map>

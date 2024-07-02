@@ -1,0 +1,9 @@
+<map id="ml::core::CMemoryUsageJsonWriter" name="ml::core::CMemoryUsageJsonWriter">
+<area shape="rect" id="Node000001" title="A lightweight wrapper around CStreamWriter to be used by CMemoryUsage to format DebugMemoryUsage info..." alt="" coords="5,259,205,300"/>
+<area shape="rect" id="Node000002" href="$d8/d43/classml_1_1core_1_1_c_stream_writer.html" title=" " alt="" coords="24,170,186,196"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,211,108,258,102,258,102,211"/>
+<area shape="rect" id="Node000003" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="9,95,201,121"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,136,108,170,102,170,102,136"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="8,5,202,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="108,61,108,95,102,95,102,61"/>
+</map>

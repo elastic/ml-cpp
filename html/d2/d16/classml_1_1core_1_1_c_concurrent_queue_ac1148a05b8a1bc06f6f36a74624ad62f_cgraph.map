@@ -1,0 +1,5 @@
+<map id="ml::core::CConcurrentQueue::tryPush" name="ml::core::CConcurrentQueue::tryPush">
+<area shape="rect" id="Node000001" title="Forward item to the queue, if the queue is full this fails and returns false." alt="" coords="5,5,194,46"/>
+<area shape="rect" id="Node000002" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#ad01c72b3a36bb2d0321c8e772457ab5c" title=" " alt="" coords="242,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,23,226,23,226,28,194,28"/>
+</map>

@@ -1,0 +1,40 @@
+<map id="ml::maths::common::CModel::predictionError" name="ml::maths::common::CModel::predictionError">
+<area shape="rect" id="Node000001" title="Get the error in the trend prediction for sample." alt="" coords="1515,62,1674,103"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abd0332361b74cb737044ded24d34fbb5" title="Compute the prediction errors for sample." alt="" coords="1260,15,1467,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1500,69,1467,63,1468,58,1501,64"/>
+<area shape="rect" id="Node000007" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#adc80547b717637b976a510ed4b1df6b0" title="Compute the prediction errors for sample." alt="" coords="1264,95,1463,150"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1501,101,1464,108,1463,103,1500,96"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a743c63a6b6f5f698f3ab80382918324c" title=" " alt="" coords="1005,13,1212,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1244,45,1212,44,1212,39,1244,39"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7015518321c48a29b9fbf372e98fb84f" title="Update the residual models." alt="" coords="749,11,957,66"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="989,43,957,42,957,37,989,37"/>
+<area shape="rect" id="Node000005" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="494,5,701,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="734,39,702,38,702,33,734,33"/>
+<area shape="rect" id="Node000006" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="250,11,446,37"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="478,31,446,30,446,25,479,26"/>
+<area shape="rect" id="Node000008" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a7570f658dcdfecb58c4be2cd295d2f7e" title=" " alt="" coords="1009,95,1208,150"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1249,125,1208,125,1208,120,1249,120"/>
+<area shape="rect" id="Node000009" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4eea9c10d476a7439b6632c38cbfca63" title="Update the residual models." alt="" coords="753,95,953,150"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="993,125,953,125,953,120,993,120"/>
+<area shape="rect" id="Node000010" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#abbc951e2c02da8dc7291c1e137066120" title="Update the model with new samples." alt="" coords="498,95,697,150"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="738,125,698,125,698,120,738,120"/>
+<area shape="poly" id="edge10_Node000010_Node000006" title=" " alt="" coords="522,90,493,76,469,62,445,50,412,40,414,35,447,45,472,57,495,71,524,85"/>
+<area shape="rect" id="Node000011" href="$d1/dde/_c_forecast_test_8cc.html#ad42e086bd0f9327a48da0ca36b1f8a92" title=" " alt="" coords="250,60,446,86"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="482,102,416,89,417,84,483,97"/>
+<area shape="rect" id="Node000012" href="$d1/dde/_c_forecast_test_8cc.html#a70cc70fe7d81a6f242ec06a81071f5bd" title=" " alt="" coords="250,110,446,135"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="482,125,447,125,447,120,482,120"/>
+<area shape="rect" id="Node000013" href="$d1/dde/_c_forecast_test_8cc.html#a0208c9401947e7d3e4e1b46c59f26337" title=" " alt="" coords="250,159,446,185"/>
+<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="483,148,417,161,416,156,482,143"/>
+<area shape="rect" id="Node000014" href="$d9/d15/_c_time_series_model_test_8cc.html#ad5ee31f31475c4d41301af0340450ba9" title=" " alt="" coords="250,208,446,234"/>
+<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="534,160,447,200,413,210,411,205,445,195,532,155"/>
+<area shape="rect" id="Node000015" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#a6ede2ad9f3a7a40577da81f22f10d7bf" title=" " alt="" coords="267,259,429,314"/>
+<area shape="poly" id="edge15_Node000010_Node000015" title=" " alt="" coords="558,163,507,207,447,249,426,260,423,256,445,244,504,202,555,159"/>
+<area shape="rect" id="Node000016" href="$d1/dde/_c_forecast_test_8cc.html#a28992938b93647afb83a53246e509905" title=" " alt="" coords="5,199,202,225"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="255,256,201,238,162,228,164,223,202,233,256,251"/>
+<area shape="rect" id="Node000017" href="$d1/dde/_c_forecast_test_8cc.html#a19e2174c93ee23be6129488081463518" title=" " alt="" coords="5,248,202,274"/>
+<area shape="poly" id="edge17_Node000015_Node000017" title=" " alt="" coords="251,279,202,274,202,269,251,274"/>
+<area shape="rect" id="Node000018" href="$d1/dde/_c_forecast_test_8cc.html#a6f0a097737936cba7ec32a5bce60ca3d" title=" " alt="" coords="5,298,202,323"/>
+<area shape="poly" id="edge18_Node000015_Node000018" title=" " alt="" coords="251,299,202,303,202,298,251,293"/>
+<area shape="rect" id="Node000019" href="$d1/dde/_c_forecast_test_8cc.html#a3bf9a5986a59219078bac60c69302d4b" title=" " alt="" coords="5,347,202,373"/>
+<area shape="poly" id="edge19_Node000015_Node000019" title=" " alt="" coords="254,322,202,338,163,349,162,344,201,333,252,317"/>
+</map>

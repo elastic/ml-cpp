@@ -1,0 +1,44 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,457,223,483"/>
+<area shape="rect" id="Node000002" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a1af7d8c6235516fb298f41a61883ecc8" title=" " alt="" coords="274,97,448,152"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,455,329,163,333,166,127,458"/>
+<area shape="rect" id="Node000009" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a4cd48ff34bb6af0d1f6cc1ac85b467f0" title=" " alt="" coords="274,271,448,327"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="133,454,305,334,308,338,136,458"/>
+<area shape="rect" id="Node000013" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a20519215050fbf5112c19cd17a283070" title=" " alt="" coords="274,384,448,425"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="165,454,266,427,267,432,166,459"/>
+<area shape="rect" id="Node000015" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a03f7b7e60a3a9537e8dc4a772b62278a" title="Get the number of active people (not pruned)." alt="" coords="274,449,448,490"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="223,467,258,467,258,472,223,472"/>
+<area shape="rect" id="Node000017" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="274,539,448,579"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="153,481,289,530,287,535,151,486"/>
+<area shape="rect" id="Node000018" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="271,604,451,645"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="131,481,190,532,230,562,272,589,284,595,281,599,269,593,227,566,187,536,128,485"/>
+<area shape="rect" id="Node000019" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="300,669,422,695"/>
+<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="125,481,146,516,179,563,221,612,272,654,286,662,284,666,269,659,218,616,174,566,141,519,120,484"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="518,17,692,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,93,530,61,532,66,442,98"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="766,71,925,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="448,116,750,95,751,100,449,121"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="531,132,678,173"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="449,132,516,140,515,145,448,137"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="758,5,933,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="692,31,742,28,743,33,692,36"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="693,54,752,68,751,73,692,60"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="981,71,1139,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="925,88,965,88,965,94,925,94"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="776,136,915,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="679,151,761,152,761,158,679,156"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4234f219d2f791a607a53f98c51f3bdf" title=" " alt="" coords="518,197,692,238"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="441,268,498,248,522,241,523,246,500,254,443,273"/>
+<area shape="rect" id="Node000011" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#adfe0a09c8df37ba22cf5c2cedc08738b" title="Get the event person identifier." alt="" coords="526,263,684,303"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="448,291,510,287,510,292,449,296"/>
+<area shape="rect" id="Node000012" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad3019c240ddc4fb25c7945282a0e8496" title=" " alt="" coords="518,328,692,369"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="449,314,503,325,502,330,448,319"/>
+<area shape="rect" id="Node000014" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="566,417,644,443"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="449,411,550,421,550,427,448,416"/>
+<area shape="poly" id="edge15_Node000014_Node000014" title=" " alt="" coords="565,418,557,408,562,398,578,392,605,390,635,393,649,400,647,405,633,398,605,395,579,398,565,402,562,408,569,415"/>
+<area shape="rect" id="Node000016" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a3f3fee3d48ea194e385b822101c1ef4d" title="Get the number of active names (not pruned)." alt="" coords="499,467,710,507"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="449,473,484,476,483,481,448,479"/>
+<area shape="poly" id="edge19_Node000017_Node000017" title=" " alt="" coords="315,539,313,529,320,520,336,514,361,512,387,514,403,521,401,526,386,520,361,517,338,519,323,524,318,530,320,537"/>
+<area shape="rect" id="Node000020" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="582,669,628,695"/>
+<area shape="poly" id="edge22_Node000019_Node000020" title=" " alt="" coords="422,679,566,679,566,684,422,684"/>
+</map>

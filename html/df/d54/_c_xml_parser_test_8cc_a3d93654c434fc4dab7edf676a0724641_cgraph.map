@@ -1,0 +1,21 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,209,202,235"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#ac4cf385af0d3ddac474117c6db98e522" title=" " alt="" coords="250,5,397,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,207,165,137,204,95,248,57,255,52,258,56,251,61,208,99,169,141,116,210"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a92c9845556b32f5fed18b2fe441f8a3d" title=" " alt="" coords="250,71,397,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,206,177,167,248,122,259,116,261,121,251,127,180,171,124,211"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a29c6225efa25c4766cea168e0fb5df8c" title=" " alt="" coords="250,136,397,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,206,237,179,239,184,150,211"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a3d4ec3ce63e19fcbb639643b878a7521" title=" " alt="" coords="250,201,397,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,219,234,219,234,224,202,224"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a346a02cc42781ced9f48cd2edacd22be" title=" " alt="" coords="250,267,397,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="150,232,239,259,237,264,149,238"/>
+<area shape="rect" id="Node000007" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#afb5f0c8067714fb596edc1e9a8441b05" title=" " alt="" coords="250,332,397,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="124,233,180,272,251,317,261,322,259,327,248,321,177,276,121,237"/>
+<area shape="rect" id="Node000008" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a88ac3d617f3b82716917b70999479d45" title=" " alt="" coords="250,397,397,438"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="116,234,169,302,208,344,251,382,258,387,255,392,248,386,204,348,165,306,112,237"/>
+<area shape="rect" id="Node000009" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="445,364,592,405"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="397,402,429,397,430,402,398,408"/>
+<area shape="rect" id="Node000010" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="445,429,592,470"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="398,427,430,432,429,438,397,432"/>
+</map>

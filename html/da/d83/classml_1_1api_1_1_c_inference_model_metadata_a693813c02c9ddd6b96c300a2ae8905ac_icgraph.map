@@ -1,0 +1,8 @@
+<map id="ml::api::CInferenceModelMetadata::columnNames" name="ml::api::CInferenceModelMetadata::columnNames">
+<area shape="rect" id="Node000001" title=" " alt="" coords="257,53,424,94"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="378,40,364,34,340,31,318,33,305,38,299,44,302,52,296,53,294,43,301,34,317,28,340,26,366,29,380,35"/>
+<area shape="rect" id="Node000002" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#abaf8a348158ee1099330bdcaa43267e9" title=" " alt="" coords="11,5,203,61"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="241,59,203,52,204,47,242,54"/>
+<area shape="rect" id="Node000003" href="$d0/dec/classml_1_1api_1_1_c_data_frame_train_boosted_tree_regression_runner.html#a7603e08d2817acefbd1b12f027bd47d2" title="Write the prediction for row to writer." alt="" coords="5,85,209,141"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="242,93,210,98,209,93,241,87"/>
+</map>

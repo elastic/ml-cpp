@@ -1,0 +1,31 @@
+<map id="ml::model::CCountingModel::sampleBucketStatistics" name="ml::model::CCountingModel::sampleBucketStatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,284,189,325"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a012f78d23867a0b9a48f8402d2308034" title=" " alt="" coords="255,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,283,118,236,145,176,184,112,208,83,235,57,241,52,245,56,238,61,212,86,188,115,150,178,123,238,107,284"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="244,71,441,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="107,282,157,208,193,165,235,128,254,116,257,121,238,132,197,169,161,211,112,285"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="508,100,682,141"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="112,282,162,225,197,195,236,171,282,156,347,144,492,126,492,131,348,149,283,161,238,176,200,200,166,229,116,285"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abb2867bf39b7fb694e9f7260009d6f6e" title="Check if data is available at time." alt="" coords="255,185,430,226"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="138,281,236,237,256,229,258,234,238,241,140,286"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="496,452,693,493"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="118,323,169,372,202,397,238,417,298,438,361,453,423,463,481,468,480,474,422,468,360,459,296,444,236,421,199,401,165,376,115,327"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="255,316,430,357"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="189,314,240,320,240,326,189,319"/>
+<area shape="rect" id="Node000008" href="$df/d9c/namespaceml_1_1model__t.html#a9dbb1ae4b63416ba57ecfbef586163c8" title=" " alt="" coords="258,381,427,407"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="139,323,186,345,238,366,263,374,262,379,236,371,184,350,137,328"/>
+<area shape="rect" id="Node000009" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#ac19a6356eda719e4f656b31678cb4426" title=" " alt="" coords="237,251,448,291"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="189,289,221,285,221,290,189,295"/>
+<area shape="rect" id="Node000012" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a5c490057f15580c0e13fd9bda4a7205a" title=" " alt="" coords="255,481,430,522"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="114,324,164,391,199,428,238,461,258,472,255,477,235,465,195,432,159,394,109,327"/>
+<area shape="rect" id="Node000013" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#ae6003b40d2afae26304656546e63928f" title="Update start time and counts for the given bucket." alt="" coords="247,547,438,587"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="108,324,125,368,152,423,190,482,213,508,238,532,245,537,242,541,235,536,209,512,186,485,147,426,120,370,103,326"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="442,100,492,106,492,111,441,105"/>
+<area shape="rect" id="Node000010" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a9fe3a0c7969ac10c684270ff5f536491" title="Get the scheduled events that match at sampleTime." alt="" coords="503,251,686,291"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="448,268,488,268,488,274,448,274"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="741,251,939,291"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="687,268,726,268,726,274,687,274"/>
+<area shape="poly" id="edge14_Node000013_Node000006" title=" " alt="" coords="411,544,447,531,532,497,534,502,449,536,413,549"/>
+<area shape="rect" id="Node000014" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aa268b598e23a63128e424cbccb922698" title=" " alt="" coords="508,547,682,587"/>
+<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="438,564,492,564,492,570,438,570"/>
+</map>

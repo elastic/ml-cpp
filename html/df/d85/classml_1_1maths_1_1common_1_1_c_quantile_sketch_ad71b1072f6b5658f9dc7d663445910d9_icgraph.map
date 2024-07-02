@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CQuantileSketch::maxSize" name="ml::maths::common::CQuantileSketch::maxSize">
+<area shape="rect" id="Node000001" title="The maximum permitted size for the sketch." alt="" coords="406,53,585,94"/>
+<area shape="rect" id="Node000002" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#a79a7685507fb41562df1351e9095e707" title=" " alt="" coords="202,5,356,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="390,56,356,50,357,45,391,51"/>
+<area shape="rect" id="Node000003" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#ad52a38df6cc53000728e194d489948ef" title="Get the target size for fastReduce." alt="" coords="200,85,358,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="391,95,359,101,358,96,390,90"/>
+<area shape="rect" id="Node000004" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#a802256c91ef618bf82c199c393943990" title="Reduce to the maximum permitted size." alt="" coords="5,85,152,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="184,116,152,116,152,111,184,111"/>
+</map>

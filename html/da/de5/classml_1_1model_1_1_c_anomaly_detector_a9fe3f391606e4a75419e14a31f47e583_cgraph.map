@@ -1,0 +1,11 @@
+<map id="ml::model::CAnomalyDetector::addRecord" name="ml::model::CAnomalyDetector::addRecord">
+<area shape="rect" id="Node000001" title="Extract and add the necessary details of an event record." alt="" coords="5,71,203,111"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#ad04d7526f123b756fbc0a155db041b2e" title=" " alt="" coords="251,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,67,255,48,256,53,184,73"/>
+<area shape="rect" id="Node000003" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="284,71,415,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,88,268,88,268,94,203,94"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="270,136,429,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,109,256,129,255,134,182,115"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="496,136,654,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="429,154,481,154,481,159,429,159"/>
+</map>

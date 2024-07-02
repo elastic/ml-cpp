@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CQDigest::CNode::expand" name="ml::maths::common::CQDigest::CNode::expand">
+<area shape="rect" id="Node000001" title="Expand the node to fit value." alt="" coords="5,49,184,90"/>
+<area shape="rect" id="Node000002" href="$d0/d9b/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node_allocator.html#af72e1f13b19a00a4c1c819b504cda630" title="Create a new node." alt="" coords="232,5,411,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,52,216,47,216,52,184,58"/>
+<area shape="rect" id="Node000004" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a62e14dba68743c55542ed7257187d9bd" title="Get the span of universe values covered by the node." alt="" coords="239,85,404,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,81,224,87,223,92,183,86"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a729a739c07fbfe7bb73c4bda2dcbcd33" title="Get the size of the q&#45;digest rooted at this node." alt="" coords="459,13,619,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,31,443,31,443,36,411,36"/>
+</map>

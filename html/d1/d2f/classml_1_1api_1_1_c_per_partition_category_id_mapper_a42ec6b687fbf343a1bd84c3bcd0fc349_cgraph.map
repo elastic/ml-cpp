@@ -1,0 +1,11 @@
+<map id="ml::api::CPerPartitionCategoryIdMapper::acceptRestoreTraverser" name="ml::api::CPerPartitionCategoryIdMapper::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore the mapper reading state from traverser." alt="" coords="5,104,229,145"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="277,5,495,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,101,276,57,298,49,300,54,278,61,167,106"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="277,71,495,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,108,261,104,262,109,230,113"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="312,136,460,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="230,135,297,143,297,148,229,140"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="277,201,495,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="168,143,278,186,301,194,299,199,276,191,166,148"/>
+</map>

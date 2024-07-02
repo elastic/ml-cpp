@@ -1,0 +1,9 @@
+<map id="ml::model::CPopulationModel::attributeFrequency" name="ml::model::CPopulationModel::attributeFrequency">
+<area shape="rect" id="Node000001" title="Get the frequency of the attribute identified by cid." alt="" coords="5,39,198,79"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="246,5,443,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,43,230,39,230,44,198,48"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a03f7b7e60a3a9537e8dc4a772b62278a" title="Get the number of active people (not pruned)." alt="" coords="257,71,432,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,69,242,75,242,80,198,74"/>
+<area shape="rect" id="Node000004" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a3f3fee3d48ea194e385b822101c1ef4d" title="Get the number of active names (not pruned)." alt="" coords="491,71,702,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="432,88,475,88,475,94,432,94"/>
+</map>

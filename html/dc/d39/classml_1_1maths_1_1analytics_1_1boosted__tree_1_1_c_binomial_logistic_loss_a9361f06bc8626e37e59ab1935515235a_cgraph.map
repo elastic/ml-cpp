@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::boosted_tree::CBinomialLogisticLoss::curvature" name="ml::maths::analytics::boosted_tree::CBinomialLogisticLoss::curvature">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,223,87"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="271,5,432,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,41,255,36,256,42,223,46"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="279,71,424,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,71,263,77,263,82,223,76"/>
+</map>

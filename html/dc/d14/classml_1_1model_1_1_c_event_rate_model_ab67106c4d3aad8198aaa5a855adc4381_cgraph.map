@@ -1,0 +1,35 @@
+<map id="ml::model::CEventRateModel::checksum" name="ml::model::CEventRateModel::checksum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,237,199,277"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="740,15,895,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,234,180,184,264,121,314,89,367,59,423,34,480,16,543,5,608,3,669,7,725,14,724,19,669,12,607,8,544,11,482,21,425,39,369,64,317,93,267,125,183,188,127,238"/>
+<area shape="rect" id="Node000003" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ab394643d489a3fec9502a01be07f0013" title="Get the categories." alt="" coords="262,157,418,213"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,234,246,211,247,216,172,239"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a50801a59156575f2b0aba11eb2133990" title=" " alt="" coords="247,237,433,277"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="199,254,231,254,231,260,199,260"/>
+<area shape="rect" id="Node000012" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7e062309a949de4c9d61ae904a16c65f" title=" " alt="" coords="481,489,678,529"/>
+<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="196,275,347,311,434,337,449,355,457,372,460,407,464,441,470,457,483,474,487,478,483,481,479,477,465,460,458,442,455,407,452,373,445,357,432,342,346,316,195,280"/>
+<area shape="rect" id="Node000015" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a938700778db7c2e6eacd11d649bf837b" title="Get the concentrations." alt="" coords="262,352,418,407"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="143,275,248,331,270,342,268,347,245,335,141,280"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="418,234,431,223,445,203,452,182,452,140,451,119,453,98,462,78,479,59,507,41,536,27,600,12,665,9,725,14,725,19,665,14,601,17,538,32,509,45,483,63,466,81,459,100,456,119,457,140,457,183,450,205,435,227,421,238"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ade34104e77639b03a902f77f981edcea" title=" " alt="" coords="481,73,678,113"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="416,234,431,223,448,199,454,175,461,150,479,124,485,120,488,124,483,128,466,152,460,176,453,202,435,227,419,238"/>
+<area shape="rect" id="Node000006" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a8a4d425a53ad88459be2732d42f41406" title="Get the person counts in the current bucket." alt="" coords="483,138,676,179"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="407,234,432,223,455,206,480,189,494,183,496,187,482,194,459,210,434,227,409,238"/>
+<area shape="rect" id="Node000007" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4a4c3b8c1b879528e4356799a5bca3b9" title="Get the start time of the current bucket." alt="" coords="487,203,673,244"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="433,241,471,236,471,241,434,247"/>
+<area shape="rect" id="Node000008" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="481,269,678,309"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="434,267,466,271,465,276,433,272"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad433daea23da24cfde03e0c13ec15e99" title="Check that the person is no longer being modeled." alt="" coords="493,334,667,375"/>
+<area shape="poly" id="edge10_Node000004_Node000009" title=" " alt="" coords="394,275,434,293,482,319,500,326,498,331,480,323,432,298,392,280"/>
+<area shape="rect" id="Node000011" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a5f74bd0ea087594ff5a842bcd6950874" title="Get a read only model corresponding to feature of the person pid." alt="" coords="487,423,673,464"/>
+<area shape="poly" id="edge12_Node000004_Node000011" title=" " alt="" coords="408,276,435,294,453,317,460,339,467,361,483,385,520,413,517,417,479,388,463,364,455,341,448,319,431,298,405,280"/>
+<area shape="poly" id="edge14_Node000004_Node000012" title=" " alt="" coords="412,276,435,294,451,318,458,341,459,386,460,430,467,452,483,474,486,477,483,481,479,477,463,454,455,431,454,386,453,342,446,320,431,297,409,280"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="666,70,725,55,726,60,667,75"/>
+<area shape="rect" id="Node000010" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="726,334,909,375"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="667,352,711,352,711,357,667,357"/>
+<area shape="poly" id="edge13_Node000011_Node000011" title=" " alt="" coords="535,423,533,413,540,404,556,399,580,397,605,399,621,405,619,410,604,404,580,402,557,404,543,409,538,415,540,422"/>
+<area shape="rect" id="Node000013" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="744,489,891,529"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="679,506,728,506,728,512,679,512"/>
+<area shape="rect" id="Node000014" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="957,496,1003,522"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="892,506,941,506,941,512,892,512"/>
+</map>

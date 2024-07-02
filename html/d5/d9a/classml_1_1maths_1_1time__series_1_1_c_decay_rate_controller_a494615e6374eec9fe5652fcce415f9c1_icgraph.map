@@ -1,0 +1,29 @@
+<map id="ml::maths::time_series::CDecayRateController::decreaseDecayRateErrorNotIncreasing" name="ml::maths::time_series::CDecayRateController::decreaseDecayRateErrorNotIncreasing">
+<area shape="rect" id="Node000001" title=" " alt="" coords="981,275,1238,330"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1maths_1_1time__series_1_1_c_decay_rate_controller.html#a0a47916ac18b138e785ea70dca38ce1f" title=" " alt="" coords="771,275,933,330"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="965,305,933,305,933,300,965,300"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1maths_1_1time__series_1_1_c_decay_rate_controller.html#ae193f4e0103f5a59a126dac63377a591" title=" " alt="" coords="562,275,723,330"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="756,305,724,305,724,300,756,300"/>
+<area shape="rect" id="Node000004" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#ab51593e521d47a4bea264b57debe49a4" title=" " alt="" coords="284,5,514,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="626,261,609,217,584,168,552,118,512,75,496,64,499,59,516,71,557,115,589,165,614,215,631,259"/>
+<area shape="rect" id="Node000005" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#aa5b30755fe0907c3b6d0e988042c4317" title=" " alt="" coords="284,85,514,141"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="614,263,570,208,543,180,512,155,493,144,495,139,516,151,546,176,574,204,618,260"/>
+<area shape="rect" id="Node000006" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#a71ecd656f158dc79e7597f4d9e8f86dc" title=" " alt="" coords="301,166,497,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="601,266,560,233,513,205,485,194,486,189,515,200,563,229,604,262"/>
+<area shape="rect" id="Node000007" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#a8eb4bfd997fcd9d463d42cba56f51070" title=" " alt="" coords="301,215,497,241"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="561,271,513,254,472,244,474,239,515,249,563,266"/>
+<area shape="rect" id="Node000008" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#aefd1407b575544ec0c71c8c8c8f71f45" title=" " alt="" coords="301,264,497,290"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="546,295,497,290,498,285,547,290"/>
+<area shape="rect" id="Node000009" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="301,314,497,339"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="547,315,498,319,497,314,546,309"/>
+<area shape="rect" id="Node000010" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aa6e7191d99df015fef8879cc35acabcf" title=" " alt="" coords="290,363,508,389"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="561,339,515,354,474,365,472,360,513,349,559,334"/>
+<area shape="rect" id="Node000011" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aab271baedce8409a164cc1b5d2fd8f4a" title=" " alt="" coords="290,412,508,438"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="604,343,563,375,515,404,486,414,484,409,513,399,560,371,600,338"/>
+<area shape="rect" id="Node000012" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a1b19faa9fbce83f5f41bdb2ae950b300" title=" " alt="" coords="290,462,508,487"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="619,345,576,402,547,430,515,453,492,463,490,459,513,448,544,426,572,398,615,342"/>
+<area shape="rect" id="Node000013" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#ac9e677865598c39278e7e9f46c3cb383" title=" " alt="" coords="318,512,480,568"/>
+<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="627,346,608,383,584,425,553,466,516,502,482,522,479,517,512,498,549,463,579,422,604,380,622,343"/>
+<area shape="rect" id="Node000014" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#a00bf6a87699dd2fc2b849cdd664344d3" title=" " alt="" coords="5,512,236,568"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="302,543,236,543,236,537,302,537"/>
+</map>

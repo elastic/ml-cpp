@@ -1,0 +1,20 @@
+<map id="ml::model::CResourceMonitor::addExtraMemory" name="ml::model::CResourceMonitor::addExtraMemory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,201,185"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1cf1c108bb07110b0d95c2e5b9e99ad5" title=" " alt="" coords="249,144,444,185"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,162,233,162,233,167,201,167"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a666a89154a86726709e80b1800861a8f" title=" " alt="" coords="492,29,687,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,141,491,86,519,74,521,79,493,91,386,146"/>
+<area shape="rect" id="Node000005" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="756,196,945,237"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="421,141,480,129,547,121,618,120,688,130,753,154,809,185,806,190,751,159,687,135,618,125,547,126,481,134,422,146"/>
+<area shape="rect" id="Node000006" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#adaa0f7f080ef8046ac0829817b886a3e" title="Get the high memory limit with margin applied." alt="" coords="492,144,687,185"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="445,162,477,162,477,167,445,167"/>
+<area shape="rect" id="Node000007" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a0b836618d7b75d94a8adf9669d8be908" title="Get the low memory limit with margin applied." alt="" coords="492,209,687,250"/>
+<area shape="poly" id="edge8_Node000002_Node000007" title=" " alt="" coords="425,183,497,202,496,207,424,188"/>
+<area shape="rect" id="Node000008" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="492,275,687,315"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="376,183,429,221,493,259,508,266,505,271,491,264,426,225,372,187"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="544,29,542,19,549,10,565,5,590,3,616,5,631,11,629,16,615,10,590,8,566,10,552,15,547,21,549,28"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="735,29,966,70"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="688,47,720,47,720,52,688,52"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="802,196,799,186,807,177,824,171,851,169,879,172,895,178,893,183,877,177,850,175,825,177,810,181,804,187,807,195"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="659,271,765,239,767,244,661,277"/>
+</map>

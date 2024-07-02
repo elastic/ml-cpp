@@ -1,0 +1,36 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,102,223,128"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a2597707305b58e414cbebefd137d24a6" title=" " alt="" coords="271,102,427,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,112,255,112,255,118,223,118"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="475,37,670,78"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,99,475,80,476,85,403,104"/>
+<area shape="rect" id="Node000004" href="$dd/da5/_c_resource_limit_test_8cc.html#ad168876c3de794b1012fc099ddbbdbf7" title=" " alt="" coords="527,102,619,128"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="428,112,511,112,511,118,428,118"/>
+<area shape="rect" id="Node000014" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a525baae0430affe818c37cff796c78bb" title="Set the internal memory limit, as specified in a limits config file." alt="" coords="475,152,670,193"/>
+<area shape="poly" id="edge16_Node000002_Node000014" title=" " alt="" coords="403,126,476,145,475,150,401,131"/>
+<area shape="rect" id="Node000005" href="$dd/da5/_c_resource_limit_test_8cc.html#aa5d750ecb39cc2f86c64fa73be7ce4a4" title=" " alt="" coords="795,102,906,128"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="619,112,779,112,779,118,619,118"/>
+<area shape="rect" id="Node000011" href="$dd/da5/_c_resource_limit_test_8cc.html#accc8f3269ed9acc0bf022a23b031dd7a" title=" " alt="" coords="777,51,924,77"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="619,104,761,78,762,83,620,109"/>
+<area shape="rect" id="Node000006" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="1106,102,1186,128"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="907,112,1091,112,1091,118,907,118"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="1309,95,1483,135"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1186,112,1294,112,1294,118,1186,118"/>
+<area shape="rect" id="Node000009" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="1539,124,1698,165"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="1187,121,1309,144,1396,147,1483,144,1524,144,1524,149,1483,150,1396,153,1309,150,1186,126"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="1531,59,1706,99"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1483,98,1515,93,1516,98,1484,103"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1484,124,1524,129,1524,134,1483,129"/>
+<area shape="rect" id="Node000010" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="1754,124,1912,165"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1698,142,1738,142,1738,147,1698,147"/>
+<area shape="rect" id="Node000012" href="$dd/da5/_c_resource_limit_test_8cc.html#acf93395900de7e6d29455bca1af4c3c7" title=" " alt="" coords="1088,47,1204,73"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="925,61,1072,59,1072,64,925,66"/>
+<area shape="poly" id="edge13_Node000012_Node000007" title=" " alt="" coords="1205,70,1294,90,1293,95,1203,75"/>
+<area shape="poly" id="edge14_Node000012_Node000009" title=" " alt="" coords="1177,44,1237,24,1316,7,1359,3,1403,5,1445,13,1485,30,1504,48,1511,68,1518,89,1533,109,1539,113,1536,118,1529,113,1513,92,1506,70,1499,51,1482,34,1443,18,1402,10,1359,8,1317,12,1239,29,1179,49"/>
+<area shape="rect" id="Node000013" href="$dd/da5/_c_resource_limit_test_8cc.html#adfff002e956fa0ecb7a8a4d4ce39f79f" title=" " alt="" coords="1365,45,1428,70"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="1204,57,1349,55,1349,61,1204,62"/>
+<area shape="rect" id="Node000015" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a48617536e82f59b14f00cde169e2d3d4" title=" " alt="" coords="718,152,983,193"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="671,170,703,170,703,175,671,175"/>
+<area shape="rect" id="Node000016" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="1031,152,1261,193"/>
+<area shape="poly" id="edge18_Node000015_Node000016" title=" " alt="" coords="983,170,1015,170,1015,175,983,175"/>
+</map>

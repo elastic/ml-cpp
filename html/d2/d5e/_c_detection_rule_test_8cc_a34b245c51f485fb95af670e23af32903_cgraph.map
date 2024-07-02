@@ -1,0 +1,46 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,264,223,289"/>
+<area shape="rect" id="Node000002" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#ac0b5d425298ba8b6afa5dcad95302fbe" title="Add a condition." alt="" coords="285,36,464,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,261,142,227,175,180,218,130,269,88,278,82,281,86,272,92,222,134,179,183,146,230,125,264"/>
+<area shape="rect" id="Node000003" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#aa1cfd7395a5f4f682dbe1d195d5547ba" title="Set which value the condition applies to." alt="" coords="285,125,464,166"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,261,191,220,269,177,286,169,288,174,272,181,194,225,135,265"/>
+<area shape="rect" id="Node000004" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#afefe332637dda78b3f8c3476f3ec99e9" title=" " alt="" coords="285,191,464,231"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="167,260,275,233,276,238,169,266"/>
+<area shape="rect" id="Node000015" href="$da/de5/classml_1_1model_1_1_c_mock_model.html#afc5b06e57572179f753fb94fcd69d85c" title=" " alt="" coords="271,256,478,297"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="223,274,255,274,255,279,223,279"/>
+<area shape="rect" id="Node000017" href="$da/de5/classml_1_1model_1_1_c_mock_model.html#ac15d5b2aa8ea697bada801702394e43c" title=" " alt="" coords="293,321,456,362"/>
+<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="169,287,279,315,277,320,167,292"/>
+<area shape="rect" id="Node000018" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#a257904c06b1ac1ac776d9ede219f5d2a" title="Set the condition operator." alt="" coords="274,410,475,436"/>
+<area shape="poly" id="edge22_Node000001_Node000018" title=" " alt="" coords="136,287,196,326,272,371,330,401,328,406,269,376,194,331,134,292"/>
+<area shape="rect" id="Node000019" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#a3e8f18eddbd1b14c858893cb756f9014" title="Set the condition value." alt="" coords="285,484,464,525"/>
+<area shape="poly" id="edge24_Node000001_Node000019" title=" " alt="" coords="127,288,185,360,226,405,272,446,315,474,312,479,269,450,222,409,180,364,123,291"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="329,125,327,115,334,106,350,101,374,99,400,101,416,107,414,112,399,106,374,104,351,106,337,111,332,117,334,124"/>
+<area shape="rect" id="Node000005" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#adad7aef7e3127095b45e43b500f1d4ce" title="Set the rule&#39;s action." alt="" coords="526,160,705,201"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="464,197,510,191,511,196,465,202"/>
+<area shape="rect" id="Node000006" href="$db/d04/classml_1_1model_1_1_c_rule_scope.html#add2c25c919fba5d8771de4d29efc2ec0" title="Check whether the given series is in the rule scope." alt="" coords="536,225,696,266"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="465,221,520,229,520,235,464,227"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="571,160,569,150,576,141,592,135,616,133,641,136,656,142,654,147,640,141,616,139,593,141,579,145,574,151,576,159"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abaaeada8d59172f01e365d1167a7d340" title="Get the attribute field name if one exists." alt="" coords="765,5,939,46"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="688,223,703,210,717,192,724,173,726,135,729,97,737,77,751,57,756,53,759,57,755,61,741,79,734,98,732,136,729,174,722,194,707,214,692,227"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a92ae7d8205e44f988b79208fb8da93e5" title=" " alt="" coords="765,95,939,135"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="683,222,704,210,719,195,727,179,736,163,752,146,760,141,763,145,755,150,740,166,732,181,723,198,707,214,686,227"/>
+<area shape="rect" id="Node000009" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="753,160,951,201"/>
+<area shape="poly" id="edge11_Node000006_Node000009" title=" " alt="" coords="691,222,760,203,762,208,692,227"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#adb666a24d59617cf57835b4345e7af5e" title=" " alt="" coords="765,225,939,266"/>
+<area shape="poly" id="edge12_Node000006_Node000010" title=" " alt="" coords="696,243,750,243,750,248,696,248"/>
+<area shape="rect" id="Node000012" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3e639d703aa4563feb9d7466bf14bf9f" title=" " alt="" coords="765,291,939,331"/>
+<area shape="poly" id="edge14_Node000006_Node000012" title=" " alt="" coords="692,264,762,283,760,288,691,269"/>
+<area shape="rect" id="Node000013" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a663b4ffe2c7f28a1f5ce4495b7d1f9d0" title=" " alt="" coords="765,356,939,397"/>
+<area shape="poly" id="edge15_Node000006_Node000013" title=" " alt="" coords="681,264,707,280,723,296,731,311,740,326,755,341,763,346,760,351,752,345,736,330,727,314,718,299,704,284,679,269"/>
+<area shape="rect" id="Node000014" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="765,445,939,486"/>
+<area shape="poly" id="edge16_Node000006_Node000014" title=" " alt="" coords="687,264,707,280,720,296,728,312,733,343,738,374,744,390,755,407,789,435,786,439,751,410,739,393,733,376,728,344,723,314,716,299,703,284,684,269"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="811,95,809,85,816,76,830,70,852,68,876,70,889,77,887,81,874,76,852,73,831,75,819,80,814,86,816,93"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="999,233,1139,259"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="940,243,983,243,983,248,940,248"/>
+<area shape="poly" id="edge17_Node000014_Node000014" title=" " alt="" coords="811,445,809,435,816,426,830,421,852,419,876,421,889,427,887,432,874,426,852,424,831,426,819,431,814,437,816,444"/>
+<area shape="rect" id="Node000016" href="$db/dc5/namespaceml_1_1core.html#a93bcdc8ec5834bac60be504a29341a09" title=" " alt="" coords="544,294,687,320"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="479,287,529,293,528,299,478,292"/>
+<area shape="poly" id="edge21_Node000017_Node000016" title=" " alt="" coords="456,327,528,317,529,322,457,333"/>
+<area shape="poly" id="edge23_Node000018_Node000018" title=" " alt="" coords="335,412,327,402,331,392,348,386,374,384,404,386,419,393,417,398,403,391,374,389,349,391,335,396,332,401,339,408"/>
+<area shape="poly" id="edge25_Node000019_Node000019" title=" " alt="" coords="329,484,327,474,334,465,350,459,374,457,400,460,416,466,414,471,399,465,374,463,351,465,337,469,332,475,334,483"/>
+</map>

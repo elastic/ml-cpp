@@ -1,0 +1,15 @@
+<map id="ml::model::CPopulationModel::doAcceptRestoreTraverser" name="ml::model::CPopulationModel::doAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore the model reading state from the supplied traverser." alt="" coords="5,169,198,210"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="246,5,464,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,167,171,112,206,83,244,57,257,50,259,55,247,61,209,87,175,116,122,171"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="246,71,464,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,166,245,122,266,114,268,119,247,127,146,171"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ae8ee1fb659a027d9ce811237b0757e6e" title="Get the person bucket counts." alt="" coords="256,136,454,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,174,240,169,241,174,199,180"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="278,201,432,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="199,199,263,207,262,213,198,205"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="281,267,429,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="147,208,247,251,268,259,267,264,245,256,145,213"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="246,332,464,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="122,209,175,263,210,292,247,317,259,323,257,328,244,321,206,296,171,266,119,213"/>
+</map>

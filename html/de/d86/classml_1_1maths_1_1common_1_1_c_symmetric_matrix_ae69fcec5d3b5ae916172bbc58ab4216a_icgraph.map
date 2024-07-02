@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CSymmetricMatrix::columns" name="ml::maths::common::CSymmetricMatrix::columns">
+<area shape="rect" id="Node000001" title="Get the number of columns." alt="" coords="250,55,437,96"/>
+<area shape="rect" id="Node000002" href="$d6/d26/_c_linear_algebra_test_8cc.html#a0fdf947d2a3f6c81e6f1836ac386f2f0" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,54,160,34,161,29,241,48"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ade96659972eec9741d2f1b3f5fae9b19" title=" " alt="" coords="31,55,176,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,78,177,78,177,73,234,73"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a1fa552ed70f1dff561a0d742ae238d76" title="Output for debug." alt="" coords="31,121,176,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="252,103,177,124,176,118,251,98"/>
+</map>

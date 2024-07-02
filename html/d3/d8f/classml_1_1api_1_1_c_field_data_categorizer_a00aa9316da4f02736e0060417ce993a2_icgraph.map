@@ -1,0 +1,7 @@
+<map id="ml::api::CFieldDataCategorizer::acknowledgeFlush" name="ml::api::CFieldDataCategorizer::acknowledgeFlush">
+<area shape="rect" id="Node000001" title="Acknowledge a flush request." alt="" coords="504,5,705,46"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a44a5f21ef82209c293e502f51f016d08" title=" " alt="" coords="255,5,456,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,28,456,28,456,23,488,23"/>
+<area shape="rect" id="Node000003" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad9934d581fe7465d1317a23c0664ca82" title=" " alt="" coords="5,5,207,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="239,28,207,28,207,23,239,23"/>
+</map>

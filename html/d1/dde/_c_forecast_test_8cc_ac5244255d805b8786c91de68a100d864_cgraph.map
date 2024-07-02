@@ -1,0 +1,44 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,342,202,368"/>
+<area shape="rect" id="Node000002" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#ac3100a65ac283c09f9bd75d38264eea7" title=" " alt="" coords="250,226,412,281"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,339,252,286,254,290,136,344"/>
+<area shape="rect" id="Node000003" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ae81530bc1b51ba278741144ca256650d" title=" " alt="" coords="258,305,404,346"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,339,242,334,243,339,202,345"/>
+<area shape="rect" id="Node000012" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ad30fb657633042521274a54322d0ee30" title=" " alt="" coords="499,564,644,604"/>
+<area shape="poly" id="edge25_Node000001_Node000012" title=" " alt="" coords="202,358,325,375,378,388,414,406,428,422,436,439,440,474,443,508,449,524,462,541,486,559,483,563,458,545,445,527,438,509,435,474,431,441,424,425,410,410,376,393,324,380,202,364"/>
+<area shape="rect" id="Node000017" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="294,445,368,470"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="135,366,288,435,285,440,133,371"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="460,175,682,231"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="390,302,410,291,434,270,458,247,479,235,481,240,462,252,438,273,414,296,393,307"/>
+<area shape="rect" id="Node000005" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ad25a00931439cf66b316c2c0277bdf79" title="Get the curvatures at the knot points of the spline." alt="" coords="730,85,888,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="397,303,410,292,426,267,432,242,429,192,427,167,429,142,438,119,458,97,490,77,525,64,561,57,599,55,673,62,737,78,736,83,672,68,599,61,562,63,526,69,492,82,462,101,442,122,434,143,432,167,434,191,437,243,430,269,414,295,401,307"/>
+<area shape="rect" id="Node000007" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a39e53abd1d0c2de07a44a358db269622" title="Get the knot points of the spline." alt="" coords="736,248,882,288"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="404,302,460,291,597,275,720,268,721,273,597,280,460,296,405,308"/>
+<area shape="rect" id="Node000008" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a0a27ad6088318c0c6b7404200931ca3b" title="Get the knot points of the spline." alt="" coords="499,110,644,151"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="397,302,410,292,422,275,429,260,433,227,437,194,444,177,458,161,482,145,485,149,462,165,449,180,442,195,438,228,434,261,427,278,414,295,400,306"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="492,305,651,346"/>
+<area shape="poly" id="edge10_Node000003_Node000009" title=" " alt="" coords="404,323,476,323,476,328,404,328"/>
+<area shape="rect" id="Node000010" href="$df/dcd/namespaceml_1_1maths_1_1common_1_1spline__detail.html#ac562223a504021d606aadecdbc435390" title=" " alt="" coords="479,370,663,425"/>
+<area shape="poly" id="edge11_Node000003_Node000010" title=" " alt="" coords="402,344,465,363,463,368,400,349"/>
+<area shape="rect" id="Node000011" href="$df/dcd/namespaceml_1_1maths_1_1common_1_1spline__detail.html#a909ec7415245a8ba89e5a3fa669fb1ad" title=" " alt="" coords="474,449,669,490"/>
+<area shape="poly" id="edge12_Node000003_Node000011" title=" " alt="" coords="387,344,414,362,430,382,438,401,446,418,462,435,467,439,464,443,458,439,441,421,433,403,425,384,410,366,384,349"/>
+<area shape="poly" id="edge13_Node000003_Node000012" title=" " alt="" coords="393,344,414,362,429,387,437,411,437,456,439,500,446,521,462,544,486,562,483,566,458,547,442,524,433,501,432,456,431,411,425,389,410,366,389,348"/>
+<area shape="rect" id="Node000015" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#af9d9ce19eea5bed22ade0c33c4d922d7" title="Get the values at the knot points of the spline." alt="" coords="736,465,882,506"/>
+<area shape="poly" id="edge20_Node000003_Node000015" title=" " alt="" coords="391,344,414,362,427,381,433,400,435,437,439,470,447,485,462,499,494,517,529,528,565,534,603,535,676,525,740,509,741,514,677,531,603,540,565,539,527,534,491,522,458,504,442,488,434,472,430,437,428,401,422,383,410,366,388,348"/>
+<area shape="rect" id="Node000016" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a79562d5d268d5702d2f1f8459ab32a1d" title="Get the values at the knot points of the spline." alt="" coords="736,12,882,52"/>
+<area shape="poly" id="edge21_Node000003_Node000016" title=" " alt="" coords="398,303,410,292,428,262,434,232,433,203,429,173,425,143,426,114,436,86,458,58,487,37,518,22,552,12,587,6,657,4,721,10,720,15,657,9,588,11,553,17,520,27,490,42,462,62,440,88,431,115,431,143,434,172,439,202,440,233,433,264,414,295,401,307"/>
+<area shape="rect" id="Node000006" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="936,227,1076,253"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="842,124,975,216,972,220,839,128"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="882,255,920,250,921,255,882,260"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="645,146,938,220,936,226,644,152"/>
+<area shape="poly" id="edge16_Node000012_Node000007" title=" " alt="" coords="606,561,644,534,680,500,717,450,749,396,792,302,797,304,754,398,722,452,684,503,648,538,609,565"/>
+<area shape="rect" id="Node000013" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a89db4cff0eb3da52e08292f255fd20f7" title="Get the curvatures at the knot points of the spline." alt="" coords="736,530,882,571"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="644,571,721,560,721,566,645,577"/>
+<area shape="rect" id="Node000014" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="736,596,882,636"/>
+<area shape="poly" id="edge17_Node000012_Node000014" title=" " alt="" coords="645,591,721,602,721,607,644,596"/>
+<area shape="poly" id="edge18_Node000012_Node000015" title=" " alt="" coords="637,561,681,543,729,516,742,510,744,515,732,521,683,548,639,566"/>
+<area shape="poly" id="edge15_Node000013_Node000006" title=" " alt="" coords="870,528,886,515,910,487,932,454,964,385,985,319,997,267,1002,269,991,321,969,387,936,457,915,490,890,519,873,532"/>
+<area shape="poly" id="edge19_Node000015_Node000006" title=" " alt="" coords="825,463,983,263,987,266,829,466"/>
+<area shape="poly" id="edge22_Node000016_Node000006" title=" " alt="" coords="860,51,889,71,923,106,952,144,993,212,989,215,947,147,919,109,886,75,857,55"/>
+<area shape="poly" id="edge24_Node000017_Node000017" title=" " alt="" coords="293,446,286,436,290,426,306,420,331,418,359,421,373,427,370,432,357,426,331,423,307,425,294,430,291,435,297,443"/>
+</map>

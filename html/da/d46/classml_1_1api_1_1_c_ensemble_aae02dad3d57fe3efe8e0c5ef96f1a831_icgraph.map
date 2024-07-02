@@ -1,0 +1,7 @@
+<map id="ml::api::CEnsemble::aggregateOutput" name="ml::api::CEnsemble::aggregateOutput">
+<area shape="rect" id="Node000001" title="Aggregation mechanism for the output from individual models." alt="" coords="274,49,410,90"/>
+<area shape="rect" id="Node000002" href="$dd/d5c/classml_1_1api_1_1_c_classification_inference_model_builder.html#a75294dd06a6b307dbefa4fc872a872fb" title=" " alt="" coords="37,5,194,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,59,194,48,195,43,259,53"/>
+<area shape="rect" id="Node000003" href="$d1/dbd/classml_1_1api_1_1_c_regression_inference_model_builder.html#a1e6cf43d7656c311de08b0bdef4b9a3a" title=" " alt="" coords="5,85,226,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="259,85,227,90,226,85,258,80"/>
+</map>

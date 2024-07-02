@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CBayesianOptimisation::memoryUsage" name="ml::maths::common::CBayesianOptimisation::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this object." alt="" coords="5,77,164,133"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="212,92,418,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,103,196,103,196,108,164,108"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="466,5,637,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,89,450,61,452,66,360,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="468,85,635,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="419,103,452,103,452,108,419,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="685,107,871,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="367,116,466,135,552,138,637,135,669,134,670,139,637,140,552,143,466,140,366,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="636,113,670,118,670,123,635,119"/>
+</map>

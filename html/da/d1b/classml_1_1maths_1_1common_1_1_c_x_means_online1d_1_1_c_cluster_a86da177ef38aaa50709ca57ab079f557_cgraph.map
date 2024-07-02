@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CXMeansOnline1d::CCluster::add" name="ml::maths::common::CXMeansOnline1d::CCluster::add">
+<area shape="rect" id="Node000001" title="Add point to this cluster." alt="" coords="5,63,225,103"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a27a8cb85db7bf18509c0a8b9cd4e76e0" title="The total count of points." alt="" coords="273,29,443,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,65,257,61,257,66,226,71"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="273,98,443,124"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="225,93,257,97,257,102,225,98"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="316,29,314,19,321,10,335,5,358,3,382,5,396,11,394,16,381,10,358,8,337,10,324,15,319,21,321,28"/>
+<area shape="rect" id="Node000003" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#abcabb7b5750133a0f54c4d9bee6973fe" title=" " alt="" coords="492,29,669,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="444,56,476,56,476,61,444,61"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="491,43,459,43,459,38,491,38"/>
+<area shape="rect" id="Node000005" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="491,95,670,135"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="444,110,476,110,476,116,444,115"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::CDataFrameCategoryEncoder::persistEncodings" name="ml::maths::analytics::CDataFrameCategoryEncoder::persistEncodings">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,121,211,177"/>
+<area shape="rect" id="Node000002" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#a6fab83d7abcfc66fdea494149b4a99af" title="Persist by passing information to inserter." alt="" coords="259,5,484,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,118,258,71,272,65,274,70,260,76,162,123"/>
+<area shape="rect" id="Node000004" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#a54d4f939dcc443a52d0c9052357a41b2" title="Get the encoded feature at position encodedColumnIndex." alt="" coords="269,85,474,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,132,253,127,253,132,212,138"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="270,165,473,206"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="212,161,255,167,254,172,211,166"/>
+<area shape="rect" id="Node000006" href="$df/dc1/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_encoding.html#a22867f05adf99fa7d9f24c7360fbf181" title=" " alt="" coords="269,229,474,285"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="170,175,260,215,275,221,274,226,258,220,168,180"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="532,13,686,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="484,31,516,31,516,36,484,36"/>
+</map>

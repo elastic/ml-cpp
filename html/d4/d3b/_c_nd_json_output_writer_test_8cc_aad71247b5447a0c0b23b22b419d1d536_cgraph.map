@@ -1,0 +1,91 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,465,202,491"/>
+<area shape="rect" id="Node000002" href="$d6/d83/classml_1_1api_1_1_c_nd_json_output_writer.html#a5e545a83cebab8911aed020ba6f6b906" title=" " alt="" coords="250,424,446,465"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,462,234,457,234,462,202,467"/>
+<area shape="rect" id="Node000003" href="$d6/d83/classml_1_1api_1_1_c_nd_json_output_writer.html#adbb7655d55b59406d4f719a5939fb6e5" title="Write the data row fields as a JSON object." alt="" coords="250,489,446,530"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,488,234,492,234,497,202,493"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a65b1c737f83da7d0093673a01534fd9b" title="Return a new boost::json document." alt="" coords="501,240,683,281"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="424,486,444,474,488,432,525,384,553,335,574,294,579,296,558,338,529,386,492,436,448,478,427,491"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a157addc9d1c67a27a3fa303bfe348f28" title=" " alt="" coords="501,489,683,530"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="446,507,485,507,485,512,446,512"/>
+<area shape="rect" id="Node000029" href="$d6/d83/classml_1_1api_1_1_c_nd_json_output_writer.html#a24d6b228b9c3a37633e13a38764c2b63" title="Write a single field to the document." alt="" coords="494,875,690,915"/>
+<area shape="poly" id="edge51_Node000003_Node000029" title=" " alt="" coords="364,529,572,860,568,863,360,532"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1a4e776753ad90ee9fd2c68dc5aedf5a" title=" " alt="" coords="751,53,933,94"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="618,237,737,146,798,101,801,105,740,150,622,242"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a32db0bc2a291141e60a96d39ed8bb5ad" title=" " alt="" coords="1012,5,1194,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="933,54,996,43,997,48,934,60"/>
+<area shape="rect" id="Node000007" href="$dc/db5/classml_1_1core_1_1_c_boost_json_pool_allocator.html#a98200c8989d605f86f133014ba20b34e" title=" " alt="" coords="1264,5,1438,46"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1195,23,1249,23,1249,28,1195,28"/>
+<area shape="poly" id="edge50_Node000008_Node000008" title=" " alt="" coords="546,489,544,479,552,470,568,465,592,463,618,465,634,471,632,476,617,470,592,468,569,470,555,475,549,481,551,488"/>
+<area shape="rect" id="Node000009" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a246c715fce171f5dec05d1215ca9acf6" title=" " alt="" coords="1012,843,1194,883"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="601,530,615,582,642,651,661,688,683,723,709,756,740,783,997,839,996,844,737,788,706,759,679,726,656,691,637,654,610,584,595,531"/>
+<area shape="rect" id="Node000012" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a2824b45bbf5a6f03b0831b22a8c1d15b" title=" " alt="" coords="1012,201,1194,242"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="597,488,613,442,642,381,682,320,708,293,737,270,767,253,799,239,866,221,934,213,996,211,996,216,934,218,867,226,801,244,769,258,740,275,711,297,687,324,646,384,618,444,602,490"/>
+<area shape="rect" id="Node000014" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a419c88edb8101da31ce043ca152e9acf" title=" " alt="" coords="751,489,933,530"/>
+<area shape="poly" id="edge14_Node000008_Node000014" title=" " alt="" coords="684,507,735,507,735,512,684,512"/>
+<area shape="rect" id="Node000016" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1bdc20a46a6253d07785ae8678c00fb8" title=" " alt="" coords="751,284,933,325"/>
+<area shape="poly" id="edge20_Node000008_Node000016" title=" " alt="" coords="605,487,658,419,695,380,737,345,763,329,766,334,740,349,699,384,662,422,609,491"/>
+<area shape="rect" id="Node000019" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aeabcaccf40a53fad01e6023fe94b49b9" title=" " alt="" coords="751,424,933,465"/>
+<area shape="poly" id="edge25_Node000008_Node000019" title=" " alt="" coords="672,486,746,467,748,472,673,491"/>
+<area shape="rect" id="Node000022" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3e682c1a84193d87d74cf25162d8b209" title=" " alt="" coords="1012,777,1194,818"/>
+<area shape="poly" id="edge30_Node000008_Node000022" title=" " alt="" coords="603,530,621,573,649,628,689,684,713,709,740,730,784,749,849,764,996,785,996,791,848,769,782,754,737,735,709,713,685,687,645,631,616,575,598,532"/>
+<area shape="rect" id="Node000023" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3b9247342f5e0f0b76ec42399e101afc" title=" " alt="" coords="751,555,933,595"/>
+<area shape="poly" id="edge33_Node000008_Node000023" title=" " alt="" coords="673,528,748,548,746,553,672,533"/>
+<area shape="rect" id="Node000024" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a688d4dc1c2cdab063e0bc24f22b7ce9f" title=" " alt="" coords="1012,712,1194,753"/>
+<area shape="poly" id="edge36_Node000008_Node000024" title=" " alt="" coords="607,529,628,561,658,600,696,639,740,670,802,697,869,715,935,726,996,731,996,736,935,731,868,720,800,702,737,675,692,643,654,603,624,564,603,532"/>
+<area shape="rect" id="Node000025" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a5c143d822ec423894dc475bb343616a9" title=" " alt="" coords="1012,136,1194,177"/>
+<area shape="poly" id="edge39_Node000008_Node000025" title=" " alt="" coords="600,488,670,339,709,264,736,224,766,204,798,189,865,167,933,155,996,150,996,155,933,160,866,172,800,194,769,209,740,228,714,267,675,342,605,490"/>
+<area shape="rect" id="Node000026" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa116c0090c03bfb6e818ed7da3ed6050" title=" " alt="" coords="751,620,933,661"/>
+<area shape="poly" id="edge42_Node000008_Node000026" title=" " alt="" coords="621,528,674,566,740,605,755,612,753,616,737,609,671,571,618,532"/>
+<area shape="rect" id="Node000028" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae48641562b2eafb9e4730582363a616d" title=" " alt="" coords="751,359,933,399"/>
+<area shape="poly" id="edge46_Node000008_Node000028" title=" " alt="" coords="618,487,671,448,737,410,753,403,755,408,740,415,674,453,621,491"/>
+<area shape="rect" id="Node000010" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="1260,511,1442,551"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1192,840,1210,828,1260,724,1332,564,1337,566,1265,726,1214,831,1195,844"/>
+<area shape="rect" id="Node000011" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="1260,744,1442,785"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="1176,840,1211,827,1295,790,1297,795,1213,832,1177,845"/>
+<area shape="poly" id="edge12_Node000012_Node000010" title=" " alt="" coords="1186,240,1214,258,1234,283,1244,306,1251,331,1262,361,1334,496,1329,498,1258,363,1246,333,1239,308,1230,285,1210,262,1183,245"/>
+<area shape="rect" id="Node000013" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="1260,201,1442,242"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="1195,219,1244,219,1244,224,1195,224"/>
+<area shape="poly" id="edge15_Node000014_Node000010" title=" " alt="" coords="934,524,994,531,1103,534,1212,531,1244,531,1244,536,1212,536,1103,540,993,536,933,529"/>
+<area shape="rect" id="Node000015" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="994,481,1212,522"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="934,504,978,503,978,508,934,510"/>
+<area shape="poly" id="edge17_Node000015_Node000010" title=" " alt="" coords="1213,512,1245,516,1244,521,1212,517"/>
+<area shape="poly" id="edge19_Node000015_Node000011" title=" " alt="" coords="1125,520,1322,731,1318,734,1121,524"/>
+<area shape="poly" id="edge18_Node000015_Node000013" title=" " alt="" coords="1119,479,1258,309,1315,251,1319,255,1262,313,1123,483"/>
+<area shape="poly" id="edge21_Node000016_Node000010" title=" " alt="" coords="921,281,987,270,1062,266,1102,269,1140,275,1178,286,1214,302,1236,329,1269,381,1334,496,1329,498,1264,383,1232,332,1210,306,1176,291,1139,280,1101,274,1062,271,988,275,922,286"/>
+<area shape="poly" id="edge22_Node000016_Node000015" title=" " alt="" coords="906,323,947,345,986,374,1021,407,1078,468,1074,471,1017,410,982,378,944,349,903,328"/>
+<area shape="rect" id="Node000017" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="1029,71,1177,111"/>
+<area shape="poly" id="edge23_Node000016_Node000017" title=" " alt="" coords="853,282,875,248,906,205,946,160,992,122,1014,110,1016,115,995,127,950,164,910,208,879,251,857,285"/>
+<area shape="rect" id="Node000018" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="1282,71,1420,111"/>
+<area shape="poly" id="edge24_Node000017_Node000018" title=" " alt="" coords="1177,88,1266,88,1266,94,1177,94"/>
+<area shape="poly" id="edge26_Node000019_Node000010" title=" " alt="" coords="934,439,1067,444,1140,453,1213,467,1258,482,1300,501,1298,506,1256,487,1211,472,1140,458,1066,450,934,444"/>
+<area shape="poly" id="edge27_Node000019_Node000015" title=" " alt="" coords="934,462,993,475,992,480,933,467"/>
+<area shape="rect" id="Node000020" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="1029,316,1177,357"/>
+<area shape="poly" id="edge28_Node000019_Node000020" title=" " alt="" coords="911,421,945,409,1047,362,1049,366,947,413,913,426"/>
+<area shape="rect" id="Node000021" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1328,324,1374,349"/>
+<area shape="poly" id="edge29_Node000020_Node000021" title=" " alt="" coords="1177,334,1313,334,1313,339,1177,339"/>
+<area shape="poly" id="edge31_Node000022_Node000010" title=" " alt="" coords="1190,775,1210,762,1255,717,1291,663,1318,610,1336,565,1341,567,1323,613,1295,666,1259,720,1214,766,1193,779"/>
+<area shape="poly" id="edge32_Node000022_Node000011" title=" " alt="" coords="1194,783,1244,776,1245,781,1195,788"/>
+<area shape="poly" id="edge34_Node000023_Node000010" title=" " alt="" coords="933,565,1212,540,1244,538,1244,543,1212,546,934,570"/>
+<area shape="poly" id="edge35_Node000023_Node000015" title=" " alt="" coords="916,552,1012,524,1014,529,918,557"/>
+<area shape="poly" id="edge37_Node000024_Node000010" title=" " alt="" coords="1188,709,1211,697,1248,667,1280,631,1328,563,1333,566,1284,635,1251,670,1213,701,1190,714"/>
+<area shape="poly" id="edge38_Node000024_Node000011" title=" " alt="" coords="1195,741,1245,748,1244,753,1194,747"/>
+<area shape="poly" id="edge40_Node000025_Node000010" title=" " alt="" coords="1196,174,1214,188,1231,209,1241,229,1248,269,1251,311,1254,335,1262,361,1297,434,1331,496,1327,499,1292,436,1258,363,1249,336,1245,312,1243,270,1236,231,1227,212,1210,192,1193,178"/>
+<area shape="poly" id="edge41_Node000025_Node000013" title=" " alt="" coords="1184,175,1257,194,1256,199,1182,180"/>
+<area shape="poly" id="edge43_Node000026_Node000015" title=" " alt="" coords="915,617,944,605,1008,568,1062,529,1065,534,1011,572,947,609,917,622"/>
+<area shape="rect" id="Node000027" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="1012,647,1194,687"/>
+<area shape="poly" id="edge44_Node000026_Node000027" title=" " alt="" coords="934,647,997,653,996,659,933,652"/>
+<area shape="poly" id="edge45_Node000027_Node000010" title=" " alt="" coords="1170,644,1211,626,1265,593,1311,559,1314,563,1268,598,1213,631,1173,648"/>
+<area shape="poly" id="edge47_Node000028_Node000010" title=" " alt="" coords="934,380,997,386,1068,396,1142,412,1213,435,1269,465,1316,499,1313,503,1266,469,1211,440,1140,417,1067,401,996,391,933,385"/>
+<area shape="poly" id="edge48_Node000028_Node000015" title=" " alt="" coords="915,397,947,410,1006,440,1058,471,1056,475,1003,444,945,415,913,402"/>
+<area shape="poly" id="edge49_Node000028_Node000020" title=" " alt="" coords="933,361,1013,348,1014,353,934,367"/>
+<area shape="rect" id="Node000030" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa83f6b8bf6f7cbeecdd920880a43afab" title=" " alt="" coords="750,908,934,949"/>
+<area shape="poly" id="edge52_Node000029_Node000030" title=" " alt="" coords="691,905,735,911,734,917,690,911"/>
+<area shape="rect" id="Node000032" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ac40688d77c7e2cb06f91410e15377644" title=" " alt="" coords="738,843,946,883"/>
+<area shape="poly" id="edge54_Node000029_Node000032" title=" " alt="" coords="690,880,722,876,723,881,691,885"/>
+<area shape="rect" id="Node000033" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="768,973,916,1014"/>
+<area shape="poly" id="edge56_Node000029_Node000033" title=" " alt="" coords="638,914,739,958,760,965,758,970,737,963,636,918"/>
+<area shape="rect" id="Node000031" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="1012,908,1194,949"/>
+<area shape="poly" id="edge53_Node000030_Node000031" title=" " alt="" coords="934,926,996,926,996,931,934,931"/>
+<area shape="poly" id="edge55_Node000032_Node000031" title=" " alt="" coords="927,881,1005,901,1003,906,925,887"/>
+</map>

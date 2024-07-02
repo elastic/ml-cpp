@@ -1,0 +1,10 @@
+<map id="ml::core::CStringSimilarityTester" name="ml::core::CStringSimilarityTester">
+<area shape="rect" id="Node000001" title="Class to measure how similar strings are." alt="" coords="6,244,181,285"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,5,171,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,46,96,243,90,243,86,46"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html" title="Shrink wrap zlib calls." alt="" coords="109,80,275,106"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="119,38,176,78,173,82,116,42"/>
+<area shape="rect" id="Node000003" href="$d0/def/classml_1_1core_1_1_c_deflator.html" title="Implementation of CompressUtil for deflating data." alt="" coords="118,155,250,181"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,194,114,245,110,242,160,190"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="192,122,188,155,183,155,186,121"/>
+</map>

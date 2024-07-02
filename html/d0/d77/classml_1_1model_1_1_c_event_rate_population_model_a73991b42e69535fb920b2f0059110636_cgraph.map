@@ -1,0 +1,21 @@
+<map id="ml::model::CEventRatePopulationModel::doSkipSampling" name="ml::model::CEventRatePopulationModel::doSkipSampling">
+<area shape="rect" id="Node000001" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="5,192,225,233"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a475505e7a1d22b90b6a67dc6f9750b89" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="286,103,479,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,189,272,154,297,146,298,151,274,159,174,194"/>
+<area shape="rect" id="Node000008" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af92625c71c433efde0537885486e294d" title=" " alt="" coords="273,192,492,233"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="225,210,257,210,257,215,225,215"/>
+<area shape="rect" id="Node000009" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a42cf4c7a0a2293a02f1621c6cd2e5c8b" title="Advance time by gap." alt="" coords="310,257,455,298"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="202,231,295,254,294,259,201,236"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="540,5,737,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,100,539,57,559,49,561,54,541,61,434,105"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a01a461f14a805f86bfc44c38b015ba47" title="Check that the person is no longer being modeled." alt="" coords="552,71,726,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="479,108,536,101,537,106,479,114"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad433daea23da24cfde03e0c13ec15e99" title="Check that the person is no longer being modeled." alt="" coords="552,136,726,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="479,133,537,140,536,146,478,138"/>
+<area shape="rect" id="Node000007" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a2b41e9260ab8c78bf87a137679c500a9" title="Returns true if the the is an unset first bucket time." alt="" coords="540,201,737,242"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="463,142,493,154,518,170,541,186,556,193,554,198,539,191,515,174,491,159,461,146"/>
+<area shape="rect" id="Node000005" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="785,104,968,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="727,101,770,107,770,112,726,106"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="726,142,770,136,770,141,727,147"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="334,192,332,182,340,173,357,167,382,165,410,168,426,174,424,179,409,173,382,171,358,173,343,177,337,183,339,191"/>
+</map>

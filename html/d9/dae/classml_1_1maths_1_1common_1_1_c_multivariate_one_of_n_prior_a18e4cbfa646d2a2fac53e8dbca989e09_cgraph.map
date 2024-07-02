@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::propagateForwardsByTime" name="ml::maths::common::CMultivariateOneOfNPrior::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,191,126"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="239,5,392,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,67,237,49,238,54,185,72"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="243,70,388,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,95,227,95,227,100,191,100"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a140e632aa40a33b4638b58208af58d19" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="243,150,388,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="177,124,229,143,227,148,175,129"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="440,110,585,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="388,160,424,153,426,158,389,165"/>
+<area shape="rect" id="Node000006" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="440,190,585,246"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="389,190,426,197,424,203,388,195"/>
+</map>

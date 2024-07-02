@@ -1,0 +1,26 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,110,202,136"/>
+<area shape="rect" id="Node000002" href="$df/d54/_c_xml_parser_test_8cc.html#a3aeabebeacfe1261741df6083720583f" title=" " alt="" coords="280,53,367,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,107,265,78,266,83,156,112"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a5fcfffb26dafc67f42f8bf01a2ae9222" title="Parse XML stored in a string." alt="" coords="250,103,397,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,120,234,120,234,126,202,126"/>
+<area shape="rect" id="Node000007" href="$df/d54/_c_xml_parser_test_8cc.html#a65df461916b01f4ced713d913b679e58" title=" " alt="" coords="266,233,381,259"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="130,134,287,223,284,227,127,139"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a79c507fe3b080722648fc5f4d219ffdb" title="Parse XML stored in a char buffer." alt="" coords="449,37,596,78"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="386,100,443,81,445,86,388,105"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="647,5,795,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="596,43,631,37,632,43,596,48"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="647,71,795,111"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="596,67,632,73,631,79,596,73"/>
+<area shape="rect" id="Node000008" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#aceab2f51242f6dadbcea69ca71586f03" title=" " alt="" coords="452,103,592,143"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="339,230,384,194,444,154,454,148,457,153,446,159,387,198,342,234"/>
+<area shape="rect" id="Node000009" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="445,192,599,233"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="381,233,429,225,430,230,382,239"/>
+<area shape="rect" id="Node000010" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#ad646646a4ba181b2fe1c3a8db144fc79" title="Accessors." alt="" coords="452,257,592,298"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="382,252,437,261,436,267,381,258"/>
+<area shape="rect" id="Node000011" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a1ca090c0dec38513ae116d758af5519c" title="Return the root element name (empty string if not parsed yet)" alt="" coords="449,323,596,363"/>
+<area shape="poly" id="edge11_Node000007_Node000011" title=" " alt="" coords="350,257,446,307,459,313,457,318,444,312,347,261"/>
+<area shape="rect" id="Node000012" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#a4208a4b69b2fab3ae1849696c504610d" title=" " alt="" coords="452,388,592,429"/>
+<area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="336,257,380,312,412,344,447,373,454,378,451,382,443,377,408,348,377,316,332,261"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="484,192,482,182,489,173,502,167,522,165,544,168,557,174,554,179,542,173,522,171,503,173,492,177,488,183,490,191"/>
+</map>

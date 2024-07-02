@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTree::previousPrediction" name="ml::maths::analytics::CBoostedTree::previousPrediction">
+<area shape="rect" id="Node000001" title="Read the previous model prediction from row if it has been updated." alt="" coords="5,13,234,54"/>
+<area shape="rect" id="Node000002" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a1c1a3dbbbc3d725224edf40fa3e83958" title="Read the previous prediction for row if training incementally." alt="" coords="282,5,445,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,31,266,31,266,36,234,36"/>
+<area shape="rect" id="Node000003" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="493,13,651,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="446,31,477,31,477,36,446,36"/>
+</map>

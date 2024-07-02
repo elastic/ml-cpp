@@ -1,0 +1,17 @@
+<map id="ml::model::CSearchKey::isMetric" name="ml::model::CSearchKey::isMetric">
+<area shape="rect" id="Node000001" title="Is the function type for use with the individual models?" alt="" coords="5,71,166,111"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a904b4b4a1f1f1e6d43647bbdbe2baf63" title="Is this function for use with metric models?" alt="" coords="214,71,346,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,88,198,88,198,94,166,94"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="394,71,526,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="346,88,379,88,379,94,346,94"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="574,5,707,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="526,73,587,50,589,55,528,78"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="574,71,707,111"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="527,97,559,97,559,103,527,102"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="579,136,702,161"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="527,109,584,128,582,133,525,114"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="575,44,513,67,511,62,573,39"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="574,85,542,85,542,79,574,80"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="755,136,801,161"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="702,146,739,146,739,151,702,151"/>
+</map>

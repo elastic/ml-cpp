@@ -1,0 +1,5 @@
+<map id="ml::model::SModelParams::distributionRestoreParams" name="ml::model::SModelParams::distributionRestoreParams">
+<area shape="rect" id="Node000001" title="Get the parameters supplied when restoring distribution models." alt="" coords="5,5,189,46"/>
+<area shape="rect" id="Node000002" href="$d1/da4/structml_1_1model_1_1_s_model_params.html#a31e6c362fffb1aef79ed91bd1c1789d4" title="Get the minimum permitted number of points in a sketched point." alt="" coords="237,5,412,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,23,221,23,221,28,189,28"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::propagateForwardByTime" name="ml::model::CAnomalyScore::CNormalizer::propagateForwardByTime">
+<area shape="rect" id="Node000001" title="Age the maximum score and quantile summary." alt="" coords="250,5,464,61"/>
+<area shape="rect" id="Node000002" href="$db/dcc/_c_anomaly_score_test_8cc.html#a481ea2d7a9a12b38aeb56d775fcc8439" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

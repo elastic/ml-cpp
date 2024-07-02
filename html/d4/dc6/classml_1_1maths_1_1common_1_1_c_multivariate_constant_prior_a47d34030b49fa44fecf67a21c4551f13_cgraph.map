@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::jointLogMarginalLikelihood" name="ml::maths::common::CMultivariateConstantPrior::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,96,187,151"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="235,5,426,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,93,183,66,234,41,254,34,256,39,236,46,185,71,140,98"/>
+<area shape="rect" id="Node000003" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="241,56,420,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,105,225,99,226,104,187,111"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="258,136,403,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,136,243,146,242,151,186,142"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a27608c97cfbc7931a896cd1bfbaca9c8" title="Get the smallest component of x." alt="" coords="258,216,403,271"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="144,149,236,201,247,206,245,211,233,206,141,154"/>
+</map>

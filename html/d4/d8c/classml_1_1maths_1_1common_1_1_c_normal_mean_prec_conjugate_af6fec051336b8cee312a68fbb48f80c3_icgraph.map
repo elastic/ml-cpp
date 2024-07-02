@@ -1,0 +1,29 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::clone" name="ml::maths::common::CNormalMeanPrecConjugate::clone">
+<area shape="rect" id="Node000001" title=" " alt="" coords="532,197,723,253"/>
+<area shape="rect" id="Node000002" href="$df/d0f/_c_multimodal_prior_test_8cc.html#ac0349afd36d7dd5bf3c1124c6a286766" title=" " alt="" coords="280,5,477,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="603,184,582,150,554,112,521,75,483,44,462,34,464,29,485,40,525,71,558,108,586,147,607,182"/>
+<area shape="rect" id="Node000003" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#ada735dfff511425c6dfd0a3b45ba4b39" title=" " alt="" coords="280,55,477,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="593,187,544,138,514,114,483,94,458,83,460,79,485,89,518,110,548,134,596,183"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="280,104,477,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="564,191,483,151,429,133,431,128,485,146,567,187"/>
+<area shape="rect" id="Node000005" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a9a9c1ec344485a1a5265d163c7c0f312" title=" " alt="" coords="18,177,212,217"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="516,200,484,195,413,190,342,188,212,192,212,187,342,183,413,185,484,190,517,195"/>
+<area shape="rect" id="Node000006" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#a3ab98cd34165e78d7ddaf8d0994891eb" title=" " alt="" coords="5,289,225,329"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="606,268,585,300,557,334,524,366,485,390,428,410,380,413,332,405,272,390,237,379,203,364,146,332,148,327,205,359,239,374,273,385,333,399,381,408,427,404,483,385,521,362,554,331,581,297,602,265"/>
+<area shape="rect" id="Node000007" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#a81ab4d3924f55a8285294fcd4b1f00b2" title=" " alt="" coords="273,270,484,311"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="518,256,460,272,458,267,516,251"/>
+<area shape="rect" id="Node000008" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#af231a0eff97605c30487253f9e2c699a" title=" " alt="" coords="282,335,475,376"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="581,264,536,296,485,325,455,337,453,332,483,320,533,291,578,260"/>
+<area shape="rect" id="Node000009" href="$da/d2c/namespaceanonymous__namespace_02_c_multimodal_prior_test_8cc_03.html#aedc48afe9523124fd7a2bbe2875a667f" title="Make the default mode prior." alt="" coords="297,450,460,506"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="609,268,559,350,525,394,486,434,458,452,455,448,482,429,521,391,555,347,604,265"/>
+<area shape="rect" id="Node000013" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a40cbeaf792b01dad14b66dadd61325f3" title=" " alt="" coords="291,205,466,245"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="516,228,466,228,466,222,516,222"/>
+<area shape="rect" id="Node000010" href="$df/d0f/_c_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="17,531,213,556"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="283,506,225,521,175,533,174,528,224,516,282,501"/>
+<area shape="rect" id="Node000011" href="$df/d0f/_c_multimodal_prior_test_8cc.html#af133468c156efe4d950954c80ef77729" title=" " alt="" coords="17,400,213,426"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="282,455,224,441,174,429,175,424,225,436,283,450"/>
+<area shape="rect" id="Node000012" href="$da/d2c/namespaceanonymous__namespace_02_c_multimodal_prior_test_8cc_03.html#a0078132d1b7f197b662dfa6231318857" title="Make a vanilla multimodal prior." alt="" coords="34,450,196,506"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="281,481,196,481,196,476,281,476"/>
+<area shape="poly" id="edge13_Node000013_Node000005" title=" " alt="" coords="275,217,212,210,212,204,276,211"/>
+<area shape="poly" id="edge14_Node000013_Node000006" title=" " alt="" coords="298,253,273,261,181,290,180,285,272,256,296,248"/>
+</map>

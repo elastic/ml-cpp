@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::adjustOffset" name="ml::maths::common::CMultivariateMultimodalPrior::adjustOffset">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,111,194,166"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="242,126,419,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,136,226,136,226,141,194,141"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="467,5,647,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="358,123,466,71,477,66,479,70,468,76,360,127"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="468,85,647,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="419,123,451,118,452,123,420,128"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="485,150,630,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="420,148,470,156,469,161,419,154"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="475,216,640,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="359,149,468,200,485,207,483,212,466,205,357,154"/>
+</map>

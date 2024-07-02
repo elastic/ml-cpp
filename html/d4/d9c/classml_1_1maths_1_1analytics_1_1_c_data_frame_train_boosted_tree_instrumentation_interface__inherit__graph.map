@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CDataFrameTrainBoostedTreeInstrumentationInterface" name="ml::maths::analytics::CDataFrameTrainBoostedTreeInstrumentationInterface">
+<area shape="rect" id="Node000001" title="Instrumentation interface for Supervised Learning jobs." alt="" coords="298,34,505,90"/>
+<area shape="rect" id="Node000003" href="$d4/d83/classml_1_1api_1_1_c_data_frame_train_boosted_tree_instrumentation.html" title="Instrumentation class for Supervised Learning jobs." alt="" coords="564,5,749,46"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="520,42,563,36,564,41,521,48"/>
+<area shape="rect" id="Node000004" href="$d5/deb/classml_1_1maths_1_1analytics_1_1_c_data_frame_train_boosted_tree_instrumentation_stub.html" title="Dummies out all instrumentation for supervised learning." alt="" coords="553,70,760,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="521,76,553,80,552,86,520,81"/>
+<area shape="rect" id="Node000002" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,34,250,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="265,59,297,59,297,64,265,64"/>
+<area shape="rect" id="Node000005" href="$de/de1/classanonymous__namespace_02_c_boosted_tree_test_8cc_03_1_1_c_test_instrumentation.html" title=" " alt="" coords="808,70,971,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="776,95,808,95,808,100,776,100"/>
+</map>

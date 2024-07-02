@@ -1,0 +1,15 @@
+<map id="ml::maths::common::SModelProbabilityResult" name="ml::maths::common::SModelProbabilityResult">
+<area shape="rect" id="Node000001" title="Describes the result of the model probability calculation." alt="" coords="610,108,775,149"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="214,5,386,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="402,38,493,56,587,80,650,105,648,110,586,86,491,61,401,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,71,159,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="165,63,228,44,230,49,167,68"/>
+<area shape="rect" id="Node000004" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="221,71,378,111"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="174,88,221,88,221,94,174,94"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="221,136,378,177"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="167,114,230,133,228,138,165,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="394,97,610,118,609,123,393,103"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="394,150,586,138,610,136,610,141,587,143,394,155"/>
+<area shape="rect" id="Node000006" href="$dc/d00/structml_1_1maths_1_1common_1_1_s_anomaly_score_explanation.html" title="Describes the impact of different factors on the anomaly score." alt="" coords="208,201,391,242"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="406,207,494,192,586,170,647,147,649,152,587,175,495,197,407,212"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,215,202,241"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="250,92,456,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,212,174,171,210,148,249,128,268,121,270,126,251,133,213,153,177,175,122,217"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ae4ae1ef4c16d0c9eaf0020d86b7d0e1f" title="Returns the item corresponding to the latest bucket." alt="" coords="265,142,441,183"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="155,212,257,185,258,190,156,217"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="276,208,430,248"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="202,225,260,225,260,231,202,231"/>
+<area shape="rect" id="Node000008" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="265,297,441,338"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="143,239,280,289,279,294,141,244"/>
+<area shape="rect" id="Node000009" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="276,362,430,403"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="119,239,173,291,211,321,251,347,264,353,262,358,248,351,207,325,170,295,115,243"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="504,5,675,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,89,488,61,490,66,398,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="506,85,673,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="457,103,490,103,490,108,457,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="723,107,909,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="405,116,504,135,590,138,675,135,707,134,708,139,675,140,590,143,504,140,404,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="674,113,708,118,708,123,673,119"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="308,297,306,287,313,278,329,272,353,270,378,273,394,279,392,284,377,278,353,275,330,277,316,282,311,288,313,296"/>
+</map>

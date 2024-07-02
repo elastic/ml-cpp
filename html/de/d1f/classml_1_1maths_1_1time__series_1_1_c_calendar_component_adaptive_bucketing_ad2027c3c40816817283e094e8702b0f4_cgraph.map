@@ -1,0 +1,26 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::addInitialValue" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::addInitialValue">
+<area shape="rect" id="Node000001" title="Add the function initial value at time." alt="" coords="5,346,215,402"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ae2696aac19d821a93c85936a4d999c35" title=" " alt="" coords="279,208,456,249"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,343,315,255,317,259,162,348"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="569,346,725,402"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="215,371,553,371,553,376,215,376"/>
+<area shape="rect" id="Node000009" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#afe92b2fae82a591e7b16461184166e3a" title="Get the value at time." alt="" coords="263,418,472,474"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="213,400,251,411,250,416,211,405"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="536,135,758,191"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="456,205,521,190,522,195,457,210"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="395,247,451,289,521,331,555,346,553,351,519,336,448,293,392,251"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="822,274,979,330"/>
+<area shape="poly" id="edge8_Node000002_Node000005" title=" " alt="" coords="456,224,606,228,691,237,775,251,823,266,822,271,774,256,691,242,606,234,456,229"/>
+<area shape="rect" id="Node000006" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a46c659da01617c9298587c1c52d3025d" title="Get the count in bucket." alt="" coords="569,266,725,322"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="457,246,555,269,553,275,456,252"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="568,5,727,46"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="379,206,433,133,473,92,519,57,551,41,554,46,521,61,477,96,437,136,383,209"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="520,71,774,111"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="391,205,447,163,482,140,519,121,534,114,536,119,521,125,485,145,450,167,394,210"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="725,349,806,326,808,331,726,354"/>
+<area shape="poly" id="edge11_Node000009_Node000004" title=" " alt="" coords="472,416,553,395,555,400,473,421"/>
+<area shape="rect" id="Node000010" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="569,426,725,482"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="473,446,553,448,553,454,473,451"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="575,505,720,546"/>
+<area shape="poly" id="edge13_Node000009_Node000011" title=" " alt="" coords="456,472,521,491,560,502,559,507,519,496,454,477"/>
+</map>

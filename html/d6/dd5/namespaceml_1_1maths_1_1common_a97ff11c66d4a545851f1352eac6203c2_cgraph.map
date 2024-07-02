@@ -1,0 +1,11 @@
+<map id="ml::maths::common::localMinimum" name="ml::maths::common::localMinimum">
+<area shape="rect" id="Node000001" title="Get the finite local minimum if the distribution has one." alt="" coords="5,118,151,159"/>
+<area shape="rect" id="Node000002" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="199,5,379,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,115,197,71,208,66,210,70,200,76,117,120"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="199,85,379,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,124,183,119,184,124,151,130"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="216,150,362,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="151,147,201,155,200,160,151,152"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="206,216,372,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="116,157,200,200,215,207,213,212,198,205,114,162"/>
+</map>

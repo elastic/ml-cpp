@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::nonInformativePrior" name="ml::maths::common::CLogNormalMeanPrecConjugate::nonInformativePrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,218,198"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#aa5c96a794a387e6c36a548be90adbd70" title=" " alt="" coords="266,5,486,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,140,204,105,264,71,277,65,279,70,267,76,207,110,154,144"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="303,85,449,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,142,288,124,289,129,219,147"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="303,150,449,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="218,168,288,168,288,173,218,173"/>
+<area shape="rect" id="Node000005" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a54f917af2e603edfa54be613056c4265" title="Get the current offset." alt="" coords="270,215,482,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="217,196,257,207,256,213,216,202"/>
+<area shape="rect" id="Node000006" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a649d7f5cf38ff01ca9618e0aa2602f3a" title=" " alt="" coords="270,295,482,350"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="147,197,202,239,267,280,277,285,275,290,264,285,199,243,144,201"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::model::CTokenListDataCategorizerBase::writeCategoryIfChanged" name="ml::model::CTokenListDataCategorizerBase::writeCategoryIfChanged">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,110,213,166"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ac37176cfc2f4e23df1e8216e33d6b980" title=" " alt="" coords="261,117,512,158"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,135,245,135,245,140,213,140"/>
+<area shape="rect" id="Node000004" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a4f6c7412af5d3b0649a076d7fc1190e9" title=" " alt="" coords="573,5,753,46"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="212,113,260,103,557,43,558,49,261,108,214,118"/>
+<area shape="rect" id="Node000006" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="573,201,753,242"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="214,158,261,167,416,190,557,208,556,213,415,196,260,172,213,163"/>
+<area shape="rect" id="Node000003" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a4bff5eacff3ef1466e3983adf84e9d3b" title=" " alt="" coords="560,71,765,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="510,114,544,108,545,114,511,119"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="429,114,559,57,579,49,581,54,561,61,431,119"/>
+<area shape="rect" id="Node000005" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a2738e48dceafdad16f35b2dfb3500465" title="Does the object represent a soft failure?" alt="" coords="573,136,753,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="513,144,557,147,557,152,512,149"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="457,156,580,194,578,199,455,161"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CIndividualModel::clearPrunedResources" name="ml::model::CIndividualModel::clearPrunedResources">
+<area shape="rect" id="Node000001" title="Clear out large state objects for people that are pruned." alt="" coords="247,71,433,111"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a10ad810a24ba4aa24174941e0edcfcfa" title="Clear out large state objects for people that are pruned." alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,69,178,49,180,44,250,64"/>
+<area shape="rect" id="Node000003" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a32651469a2f6370ab44ef287c53114ad" title="Clear out large state objects for people that are pruned." alt="" coords="18,71,186,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,94,186,94,186,88,231,88"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a078f3e3af6507244197534f4af22b82f" title=" " alt="" coords="9,136,195,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="250,118,180,138,178,133,249,113"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="ml::api::CRetrainableModelJsonReader::doDataSummarizationFromJsonStream" name="ml::api::CRetrainableModelJsonReader::doDataSummarizationFromJsonStream">
+<area shape="rect" id="Node000001" title=" " alt="" coords="849,56,1078,111"/>
+<area shape="rect" id="Node000002" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#ac9f63e9ffc2c5fecf093184a3d1cebe7" title="Retrieve the data summarization from a JSON blob." alt="" coords="560,56,801,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="834,86,802,86,802,81,834,81"/>
+<area shape="rect" id="Node000003" href="$d1/dd0/_c_data_summarization_json_serializer_test_8cc.html#aa64fb73c985ef3e116fc9cea969c178f" title=" " alt="" coords="293,5,490,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="547,54,511,46,457,34,458,29,513,41,548,49"/>
+<area shape="rect" id="Node000004" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a342961302ee95fd78c6466c4604bc655" title="Retrieve the data summarization from a compressed and chunked JSON blob." alt="" coords="271,56,512,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="544,86,513,86,513,81,544,81"/>
+<area shape="rect" id="Node000006" href="$dd/dc9/namespaceanonymous__namespace_02_c_data_summarization_json_serializer_test_8cc_03.html#ad2f66d207b64bfcfee81e7a261988bd2" title=" " alt="" coords="275,136,508,191"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="564,119,495,138,494,132,562,113"/>
+<area shape="rect" id="Node000005" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad60a80e1adc9fee7b028ae04211b7217" title=" " alt="" coords="5,56,223,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="255,86,223,86,223,81,255,81"/>
+<area shape="rect" id="Node000007" href="$d1/dd0/_c_data_summarization_json_serializer_test_8cc.html#a720218641037a3d993cc7a24dcd2b5b7" title=" " alt="" coords="16,143,212,168"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="260,162,212,161,213,156,260,157"/>
+<area shape="rect" id="Node000008" href="$d1/dd0/_c_data_summarization_json_serializer_test_8cc.html#a0de475617095f681a126132ad7757e4d" title=" " alt="" coords="16,192,212,218"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="260,186,205,194,204,189,259,180"/>
+</map>

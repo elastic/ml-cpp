@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CRandomProjectionClusterer::generateProjections" name="ml::maths::common::CRandomProjectionClusterer::generateProjections">
+<area shape="rect" id="Node000001" title="Generate b random projections." alt="" coords="484,5,675,61"/>
+<area shape="rect" id="Node000002" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#af2a0e8b478209ee582972ea18b6e3859" title="Set up the projections." alt="" coords="245,5,436,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="468,36,437,36,437,31,468,31"/>
+<area shape="rect" id="Node000003" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a8f49c49d91cb2d4ec0431b5d37309760" title=" " alt="" coords="5,5,197,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="229,36,197,36,197,31,229,31"/>
+</map>

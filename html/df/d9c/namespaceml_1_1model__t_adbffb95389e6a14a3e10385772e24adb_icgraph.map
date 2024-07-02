@@ -1,0 +1,28 @@
+<map id="ml::model_t::isLatLong" name="ml::model_t::isLatLong">
+<area shape="rect" id="Node000001" title="Check if feature is modeling latitude and longitude." alt="" coords="1072,96,1225,122"/>
+<area shape="rect" id="Node000002" href="$d8/d9e/_c_model_types_test_8cc.html#a9b4a3994bc0c6e5b43c31dc372f95d4b" title=" " alt="" coords="805,5,1001,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1112,90,1070,67,1023,46,982,34,984,29,1025,41,1072,62,1114,85"/>
+<area shape="rect" id="Node000003" href="$db/d97/classml_1_1model_1_1_c_metric_model_factory.html#a08409a18c23d0057c80e75fcc5c75774" title=" " alt="" coords="797,55,1009,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1056,99,1009,93,1010,87,1057,94"/>
+<area shape="rect" id="Node000005" href="$d4/db9/classml_1_1model_1_1_c_metric_population_model_factory.html#a2cd66121616e44c942e703b95a6e5bc7" title=" " alt="" coords="782,121,1024,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1057,123,1025,128,1024,122,1056,118"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#ade7f787cbd62208f284cd2b36c182a5b" title="Get the rate at which feature learns." alt="" coords="826,185,980,211"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1114,132,1072,155,1025,175,981,188,980,183,1023,170,1070,150,1111,128"/>
+<area shape="rect" id="Node000004" href="$de/d77/_c_metric_model_test_8cc.html#a8c99a404d3b1252215e0de8accceccff" title=" " alt="" coords="517,63,734,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="782,78,735,78,735,73,782,73"/>
+<area shape="rect" id="Node000007" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#adb1417675ecb9c9377e7b9eceb37aa1d" title=" " alt="" coords="527,178,724,219"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="811,201,725,201,725,196,811,196"/>
+<area shape="rect" id="Node000008" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="263,79,456,120"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="563,174,468,135,431,123,433,118,470,130,565,169"/>
+<area shape="rect" id="Node000010" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="250,145,469,185"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="511,187,469,181,470,176,512,181"/>
+<area shape="rect" id="Node000011" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="276,210,443,251"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="512,214,444,223,443,217,511,209"/>
+<area shape="rect" id="Node000013" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="263,299,456,340"/>
+<area shape="poly" id="edge12_Node000007_Node000013" title=" " alt="" coords="566,228,407,301,405,296,564,223"/>
+<area shape="rect" id="Node000009" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,87,202,112"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="247,102,202,102,202,97,247,97"/>
+<area shape="rect" id="Node000012" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,217,202,243"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="260,233,202,233,202,228,260,228"/>
+<area shape="poly" id="edge13_Node000013_Node000013" title=" " alt="" coords="401,286,386,280,359,278,335,280,320,285,314,290,317,298,311,299,309,289,317,280,334,274,359,273,387,275,403,281"/>
+</map>

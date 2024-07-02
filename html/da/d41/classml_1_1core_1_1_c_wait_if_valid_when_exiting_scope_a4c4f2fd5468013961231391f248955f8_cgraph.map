@@ -1,0 +1,5 @@
+<map id="ml::core::CWaitIfValidWhenExitingScope::~CWaitIfValidWhenExitingScope" name="ml::core::CWaitIfValidWhenExitingScope::~CWaitIfValidWhenExitingScope">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,226,61"/>
+<area shape="rect" id="Node000002" href="$db/dc5/namespaceml_1_1core.html#a3bd410013c1e617808fc6b113cbd0f5f" title="Wait for a valid future to be available otherwise return immediately." alt="" coords="274,13,396,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,31,258,31,258,36,226,36"/>
+</map>

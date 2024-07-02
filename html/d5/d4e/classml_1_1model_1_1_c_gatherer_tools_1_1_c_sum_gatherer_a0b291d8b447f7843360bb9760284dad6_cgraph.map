@@ -1,0 +1,15 @@
+<map id="ml::model::CGathererTools::CSumGatherer::acceptRestoreTraverser" name="ml::model::CGathererTools::CSumGatherer::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create from part of a state document." alt="" coords="5,107,270,147"/>
+<area shape="rect" id="Node000002" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html#ab16d46b00dd1364938d3e9f3e78d73c4" title="Create from part of an XML document." alt="" coords="337,49,517,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,103,321,88,322,93,244,109"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="584,5,802,46"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="169,104,235,67,275,49,317,35,381,23,446,16,569,14,569,19,446,21,381,28,318,40,277,54,237,71,171,108"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="584,83,802,123"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="270,119,569,106,569,111,270,124"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="318,164,536,205"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="244,145,306,158,305,163,243,151"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="318,229,536,270"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="177,145,242,179,319,214,339,221,337,226,317,219,240,184,175,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="517,52,569,44,569,49,518,57"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="517,78,569,85,568,90,517,84"/>
+</map>

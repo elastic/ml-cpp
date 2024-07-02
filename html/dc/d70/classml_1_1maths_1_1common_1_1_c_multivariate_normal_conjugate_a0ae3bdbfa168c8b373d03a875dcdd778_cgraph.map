@@ -1,0 +1,45 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::bivariate" name="ml::maths::common::CMultivariateNormalConjugate::bivariate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,525,205,581"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2a751263a75df701648d4bb541c15168" title="Check that the samples and weights are consistent." alt="" coords="288,533,457,574"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,551,273,551,273,556,205,556"/>
+<area shape="rect" id="Node000004" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a381a72e800c00a0edab2afcebb879cab" title=" " alt="" coords="273,5,472,61"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="104,525,110,438,117,380,130,317,148,251,174,187,208,125,251,71,258,64,262,68,255,75,212,128,179,189,153,253,135,318,123,381,115,439,109,525"/>
+<area shape="rect" id="Node000006" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a21eabf1d872bdbd8f9d50c20f6757c95" title="Get the data type." alt="" coords="300,149,445,205"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="108,524,122,461,148,378,167,334,190,291,218,251,251,215,284,194,287,199,254,219,222,254,195,294,172,337,153,380,127,463,113,525"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="300,229,445,285"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="112,524,131,475,160,413,199,350,224,321,251,295,284,276,286,280,254,299,228,325,204,353,164,416,136,477,117,526"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a34bef9485ad1614fd6e15739fb080937" title=" " alt="" coords="300,309,445,350"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="118,524,139,486,169,442,206,397,251,359,284,343,286,348,254,363,210,401,173,445,143,489,122,526"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a122fec5f7a730541740a723ee9769b6f" title=" " alt="" coords="300,85,445,126"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="105,525,113,448,136,343,155,287,179,232,211,180,251,135,283,116,286,120,254,139,215,183,184,234,160,289,141,344,119,449,110,525"/>
+<area shape="rect" id="Node000011" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a282358c48df9393af90423cf34979d4f" title="Check if this is a non&#45;informative prior." alt="" coords="273,453,472,509"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="205,524,257,509,258,515,206,529"/>
+<area shape="rect" id="Node000012" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ae88b54811a7213bf2df017d4b5483e25" title=" " alt="" coords="300,598,445,639"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="206,575,285,595,284,600,205,580"/>
+<area shape="rect" id="Node000014" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a443affb1b42ac877baaaf89fa2da457f" title="Get the expected mean of the marginal likelihood." alt="" coords="253,794,492,835"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="119,580,138,624,167,678,206,733,229,757,254,779,262,784,259,789,251,783,225,761,202,736,163,681,134,627,114,582"/>
+<area shape="rect" id="Node000016" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a5daaa14137fe7562fa402acf4dee5cff" title="Project the matrix on to subspace." alt="" coords="300,664,445,704"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="143,579,194,615,254,648,286,661,284,666,252,653,191,619,140,584"/>
+<area shape="rect" id="Node000017" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad16b987933a46fa11f354bc4addd83d4" title="Project the vector on to subspace." alt="" coords="300,729,445,770"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="126,580,178,647,214,683,254,714,286,729,284,734,251,718,210,687,174,651,122,583"/>
+<area shape="rect" id="Node000018" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a0cc325ce7a2381d35ffc3986fbe1f6d2" title="Get the remaining variables." alt="" coords="300,373,445,429"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="135,523,187,480,251,439,284,424,286,429,254,444,191,485,138,527"/>
+<area shape="rect" id="Node000019" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad16353b0a823bde4fbc08e31ec8d01a9" title="Get the dynamic Eigen matrix for matrix." alt="" coords="293,860,452,900"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="115,581,130,637,158,708,176,745,198,782,224,815,254,844,280,860,277,865,251,849,220,819,194,785,172,748,153,710,125,638,110,582"/>
+<area shape="rect" id="Node000020" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a5e71c095b4ad9e1042085c556882c823" title="Get the dynamic Eigen vector for vector." alt="" coords="292,925,453,966"/>
+<area shape="poly" id="edge21_Node000001_Node000020" title=" " alt="" coords="112,581,124,648,149,737,167,784,191,830,220,873,254,910,280,926,277,930,251,914,216,876,186,833,163,786,144,739,119,649,107,582"/>
+<area shape="rect" id="Node000021" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#aa665fa306f224c505352cbbbbf03a6fc" title="Unpack the variable values on which to condition." alt="" coords="273,989,472,1045"/>
+<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="110,581,119,658,142,764,161,821,185,877,216,929,255,975,262,982,258,986,251,979,212,932,180,879,156,823,137,766,114,659,105,582"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="571,441,716,497"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,530,491,519,555,498,557,503,493,524,455,535"/>
+<area shape="rect" id="Node000005" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ad1d8ec5f9bd8d6aee3ea1e7e3f6a7820" title=" " alt="" coords="540,5,747,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="473,31,524,31,524,36,473,36"/>
+<area shape="rect" id="Node000009" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="621,204,667,230"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="444,310,491,295,553,266,607,236,610,241,556,271,493,300,446,315"/>
+<area shape="poly" id="edge10_Node000010_Node000009" title=" " alt="" coords="446,119,493,135,556,164,610,194,607,198,553,169,491,140,444,124"/>
+<area shape="rect" id="Node000013" href="$d6/d1b/namespaceml_1_1maths_1_1common_1_1linear__algebra__tools__detail.html#a2745fb4f279c424a2a9e24a67b9f8501" title=" " alt="" coords="566,591,721,646"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="446,616,551,616,551,621,446,621"/>
+<area shape="rect" id="Node000015" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a1cdd59c83e4751618dd40701b33e56c2" title="Check if the prior is being used to model integer data." alt="" coords="571,787,716,842"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="492,812,556,812,556,817,492,817"/>
+<area shape="poly" id="edge19_Node000018_Node000003" title=" " alt="" coords="446,417,556,445,555,450,445,422"/>
+</map>

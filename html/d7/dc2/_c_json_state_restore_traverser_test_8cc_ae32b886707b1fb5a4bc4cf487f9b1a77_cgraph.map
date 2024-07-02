@@ -1,0 +1,65 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,348,202,373"/>
+<area shape="rect" id="Node000002" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#afe004f5833b5ceb1a8d9bd45a0463209" title="Does the current element have a sub&#45;level?" alt="" coords="252,229,443,270"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,345,285,275,288,279,135,349"/>
+<area shape="rect" id="Node000012" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a146b5bf24410c12e5e45db6e8e421dff" title=" " alt="" coords="252,101,443,142"/>
+<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="116,345,312,152,316,155,120,349"/>
+<area shape="rect" id="Node000014" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#aa1ada4bcb49e8d8555c50c69036e26ad" title=" " alt="" coords="252,340,443,381"/>
+<area shape="poly" id="edge22_Node000001_Node000014" title=" " alt="" coords="202,358,236,358,236,363,202,363"/>
+<area shape="rect" id="Node000017" href="$de/dd2/namespaceanonymous__namespace_02_c_json_state_restore_traverser_test_8cc_03.html#a94ac594f40de40f9bbc8862653b2ee10" title=" " alt="" coords="250,650,445,706"/>
+<area shape="poly" id="edge29_Node000001_Node000017" title=" " alt="" coords="117,372,318,636,313,639,113,375"/>
+<area shape="rect" id="Node000023" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="493,831,711,871"/>
+<area shape="poly" id="edge40_Node000001_Node000023" title=" " alt="" coords="109,373,120,434,144,526,162,576,186,627,216,674,252,716,302,756,360,787,420,811,479,828,477,833,419,816,358,792,299,760,248,720,211,677,182,629,158,578,139,527,114,436,104,374"/>
+<area shape="rect" id="Node000003" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a21c8e14981e8bba1c42408c2930c6b08" title="Accessors for alternating state variables." alt="" coords="507,253,698,294"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="444,256,491,261,491,266,443,261"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a5edc44a999e2965a2cb2bc3312963f67" title="Is the state document unintelligible?" alt="" coords="1026,221,1244,262"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="443,241,493,239,770,236,1010,237,1010,242,770,241,493,244,443,246"/>
+<area shape="rect" id="Node000005" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ad3b4fb530489f8db1e5efbea7e97634e" title="Start off the parsing process." alt="" coords="507,139,698,179"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="406,226,492,195,528,182,529,187,494,200,408,231"/>
+<area shape="rect" id="Node000006" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a0e33574d6bf43993bc045fe1bf59a72d" title="Get the next token." alt="" coords="773,368,964,409"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="634,178,713,240,838,355,834,359,710,244,631,182"/>
+<area shape="rect" id="Node000008" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ae8f1d09343a533cc2a3cba46e85bfb6c" title="Log an error that the JSON parser has detected." alt="" coords="1531,368,1723,409"/>
+<area shape="poly" id="edge16_Node000005_Node000008" title=" " alt="" coords="698,144,810,135,948,132,1023,135,1098,142,1172,154,1245,171,1296,188,1347,210,1443,260,1526,312,1588,356,1585,360,1523,316,1440,265,1345,215,1294,193,1243,176,1171,159,1097,147,1022,140,948,137,811,140,698,149"/>
+<area shape="rect" id="Node000010" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a91e307b74b7d1a0328b29353bb8b16a6" title="Continue parsing the JSON structure." alt="" coords="1292,311,1483,351"/>
+<area shape="poly" id="edge17_Node000005_Node000010" title=" " alt="" coords="698,157,835,160,993,168,1140,183,1200,194,1245,207,1280,225,1311,249,1362,297,1358,301,1308,253,1277,230,1243,212,1199,199,1139,188,992,173,835,165,698,162"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="945,365,976,348,991,331,999,314,1008,296,1024,278,1042,267,1044,271,1027,282,1012,299,1004,316,996,334,979,352,948,370"/>
+<area shape="rect" id="Node000007" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a559b4975a9c0c0accddfaf2c2f37126b" title="Is the traverser at the end of the inputstream?" alt="" coords="1039,336,1231,377"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="964,374,1023,367,1024,372,965,379"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="909,407,963,432,1026,451,1096,461,1167,465,1238,463,1308,456,1438,435,1542,411,1543,416,1439,441,1309,462,1239,468,1167,470,1095,466,1025,456,961,437,906,412"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="932,365,976,347,1000,333,1025,322,1089,310,1155,306,1218,307,1277,312,1276,317,1218,313,1155,312,1090,316,1026,327,1002,338,979,352,934,370"/>
+<area shape="rect" id="Node000011" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a48c44137828bad85049a2eaade8ba64f" title="Skip the (JSON) array until it ends." alt="" coords="1039,401,1231,442"/>
+<area shape="poly" id="edge13_Node000006_Node000011" title=" " alt="" coords="965,398,1024,405,1023,410,964,403"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="1771,340,1989,381"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="1723,375,1755,371,1755,377,1724,380"/>
+<area shape="poly" id="edge11_Node000010_Node000008" title=" " alt="" coords="1476,349,1525,361,1524,366,1475,355"/>
+<area shape="poly" id="edge12_Node000010_Node000009" title=" " alt="" coords="1484,334,1755,350,1755,356,1484,339"/>
+<area shape="poly" id="edge14_Node000011_Node000008" title=" " alt="" coords="1231,413,1516,393,1516,398,1231,418"/>
+<area shape="poly" id="edge15_Node000011_Node000010" title=" " alt="" coords="1206,398,1243,386,1322,355,1324,360,1245,391,1207,403"/>
+<area shape="poly" id="edge20_Node000012_Node000004" title=" " alt="" coords="443,114,571,113,642,117,712,124,808,142,902,165,1061,213,1060,218,901,170,806,147,711,130,642,122,571,119,443,119"/>
+<area shape="poly" id="edge21_Node000012_Node000005" title=" " alt="" coords="444,133,491,140,491,145,443,138"/>
+<area shape="rect" id="Node000013" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#adb312e5729770fa07d4c94147033b9aa" title=" " alt="" coords="507,5,698,46"/>
+<area shape="poly" id="edge19_Node000012_Node000013" title=" " alt="" coords="399,98,492,62,526,49,528,54,494,67,401,103"/>
+<area shape="poly" id="edge24_Node000014_Node000003" title=" " alt="" coords="409,337,525,297,526,302,411,342"/>
+<area shape="poly" id="edge25_Node000014_Node000004" title=" " alt="" coords="443,343,711,303,1010,258,1011,263,712,308,444,349"/>
+<area shape="poly" id="edge28_Node000014_Node000005" title=" " alt="" coords="373,337,443,280,491,240,559,187,563,191,495,244,447,284,376,341"/>
+<area shape="poly" id="edge23_Node000014_Node000006" title=" " alt="" coords="366,379,418,435,454,462,494,483,553,501,601,506,650,499,711,483,744,471,776,454,830,417,833,421,779,458,746,475,712,488,651,504,601,511,552,506,492,488,451,467,415,439,362,383"/>
+<area shape="rect" id="Node000015" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a2cdb872aa6e90fdba4344d2372775856" title=" " alt="" coords="507,368,698,409"/>
+<area shape="poly" id="edge26_Node000014_Node000015" title=" " alt="" coords="444,368,491,373,491,379,443,374"/>
+<area shape="rect" id="Node000016" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ab7e22df777dd3e6e52f7d2917262f160" title=" " alt="" coords="507,433,698,474"/>
+<area shape="poly" id="edge27_Node000014_Node000016" title=" " alt="" coords="397,379,494,418,516,425,514,431,492,423,395,384"/>
+<area shape="rect" id="Node000018" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a924179fa8810008cf71e1dab1c13e1a2" title="Does the current element have a sub&#45;level?" alt="" coords="759,544,978,585"/>
+<area shape="poly" id="edge30_Node000017_Node000018" title=" " alt="" coords="402,647,445,627,492,611,556,596,621,584,743,569,744,574,622,589,557,601,494,616,447,632,404,652"/>
+<area shape="rect" id="Node000019" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="759,613,978,654"/>
+<area shape="poly" id="edge31_Node000017_Node000019" title=" " alt="" coords="437,647,493,635,622,625,744,624,744,630,622,630,493,640,438,652"/>
+<area shape="rect" id="Node000020" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="759,688,978,729"/>
+<area shape="poly" id="edge32_Node000017_Node000020" title=" " alt="" coords="437,704,493,715,557,721,622,723,744,719,744,724,622,728,557,726,493,720,436,709"/>
+<area shape="rect" id="Node000021" href="$de/dd2/namespaceanonymous__namespace_02_c_json_state_restore_traverser_test_8cc_03.html#a75ea7c6d4e3b138fa08dd7ce361d2ac4" title=" " alt="" coords="494,650,711,706"/>
+<area shape="poly" id="edge33_Node000017_Node000021" title=" " alt="" coords="445,675,478,675,478,680,445,680"/>
+<area shape="rect" id="Node000022" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="759,771,978,811"/>
+<area shape="poly" id="edge39_Node000017_Node000022" title=" " alt="" coords="416,704,494,730,622,757,744,776,743,781,621,763,492,735,414,709"/>
+<area shape="poly" id="edge38_Node000017_Node000023" title=" " alt="" coords="375,704,427,758,459,785,494,810,517,822,514,826,492,815,456,790,423,761,371,708"/>
+<area shape="poly" id="edge34_Node000021_Node000018" title=" " alt="" coords="656,647,758,599,787,588,789,593,760,604,659,652"/>
+<area shape="poly" id="edge35_Node000021_Node000019" title=" " alt="" coords="711,657,744,652,745,657,712,662"/>
+<area shape="poly" id="edge36_Node000021_Node000020" title=" " alt="" coords="711,688,744,691,744,697,711,693"/>
+<area shape="poly" id="edge37_Node000021_Node000022" title=" " alt="" coords="671,704,806,762,804,767,669,709"/>
+</map>

@@ -1,0 +1,100 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,2186,261,2242"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a87c50aeebda7b2f957a61606295451ba" title=" " alt="" coords="331,1022,562,1078"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,2185,431,1092,436,1093,144,2186"/>
+<area shape="rect" id="Node000033" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#a593aba029f1ccb3ac5003dfddea31230" title="Get the number of threads to use to compute the best split statistics." alt="" coords="309,2159,584,2229"/>
+<area shape="poly" id="edge37_Node000001_Node000033" title=" " alt="" coords="261,2203,293,2201,293,2206,261,2208"/>
+<area shape="rect" id="Node000038" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="388,2274,505,2314"/>
+<area shape="poly" id="edge42_Node000001_Node000038" title=" " alt="" coords="245,2240,373,2273,372,2278,244,2245"/>
+<area shape="rect" id="Node000047" href="$d1/dd9/structml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_s_split_statistics.html#abe7b1d88cb62e458dda440517b681a60" title=" " alt="" coords="334,2338,559,2394"/>
+<area shape="poly" id="edge51_Node000001_Node000047" title=" " alt="" coords="173,2240,236,2283,310,2323,324,2330,322,2334,307,2328,233,2287,170,2245"/>
+<area shape="rect" id="Node000003" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a4c14256162a26859fd7e8a85ce923921" title=" " alt="" coords="671,371,895,427"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="445,1022,449,913,458,838,473,756,496,670,528,586,573,507,600,470,630,437,655,419,658,424,634,441,604,474,577,509,533,588,501,672,478,757,463,839,455,914,450,1022"/>
+<area shape="rect" id="Node000004" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#a2815b9527d549e18b6517d99e39e78f4" title=" " alt="" coords="661,451,904,507"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="446,1022,455,926,466,861,482,790,506,716,537,644,578,576,630,517,646,505,649,510,634,521,583,579,542,646,511,718,488,791,471,862,461,927,451,1022"/>
+<area shape="rect" id="Node000005" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a84e22c61ec7f3b45dd1f754e31d20e93" title=" " alt="" coords="671,531,895,587"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="448,1021,463,940,495,828,519,767,549,708,586,653,630,604,655,586,658,591,634,608,590,656,553,711,524,770,500,830,469,941,454,1022"/>
+<area shape="rect" id="Node000006" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a9751e02247882672acd7f1f3167f888c" title=" " alt="" coords="981,1185,1206,1240"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="451,1078,462,1265,473,1399,490,1543,514,1687,545,1817,564,1874,585,1922,608,1961,634,1989,659,2003,694,2013,737,2018,783,2020,829,2018,871,2012,907,2003,932,1989,952,1967,971,1937,1003,1857,1029,1756,1050,1644,1065,1529,1076,1421,1088,1256,1093,1256,1081,1421,1070,1530,1055,1645,1034,1757,1008,1858,975,1940,956,1971,935,1993,909,2008,872,2018,829,2024,783,2026,736,2024,693,2018,657,2008,630,1993,604,1964,580,1925,559,1876,540,1819,509,1688,485,1544,468,1399,456,1265,446,1078"/>
+<area shape="rect" id="Node000007" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#ae05567c12b2651fe505a30f4b8594d10" title=" " alt="" coords="671,662,895,718"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="453,1020,475,959,511,880,535,838,562,798,594,760,630,728,655,713,657,717,634,732,598,764,567,801,539,841,516,883,480,961,458,1022"/>
+<area shape="rect" id="Node000008" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#aae7e8f591e8347745084a84c735af05d" title=" " alt="" coords="671,742,895,798"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="459,1020,485,974,523,916,572,857,600,831,631,808,655,794,658,799,633,812,604,835,576,861,527,919,490,977,464,1023"/>
+<area shape="rect" id="Node000009" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a5f15d6e7e832fda21d73291a536e18ce" title="Get the total curvature of node." alt="" coords="671,822,895,878"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="470,1020,538,953,583,918,631,888,655,876,657,881,633,892,586,922,542,957,474,1024"/>
+<area shape="rect" id="Node000010" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a4674cdb1f5331c5f6ad4b15d5ea995bc" title=" " alt="" coords="671,902,895,958"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="506,1019,631,967,655,960,656,965,633,972,508,1024"/>
+<area shape="rect" id="Node000011" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a0f437a71bd0e511eb3cd3469ce92187c" title="Get the writeable multiplier of the tree depth penalty." alt="" coords="676,982,889,1038"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="562,1033,660,1022,661,1027,563,1039"/>
+<area shape="rect" id="Node000012" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ada433c878784c22e42d81c7c4a4c9cb4" title=" " alt="" coords="671,1062,895,1118"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="563,1061,655,1072,655,1077,562,1066"/>
+<area shape="rect" id="Node000013" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ab9ecde2c94a910c6b42d72e49b8cc0b9" title=" " alt="" coords="671,1142,895,1198"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="508,1076,633,1127,656,1135,655,1140,631,1132,506,1081"/>
+<area shape="rect" id="Node000014" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#ad6adae396f583d64a039752b294f7042" title=" " alt="" coords="666,1222,899,1278"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="474,1076,542,1142,586,1178,633,1208,653,1217,650,1222,631,1212,583,1182,538,1146,470,1080"/>
+<area shape="rect" id="Node000015" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ac0b1892268a7e5aa819aa3ee9c49077b" title="Get the gain in loss of the best split of this leaf." alt="" coords="655,1302,911,1342"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="463,1077,489,1124,526,1181,575,1240,603,1265,633,1288,642,1292,639,1297,631,1292,600,1270,571,1243,522,1185,484,1127,459,1079"/>
+<area shape="rect" id="Node000016" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#a4a743baeb2d5193d61ac0804bcd756b0" title=" " alt="" coords="671,1366,895,1422"/>
+<area shape="poly" id="edge15_Node000002_Node000016" title=" " alt="" coords="459,1077,482,1136,518,1210,541,1249,568,1287,599,1322,634,1352,658,1366,655,1371,630,1356,595,1325,564,1290,537,1252,513,1213,477,1138,454,1079"/>
+<area shape="rect" id="Node000017" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a85fcb90e4a2fc6a9f953bca9f99ccd59" title="Get the writeable multiplier of the square leaf weight penalty." alt="" coords="676,1446,889,1502"/>
+<area shape="poly" id="edge16_Node000002_Node000017" title=" " alt="" coords="455,1077,473,1149,507,1245,530,1296,559,1346,593,1392,634,1432,663,1450,660,1455,630,1436,589,1395,555,1349,525,1299,502,1247,468,1151,450,1079"/>
+<area shape="rect" id="Node000018" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#ad8cc0d81e56ecadbadb2d958439c7b77" title="Make the loss function to use for computing leaf node split gain." alt="" coords="648,1525,918,1596"/>
+<area shape="poly" id="edge17_Node000002_Node000018" title=" " alt="" coords="453,1078,467,1162,480,1218,497,1279,521,1342,551,1404,588,1461,634,1512,637,1515,633,1519,630,1516,584,1465,547,1406,516,1344,492,1281,475,1219,462,1163,448,1078"/>
+<area shape="rect" id="Node000019" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#ad111c38fab6f9737a6af1b8b8ae630ae" title=" " alt="" coords="670,1619,896,1675"/>
+<area shape="poly" id="edge18_Node000002_Node000019" title=" " alt="" coords="451,1078,458,1178,468,1245,484,1320,507,1397,539,1473,581,1544,606,1576,634,1605,657,1622,654,1626,630,1609,602,1579,576,1547,534,1475,502,1399,479,1321,463,1246,453,1178,445,1078"/>
+<area shape="rect" id="Node000020" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#a944b257ca4a8ddc3a98add71f00e387e" title=" " alt="" coords="659,1699,907,1755"/>
+<area shape="poly" id="edge19_Node000002_Node000020" title=" " alt="" coords="449,1078,453,1191,460,1268,475,1354,497,1443,530,1531,575,1614,603,1651,634,1685,647,1696,643,1700,630,1689,598,1654,571,1616,525,1533,492,1445,469,1355,455,1269,447,1191,444,1078"/>
+<area shape="rect" id="Node000021" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#aa4099e81c1aed626e80f4595e0d59f87" title=" " alt="" coords="663,1779,903,1835"/>
+<area shape="poly" id="edge20_Node000002_Node000021" title=" " alt="" coords="454,1078,474,1222,512,1429,537,1536,566,1633,598,1712,616,1743,634,1765,651,1779,647,1783,630,1769,611,1746,594,1715,561,1634,532,1537,507,1430,469,1223,449,1079"/>
+<area shape="rect" id="Node000022" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="656,1859,910,1900"/>
+<area shape="poly" id="edge21_Node000002_Node000022" title=" " alt="" coords="453,1078,470,1236,506,1468,530,1588,560,1697,594,1786,614,1820,634,1845,644,1854,640,1858,630,1849,609,1823,590,1788,555,1699,525,1589,500,1469,465,1237,448,1078"/>
+<area shape="rect" id="Node000023" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#afc45f07fafbaa771406f1a9b1ee3db03" title=" " alt="" coords="655,1923,910,1979"/>
+<area shape="poly" id="edge22_Node000002_Node000023" title=" " alt="" coords="452,1078,469,1247,503,1498,528,1628,558,1747,593,1844,613,1881,634,1909,644,1918,640,1922,630,1913,608,1884,588,1846,552,1748,522,1629,498,1499,464,1248,447,1079"/>
+<area shape="rect" id="Node000024" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a30d700c313340279bc99f2eeab4694f7" title="Get the penalty which applies to a leaf at depth depth." alt="" coords="676,67,889,123"/>
+<area shape="poly" id="edge23_Node000002_Node000024" title=" " alt="" coords="447,1021,462,843,476,715,494,576,519,437,549,310,567,254,586,205,607,164,630,133,660,112,663,116,634,137,612,167,591,207,572,256,554,311,524,438,500,577,481,715,467,843,452,1022"/>
+<area shape="rect" id="Node000025" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="1007,67,1180,123"/>
+<area shape="poly" id="edge35_Node000002_Node000025" title=" " alt="" coords="446,1021,454,825,465,684,481,530,505,377,536,239,556,178,578,126,602,84,630,53,675,25,724,9,777,3,830,5,883,14,934,27,1021,58,1019,63,932,32,882,19,830,11,777,9,725,14,677,30,634,57,607,87,582,129,561,180,541,240,510,378,486,531,470,684,460,826,451,1021"/>
+<area shape="rect" id="Node000026" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#afb28f129a824d7bdfdb23527b4af13e3" title=" " alt="" coords="668,147,897,203"/>
+<area shape="poly" id="edge25_Node000002_Node000026" title=" " alt="" coords="447,1021,464,856,499,614,524,488,554,373,589,278,609,241,630,213,653,196,656,200,634,217,613,244,594,280,559,374,529,489,505,614,470,857,453,1022"/>
+<area shape="rect" id="Node000027" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a44b6468e8a98686ccd827beca6d38146" title=" " alt="" coords="981,457,1206,512"/>
+<area shape="poly" id="edge33_Node000002_Node000027" title=" " alt="" coords="449,1021,465,945,497,843,521,789,550,736,587,689,630,648,670,624,706,612,742,609,776,611,848,615,888,610,932,597,996,562,1049,521,1052,525,998,566,934,602,889,616,849,620,776,616,742,614,708,617,672,629,634,652,591,692,555,739,525,791,502,845,470,946,454,1022"/>
+<area shape="rect" id="Node000031" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a76ffa4aec928e1234208ef0bf878d0c8" title="Get the writeable multiplier of the tree size penalty." alt="" coords="676,227,889,283"/>
+<area shape="poly" id="edge34_Node000002_Node000031" title=" " alt="" coords="448,1021,468,871,504,652,529,539,559,436,592,351,611,318,630,293,660,272,663,276,634,297,615,321,597,353,564,438,535,540,510,653,473,871,453,1022"/>
+<area shape="rect" id="Node000032" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="695,307,871,348"/>
+<area shape="poly" id="edge36_Node000002_Node000032" title=" " alt="" coords="449,1021,469,881,507,681,533,579,561,485,594,409,612,379,630,357,653,341,678,331,680,336,655,346,634,361,616,383,599,411,566,487,538,580,513,682,475,882,454,1022"/>
+<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="890,93,991,93,991,98,890,98"/>
+<area shape="poly" id="edge26_Node000026_Node000006" title=" " alt="" coords="899,188,918,199,935,214,951,239,962,275,973,363,978,454,984,524,1088,1169,1083,1170,979,525,973,455,968,364,956,276,946,242,931,217,915,203,896,193"/>
+<area shape="poly" id="edge32_Node000026_Node000025" title=" " alt="" coords="893,144,991,119,992,124,894,149"/>
+<area shape="poly" id="edge27_Node000026_Node000027" title=" " alt="" coords="899,193,935,213,960,246,997,307,1072,442,1068,444,993,309,956,249,932,217,896,198"/>
+<area shape="rect" id="Node000029" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ac16c40eafcf2c11c34ba4c3f7e8439ad" title="Get the writeable tolerance in the depth tree depth limit." alt="" coords="987,147,1200,203"/>
+<area shape="poly" id="edge30_Node000026_Node000029" title=" " alt="" coords="898,173,971,173,971,178,898,178"/>
+<area shape="rect" id="Node000030" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="1021,227,1166,268"/>
+<area shape="poly" id="edge31_Node000026_Node000030" title=" " alt="" coords="898,199,1006,224,1005,230,897,204"/>
+<area shape="poly" id="edge29_Node000027_Node000027" title=" " alt="" coords="1041,456,1041,446,1051,437,1068,432,1094,430,1123,433,1140,440,1138,445,1121,438,1093,435,1069,437,1054,442,1046,448,1046,456"/>
+<area shape="rect" id="Node000028" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ae7a1a84f9895c1193e70aaf7371f9750" title="Check if the left child has fewer rows than the right child." alt="" coords="1254,457,1478,512"/>
+<area shape="poly" id="edge28_Node000027_Node000028" title=" " alt="" coords="1206,482,1238,482,1238,487,1206,487"/>
+<area shape="rect" id="Node000034" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#a44aca22f4e6210453047fa42f51f4ac2" title=" " alt="" coords="661,2199,905,2269"/>
+<area shape="poly" id="edge38_Node000033_Node000034" title=" " alt="" coords="585,2208,645,2215,644,2220,584,2213"/>
+<area shape="rect" id="Node000035" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#ac3655115eca3b48b782edffc3e21b29b" title="Compute the number of threads which optimises throughput given totalWork." alt="" coords="632,2054,933,2110"/>
+<area shape="poly" id="edge39_Node000033_Node000035" title=" " alt="" coords="533,2155,631,2119,655,2112,656,2117,633,2124,535,2161"/>
+<area shape="rect" id="Node000037" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0295b14d14ac6541c7910087c144a374" title="Compute the minimum of first, second and third." alt="" coords="709,2134,857,2174"/>
+<area shape="poly" id="edge41_Node000033_Node000037" title=" " alt="" coords="584,2175,693,2162,693,2167,585,2180"/>
+<area shape="rect" id="Node000036" href="$d2/d9a/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_threading.html#afc6b2e1c24405a7f9674a8cc2c7ea796" title="Get the overhead of using numberThreads." alt="" coords="981,2054,1206,2110"/>
+<area shape="poly" id="edge40_Node000035_Node000036" title=" " alt="" coords="934,2079,966,2079,966,2085,934,2085"/>
+<area shape="rect" id="Node000039" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="700,2294,865,2334"/>
+<area shape="poly" id="edge43_Node000038_Node000039" title=" " alt="" coords="506,2295,685,2305,685,2311,505,2300"/>
+<area shape="rect" id="Node000046" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="679,2358,887,2414"/>
+<area shape="poly" id="edge50_Node000038_Node000046" title=" " alt="" coords="506,2303,585,2323,633,2343,664,2353,663,2358,631,2348,583,2328,505,2308"/>
+<area shape="rect" id="Node000040" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="1038,2240,1149,2265"/>
+<area shape="poly" id="edge44_Node000039_Node000040" title=" " alt="" coords="865,2295,1022,2264,1023,2269,866,2300"/>
+<area shape="rect" id="Node000043" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="991,2301,1196,2327"/>
+<area shape="poly" id="edge47_Node000039_Node000043" title=" " alt="" coords="866,2311,976,2311,976,2317,866,2317"/>
+<area shape="rect" id="Node000045" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="1010,2351,1177,2392"/>
+<area shape="poly" id="edge49_Node000039_Node000045" title=" " alt="" coords="866,2326,995,2350,994,2356,865,2332"/>
+<area shape="rect" id="Node000041" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="1268,2153,1464,2208"/>
+<area shape="poly" id="edge45_Node000040_Node000041" title=" " alt="" coords="1144,2237,1252,2208,1253,2213,1146,2242"/>
+<area shape="rect" id="Node000042" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="1297,2232,1435,2273"/>
+<area shape="poly" id="edge46_Node000040_Node000042" title=" " alt="" coords="1149,2250,1281,2250,1281,2255,1149,2255"/>
+<area shape="rect" id="Node000044" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="1275,2297,1457,2352"/>
+<area shape="poly" id="edge48_Node000043_Node000044" title=" " alt="" coords="1196,2315,1260,2318,1260,2323,1196,2321"/>
+</map>

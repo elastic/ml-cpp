@@ -1,0 +1,5 @@
+<map id="ml::test::CRandomNumbers::discard" name="ml::test::CRandomNumbers::discard">
+<area shape="rect" id="Node000001" title="Throw away n random numbers." alt="" coords="5,13,191,54"/>
+<area shape="rect" id="Node000002" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#aa787913b7e0a0956bb98a8fb947bcaed" title="Discard the next n random numbers." alt="" coords="239,5,427,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,31,223,31,223,36,191,36"/>
+</map>

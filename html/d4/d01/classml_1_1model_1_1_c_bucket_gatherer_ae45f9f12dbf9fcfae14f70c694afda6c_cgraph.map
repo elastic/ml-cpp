@@ -1,0 +1,14 @@
+<map id="ml::model::CBucketGatherer::clear" name="ml::model::CBucketGatherer::clear">
+<area shape="rect" id="Node000001" title="Clear this data gatherer." alt="" coords="5,71,193,111"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a2c7e791c52bd0462e846a1c00293758e" title="Get an iterator at the beginning the influencing field names." alt="" coords="241,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,68,243,48,244,53,175,73"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a73f57b0d8fc5ae116d41b19d6a0cd3d8" title=" " alt="" coords="247,71,422,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,88,231,88,231,94,193,94"/>
+<area shape="rect" id="Node000006" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ac54d017c129c4452424eaede2a5b7949" title="Get an iterator at the end of the influencing field names." alt="" coords="241,136,428,177"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="175,109,244,129,243,134,174,114"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aee088622de9e7408e1417d8f3c424512" title="Fill the queue with default constructed bucket values." alt="" coords="476,71,651,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="423,88,460,88,460,94,423,94"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="699,71,875,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="652,88,684,88,684,94,652,94"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="745,71,743,61,750,52,765,46,787,44,811,46,826,53,823,58,810,52,787,49,766,51,753,56,748,62,750,69"/>
+</map>

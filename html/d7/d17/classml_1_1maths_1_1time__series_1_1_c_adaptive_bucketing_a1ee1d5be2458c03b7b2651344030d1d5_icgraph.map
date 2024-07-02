@@ -1,0 +1,25 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::age" name="ml::maths::time_series::CAdaptiveBucketing::age">
+<area shape="rect" id="Node000001" title="Age the force moments." alt="" coords="541,186,718,227"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#ad4c086cd98ad2c9677e4a7870f70c0e0" title="Age the bucket values to account for time elapsed time." alt="" coords="250,72,493,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="564,182,440,131,442,126,566,177"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a55c62f94aeb900586135ae75e9a2b3b7" title=" " alt="" coords="250,219,493,274"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="526,225,494,230,493,225,525,220"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#adca4057c99aa68d23805e87653ae2c32" title="Age out old data to account for elapsed time." alt="" coords="15,5,192,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="242,70,192,58,193,53,243,65"/>
+<area shape="rect" id="Node000005" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a6ace0510d94b4171a5d28caa7232f876" title=" " alt="" coords="5,86,202,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="327,211,269,166,201,125,172,114,174,109,203,120,272,161,330,206"/>
+<area shape="rect" id="Node000006" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a57d3ec5369f2c114c2fb6aba9f16ea77" title=" " alt="" coords="5,135,202,161"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="298,214,201,174,165,164,166,159,203,169,300,209"/>
+<area shape="rect" id="Node000007" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#ab16c369a2fea1232a8435f0bca6a2675" title=" " alt="" coords="5,184,202,210"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="234,224,177,213,178,208,235,219"/>
+<area shape="rect" id="Node000008" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a83d3db08b40e753bcbf9bc6672205f64" title=" " alt="" coords="5,234,202,259"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="234,249,202,249,202,244,234,244"/>
+<area shape="rect" id="Node000009" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a7a2446117e41608ffd09eb34186757f3" title=" " alt="" coords="5,283,202,309"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="235,274,178,285,177,280,234,269"/>
+<area shape="rect" id="Node000010" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a9d63d724a22497ecdc14720985d34e5a" title=" " alt="" coords="5,332,202,358"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="300,284,203,324,166,334,165,329,201,319,298,279"/>
+<area shape="rect" id="Node000011" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a77d4b9767e6bf93ec4b49bbd2130e590" title=" " alt="" coords="5,382,202,407"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="330,287,272,332,203,373,174,384,172,379,201,368,269,327,327,282"/>
+<area shape="rect" id="Node000012" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a632bc082a236cea6fdf3347ae7cf8dc1" title=" " alt="" coords="15,432,192,488"/>
+<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="341,288,281,355,244,391,203,422,183,434,181,429,200,418,240,387,278,352,337,285"/>
+</map>

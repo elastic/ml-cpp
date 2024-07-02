@@ -1,0 +1,15 @@
+<map id="ml::CPriorTestInterfaceMixin&lt; PRIOR &gt;" name="ml::CPriorTestInterfaceMixin&lt; PRIOR &gt;">
+<area shape="rect" id="Node000001" title="A mix in of test interface which brings the necessary functions into scope and implements value seman..." alt="" coords="11,288,198,328"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,213,70,238"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="44,250,75,286,71,289,40,254"/>
+<area shape="poly" id="edge5_Node000001_Node000002" title=" " alt="" coords="59,249,90,286,86,289,55,252"/>
+<area shape="poly" id="edge7_Node000001_Node000002" title=" " alt="" coords="75,247,106,286,102,289,70,251"/>
+<area shape="rect" id="Node000003" href="$d3/d60/classml_1_1_c_prior_test_interface.html" title="A set of test and utility functions for use in testing only." alt="" coords="94,213,250,238"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,250,107,289,103,286,135,247"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="154,252,122,289,118,286,150,249"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="170,254,138,289,134,286,166,250"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="100,109,245,150"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="175,165,175,212,170,212,170,165"/>
+<area shape="rect" id="Node000005" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="92,5,252,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="175,47,175,109,170,109,170,47"/>
+</map>

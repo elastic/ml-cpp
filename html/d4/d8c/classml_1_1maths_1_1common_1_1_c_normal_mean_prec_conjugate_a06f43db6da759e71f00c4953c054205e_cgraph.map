@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::marginalLikelihoodMean" name="ml::maths::common::CNormalMeanPrecConjugate::marginalLikelihoodMean">
+<area shape="rect" id="Node000001" title="Get the mean of the marginal likelihood function." alt="" coords="5,31,197,87"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="288,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,44,272,34,272,40,198,49"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="245,71,476,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,68,229,72,229,77,197,73"/>
+</map>

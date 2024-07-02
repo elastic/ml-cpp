@@ -1,0 +1,25 @@
+<map id="anonymous_namespace{CAnomalyJobTest::cc}::CMultiResultVisitor::visit" name="anonymous_namespace{CAnomalyJobTest::cc}::CMultiResultVisitor::visit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,168,126"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a1ba6be66ec95043b6a7ffe290b712a26" title=" " alt="" coords="216,5,413,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,65,226,48,227,53,169,70"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="216,71,413,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,88,200,88,200,94,168,94"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ae88825a3dcd39af9d9ec2c055aa435bc" title=" " alt="" coords="227,136,402,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,112,227,129,226,134,167,117"/>
+<area shape="rect" id="Node000005" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a8d9d0f248ce54fe797a09237e12a58bc" title=" " alt="" coords="461,136,643,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="402,154,446,154,446,159,402,159"/>
+<area shape="rect" id="Node000006" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a81a1671a3a7bb10d96da0cb54144a3c4" title=" " alt="" coords="710,136,892,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="644,162,694,163,694,168,644,168"/>
+<area shape="rect" id="Node000007" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#ad9fd3a9d86ddfb73b3395df3227b851a" title="Translate word to a dictionary word." alt="" coords="691,225,911,266"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="612,175,728,217,727,222,610,180"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="709,150,659,150,659,145,709,145"/>
+<area shape="poly" id="edge12_Node000007_Node000007" title=" " alt="" coords="754,225,752,215,760,206,776,201,801,199,828,201,844,207,842,212,827,206,801,204,777,206,763,211,757,217,759,224"/>
+<area shape="rect" id="Node000008" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ade14a464041834a501408e4fd90d5540" title=" " alt="" coords="959,160,1178,201"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="887,222,967,202,968,208,888,227"/>
+<area shape="rect" id="Node000010" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="959,225,1178,266"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="911,243,943,243,943,248,911,248"/>
+<area shape="rect" id="Node000011" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ac2086c554c00278219bf073d2a5736c2" title=" " alt="" coords="959,291,1178,331"/>
+<area shape="poly" id="edge11_Node000007_Node000011" title=" " alt="" coords="888,264,968,284,967,289,887,269"/>
+<area shape="rect" id="Node000009" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#ade1c3a08b72697f0009fa91d14daa719" title=" " alt="" coords="1226,160,1369,201"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="1178,178,1211,178,1211,183,1178,183"/>
+</map>

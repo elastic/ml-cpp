@@ -1,0 +1,17 @@
+<map id="include/model/CMetricMultivariateStatistic.h" name="include/model/CMetricMultivariateStatistic.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="552,5,770,46"/>
+<area shape="rect" id="Node000002" href="$df/d06/_c_gatherer_tools_8h.html" title=" " alt="" coords="558,94,765,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="664,62,664,93,659,93,659,62"/>
+<area shape="rect" id="Node000003" href="$d0/dad/_c_gatherer_tools_8cc.html" title=" " alt="" coords="5,175,192,201"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="542,125,204,170,163,177,163,172,203,165,542,119"/>
+<area shape="rect" id="Node000004" href="$d3/de2/_c_metric_bucket_gatherer_8cc.html" title=" " alt="" coords="216,175,448,201"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="596,126,383,177,382,172,595,121"/>
+<area shape="rect" id="Node000005" href="$d3/d54/_c_metric_model_8cc.html" title=" " alt="" coords="472,175,648,201"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="635,131,577,177,574,173,632,127"/>
+<area shape="rect" id="Node000006" href="$dd/df6/_c_metric_population_model_8cc.html" title=" " alt="" coords="672,168,856,208"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="690,127,740,165,737,169,687,131"/>
+<area shape="rect" id="Node000007" href="$dc/db1/_c_gatherer_tools_test_8cc.html" title=" " alt="" coords="880,168,1040,208"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="722,122,886,164,885,170,721,127"/>
+<area shape="rect" id="Node000008" href="$df/d7a/_c_metric_data_gatherer_test_8cc.html" title=" " alt="" coords="1064,168,1256,208"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="760,120,1052,165,1064,167,1063,172,1051,170,759,125"/>
+</map>

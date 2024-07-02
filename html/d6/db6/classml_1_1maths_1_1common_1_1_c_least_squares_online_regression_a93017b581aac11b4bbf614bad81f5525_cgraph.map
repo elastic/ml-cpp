@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::r2" name="ml::maths::common::CLeastSquaresOnlineRegression::r2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,159,239,200"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="577,126,736,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,157,161,127,195,91,238,57,286,32,352,10,408,3,463,10,530,32,561,47,589,68,633,112,629,116,585,72,558,52,528,36,462,15,408,8,353,15,288,36,241,62,199,95,165,130,140,161"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="287,46,529,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,156,286,112,304,105,306,110,288,117,174,161"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="328,126,488,166"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="239,163,312,154,313,160,240,168"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="335,191,481,232"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="240,190,320,199,319,204,239,195"/>
+<area shape="rect" id="Node000006" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6495029359b9d3665c88e58764b299fa" title=" " alt="" coords="301,256,515,311"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="176,198,288,241,307,248,305,253,286,246,174,203"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="335,335,481,376"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="143,198,203,259,244,293,288,321,321,335,319,340,285,326,241,297,200,263,139,202"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="503,253,528,241,578,209,620,175,624,179,581,213,530,246,505,257"/>
+</map>

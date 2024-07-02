@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::inWindow" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::inWindow">
+<area shape="rect" id="Node000001" title="Check if time is in the this component&#39;s window." alt="" coords="5,5,217,61"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="265,5,476,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,31,249,31,249,36,217,36"/>
+</map>

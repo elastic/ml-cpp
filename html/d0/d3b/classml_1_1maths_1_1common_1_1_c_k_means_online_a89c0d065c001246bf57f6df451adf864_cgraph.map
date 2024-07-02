@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CKMeansOnline::acceptPersistInserter" name="ml::maths::common::CKMeansOnline::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing to the supplied inserter." alt="" coords="5,63,210,119"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="258,5,460,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,62,263,48,264,53,211,67"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="282,71,436,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,88,266,88,266,94,210,94"/>
+<area shape="rect" id="Node000004" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#ade2dfc116d155a15eb089bf70a67e174" title="Persist to a string." alt="" coords="261,135,457,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="208,117,247,128,245,133,206,122"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="508,143,662,183"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="457,160,492,160,492,166,457,166"/>
+</map>

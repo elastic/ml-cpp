@@ -1,0 +1,36 @@
+<map id="ml::model::CAnomalyDetectorModel::isTimeUnset" name="ml::model::CAnomalyDetectorModel::isTimeUnset">
+<area shape="rect" id="Node000001" title="Returns true if the the is an unset first bucket time." alt="" coords="774,169,972,210"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#aa43e0c95fb17012dfe4b81f467bbfa3a" title="Perform derived class specific operations to accomplish skipping sampling." alt="" coords="529,5,715,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="842,160,790,109,759,84,725,61,699,49,701,44,728,57,762,79,794,105,846,156"/>
+<area shape="rect" id="Node000003" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a475505e7a1d22b90b6a67dc6f9750b89" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="526,71,718,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="814,165,725,127,690,114,692,109,727,122,816,160"/>
+<area shape="rect" id="Node000006" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3fc741378d57aeb32b5b6a750eef6e49" title="Get the people and attributes to remove if any." alt="" coords="517,136,726,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="758,177,727,173,727,168,759,172"/>
+<area shape="rect" id="Node000009" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a078f3e3af6507244197534f4af22b82f" title=" " alt="" coords="529,201,715,242"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="759,207,715,212,715,207,758,202"/>
+<area shape="rect" id="Node000010" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ad023222c4af2d63926bbac651ea77eac" title=" " alt="" coords="529,267,715,307"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="815,219,727,256,692,269,690,264,725,251,813,214"/>
+<area shape="rect" id="Node000015" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#ab707f6f72cdac7580b8759915d17af6a" title="Update the rates for feature and people." alt="" coords="526,397,718,438"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="840,222,647,399,644,395,837,218"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a73991b42e69535fb920b2f0059110636" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="250,5,469,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="522,69,443,49,445,44,523,64"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#afb94cfdc11fb1b766cc1ed100134d114" title="Skip sampling the interval endTime &#45; startTime." alt="" coords="263,71,456,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="510,94,456,94,456,88,510,88"/>
+<area shape="rect" id="Node000007" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#ae3cf9891594d7715fcd2916260d665f8" title=" " alt="" coords="250,136,469,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="502,159,469,159,469,154,502,154"/>
+<area shape="rect" id="Node000008" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a85882ed6b58e6c5fd11cb647dbc77b86" title=" " alt="" coords="263,201,456,242"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="523,184,445,203,443,198,522,178"/>
+<area shape="rect" id="Node000011" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="263,267,456,307"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="513,290,457,290,457,284,513,284"/>
+<area shape="rect" id="Node000013" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="276,332,443,373"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="523,314,444,334,443,329,522,309"/>
+<area shape="rect" id="Node000012" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,274,202,300"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="247,290,202,290,202,284,247,284"/>
+<area shape="rect" id="Node000014" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,340,202,365"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="260,355,202,355,202,350,260,350"/>
+<area shape="rect" id="Node000016" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="250,397,469,438"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="510,420,469,420,469,415,510,415"/>
+<area shape="rect" id="Node000017" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="263,487,456,527"/>
+<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="546,446,422,489,421,484,545,441"/>
+<area shape="poly" id="edge17_Node000017_Node000017" title=" " alt="" coords="401,474,386,468,359,465,335,467,320,472,314,478,317,485,311,487,309,477,317,468,334,462,359,460,387,462,403,469"/>
+</map>

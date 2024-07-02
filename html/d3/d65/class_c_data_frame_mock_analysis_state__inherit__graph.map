@@ -1,0 +1,7 @@
+<map id="CDataFrameMockAnalysisState" name="CDataFrameMockAnalysisState">
+<area shape="rect" id="Node000001" title=" " alt="" coords="23,198,232,223"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html" title="Instrumentation class for collecting data frame analysis job statistics." alt="" coords="31,109,224,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,165,130,197,125,197,125,165"/>
+<area shape="rect" id="Node000003" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,5,250,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="130,77,130,109,125,109,125,77"/>
+</map>

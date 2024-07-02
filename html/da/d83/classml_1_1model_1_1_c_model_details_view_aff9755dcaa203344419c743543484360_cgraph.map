@@ -1,0 +1,13 @@
+<map id="ml::model::CModelDetailsView::hasByField" name="ml::model::CModelDetailsView::hasByField">
+<area shape="rect" id="Node000001" title="Check if the model has a by field." alt="" coords="5,136,178,177"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abaaeada8d59172f01e365d1167a7d340" title="Get the attribute field name if one exists." alt="" coords="237,5,412,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,134,164,95,224,57,238,50,240,55,227,61,167,100,118,138"/>
+<area shape="rect" id="Node000003" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a364ae8bdfdd6c0cf18c65181eb40936c" title="Get the underlying model." alt="" coords="238,71,411,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,133,234,114,235,119,167,138"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="226,136,423,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="178,154,210,154,210,159,178,159"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a0cded7b0f451fb941b0fd591e23fd581" title="True if this is a population model." alt="" coords="226,201,423,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="167,175,235,194,234,199,166,180"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a663b4ffe2c7f28a1f5ce4495b7d1f9d0" title=" " alt="" coords="237,267,412,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="118,175,167,213,227,251,240,258,238,263,224,256,164,217,115,179"/>
+</map>

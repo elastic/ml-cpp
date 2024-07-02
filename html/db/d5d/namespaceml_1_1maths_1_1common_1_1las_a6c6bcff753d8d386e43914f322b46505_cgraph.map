@@ -1,0 +1,6 @@
+<map id="ml::maths::common::las::constant" name="ml::maths::common::las::constant">
+<area shape="rect" id="Node000001" title="Get the concomitant constant constant vector." alt="" coords="5,29,151,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="41,29,39,19,45,10,58,5,78,3,99,5,112,11,109,16,98,10,78,8,60,10,49,15,45,20,46,28"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="199,29,344,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="151,47,183,47,183,52,151,52"/>
+</map>

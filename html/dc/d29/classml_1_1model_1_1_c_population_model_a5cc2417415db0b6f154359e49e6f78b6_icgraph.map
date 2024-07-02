@@ -1,0 +1,9 @@
+<map id="ml::model::CPopulationModel::personCounts" name="ml::model::CPopulationModel::personCounts">
+<area shape="rect" id="Node000001" title="Get the current bucket person counts." alt="" coords="543,39,735,79"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a077d557b2506838fd9340ba81a43a881" title=" " alt="" coords="303,5,495,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="527,46,495,42,496,36,528,41"/>
+<area shape="rect" id="Node000004" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a8c3b84150286cae0c54b3decb44dfe86" title=" " alt="" coords="303,71,495,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="528,76,496,81,495,76,527,71"/>
+<area shape="rect" id="Node000003" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a7a22f4083e6f639c08b2dafbd37762ec" title=" " alt="" coords="5,5,255,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="287,28,255,28,255,23,287,23"/>
+</map>

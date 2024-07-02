@@ -1,0 +1,15 @@
+<map id="ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus" name="ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus">
+<area shape="rect" id="Node000001" title=" " alt="" coords="622,48,884,103"/>
+<area shape="rect" id="Node000002" href="$d5/dc1/_c_token_list_data_categorizer_base_test_8cc.html#a0468e5027fa62912cd46101cd3814bd6" title=" " alt="" coords="344,5,541,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="606,51,516,34,516,29,607,46"/>
+<area shape="rect" id="Node000003" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a317919f3fbea8fd16e169190e59bb825" title=" " alt="" coords="324,55,561,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="606,78,561,78,561,73,606,73"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a76f97a0d2d236185eb029bf46b2fca56" title="Update categorizer stats with information from this categorizer." alt="" coords="311,121,574,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="607,109,543,122,542,117,606,104"/>
+<area shape="rect" id="Node000005" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ab09c319f82cf1588186641e33d8993cc" title="Populate the object from part of a state document." alt="" coords="28,41,240,97"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="337,119,239,96,241,91,338,114"/>
+<area shape="rect" id="Node000006" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a84b2d4f48b0248dc58c05ad819812ce1" title="Update the model size stats with information from this categorizer." alt="" coords="5,121,263,161"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="295,144,263,144,263,138,295,138"/>
+<area shape="rect" id="Node000007" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a373a73ea56afc29a64000f89ee9cc497" title=" " alt="" coords="23,185,245,241"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="338,168,246,190,244,184,337,163"/>
+</map>

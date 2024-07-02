@@ -1,0 +1,5 @@
+<map id="ml::api::CAnomalyJob::backgroundPersistState" name="ml::api::CAnomalyJob::backgroundPersistState">
+<area shape="rect" id="Node000001" title="Persist current state in the background." alt="" coords="280,5,448,46"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af278b58a62e36a96deadced80d5f37ee" title="Persist current state due to the periodic persistence being triggered." alt="" coords="5,5,232,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,28,232,28,232,23,264,23"/>
+</map>

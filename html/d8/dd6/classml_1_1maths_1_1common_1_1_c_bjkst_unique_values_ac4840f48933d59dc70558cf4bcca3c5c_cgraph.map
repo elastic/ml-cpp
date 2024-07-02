@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CBjkstUniqueValues::checksum" name="ml::maths::common::CBjkstUniqueValues::checksum">
+<area shape="rect" id="Node000001" title="Get a checksum for the sketch." alt="" coords="5,34,155,90"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="203,5,357,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,46,187,40,188,45,156,51"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="205,70,355,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,73,190,79,189,84,155,78"/>
+<area shape="rect" id="Node000004" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="405,77,575,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="355,104,389,104,389,109,355,109"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="405,91,370,91,370,86,405,86"/>
+</map>

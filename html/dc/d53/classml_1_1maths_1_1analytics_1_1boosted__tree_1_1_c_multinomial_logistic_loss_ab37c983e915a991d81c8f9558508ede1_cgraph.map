@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::boosted_tree::CMultinomialLogisticLoss::gradient" name="ml::maths::analytics::boosted_tree::CMultinomialLogisticLoss::gradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,194,119"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a94bfaf7bfdeb4d2466949bde27e48cc9" title="Compute a value from x which will be stable across platforms." alt="" coords="242,5,387,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,60,230,49,231,54,194,65"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="242,71,387,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,88,226,88,226,94,194,94"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad43753f3b69d2a100d832468311d57ba" title="A version of std::log which is stable across platforms." alt="" coords="242,136,387,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,117,231,128,230,133,192,122"/>
+</map>

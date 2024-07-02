@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CExpandingWindow::deflate" name="ml::maths::time_series::CExpandingWindow::deflate">
+<area shape="rect" id="Node000001" title="Convert to a compressed representation." alt="" coords="5,39,200,79"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a27176a0f19b7cb6b55941e3d4c5f43f8" title="Implements deflate." alt="" coords="248,39,459,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,56,232,56,232,62,200,62"/>
+<area shape="rect" id="Node000003" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a4c0284881cab3b8dc7f3ed3f180c60b3" title=" " alt="" coords="507,5,673,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="459,41,491,37,492,42,460,47"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#ac0ed8ea2148de5b2154827530f775b88" title=" " alt="" coords="507,71,673,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="460,71,492,75,491,80,459,76"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="721,71,888,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="674,88,706,88,706,94,674,94"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="936,71,1102,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="888,88,920,88,920,94,888,94"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CRandomProjectionClustererBatch::neighbourhoods" name="ml::maths::common::CRandomProjectionClustererBatch::neighbourhoods">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,67,197,123"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a3ea9eae87751ba58e0d185105ee1b5fe" title=" " alt="" coords="264,29,409,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,74,248,64,249,69,198,79"/>
+<area shape="rect" id="Node000003" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a0a5c3c60cd89ac5046fb58f6d10a8b1c" title="Branch and bound search for nearest neighbour of point." alt="" coords="245,119,428,159"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="198,110,230,116,229,122,197,116"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="296,29,294,19,301,10,315,5,336,3,359,5,373,11,371,16,358,10,336,8,316,10,304,15,299,20,301,28"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="296,119,294,109,301,100,315,94,336,92,359,94,373,101,371,105,358,100,336,97,316,99,304,104,299,110,301,117"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="476,119,621,159"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="428,136,460,136,460,142,428,142"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="669,119,815,159"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="622,136,654,136,654,142,622,142"/>
+</map>

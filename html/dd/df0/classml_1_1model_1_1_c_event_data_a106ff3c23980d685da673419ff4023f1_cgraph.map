@@ -1,0 +1,5 @@
+<map id="ml::model::CEventData::addCountStatistic" name="ml::model::CEventData::addCountStatistic">
+<area shape="rect" id="Node000001" title="Add a count only statistic." alt="" coords="5,5,164,46"/>
+<area shape="rect" id="Node000002" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a69affedfd19d114432ebd57220172f5f" title="Get the unique count of measurements comprising the statistic." alt="" coords="212,5,370,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,23,196,23,196,28,164,28"/>
+</map>

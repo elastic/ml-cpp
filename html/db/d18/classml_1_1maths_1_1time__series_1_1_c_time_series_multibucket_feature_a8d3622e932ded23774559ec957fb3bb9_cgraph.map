@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketFeature::dimension" name="ml::maths::time_series::CTimeSeriesMultibucketFeature::dimension">
+<area shape="rect" id="Node000001" title="Multivariate implementation returns the dimension of x." alt="" coords="5,5,222,61"/>
+<area shape="rect" id="Node000002" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#ae4ca2d0112bb078d041bfbe113acf662" title="Get the dimension." alt="" coords="270,13,415,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,31,254,31,254,36,222,36"/>
+</map>

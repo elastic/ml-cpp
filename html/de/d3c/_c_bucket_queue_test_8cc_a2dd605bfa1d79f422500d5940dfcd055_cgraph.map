@@ -1,0 +1,14 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,94,202,120"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="250,40,451,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,91,274,66,275,72,165,96"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="722,59,898,99"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="202,100,707,80,707,86,202,106"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="263,168,438,209"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="146,118,273,160,271,165,144,123"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="499,29,674,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="451,49,483,48,483,53,451,54"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="544,29,542,19,549,10,564,5,587,3,611,5,625,11,623,16,609,10,587,8,565,10,552,15,548,21,550,28"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="675,59,707,63,706,68,674,64"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="306,168,304,158,311,149,327,143,350,141,376,144,391,150,389,155,375,149,350,147,328,149,314,153,309,159,311,167"/>
+</map>

@@ -1,0 +1,24 @@
+<map id="include/model/CTokenListCategory.h" name="include/model/CTokenListCategory.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="537,5,709,46"/>
+<area shape="rect" id="Node000002" href="$dd/d19/_c_memory_usage_8h.html" title=" " alt="" coords="183,94,340,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="537,48,332,93,331,88,536,43"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="351,168,404,193"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="537,36,502,44,467,56,434,73,405,96,389,123,382,153,376,152,384,121,401,92,431,69,465,51,501,39,536,31"/>
+<area shape="rect" id="Node000007" href="$de/d8d/model_2_import_export_8h.html" title=" " alt="" coords="415,94,561,120"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="591,49,523,88,521,83,588,44"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="586,94,660,120"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="626,46,626,78,620,78,620,46"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="684,94,730,120"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="645,44,685,81,681,85,642,48"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="754,94,806,120"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="663,44,744,84,741,89,661,49"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="830,94,888,120"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="683,44,816,89,815,94,681,49"/>
+<area shape="rect" id="Node000003" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="5,168,142,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="231,123,121,164,119,159,229,118"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="166,168,234,193"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="253,122,222,157,218,154,249,118"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="258,168,326,193"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="269,119,283,152,279,154,264,121"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="283,118,347,157,344,162,280,122"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="ml::model::CSampleQueue::sample" name="ml::model::CSampleQueue::sample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,171,428,212"/>
+<area shape="poly" id="edge9_Node000001_Node000001" title=" " alt="" coords="377,158,363,152,339,150,316,152,303,156,298,162,300,170,295,171,292,161,300,152,315,147,339,145,364,147,379,153"/>
+<area shape="rect" id="Node000002" href="$d5/df7/_c_sample_queue_test_8cc.html#a15738eb4fb33752c015b2555c4a94884" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="314,160,266,100,235,70,200,44,177,34,180,29,203,40,239,66,270,96,318,156"/>
+<area shape="rect" id="Node000003" href="$d5/df7/_c_sample_queue_test_8cc.html#a0d4d4484d85fad7c01c96ba39aa55159" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="302,163,256,127,201,94,172,83,174,78,203,89,259,122,305,159"/>
+<area shape="rect" id="Node000004" href="$d5/df7/_c_sample_queue_test_8cc.html#a0273a86f4e2f2782b55f2d85563450de" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="271,168,201,143,163,133,164,128,202,138,273,163"/>
+<area shape="rect" id="Node000005" href="$d5/df7/_c_sample_queue_test_8cc.html#a213baac7cdae7c8085df208ad3b78b61" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="234,183,202,179,203,174,235,178"/>
+<area shape="rect" id="Node000006" href="$d5/df7/_c_sample_queue_test_8cc.html#a8d70afff421984a6ee33987165d000a8" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="235,205,203,208,202,203,234,199"/>
+<area shape="rect" id="Node000007" href="$d5/df7/_c_sample_queue_test_8cc.html#a28a580e7c344a327aff828ca0779d537" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="271,220,202,243,164,254,163,249,201,238,270,215"/>
+<area shape="rect" id="Node000008" href="$d5/df7/_c_sample_queue_test_8cc.html#a962d5a17afc0f06d8ea362f9097f94f6" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="305,224,258,260,203,293,174,303,172,298,201,288,255,256,302,220"/>
+<area shape="rect" id="Node000009" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a1a64c54453a2bb1e7900aef1680fd58d" title=" " alt="" coords="8,351,199,392"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="317,226,269,285,238,315,203,342,182,353,179,348,200,337,234,311,265,281,313,223"/>
+</map>

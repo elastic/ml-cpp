@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CIntegration::CSparseGaussLegendreQuadrature&lt; O, D &gt;" name="ml::maths::common::CIntegration::CSparseGaussLegendreQuadrature&lt; O, D &gt;">
+<area shape="rect" id="Node000001" title="Implements Smolyak&#39;s construction to create the sparse grid points and weights from Gauss&#45;Legendre qu..." alt="" coords="5,79,196,135"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="18,5,183,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,47,103,78,98,78,98,47"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,202,154"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="250,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,125,249,71,264,65,266,70,251,76,132,130"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="284,85,438,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,125,268,115,268,121,200,130"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ae7ce22ec1583b1da07a8718aaf2b04ff" title="Get a checksum for this object." alt="" coords="250,149,472,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,152,235,157,234,162,200,157"/>
+<area shape="rect" id="Node000008" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#a2b576f5bc635ebe084f2e4b4e892d542" title="32 bit hash combine modeled on boost::hash_combine." alt="" coords="294,229,428,270"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="128,152,183,183,251,215,280,225,278,230,249,220,180,187,125,157"/>
+<area shape="rect" id="Node000005" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="520,149,670,205"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="473,175,504,175,504,180,473,180"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="718,157,866,198"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="670,175,703,175,703,180,670,180"/>
+<area shape="rect" id="Node000007" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="914,157,1052,198"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="866,175,898,175,898,180,866,180"/>
+</map>

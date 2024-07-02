@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::residualVarianceStats" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::residualVarianceStats">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,223,61"/>
+<area shape="rect" id="Node000002" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a4f6bfc9994f06bf7b2ec54644514735c" title=" " alt="" coords="271,13,480,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,31,255,31,255,36,223,36"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="528,13,687,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="480,31,512,31,512,36,480,36"/>
+</map>

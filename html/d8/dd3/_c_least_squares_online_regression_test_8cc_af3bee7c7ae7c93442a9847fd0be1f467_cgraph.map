@@ -1,0 +1,19 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,85,202,111"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#afc80e7cf91ba8533fc744f369404bb6f" title=" " alt="" coords="250,5,493,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,82,249,55,276,48,277,53,250,60,154,87"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b7faad96d97de516da6d0bb3e363123" title=" " alt="" coords="264,70,479,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,95,249,95,249,100,202,100"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a3d67ef9f665630e03078ed3e06719bc9" title=" " alt="" coords="264,150,479,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="150,109,262,142,261,148,148,114"/>
+<area shape="rect" id="Node000005" href="$d7/d45/classml_1_1maths_1_1common_1_1_c_categorical_tools.html#a5a7809ce34b1bfc3de81f02255b4d126" title="Get the binomial coefficient ." alt="" coords="541,45,725,100"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="462,147,492,135,540,110,551,105,553,109,542,115,494,140,464,152"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="554,124,713,165"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="478,161,538,154,538,159,479,167"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="554,189,713,230"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="479,188,538,195,538,201,479,193"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="546,255,720,295"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="448,204,542,239,561,246,559,251,540,244,446,209"/>
+<area shape="rect" id="Node000006" href="$d7/d45/classml_1_1maths_1_1common_1_1_c_categorical_tools.html#a7f30273afe6172eac934f07b082c2210" title="Get the log of the binomial coefficient ." alt="" coords="773,45,977,100"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="726,70,758,70,758,75,726,75"/>
+</map>

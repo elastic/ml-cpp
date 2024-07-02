@@ -1,0 +1,29 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::predict" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::predict">
+<area shape="rect" id="Node000001" title="Get the predicted value for bucket at time." alt="" coords="5,234,217,290"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="595,335,751,391"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,278,579,344,579,349,216,283"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="311,71,473,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="134,232,189,176,225,147,263,122,295,108,298,113,266,127,228,151,193,180,138,236"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0a0e9c67bd96f53dfc7cadaad150b12f" title="Compute the maximum of first, second and third." alt="" coords="316,136,468,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="164,231,212,207,264,186,300,174,301,179,266,191,214,212,166,236"/>
+<area shape="rect" id="Node000006" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b97f15d35b3c082d48f2fa7576c3845" title="Get the mean value of the ordinates." alt="" coords="265,5,519,46"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="123,232,145,192,176,145,216,97,263,57,273,51,275,56,266,61,220,101,181,148,150,195,128,235"/>
+<area shape="rect" id="Node000008" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ac65e33b2d81fa2bdf7c8cb6723248460" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="286,201,498,256"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="217,246,271,240,271,245,217,252"/>
+<area shape="rect" id="Node000009" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="567,227,778,283"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="217,264,361,268,519,266,551,264,552,269,519,271,361,273,217,270"/>
+<area shape="rect" id="Node000010" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="285,382,499,438"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="151,288,204,325,266,361,293,373,291,378,263,365,201,329,148,292"/>
+<area shape="rect" id="Node000011" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#afc5300b15c5b31b179ad2c7fe42e50bf" title="Get the regression to use at time." alt="" coords="286,462,498,518"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="130,289,153,325,184,367,222,411,266,448,274,453,272,457,263,452,218,414,180,371,148,328,126,291"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="826,335,983,391"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="751,360,811,360,811,366,751,366"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="593,5,752,46"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="520,23,577,23,577,28,520,28"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="498,236,552,241,551,246,498,241"/>
+<area shape="poly" id="edge11_Node000011_Node000002" title=" " alt="" coords="489,459,518,447,542,434,566,419,606,397,609,401,568,424,545,439,520,452,491,464"/>
+<area shape="rect" id="Node000012" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="595,498,751,554"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="498,501,579,511,579,516,498,506"/>
+<area shape="rect" id="Node000013" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="600,433,745,474"/>
+<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="498,473,584,462,585,468,498,479"/>
+</map>

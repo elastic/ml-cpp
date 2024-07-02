@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::acceptRestoreTraverser" name="ml::maths::analytics::CBoostedTreeHyperparameters::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Populate the object from serialized data." alt="" coords="5,63,219,119"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="267,5,485,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,62,276,48,277,53,220,67"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="267,71,485,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="219,88,251,88,251,94,219,94"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="299,136,453,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,115,284,131,283,136,219,120"/>
+</map>

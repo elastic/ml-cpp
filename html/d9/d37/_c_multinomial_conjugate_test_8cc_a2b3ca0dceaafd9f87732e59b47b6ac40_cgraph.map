@@ -1,0 +1,41 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,297,202,322"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#aff23285c867b0b62fe5540733a9045e3" title=" " alt="" coords="270,142,426,197"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,294,283,203,286,208,129,299"/>
+<area shape="rect" id="Node000012" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#adbef60d283a33332a821770b4a19ade7" title="Check if two priors are equal to the specified tolerance." alt="" coords="270,246,426,301"/>
+<area shape="poly" id="edge17_Node000001_Node000012" title=" " alt="" coords="195,294,254,285,255,290,196,299"/>
+<area shape="rect" id="Node000013" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab16bff29c046195a6727342f4135410f" title=" " alt="" coords="250,325,446,366"/>
+<area shape="poly" id="edge18_Node000001_Node000013" title=" " alt="" coords="196,320,235,326,234,332,195,326"/>
+<area shape="rect" id="Node000015" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a20826b9899bd2bfb06b8ab4e99c3a250" title=" " alt="" coords="270,390,426,445"/>
+<area shape="poly" id="edge20_Node000001_Node000015" title=" " alt="" coords="134,321,251,375,264,381,261,386,249,380,131,325"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="514,67,659,107"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,140,510,110,512,115,427,145"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="729,15,921,41"/>
+<area shape="poly" id="edge6_Node000002_Node000004" title=" " alt="" coords="366,140,388,111,418,80,453,51,493,29,556,11,622,4,685,4,742,10,741,15,685,10,622,9,557,16,495,33,456,55,421,84,392,115,370,143"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="748,88,902,129"/>
+<area shape="poly" id="edge7_Node000002_Node000005" title=" " alt="" coords="426,157,733,117,733,123,427,162"/>
+<area shape="rect" id="Node000006" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="514,181,659,222"/>
+<area shape="poly" id="edge8_Node000002_Node000006" title=" " alt="" coords="427,177,499,187,498,192,426,183"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a71c31c0af0d9b1d37fd06dcdb3b80492" title=" " alt="" coords="509,246,665,301"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="414,196,495,231,508,237,506,242,493,236,412,200"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="542,67,540,57,547,48,563,42,587,40,612,42,628,49,626,53,611,48,587,45,564,47,550,52,545,58,547,65"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="659,66,754,43,756,48,661,72"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="660,91,733,97,733,103,660,96"/>
+<area shape="rect" id="Node000008" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ab394643d489a3fec9502a01be07f0013" title="Get the categories." alt="" coords="747,174,903,229"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="664,248,731,227,733,232,666,253"/>
+<area shape="rect" id="Node000009" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a42234485447630f5f9cf0dd8c87b116a" title="Efficient swap of the contents of this prior and other." alt="" coords="727,253,923,294"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="665,271,712,271,712,276,665,276"/>
+<area shape="rect" id="Node000011" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1164,267,1242,293"/>
+<area shape="poly" id="edge16_Node000007_Node000011" title=" " alt="" coords="666,292,728,303,845,309,962,306,1067,297,1148,286,1149,292,1068,302,962,311,845,315,727,308,665,297"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4ef6e7ff28c4e5a1c85a17a841b373fb" title="Swap the contents of this prior and other." alt="" coords="971,203,1116,243"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="915,250,955,241,956,246,916,255"/>
+<area shape="poly" id="edge15_Node000009_Node000011" title=" " alt="" coords="923,273,1148,277,1148,282,923,278"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1103,241,1152,259,1150,264,1101,246"/>
+<area shape="poly" id="edge14_Node000011_Node000011" title=" " alt="" coords="1176,268,1171,259,1174,249,1185,243,1203,241,1223,243,1233,250,1230,255,1221,248,1203,246,1187,248,1178,253,1176,258,1180,266"/>
+<area shape="rect" id="Node000014" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="494,325,679,366"/>
+<area shape="poly" id="edge19_Node000013_Node000014" title=" " alt="" coords="447,343,478,343,478,348,447,348"/>
+<area shape="rect" id="Node000016" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0cba7f8b12e783f4859d267c8e251b2f" title=" " alt="" coords="505,390,669,445"/>
+<area shape="poly" id="edge21_Node000015_Node000016" title=" " alt="" coords="426,415,489,415,489,420,426,420"/>
+<area shape="rect" id="Node000017" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="514,469,659,510"/>
+<area shape="poly" id="edge22_Node000015_Node000017" title=" " alt="" coords="427,439,503,462,501,467,426,444"/>
+</map>

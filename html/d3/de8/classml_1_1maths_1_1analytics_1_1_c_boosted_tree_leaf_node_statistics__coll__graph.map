@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics">
+<area shape="rect" id="Node000001" title="Maintains a collection of statistics about a leaf of the regression tree as it is built." alt="" coords="839,107,1063,148"/>
+<area shape="rect" id="Node000002" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html" title="A collection of aggregate derivatives for candidate feature splits." alt="" coords="479,27,703,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="719,78,848,104,847,109,718,83"/>
+<area shape="rect" id="Node000003" href="$d2/d2d/class_eigen_1_1_matrix.html" title=" " alt="" coords="60,27,213,68"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="228,46,478,50,478,55,228,52"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html" title="A compact representation of binary vector." alt="" coords="499,115,683,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="699,125,838,125,838,130,699,130"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,92,268,163"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="283,125,498,125,498,130,283,130"/>
+<area shape="rect" id="Node000006" href="$d1/dd9/structml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_s_split_statistics.html" title="Statistics relating to a split of the node." alt="" coords="479,172,703,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="717,172,845,146,847,151,719,177"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="41,187,232,228"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="248,203,478,199,478,204,248,208"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CBoundingBox::add" name="ml::maths::common::CBoundingBox::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,151,79"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="199,5,344,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,44,183,38,183,44,151,49"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a786f76053e20e60af5ece9d2a221d032" title="In&#45;place minimum, writing to y." alt="" coords="199,71,344,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="151,68,183,74,183,79,150,74"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="392,39,537,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,36,377,41,376,46,344,41"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="344,76,376,71,377,76,345,82"/>
+</map>

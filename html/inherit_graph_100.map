@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,107,197,133"/>
+<area shape="rect" id="Node000001" href="$d1/dd9/structml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_s_split_statistics.html" title="Statistics relating to a split of the node." alt="" coords="245,5,469,61"/>
+<area shape="poly" id="edge83_Node000000_Node000001" title=" " alt="" coords="155,99,272,59,273,64,156,104"/>
+<area shape="rect" id="Node000002" href="$dc/dd5/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_bjkst_unique_values_8cc_03_1_1detail_1_1_c_hash_iterator.html" title="Random access iterator wrapper for B set iterator." alt="" coords="273,85,441,155"/>
+<area shape="poly" id="edge84_Node000000_Node000002" title=" " alt="" coords="213,117,273,117,273,123,213,123"/>
+<area shape="rect" id="Node000003" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html" title="A light weight encoding of a calendar feature." alt="" coords="280,180,434,220"/>
+<area shape="poly" id="edge85_Node000000_Node000003" title=" " alt="" coords="157,135,245,164,286,176,284,181,244,169,156,141"/>
+</map>

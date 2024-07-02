@@ -1,0 +1,35 @@
+<map id="ml::maths::common::toDenseMatrix" name="ml::maths::common::toDenseMatrix">
+<area shape="rect" id="Node000001" title="Get the Eigen matrix for matrix." alt="" coords="827,510,973,551"/>
+<area shape="rect" id="Node000002" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7713d2e9c0cc33ac218648f23444bfc5" title=" " alt="" coords="5,410,202,435"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="891,495,877,403,853,286,837,228,819,177,799,137,778,111,710,65,645,33,581,14,519,8,456,15,391,34,323,65,251,107,214,138,183,177,159,220,141,266,118,351,109,409,103,409,112,350,136,264,154,218,179,174,210,135,248,103,320,60,389,29,455,10,519,3,582,9,647,28,712,60,781,107,804,134,824,175,842,227,858,284,882,402,897,494"/>
+<area shape="rect" id="Node000003" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a6bffdd688c36189a1a090b201ba1e3ef" title=" " alt="" coords="568,121,759,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="893,495,884,430,865,349,850,306,830,264,807,226,777,191,758,176,761,172,781,187,811,222,835,262,855,304,870,347,890,429,899,494"/>
+<area shape="rect" id="Node000006" href="$d6/dd1/classml_1_1maths_1_1common_1_1linear__algebra__tools__detail_1_1anonymous__namespace_02_c_linear8a4ea16b44139656b813374076717181.html#a4b96ae2f00639a0e01b4683c37086bee" title=" " alt="" coords="548,201,779,287"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="886,496,870,452,847,400,816,347,777,300,764,289,768,285,781,297,821,344,852,398,875,450,891,494"/>
+<area shape="rect" id="Node000007" href="$d2/d6c/classml_1_1maths_1_1common_1_1linear__algebra__tools__detail_1_1anonymous__namespace_02_c_linear1e688369399f41c435607488044492b7.html#a0c83f64bbd0c165b45765e1da4d5ef98" title=" " alt="" coords="560,311,768,411"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="866,501,825,464,778,426,760,414,763,410,781,422,829,460,870,497"/>
+<area shape="rect" id="Node000008" href="$d5/d87/classml_1_1maths_1_1common_1_1linear__algebra__tools__detail_1_1anonymous__namespace_02_c_lineard53ffe77dfc270950362c410ca3f3c8b.html#a76dbb72488595533fc2658eade5ac9d5" title=" " alt="" coords="560,436,768,521"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="812,514,768,504,769,499,813,509"/>
+<area shape="rect" id="Node000009" href="$d7/d00/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03.html#afcbabce9824c3269fac5f2fed6a533c7" title="Implementation of multivariate normal sampling." alt="" coords="562,546,766,616"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="813,552,767,562,766,556,812,546"/>
+<area shape="rect" id="Node000010" href="$de/dd3/classml_1_1maths_1_1common_1_1linear__algebra__tools__detail_1_1anonymous__namespace_02_c_linearbdcf69dd0b9cbcb2693e75b3756db746.html#a7828811b3ad49d1293221c68e63a2de1" title=" " alt="" coords="560,641,768,727"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="867,563,827,597,781,630,760,643,757,638,778,626,824,593,864,559"/>
+<area shape="rect" id="Node000011" href="$dd/dea/namespaceml_1_1maths_1_1common_1_1information__criteria__detail.html#a086323e08ee4cc1417d7380e8faa0f86" title="The log determinant of our internal heap symmetric matrix." alt="" coords="586,881,741,937"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="899,567,889,631,870,712,854,755,835,797,811,836,781,871,763,885,743,895,741,890,760,880,777,867,806,833,830,794,849,753,864,711,884,630,893,566"/>
+<area shape="rect" id="Node000014" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ad453c7cd345c0a5db00cc693e60f232f" title="Get the expected precision matrix of the marginal likelhood." alt="" coords="564,801,763,857"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="893,567,879,615,856,673,824,732,804,760,781,784,756,803,752,799,778,780,800,756,820,729,851,671,874,613,888,565"/>
+<area shape="rect" id="Node000016" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ac6fe9c56bac4ebdcf0aa1b22e3c73e71" title="Randomly sample the covariance matrix prior." alt="" coords="258,736,492,792"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="892,566,878,608,855,656,823,703,803,724,781,741,747,758,711,772,636,787,561,791,492,787,492,781,561,786,635,782,710,767,745,754,778,736,800,720,819,700,851,654,873,606,887,564"/>
+<area shape="rect" id="Node000004" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html#a70fada545d244b60c8e917e8b1abafb1" title=" " alt="" coords="250,118,500,188"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="552,153,500,154,500,149,552,148"/>
+<area shape="rect" id="Node000005" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#ac5c49de3fff5a02af0ebf7a795b49f68" title=" " alt="" coords="279,212,471,268"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="559,185,467,214,465,209,557,180"/>
+<area shape="rect" id="Node000012" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ab1ce171c6e823625bdeed7122d12a071" title="Compute the log of the determinant of covariance." alt="" coords="296,881,454,937"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="570,912,454,912,454,906,570,906"/>
+<area shape="rect" id="Node000013" href="$d8/dcd/classml_1_1maths_1_1common_1_1_c_gaussian_info_criterion.html#ac492dcff81db9652ae12665e68fa2bed" title="Update the sufficient statistics for computing info content." alt="" coords="10,889,197,929"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="281,912,197,912,197,906,281,906"/>
+<area shape="rect" id="Node000015" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="277,816,473,842"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="548,832,474,832,474,826,548,826"/>
+<area shape="poly" id="edge15_Node000014_Node000016" title=" " alt="" coords="548,806,491,793,492,788,549,801"/>
+<area shape="poly" id="edge16_Node000016_Node000002" title=" " alt="" coords="340,726,113,437,117,434,344,722"/>
+</map>

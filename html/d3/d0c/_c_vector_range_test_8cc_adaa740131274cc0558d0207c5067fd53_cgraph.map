@@ -1,0 +1,22 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,206,202,232"/>
+<area shape="rect" id="Node000002" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#aa1e56d82359b8deefff3b5b060169993" title="Clear the contents." alt="" coords="259,68,421,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,203,176,163,248,119,262,113,264,118,251,124,179,168,123,208"/>
+<area shape="rect" id="Node000006" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a26cf304f0a7ca4971f781fe7c4744d75" title="Insert a value at pos." alt="" coords="493,221,655,262"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="154,230,250,248,368,253,477,249,477,254,368,259,249,254,153,235"/>
+<area shape="rect" id="Node000007" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="250,199,430,239"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="202,216,234,216,234,222,202,222"/>
+<area shape="rect" id="Node000008" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ad7d7e4b1ea25126f0e887ef81b02df25" title=" " alt="" coords="259,133,421,174"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="152,203,248,176,250,181,153,208"/>
+<area shape="rect" id="Node000009" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a170bcd92dd84a006deeeab3e885791b9" title=" " alt="" coords="259,337,421,378"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="129,230,292,327,289,332,126,235"/>
+<area shape="rect" id="Node000003" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a3f4d266a3c1ebb9791fae5adaf57401c" title="Input iterator to start of range." alt="" coords="493,5,655,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,65,479,48,481,53,419,70"/>
+<area shape="rect" id="Node000004" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ab6fbb4bab268325e51ba4f5230174cef" title="Input iterator to end of range." alt="" coords="478,140,669,165"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="418,107,510,132,508,137,416,112"/>
+<area shape="rect" id="Node000005" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ae83b260eb8c1a6509387f5368ad89981" title="Remove the element at pos." alt="" coords="493,71,655,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="421,87,477,87,477,93,421,92"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="421,151,463,150,463,156,421,156"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="398,172,431,185,505,213,503,218,429,189,396,177"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="296,337,294,327,301,318,316,313,340,311,365,313,380,319,378,324,364,318,340,316,318,318,304,323,299,329,301,336"/>
+</map>

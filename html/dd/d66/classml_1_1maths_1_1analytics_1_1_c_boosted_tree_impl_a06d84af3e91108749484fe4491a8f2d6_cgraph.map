@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::startProgressMonitoringTrainIncremental" name="ml::maths::analytics::CBoostedTreeImpl::startProgressMonitoringTrainIncremental">
+<area shape="rect" id="Node000001" title="Start progress monitoring incremental training." alt="" coords="5,5,230,61"/>
+<area shape="rect" id="Node000002" href="$d8/d2c/classml_1_1core_1_1_c_loop_progress.html#ac869c1ab1deaeb05613219be78373b49" title="Attach a new progress monitor callback." alt="" coords="278,13,444,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,31,262,31,262,36,230,36"/>
+</map>

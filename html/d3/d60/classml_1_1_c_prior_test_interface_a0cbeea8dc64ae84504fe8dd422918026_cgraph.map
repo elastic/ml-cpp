@@ -1,0 +1,20 @@
+<map id="ml::CPriorTestInterface::marginalLikelihoodQuantileForTest" name="ml::CPriorTestInterface::marginalLikelihoodQuantileForTest">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,205,190,261"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a60cfac60a7086ae3449408c2a79beee5" title="Compute the c.d.f. at x for distribution." alt="" coords="238,191,401,217"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,218,222,214,222,219,190,224"/>
+<area shape="rect" id="Node000009" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#ab28ba73f1d52003295bf952bf1b3e9d9" title=" " alt="" coords="247,241,392,282"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="190,242,232,247,231,253,190,247"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="449,5,629,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="329,189,377,133,410,101,447,71,454,67,457,71,451,75,414,105,381,137,333,192"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="467,85,612,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="344,188,448,136,464,129,466,134,450,141,346,193"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="450,150,629,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="401,189,434,184,434,189,402,194"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3b1d398255cd218c09ddfe9f75cfa829" title=" " alt="" coords="467,216,612,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="402,213,451,220,451,226,401,218"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="457,281,622,322"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="374,215,402,227,427,246,450,266,462,272,459,276,448,270,423,250,400,231,372,220"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="502,370,576,395"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="384,215,403,227,422,253,429,279,435,305,451,331,469,347,490,360,488,365,466,352,447,335,430,307,424,280,417,256,399,231,381,220"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="503,371,495,361,500,351,515,345,539,343,566,346,580,353,577,357,565,351,539,348,516,350,503,355,501,360,507,368"/>
+</map>

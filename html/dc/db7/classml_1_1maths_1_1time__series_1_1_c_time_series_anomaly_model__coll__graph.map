@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel" name="ml::maths::time_series::CTimeSeriesAnomalyModel">
+<area shape="rect" id="Node000001" title="A model of anomalous sections of a time series." alt="" coords="5,199,197,240"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="22,95,180,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,152,104,199,98,199,98,152"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="24,5,178,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="104,62,104,95,98,95,98,62"/>
+</map>

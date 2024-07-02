@@ -1,0 +1,7 @@
+<map id="ml::model::CForecastModelPersist::CPersist::addModel" name="ml::model::CForecastModelPersist::CPersist::addModel">
+<area shape="rect" id="Node000001" title="add a model to persist" alt="" coords="251,27,436,68"/>
+<area shape="rect" id="Node000002" href="$d9/d06/_c_forecast_model_persist_test_8cc.html#a795f3175d2d5797cfe8c035402281353" title=" " alt="" coords="6,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,37,202,33,203,28,235,32"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7e6bd4649eea94780ec213c850c83a31" title="Generate maths models for forecasting." alt="" coords="5,55,203,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,63,203,67,203,61,235,57"/>
+</map>

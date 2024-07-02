@@ -1,0 +1,12 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,102,202,128"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a3ea9eae87751ba58e0d185105ee1b5fe" title=" " alt="" coords="270,29,415,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,99,254,71,256,76,154,104"/>
+<area shape="rect" id="Node000003" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#ab8e7a0ebf06b518095627e818ccb9442" title="Check the tree invariants." alt="" coords="256,95,429,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="202,112,240,112,240,118,202,118"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,160,435,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="154,126,251,153,250,158,152,131"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="298,29,296,19,303,10,319,5,342,3,368,5,382,11,380,16,366,10,342,8,320,10,307,15,301,21,304,28"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,160,668,201"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="435,178,467,178,467,183,435,183"/>
+</map>

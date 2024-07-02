@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelateModelAllocator" name="ml::maths::time_series::CTimeSeriesCorrelateModelAllocator">
+<area shape="rect" id="Node000001" title="Manages the creation correlate models." alt="" coords="5,53,250,94"/>
+<area shape="rect" id="Node000002" href="$d9/dcd/classanonymous__namespace_02_c_time_series_model_test_8cc_03_1_1_c_time_series_correlate_model_allocator.html" title="Implements the allocator for new correlate priors." alt="" coords="298,5,542,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="265,52,297,47,298,53,266,57"/>
+<area shape="rect" id="Node000003" href="$d6/d5b/classml_1_1model_1_1_c_anomaly_detector_model_1_1_c_time_series_correlate_model_allocator.html" title="Implements the allocator for new correlate priors." alt="" coords="306,85,534,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="265,89,306,95,305,100,265,95"/>
+</map>

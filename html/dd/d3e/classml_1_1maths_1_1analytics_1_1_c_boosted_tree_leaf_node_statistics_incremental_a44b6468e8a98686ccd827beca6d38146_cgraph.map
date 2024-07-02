@@ -1,0 +1,6 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::split" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::split">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,230,85"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="65,29,65,19,75,10,92,5,118,3,147,5,164,12,162,17,145,11,117,8,93,10,78,15,70,21,70,29"/>
+<area shape="rect" id="Node000002" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ae7a1a84f9895c1193e70aaf7371f9750" title="Check if the left child has fewer rows than the right child." alt="" coords="278,29,502,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,55,262,55,262,60,230,60"/>
+</map>

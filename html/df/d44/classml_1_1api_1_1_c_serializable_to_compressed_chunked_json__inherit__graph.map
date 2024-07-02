@@ -1,0 +1,11 @@
+<map id="ml::api::CSerializableToCompressedChunkedJson" name="ml::api::CSerializableToCompressedChunkedJson">
+<area shape="rect" id="Node000001" title="Interface for writing the inference model and training data summarization JSON descriptions to a stre..." alt="" coords="213,85,388,126"/>
+<area shape="rect" id="Node000003" href="$de/d1d/classanonymous__namespace_02_c_serializable_to_json_test_8cc_03_1_1_c_serializable_vector.html" title=" " alt="" coords="437,5,628,61"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="381,77,440,59,442,64,383,82"/>
+<area shape="rect" id="Node000004" href="$d7/d1e/classml_1_1api_1_1_c_data_summarization_json_writer.html" title="Writes the data summarization as a compressed, base64 encoded and chunked JSON blob." alt="" coords="436,85,629,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="404,103,436,103,436,108,404,108"/>
+<area shape="rect" id="Node000005" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html" title="Technical details required for model evaluation." alt="" coords="449,150,616,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="390,128,458,147,457,152,389,133"/>
+<area shape="rect" id="Node000002" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="5,85,165,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,103,212,103,212,108,180,108"/>
+</map>

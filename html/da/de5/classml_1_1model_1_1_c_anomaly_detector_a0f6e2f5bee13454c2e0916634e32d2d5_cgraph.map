@@ -1,0 +1,18 @@
+<map id="ml::model::CAnomalyDetector::staticsAcceptPersistInserter" name="ml::model::CAnomalyDetector::staticsAcceptPersistInserter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,95,203,135"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="257,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,92,250,56,273,49,275,54,252,62,158,97"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a4ca628e01e5053d4d8dc9db65dc1ee80" title="Persist the static members of this class." alt="" coords="261,95,455,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,112,245,112,245,118,203,118"/>
+<area shape="rect" id="Node000007" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a2dc056f287217cb17e575671bb8c6ff3" title="Persist the static members of this class." alt="" coords="251,159,465,215"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="179,133,244,152,242,157,178,138"/>
+<area shape="poly" id="edge7_Node000003_Node000003" title=" " alt="" coords="310,95,308,85,316,76,332,70,358,68,385,70,401,77,399,82,384,76,358,73,334,75,319,80,313,86,315,93"/>
+<area shape="rect" id="Node000004" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a35d2a2807ba99f434c1ab92502d66fc8" title="Clear the collection of cached counters." alt="" coords="520,8,708,49"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="418,92,512,59,535,52,536,57,514,64,420,97"/>
+<area shape="rect" id="Node000005" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="520,97,708,138"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="455,113,505,114,505,119,455,119"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="513,164,715,205"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="437,133,523,157,521,162,435,139"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="566,97,564,87,572,78,589,73,614,71,642,73,658,79,656,84,641,78,614,76,590,78,575,83,569,89,571,96"/>
+<area shape="poly" id="edge9_Node000007_Node000006" title=" " alt="" coords="466,183,498,183,498,188,466,189"/>
+</map>

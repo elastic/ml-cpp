@@ -1,0 +1,23 @@
+<map id="include/api/CSingleStreamDataAdder.h" name="include/api/CSingleStreamDataAdder.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="473,5,648,46"/>
+<area shape="rect" id="Node000002" href="$d0/da7/_c_data_adder_8h.html" title=" " alt="" coords="333,94,465,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="521,49,439,89,436,84,519,44"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="593,168,646,193"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="567,46,575,80,588,119,606,153,601,155,583,121,570,82,562,47"/>
+<area shape="rect" id="Node000010" href="$d9/dd6/api_2_import_export_8h.html" title=" " alt="" coords="598,94,726,120"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="587,44,636,82,633,86,584,49"/>
+<area shape="rect" id="Node000003" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="5,168,156,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,123,150,166,149,161,344,118"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="68,241,205,267"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="339,123,279,141,219,170,183,199,156,231,152,228,180,196,216,165,277,136,337,118"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="230,168,291,193"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="377,123,299,162,297,158,374,118"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="315,168,393,193"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="394,121,372,156,367,153,389,118"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="416,168,476,193"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="409,118,432,153,427,156,405,121"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="500,168,568,193"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="423,118,499,158,496,162,421,123"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="437,118,578,163,577,168,436,123"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,192,120,227,116,231,88,195"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CSeasonalComponent::shiftSlope" name="ml::maths::time_series::CSeasonalComponent::shiftSlope">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,174,105"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ab809989a408f7635f0df7939e343accf" title=" " alt="" coords="222,13,433,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,62,206,57,207,62,174,67"/>
+<area shape="rect" id="Node000006" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ab27d693b34462e3d09bd6b455b375633" title="Get the time provider." alt="" coords="231,93,424,134"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="174,87,216,94,215,99,173,92"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="509,5,665,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,35,493,33,493,39,434,41"/>
+<area shape="rect" id="Node000005" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="481,85,692,141"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="431,67,470,78,468,83,429,72"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="740,5,897,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,31,725,31,725,36,665,36"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="425,111,465,111,465,116,425,116"/>
+</map>

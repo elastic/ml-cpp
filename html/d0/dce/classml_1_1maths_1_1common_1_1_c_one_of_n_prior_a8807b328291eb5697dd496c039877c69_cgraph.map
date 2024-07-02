@@ -1,0 +1,33 @@
+<map id="ml::maths::common::COneOfNPrior::minusLogJointCdfComplement" name="ml::maths::common::COneOfNPrior::minusLogJointCdfComplement">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,461,204,517"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#ab6421aa97dca9f4d4ecad943e65b4fef" title="The common c.d.f. implementation." alt="" coords="252,356,450,412"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,458,269,416,271,421,172,463"/>
+<area shape="rect" id="Node000015" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="541,573,700,614"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="205,506,526,572,525,577,204,512"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a49679dd24c6dfeaf8869aa75a338de6d" title="Get the complement distribution of mode." alt="" coords="548,118,693,159"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="361,354,382,313,411,263,449,213,496,170,532,152,535,156,500,174,453,216,415,266,386,315,366,357"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a6ebf8a8f265d7d778b384b44b524f543" title="Check if this is a non&#45;informative prior." alt="" coords="514,184,727,224"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="373,354,425,296,459,266,497,240,521,228,523,233,499,245,463,271,429,300,376,357"/>
+<area shape="rect" id="Node000010" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="791,406,970,447"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="381,353,433,315,464,297,497,284,566,265,622,256,678,262,744,284,781,305,813,333,840,363,861,392,857,395,836,367,810,337,778,310,742,289,677,267,622,261,567,270,499,289,466,302,436,319,384,357"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3e279da9e8dcb25bfb85893d933719ce" title=" " alt="" coords="537,298,705,339"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="450,357,521,340,522,345,451,362"/>
+<area shape="rect" id="Node000012" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a34df96d6ecba9a002f6bede21255f172" title=" " alt="" coords="535,364,706,404"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="451,381,519,381,519,387,451,387"/>
+<area shape="rect" id="Node000013" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a2644ca70d842a56ee28f5fe10855c95c" title=" " alt="" coords="498,429,743,470"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="451,405,520,422,518,427,450,410"/>
+<area shape="rect" id="Node000014" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a124b6ac401e71c90619e4924538aa9b9" title="Get the normalized model weights." alt="" coords="522,493,720,549"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="390,410,440,445,499,479,512,485,510,489,497,484,438,450,387,414"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="378,410,452,501,474,533,483,546,499,559,528,573,525,578,497,563,480,550,469,536,448,504,373,414"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="792,126,969,151"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="694,136,776,136,776,141,694,141"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1018,5,1198,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="908,123,1017,71,1028,66,1030,70,1019,76,910,127"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1018,85,1198,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="969,123,1002,118,1003,123,970,128"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1035,150,1181,191"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="970,148,1020,156,1020,161,969,154"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1025,216,1191,256"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="910,149,1019,200,1036,207,1034,212,1017,205,907,154"/>
+<area shape="poly" id="edge15_Node000015_Node000010" title=" " alt="" coords="700,576,742,559,775,536,805,510,853,457,857,461,809,514,778,541,745,564,702,581"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,170,202,196"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="796,8,955,49"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,168,167,113,205,83,249,59,317,37,389,21,462,10,534,5,669,5,780,13,780,18,669,10,534,10,463,16,390,26,319,42,251,64,208,87,170,117,117,172"/>
+<area shape="rect" id="Node000003" href="$df/dba/classanonymous__namespace_02_c_k_means_online_test_8cc_03_1_1_c_k_means_online_for_test.html#afdd451aacea8153a42fe71068c349486" title=" " alt="" coords="284,75,470,145"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="154,167,268,136,270,141,155,172"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="796,163,955,204"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="202,181,780,181,780,186,202,186"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="250,220,504,261"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="169,194,262,214,261,219,168,199"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a5717f9fd9f2eae5a4e2b6c11d1511f42" title=" " alt="" coords="284,286,470,326"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="124,194,179,232,251,270,271,278,269,283,249,275,176,236,121,199"/>
+<area shape="rect" id="Node000004" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#ac5a7e176bb8c3050633c86ff225a69fd" title=" " alt="" coords="552,94,742,134"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="471,109,537,110,537,115,471,114"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="703,91,804,52,806,57,705,96"/>
+<area shape="rect" id="Node000005" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#af7c398f7831388042299dd9641929fb6" title="Get the clusters being maintained." alt="" coords="790,98,961,138"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="743,113,775,113,775,119,743,118"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="718,132,792,155,791,160,716,137"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="832,98,830,88,837,79,853,73,876,71,900,73,915,80,913,84,899,78,875,76,854,78,841,83,836,89,838,96"/>
+</map>

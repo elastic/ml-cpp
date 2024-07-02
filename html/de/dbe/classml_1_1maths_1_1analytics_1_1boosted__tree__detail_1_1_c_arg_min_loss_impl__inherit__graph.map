@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinLossImpl" name="ml::maths::analytics::boosted_tree_detail::CArgMinLossImpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,177,148,233"/>
+<area shape="rect" id="Node000002" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html" title="Finds the value to add to a set of predicted log&#45;odds which minimises regularised cross entropy loss ..." alt="" coords="196,14,424,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,163,146,121,194,82,220,68,223,73,197,87,150,125,111,167"/>
+<area shape="rect" id="Node000004" href="$d0/da5/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_impl.html" title="Finds the value to add to a set of predictions which minimises the regularized MSE w...." alt="" coords="239,97,381,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="162,173,237,147,239,152,163,178"/>
+<area shape="rect" id="Node000006" href="$da/de3/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_msle_impl.html" title="Finds the value to add to a set of predictions which approximately minimises the regularised mean squ..." alt="" coords="239,177,381,233"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="163,202,238,202,238,207,163,207"/>
+<area shape="rect" id="Node000007" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html" title="Finds the value to add to a set of predicted multinomial logit which minimises regularised cross entr..." alt="" coords="214,256,406,327"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="164,234,215,253,213,258,162,239"/>
+<area shape="rect" id="Node000008" href="$d6/d53/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_pseudo_huber_impl.html" title="Finds the value to add to a set of predictions which approximately minimises the pseudo&#45;Huber loss fu..." alt="" coords="218,350,402,406"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="107,244,146,292,171,316,197,337,218,349,216,354,194,342,167,320,142,296,102,247"/>
+<area shape="rect" id="Node000003" href="$d9/dec/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_incremental_impl.html" title="Finds the value to add to a set of predicted log&#45;odds which minimises adjusted regularised cross entr..." alt="" coords="472,5,675,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,39,471,39,471,44,440,44"/>
+<area shape="rect" id="Node000005" href="$d7/d37/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_mse_incremental_impl.html" title="Finds the value to add to a set of predictions which minimises the adjusted regularized MSE differenc..." alt="" coords="475,100,673,155"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="397,123,474,124,474,129,397,128"/>
+</map>

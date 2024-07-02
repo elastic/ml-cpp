@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CBjkstUniqueValues::acceptRestoreTraverser" name="ml::maths::common::CBjkstUniqueValues::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create by traversing a state document." alt="" coords="5,193,167,249"/>
+<area shape="rect" id="Node000002" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a14968d19fdb12ec3fb88c23d6d401939" title=" " alt="" coords="241,5,407,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,191,151,135,180,105,213,78,231,67,233,71,216,82,184,109,155,138,109,195"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="481,39,630,94"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="114,191,158,154,214,121,260,107,324,94,465,74,466,79,325,100,261,112,216,126,161,158,117,195"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="247,136,401,176"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="166,196,232,178,233,183,168,202"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="215,201,433,242"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="167,219,199,219,199,224,167,224"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="215,266,433,307"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="168,241,233,259,232,264,166,246"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="215,332,433,372"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="119,247,163,283,216,316,230,323,228,328,213,321,160,287,116,251"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="215,397,433,438"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="105,248,149,315,180,351,216,382,225,387,222,392,213,386,176,355,145,319,100,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,42,466,51,465,56,407,48"/>
+<area shape="rect" id="Node000004" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="678,46,849,87"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="631,73,663,73,662,78,630,78"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="678,60,646,60,646,55,678,55"/>
+</map>

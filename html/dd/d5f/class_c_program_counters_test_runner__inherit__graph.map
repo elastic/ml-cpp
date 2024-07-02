@@ -1,0 +1,7 @@
+<map id="CProgramCountersTestRunner" name="CProgramCountersTestRunner">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,153,206,178"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="42,79,169,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,120,108,152,103,152,103,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="23,5,188,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,46,108,79,103,79,103,46"/>
+</map>

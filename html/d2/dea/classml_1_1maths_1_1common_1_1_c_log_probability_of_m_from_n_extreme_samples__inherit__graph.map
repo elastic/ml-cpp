@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples" name="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples">
+<area shape="rect" id="Node000001" title="Computes the probability of seeing the M most extreme samples in a collection of N samples." alt="" coords="5,94,233,150"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="14,5,224,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,61,122,93,116,93,116,61"/>
+</map>

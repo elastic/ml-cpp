@@ -1,0 +1,17 @@
+<map id="ml::core::CDetachedProcessSpawner::terminateChild" name="ml::core::CDetachedProcessSpawner::terminateChild">
+<area shape="rect" id="Node000001" title=" " alt="" coords="978,27,1168,68"/>
+<area shape="rect" id="Node000002" href="$d6/d79/_c_detached_process_spawner_test_8cc.html#a0a61c730bfbea80663a72bf7bb205583" title=" " alt="" coords="733,5,930,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="962,37,930,33,930,27,962,31"/>
+<area shape="rect" id="Node000003" href="$d4/dee/classml_1_1controller_1_1_c_command_processor.html#a5399a6cc2d7409b7e32bc4351478a5de" title=" " alt="" coords="744,55,919,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="963,63,919,68,919,63,962,58"/>
+<area shape="rect" id="Node000004" href="$d4/dee/classml_1_1controller_1_1_c_command_processor.html#a0d03f54974a384b21b3a0e9447d584ed" title="Parse and handle a single command." alt="" coords="499,55,685,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="728,78,686,78,686,73,728,73"/>
+<area shape="rect" id="Node000005" href="$d4/dee/classml_1_1controller_1_1_c_command_processor.html#a2e4cd261fc33d531a0b3e5355c21b37b" title=" " alt="" coords="250,55,451,96"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="483,78,451,78,451,73,483,73"/>
+<area shape="rect" id="Node000006" href="$d1/d60/_c_command_processor_test_8cc.html#a00d1b8d4c6dd6779fd9e54d060c49bbc" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,55,171,42,172,37,235,50"/>
+<area shape="rect" id="Node000007" href="$d1/d60/_c_command_processor_test_8cc.html#a1878fab60995de6672316062758ee612" title=" " alt="" coords="5,63,202,88"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="234,78,202,78,202,73,234,73"/>
+<area shape="rect" id="Node000008" href="$d9/d56/bin_2controller_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Controller to start other ML processes." alt="" coords="79,112,128,138"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="235,101,129,123,128,117,234,96"/>
+</map>

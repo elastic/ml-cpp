@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples::calibrated" name="ml::maths::common::CLogProbabilityOfMFromNExtremeSamples::calibrated">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,111,233,166"/>
+<area shape="rect" id="Node000002" href="$d8/d42/classml_1_1maths_1_1common_1_1_c_log_probability_of_m_from_n_extreme_samples.html#a55765731621f6752540c694344876184" title=" " alt="" coords="281,143,508,198"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,149,265,153,265,158,233,154"/>
+<area shape="rect" id="Node000003" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7720639ebcdc5446b370dbf9f2c0019c" title="Get the number of statistics." alt="" coords="556,5,780,61"/>
+<area shape="poly" id="edge10_Node000001_Node000003" title=" " alt="" coords="232,114,540,55,541,60,233,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,140,491,105,555,71,568,65,570,70,557,76,494,110,439,144"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a5374365b490685fa702741c968a98697" title=" " alt="" coords="558,85,778,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="508,141,564,127,566,132,509,146"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#acea8f6ad7e4d9c9c8eeae14376882eb1" title=" " alt="" coords="587,150,749,191"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="508,168,571,168,571,173,508,173"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="578,216,758,256"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="509,195,566,209,564,214,508,200"/>
+<area shape="rect" id="Node000008" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#ab1ecb15dfd581db7ce7b1147f462b411" title=" " alt="" coords="556,280,780,336"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="439,197,494,231,557,265,570,271,568,276,555,270,491,236,436,201"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="596,360,741,400"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="416,197,473,272,513,312,557,346,582,358,580,363,555,350,509,316,469,275,412,201"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a739275d40cae59a9a72b42b772b113fc" title=" " alt="" coords="828,118,974,159"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="779,118,813,123,813,129,778,124"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="749,157,813,148,813,153,750,162"/>
+</map>

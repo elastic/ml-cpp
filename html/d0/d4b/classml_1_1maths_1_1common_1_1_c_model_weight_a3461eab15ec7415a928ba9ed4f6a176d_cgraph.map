@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CModelWeight::logWeight" name="ml::maths::common::CModelWeight::logWeight">
+<area shape="rect" id="Node000001" title="Reset the log weight." alt="" coords="5,5,177,46"/>
+<area shape="rect" id="Node000002" href="$d0/d4b/classml_1_1maths_1_1common_1_1_c_model_weight.html#aba7245c450b1eade9e25c89899439fb4" title="Get the log of the current weight." alt="" coords="225,5,396,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,23,209,23,209,28,177,28"/>
+</map>

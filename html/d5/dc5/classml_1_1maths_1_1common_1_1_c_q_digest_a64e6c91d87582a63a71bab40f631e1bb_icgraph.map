@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CQDigest::cdfQuantile" name="ml::maths::common::CQDigest::cdfQuantile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="479,154,632,195"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ae3590925ecd3c35482c6a67f47d60222" title=" " alt="" coords="268,97,413,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="463,152,413,139,414,134,465,147"/>
+<area shape="rect" id="Node000007" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#abca869bdc67242d4253fd6942de99f8e" title=" " alt="" coords="250,211,431,252"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="465,201,420,213,419,208,463,196"/>
+<area shape="rect" id="Node000003" href="$db/d32/_c_q_digest_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="292,91,249,66,201,45,168,34,170,29,203,40,251,62,295,86"/>
+<area shape="rect" id="Node000004" href="$db/d32/_c_q_digest_test_8cc.html#afeec754f0da6511188570bb040d8a231" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="252,101,168,84,169,78,253,96"/>
+<area shape="rect" id="Node000005" href="$db/d32/_c_q_digest_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="252,120,202,120,202,114,252,114"/>
+<area shape="rect" id="Node000006" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a401ab696f483763f73cfb4bac82f602e" title=" " alt="" coords="31,154,176,195"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="253,141,177,159,176,154,252,135"/>
+<area shape="rect" id="Node000008" href="$db/dcc/_c_anomaly_score_test_8cc.html#a99a610f377a192869df12de832f96767" title=" " alt="" coords="5,219,202,244"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="234,234,202,234,202,229,234,229"/>
+<area shape="rect" id="Node000009" href="$db/dcc/_c_anomaly_score_test_8cc.html#a3762211201633346d940bcce73429185" title=" " alt="" coords="5,268,202,294"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="235,256,169,270,168,265,234,251"/>
+</map>

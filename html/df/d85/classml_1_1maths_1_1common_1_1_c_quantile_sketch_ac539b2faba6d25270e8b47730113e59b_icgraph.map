@@ -1,0 +1,32 @@
+<map id="ml::maths::common::CQuantileSketch::count" name="ml::maths::common::CQuantileSketch::count">
+<area shape="rect" id="Node000001" title="Get the total count of points added." alt="" coords="518,245,678,285"/>
+<area shape="rect" id="Node000002" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a04632c1ffdd5a8dd9ca3c784dc96a9a1" title="Add error at time." alt="" coords="269,146,451,187"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="546,239,469,202,435,190,436,184,471,197,549,234"/>
+<area shape="rect" id="Node000009" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a2beb0a9d218df1fbadc74d46e8ed7008" title="Check invariants." alt="" coords="250,211,470,252"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="502,254,470,250,471,244,503,249"/>
+<area shape="rect" id="Node000010" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a6f925dcf0a5fd54622878c91f2835f42" title="Get the count of the statistic." alt="" coords="270,277,450,317"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="503,280,451,287,450,282,502,275"/>
+<area shape="rect" id="Node000011" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#a802256c91ef618bf82c199c393943990" title="Reduce to the maximum permitted size." alt="" coords="287,341,433,397"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="546,295,471,331,435,346,433,341,469,326,544,290"/>
+<area shape="rect" id="Node000012" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a08d2a5530d59711ee84fc7cf18653be4" title="Compute quantiles on the supplied knots." alt="" coords="273,421,447,461"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="578,300,533,357,504,386,471,411,448,423,446,418,469,407,501,382,529,353,574,297"/>
+<area shape="rect" id="Node000013" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a215a430bcddcaa0f0c9df83967092abc" title="Check if there are calendar components." alt="" coords="268,81,452,121"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="571,234,526,183,499,158,469,136,444,124,446,119,471,132,502,154,530,180,575,230"/>
+<area shape="rect" id="Node000003" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a37eee8b832f4febaaebc1c9f05f187a9" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="254,189,174,205,173,199,253,184"/>
+<area shape="rect" id="Node000004" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#ad9e2cc94e80c8604915b68ddc3aa5752" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="254,140,248,135,230,112,223,88,217,65,200,44,182,34,185,29,203,40,222,63,229,86,235,109,252,131,257,135"/>
+<area shape="rect" id="Node000005" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="264,195,251,202,237,212,228,222,218,233,203,243,177,254,175,249,200,238,215,229,224,219,234,208,248,197,262,191"/>
+<area shape="rect" id="Node000006" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a720f1331ae3b8d86f7fcae16e96d541c" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="262,142,248,135,234,124,224,114,215,104,200,94,175,83,177,78,203,89,218,99,228,110,237,120,251,131,264,137"/>
+<area shape="rect" id="Node000007" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a366733c8c476fd204113d30efcbf97ec" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="253,148,173,133,174,128,254,143"/>
+<area shape="rect" id="Node000008" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a455a37ad76d620e12e26b4a5308fa4c2" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="253,169,202,169,202,164,253,164"/>
+<area shape="poly" id="edge13_Node000013_Node000003" title=" " alt="" coords="261,131,251,136,237,150,228,164,219,179,203,194,181,204,179,200,200,189,215,176,224,162,232,147,248,132,258,126"/>
+<area shape="poly" id="edge14_Node000013_Node000004" title=" " alt="" coords="292,77,201,45,163,34,164,29,202,40,294,72"/>
+<area shape="poly" id="edge15_Node000013_Node000006" title=" " alt="" coords="252,90,202,83,202,78,253,84"/>
+<area shape="poly" id="edge16_Node000013_Node000007" title=" " alt="" coords="253,110,202,113,202,108,252,105"/>
+<area shape="poly" id="edge17_Node000013_Node000008" title=" " alt="" coords="266,128,202,145,160,155,159,150,201,140,265,123"/>
+</map>

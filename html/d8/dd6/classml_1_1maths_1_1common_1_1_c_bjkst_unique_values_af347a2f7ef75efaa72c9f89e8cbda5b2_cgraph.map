@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CBjkstUniqueValues::memoryUsage" name="ml::maths::common::CBjkstUniqueValues::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this sketch." alt="" coords="5,160,155,216"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="203,118,409,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,166,237,145,238,150,156,171"/>
+<area shape="rect" id="Node000006" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="231,192,381,248"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="155,196,216,204,215,210,155,201"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="457,5,628,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="338,115,458,65,460,70,340,120"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="459,85,626,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="409,117,443,113,444,118,410,122"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="676,107,862,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="410,133,457,135,628,135,660,134,661,139,628,140,457,140,409,138"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="627,113,661,118,661,123,626,119"/>
+<area shape="rect" id="Node000007" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="458,200,628,240"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="381,226,442,226,442,231,381,231"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="457,214,396,214,396,208,457,208"/>
+</map>

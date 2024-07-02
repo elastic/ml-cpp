@@ -1,0 +1,29 @@
+<map id="ml::model_t::probabilityCalculation" name="ml::model_t::probabilityCalculation">
+<area shape="rect" id="Node000001" title="Get the type of probability calculation to use for feature." alt="" coords="588,219,744,260"/>
+<area shape="rect" id="Node000002" href="$d8/d9e/_c_model_types_test_8cc.html#a9b4a3994bc0c6e5b43c31dc372f95d4b" title=" " alt="" coords="308,5,505,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="650,206,634,168,610,124,578,81,539,46,504,30,506,25,541,41,582,77,614,121,638,165,655,204"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6ab02a238c5ad4ffdcd811c520ce1a03" title=" " alt="" coords="310,55,503,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="640,208,596,158,569,132,539,111,502,95,505,90,541,107,572,128,600,154,644,205"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7f47e57e3eba38ccdfb4924902dd8af8" title=" " alt="" coords="310,121,503,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="616,214,539,177,502,164,503,159,541,172,619,209"/>
+<area shape="rect" id="Node000006" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a3df1f489824a7a890c2c3a5742d444af" title=" " alt="" coords="297,186,516,227"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="572,230,516,223,517,218,573,225"/>
+<area shape="rect" id="Node000008" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#ad28341eaf1c57884b6b46266cda1d4b0" title=" " alt="" coords="323,251,490,292"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="573,254,491,264,490,259,572,248"/>
+<area shape="rect" id="Node000009" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#aa475ea54f421611c79a8162739dbfb8f" title=" " alt="" coords="323,317,490,357"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="618,270,541,306,491,322,490,317,539,301,615,265"/>
+<area shape="rect" id="Node000011" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#ad1b7111685b6d39fa4be3325acbde9e8" title=" " alt="" coords="310,382,503,423"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="643,274,600,325,572,350,541,371,505,387,502,382,539,367,569,346,596,321,639,271"/>
+<area shape="rect" id="Node000013" href="$da/d82/namespaceanonymous__namespace_02_c_probability_and_influence_calculator_test_8cc_03.html#a219259c6d79d4b107831957ec59d7950" title=" " alt="" coords="273,446,540,502"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="654,275,637,313,612,356,580,399,542,436,523,448,520,444,538,432,576,396,608,353,632,310,649,273"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="18,121,212,161"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="294,144,212,144,212,138,294,138"/>
+<area shape="rect" id="Node000007" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="5,186,225,227"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="281,209,225,209,225,204,281,204"/>
+<area shape="rect" id="Node000010" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a730885952a2719bff06c7134ea5459a8" title=" " alt="" coords="31,317,199,357"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="307,340,199,340,199,334,307,334"/>
+<area shape="rect" id="Node000012" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="18,382,212,423"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="294,405,212,405,212,400,294,400"/>
+<area shape="rect" id="Node000014" href="$d0/da9/_c_probability_and_influence_calculator_test_8cc.html#adacf1c21ee64f9bdf5b1c4471078449a" title=" " alt="" coords="17,461,213,487"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="257,477,214,477,214,472,257,472"/>
+</map>

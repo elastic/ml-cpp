@@ -1,0 +1,9 @@
+<map id="ml::model::CMetricStatisticWrappers::influencerValue" name="ml::model::CMetricStatisticWrappers::influencerValue">
+<area shape="rect" id="Node000001" title="Forward to the value function." alt="" coords="481,39,661,79"/>
+<area shape="rect" id="Node000002" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#abe3aa5567654a1d07e41fe49ae42d6db" title=" " alt="" coords="238,5,429,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="465,47,429,42,429,36,466,42"/>
+<area shape="rect" id="Node000003" href="$d9/dcb/classml_1_1model_1_1_c_metric_multivariate_statistic.html#a912458eb9bc08568eac0de1d9e841f95" title=" " alt="" coords="234,71,433,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="466,76,434,80,433,75,465,71"/>
+<area shape="rect" id="Node000004" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a755d0a133e17e44fb6e40cec4ecd3b21" title=" " alt="" coords="5,71,186,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="218,94,186,94,186,88,218,88"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CAnnotatedProbabilityBuilder::build" name="ml::model::CAnnotatedProbabilityBuilder::build">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,53,222,94"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7720639ebcdc5446b370dbf9f2c0019c" title="Get the number of statistics." alt="" coords="270,5,494,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,54,254,50,255,55,223,60"/>
+<area shape="rect" id="Node000003" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#ab1ecb15dfd581db7ce7b1147f462b411" title=" " alt="" coords="270,85,494,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,87,255,92,254,97,222,92"/>
+</map>

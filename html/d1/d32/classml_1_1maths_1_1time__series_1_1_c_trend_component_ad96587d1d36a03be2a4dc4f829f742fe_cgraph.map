@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTrendComponent::value" name="ml::maths::time_series::CTrendComponent::value">
+<area shape="rect" id="Node000001" title="Get the predicted value at time." alt="" coords="5,85,184,126"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="232,5,454,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,82,229,63,231,68,168,87"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="263,85,423,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,103,248,103,248,108,184,108"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="236,149,450,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,123,231,142,229,147,166,129"/>
+</map>

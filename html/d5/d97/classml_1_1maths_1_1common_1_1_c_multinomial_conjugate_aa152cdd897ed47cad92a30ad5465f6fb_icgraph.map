@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultinomialConjugate::removeCategories" name="ml::maths::common::CMultinomialConjugate::removeCategories">
+<area shape="rect" id="Node000001" title="Remove the categories in categoriesToRemove." alt="" coords="273,48,429,103"/>
+<area shape="rect" id="Node000002" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#abb816cee2c473daaf1da64d7919b5983" title=" " alt="" coords="17,5,213,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,54,224,46,174,34,175,29,225,41,258,49"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a10ad810a24ba4aa24174941e0edcfcfa" title="Clear out large state objects for people that are pruned." alt="" coords="18,55,212,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,78,212,78,212,73,257,73"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#ae3cf9891594d7715fcd2916260d665f8" title=" " alt="" coords="5,121,225,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="259,104,192,122,191,117,257,99"/>
+</map>

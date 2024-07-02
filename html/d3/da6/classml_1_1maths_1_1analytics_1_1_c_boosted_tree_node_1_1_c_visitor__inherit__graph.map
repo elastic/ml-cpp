@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::CVisitor" name="ml::maths::analytics::CBoostedTreeNode::CVisitor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,205,79"/>
+<area shape="rect" id="Node000002" href="$da/df0/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_1_1_c_visitor.html" title=" " alt="" coords="253,39,421,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,56,252,56,252,62,220,62"/>
+<area shape="rect" id="Node000003" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html" title="Builds a serialisable trained model object by visiting a maths::analytics::CBoostedTree object." alt="" coords="469,39,675,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="437,56,469,56,469,62,437,62"/>
+<area shape="rect" id="Node000004" href="$dd/d5c/classml_1_1api_1_1_c_classification_inference_model_builder.html" title=" " alt="" coords="744,5,901,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="690,41,743,33,744,39,691,46"/>
+<area shape="rect" id="Node000005" href="$d1/dbd/classml_1_1api_1_1_c_regression_inference_model_builder.html" title=" " alt="" coords="723,71,922,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="691,72,723,76,722,81,690,77"/>
+</map>

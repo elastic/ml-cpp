@@ -1,0 +1,30 @@
+<map id="ml::maths::common::CLbfgs::lineSearch" name="ml::maths::common::CLbfgs::lineSearch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,248,151,289"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="216,337,362,378"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,287,226,328,224,333,127,292"/>
+<area shape="rect" id="Node000004" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a34f44a505f17699fc9e75a088e638443" title=" " alt="" coords="212,128,366,169"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="114,245,237,174,239,179,117,250"/>
+<area shape="rect" id="Node000011" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a696e7ed599e3c2175818585102e553f6" title=" " alt="" coords="199,248,379,289"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="151,266,183,266,183,271,151,271"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="870,120,1015,161"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="362,360,473,360,535,354,596,343,663,323,713,302,820,235,866,203,906,169,909,173,869,207,823,240,715,306,665,328,597,348,536,360,473,365,362,366"/>
+<area shape="rect" id="Node000005" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a6991aa4d28fbb05caccfa0a0ba81af6b" title=" " alt="" coords="427,128,596,169"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="366,146,411,146,411,151,366,151"/>
+<area shape="rect" id="Node000006" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a4d9b96daa77fc5176be2ffb9b518cd07" title=" " alt="" coords="644,5,822,46"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="310,126,360,85,392,64,426,49,477,34,529,25,629,18,629,23,530,30,478,39,428,53,394,69,363,89,313,130"/>
+<area shape="rect" id="Node000008" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="660,185,806,226"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="367,166,427,178,541,191,645,199,645,205,540,197,427,183,366,171"/>
+<area shape="rect" id="Node000009" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a3a758665e1abdc93e7b1a1f63ec17f5d" title=" " alt="" coords="439,63,584,103"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="360,125,424,106,426,111,361,130"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a94bfaf7bfdeb4d2466949bde27e48cc9" title="Compute a value from x which will be stable across platforms." alt="" coords="870,5,1015,46"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="822,23,854,23,854,28,822,28"/>
+<area shape="poly" id="edge9_Node000009_Node000003" title=" " alt="" coords="585,83,697,90,822,106,857,113,856,118,821,111,696,95,584,88"/>
+<area shape="poly" id="edge10_Node000009_Node000006" title=" " alt="" coords="584,62,636,48,638,53,585,67"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="577,102,598,114,613,129,623,143,631,157,646,170,654,175,651,180,643,174,627,160,618,146,609,132,595,118,574,106"/>
+<area shape="rect" id="Node000010" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="660,120,806,161"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="585,99,646,115,645,120,584,104"/>
+<area shape="poly" id="edge13_Node000010_Node000003" title=" " alt="" coords="806,138,854,138,854,143,806,143"/>
+<area shape="poly" id="edge16_Node000011_Node000008" title=" " alt="" coords="379,253,645,215,645,221,380,258"/>
+<area shape="rect" id="Node000012" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a8570a3f43637808042bf5373431bb90b" title="Get the inner product of two of our internal vectors." alt="" coords="439,293,584,334"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="380,284,424,293,423,298,379,289"/>
+</map>

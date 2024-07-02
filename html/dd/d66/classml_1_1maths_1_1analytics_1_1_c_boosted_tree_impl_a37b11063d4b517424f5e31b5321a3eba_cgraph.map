@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::computeClassificationWeights" name="ml::maths::analytics::CBoostedTreeImpl::computeClassificationWeights">
+<area shape="rect" id="Node000001" title="Compute the probability threshold at which to classify a row as class one." alt="" coords="5,70,202,126"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a98c07237121a3650c9dd105580d7d14d" title="Write the values of the categories for each column." alt="" coords="250,77,426,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,95,234,95,234,100,202,100"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#adbec6b52ba93143243d78a66e41ff9f6" title=" " alt="" coords="479,5,655,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,74,484,49,486,54,405,79"/>
+<area shape="rect" id="Node000004" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aeca9fb679495b0b198bfa68310278f80" title=" " alt="" coords="474,70,659,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="427,95,459,95,459,100,427,100"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="477,149,657,190"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="405,116,486,142,484,147,404,121"/>
+</map>

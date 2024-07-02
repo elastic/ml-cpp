@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CDataFrameCategoryEncoder::CEncoding" name="ml::maths::analytics::CDataFrameCategoryEncoder::CEncoding">
+<area shape="rect" id="Node000001" title="Base type of category encodings." alt="" coords="5,85,211,141"/>
+<area shape="rect" id="Node000002" href="$d0/d62/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_identity_encoding.html" title="Returns the supplied value." alt="" coords="259,5,464,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,78,270,59,272,64,214,83"/>
+<area shape="rect" id="Node000003" href="$d8/d8c/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_mapped_encoding.html" title="Looks up the encoding in a map." alt="" coords="259,85,464,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,111,258,111,258,116,227,116"/>
+<area shape="rect" id="Node000004" href="$db/dd7/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder_1_1_c_one_hot_encoding.html" title="One&#45;hot encoding." alt="" coords="259,165,464,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="214,144,272,162,270,167,212,149"/>
+</map>

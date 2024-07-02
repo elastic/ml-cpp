@@ -1,0 +1,13 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner" name="ml::api::CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner">
+<area shape="rect" id="Node000001" title="This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory." alt="" coords="5,149,310,205"/>
+<area shape="rect" id="Node000002" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a313663bfc1b4e641ec429027a9fd54fc" title=" " alt="" coords="368,5,585,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,146,277,109,357,71,371,65,373,70,359,76,279,113,209,151"/>
+<area shape="rect" id="Node000003" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a789a01713073a4e1b37b5f4fdf747524" title=" " alt="" coords="358,85,595,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="283,146,368,127,369,132,284,151"/>
+<area shape="rect" id="Node000004" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a5a04f37c054e8ab3cf2595d25fd98a55" title="Set the objective to use when choosing the class assignments." alt="" coords="384,149,569,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="310,175,369,175,369,180,310,180"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a47eb52f32a848246afe20f74699ffc8c" title="Set the class weights used for assigning classes from predicted probabilities." alt="" coords="398,229,555,285"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="272,203,383,231,382,236,271,208"/>
+<area shape="rect" id="Node000006" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="380,309,573,350"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="200,203,272,250,359,295,374,301,372,306,357,300,269,254,197,208"/>
+</map>

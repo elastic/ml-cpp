@@ -1,0 +1,18 @@
+<map id="ml::api::CAnomalyJob::skipTime" name="ml::api::CAnomalyJob::skipTime">
+<area shape="rect" id="Node000001" title="Skip time to the bucket end of time, if it can be parsed." alt="" coords="5,128,156,169"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="204,29,401,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,125,203,81,220,73,222,78,205,85,118,130"/>
+<area shape="rect" id="Node000005" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a146c7ffc1ffc2d4f1951d2288854bf30" title=" " alt="" coords="230,95,375,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="156,134,214,126,214,131,156,140"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#afe5da54d0824ad70d6a28980f6a9cdc1" title=" " alt="" coords="227,160,378,201"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="156,157,212,165,211,170,156,162"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="229,225,376,266"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="119,167,205,210,222,217,220,222,203,215,117,172"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="449,29,646,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,47,433,47,433,52,401,52"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="505,29,503,19,510,10,525,5,548,3,572,5,587,11,585,16,571,10,548,8,526,10,513,15,508,21,510,28"/>
+<area shape="rect" id="Node000004" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="694,29,855,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,47,679,47,679,52,647,52"/>
+<area shape="rect" id="Node000007" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#afb722bf8650769544870ebe976f23d90" title=" " alt="" coords="449,160,646,201"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="378,178,433,178,433,183,378,183"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::controller::CBlockingCallCancellingStreamMonitor::waitForCondition" name="ml::controller::CBlockingCallCancellingStreamMonitor::waitForCondition">
+<area shape="rect" id="Node000001" title="Waits for end&#45;of&#45;file on the stream being monitored." alt="" coords="5,5,196,61"/>
+<area shape="rect" id="Node000002" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a02efa00791009c72d0851fb43866a414" title="Has the thread been stopped?" alt="" coords="244,13,458,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,31,228,31,228,36,196,36"/>
+</map>

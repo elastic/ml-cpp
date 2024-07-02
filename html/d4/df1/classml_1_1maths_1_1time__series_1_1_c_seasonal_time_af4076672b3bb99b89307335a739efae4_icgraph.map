@@ -1,0 +1,21 @@
+<map id="ml::maths::time_series::CSeasonalTime::regressionOrigin" name="ml::maths::time_series::CSeasonalTime::regressionOrigin">
+<area shape="rect" id="Node000001" title="Get the origin of the time coordinates." alt="" coords="475,185,699,226"/>
+<area shape="rect" id="Node000002" href="$d5/d8b/classml_1_1maths_1_1time__series_1_1_c_diurnal_time.html#a5ac395078cfb8975eadaa194756424f3" title="Get a checksum for this object." alt="" coords="250,5,427,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="557,175,499,117,464,87,426,60,404,49,407,44,428,55,467,82,503,113,560,172"/>
+<area shape="rect" id="Node000004" href="$d7/d96/classml_1_1maths_1_1time__series_1_1_c_general_period_time.html#a7a9a9bf9b1436d9adc4e6271d6972101" title="Get a checksum for this object." alt="" coords="259,70,418,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="523,181,403,128,405,124,525,176"/>
+<area shape="rect" id="Node000005" href="$d5/d8b/classml_1_1maths_1_1time__series_1_1_c_diurnal_time.html#ab87e71e73d391cdeb77e3532e258de43" title="Initialize from a string created by persist." alt="" coords="250,149,427,190"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="459,190,427,185,428,180,460,185"/>
+<area shape="rect" id="Node000006" href="$d7/d96/classml_1_1maths_1_1time__series_1_1_c_general_period_time.html#aea71ff30bd035ba69bbbb2367eb429e8" title="Initialize from a string created by persist." alt="" coords="259,214,418,270"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="460,227,418,233,418,228,459,221"/>
+<area shape="rect" id="Node000007" href="$d5/d8b/classml_1_1maths_1_1time__series_1_1_c_diurnal_time.html#a7260414106d7c292b7bf7ec96b954120" title="Convert to a string." alt="" coords="257,293,420,334"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="533,235,428,284,400,295,398,290,426,279,531,231"/>
+<area shape="rect" id="Node000008" href="$d7/d96/classml_1_1maths_1_1time__series_1_1_c_general_period_time.html#a708867b782b64b3fdefdb26d1fdf80d5" title="Convert to a string." alt="" coords="259,358,418,414"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="557,239,500,293,428,348,408,360,406,355,426,343,497,289,554,235"/>
+<area shape="rect" id="Node000003" href="$d0/d1d/_c_seasonal_time_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,157,202,183"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="260,55,251,60,212,84,176,111,121,158,117,154,172,107,209,80,248,55,258,50"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="245,129,149,159,147,154,244,124"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="234,172,202,172,202,167,234,167"/>
+<area shape="poly" id="edge8_Node000006_Node000003" title=" " alt="" coords="244,216,147,186,149,180,245,210"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="253,351,248,348,202,306,163,259,111,184,115,181,167,256,206,302,251,344,256,347"/>
+</map>

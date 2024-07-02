@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CSpline::initialized" name="ml::maths::common::CSpline::initialized">
+<area shape="rect" id="Node000001" title="Check if the spline has been initialized." alt="" coords="5,5,151,46"/>
+<area shape="rect" id="Node000002" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a39e53abd1d0c2de07a44a358db269622" title="Get the knot points of the spline." alt="" coords="199,5,344,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,23,183,23,183,28,151,28"/>
+<area shape="rect" id="Node000003" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="392,13,532,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="344,23,377,23,377,28,344,28"/>
+</map>

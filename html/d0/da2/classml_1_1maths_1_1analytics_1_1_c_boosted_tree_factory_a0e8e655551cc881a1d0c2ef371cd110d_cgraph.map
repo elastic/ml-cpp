@@ -1,0 +1,37 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::initializeHyperparametersSetup" name="ml::maths::analytics::CBoostedTreeFactory::initializeHyperparametersSetup">
+<area shape="rect" id="Node000001" title="Setup before setting initial values for hyperparameters." alt="" coords="5,560,216,616"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a43c1bcf80cac450d97757b98050af108" title="Set the sum of leaf depth penalties multiplier." alt="" coords="281,5,439,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,560,116,469,124,407,137,339,156,269,182,198,217,131,262,71,267,66,270,70,266,75,222,134,187,200,161,270,142,341,129,408,121,469,115,560"/>
+<area shape="rect" id="Node000003" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a5a9f1d40ae8462c77d49c242811dc02c" title="The amount by which to downsample the data for stochastic gradient estimates." alt="" coords="281,85,439,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="112,559,124,482,149,377,169,319,194,262,224,207,262,158,271,149,275,153,266,162,229,210,198,264,174,321,154,378,129,483,117,560"/>
+<area shape="rect" id="Node000004" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="504,513,687,554"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="127,615,149,653,179,696,218,738,240,755,265,769,317,791,361,799,405,792,455,770,481,751,504,728,541,673,567,617,583,568,588,570,572,619,546,676,508,731,485,755,457,774,406,798,361,804,315,796,262,774,237,760,214,742,175,700,144,656,123,618"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa79b4f79881909e297e89535b1041433" title="Set the amount we&#39;ll grow eta on each each iteration." alt="" coords="278,216,442,272"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="116,559,134,502,163,428,205,351,232,314,262,282,265,279,269,283,266,286,236,318,210,354,168,430,139,504,121,560"/>
+<area shape="rect" id="Node000006" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ad8d1d6b231235b0ee02f2a2fd6ec393a" title="Set the fraction of features we&#39;ll use in the bag to build a tree." alt="" coords="281,296,439,352"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="122,558,144,516,175,464,214,410,262,362,267,358,270,362,265,366,218,413,179,467,148,518,127,561"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="523,232,668,272"/>
+<area shape="poly" id="edge19_Node000001_Node000007" title=" " alt="" coords="110,559,119,484,128,436,142,384,161,332,187,283,220,238,262,202,296,184,333,175,371,174,410,177,483,196,544,222,542,227,481,202,409,183,371,179,334,181,298,189,265,206,224,242,191,286,166,335,147,386,133,437,124,485,116,560"/>
+<area shape="rect" id="Node000008" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa9acf41587c7fb469f2389ea0af322ee" title="Set the sum of weights squared multiplier." alt="" coords="267,456,453,512"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="178,557,276,516,278,520,180,562"/>
+<area shape="rect" id="Node000009" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a703e1972c0070ad3f235ca3e98a940b9" title="Set the maximum number of trees in the ensemble." alt="" coords="277,560,443,616"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="216,585,261,585,261,591,216,591"/>
+<area shape="rect" id="Node000010" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="284,640,436,680"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="210,614,273,632,272,637,209,619"/>
+<area shape="rect" id="Node000011" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a2b54a78866bad7ce92e603ca643d50af" title=" " alt="" coords="281,704,439,760"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="150,614,203,652,265,690,274,694,272,699,262,694,200,656,147,618"/>
+<area shape="rect" id="Node000012" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a0fcd60b7723234036600081f0471fc6f" title="Set the amount we&#39;ll shrink the retrained tree leaf weights we compute." alt="" coords="281,376,439,432"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="134,558,189,500,225,469,262,442,270,437,273,441,265,446,228,474,193,504,138,562"/>
+<area shape="rect" id="Node000013" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab30e5eeb34214b89ef38fbdabcd03dc3" title="Set the soft tree depth limit." alt="" coords="281,835,439,890"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="127,615,149,658,180,710,219,765,265,814,279,824,275,828,262,818,215,768,175,713,144,660,122,617"/>
+<area shape="rect" id="Node000014" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a588f0d5aeceaf14c501ccbd633dfb008" title=" " alt="" coords="276,915,444,970"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="121,615,138,674,166,750,209,830,235,867,266,901,269,903,265,907,262,904,231,871,204,833,162,752,133,676,116,617"/>
+<area shape="rect" id="Node000015" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aac9938381be89d8e4edc775781a12ee4" title="Set the tree size penalty multiplier." alt="" coords="273,995,447,1050"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="118,616,130,688,156,785,176,837,200,888,230,937,266,981,268,983,264,987,262,984,226,940,195,891,171,839,151,786,125,689,112,617"/>
+<area shape="rect" id="Node000016" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a8c65b28cf324be0c4c70cf017473b55d" title="Set the penalty for changing the tree toppology when incrementally training." alt="" coords="264,1075,456,1130"/>
+<area shape="poly" id="edge18_Node000001_Node000016" title=" " alt="" coords="116,616,124,700,147,818,166,883,192,946,225,1007,266,1061,268,1063,264,1066,262,1064,220,1010,187,949,161,884,142,820,119,701,110,616"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="551,513,549,503,556,494,572,488,596,486,621,489,636,495,634,500,620,494,596,491,573,493,559,498,554,504,556,512"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="438,297,511,275,513,280,440,302"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="314,559,314,549,323,541,338,535,360,533,385,536,400,543,398,548,383,541,360,539,339,541,326,545,319,552,319,560"/>
+<area shape="poly" id="edge14_Node000012_Node000004" title=" " alt="" coords="433,430,457,441,555,502,552,506,455,446,431,435"/>
+</map>

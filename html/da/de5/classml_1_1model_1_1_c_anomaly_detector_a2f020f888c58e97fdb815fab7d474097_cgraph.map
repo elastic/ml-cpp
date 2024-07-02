@@ -1,0 +1,21 @@
+<map id="ml::model::CAnomalyDetector::getForecastPrerequisites" name="ml::model::CAnomalyDetector::getForecastPrerequisites">
+<area shape="rect" id="Node000001" title="Generate ForecastPrerequistes, e.g. memory requirements." alt="" coords="5,136,203,177"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aaee869f9516da39e07da6bf9924d5b57" title="Is this function for use with forecast?" alt="" coords="269,71,430,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,133,255,113,256,118,184,138"/>
+<area shape="rect" id="Node000008" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a311e0ac0b32d5d14a1c067c93ab0a800" title="Get the memory used by this object." alt="" coords="270,136,429,177"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="203,154,254,154,254,159,203,159"/>
+<area shape="rect" id="Node000009" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#afcce69e80126cf611e47c9af2c111400" title=" " alt="" coords="251,201,448,242"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="184,175,256,194,255,199,182,180"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="496,71,628,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,88,481,88,481,94,430,94"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="676,5,809,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="628,73,689,50,691,55,630,78"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="676,71,809,111"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="629,97,661,97,661,103,629,102"/>
+<area shape="rect" id="Node000006" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="681,136,804,161"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="629,109,686,128,684,133,627,114"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="677,44,615,67,613,62,675,39"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="676,85,644,85,644,79,676,80"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="857,136,903,161"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="804,146,841,146,841,151,804,151"/>
+</map>

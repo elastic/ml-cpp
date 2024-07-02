@@ -1,0 +1,4 @@
+<map id="ml::api::CSimpleOutputWriter::fieldNames" name="ml::api::CSimpleOutputWriter::fieldNames">
+<area shape="rect" id="Node000001" title="Set field names &#45; this must only be called once per output file." alt="" coords="5,29,197,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="64,29,63,19,69,10,82,5,101,3,122,5,134,11,132,16,120,10,101,8,83,10,72,15,68,20,70,28"/>
+</map>

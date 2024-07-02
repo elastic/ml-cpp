@@ -1,0 +1,41 @@
+<map id="ml::model::CMetricPopulationModel::acceptPersistInserter" name="ml::model::CMetricPopulationModel::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,227,199,267"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a3782a8ef83638949ff680eed01b25271" title="Persist state by passing information to the supplied inserter." alt="" coords="247,227,439,267"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,244,231,244,231,250,199,250"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="759,16,962,57"/>
+<area shape="poly" id="edge23_Node000001_Node000004" title=" " alt="" coords="126,224,185,178,271,119,374,62,430,38,486,19,552,7,619,3,684,5,744,11,744,17,684,10,619,8,552,12,488,24,432,43,377,66,274,124,189,182,129,228"/>
+<area shape="rect" id="Node000013" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="522,415,676,455"/>
+<area shape="poly" id="edge24_Node000001_Node000013" title=" " alt="" coords="152,265,301,328,488,399,511,407,510,412,486,404,299,333,150,270"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a675689cf1261d0e41890219c524ad188" title="Convert to a node tree." alt="" coords="525,154,674,209"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,223,508,202,510,207,426,229"/>
+<area shape="poly" id="edge18_Node000002_Node000004" title=" " alt="" coords="351,225,370,187,399,141,437,95,460,76,486,59,549,34,616,21,682,16,744,18,744,23,682,22,616,26,550,39,488,64,464,80,441,99,403,144,374,190,355,227"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="759,212,962,253"/>
+<area shape="poly" id="edge19_Node000002_Node000005" title=" " alt="" coords="439,242,744,233,744,238,439,247"/>
+<area shape="rect" id="Node000009" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#ab22355de63224ad4634f3d027645ef02" title="Convert to a node tree." alt="" coords="487,74,711,129"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="366,224,419,182,486,139,497,134,499,138,488,144,422,186,370,228"/>
+<area shape="poly" id="edge20_Node000002_Node000013" title=" " alt="" coords="365,266,489,399,509,410,506,415,485,404,361,269"/>
+<area shape="rect" id="Node000014" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ae8ee1fb659a027d9ce811237b0757e6e" title="Get the person bucket counts." alt="" coords="501,284,698,325"/>
+<area shape="poly" id="edge21_Node000002_Node000014" title=" " alt="" coords="437,265,491,277,490,283,436,270"/>
+<area shape="rect" id="Node000015" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a5b47e20772653d5294010dd256a62e0c" title="Get the total count of buckets in the window." alt="" coords="501,349,698,390"/>
+<area shape="poly" id="edge22_Node000002_Node000015" title=" " alt="" coords="374,266,426,300,488,334,506,341,504,346,486,339,423,305,371,270"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="673,160,710,140,725,122,733,104,741,86,758,68,765,62,768,67,761,72,745,89,738,107,730,125,713,144,676,165"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="675,193,744,207,743,212,674,199"/>
+<area shape="rect" id="Node000006" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="786,276,935,332"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="653,208,760,262,773,267,771,272,758,267,651,212"/>
+<area shape="rect" id="Node000008" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="783,147,938,187"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="674,175,768,169,768,175,674,180"/>
+<area shape="rect" id="Node000007" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="1010,284,1180,325"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="936,310,995,310,994,316,936,315"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="1009,298,951,298,951,293,1009,293"/>
+<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="711,71,761,58,762,64,712,76"/>
+<area shape="poly" id="edge11_Node000009_Node000005" title=" " alt="" coords="693,128,713,139,729,154,738,169,746,183,761,197,770,202,767,207,758,201,742,186,733,172,724,158,710,144,690,132"/>
+<area shape="poly" id="edge17_Node000009_Node000008" title=" " alt="" coords="712,127,769,141,768,147,711,132"/>
+<area shape="rect" id="Node000010" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="769,81,952,122"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="712,99,753,99,753,104,712,104"/>
+<area shape="rect" id="Node000011" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="1012,81,1178,122"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="953,108,997,108,997,113,953,113"/>
+<area shape="poly" id="edge16_Node000011_Node000010" title=" " alt="" coords="1012,96,968,95,968,90,1012,90"/>
+<area shape="rect" id="Node000012" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="1228,53,1404,94"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="1177,89,1212,84,1213,89,1178,94"/>
+<area shape="poly" id="edge15_Node000012_Node000010" title=" " alt="" coords="1227,73,1180,72,1095,69,1010,72,959,80,958,75,1009,67,1095,63,1180,67,1228,68"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::api::CResultNormalizer::parseDataFields" name="ml::api::CResultNormalizer::parseDataFields">
+<area shape="rect" id="Node000001" title=" " alt="" coords="477,47,656,88"/>
+<area shape="rect" id="Node000002" href="$d0/d02/classml_1_1api_1_1_c_result_normalizer.html#a29f8ba360b99d9cb76efcfc345e8c0ea" title="Handle a record to be normalized." alt="" coords="250,47,429,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="462,70,430,70,430,65,462,65"/>
+<area shape="rect" id="Node000003" href="$d6/dbc/_c_result_normalizer_test_8cc.html#a12d34b0229b9e8638d007b7c863d3e03" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,48,168,34,169,29,235,43"/>
+<area shape="rect" id="Node000004" href="$d6/dbc/_c_result_normalizer_test_8cc.html#aeef8465b7684a4e2f933f8f6490067f6" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000005" href="$da/d21/bin_2normalize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Normalise anomaly scores and/or probabilties in results." alt="" coords="79,104,128,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="235,92,129,114,128,109,234,87"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::core::CPackedBitVector" name="ml::core::CPackedBitVector">
+<area shape="rect" id="Node000001" title="A compact representation of binary vector." alt="" coords="316,28,500,54"/>
+<area shape="rect" id="Node000003" href="$d1/dce/classanonymous__namespace_02_c_packed_bit_vector_test_8cc_03_1_1_c_packed_bit_vector_internals.html" title=" " alt="" coords="548,13,735,69"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="516,38,547,38,547,43,516,43"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,268,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="284,38,315,38,315,43,284,43"/>
+</map>

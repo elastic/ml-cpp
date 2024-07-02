@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html" title="Time series data gathering interface." alt="" coords="5,46,193,72"/>
+<area shape="rect" id="Node000001" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html" title="Event rate data gathering class." alt="" coords="241,5,440,46"/>
+<area shape="poly" id="edge517_Node000000_Node000001" title=" " alt="" coords="208,41,240,37,241,42,209,47"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html" title="Metric series data gathering class." alt="" coords="254,71,427,111"/>
+<area shape="poly" id="edge518_Node000000_Node000002" title=" " alt="" coords="209,71,254,77,253,82,208,76"/>
+</map>

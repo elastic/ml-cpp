@@ -1,0 +1,30 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,223,154"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="283,121,468,162"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,139,267,139,267,144,223,144"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="283,56,468,96"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="168,125,276,98,277,103,169,130"/>
+<area shape="rect" id="Node000011" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#acdfe6bc38f68ac9feb1533852df71517" title=" " alt="" coords="271,213,480,269"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="151,152,287,205,285,210,149,157"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="529,57,714,98"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="456,118,526,99,527,104,457,123"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="533,126,710,151"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="468,137,518,137,518,142,468,143"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="763,126,941,151"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="710,136,748,136,748,141,710,141"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="989,5,1169,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="880,123,988,71,999,66,1001,70,990,76,882,127"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="989,85,1169,126"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="941,123,973,118,974,123,942,128"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1006,150,1152,191"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="942,148,991,156,991,161,941,154"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="996,216,1162,256"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="881,149,990,200,1007,207,1005,212,988,205,879,154"/>
+<area shape="poly" id="edge10_Node000010_Node000003" title=" " alt="" coords="468,74,514,74,514,79,468,79"/>
+<area shape="rect" id="Node000012" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#aee4b961577250cd3b17e0cc93e50d922" title=" " alt="" coords="544,176,700,232"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="480,223,528,215,529,221,481,228"/>
+<area shape="rect" id="Node000013" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a83bf2ff948fc0a5e9dbd5079a9ad3918" title="Get the number of buckets." alt="" coords="532,256,712,296"/>
+<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="481,253,516,258,516,264,480,259"/>
+<area shape="rect" id="Node000014" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a383db66bf90ea9dd68ac211166aad5af" title="Get this feature&#39;s window." alt="" coords="528,321,715,362"/>
+<area shape="poly" id="edge14_Node000011_Node000014" title=" " alt="" coords="440,267,529,305,547,312,545,317,527,310,437,272"/>
+</map>

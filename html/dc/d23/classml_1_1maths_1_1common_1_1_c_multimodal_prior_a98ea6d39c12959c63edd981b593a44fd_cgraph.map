@@ -1,0 +1,44 @@
+<map id="ml::maths::common::CMultimodalPrior::jointLogMarginalLikelihood" name="ml::maths::common::CMultimodalPrior::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,277,180,333"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="246,5,438,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,276,112,225,137,161,174,96,198,67,226,41,233,36,236,41,229,46,202,70,179,99,142,163,117,227,102,277"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a9992bc88ee8096762852c2e01a2f6801" title="Extract the variance scale from a collection of weights." alt="" coords="252,55,432,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,275,122,237,149,192,184,146,226,107,237,100,239,104,229,111,188,150,153,195,127,240,108,278"/>
+<area shape="rect" id="Node000004" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a36192f919828d2f80604148865e41b40" title="Full debug dump of the mode weights." alt="" coords="236,121,448,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="113,275,162,223,193,195,226,172,239,165,241,170,229,176,196,199,165,226,117,279"/>
+<area shape="rect" id="Node000006" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="262,186,422,227"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="146,274,227,237,248,229,250,234,229,242,148,279"/>
+<area shape="rect" id="Node000009" href="$d6/d52/namespaceml_1_1maths__t.html#af4eeda938ea6ef9b5a40a869e6744783" title="Check if a non&#45;unit seasonal variance scale applies." alt="" coords="255,251,429,292"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="180,291,239,282,240,288,180,296"/>
+<area shape="rect" id="Node000010" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a86bc6fa34f4e3ad50a0cb21032bf48a0" title="Check if this is a non&#45;informative prior." alt="" coords="228,317,456,357"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="180,313,213,318,212,323,180,319"/>
+<area shape="rect" id="Node000011" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a915164585a697e91ebf8bc7ecc319c86" title="Get the mean of the marginal likelihood function." alt="" coords="253,381,431,437"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="151,331,229,366,244,373,242,378,227,371,149,336"/>
+<area shape="rect" id="Node000019" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="253,461,431,487"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="114,331,161,391,193,421,229,447,242,453,239,458,226,451,190,425,158,394,110,335"/>
+<area shape="rect" id="Node000020" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="242,511,442,552"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="108,332,127,370,153,415,188,459,229,497,235,501,233,506,226,502,184,463,149,418,122,372,103,334"/>
+<area shape="rect" id="Node000021" href="$d6/d52/namespaceml_1_1maths__t.html#ae2ff578b5be677ada1f09d21d92ba335" title="Set the count variance scale weight in weights to weight." alt="" coords="241,577,443,617"/>
+<area shape="poly" id="edge21_Node000001_Node000021" title=" " alt="" coords="103,332,118,382,144,444,180,507,203,536,229,561,236,566,232,570,226,566,199,540,176,510,139,446,113,384,98,334"/>
+<area shape="rect" id="Node000005" href="$d9/dc0/structml_1_1maths_1_1common_1_1_s_multimodal_prior_mode.html#a0f3f8035f23680cc0b497768fa6d2b16" title="Full debug dump of the mode weights." alt="" coords="539,106,691,162"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="448,136,523,134,523,139,448,141"/>
+<area shape="rect" id="Node000007" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="543,186,688,227"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="423,204,527,204,527,209,423,209"/>
+<area shape="rect" id="Node000008" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="543,251,688,292"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="423,223,528,248,527,253,422,228"/>
+<area shape="rect" id="Node000012" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="504,316,726,371"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="431,385,488,371,489,376,432,390"/>
+<area shape="rect" id="Node000013" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="536,395,695,436"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="431,408,520,411,520,416,431,414"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="527,460,704,486"/>
+<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="432,428,505,445,541,453,540,459,503,450,431,433"/>
+<area shape="rect" id="Node000015" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="774,340,955,395"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="695,457,725,445,739,436,749,426,773,405,781,401,783,405,776,410,753,430,743,440,728,450,696,462"/>
+<area shape="rect" id="Node000016" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="775,419,954,460"/>
+<area shape="poly" id="edge15_Node000014_Node000016" title=" " alt="" coords="704,458,759,451,760,456,705,464"/>
+<area shape="rect" id="Node000017" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="792,485,937,525"/>
+<area shape="poly" id="edge16_Node000014_Node000017" title=" " alt="" coords="705,482,777,491,776,496,704,487"/>
+<area shape="rect" id="Node000018" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="782,550,947,591"/>
+<area shape="poly" id="edge17_Node000014_Node000018" title=" " alt="" coords="650,484,775,534,793,541,791,546,773,539,648,489"/>
+<area shape="poly" id="edge19_Node000019_Node000014" title=" " alt="" coords="431,471,511,471,511,476,431,476"/>
+</map>

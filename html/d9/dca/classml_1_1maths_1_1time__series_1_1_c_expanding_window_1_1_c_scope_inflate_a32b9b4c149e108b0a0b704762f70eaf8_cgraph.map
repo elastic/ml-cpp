@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CExpandingWindow::CScopeInflate::CScopeInflate" name="ml::maths::time_series::CExpandingWindow::CScopeInflate::CScopeInflate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,244,87"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ae802d099e2030617bed1722767aa5df7" title="Extract from the compressed representation." alt="" coords="292,39,482,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,56,276,56,276,62,244,62"/>
+<area shape="rect" id="Node000003" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab038cb685491aea5eb697ee917df76d7" title="Implements inflate." alt="" coords="530,39,735,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="483,56,514,56,514,62,483,62"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a4c0284881cab3b8dc7f3ed3f180c60b3" title=" " alt="" coords="783,5,950,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="735,42,768,37,768,42,736,47"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#ac0ed8ea2148de5b2154827530f775b88" title=" " alt="" coords="783,71,950,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="736,70,768,75,768,80,735,76"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="998,71,1164,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="950,88,982,88,982,94,950,94"/>
+<area shape="rect" id="Node000007" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="1212,71,1378,111"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1165,88,1197,88,1197,94,1165,94"/>
+</map>

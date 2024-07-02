@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CKMeansOnline::age" name="ml::maths::common::CKMeansOnline::age">
+<area shape="rect" id="Node000001" title="Age by a factor alpha, which should be in the range (0, 1)." alt="" coords="289,53,434,94"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a9793e50bbf7d56c569b7a1857f309654" title="Propagate the clusters forwards by time." alt="" coords="5,5,241,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="273,61,241,56,242,50,273,56"/>
+<area shape="rect" id="Node000003" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a1119e78e9df277d23d67fa77aa3ed783" title="Propagate the cluster forwards by time." alt="" coords="30,85,216,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="274,91,216,100,215,95,273,85"/>
+</map>

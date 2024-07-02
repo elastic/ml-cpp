@@ -1,0 +1,21 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,136,202,162"/>
+<area shape="rect" id="Node000002" href="$d8/db4/classanonymous__namespace_02_c_dual_thread_stream_buf_test_8cc_03_1_1_c_input_thread.html#a2b15bf9b0a5fddff3d9b9b2a6dec3ec4" title=" " alt="" coords="250,5,471,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,133,182,103,249,71,263,65,265,69,251,76,184,108,129,138"/>
+<area shape="rect" id="Node000003" href="$db/d94/namespaceanonymous__namespace_02_c_dual_thread_stream_buf_test_8cc_03.html#a24bb9c79e19c5b15692a972a971faf1e" title=" " alt="" coords="266,85,455,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,133,250,126,251,131,200,138"/>
+<area shape="rect" id="Node000004" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="263,165,458,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,160,248,167,247,172,199,165"/>
+<area shape="rect" id="Node000009" href="$d1/dff/_c_container_throughput_test_8cc.html#acb99ee2c1bf9405788d8b79e238fc8a3" title=" " alt="" coords="314,230,407,255"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="130,160,185,187,251,215,300,228,298,234,249,220,183,192,128,165"/>
+<area shape="rect" id="Node000005" href="$d1/d57/classml_1_1core_1_1_c_condition.html#adf8ff0b46ed94d5031927e967b854b1b" title="Wake up a single thread that is blocked in wait." alt="" coords="762,128,904,168"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="458,175,746,152,747,157,459,180"/>
+<area shape="rect" id="Node000006" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="519,197,714,238"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="459,195,504,200,503,206,458,200"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="682,194,752,171,754,176,684,199"/>
+<area shape="rect" id="Node000007" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="794,216,872,242"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="715,220,779,224,779,229,715,225"/>
+<area shape="rect" id="Node000008" href="$d1/d57/classml_1_1core_1_1_c_condition.html#a3b7521bdef190c38a10e67b14ec0b5d0" title=" " alt="" coords="762,266,904,307"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="684,236,754,258,752,264,682,241"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="797,218,790,208,794,198,809,192,833,190,859,192,873,199,871,204,858,197,833,195,810,197,798,202,795,207,801,214"/>
+</map>

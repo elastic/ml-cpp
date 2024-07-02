@@ -1,0 +1,9 @@
+<map id="include/test/BoostTestCloseAbsolute.h" name="include/test/BoostTestCloseAbsolute.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="137,5,323,46"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,94,124,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,49,105,89,102,85,187,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="147,94,313,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,46,233,78,227,78,227,46"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="337,94,405,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="266,44,338,84,335,88,264,49"/>
+</map>

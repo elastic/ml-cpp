@@ -1,0 +1,21 @@
+<map id="ml::model::CHierarchicalResultsAggregator::partitionChildProbabilities" name="ml::model::CHierarchicalResultsAggregator::partitionChildProbabilities">
+<area shape="rect" id="Node000001" title="Partition the child probabilities into groups to aggregate together." alt="" coords="5,149,189,204"/>
+<area shape="rect" id="Node000002" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#ae25f92e29c5dbc5227fb7f6937c5e983" title="Compute a hash of node for gathering up related results." alt="" coords="257,5,422,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,146,175,104,235,62,259,50,261,55,238,67,178,108,129,150"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3578a82308dd4efac1c213646600e326" title="Check if this node is the root node." alt="" coords="707,124,873,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,146,186,123,236,106,296,95,358,89,482,90,596,102,693,119,692,124,596,107,481,95,358,94,297,100,237,111,188,128,144,151"/>
+<area shape="rect" id="Node000004" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a91f7dd2c0b68d17e2a019c35b5bbdd39" title="Check if the node is simple counting result." alt="" coords="241,120,438,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,160,225,155,226,160,190,165"/>
+<area shape="rect" id="Node000005" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3c3becfe58de972509ea2f9c6597693e" title="Check if we can ever write a result for the node." alt="" coords="237,185,442,240"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="190,187,222,192,221,197,189,193"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="249,264,430,305"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="146,202,238,250,253,256,251,261,236,255,143,207"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="267,329,412,370"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="121,203,171,259,203,289,238,314,254,323,251,327,235,319,200,293,167,263,117,206"/>
+<area shape="poly" id="edge8_Node000005_Node000003" title=" " alt="" coords="429,181,490,167,594,153,691,145,692,150,594,158,490,172,430,186"/>
+<area shape="rect" id="Node000006" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#adedccb34126f54fa542741d102a483d8" title="Check if the node is a leaf." alt="" coords="492,181,657,222"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="442,205,476,203,476,209,443,210"/>
+<area shape="rect" id="Node000007" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a782a7ab20789d56e6d02c6dde2f28169" title="Check if this is a named partition." alt="" coords="490,247,659,287"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="443,234,475,241,474,246,442,239"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="632,244,658,231,706,202,749,172,752,176,709,207,661,236,634,248"/>
+</map>

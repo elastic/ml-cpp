@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CTools::inplaceLogSoftmax" name="ml::maths::common::CTools::inplaceLogSoftmax">
+<area shape="rect" id="Node000001" title="Compute the log of the softmax for the multinomial logit values logit." alt="" coords="489,34,670,75"/>
+<area shape="rect" id="Node000002" href="$dd/d5e/maths_2common_2unittest_2_c_tools_test_8cc.html#ac3802deb1d49999a2837662cdedafe98" title=" " alt="" coords="245,5,441,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="473,41,431,34,432,29,474,35"/>
+<area shape="rect" id="Node000003" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#a2a55eb51a4fed1f59f0ce0839062949f" title=" " alt="" coords="247,55,439,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="474,73,439,78,438,73,473,68"/>
+<area shape="rect" id="Node000004" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="5,55,197,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="232,93,197,93,197,88,232,88"/>
+</map>

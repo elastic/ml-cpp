@@ -1,0 +1,126 @@
+<map id="anonymous_namespace{CRestorePreviousStateTest::cc}::categorizerRestoreHelper" name="anonymous_namespace{CRestorePreviousStateTest::cc}::categorizerRestoreHelper">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,849,209,905"/>
+<area shape="rect" id="Node000002" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#aa567d53eb9b2ecd445679c1ca52029fa" title=" " alt="" coords="792,622,981,663"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,846,505,744,756,673,788,665,789,670,757,679,507,749,192,851"/>
+<area shape="rect" id="Node000003" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#aaf3d171ce78f9a20a3e1b75a35286c21" title=" " alt="" coords="263,362,452,403"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="120,848,336,416,341,418,125,850"/>
+<area shape="rect" id="Node000025" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a167a5537982229550ffd28774d9fd0f4" title="Persist current state." alt="" coords="257,857,458,898"/>
+<area shape="poly" id="edge36_Node000001_Node000025" title=" " alt="" coords="209,875,241,875,241,880,209,880"/>
+<area shape="rect" id="Node000044" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#aa3e87f78905aac0dad06c12115df9c93" title="Restore previously saved state." alt="" coords="257,1052,458,1092"/>
+<area shape="poly" id="edge58_Node000001_Node000044" title=" " alt="" coords="146,904,319,1040,316,1044,143,908"/>
+<area shape="rect" id="Node000054" href="$d7/d70/namespaceanonymous__namespace_02_c_restore_previous_state_test_8cc_03.html#ae1acdba6980c47f0ff1fcc7d24e04378" title=" " alt="" coords="263,1116,452,1172"/>
+<area shape="poly" id="edge70_Node000001_Node000054" title=" " alt="" coords="122,905,143,948,173,1000,212,1054,258,1102,263,1105,260,1110,255,1106,208,1058,168,1003,138,950,118,907"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="366,403,382,451,410,514,429,546,451,577,477,604,507,626,539,641,572,653,642,666,712,667,776,662,777,667,712,673,641,671,571,658,537,646,505,630,474,608,447,580,424,549,405,516,377,453,361,404"/>
+<area shape="rect" id="Node000004" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#a8f07f7d6547db418e4dc0e29ed934749" title=" " alt="" coords="792,52,981,92"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="357,362,367,296,390,205,409,158,433,112,465,71,505,38,543,18,585,7,628,3,672,5,756,20,826,43,824,48,754,25,672,10,629,8,586,12,545,23,507,42,469,75,438,115,413,160,395,207,372,297,363,362"/>
+<area shape="rect" id="Node000005" href="$d9/da7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config.html#a310ee8a540a6e8466db2b6c07da2abda" title=" " alt="" coords="770,548,1003,588"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="368,402,386,445,414,499,455,552,480,574,507,592,545,608,585,617,627,621,668,620,748,609,816,591,817,596,749,614,668,625,626,626,584,622,543,613,505,597,476,579,451,555,410,502,381,447,363,404"/>
+<area shape="rect" id="Node000013" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#a07903a5cdb9deb3698de63e807850535" title=" " alt="" coords="513,232,701,272"/>
+<area shape="poly" id="edge15_Node000003_Node000013" title=" " alt="" coords="384,360,438,321,505,283,520,276,523,281,507,288,441,326,387,364"/>
+<area shape="rect" id="Node000014" href="$db/dde/classml_1_1api_1_1_c_anomaly_job_config.html#a831d4d68e3a918a165ef504ecebeadde" title=" " alt="" coords="792,452,981,492"/>
+<area shape="poly" id="edge16_Node000003_Node000014" title=" " alt="" coords="383,401,437,443,471,463,507,477,575,492,646,497,714,495,777,489,777,494,715,500,646,502,574,497,505,483,468,467,434,447,379,406"/>
+<area shape="rect" id="Node000015" href="$d9/da7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config.html#a43a8046f720be1fddb409adc60e4bb82" title="Parse a JSON value representing an entire analysis config object." alt="" coords="513,542,701,583"/>
+<area shape="poly" id="edge17_Node000003_Node000015" title=" " alt="" coords="378,402,432,460,468,493,507,522,528,533,525,538,505,526,465,497,428,464,374,405"/>
+<area shape="rect" id="Node000016" href="$d3/d01/classml_1_1api_1_1_c_anomaly_job_config_reader.html#ae1c4da32a4b4ceacd257d508a1d60f42" title="Extract the parameters from a JSON object." alt="" coords="792,182,981,223"/>
+<area shape="poly" id="edge34_Node000003_Node000016" title=" " alt="" coords="368,361,389,327,419,287,458,248,505,218,572,194,643,183,713,180,777,184,777,189,713,186,644,188,574,199,507,222,462,252,423,291,393,330,372,363"/>
+<area shape="rect" id="Node000019" href="$d0/d19/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_limits.html#a5929e7126e7f2caec8e7ed6cebf20eb8" title=" " alt="" coords="513,117,701,158"/>
+<area shape="poly" id="edge23_Node000003_Node000019" title=" " alt="" coords="366,361,386,322,417,272,457,220,504,174,522,163,524,167,508,178,461,223,421,275,391,324,371,363"/>
+<area shape="rect" id="Node000021" href="$d2/d30/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_data_description.html#a2b65c7f0d73bb46292f4ce0e7221e113" title=" " alt="" coords="513,52,701,92"/>
+<area shape="poly" id="edge27_Node000003_Node000021" title=" " alt="" coords="361,361,378,309,406,240,448,167,474,133,504,103,511,98,514,103,508,107,478,137,452,170,411,242,383,311,366,363"/>
+<area shape="rect" id="Node000022" href="$dc/dd7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_model_plot_config.html#adf27a9d0066558d3d2c7bb580456d155" title=" " alt="" coords="513,428,701,468"/>
+<area shape="poly" id="edge30_Node000003_Node000022" title=" " alt="" coords="439,401,513,421,511,426,437,406"/>
+<area shape="rect" id="Node000023" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="514,297,700,338"/>
+<area shape="poly" id="edge33_Node000003_Node000023" title=" " alt="" coords="437,359,511,340,513,345,439,364"/>
+<area shape="rect" id="Node000024" href="$d9/da7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config.html#adbefdba652bb4ca7efa998947f7e955f" title=" " alt="" coords="512,362,703,403"/>
+<area shape="poly" id="edge35_Node000003_Node000024" title=" " alt="" coords="452,380,496,380,496,385,452,385"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#af5dc9b5d3ef8f09dd2808fce728eaa08" title=" " alt="" coords="1087,548,1289,588"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="1003,565,1071,565,1071,571,1003,571"/>
+<area shape="rect" id="Node000007" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="1394,600,1543,626"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="1290,582,1378,596,1378,601,1289,587"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="1395,716,1542,756"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="1212,587,1275,643,1316,673,1360,700,1381,710,1379,715,1358,705,1313,678,1272,647,1208,591"/>
+<area shape="rect" id="Node000009" href="$dd/dea/classml_1_1core_1_1_c_regex.html#accf2085b2c74e7d8b0c771c5677f50c5" title=" " alt="" coords="1378,486,1559,511"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="1268,544,1358,521,1393,513,1395,518,1360,527,1269,550"/>
+<area shape="rect" id="Node000012" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#afe172d321b5ba2b6c5e67144455b86b2" title="Convert a string to lower case." alt="" coords="1395,536,1542,576"/>
+<area shape="poly" id="edge14_Node000006_Node000012" title=" " alt="" coords="1289,561,1379,557,1379,562,1290,566"/>
+<area shape="rect" id="Node000010" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="1625,523,1808,549"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="1559,509,1612,518,1611,523,1558,515"/>
+<area shape="rect" id="Node000011" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="1856,486,2003,511"/>
+<area shape="poly" id="edge13_Node000009_Node000011" title=" " alt="" coords="1559,488,1625,484,1717,481,1808,484,1841,486,1840,492,1808,489,1717,487,1625,489,1559,493"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="1681,524,1674,515,1678,505,1693,499,1717,496,1743,499,1756,506,1753,511,1741,504,1716,502,1694,504,1682,509,1679,514,1685,521"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="1793,520,1840,512,1841,517,1794,525"/>
+<area shape="poly" id="edge18_Node000015_Node000002" title=" " alt="" coords="682,581,799,615,797,620,680,586"/>
+<area shape="poly" id="edge19_Node000015_Node000005" title=" " alt="" coords="702,562,755,563,755,568,702,567"/>
+<area shape="poly" id="edge20_Node000015_Node000016" title=" " alt="" coords="637,540,672,512,706,478,756,415,801,348,866,236,870,238,806,351,761,418,710,482,675,516,640,544"/>
+<area shape="rect" id="Node000017" href="$dc/df4/classml_1_1api_1_1_c_anomaly_job_parameters.html#a291245b6452b5bbdf0b5e00aaeed7ddc" title="Add parameter." alt="" coords="1065,219,1311,245"/>
+<area shape="poly" id="edge21_Node000016_Node000017" title=" " alt="" coords="981,209,1050,216,1049,221,981,214"/>
+<area shape="rect" id="Node000018" href="$dd/dbb/classml_1_1api_1_1_c_anomaly_job_config_reader_1_1_c_parameter.html#ad10e452ce3499aa3721dbf407cb96bf7" title="Get the name of the parameter." alt="" coords="1094,154,1282,195"/>
+<area shape="poly" id="edge22_Node000016_Node000018" title=" " alt="" coords="981,191,1078,182,1079,187,981,197"/>
+<area shape="poly" id="edge24_Node000019_Node000004" title=" " alt="" coords="697,114,781,94,782,99,698,119"/>
+<area shape="poly" id="edge26_Node000019_Node000016" title=" " alt="" coords="698,156,782,176,781,181,697,161"/>
+<area shape="rect" id="Node000020" href="$d0/d19/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_limits.html#ae7152e360412c800975ba7f22d4a727a" title=" " alt="" coords="756,117,1017,158"/>
+<area shape="poly" id="edge25_Node000019_Node000020" title=" " alt="" coords="702,135,741,135,741,140,702,140"/>
+<area shape="poly" id="edge28_Node000021_Node000004" title=" " alt="" coords="702,69,777,69,777,75,702,75"/>
+<area shape="poly" id="edge29_Node000021_Node000016" title=" " alt="" coords="688,90,710,103,726,120,734,136,743,152,758,167,779,179,777,183,755,171,738,155,730,139,722,123,707,107,685,95"/>
+<area shape="poly" id="edge31_Node000022_Node000014" title=" " alt="" coords="702,453,777,460,776,465,702,459"/>
+<area shape="poly" id="edge32_Node000022_Node000016" title=" " alt="" coords="685,425,707,412,757,371,801,323,837,275,864,235,868,237,841,278,805,326,761,375,710,417,687,429"/>
+<area shape="rect" id="Node000026" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a110b26f93f51fa3cac00337ec10a873f" title=" " alt="" coords="507,889,708,930"/>
+<area shape="poly" id="edge37_Node000025_Node000026" title=" " alt="" coords="459,888,491,892,491,897,458,893"/>
+<area shape="rect" id="Node000031" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#abac16babba0ed686c611f07642bbbe27" title=" " alt="" coords="507,758,708,799"/>
+<area shape="poly" id="edge42_Node000025_Node000031" title=" " alt="" coords="402,854,505,810,525,802,527,807,507,814,404,859"/>
+<area shape="rect" id="Node000042" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a0c1ba61de9599d565cd6f8bd595aa23f" title="Is background persistence currently in progress?" alt="" coords="509,954,706,995"/>
+<area shape="poly" id="edge56_Node000025_Node000042" title=" " alt="" coords="405,896,507,939,527,946,525,951,505,944,403,901"/>
+<area shape="rect" id="Node000043" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html#ace43ed8af6446f44b70fd9a2cbfc1717" title="Persist current state." alt="" coords="520,824,695,864"/>
+<area shape="poly" id="edge57_Node000025_Node000043" title=" " alt="" coords="458,861,504,855,505,860,459,866"/>
+<area shape="rect" id="Node000027" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af0512e7af8b366ddbd6ff3ba5d57d855" title=" " alt="" coords="786,933,987,974"/>
+<area shape="poly" id="edge38_Node000026_Node000027" title=" " alt="" coords="709,923,771,932,770,938,708,928"/>
+<area shape="rect" id="Node000028" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="1090,998,1286,1039"/>
+<area shape="poly" id="edge39_Node000027_Node000028" title=" " alt="" coords="984,972,1077,992,1076,997,983,977"/>
+<area shape="rect" id="Node000029" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#adf2efcf213f98449915ad0847c9352b0" title=" " alt="" coords="1087,1064,1289,1104"/>
+<area shape="poly" id="edge40_Node000027_Node000029" title=" " alt="" coords="988,969,1018,984,1035,1001,1043,1017,1051,1033,1066,1049,1075,1054,1073,1059,1063,1053,1047,1037,1038,1020,1030,1004,1015,989,986,974"/>
+<area shape="rect" id="Node000030" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="1122,933,1254,974"/>
+<area shape="poly" id="edge41_Node000027_Node000030" title=" " alt="" coords="988,951,1107,951,1107,956,988,956"/>
+<area shape="rect" id="Node000032" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html#a7b4b95635e160aee439d977296ba6809" title=" " alt="" coords="812,688,961,728"/>
+<area shape="poly" id="edge43_Node000031_Node000032" title=" " alt="" coords="690,755,796,728,798,733,691,760"/>
+<area shape="rect" id="Node000033" href="$de/d50/classml_1_1core_1_1_c_json_state_persist_inserter.html#a155163fa616565dfea6c636fa82fc6fe" title="Store a name/value." alt="" coords="793,818,980,859"/>
+<area shape="poly" id="edge44_Node000031_Node000033" title=" " alt="" coords="706,797,779,813,778,818,705,802"/>
+<area shape="rect" id="Node000041" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="809,753,964,794"/>
+<area shape="poly" id="edge55_Node000031_Node000041" title=" " alt="" coords="708,774,794,772,794,778,708,779"/>
+<area shape="rect" id="Node000034" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3e682c1a84193d87d74cf25162d8b209" title=" " alt="" coords="1377,846,1559,887"/>
+<area shape="poly" id="edge45_Node000033_Node000034" title=" " alt="" coords="980,840,1362,859,1361,864,980,846"/>
+<area shape="rect" id="Node000037" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abc2850b89685437da0d9d93504ff6aa9" title=" " alt="" coords="1097,768,1279,808"/>
+<area shape="poly" id="edge48_Node000033_Node000037" title=" " alt="" coords="980,820,1081,803,1082,808,981,826"/>
+<area shape="rect" id="Node000035" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="1625,781,1808,822"/>
+<area shape="poly" id="edge46_Node000034_Node000035" title=" " alt="" coords="1548,843,1621,824,1622,829,1549,848"/>
+<area shape="rect" id="Node000036" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="1625,846,1808,887"/>
+<area shape="poly" id="edge47_Node000034_Node000036" title=" " alt="" coords="1560,864,1610,864,1610,869,1560,869"/>
+<area shape="rect" id="Node000038" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="1359,781,1577,822"/>
+<area shape="poly" id="edge49_Node000037_Node000038" title=" " alt="" coords="1279,790,1344,793,1344,798,1279,795"/>
+<area shape="rect" id="Node000040" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="1377,650,1559,691"/>
+<area shape="poly" id="edge53_Node000037_Node000040" title=" " alt="" coords="1226,765,1287,733,1358,702,1379,694,1380,699,1360,706,1289,738,1228,770"/>
+<area shape="poly" id="edge50_Node000038_Node000035" title=" " alt="" coords="1578,799,1610,799,1610,804,1578,804"/>
+<area shape="poly" id="edge52_Node000038_Node000036" title=" " alt="" coords="1549,820,1622,839,1621,844,1548,825"/>
+<area shape="rect" id="Node000039" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="1625,716,1808,756"/>
+<area shape="poly" id="edge51_Node000038_Node000039" title=" " alt="" coords="1548,778,1621,758,1622,763,1549,783"/>
+<area shape="poly" id="edge54_Node000040_Node000035" title=" " alt="" coords="1556,689,1579,702,1595,718,1604,734,1612,750,1627,766,1635,771,1632,776,1624,770,1608,753,1599,737,1591,721,1576,706,1554,694"/>
+<area shape="rect" id="Node000045" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af6160754cda17c2eaaa6dd156e58ddf0" title=" " alt="" coords="507,1020,708,1060"/>
+<area shape="poly" id="edge59_Node000044_Node000045" title=" " alt="" coords="458,1056,491,1052,491,1058,459,1062"/>
+<area shape="rect" id="Node000051" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a396e996ee01ee17d51e2e5aab381298a" title=" " alt="" coords="507,1150,708,1191"/>
+<area shape="poly" id="edge67_Node000044_Node000051" title=" " alt="" coords="433,1090,459,1102,484,1118,507,1135,522,1142,520,1147,505,1140,481,1123,457,1106,431,1095"/>
+<area shape="rect" id="Node000052" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html#a4e720c74d195da11cd5e6f109684e77c" title="Restore previously saved state." alt="" coords="525,1216,690,1256"/>
+<area shape="poly" id="edge68_Node000044_Node000052" title=" " alt="" coords="443,1091,460,1102,471,1115,478,1127,485,1153,491,1177,497,1189,508,1201,513,1205,510,1209,504,1205,493,1192,486,1179,479,1154,473,1129,467,1118,456,1106,440,1095"/>
+<area shape="rect" id="Node000053" href="$d5/da5/classml_1_1core_1_1_c_state_decompressor.html#a360e0ae9cabd91b6e0b3fcc611f59b8d" title=" " alt="" coords="506,1085,708,1126"/>
+<area shape="poly" id="edge69_Node000044_Node000053" title=" " alt="" coords="459,1083,491,1087,490,1092,458,1088"/>
+<area shape="poly" id="edge65_Node000045_Node000008" title=" " alt="" coords="688,1017,707,1005,723,984,729,962,736,940,755,919,786,910,849,897,1032,867,1216,837,1310,818,1324,806,1333,794,1342,780,1358,767,1379,756,1382,761,1360,772,1346,784,1338,797,1328,810,1312,822,1217,842,1033,872,850,903,787,915,758,924,741,943,734,964,727,986,710,1009,691,1021"/>
+<area shape="poly" id="edge60_Node000045_Node000027" title=" " alt="" coords="672,1017,707,1004,755,984,782,976,784,981,757,989,709,1009,674,1022"/>
+<area shape="rect" id="Node000046" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aebc1684318a439f8dbe8282e2b0f4103" title="Has the end of the inputstream been reached?" alt="" coords="777,1129,996,1170"/>
+<area shape="poly" id="edge61_Node000045_Node000046" title=" " alt="" coords="684,1058,710,1071,725,1082,734,1093,743,1104,758,1114,772,1120,769,1125,755,1118,740,1108,730,1097,721,1086,707,1076,681,1063"/>
+<area shape="rect" id="Node000047" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="777,1194,996,1235"/>
+<area shape="poly" id="edge62_Node000045_Node000047" title=" " alt="" coords="692,1059,710,1071,722,1085,729,1099,735,1127,740,1154,747,1167,758,1179,765,1185,762,1189,755,1183,742,1170,735,1156,729,1128,724,1101,718,1088,707,1075,689,1063"/>
+<area shape="rect" id="Node000048" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="777,1260,996,1300"/>
+<area shape="poly" id="edge63_Node000045_Node000048" title=" " alt="" coords="695,1059,710,1071,726,1094,734,1117,734,1161,735,1204,743,1224,758,1245,766,1251,762,1255,754,1248,738,1227,730,1205,729,1161,728,1117,721,1096,706,1075,691,1063"/>
+<area shape="rect" id="Node000049" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="809,998,964,1039"/>
+<area shape="poly" id="edge64_Node000045_Node000049" title=" " alt="" coords="708,1030,793,1023,794,1028,709,1035"/>
+<area shape="rect" id="Node000050" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="777,1064,996,1104"/>
+<area shape="poly" id="edge66_Node000045_Node000050" title=" " alt="" coords="709,1053,762,1062,762,1067,708,1058"/>
+</map>

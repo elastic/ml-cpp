@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeNode" name="ml::maths::analytics::CBoostedTreeNode">
+<area shape="rect" id="Node000001" title="A node of a regression tree." alt="" coords="18,199,162,240"/>
+<area shape="rect" id="Node000002" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html" title=" " alt="" coords="5,95,175,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,152,93,199,87,199,87,152"/>
+<area shape="rect" id="Node000003" href="$d2/d2d/class_eigen_1_1_matrix.html" title=" " alt="" coords="14,5,166,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="93,62,93,95,87,95,87,62"/>
+</map>

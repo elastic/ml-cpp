@@ -1,0 +1,49 @@
+<map id="ml::model::CAnomalyDetectorModel::isPopulation" name="ml::model::CAnomalyDetectorModel::isPopulation">
+<area shape="rect" id="Node000001" title="True if this is a population model." alt="" coords="743,748,941,789"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a9de5faae9f74562f082ef22702d77c8a" title="Try to get the by field identifier corresponding to byFieldValue." alt="" coords="523,488,695,529"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="810,738,627,531,631,528,814,734"/>
+<area shape="rect" id="Node000016" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#adad5c72576f4ef750ccef1abd3a595ae" title="Get the by field value corresponding to byFieldId." alt="" coords="523,845,695,886"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="782,798,696,835,665,847,663,842,694,830,779,793"/>
+<area shape="rect" id="Node000018" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#ad3a2ca3ad6991d44777c6e7b1572b42f" title="Get the by field corresponding to (pid, cid)." alt="" coords="523,715,695,755"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="727,755,696,750,696,745,728,749"/>
+<area shape="rect" id="Node000019" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#aff9755dcaa203344419c743543484360" title="Check if the model has a by field." alt="" coords="523,939,695,979"/>
+<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="809,802,697,900,642,940,639,936,694,896,806,798"/>
+<area shape="rect" id="Node000020" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#ae966f00934087c2d8d5a77926d6a09ba" title="Check if the by field identified by byFieldId is currently in use." alt="" coords="523,780,695,821"/>
+<area shape="poly" id="edge23_Node000001_Node000020" title=" " alt="" coords="728,787,696,791,696,786,727,781"/>
+<area shape="rect" id="Node000021" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a8c7fe434e73a6ffa1e9a70713c330276" title="Get the maximum by field identifier." alt="" coords="523,199,695,239"/>
+<area shape="poly" id="edge25_Node000001_Node000021" title=" " alt="" coords="824,735,617,241,622,239,829,733"/>
+<area shape="rect" id="Node000003" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#a4ec8fcce257e3c9ae930e30d81d8146b" title=" " alt="" coords="246,259,455,299"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="591,475,573,437,547,394,513,351,473,315,452,302,455,298,477,310,517,347,551,391,577,435,596,473"/>
+<area shape="rect" id="Node000004" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a7a22f4083e6f639c08b2dafbd37762ec" title=" " alt="" coords="226,324,475,365"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="581,478,535,427,505,402,474,380,447,368,450,363,476,375,509,397,538,423,585,474"/>
+<area shape="rect" id="Node000005" href="$d1/dd7/classml_1_1model_1_1_c_event_rate_model_details_view.html#a43ecf1b625a961315f07415d2c196431" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="252,389,449,430"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="556,483,474,446,436,433,438,428,476,441,558,478"/>
+<area shape="rect" id="Node000006" href="$d1/db3/classml_1_1model_1_1_c_event_rate_population_model_details_view.html#a9184b0710b683f5dd45e62d4a7995029" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="235,455,466,495"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="507,498,466,493,467,487,508,493"/>
+<area shape="rect" id="Node000007" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#ad145f1cd1c6b0e41b1f3531b22e995ee" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="246,520,455,561"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="508,524,455,530,455,525,507,518"/>
+<area shape="rect" id="Node000008" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a989169ca9259355496c96ad8f58acdcf" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="235,585,466,626"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="557,539,476,575,438,587,436,582,474,570,555,534"/>
+<area shape="rect" id="Node000009" href="$d1/dd7/classml_1_1model_1_1_c_event_rate_model_details_view.html#a3c411e02e0eb137d20011d4962f0cd12" title="Get the time series model for feature and byFieldId." alt="" coords="254,651,447,691"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="585,543,538,593,508,618,476,640,448,653,446,648,474,635,505,614,534,589,581,539"/>
+<area shape="rect" id="Node000010" href="$d1/db3/classml_1_1model_1_1_c_event_rate_population_model_details_view.html#ae0d854cd329805d072850c2ce0a3494b" title="Get the time series model for feature and byFieldId." alt="" coords="241,716,460,757"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="596,544,577,582,551,625,517,669,477,705,454,718,451,713,473,701,513,665,546,622,573,579,591,541"/>
+<area shape="rect" id="Node000011" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#a6d092d2e7bda245011e57c34e33ea2dc" title="Get the time series model for feature and byFieldId." alt="" coords="246,63,455,103"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="594,474,473,118,453,104,456,100,477,115,599,472"/>
+<area shape="rect" id="Node000012" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a8e065652be418e62f06047e217aac094" title="Get the time series model for feature and byFieldId." alt="" coords="254,128,447,169"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="595,474,573,402,543,315,508,235,490,204,473,184,446,167,449,162,477,180,495,201,513,232,548,313,578,400,600,472"/>
+<area shape="rect" id="Node000013" href="$d5/d28/classml_1_1model_1_1_c_mock_model_details_view.html#a34812f84a004f229315346dcd52948a1" title=" " alt="" coords="248,193,453,234"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="597,473,582,423,557,362,521,301,499,273,473,249,451,235,454,231,477,245,503,270,525,298,562,360,587,421,602,472"/>
+<area shape="rect" id="Node000014" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a65d16260e160c3a0de4d599a4871a7fe" title=" " alt="" coords="5,831,178,871"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="597,544,542,670,509,731,492,755,477,770,444,792,414,804,386,811,358,813,299,813,265,815,226,822,178,833,177,828,225,816,264,810,298,808,358,807,385,805,413,799,442,787,473,766,488,751,504,728,538,667,592,542"/>
+<area shape="rect" id="Node000015" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a8532c48ab20d62810e459bd038d7c1a0" title="Get the model plot data for the specified by field value." alt="" coords="255,831,446,871"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="595,544,477,814,447,833,444,829,473,811,590,542"/>
+<area shape="poly" id="edge15_Node000015_Node000014" title=" " alt="" coords="240,854,178,854,178,848,240,848"/>
+<area shape="poly" id="edge19_Node000016_Node000015" title=" " alt="" coords="507,863,446,859,446,854,507,857"/>
+<area shape="rect" id="Node000017" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#aae6a98db6ca88c66c6a7ad3831537ca5" title="Add the model plot data for all by field values which match terms." alt="" coords="249,896,452,937"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="508,888,453,899,452,894,507,883"/>
+<area shape="poly" id="edge18_Node000017_Node000014" title=" " alt="" coords="251,894,174,875,176,869,253,889"/>
+<area shape="poly" id="edge22_Node000019_Node000014" title=" " alt="" coords="508,975,443,978,371,977,297,969,225,951,191,935,159,915,111,874,114,870,163,911,193,931,227,946,298,964,372,972,443,973,508,970"/>
+<area shape="poly" id="edge24_Node000020_Node000015" title=" " alt="" coords="508,823,446,835,445,830,507,818"/>
+<area shape="poly" id="edge26_Node000021_Node000014" title=" " alt="" coords="590,186,571,152,546,115,513,80,474,53,405,23,374,14,344,9,316,9,287,17,258,31,227,53,206,77,187,111,170,153,156,201,132,313,116,437,105,560,99,674,96,830,90,830,94,674,100,560,111,436,127,312,150,200,165,151,182,109,202,74,224,49,255,26,285,12,315,4,345,3,375,8,407,18,476,49,516,76,550,112,576,149,595,184"/>
+</map>

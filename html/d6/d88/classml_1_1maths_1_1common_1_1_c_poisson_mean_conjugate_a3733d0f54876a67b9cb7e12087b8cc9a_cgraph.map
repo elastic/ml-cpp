@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::meanConfidenceInterval" name="ml::maths::common::CPoissonMeanConjugate::meanConfidenceInterval">
+<area shape="rect" id="Node000001" title="Compute the specified percentage confidence interval for the variable mean." alt="" coords="5,45,176,101"/>
+<area shape="rect" id="Node000002" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="230,5,399,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,55,214,48,215,54,177,61"/>
+<area shape="rect" id="Node000003" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aa9dd4c0348956079c101d25076f85789" title="Get the support for the marginal likelihood function." alt="" coords="224,85,405,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,86,209,92,208,97,176,91"/>
+</map>

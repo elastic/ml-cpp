@@ -1,0 +1,7 @@
+<map id="ml::api::CDataSummarizationJsonTags" name="ml::api::CDataSummarizationJsonTags">
+<area shape="rect" id="Node000001" title="Shared tags used by the JSON data summarization object." alt="" coords="111,5,304,46"/>
+<area shape="rect" id="Node000002" href="$d7/d1e/classml_1_1api_1_1_c_data_summarization_json_writer.html" title="Writes the data summarization as a compressed, base64 encoded and chunked JSON blob." alt="" coords="5,94,199,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,58,127,96,124,91,170,54"/>
+<area shape="rect" id="Node000003" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html" title="Reads a compressed, base64 encoded chunked JSON representation of a data summarisation and an inferen..." alt="" coords="223,94,402,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="245,54,291,91,287,96,241,58"/>
+</map>

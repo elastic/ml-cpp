@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CBayesianOptimisation" name="ml::maths::common::CBayesianOptimisation">
+<area shape="rect" id="Node000001" title="Implements maximum expected increase Bayesian optimisation." alt="" coords="621,59,780,99"/>
+<area shape="rect" id="Node000002" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="207,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="418,31,506,40,598,52,621,57,620,62,597,58,506,45,418,36"/>
+<area shape="rect" id="Node000003" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html" title=" " alt="" coords="220,111,389,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="405,139,499,140,548,136,597,127,633,115,666,97,668,102,635,119,598,133,549,141,499,145,405,144"/>
+<area shape="rect" id="Node000004" href="$d2/d2d/class_eigen_1_1_matrix.html" title=" " alt="" coords="5,111,158,151"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="173,128,220,128,220,134,173,134"/>
+</map>

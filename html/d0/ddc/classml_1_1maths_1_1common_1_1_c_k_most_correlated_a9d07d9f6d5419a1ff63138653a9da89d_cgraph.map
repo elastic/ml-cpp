@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CKMostCorrelated::mostCorrelated" name="ml::maths::common::CKMostCorrelated::mostCorrelated">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,157,232,198"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a161be897a50a9000cc53f01f869b3c4a" title="Remove all statistics." alt="" coords="281,5,505,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,154,205,113,278,71,291,65,293,70,281,76,208,118,149,158"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#aae429f3ade684c422d9f25ec88301131" title="Get the dimension." alt="" coords="301,85,485,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,154,297,127,298,133,199,159"/>
+<area shape="rect" id="Node000004" href="$df/d0a/structml_1_1maths_1_1common_1_1_c_k_most_correlated_1_1_s_correlation.html#abdd1387e3799884f449f4a2c48608f88" title=" " alt="" coords="288,149,498,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="232,175,273,175,273,180,232,180"/>
+<area shape="rect" id="Node000006" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a8099c4cbd9ef3dc7ee8b611290f2b701" title="Manhattan norm." alt="" coords="301,229,485,270"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="199,196,298,222,297,227,198,201"/>
+<area shape="rect" id="Node000007" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#af1cc73c542ac0e55492bb3b58a988b76" title="Get the most correlated variables." alt="" coords="280,294,506,335"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="148,196,207,237,281,279,298,286,296,291,278,284,205,242,145,200"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="554,157,713,198"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="498,175,538,175,538,180,498,180"/>
+</map>

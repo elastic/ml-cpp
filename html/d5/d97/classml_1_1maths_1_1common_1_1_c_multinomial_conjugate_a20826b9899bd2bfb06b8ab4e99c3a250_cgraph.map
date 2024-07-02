@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultinomialConjugate::nonInformativePrior" name="ml::maths::common::CMultinomialConjugate::nonInformativePrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,162,97"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0cba7f8b12e783f4859d267c8e251b2f" title=" " alt="" coords="210,5,374,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,53,194,47,195,53,162,58"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="219,85,365,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,80,204,87,203,93,162,85"/>
+</map>

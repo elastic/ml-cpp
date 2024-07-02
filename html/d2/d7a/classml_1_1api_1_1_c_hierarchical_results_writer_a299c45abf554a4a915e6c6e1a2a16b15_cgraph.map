@@ -1,0 +1,73 @@
+<map id="ml::api::CHierarchicalResultsWriter::visit" name="ml::api::CHierarchicalResultsWriter::visit">
+<area shape="rect" id="Node000001" title="Write node." alt="" coords="5,294,198,334"/>
+<area shape="rect" id="Node000002" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#ac25fc5edeec8266029294a76efca6650" title=" " alt="" coords="252,262,444,302"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,299,236,294,237,299,198,304"/>
+<area shape="rect" id="Node000021" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a743a699f53ba9fdf84f2fae55229399a" title=" " alt="" coords="252,499,444,540"/>
+<area shape="poly" id="edge29_Node000001_Node000021" title=" " alt="" coords="129,333,312,487,309,491,126,337"/>
+<area shape="rect" id="Node000024" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a8c34c640a67e47e08aa6034cbc4c9a86" title=" " alt="" coords="252,183,444,224"/>
+<area shape="poly" id="edge35_Node000001_Node000024" title=" " alt="" coords="148,291,285,228,288,233,150,296"/>
+<area shape="rect" id="Node000025" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a4eeb1aa94464c2e8f3e22c080cb4ae12" title=" " alt="" coords="246,340,450,381"/>
+<area shape="poly" id="edge43_Node000001_Node000025" title=" " alt="" coords="199,330,231,336,230,341,198,335"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#adedccb34126f54fa542741d102a483d8" title="Check if the node is a leaf." alt="" coords="1274,251,1439,292"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="444,278,1258,270,1258,275,444,284"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a904b4b4a1f1f1e6d43647bbdbe2baf63" title="Is this function for use with metric models?" alt="" coords="541,194,673,234"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="428,259,525,233,526,238,429,264"/>
+<area shape="rect" id="Node000010" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a074d1c1ecbc9e7c97ad336c1d4bc7b08" title="Check if the node is a population result." alt="" coords="516,128,698,169"/>
+<area shape="poly" id="edge11_Node000002_Node000010" title=" " alt="" coords="403,259,448,233,463,220,471,207,481,193,496,180,507,174,509,178,500,184,485,197,476,210,467,223,452,238,406,263"/>
+<area shape="rect" id="Node000011" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a91f7dd2c0b68d17e2a019c35b5bbdd39" title="Check if the node is simple counting result." alt="" coords="509,499,705,540"/>
+<area shape="poly" id="edge12_Node000002_Node000011" title=" " alt="" coords="417,301,436,312,452,327,466,348,473,369,475,408,478,447,485,465,500,484,504,488,500,492,496,488,481,468,473,448,470,409,468,370,461,350,448,330,432,316,414,305"/>
+<area shape="rect" id="Node000012" href="$df/d9c/namespaceml_1_1model__t.html#ad820f6768ef99fd095ae6785ea5b5da0" title=" " alt="" coords="498,79,716,104"/>
+<area shape="poly" id="edge13_Node000002_Node000012" title=" " alt="" coords="412,259,431,248,448,234,459,219,465,204,470,174,475,144,483,129,496,115,502,110,505,115,500,119,487,132,480,146,475,175,471,205,464,221,452,237,434,252,414,264"/>
+<area shape="rect" id="Node000013" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="791,309,944,365"/>
+<area shape="poly" id="edge15_Node000002_Node000013" title=" " alt="" coords="445,289,775,324,775,330,444,295"/>
+<area shape="rect" id="Node000014" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a940f19c397c8958d3c47b8276b033d32" title="Check if we&#39;ll write a result for the node." alt="" coords="499,434,716,474"/>
+<area shape="poly" id="edge16_Node000002_Node000014" title=" " alt="" coords="402,301,451,326,518,374,574,421,570,425,515,378,449,331,399,305"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="801,160,934,201"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="674,203,786,188,786,194,674,208"/>
+<area shape="rect" id="Node000006" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="1055,194,1188,234"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="935,195,1040,209,1039,214,934,200"/>
+<area shape="rect" id="Node000007" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="1055,128,1188,169"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="934,178,1039,165,1040,170,934,183"/>
+<area shape="rect" id="Node000008" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="1060,79,1183,104"/>
+<area shape="poly" id="edge9_Node000005_Node000008" title=" " alt="" coords="912,157,1018,114,1044,106,1046,111,1020,119,914,162"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="1054,200,949,186,950,180,1055,195"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="1055,152,949,165,949,159,1054,146"/>
+<area shape="rect" id="Node000009" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1334,79,1380,104"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="1183,89,1318,89,1318,94,1183,94"/>
+<area shape="poly" id="edge14_Node000012_Node000008" title=" " alt="" coords="717,89,1045,89,1045,94,717,94"/>
+<area shape="poly" id="edge26_Node000014_Node000013" title=" " alt="" coords="653,431,789,369,791,374,656,436"/>
+<area shape="poly" id="edge27_Node000014_Node000014" title=" " alt="" coords="559,434,556,424,564,415,581,409,607,407,635,409,652,416,650,421,634,415,607,412,582,414,567,419,561,425,564,432"/>
+<area shape="rect" id="Node000015" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#aa156cff0339e0c616298cedf099c9b8b" title=" " alt="" coords="785,555,950,596"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="694,473,718,485,734,499,743,513,751,527,766,540,775,545,772,550,763,544,747,530,738,516,729,503,715,490,691,477"/>
+<area shape="rect" id="Node000016" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3578a82308dd4efac1c213646600e326" title="Check if this node is the root node." alt="" coords="1489,470,1655,510"/>
+<area shape="poly" id="edge18_Node000014_Node000016" title=" " alt="" coords="716,443,764,439,955,426,1105,419,1177,421,1253,427,1442,457,1474,464,1473,469,1441,462,1253,433,1176,426,1105,425,955,431,765,445,716,448"/>
+<area shape="rect" id="Node000017" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3c3becfe58de972509ea2f9c6597693e" title="Check if we can ever write a result for the node." alt="" coords="1019,440,1224,495"/>
+<area shape="poly" id="edge19_Node000014_Node000017" title=" " alt="" coords="716,454,1003,462,1003,467,716,460"/>
+<area shape="rect" id="Node000019" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3ebc7b53ff4a5c697de838b970ac1830" title="Get the nearest ancestor of the node for which we write results." alt="" coords="764,620,971,675"/>
+<area shape="poly" id="edge24_Node000014_Node000019" title=" " alt="" coords="701,473,718,485,731,501,738,516,744,546,748,576,755,591,766,606,769,608,765,612,762,609,750,594,743,578,738,547,733,518,727,504,715,489,697,477"/>
+<area shape="rect" id="Node000020" href="$df/d58/classml_1_1model_1_1_c_limits.html#ae5282d45eea6a950a429f65294035ead" title=" " alt="" coords="771,490,964,530"/>
+<area shape="poly" id="edge28_Node000014_Node000020" title=" " alt="" coords="705,472,757,484,755,489,704,478"/>
+<area shape="poly" id="edge20_Node000017_Node000003" title=" " alt="" coords="1154,437,1317,300,1321,304,1158,441"/>
+<area shape="poly" id="edge23_Node000017_Node000016" title=" " alt="" coords="1224,470,1474,482,1473,488,1224,475"/>
+<area shape="rect" id="Node000018" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a782a7ab20789d56e6d02c6dde2f28169" title="Check if this is a named partition." alt="" coords="1272,498,1441,538"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="1225,487,1257,494,1256,499,1224,492"/>
+<area shape="poly" id="edge22_Node000018_Node000016" title=" " alt="" coords="1441,504,1473,500,1474,505,1442,510"/>
+<area shape="poly" id="edge25_Node000019_Node000017" title=" " alt="" coords="948,617,969,605,1033,556,1084,505,1088,509,1036,560,972,610,951,621"/>
+<area shape="poly" id="edge31_Node000021_Node000011" title=" " alt="" coords="444,517,494,517,494,522,444,522"/>
+<area shape="poly" id="edge34_Node000021_Node000014" title=" " alt="" coords="431,496,508,476,509,481,432,501"/>
+<area shape="poly" id="edge30_Node000021_Node000016" title=" " alt="" coords="382,538,463,586,580,643,648,669,719,690,793,705,866,710,1123,710,1186,704,1248,689,1309,666,1366,637,1418,606,1464,574,1535,519,1538,523,1467,579,1421,611,1368,642,1311,671,1250,694,1187,710,1123,715,866,715,792,710,718,695,646,674,578,648,460,590,379,542"/>
+<area shape="rect" id="Node000022" href="$d6/de7/structml_1_1model_1_1hierarchical__results__detail_1_1_s_result_spec.html#a625e189aea7a1220b110ebeec8ae8a10" title="Print of the specification for debugging." alt="" coords="512,750,702,806"/>
+<area shape="poly" id="edge32_Node000021_Node000022" title=" " alt="" coords="361,539,382,579,413,629,452,682,500,729,515,740,512,744,496,733,448,686,408,632,377,581,357,542"/>
+<area shape="rect" id="Node000023" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="794,758,941,798"/>
+<area shape="poly" id="edge33_Node000022_Node000023" title=" " alt="" coords="703,775,778,775,778,781,703,781"/>
+<area shape="poly" id="edge36_Node000024_Node000003" title=" " alt="" coords="357,182,377,146,408,102,448,60,471,42,497,28,528,16,555,10,604,11,654,20,716,27,795,26,863,20,982,5,1038,3,1095,10,1157,29,1226,64,1254,92,1286,138,1341,236,1336,238,1281,141,1250,95,1222,68,1155,34,1094,15,1037,9,982,10,864,25,795,32,716,33,653,26,604,16,556,15,529,21,499,32,474,46,452,64,412,106,382,149,361,184"/>
+<area shape="poly" id="edge37_Node000024_Node000004" title=" " alt="" coords="444,205,525,208,525,213,444,210"/>
+<area shape="poly" id="edge38_Node000024_Node000010" title=" " alt="" coords="444,181,500,169,501,174,445,186"/>
+<area shape="poly" id="edge39_Node000024_Node000011" title=" " alt="" coords="419,222,437,233,452,248,471,280,478,311,478,341,475,370,471,399,472,427,480,455,500,484,503,487,499,491,496,488,476,458,467,428,466,399,469,369,473,341,473,312,466,282,448,252,433,238,416,226"/>
+<area shape="poly" id="edge40_Node000024_Node000012" title=" " alt="" coords="377,180,431,147,497,114,520,106,522,111,499,119,434,151,380,185"/>
+<area shape="poly" id="edge41_Node000024_Node000013" title=" " alt="" coords="361,181,384,152,415,119,453,87,497,64,558,41,611,29,637,29,663,35,689,46,718,64,735,80,745,97,751,132,753,170,758,190,767,211,797,257,830,296,826,299,792,260,762,214,753,192,748,170,746,132,740,98,731,83,715,68,687,51,661,40,636,34,612,34,560,46,499,68,456,92,419,123,388,156,366,184"/>
+<area shape="poly" id="edge42_Node000024_Node000014" title=" " alt="" coords="408,222,452,248,495,289,534,335,589,419,585,422,530,339,492,293,448,252,406,227"/>
+<area shape="poly" id="edge44_Node000025_Node000004" title=" " alt="" coords="397,337,449,312,562,241,565,246,451,316,399,342"/>
+<area shape="poly" id="edge45_Node000025_Node000011" title=" " alt="" coords="370,379,425,431,461,459,499,484,513,490,510,495,497,488,458,464,422,435,367,383"/>
+<area shape="poly" id="edge46_Node000025_Node000013" title=" " alt="" coords="450,353,775,338,775,344,450,359"/>
+</map>

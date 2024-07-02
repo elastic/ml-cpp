@@ -1,0 +1,11 @@
+<map id="ml::api::CAnomalyJob::detectorForKey" name="ml::api::CAnomalyJob::detectorForKey">
+<area shape="rect" id="Node000001" title="Get a reference to the detector for a given key." alt="" coords="605,39,756,79"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="407,5,557,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="590,47,557,41,558,36,591,41"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a6b8795062cb0d967fbf3613bf2f3a892" title=" " alt="" coords="407,71,557,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="591,76,558,82,557,76,590,71"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a18ed174f8525a11920b71fad4bce3ca6" title="Attempt to restore one detector from an already&#45;created traverser." alt="" coords="204,71,359,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="391,94,359,94,359,88,391,88"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a910f607ad3397b1023628cfbf9a46328" title="Attempt to restore the detectors." alt="" coords="5,71,156,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="188,94,156,94,156,88,188,88"/>
+</map>

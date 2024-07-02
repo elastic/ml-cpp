@@ -1,0 +1,118 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::initializeHyperparameters" name="ml::maths::analytics::CBoostedTreeFactory::initializeHyperparameters">
+<area shape="rect" id="Node000001" title="Set the initial values for hyperparameters." alt="" coords="5,1204,182,1259"/>
+<area shape="rect" id="Node000002" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a0e8e655551cc881a1d0c2ef371cd110d" title="Setup before setting initial values for hyperparameters." alt="" coords="237,1204,448,1259"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,1229,221,1229,221,1234,182,1234"/>
+<area shape="rect" id="Node000018" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aeff5134a6549ecd39058b7c576f47992" title=" " alt="" coords="230,209,455,265"/>
+<area shape="poly" id="edge21_Node000001_Node000018" title=" " alt="" coords="94,1203,109,1037,136,789,155,658,176,536,200,432,227,356,257,311,292,273,296,277,261,314,232,358,205,433,181,537,160,659,142,789,114,1038,100,1204"/>
+<area shape="rect" id="Node000030" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a0b80eadbee5ff76847f639e2384aa491" title="Estimate a good initial value and range to search for the learn rate." alt="" coords="264,546,421,602"/>
+<area shape="poly" id="edge39_Node000001_Node000030" title=" " alt="" coords="103,1202,323,616,328,617,108,1204"/>
+<area shape="rect" id="Node000036" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a893948161737396c9c7def98e2ef9200" title=" " alt="" coords="230,369,455,425"/>
+<area shape="poly" id="edge49_Node000001_Node000036" title=" " alt="" coords="93,1203,99,1091,119,922,136,825,159,726,189,627,227,533,260,479,299,434,303,437,265,482,232,535,194,629,164,727,141,827,124,923,105,1091,98,1203"/>
+<area shape="rect" id="Node000037" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#af8fb20d5a412744e75f644def561d17e" title=" " alt="" coords="245,1687,440,1758"/>
+<area shape="poly" id="edge54_Node000001_Node000037" title=" " alt="" coords="111,1258,319,1672,314,1674,107,1261"/>
+<area shape="rect" id="Node000041" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a0509e54d14727f19ae3c77f707f8e6ea" title=" " alt="" coords="839,2104,997,2159"/>
+<area shape="poly" id="edge73_Node000001_Node000041" title=" " alt="" coords="98,1260,103,1330,115,1432,137,1556,172,1692,195,1762,223,1831,256,1898,293,1962,337,2021,386,2075,442,2122,504,2161,543,2177,585,2187,627,2192,670,2191,754,2180,827,2162,828,2167,755,2186,671,2197,627,2197,584,2192,542,2182,502,2166,439,2127,382,2079,333,2025,289,1965,251,1901,218,1833,190,1764,167,1694,132,1557,110,1432,98,1330,93,1260"/>
+<area shape="rect" id="Node000043" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#adf604ee4e2632dc602dc9ce787379628" title=" " alt="" coords="236,2220,449,2275"/>
+<area shape="poly" id="edge71_Node000001_Node000043" title=" " alt="" coords="98,1260,103,1445,110,1580,122,1726,138,1873,162,2009,176,2069,193,2121,211,2165,232,2199,240,2208,236,2211,228,2202,206,2168,188,2123,171,2070,157,2010,133,1874,116,1727,105,1580,98,1446,92,1260"/>
+<area shape="rect" id="Node000003" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a43c1bcf80cac450d97757b98050af108" title="Set the sum of leaf depth penalties multiplier." alt="" coords="555,1284,712,1339"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,1257,540,1283,539,1288,445,1262"/>
+<area shape="rect" id="Node000004" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a5a9f1d40ae8462c77d49c242811dc02c" title="The amount by which to downsample the data for stochastic gradient estimates." alt="" coords="555,209,712,265"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="347,1203,392,961,452,614,458,538,462,439,474,343,485,304,501,275,518,260,539,249,541,254,521,264,505,279,490,306,479,344,468,439,463,538,458,614,397,962,352,1204"/>
+<area shape="rect" id="Node000005" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab5f1a21d158b146f7188badd8bb4da97" title="Set the amount we&#39;ll shrink the tree leaf weights we compute." alt="" coords="826,710,1010,751"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="343,1203,353,1125,363,1073,378,1018,398,961,425,906,459,855,502,811,539,799,616,782,810,746,811,751,617,788,540,804,504,815,463,858,430,908,403,963,383,1019,368,1074,358,1125,348,1204"/>
+<area shape="rect" id="Node000006" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa79b4f79881909e297e89535b1041433" title="Set the amount we&#39;ll grow eta on each each iteration." alt="" coords="552,1100,715,1155"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="410,1201,502,1165,536,1154,538,1159,504,1170,412,1206"/>
+<area shape="rect" id="Node000007" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ad8d1d6b231235b0ee02f2a2fd6ec393a" title="Set the fraction of features we&#39;ll use in the bag to build a tree." alt="" coords="555,969,712,1025"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="359,1202,416,1123,456,1079,501,1041,539,1021,541,1026,505,1046,460,1083,420,1126,363,1205"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="845,977,991,1017"/>
+<area shape="poly" id="edge20_Node000002_Node000008" title=" " alt="" coords="364,1201,422,1142,460,1111,502,1085,539,1069,571,1058,629,1050,689,1046,763,1034,829,1018,831,1023,764,1039,689,1051,630,1055,573,1064,541,1074,504,1090,463,1115,426,1146,368,1205"/>
+<area shape="rect" id="Node000009" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa9acf41587c7fb469f2389ea0af322ee" title="Set the sum of weights squared multiplier." alt="" coords="540,1654,726,1710"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="349,1259,361,1335,387,1437,407,1492,433,1546,466,1596,505,1640,528,1656,525,1661,501,1644,461,1599,429,1549,402,1494,382,1439,355,1336,344,1260"/>
+<area shape="rect" id="Node000010" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a703e1972c0070ad3f235ca3e98a940b9" title="Set the maximum number of trees in the ensemble." alt="" coords="551,1204,716,1259"/>
+<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="448,1229,535,1229,535,1234,448,1234"/>
+<area shape="rect" id="Node000011" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="842,563,994,604"/>
+<area shape="poly" id="edge12_Node000002_Node000011" title=" " alt="" coords="342,1203,349,1117,358,1060,372,998,392,934,420,872,456,814,501,764,534,741,565,729,596,725,627,726,690,728,725,723,762,709,879,612,882,616,765,714,726,728,690,733,626,731,596,731,567,734,537,746,505,768,460,817,424,874,397,936,377,999,363,1061,354,1118,347,1204"/>
+<area shape="rect" id="Node000012" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a2b54a78866bad7ce92e603ca643d50af" title=" " alt="" coords="554,1364,712,1419"/>
+<area shape="poly" id="edge13_Node000002_Node000012" title=" " alt="" coords="376,1258,433,1304,504,1349,540,1364,538,1369,502,1354,430,1309,373,1262"/>
+<area shape="rect" id="Node000013" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a0fcd60b7723234036600081f0471fc6f" title="Set the amount we&#39;ll shrink the retrained tree leaf weights we compute." alt="" coords="555,825,712,881"/>
+<area shape="poly" id="edge14_Node000002_Node000013" title=" " alt="" coords="346,1203,362,1139,392,1055,412,1010,437,967,467,926,501,891,539,869,541,873,505,895,471,930,441,970,417,1013,397,1057,367,1140,352,1204"/>
+<area shape="rect" id="Node000014" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ab30e5eeb34214b89ef38fbdabcd03dc3" title="Set the soft tree depth limit." alt="" coords="555,1734,712,1790"/>
+<area shape="poly" id="edge16_Node000002_Node000014" title=" " alt="" coords="347,1260,354,1348,363,1407,377,1472,397,1539,424,1605,460,1666,505,1720,522,1733,541,1743,539,1748,519,1738,501,1724,456,1669,420,1607,392,1541,372,1473,358,1408,349,1349,342,1260"/>
+<area shape="rect" id="Node000015" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a588f0d5aeceaf14c501ccbd633dfb008" title=" " alt="" coords="549,1494,717,1550"/>
+<area shape="poly" id="edge17_Node000002_Node000015" title=" " alt="" coords="357,1259,379,1305,411,1363,453,1422,478,1449,505,1473,536,1493,533,1497,501,1478,474,1453,449,1425,407,1366,374,1308,353,1261"/>
+<area shape="rect" id="Node000016" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aac9938381be89d8e4edc775781a12ee4" title="Set the tree size penalty multiplier." alt="" coords="547,1574,720,1630"/>
+<area shape="poly" id="edge18_Node000002_Node000016" title=" " alt="" coords="352,1259,368,1321,398,1402,418,1445,442,1487,471,1526,505,1560,533,1578,531,1583,501,1564,467,1530,438,1490,413,1448,393,1404,363,1323,347,1260"/>
+<area shape="rect" id="Node000017" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a8c65b28cf324be0c4c70cf017473b55d" title="Set the penalty for changing the tree toppology when incrementally training." alt="" coords="822,1518,1014,1574"/>
+<area shape="poly" id="edge19_Node000002_Node000017" title=" " alt="" coords="360,1258,383,1298,415,1345,456,1391,504,1429,540,1447,571,1458,629,1464,689,1466,724,1470,764,1480,844,1509,842,1514,763,1485,723,1475,689,1471,628,1470,570,1463,537,1452,502,1434,452,1395,411,1348,378,1301,355,1261"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="870,710,868,700,876,691,892,685,918,683,946,686,962,692,960,697,944,691,918,688,893,690,879,695,873,701,875,708"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="712,994,830,994,830,1000,712,1000"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="578,1203,579,1193,589,1184,607,1179,633,1177,663,1180,682,1187,680,1192,662,1185,633,1182,608,1184,591,1189,583,1195,583,1203"/>
+<area shape="poly" id="edge15_Node000013_Node000005" title=" " alt="" coords="711,824,762,804,863,756,865,760,764,809,713,829"/>
+<area shape="poly" id="edge22_Node000018_Node000004" title=" " alt="" coords="455,234,539,234,539,240,455,240"/>
+<area shape="poly" id="edge38_Node000018_Node000008" title=" " alt="" coords="398,206,479,174,527,160,577,150,628,147,677,152,724,167,765,195,781,214,793,240,808,304,814,381,813,466,806,634,807,706,814,762,832,818,855,873,900,962,895,964,850,875,827,820,809,763,801,707,801,634,808,466,808,381,803,304,788,241,777,217,762,199,722,172,676,157,628,152,578,155,528,165,481,179,400,211"/>
+<area shape="rect" id="Node000019" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="547,94,719,135"/>
+<area shape="poly" id="edge23_Node000018_Node000019" title=" " alt="" coords="390,206,443,178,502,150,538,137,540,142,504,155,446,182,393,211"/>
+<area shape="rect" id="Node000021" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#ae353cfcd98eaa7123ac07a90b5e1ea3a" title="Get the number of progress iterations used for a line search." alt="" coords="510,369,757,425"/>
+<area shape="poly" id="edge26_Node000018_Node000021" title=" " alt="" coords="376,263,433,310,504,355,516,360,514,365,502,359,430,314,373,267"/>
+<area shape="rect" id="Node000023" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#aa8b78ebb0a5d35c5b2815df3ab97977e" title=" " alt="" coords="503,14,763,70"/>
+<area shape="poly" id="edge30_Node000018_Node000023" title=" " alt="" coords="363,207,422,143,460,109,502,80,511,75,514,79,504,84,463,113,425,147,367,211"/>
+<area shape="rect" id="Node000025" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#abd8183775b061f4011c71df95baf407a" title=" " alt="" coords="542,289,724,345"/>
+<area shape="poly" id="edge33_Node000018_Node000025" title=" " alt="" coords="447,263,528,285,527,290,445,268"/>
+<area shape="rect" id="Node000020" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="879,103,957,128"/>
+<area shape="poly" id="edge24_Node000019_Node000020" title=" " alt="" coords="720,112,863,113,863,118,720,117"/>
+<area shape="poly" id="edge25_Node000020_Node000020" title=" " alt="" coords="877,105,868,94,872,84,889,78,918,76,951,79,966,87,964,92,950,84,918,81,891,83,876,88,873,94,880,101"/>
+<area shape="poly" id="edge27_Node000021_Node000005" title=" " alt="" coords="751,423,765,435,782,457,792,479,797,521,798,565,803,589,814,614,846,660,883,698,879,702,842,663,809,617,798,590,792,566,791,522,787,480,778,460,761,439,748,427"/>
+<area shape="poly" id="edge29_Node000021_Node000011" title=" " alt="" coords="742,423,765,435,803,461,838,491,893,549,889,553,834,495,799,465,762,439,739,428"/>
+<area shape="rect" id="Node000022" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a06c888a44035bc3baac323959040943c" title="Get the maximum number of iterations used in testLossLineSearch." alt="" coords="811,369,1025,425"/>
+<area shape="poly" id="edge28_Node000021_Node000022" title=" " alt="" coords="757,394,796,394,796,400,757,400"/>
+<area shape="rect" id="Node000024" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="881,29,955,55"/>
+<area shape="poly" id="edge31_Node000023_Node000024" title=" " alt="" coords="764,40,865,40,865,45,764,45"/>
+<area shape="poly" id="edge32_Node000024_Node000024" title=" " alt="" coords="878,32,868,22,872,11,889,5,918,3,955,7,965,12,968,18,964,21,961,16,953,12,918,8,890,10,875,15,873,21,882,28"/>
+<area shape="rect" id="Node000026" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#adfac6ffce38516840c306f329394735c" title="Persist state writing to inserter." alt="" coords="839,289,997,345"/>
+<area shape="poly" id="edge34_Node000025_Node000026" title=" " alt="" coords="725,314,824,314,824,320,725,320"/>
+<area shape="rect" id="Node000027" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="1073,362,1275,403"/>
+<area shape="poly" id="edge35_Node000026_Node000027" title=" " alt="" coords="998,334,1077,355,1076,360,996,339"/>
+<area shape="rect" id="Node000028" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="1073,231,1275,272"/>
+<area shape="poly" id="edge36_Node000026_Node000028" title=" " alt="" coords="996,294,1076,274,1077,279,998,299"/>
+<area shape="rect" id="Node000029" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="1097,297,1251,337"/>
+<area shape="poly" id="edge37_Node000026_Node000029" title=" " alt="" coords="997,314,1081,314,1081,320,997,320"/>
+<area shape="poly" id="edge40_Node000030_Node000005" title=" " alt="" coords="422,578,609,599,699,613,764,629,828,661,882,698,879,702,826,666,762,634,698,618,608,604,421,583"/>
+<area shape="poly" id="edge43_Node000030_Node000021" title=" " alt="" coords="367,544,426,489,462,460,502,435,512,429,515,434,504,439,465,464,429,493,371,548"/>
+<area shape="poly" id="edge48_Node000030_Node000025" title=" " alt="" coords="366,544,408,494,453,435,466,412,473,393,483,374,501,355,526,339,529,344,505,359,487,377,478,395,470,415,457,438,412,498,370,548"/>
+<area shape="rect" id="Node000031" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a0d81750b61c6df0478fbbca4cb3a4a1e" title="Get the writeable weight shrinkage." alt="" coords="514,449,753,489"/>
+<area shape="poly" id="edge41_Node000030_Node000031" title=" " alt="" coords="398,543,502,498,523,491,525,497,504,503,400,548"/>
+<area shape="rect" id="Node000032" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a9a3e31bf5ad07fa5749927a9644e2149" title="Get the writeable growth in weight shrinkage per tree which is added." alt="" coords="527,513,740,569"/>
+<area shape="poly" id="edge42_Node000030_Node000032" title=" " alt="" coords="421,562,511,552,511,557,422,568"/>
+<area shape="rect" id="Node000033" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a04ba6ce1f50aeb4c5e0fdcb580c0a683" title="Set the maximum number of trees to use." alt="" coords="527,644,740,699"/>
+<area shape="poly" id="edge44_Node000030_Node000033" title=" " alt="" coords="423,598,534,636,533,641,421,603"/>
+<area shape="rect" id="Node000034" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2bb0597c65fb4e601ca673ab7d3229b6" title=" " alt="" coords="534,905,733,945"/>
+<area shape="poly" id="edge45_Node000030_Node000034" title=" " alt="" coords="352,602,368,663,398,741,418,782,443,822,471,859,505,891,521,902,518,906,501,895,467,863,438,825,414,785,393,743,363,664,347,603"/>
+<area shape="poly" id="edge46_Node000034_Node000008" title=" " alt="" coords="720,943,764,954,831,971,829,977,763,959,719,948"/>
+<area shape="rect" id="Node000035" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="1087,1294,1261,1350"/>
+<area shape="poly" id="edge47_Node000034_Node000035" title=" " alt="" coords="733,906,803,903,880,908,919,915,957,926,993,942,1026,963,1062,995,1091,1034,1115,1076,1134,1121,1159,1207,1171,1278,1166,1279,1154,1209,1129,1122,1110,1079,1087,1037,1058,999,1023,967,991,947,955,931,918,920,880,913,803,908,734,911"/>
+<area shape="poly" id="edge50_Node000036_Node000007" title=" " alt="" coords="377,423,420,471,441,501,457,533,468,574,472,627,473,751,474,814,478,872,488,920,505,955,521,970,541,980,538,985,518,974,501,958,483,922,473,873,468,814,467,751,467,627,462,575,453,535,436,504,416,475,373,427"/>
+<area shape="poly" id="edge51_Node000036_Node000019" title=" " alt="" coords="371,367,411,325,453,275,467,253,475,234,485,216,501,195,537,165,575,140,578,144,540,169,505,199,489,219,480,237,471,256,457,278,415,328,375,371"/>
+<area shape="poly" id="edge52_Node000036_Node000021" title=" " alt="" coords="455,394,494,394,494,400,455,400"/>
+<area shape="poly" id="edge53_Node000036_Node000025" title=" " alt="" coords="445,366,527,343,528,348,447,371"/>
+<area shape="poly" id="edge70_Node000037_Node000008" title=" " alt="" coords="400,1756,480,1797,526,1816,576,1830,626,1838,674,1837,720,1825,762,1800,777,1779,788,1746,799,1662,803,1574,809,1506,863,1233,906,1032,911,1033,868,1234,814,1507,809,1574,804,1663,793,1748,782,1781,765,1804,722,1830,675,1843,625,1844,575,1836,525,1821,477,1802,398,1761"/>
+<area shape="poly" id="edge63_Node000037_Node000009" title=" " alt="" coords="440,1706,524,1694,525,1700,440,1711"/>
+<area shape="poly" id="edge67_Node000037_Node000014" title=" " alt="" coords="440,1733,539,1747,539,1752,440,1738"/>
+<area shape="poly" id="edge68_Node000037_Node000015" title=" " alt="" coords="369,1684,425,1621,462,1588,502,1560,533,1544,535,1549,504,1564,465,1592,429,1625,373,1688"/>
+<area shape="poly" id="edge69_Node000037_Node000016" title=" " alt="" coords="408,1684,502,1640,531,1629,533,1634,504,1645,410,1689"/>
+<area shape="poly" id="edge64_Node000037_Node000021" title=" " alt="" coords="352,1686,402,1509,430,1391,452,1271,456,1212,458,1113,460,847,464,709,471,585,482,489,491,456,501,435,502,434,506,437,505,438,496,458,488,490,476,585,469,709,465,847,463,1113,461,1212,458,1272,435,1392,407,1510,357,1687"/>
+<area shape="poly" id="edge65_Node000037_Node000025" title=" " alt="" coords="352,1686,402,1509,430,1391,452,1271,456,1206,457,1097,459,807,462,655,469,519,481,415,490,378,501,355,527,334,530,338,505,358,495,380,486,416,474,520,467,655,464,807,463,1097,461,1207,458,1272,435,1392,408,1510,358,1687"/>
+<area shape="rect" id="Node000038" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a6fb1b0e4cedde152e3b124700400f07e" title=" " alt="" coords="527,1865,739,1921"/>
+<area shape="poly" id="edge55_Node000037_Node000038" title=" " alt="" coords="384,1756,439,1801,504,1844,529,1856,527,1861,502,1848,436,1805,381,1760"/>
+<area shape="rect" id="Node000040" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#aa193b6bfdf93e07be52077c5e9beea84" title=" " alt="" coords="512,2038,754,2094"/>
+<area shape="poly" id="edge58_Node000037_Node000040" title=" " alt="" coords="355,1757,374,1816,404,1888,447,1962,474,1996,505,2025,507,2028,504,2032,501,2030,470,2000,443,1965,399,1891,369,1818,350,1759"/>
+<area shape="poly" id="edge66_Node000037_Node000041" title=" " alt="" coords="349,1757,360,1833,386,1929,406,1979,432,2026,465,2069,505,2104,541,2125,581,2141,622,2151,665,2157,749,2157,824,2149,825,2154,749,2163,665,2162,621,2156,579,2146,539,2130,501,2108,461,2072,428,2029,402,1981,381,1931,355,1834,344,1758"/>
+<area shape="rect" id="Node000042" href="$d0/da2/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_factory.html#a92465adbdcedf9fb1542f3fe7332ffd4" title=" " alt="" coords="539,1944,728,2015"/>
+<area shape="poly" id="edge60_Node000037_Node000042" title=" " alt="" coords="364,1756,388,1797,420,1843,459,1890,505,1931,526,1944,523,1948,501,1935,455,1894,416,1846,384,1799,360,1759"/>
+<area shape="rect" id="Node000039" href="$de/d69/classml_1_1maths_1_1analytics_1_1_c_scope_boosted_tree_parameter_overrides.html#afbb9eee631045aa8b4d08e62c5d1cd56" title=" " alt="" coords="813,1776,1023,1831"/>
+<area shape="poly" id="edge56_Node000038_Node000039" title=" " alt="" coords="723,1862,811,1834,813,1839,725,1867"/>
+<area shape="poly" id="edge57_Node000039_Node000035" title=" " alt="" coords="932,1774,1149,1362,1153,1364,937,1776"/>
+<area shape="poly" id="edge59_Node000040_Node000041" title=" " alt="" coords="756,2091,825,2108,824,2113,754,2097"/>
+<area shape="poly" id="edge62_Node000042_Node000017" title=" " alt="" coords="727,1955,746,1945,761,1931,777,1911,787,1892,794,1854,797,1812,809,1763,851,1667,891,1586,896,1589,855,1669,814,1764,802,1813,800,1854,792,1893,782,1914,765,1935,749,1949,730,1960"/>
+<area shape="poly" id="edge61_Node000042_Node000041" title=" " alt="" coords="729,2008,765,2024,821,2057,871,2092,868,2096,818,2061,762,2029,727,2013"/>
+<area shape="poly" id="edge72_Node000043_Node000041" title=" " alt="" coords="449,2242,599,2229,682,2217,763,2198,808,2183,850,2164,852,2169,809,2188,764,2203,683,2222,600,2235,450,2248"/>
+</map>

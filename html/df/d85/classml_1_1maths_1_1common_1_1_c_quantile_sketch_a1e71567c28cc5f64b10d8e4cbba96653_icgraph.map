@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CQuantileSketch::memoryUsage" name="ml::maths::common::CQuantileSketch::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this object." alt="" coords="206,53,419,94"/>
+<area shape="rect" id="Node000002" href="$dc/d7b/classml_1_1maths_1_1common_1_1_c_fast_quantile_sketch.html#a7a84108e1a82f45a33d142cbc9c2dc0a" title="Get the memory used by this object." alt="" coords="8,5,155,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,55,155,48,156,43,191,49"/>
+<area shape="rect" id="Node000003" href="$dc/d1d/classml_1_1maths_1_1common_1_1_c_fixed_quantile_sketch.html#a534c556c20708d08647fef90ebbeac4a" title=" " alt="" coords="5,85,158,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,97,158,103,157,97,190,92"/>
+</map>

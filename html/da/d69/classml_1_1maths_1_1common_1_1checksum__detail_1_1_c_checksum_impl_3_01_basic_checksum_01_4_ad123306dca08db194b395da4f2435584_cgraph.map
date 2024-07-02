@@ -1,0 +1,9 @@
+<map id="ml::maths::common::checksum_detail::CChecksumImpl&lt; BasicChecksum &gt;::dispatch" name="ml::maths::common::checksum_detail::CChecksumImpl&lt; BasicChecksum &gt;::dispatch">
+<area shape="rect" id="Node000001" title="Checksum a universal hash function." alt="" coords="5,85,229,141"/>
+<area shape="rect" id="Node000002" href="$d5/d17/classml_1_1core_1_1_c_hashing_1_1_c_universal_hash_1_1_c_u_int32_unrestricted_hash.html#a5e4097108094b55aaf84933bacf09f25" title="Get the multiplier." alt="" coords="277,5,530,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,82,286,63,287,68,220,87"/>
+<area shape="rect" id="Node000003" href="$d5/d17/classml_1_1core_1_1_c_hashing_1_1_c_universal_hash_1_1_c_u_int32_unrestricted_hash.html#a68adcf0108c8877f850c99d9003e5b1d" title="Get the offset." alt="" coords="277,85,530,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,111,261,111,261,116,229,116"/>
+<area shape="rect" id="Node000004" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#a2b576f5bc635ebe084f2e4b4e892d542" title="32 bit hash combine modeled on boost::hash_combine." alt="" coords="336,165,471,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="230,139,322,162,321,167,229,144"/>
+</map>

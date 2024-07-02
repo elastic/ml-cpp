@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CConstantPrior::marginalLikelihoodConfidenceInterval" name="ml::maths::common::CConstantPrior::marginalLikelihoodConfidenceInterval">
+<area shape="rect" id="Node000001" title="All confidence intervals are the point [constant, constant]." alt="" coords="5,34,232,90"/>
+<area shape="rect" id="Node000002" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a18ac4f9868ec665e64bf7cf5350b7d61" title="Check if this is a non&#45;informative prior." alt="" coords="284,5,502,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,44,268,39,268,45,233,49"/>
+<area shape="rect" id="Node000003" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#af54726075f60245e9348b03c9c22948e" title="Get the support for the marginal likelihood function." alt="" coords="280,70,506,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,74,265,78,264,83,232,79"/>
+</map>

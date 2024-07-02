@@ -1,0 +1,24 @@
+<map id="ml::maths::common::las::inner" name="ml::maths::common::las::inner">
+<area shape="rect" id="Node000001" title="Get the inner product of two of our internal vectors." alt="" coords="942,154,1087,195"/>
+<area shape="rect" id="Node000002" href="$d6/d26/_c_linear_algebra_test_8cc.html#acc80dd395d463f62036e0cf5859e3362" title=" " alt="" coords="697,5,894,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="989,143,948,92,922,67,892,46,866,34,869,29,895,41,925,63,952,89,993,140"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a12bc73f5d8196215484439275ae09164" title="Get the inner product of two annotated vectors." alt="" coords="723,55,868,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="965,148,893,111,862,99,864,94,895,106,967,144"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a163f3b8da08ca8c81c98c3627e2a6ca5" title="Get the inner product of an annotated and some other vector." alt="" coords="723,121,868,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="926,163,868,155,869,149,926,158"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a2ffbb0357ff5205d75d2d984cc5d666e" title="Get the inner product of an annotated and some other vector." alt="" coords="723,186,868,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="926,190,869,198,868,193,926,184"/>
+<area shape="rect" id="Node000006" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a696e7ed599e3c2175818585102e553f6" title=" " alt="" coords="705,251,886,292"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="966,205,895,241,863,253,862,248,893,236,963,200"/>
+<area shape="rect" id="Node000011" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#ab596a2f2835e1f8490466c370d7c06b1" title=" " alt="" coords="438,314,649,355"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="995,209,954,261,926,286,895,306,835,328,771,341,708,347,650,347,650,341,708,341,770,336,833,323,892,301,923,282,950,257,991,206"/>
+<area shape="rect" id="Node000007" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a7cbb2bc0d2144a8c258cf88dc62ad91e" title=" " alt="" coords="471,249,616,289"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="690,273,617,272,617,267,690,268"/>
+<area shape="rect" id="Node000008" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a6b37cb16a1dc73e6bdb8883589cad86a" title=" " alt="" coords="245,282,390,323"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="457,284,391,294,390,289,456,279"/>
+<area shape="rect" id="Node000009" href="$d8/d00/classml_1_1maths_1_1common_1_1_c_lbfgs.html#a8093e6557824f11b1ea97be1d64b1d4d" title=" " alt="" coords="6,242,196,283"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="229,289,196,282,197,277,230,283"/>
+<area shape="rect" id="Node000010" href="$d9/d04/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_multinomial_logistic_loss_impl.html#ad5624cf13996e7f9c765006dd0550aca" title=" " alt="" coords="5,307,197,378"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="230,321,198,327,197,322,229,316"/>
+<area shape="poly" id="edge11_Node000011_Node000008" title=" " alt="" coords="422,320,390,315,391,310,423,314"/>
+</map>

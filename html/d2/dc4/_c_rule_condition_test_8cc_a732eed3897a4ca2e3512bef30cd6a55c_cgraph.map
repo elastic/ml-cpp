@@ -1,0 +1,22 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,148,202,173"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#aa1cfd7395a5f4f682dbe1d195d5547ba" title="Set which value the condition applies to." alt="" coords="261,29,439,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,145,180,113,249,79,263,73,265,78,251,84,183,118,128,149"/>
+<area shape="rect" id="Node000003" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#a257904c06b1ac1ac776d9ede219f5d2a" title="Set the condition operator." alt="" coords="250,118,450,144"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="202,146,234,142,235,147,203,151"/>
+<area shape="rect" id="Node000004" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#af1e1c0010e023820d6f3d05f234e299a" title="Test the condition against a series." alt="" coords="261,168,439,209"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="202,169,246,174,245,179,202,174"/>
+<area shape="rect" id="Node000008" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#a3e8f18eddbd1b14c858893cb756f9014" title="Set the condition value." alt="" coords="743,225,922,266"/>
+<area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="132,171,186,196,250,218,313,231,377,241,506,252,627,254,728,251,728,256,627,259,506,257,376,246,312,236,249,223,184,201,130,176"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="304,29,301,19,309,10,325,5,350,3,376,5,392,11,390,16,375,10,350,8,326,10,312,15,306,21,309,28"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="309,120,301,110,306,100,323,94,350,92,380,94,396,101,393,106,379,99,350,97,324,99,309,104,306,109,313,116"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8ef998b20cc346816745dbe1fa5b64b3" title=" " alt="" coords="498,37,695,78"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="430,165,448,154,464,139,472,123,480,106,496,89,505,83,508,88,500,93,485,109,476,125,468,142,452,158,432,170"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a1ba6be66ec95043b6a7ffe290b712a26" title=" " alt="" coords="498,103,695,143"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="429,165,502,145,503,150,430,170"/>
+<area shape="rect" id="Node000007" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#ae73d94817c1dd5d2859dd4020789afa6" title=" " alt="" coords="508,168,686,209"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="440,186,492,186,492,191,440,191"/>
+<area shape="poly" id="edge11_Node000004_Node000008" title=" " alt="" coords="438,207,498,218,617,231,728,239,728,244,617,236,498,223,437,212"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="683,207,732,219,731,224,682,212"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="788,225,786,215,793,206,809,201,833,199,858,201,873,207,871,212,857,206,832,204,810,206,796,211,791,217,793,224"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,145,202,171"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a765b238ca1ffc851de0e3d79691e31f8" title="Get a checksum for this object." alt="" coords="250,26,406,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,142,251,86,254,91,134,147"/>
+<area shape="rect" id="Node000005" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a20826b9899bd2bfb06b8ab4e99c3a250" title=" " alt="" coords="250,130,406,186"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="202,155,234,155,234,160,202,160"/>
+<area shape="rect" id="Node000008" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#aa152cdd897ed47cad92a30ad5465f6fb" title="Remove the categories in categoriesToRemove." alt="" coords="250,235,406,291"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="134,169,254,226,252,230,132,173"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="666,5,821,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,28,454,19,556,13,651,15,651,21,556,18,454,24,407,33"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a6d1f078eba3bca1bef77846d0b82ba70" title="Get a checksum for this object." alt="" coords="464,33,609,74"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="406,51,448,51,448,56,406,56"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="609,41,650,36,651,41,609,47"/>
+<area shape="rect" id="Node000006" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0cba7f8b12e783f4859d267c8e251b2f" title=" " alt="" coords="454,98,618,154"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="406,143,438,138,439,143,407,148"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="464,177,609,218"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="407,170,449,178,448,183,406,175"/>
+<area shape="rect" id="Node000009" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="456,243,616,283"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="406,260,440,260,440,266,406,266"/>
+<area shape="rect" id="Node000010" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="497,332,575,357"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="402,289,488,323,486,328,400,294"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="502,333,495,323,499,313,513,307,536,305,562,308,575,314,572,319,560,313,536,310,514,312,503,317,500,322,506,330"/>
+</map>

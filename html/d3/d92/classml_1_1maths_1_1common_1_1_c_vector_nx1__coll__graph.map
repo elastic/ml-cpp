@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CVectorNx1&lt; T, N &gt;" name="ml::maths::common::CVectorNx1&lt; T, N &gt;">
+<area shape="rect" id="Node000001" title="A stack based lightweight dense vector class." alt="" coords="341,205,486,246"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,293,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="308,167,374,202,372,207,305,172"/>
+<area shape="rect" id="Node000003" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html" title=" " alt="" coords="76,190,222,261"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,223,340,223,340,228,237,228"/>
+<area shape="rect" id="Node000004" href="$de/dc8/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_c_empty.html" title="SFINAE check that N is at least 1." alt="" coords="67,285,231,340"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="245,284,292,270,361,244,363,249,294,275,246,289"/>
+</map>

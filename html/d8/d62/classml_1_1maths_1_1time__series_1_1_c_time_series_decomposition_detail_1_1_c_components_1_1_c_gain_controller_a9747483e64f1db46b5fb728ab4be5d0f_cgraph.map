@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CGainController::acceptRestoreTraverser" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::CGainController::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Initialize by reading state from traverser." alt="" coords="5,89,232,160"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="280,5,498,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,86,279,56,301,49,303,54,281,62,205,91"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="280,71,498,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,108,264,104,265,109,233,113"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="280,136,498,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,135,265,139,264,144,232,140"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="280,201,498,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="207,158,281,186,304,194,302,199,279,191,205,163"/>
+</map>

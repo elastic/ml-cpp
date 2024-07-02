@@ -1,0 +1,19 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,206,202,231"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="250,5,474,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,204,166,141,205,104,248,71,256,66,259,71,251,75,208,108,170,145,117,207"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="251,85,473,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,203,249,151,264,144,266,149,251,156,134,208"/>
+<area shape="rect" id="Node000004" href="$dc/d58/classml_1_1maths_1_1common_1_1_c_entropy_sketch.html#aa3d2869e7a509dcd7d61098ee8b41519" title="Add category with count of count." alt="" coords="289,165,435,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,203,273,194,274,199,203,208"/>
+<area shape="rect" id="Node000006" href="$dc/d58/classml_1_1maths_1_1common_1_1_c_entropy_sketch.html#ae50d2374f24e86fa5015b45e9a225283" title="Compute the entropy based on the values added so far." alt="" coords="273,230,451,271"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="203,228,258,235,257,240,202,233"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="269,296,455,336"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="133,229,251,280,273,288,271,293,249,285,131,234"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="282,361,442,402"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="118,230,172,286,210,318,251,346,269,354,267,359,248,350,206,322,168,290,114,234"/>
+<area shape="rect" id="Node000005" href="$dc/d58/classml_1_1maths_1_1common_1_1_c_entropy_sketch.html#a38cc6084ef3b779a644a936c897a5165" title="Generate the projection of the category counts." alt="" coords="522,165,755,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="436,183,506,183,506,188,436,188"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="546,296,731,336"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="455,313,530,313,530,319,455,319"/>
+</map>

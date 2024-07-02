@@ -1,0 +1,7 @@
+<map id="ml::model::CMemoryUsageEstimator::maximumExtrapolation" name="ml::model::CMemoryUsageEstimator::maximumExtrapolation">
+<area shape="rect" id="Node000001" title="Get the maximum amount by which we&#39;ll extrapolate the memory usage." alt="" coords="5,23,243,64"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="291,5,461,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,29,275,26,275,31,243,34"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="293,55,459,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="243,52,277,55,277,61,243,57"/>
+</map>

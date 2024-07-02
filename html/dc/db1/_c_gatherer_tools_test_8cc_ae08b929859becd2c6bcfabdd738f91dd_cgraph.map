@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$d5/d4e/classml_1_1model_1_1_c_gatherer_tools_1_1_c_sum_gatherer.html#a1f2387160a10ba2f7d88c4f8f0d63aeb" title=" " alt="" coords="270,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,75,261,48,263,53,157,80"/>
+<area shape="rect" id="Node000003" href="$d5/d4e/classml_1_1model_1_1_c_gatherer_tools_1_1_c_sum_gatherer.html#a07e70451a1f7e1a808d0d917ceb88ea7" title="Is the gatherer holding redundant data?" alt="" coords="260,71,458,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,88,245,88,245,94,202,94"/>
+<area shape="rect" id="Node000004" href="$d5/d4e/classml_1_1model_1_1_c_gatherer_tools_1_1_c_sum_gatherer.html#a54701889778e2d457b9d79a5177ca57a" title="Update the state to represent the start of a new bucket." alt="" coords="250,136,468,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="157,102,263,129,261,134,156,107"/>
+</map>

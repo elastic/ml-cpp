@@ -1,0 +1,57 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,576,223,601"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="329,78,409,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,575,118,496,126,438,139,373,158,305,186,237,222,173,269,117,290,103,313,94,315,99,292,108,272,121,226,176,190,239,163,306,144,374,131,439,124,497,118,575"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#a27d0609294633ca4e93fca86644afc03" title="Add weight to the count weight of weights." alt="" coords="292,132,446,157"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="113,575,121,503,130,451,144,393,164,333,191,273,225,216,269,168,277,161,280,166,272,172,230,220,195,275,169,335,149,395,135,453,126,504,119,575"/>
+<area shape="rect" id="Node000009" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a778e7d713bf18370b53e14ee183aa7f4" title="Set the proportion of non&#45;empty buckets." alt="" coords="276,182,462,238"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="115,574,129,516,157,429,178,381,203,333,233,288,269,248,271,245,275,249,273,252,237,291,208,336,183,384,162,431,134,518,120,576"/>
+<area shape="rect" id="Node000010" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a4a3fe79db91e845c91eca18a6ac27c91" title="Compute a checksum for this object." alt="" coords="296,261,442,302"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="116,574,133,525,163,455,208,378,237,343,269,312,281,303,284,308,272,316,241,346,213,381,168,457,138,527,122,576"/>
+<area shape="rect" id="Node000011" href="$d6/d52/namespaceml_1_1maths__t.html#a97443791d51e7e2ac90ce6ad0590bc59" title="Extract the effective sample count from a collection of weights." alt="" coords="304,326,434,352"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="118,574,137,533,169,475,213,414,240,386,269,362,288,352,290,357,272,367,243,390,217,418,173,478,142,535,123,576"/>
+<area shape="rect" id="Node000012" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a6069f744afeaaad434dd793f35d7a22e" title="Set the first value time." alt="" coords="276,377,462,432"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="125,573,183,512,224,475,269,442,277,438,279,442,272,447,227,479,187,516,128,577"/>
+<area shape="rect" id="Node000013" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#ae340fc652546dfe3a3520e02b1612a57" title="Set whether or not the data are integer valued." alt="" coords="276,481,462,536"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="157,572,263,539,264,544,158,577"/>
+<area shape="rect" id="Node000014" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#aae2b9c4c0cabe5b459ddf7a5e7bc765f" title="Set whether or not the data are non&#45;negative." alt="" coords="276,561,462,616"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="223,586,261,586,261,591,223,591"/>
+<area shape="rect" id="Node000016" href="$df/d9c/namespaceml_1_1model__t.html#a1f18453bbc8ddb255e00279217d2fb73" title="Offset count features so that their range starts at zero." alt="" coords="286,640,452,681"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="163,599,281,633,279,638,161,604"/>
+<area shape="rect" id="Node000017" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="279,705,459,746"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="134,600,193,643,272,690,286,697,284,701,269,695,190,647,131,604"/>
+<area shape="rect" id="Node000018" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#ae3d9cd673353c4c7f71ee85bd954de0b" title="Set the prior samples weights." alt="" coords="276,770,462,826"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="126,600,183,672,225,716,272,756,278,760,276,764,269,760,221,720,179,676,122,603"/>
+<area shape="rect" id="Node000019" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#acfa63b650770acc58f497da8de78f4a5" title="Set the model propagation interval." alt="" coords="276,850,462,906"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="123,601,141,645,173,708,217,775,243,807,272,836,276,839,273,843,269,840,239,811,212,779,168,710,136,647,118,603"/>
+<area shape="rect" id="Node000020" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a01bb26b2c071c6d75a4b7bede94c7136" title="Overload for default operator&lt; comparison." alt="" coords="271,929,467,970"/>
+<area shape="poly" id="edge21_Node000001_Node000020" title=" " alt="" coords="120,601,134,658,161,743,182,789,207,835,237,878,272,916,276,918,272,922,269,920,233,882,202,838,177,792,156,745,129,660,115,602"/>
+<area shape="rect" id="Node000025" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a57663db65e06f57e6a26c180c99edd94" title="Set the trend samples weights." alt="" coords="276,994,462,1050"/>
+<area shape="poly" id="edge28_Node000001_Node000025" title=" " alt="" coords="119,601,130,667,156,768,176,824,202,880,234,933,273,980,275,982,271,986,269,983,229,936,197,882,171,826,151,769,125,668,114,602"/>
+<area shape="rect" id="Node000026" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="279,1073,459,1114"/>
+<area shape="poly" id="edge29_Node000001_Node000026" title=" " alt="" coords="118,602,124,680,132,738,145,803,164,871,191,939,227,1003,273,1060,275,1062,271,1066,269,1063,222,1006,186,942,159,873,140,804,127,739,119,681,113,602"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="550,13,724,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,80,534,53,535,58,409,85"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="815,71,974,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="409,88,800,88,800,94,409,94"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="807,5,982,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="724,28,792,26,792,32,724,34"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="725,50,801,68,800,73,724,56"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="1036,71,1195,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="974,88,1020,88,1020,94,974,94"/>
+<area shape="rect" id="Node000008" href="$da/d3d/structml_1_1maths__t_1_1maths__types__detail_1_1_s_weight_arithmetic.html#af64f8ddb86f3ab1c5137251e2acd0526" title=" " alt="" coords="515,128,758,169"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="447,143,499,144,499,149,446,148"/>
+<area shape="poly" id="edge14_Node000013_Node000013" title=" " alt="" coords="319,480,320,470,329,461,345,456,369,454,396,456,412,463,410,468,394,462,369,459,346,461,332,466,325,472,324,480"/>
+<area shape="rect" id="Node000015" href="$db/daf/classml_1_1maths_1_1common_1_1_c_model_add_samples_params.html#a9f5bfdfc5f2a3419380ae3e8d34e8d82" title="Get the whether the data are non&#45;negative." alt="" coords="544,561,729,616"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="462,586,528,586,528,591,462,591"/>
+<area shape="rect" id="Node000021" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#aaf1103e5c428d67f245c11be5ee75024" title=" " alt="" coords="525,929,748,970"/>
+<area shape="poly" id="edge22_Node000020_Node000021" title=" " alt="" coords="467,947,509,947,509,952,467,952"/>
+<area shape="rect" id="Node000022" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="806,910,983,936"/>
+<area shape="poly" id="edge23_Node000021_Node000022" title=" " alt="" coords="749,935,791,931,791,936,749,941"/>
+<area shape="rect" id="Node000024" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1248,937,1326,963"/>
+<area shape="poly" id="edge27_Node000021_Node000024" title=" " alt="" coords="749,949,958,951,1200,950,1232,949,1232,954,1200,955,958,956,749,954"/>
+<area shape="rect" id="Node000023" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="1031,900,1200,941"/>
+<area shape="poly" id="edge24_Node000022_Node000023" title=" " alt="" coords="983,919,1015,919,1015,924,983,925"/>
+<area shape="poly" id="edge25_Node000023_Node000024" title=" " alt="" coords="1201,932,1233,938,1232,943,1200,937"/>
+<area shape="poly" id="edge26_Node000024_Node000024" title=" " alt="" coords="1258,938,1252,928,1256,919,1268,912,1287,910,1308,913,1319,919,1316,924,1306,918,1287,915,1269,917,1260,922,1258,928,1263,935"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::model::CLocalCategoryId::isSoftFailure" name="ml::model::CLocalCategoryId::isSoftFailure">
+<area shape="rect" id="Node000001" title="Does the object represent a soft failure?" alt="" coords="622,55,802,96"/>
+<area shape="rect" id="Node000002" href="$d6/dbc/_c_local_category_id_test_8cc.html#a65b4e89d4cbda7efbf781cff2cf1fa8a" title=" " alt="" coords="350,5,547,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="608,54,573,46,517,34,518,29,575,41,609,49"/>
+<area shape="rect" id="Node000003" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ac37176cfc2f4e23df1e8216e33d6b980" title=" " alt="" coords="323,55,574,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="606,78,574,78,574,73,606,73"/>
+<area shape="rect" id="Node000006" href="$d1/de7/classml_1_1api_1_1_c_bench_marker.html#a9b6f76dd892ef47ba154a0b36e67fd50" title=" " alt="" coords="371,121,526,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="613,103,527,124,526,119,612,98"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#aa0338078a16c42827915bf8e648d4106" title=" " alt="" coords="36,12,244,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="307,62,244,54,245,49,308,56"/>
+<area shape="rect" id="Node000005" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a66e9244ef674cf221fd0d88e31659433" title=" " alt="" coords="5,91,275,132"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="308,95,275,98,275,93,307,89"/>
+</map>

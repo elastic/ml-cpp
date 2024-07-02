@@ -1,0 +1,11 @@
+<map id="ml::model::CCountingModel::acceptPersistInserter" name="ml::model::CCountingModel::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,104,189,145"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="237,5,439,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,101,236,57,255,49,257,54,238,61,140,106"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="261,71,415,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,109,245,101,246,106,189,114"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ae8ee1fb659a027d9ce811237b0757e6e" title="Get the person bucket counts." alt="" coords="239,136,437,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,134,224,139,223,144,189,139"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a5b47e20772653d5294010dd256a62e0c" title="Get the total count of buckets in the window." alt="" coords="239,201,437,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="141,143,238,186,258,193,256,198,236,191,139,148"/>
+</map>

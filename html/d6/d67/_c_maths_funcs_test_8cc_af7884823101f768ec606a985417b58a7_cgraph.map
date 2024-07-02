@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,202,137"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ae5e69b6369506c1b73435a180ae6e15e" title="Get an iterator over the finite values of a double container." alt="" coords="258,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,108,249,57,267,49,269,54,251,61,134,113"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a495d7b7223c096aafe97ab6a699b8ae4" title="Get a finite values iterator at the end of a double container." alt="" coords="263,71,428,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,108,247,102,248,107,202,114"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="269,136,422,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,135,253,142,253,147,202,140"/>
+<area shape="rect" id="Node000005" href="$d1/def/namespaceanonymous__namespace_02_c_maths_funcs_test_8cc_03.html#adb4cae3f232ec4a2204f415214113c08" title=" " alt="" coords="250,201,441,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="134,135,251,186,270,193,268,198,249,191,132,140"/>
+</map>

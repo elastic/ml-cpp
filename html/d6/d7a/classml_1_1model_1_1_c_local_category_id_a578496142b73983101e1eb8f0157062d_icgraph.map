@@ -1,0 +1,27 @@
+<map id="ml::model::CLocalCategoryId::isValid" name="ml::model::CLocalCategoryId::isValid">
+<area shape="rect" id="Node000001" title="Does the object represent a valid category?" alt="" coords="924,171,1105,212"/>
+<area shape="rect" id="Node000002" href="$d6/dbc/_c_local_category_id_test_8cc.html#a65b4e89d4cbda7efbf781cff2cf1fa8a" title=" " alt="" coords="653,5,849,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="988,161,940,105,909,76,875,53,830,34,832,29,878,48,912,72,944,101,992,157"/>
+<area shape="rect" id="Node000003" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ac37176cfc2f4e23df1e8216e33d6b980" title=" " alt="" coords="625,106,876,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="914,169,835,150,836,145,915,164"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#aa0338078a16c42827915bf8e648d4106" title=" " alt="" coords="339,41,546,97"/>
+<area shape="poly" id="edge13_Node000001_Node000004" title=" " alt="" coords="979,163,932,126,905,110,875,97,791,75,704,63,621,60,547,62,546,57,621,55,705,58,792,69,877,92,907,105,935,122,982,158"/>
+<area shape="rect" id="Node000006" href="$d1/d2f/classml_1_1api_1_1_c_per_partition_category_id_mapper.html#ab74ec12b98c376e682a9186a40c4f4eb" title=" " alt="" coords="651,171,850,212"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="909,194,851,194,851,189,909,189"/>
+<area shape="rect" id="Node000007" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a9c8d17ab6e18cf274cea4629818a0647" title=" " alt="" coords="650,237,851,277"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="915,219,836,238,835,233,914,214"/>
+<area shape="rect" id="Node000008" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aa35d1589ba432a9c8c8f7e06c93be177" title=" " alt="" coords="647,302,854,343"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="980,224,933,259,877,291,846,304,844,299,875,286,930,255,976,220"/>
+<area shape="rect" id="Node000012" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#ad93a280dfa0183057a3b66dffe9d2b1e" title=" " alt="" coords="633,391,868,432"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="994,226,945,291,913,325,878,356,846,377,812,393,810,388,843,372,875,352,910,321,941,287,990,223"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="622,105,546,91,547,85,623,100"/>
+<area shape="rect" id="Node000005" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a66e9244ef674cf221fd0d88e31659433" title=" " alt="" coords="308,121,577,161"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="610,136,578,137,577,132,609,130"/>
+<area shape="rect" id="Node000009" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a0aa3dafbc782fc2d9b03222411c673be" title="Populate the object from part of a state document." alt="" coords="332,302,553,343"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="631,325,553,325,553,320,631,320"/>
+<area shape="rect" id="Node000010" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#adeddcbc7c7aeb0e0ddd0c918099cce10" title=" " alt="" coords="5,269,260,309"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="316,311,260,305,260,300,317,306"/>
+<area shape="rect" id="Node000011" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#a1281aeeeeb296788314aa524c62cf5bb" title="Restore the examples collector." alt="" coords="37,334,228,375"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="317,338,229,347,228,342,316,333"/>
+<area shape="poly" id="edge12_Node000012_Node000012" title=" " alt="" coords="794,378,778,372,751,370,725,372,710,377,704,382,706,390,701,391,699,381,707,372,724,366,751,365,779,367,796,373"/>
+</map>

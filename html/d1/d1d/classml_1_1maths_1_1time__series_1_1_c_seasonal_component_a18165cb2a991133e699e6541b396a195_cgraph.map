@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CSeasonalComponent::likelyShift" name="ml::maths::time_series::CSeasonalComponent::likelyShift">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,174,87"/>
+<area shape="rect" id="Node000002" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a6991aa4d28fbb05caccfa0a0ba81af6b" title=" " alt="" coords="234,5,403,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,44,218,38,219,43,174,49"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ab27d693b34462e3d09bd6b455b375633" title="Get the time provider." alt="" coords="222,71,415,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,68,207,73,206,78,173,73"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="463,63,674,119"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="415,88,447,88,447,94,415,94"/>
+</map>

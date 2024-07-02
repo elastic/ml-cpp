@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CLogJointProbabilityOfLessLikelySamples::calculateUpperBound" name="ml::maths::common::CLogJointProbabilityOfLessLikelySamples::calculateUpperBound">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1040,84,1278,140"/>
+<area shape="rect" id="Node000002" href="$db/d21/_c_probability_aggregators_test_8cc.html#a4a046f08eb6083f7d8ebe4c86f3d072a" title=" " alt="" coords="795,70,992,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1024,100,992,96,992,91,1024,94"/>
+<area shape="rect" id="Node000003" href="$d6/d78/classml_1_1model_1_1_c_anomaly_score.html#afc5ea7f4a701e2dff70c910fedbff855" title=" " alt="" coords="803,120,984,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1024,129,985,133,984,128,1024,123"/>
+<area shape="rect" id="Node000004" href="$d9/d4c/namespaceanonymous__namespace_02_c_hierarchical_results_test_8cc_03.html#a26d319f97e5d836a848c7c3517422b67" title="Compute the probability of the samples [begin, end)." alt="" coords="533,5,707,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="808,116,794,110,746,82,703,64,705,59,749,77,797,105,810,111"/>
+<area shape="rect" id="Node000006" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a7cdca7a4e250095934a9b812eb3ea7a7" title="Aggregate at internal node." alt="" coords="219,118,444,159"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="787,130,747,126,620,122,492,126,445,130,444,124,492,121,620,117,747,121,787,124"/>
+<area shape="rect" id="Node000008" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#a3cf25728d7b2cc0735b57d86640dc712" title="Compute the probability for each of the detectors." alt="" coords="492,160,747,200"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="788,158,748,164,748,158,787,153"/>
+<area shape="rect" id="Node000009" href="$d0/d9c/classml_1_1model_1_1_c_anomaly_score_1_1_c_computer.html#a62c55c557d051b9dfd94ead2500197bc" title="Compute the overall anomaly score and aggregate probability." alt="" coords="529,225,710,266"/>
+<area shape="poly" id="edge10_Node000003_Node000009" title=" " alt="" coords="844,170,748,214,711,227,709,222,746,209,841,165"/>
+<area shape="rect" id="Node000005" href="$dc/dfe/_c_hierarchical_results_test_8cc.html#a24dda7913a68cff0d5365fdbaf46848b" title=" " alt="" coords="233,20,430,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="517,36,430,36,430,31,517,31"/>
+<area shape="rect" id="Node000007" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#aaaf9f722a5855913332ae94c8364d178" title="Compute the aggregate probability for node." alt="" coords="5,118,171,159"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="203,141,171,141,171,136,203,136"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="476,162,444,157,445,152,477,157"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="665,146,648,140,620,138,593,140,577,145,571,151,574,158,569,160,566,149,574,140,592,135,620,133,649,135,666,141"/>
+</map>

@@ -1,0 +1,22 @@
+<map id="ml::api::CAnomalyJob::resetBuckets" name="ml::api::CAnomalyJob::resetBuckets">
+<area shape="rect" id="Node000001" title="Reset buckets in the range specified by the control message." alt="" coords="5,160,156,201"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="222,29,420,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,158,145,119,202,81,218,74,220,78,205,85,148,123,104,162"/>
+<area shape="rect" id="Node000005" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a146c7ffc1ffc2d4f1951d2288854bf30" title=" " alt="" coords="248,95,394,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="155,157,232,136,234,141,156,163"/>
+<area shape="rect" id="Node000006" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="248,160,394,201"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="156,178,233,178,233,183,156,183"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a633bdb6253ca9168eef4c470e8e4c3b8" title=" " alt="" coords="204,225,438,266"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="156,198,229,218,228,223,155,203"/>
+<area shape="rect" id="Node000010" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a25f18f9b9692ab196249a4f9ae316d75" title="Reset bucket." alt="" coords="222,291,420,331"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="104,199,148,238,205,275,220,282,218,287,202,280,145,242,101,203"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="486,29,683,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,47,470,47,470,52,420,52"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="542,29,540,19,547,10,562,5,585,3,609,5,624,11,622,16,608,10,585,8,563,10,550,15,545,21,547,28"/>
+<area shape="rect" id="Node000004" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="731,29,892,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="684,47,716,47,716,52,684,52"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="511,192,658,233"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="438,228,495,221,496,226,439,233"/>
+<area shape="rect" id="Node000009" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a504ec34c7321cc8c90aeedb7879bb152" title=" " alt="" coords="511,257,658,298"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="439,257,496,264,495,270,438,263"/>
+</map>

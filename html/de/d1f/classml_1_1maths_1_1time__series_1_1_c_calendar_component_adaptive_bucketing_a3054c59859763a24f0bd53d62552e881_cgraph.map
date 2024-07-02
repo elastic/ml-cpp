@@ -1,0 +1,12 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::split" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::split">
+<area shape="rect" id="Node000001" title="Split bucket." alt="" coords="5,51,215,106"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="264,11,420,66"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,58,248,52,248,57,216,63"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a5a270453a10f0f5d9039842f47e4872d" title="Get a copy of moments with count scaled by scale." alt="" coords="263,94,421,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,92,247,97,247,102,215,97"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="469,5,625,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,34,453,33,454,38,420,39"/>
+<area shape="rect" id="Node000005" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="510,110,584,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="422,115,494,118,494,123,421,120"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="513,111,506,101,510,91,524,85,547,83,572,86,585,93,583,97,571,91,547,88,526,90,514,95,511,100,517,108"/>
+</map>

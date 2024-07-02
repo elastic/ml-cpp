@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CAnnotatedVector::memoryUsage" name="ml::maths::common::CAnnotatedVector::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this object." alt="" coords="5,85,227,126"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="275,92,481,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,103,259,103,259,108,227,108"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="529,5,700,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,89,513,61,515,66,423,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="531,85,698,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="482,103,515,103,515,108,482,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="748,107,934,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="430,116,529,135,615,138,700,135,732,134,733,139,700,140,615,143,529,140,429,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="699,113,733,118,733,123,698,119"/>
+</map>

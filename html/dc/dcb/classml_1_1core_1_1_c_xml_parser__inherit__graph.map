@@ -1,0 +1,7 @@
+<map id="ml::core::CXmlParser" name="ml::core::CXmlParser">
+<area shape="rect" id="Node000001" title="Simple C++ wrapper around the libxml2 library." alt="" coords="15,153,162,178"/>
+<area shape="rect" id="Node000002" href="$d5/da7/classml_1_1core_1_1_c_xml_parser_intf.html" title="Polymorphic interface to XML parser classes." alt="" coords="5,79,172,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,120,91,152,86,152,86,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="6,5,171,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="91,46,91,79,86,79,86,46"/>
+</map>

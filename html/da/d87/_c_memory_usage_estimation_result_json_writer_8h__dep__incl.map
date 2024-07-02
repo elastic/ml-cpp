@@ -1,0 +1,15 @@
+<map id="include/api/CMemoryUsageEstimationResultJsonWriter.h" name="include/api/CMemoryUsageEstimationResultJsonWriter.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="508,5,701,46"/>
+<area shape="rect" id="Node000002" href="$db/d9e/bin_2data__frame__analyzer_2_main_8cc.html" title=" " alt="" coords="5,102,169,142"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="493,44,344,66,181,97,153,104,151,98,180,91,343,61,492,38"/>
+<area shape="rect" id="Node000003" href="$de/da1/_c_data_frame_analysis_runner_8cc.html" title=" " alt="" coords="192,102,377,142"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="523,53,352,103,351,98,522,48"/>
+<area shape="rect" id="Node000004" href="$d1/d89/_c_data_frame_analysis_specification_8cc.html" title=" " alt="" coords="400,102,585,142"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="571,58,517,103,514,99,568,54"/>
+<area shape="rect" id="Node000005" href="$dc/d65/_c_memory_usage_estimation_result_json_writer_8cc.html" title=" " alt="" coords="608,102,825,142"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="641,54,695,99,691,103,637,58"/>
+<area shape="rect" id="Node000006" href="$d6/d82/_c_data_frame_analysis_runner_test_8cc.html" title=" " alt="" coords="848,102,1030,142"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="690,48,870,98,868,103,688,53"/>
+<area shape="rect" id="Node000007" href="$d3/d00/_c_memory_usage_estimation_result_json_writer_test_8cc.html" title=" " alt="" coords="1054,94,1275,150"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="717,40,871,63,1042,91,1054,94,1053,99,1041,97,871,68,716,45"/>
+</map>

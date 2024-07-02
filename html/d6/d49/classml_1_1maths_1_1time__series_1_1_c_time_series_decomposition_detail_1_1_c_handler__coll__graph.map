@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CHandler" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CHandler">
+<area shape="rect" id="Node000001" title="The basic interface for one aspect of the modeling of a time series decomposition." alt="" coords="5,124,232,180"/>
+<area shape="rect" id="Node000002" href="$d7/d1c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_mediator.html" title="Manages communication between handlers." alt="" coords="5,5,232,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,76,121,123,116,123,116,76"/>
+</map>

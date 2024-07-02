@@ -1,0 +1,8 @@
+<map id="ml::core::CJsonStateRestoreTraverser::parseNext" name="ml::core::CJsonStateRestoreTraverser::parseNext">
+<area shape="rect" id="Node000001" title="Continue parsing the JSON structure." alt="" coords="5,35,197,75"/>
+<area shape="rect" id="Node000002" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ae8f1d09343a533cc2a3cba46e85bfb6c" title="Log an error that the JSON parser has detected." alt="" coords="245,5,436,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,41,229,37,229,42,198,46"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="484,35,702,75"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="197,54,245,55,436,55,469,55,469,60,436,60,245,60,197,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="437,34,469,38,468,43,436,39"/>
+</map>

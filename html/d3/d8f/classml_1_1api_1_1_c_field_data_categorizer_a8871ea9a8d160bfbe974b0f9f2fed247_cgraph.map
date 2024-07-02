@@ -1,0 +1,13 @@
+<map id="ml::api::CFieldDataCategorizer::periodicPersistStateInForeground" name="ml::api::CFieldDataCategorizer::periodicPersistStateInForeground">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,104,228,145"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a723188ea0d10c33e9955e4452ecc6010" title=" " alt="" coords="276,71,473,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,107,260,103,261,108,229,113"/>
+<area shape="rect" id="Node000006" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#aed37bfbdd625c31ad8814af6a780f5b9" title="Configure persistence to be performed in the foreground." alt="" coords="276,136,473,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="229,136,261,140,260,145,228,141"/>
+<area shape="rect" id="Node000003" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a0c1ba61de9599d565cd6f8bd595aa23f" title="Is background persistence currently in progress?" alt="" coords="521,5,718,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,67,525,48,527,53,454,73"/>
+<area shape="rect" id="Node000004" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="553,71,687,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="473,88,537,88,537,94,473,94"/>
+<area shape="rect" id="Node000005" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#ac25482f1bd4c99b31b3d92dec69d8b43" title=" " alt="" coords="553,136,687,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="454,109,538,132,537,137,453,115"/>
+</map>

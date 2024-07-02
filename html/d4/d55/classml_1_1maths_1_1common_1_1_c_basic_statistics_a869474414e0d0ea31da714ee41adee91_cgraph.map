@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CBasicStatistics::covariancesLedoitWolf" name="ml::maths::common::CBasicStatistics::covariancesLedoitWolf">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,95,203,151"/>
+<area shape="rect" id="Node000002" href="$de/da4/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_covariances.html#aec7c530d64f670f9cc028b2ee62b7646" title="Update the moments with the collection x." alt="" coords="251,63,533,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,107,235,102,236,107,203,112"/>
+<area shape="rect" id="Node000003" href="$d7/dff/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf.html#ae279c75f55598280f6df675efe188b66" title=" " alt="" coords="306,128,478,198"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,134,291,146,290,152,203,139"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="623,5,782,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="477,139,505,128,531,113,546,99,555,85,564,71,580,57,607,43,609,48,582,61,568,74,559,88,550,103,535,117,508,132,479,144"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="630,71,775,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="478,140,614,109,615,114,479,146"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a5945c9a3674aef95880de4b69007f783" title=" " alt="" coords="581,135,823,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="478,160,566,160,566,166,478,166"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="623,215,782,255"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="479,180,608,211,607,216,478,186"/>
+<area shape="rect" id="Node000008" href="$d7/dff/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf.html#a53c615329239b9c713014465aaa70648" title=" " alt="" coords="597,279,808,335"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="453,197,514,231,582,265,597,271,595,276,580,269,512,236,450,201"/>
+</map>

@@ -1,0 +1,28 @@
+<map id="ml::model::CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser" name="ml::model::CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore the models reading state from traverser." alt="" coords="5,178,258,234"/>
+<area shape="rect" id="Node000002" href="$d1/da4/structml_1_1model_1_1_s_model_params.html#aa891fac2692f7abbfeb8f4601f0b77aa" title="Get the parameters supplied when restoring time series decompositions." alt="" coords="313,87,517,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,175,305,138,328,130,330,135,307,143,206,180"/>
+<area shape="rect" id="Node000003" href="$d1/da4/structml_1_1model_1_1_s_model_params.html#a04a9883ada67dec8241269bd39ebed27" title="Get the parameters supplied when restoring distribution models." alt="" coords="579,29,762,70"/>
+<area shape="poly" id="edge10_Node000001_Node000003" title=" " alt="" coords="158,175,221,121,261,94,305,73,370,54,437,43,503,39,564,39,564,44,504,44,438,48,371,59,307,77,264,98,224,125,161,179"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="306,152,524,193"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="258,188,290,184,291,190,258,193"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="306,217,524,258"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="258,217,291,221,290,226,258,223"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="316,283,514,323"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="208,232,307,267,330,275,328,280,305,272,206,237"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="306,348,524,389"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="165,232,228,283,267,309,307,333,321,339,319,344,304,337,264,314,225,287,162,236"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="508,83,563,71,564,76,509,89"/>
+<area shape="rect" id="Node000005" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#abec77981754bf46c664dc4fee8bd134e" title=" " alt="" coords="572,119,769,159"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="518,117,557,122,556,127,517,122"/>
+<area shape="rect" id="Node000004" href="$d1/da4/structml_1_1model_1_1_s_model_params.html#a31e6c362fffb1aef79ed91bd1c1789d4" title="Get the minimum permitted number of points in a sketched point." alt="" coords="840,5,1016,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="763,38,825,33,825,38,763,44"/>
+<area shape="rect" id="Node000006" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a928bc41c16aebf4138d3bb3c8d27e256" title="Get the bucket length." alt="" coords="829,71,1027,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="769,118,814,110,815,115,770,123"/>
+<area shape="rect" id="Node000007" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a2d8f7017909a6d10f11f815b33211c5c" title=" " alt="" coords="817,159,1039,215"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="770,155,803,161,802,166,769,160"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="891,264,965,289"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="705,157,819,225,882,255,879,259,816,229,702,162"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="878,159,879,149,888,140,904,134,928,133,955,135,971,142,969,147,954,140,928,138,905,140,890,145,883,151,883,159"/>
+<area shape="poly" id="edge9_Node000008_Node000008" title=" " alt="" coords="889,267,878,256,881,246,899,239,928,237,965,241,975,246,979,252,974,255,972,250,964,246,928,242,900,244,885,249,883,255,892,263"/>
+</map>

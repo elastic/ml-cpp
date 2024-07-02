@@ -1,0 +1,39 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,245,202,271"/>
+<area shape="rect" id="Node000002" href="$df/d07/namespaceanonymous__namespace_02_c_single_field_data_categorizer_test_8cc_03.html#ae49b45d01d6e053b3b66dea1a15c6867" title=" " alt="" coords="250,194,475,250"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,242,234,237,235,242,201,247"/>
+<area shape="rect" id="Node000018" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="297,273,428,314"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="201,268,281,280,281,285,200,274"/>
+<area shape="rect" id="Node000003" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a4e6d50a270c3501083d716dfc0e82ab7" title="Populate the object from part of a state document." alt="" coords="539,136,775,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="475,194,547,178,548,183,476,199"/>
+<area shape="rect" id="Node000008" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a20b4953e777465ef5e38bf979c5bd621" title=" " alt="" coords="523,201,790,242"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="476,219,508,219,508,224,476,224"/>
+<area shape="rect" id="Node000017" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a5a8c6ac2523e03bcfe14df2e0cd7d717" title=" " alt="" coords="525,267,788,307"/>
+<area shape="poly" id="edge17_Node000002_Node000017" title=" " alt="" coords="476,244,548,260,547,265,475,249"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="839,5,1058,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="690,133,757,95,837,57,857,49,859,54,839,61,760,100,693,138"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="839,71,1058,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="750,133,839,113,840,118,751,138"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="839,136,1058,177"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="775,154,823,154,823,159,775,159"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="839,201,1058,242"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="751,175,840,195,839,200,750,180"/>
+<area shape="rect" id="Node000009" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a43bc4adab9325e1806eb8f2d14d4cc98" title="Used by deferred persistence functions." alt="" coords="838,267,1059,307"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="751,240,840,260,839,265,750,245"/>
+<area shape="rect" id="Node000010" href="$d4/d9e/classml_1_1api_1_1_c_category_id_mapper.html#a1465a9f6ff8a304c5dfe918f438cc7a1" title="Persist the mapper passing information to inserter." alt="" coords="1118,209,1303,250"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1044,263,1102,251,1103,256,1045,269"/>
+<area shape="rect" id="Node000011" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#ac50c7a872afade137518ba5b65e57928" title="Persist state by passing information to the supplied inserter." alt="" coords="1107,324,1314,365"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="1045,305,1100,318,1099,323,1044,311"/>
+<area shape="rect" id="Node000012" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="1365,267,1567,307"/>
+<area shape="poly" id="edge16_Node000009_Node000012" title=" " alt="" coords="1059,284,1349,284,1349,290,1059,290"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="1303,321,1357,309,1358,314,1305,326"/>
+<area shape="rect" id="Node000013" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a75ad47809bafe3252076857394f8db44" title=" " alt="" coords="1362,332,1569,373"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="1315,345,1347,346,1346,351,1314,350"/>
+<area shape="rect" id="Node000014" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aacd44abd96032a41d0c29327e15fc2a9" title=" " alt="" coords="1617,267,1825,307"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="1547,329,1623,309,1625,314,1549,334"/>
+<area shape="rect" id="Node000015" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a21aa072b091f702f29c77caca5018d50" title="Accessor for numeric ID." alt="" coords="1631,332,1811,373"/>
+<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="1570,350,1615,350,1615,355,1570,355"/>
+<area shape="rect" id="Node000016" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="1620,397,1822,438"/>
+<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="1549,371,1625,390,1623,396,1547,376"/>
+<area shape="poly" id="edge18_Node000017_Node000009" title=" " alt="" coords="789,284,823,284,823,290,789,290"/>
+</map>

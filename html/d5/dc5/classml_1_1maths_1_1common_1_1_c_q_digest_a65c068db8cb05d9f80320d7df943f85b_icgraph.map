@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CQDigest::acceptPersistInserter" name="ml::maths::common::CQDigest::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="288,55,499,96"/>
+<area shape="rect" id="Node000002" href="$db/d32/_c_q_digest_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="24,5,221,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="279,54,186,34,187,29,280,49"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#aff0e6da6e5c23bc494aab18719561f20" title="Persist this node and descendents." alt="" coords="5,55,240,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="272,87,240,87,240,82,272,82"/>
+<area shape="poly" id="edge3_Node000003_Node000001" title=" " alt="" coords="255,64,287,64,287,69,255,69"/>
+</map>

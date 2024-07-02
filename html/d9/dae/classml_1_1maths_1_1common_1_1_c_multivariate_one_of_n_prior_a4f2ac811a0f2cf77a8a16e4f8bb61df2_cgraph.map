@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::bivariate" name="ml::maths::common::CMultivariateOneOfNPrior::bivariate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,216,179,272"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="227,5,451,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,214,153,143,187,105,225,71,231,67,234,71,228,75,191,108,158,146,111,217"/>
+<area shape="rect" id="Node000003" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#ac4d0f796e6c8b2977e318fc2b2c899bd" title=" " alt="" coords="252,85,426,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,213,225,157,251,145,253,150,228,162,136,218"/>
+<area shape="rect" id="Node000005" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a930a0516b22f7ef66d1fb44b87f716c0" title="Get the current constituent models." alt="" coords="728,119,902,174"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="179,213,226,201,320,187,450,174,713,151,713,157,451,179,321,193,227,206,180,218"/>
+<area shape="rect" id="Node000006" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7720639ebcdc5446b370dbf9f2c0019c" title="Get the number of statistics." alt="" coords="227,216,451,272"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="179,241,211,241,211,247,179,247"/>
+<area shape="rect" id="Node000007" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a21eabf1d872bdbd8f9d50c20f6757c95" title="Get the data type." alt="" coords="252,296,426,352"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="180,269,238,288,236,293,178,274"/>
+<area shape="rect" id="Node000008" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="252,376,426,432"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="120,270,168,316,228,362,239,368,237,373,225,366,164,321,117,274"/>
+<area shape="rect" id="Node000009" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#aa8cfb658b8e19df24a363561ceed55eb" title="Get the current values for the model weights." alt="" coords="252,456,426,512"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="108,271,126,309,153,355,187,401,228,442,240,450,237,454,225,446,183,405,148,358,122,312,103,273"/>
+<area shape="rect" id="Node000004" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a87deee31ccd8bcd8a53c160d0d313c2e" title=" " alt="" coords="499,85,680,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="426,111,483,111,483,116,426,116"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="681,124,713,129,712,134,681,129"/>
+<area shape="rect" id="Node000010" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a57dfff2ba8085af06b89dd6c9104f9cf" title="Get the current values for the log model weights." alt="" coords="503,456,676,512"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="426,481,488,481,488,487,426,487"/>
+</map>

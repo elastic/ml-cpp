@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::meanVariance" name="ml::maths::time_series::CTimeSeriesDecomposition::meanVariance">
+<area shape="rect" id="Node000001" title="Get the mean variance of the baseline." alt="" coords="271,73,463,129"/>
+<area shape="rect" id="Node000002" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a5cd5006a4b218f7446eb333f91a0942c" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="288,69,222,45,183,34,184,29,223,40,290,64"/>
+<area shape="rect" id="Node000003" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a82430f863f5febc6eb3c86e6a4311050" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,89,216,84,217,78,256,83"/>
+<area shape="rect" id="Node000004" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#af48fad15657dd25f7f13c1e16b319e3d" title=" " alt="" coords="18,105,210,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="255,118,211,123,210,118,255,112"/>
+<area shape="rect" id="Node000005" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a9a96365f38ebfb0d8156486139573cff" title="Compute the variance scale weight to apply at time." alt="" coords="18,185,210,241"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="300,139,224,175,195,187,193,182,222,170,298,134"/>
+</map>

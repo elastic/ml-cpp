@@ -1,0 +1,14 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::registerMemoryCallbacks" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::registerMemoryCallbacks">
+<area shape="rect" id="Node000001" title="Register the callbacks for computing the size of feature data gatherers." alt="" coords="5,61,259,116"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50ba7442efeaf08f05c1791e5cb25bbc" title="Get the any visitor singleton." alt="" coords="339,14,528,40"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="259,60,351,41,352,46,260,65"/>
+<area shape="rect" id="Node000004" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#aaa0e704b8764a6fd0d9b939de690e0d1" title="Get the any visitor singleton." alt="" coords="351,68,516,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="259,86,335,86,335,91,259,91"/>
+<area shape="rect" id="Node000006" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#a81310be63e16304efcb3b45c3bd0ca4f" title=" " alt="" coords="307,157,560,212"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="223,114,330,149,329,154,221,119"/>
+<area shape="rect" id="Node000003" href="$db/de8/classml_1_1core_1_1memory_1_1_c_any_visitor.html#a3fb7b9121638c6d5af7d186f499a77c1" title=" " alt="" coords="608,5,809,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="528,24,593,24,593,29,529,29"/>
+<area shape="rect" id="Node000005" href="$dd/d05/classml_1_1core_1_1memory__debug_1_1_c_any_visitor.html#a42a269050c3352b932e860276a602359" title=" " alt="" coords="626,71,791,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="517,86,610,87,610,93,516,92"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="380,156,381,146,390,137,408,132,433,130,463,133,480,140,478,145,461,138,433,135,409,137,393,142,385,148,385,156"/>
+</map>

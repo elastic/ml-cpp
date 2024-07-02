@@ -1,0 +1,10 @@
+<map id="ml::core::CStateCompressor" name="ml::core::CStateCompressor">
+<area shape="rect" id="Node000001" title="A CDataAdder&#45;derived class that compresses and chunks data." alt="" coords="5,273,194,298"/>
+<area shape="rect" id="Node000002" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html" title="Abstract interface for data adder." alt="" coords="25,80,174,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,121,102,272,97,272,97,121"/>
+<area shape="rect" id="Node000004" href="$d7/de1/classml_1_1core_1_1_c_state_compressor_1_1_c_chunk_filter.html" title=" " alt="" coords="116,169,304,210"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="126,114,189,166,185,170,123,118"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="17,5,182,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="102,46,102,80,97,80,97,46"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="178,221,115,275,112,270,174,217"/>
+</map>

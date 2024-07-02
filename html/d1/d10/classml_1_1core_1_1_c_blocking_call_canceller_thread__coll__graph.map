@@ -1,0 +1,10 @@
+<map id="ml::core::CBlockingCallCancellerThread" name="ml::core::CBlockingCallCancellerThread">
+<area shape="rect" id="Node000001" title="Abstract base for classes that cancels blocking IO on some event." alt="" coords="5,244,220,285"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="49,169,176,195"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,210,115,244,110,244,110,210"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="25,5,190,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="111,47,115,169,109,169,105,47"/>
+<area shape="rect" id="Node000004" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="129,80,251,106"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="134,39,178,78,175,82,130,43"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="171,120,125,170,121,167,167,116"/>
+</map>

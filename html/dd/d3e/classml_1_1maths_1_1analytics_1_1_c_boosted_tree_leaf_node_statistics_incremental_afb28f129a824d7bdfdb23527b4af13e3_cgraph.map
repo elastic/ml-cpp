@@ -1,0 +1,16 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,189,235,245"/>
+<area shape="rect" id="Node000002" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a9751e02247882672acd7f1f3167f888c" title=" " alt="" coords="283,5,507,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,187,204,129,241,98,281,71,290,66,293,71,284,75,245,102,207,133,149,191"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a44b6468e8a98686ccd827beca6d38146" title=" " alt="" coords="283,109,507,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,186,281,167,283,172,219,191"/>
+<area shape="rect" id="Node000005" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ac16c40eafcf2c11c34ba4c3f7e8439ad" title="Get the writeable tolerance in the depth tree depth limit." alt="" coords="288,189,502,245"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="235,215,272,215,272,220,235,220"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="322,269,468,310"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="230,243,308,264,306,269,228,248"/>
+<area shape="rect" id="Node000007" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="308,333,482,389"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="161,243,218,281,284,319,296,324,293,329,281,324,215,286,158,248"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="342,109,343,99,352,90,370,85,395,83,424,85,441,92,439,97,423,91,395,88,371,90,355,95,347,101,347,109"/>
+<area shape="rect" id="Node000004" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#ae7a1a84f9895c1193e70aaf7371f9750" title="Check if the left child has fewer rows than the right child." alt="" coords="555,109,779,165"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="507,135,539,135,539,140,507,140"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ml::model::CCountingModel::memoryUsage" name="ml::model::CCountingModel::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this model." alt="" coords="5,85,189,126"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="482,92,688,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,100,237,99,434,99,466,99,466,104,434,104,237,104,189,105"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aa6f1b1f094c0febb17de813c8a1473f6" title="Get the memory used by this model." alt="" coords="237,113,434,154"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="189,113,221,117,221,122,189,119"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="736,5,908,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="629,89,720,61,722,66,631,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="738,85,906,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="689,103,723,103,723,108,689,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="956,107,1141,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="637,116,737,135,822,138,908,135,940,134,940,139,908,140,822,143,736,140,636,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="906,113,941,118,940,123,906,119"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="434,119,466,116,467,121,435,125"/>
+</map>

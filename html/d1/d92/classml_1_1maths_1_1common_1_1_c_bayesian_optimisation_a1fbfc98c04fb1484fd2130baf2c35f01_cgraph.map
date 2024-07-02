@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CBayesianOptimisation::kernelCovariates" name="ml::maths::common::CBayesianOptimisation::kernelCovariates">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,164,118"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="212,29,370,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,75,196,70,197,75,164,80"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="418,70,563,111"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="164,93,212,95,370,95,402,93,402,99,370,100,212,100,164,98"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="251,29,252,19,259,10,272,5,291,3,312,5,325,12,322,17,310,10,291,8,273,10,262,15,257,21,257,29"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="371,68,403,73,402,78,370,73"/>
+</map>

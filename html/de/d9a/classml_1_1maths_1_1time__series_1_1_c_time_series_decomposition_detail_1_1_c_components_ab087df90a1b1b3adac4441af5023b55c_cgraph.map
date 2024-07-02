@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent">
+<area shape="rect" id="Node000001" title="Add a new calendar component." alt="" coords="5,31,267,87"/>
+<area shape="rect" id="Node000002" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html#a9e950ac41d6a6316050c7f90dea16c3b" title="Check if we can still allocate any components." alt="" coords="315,5,517,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="267,41,299,37,300,42,267,46"/>
+<area shape="rect" id="Node000003" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a570babc4b86b51ef219fc4c31eedec5a" title="Get a debug description of the feature." alt="" coords="332,71,500,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="267,71,317,77,316,82,267,77"/>
+</map>

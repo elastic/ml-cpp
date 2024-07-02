@@ -1,0 +1,44 @@
+<map id="ml::model::CTokenListDataCategorizerBase::computeCategory" name="ml::model::CTokenListDataCategorizerBase::computeCategory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,447,235,487"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#aa05e1d6efc7248cb68b98058f966faef" title="Add a match to an existing category." alt="" coords="287,24,523,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,446,138,381,168,290,189,240,215,190,245,142,281,100,301,83,324,69,326,74,304,87,285,104,249,146,219,192,194,242,173,291,143,382,128,447"/>
+<area shape="rect" id="Node000003" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#af76a6f9a170d56b50222cb8883a501c4" title="Is the category considered rare?" alt="" coords="575,5,827,46"/>
+<area shape="poly" id="edge16_Node000001_Node000003" title=" " alt="" coords="125,445,145,393,177,322,222,247,250,211,281,180,334,152,425,113,574,56,600,48,601,53,576,62,427,118,336,157,284,184,254,215,226,250,182,325,150,395,130,447"/>
+<area shape="rect" id="Node000004" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#af0bbd60e14a2d5b958a8330a4573622e" title=" " alt="" coords="293,194,517,250"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="130,445,153,406,187,356,230,304,281,260,288,255,291,260,284,264,234,308,191,359,157,409,134,448"/>
+<area shape="rect" id="Node000011" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#a8b6a496f2879b45ef6f8f4941e948afd" title=" " alt="" coords="309,273,501,314"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="138,444,198,385,238,353,281,325,296,318,298,323,284,329,241,357,201,389,141,448"/>
+<area shape="rect" id="Node000014" href="$dc/d29/classml_1_1model_1_1_c_token_list_category.html#a4bff5eacff3ef1466e3983adf84e9d3b" title=" " alt="" coords="302,339,508,379"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="159,444,216,416,282,389,302,382,304,387,284,393,218,421,161,449"/>
+<area shape="rect" id="Node000015" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a418d74a5dbbf511f78979ea6a38c05db" title=" " alt="" coords="303,403,507,459"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="235,450,287,443,288,448,236,455"/>
+<area shape="rect" id="Node000016" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a2b52fe735b5cdbf771546430a767a551" title="Get an object representing a hard failure." alt="" coords="315,483,495,523"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="236,479,300,487,299,492,235,484"/>
+<area shape="rect" id="Node000017" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a9ad5433dcd9464e445c63eb6d4f0db3a" title=" " alt="" coords="283,548,527,589"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="168,485,284,532,308,541,307,546,282,538,166,490"/>
+<area shape="rect" id="Node000018" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a6f3a97fbd9cc96ebac69c6b9acda05e3" title=" " alt="" coords="285,613,525,654"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="143,486,202,542,242,572,284,598,299,605,297,610,281,603,239,576,199,546,139,490"/>
+<area shape="rect" id="Node000019" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a318cde95ce60044fed98925266065705" title="Compute similarity between two vectors." alt="" coords="315,679,495,719"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="134,486,157,524,191,572,234,622,284,663,302,673,299,678,281,668,230,625,186,576,153,527,130,489"/>
+<area shape="rect" id="Node000020" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a3c0715602003ea63a265a98b7001cf6a" title="Get an object representing a soft failure." alt="" coords="315,744,495,785"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="131,487,150,537,181,602,226,671,254,702,284,729,302,740,299,744,281,733,250,706,222,674,177,605,145,539,126,489"/>
+<area shape="rect" id="Node000021" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a930b60df98d2c16798b21942e7fdb62f" title=" " alt="" coords="300,809,510,850"/>
+<area shape="poly" id="edge21_Node000001_Node000021" title=" " alt="" coords="128,487,143,548,173,631,193,675,219,719,249,759,284,794,291,799,287,803,281,798,245,763,214,722,189,678,168,633,138,549,123,488"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="523,34,559,32,560,37,524,40"/>
+<area shape="rect" id="Node000005" href="$dc/d3c/classml_1_1core_1_1_c_csv_line_parser.html#ac2b799a8fc9225349382919ab69bd831" title="Are we at the end of the current line?" alt="" coords="615,71,787,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="447,191,506,155,574,122,599,113,601,118,576,127,508,160,450,195"/>
+<area shape="rect" id="Node000006" href="$dc/d3c/classml_1_1core_1_1_c_csv_line_parser.html#a8991e90dbdc45aad71dfb48d4f9dd3ff" title="Parse the next token from the current line." alt="" coords="615,136,787,177"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="516,194,599,176,600,181,517,200"/>
+<area shape="rect" id="Node000008" href="$dc/d3c/classml_1_1core_1_1_c_csv_line_parser.html#acb26fafa5e2b8be13dfb95f02a1ee268" title="Supply a new CSV string to be parsed." alt="" coords="615,201,787,242"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="517,219,599,219,599,224,517,224"/>
+<area shape="rect" id="Node000009" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a19b46de6b679ea039ee0cd3d0129db10" title=" " alt="" coords="611,267,791,307"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="517,244,596,261,595,266,516,249"/>
+<area shape="rect" id="Node000010" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#afd12feb6da217e117c3f0f3081ebbaa7" title=" " alt="" coords="578,332,824,373"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="508,248,529,260,544,274,553,289,562,303,577,317,587,323,584,327,573,321,557,307,549,292,540,278,525,264,505,252"/>
+<area shape="rect" id="Node000007" href="$dc/d3c/classml_1_1core_1_1_c_csv_line_parser.html#a9c8154e0969717f2ae39167194ca606b" title=" " alt="" coords="875,136,1048,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="788,154,860,154,860,159,788,159"/>
+<area shape="rect" id="Node000012" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a9d41535256aa6f009df9509076a9af5b" title=" " alt="" coords="604,397,799,438"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="502,311,529,325,544,339,553,354,562,369,577,382,591,390,588,395,573,387,558,372,549,357,540,343,525,329,500,316"/>
+<area shape="rect" id="Node000013" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="636,463,767,503"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="503,308,529,325,542,340,549,356,554,388,558,419,564,433,577,448,598,462,622,471,620,476,595,466,573,452,560,436,553,420,548,389,544,358,538,343,525,329,500,313"/>
+</map>

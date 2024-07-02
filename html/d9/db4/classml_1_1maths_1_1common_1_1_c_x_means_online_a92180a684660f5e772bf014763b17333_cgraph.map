@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CXMeansOnline::clear" name="ml::maths::common::CXMeansOnline::clear">
+<area shape="rect" id="Node000001" title="Clear the current clusterer state." alt="" coords="5,77,158,118"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#ac14f551929204066e8a90832329c3cb9" title=" " alt="" coords="206,5,425,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,74,205,55,227,48,229,53,206,60,147,79"/>
+<area shape="rect" id="Node000003" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#ab53d9091a858b5c86dccd5ee331af2f2" title=" " alt="" coords="231,70,400,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="158,95,215,95,215,100,158,100"/>
+<area shape="rect" id="Node000004" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#ab45fb80d5020067beaa42956b2359fdb" title=" " alt="" coords="231,150,400,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="144,116,219,142,217,147,142,121"/>
+</map>

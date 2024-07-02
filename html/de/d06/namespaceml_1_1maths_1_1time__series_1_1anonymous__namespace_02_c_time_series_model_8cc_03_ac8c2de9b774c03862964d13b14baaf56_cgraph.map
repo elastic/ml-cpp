@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::anonymous_namespace{CTimeSeriesModel::cc}::conditional" name="ml::maths::time_series::anonymous_namespace{CTimeSeriesModel::cc}::conditional">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,38,176,109"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="49,37,52,27,59,19,73,13,91,11,111,14,125,21,122,26,110,19,90,16,74,18,62,23,56,29,55,38"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="224,5,369,61"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="176,54,208,48,209,53,177,59"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a9fdab6c3e31a14edec4f0dafa68334af" title=" " alt="" coords="224,85,369,141"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="177,87,209,94,208,99,176,92"/>
+</map>

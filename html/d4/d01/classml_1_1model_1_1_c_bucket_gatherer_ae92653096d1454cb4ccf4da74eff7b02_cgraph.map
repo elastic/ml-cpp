@@ -1,0 +1,18 @@
+<map id="ml::model::CBucketGatherer::baseAcceptPersistInserter" name="ml::model::CBucketGatherer::baseAcceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,128,193,169"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a171f23cf0b25928c3f79ff0b87a882b7" title=" " alt="" coords="248,29,436,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,125,240,81,260,73,262,78,242,85,143,130"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="241,95,443,135"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="193,133,225,128,226,134,194,138"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="241,160,443,201"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="194,158,226,162,225,168,193,163"/>
+<area shape="rect" id="Node000008" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="265,225,419,266"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="144,167,242,210,262,217,260,222,240,215,142,172"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="491,37,692,63"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,47,475,47,475,52,436,52"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="740,29,916,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="693,47,724,47,724,52,693,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="786,29,784,19,791,10,806,5,828,3,852,5,867,11,864,16,851,10,828,8,807,10,794,15,789,21,791,28"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="964,29,1139,70"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="916,47,948,47,948,52,916,52"/>
+</map>

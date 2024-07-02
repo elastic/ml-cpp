@@ -1,0 +1,11 @@
+<map id="ml::core::CRegexFilter::empty" name="ml::core::CRegexFilter::empty">
+<area shape="rect" id="Node000001" title="Returns true if the filter is empty." alt="" coords="504,47,657,88"/>
+<area shape="rect" id="Node000002" href="$d9/d19/_c_regex_filter_test_8cc.html#a656196dd9a1f089f5642c6936adae4f9" title=" " alt="" coords="257,5,454,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="489,50,417,34,418,29,490,45"/>
+<area shape="rect" id="Node000003" href="$d9/d19/_c_regex_filter_test_8cc.html#a274686d8d8b889cc1e94cd960fdc6723" title=" " alt="" coords="257,55,454,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="489,70,454,70,454,65,489,65"/>
+<area shape="rect" id="Node000004" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#aac21b11f7ed43197729993aea4520cda" title=" " alt="" coords="255,105,456,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="490,93,439,106,437,101,489,88"/>
+<area shape="rect" id="Node000005" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad9934d581fe7465d1317a23c0664ca82" title=" " alt="" coords="5,105,207,145"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="239,128,207,128,207,122,239,122"/>
+</map>

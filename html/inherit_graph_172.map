@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$db/d1a/classml_1_1api_1_1_c_input_parser.html" title="Input parser interface." alt="" coords="5,63,151,88"/>
+<area shape="rect" id="Node000001" href="$d8/dc8/classml_1_1api_1_1_c_csv_input_parser.html" title="Parse the CSV formatted input data." alt="" coords="213,5,382,31"/>
+<area shape="poly" id="edge141_Node000000_Node000001" title=" " alt="" coords="143,56,198,41,243,29,245,34,199,46,144,61"/>
+<area shape="rect" id="Node000002" href="$dc/d6b/classml_1_1api_1_1_c_length_encoded_input_parser.html" title="Parse the length encoded input data." alt="" coords="199,55,396,96"/>
+<area shape="poly" id="edge142_Node000000_Node000002" title=" " alt="" coords="166,73,198,73,198,78,166,78"/>
+<area shape="rect" id="Node000003" href="$d4/df6/classml_1_1api_1_1_c_nd_input_parser.html" title="Base class to parse lines containing nested documents from a stream." alt="" coords="216,120,379,146"/>
+<area shape="poly" id="edge143_Node000000_Node000003" title=" " alt="" coords="144,90,199,105,245,117,243,122,198,110,143,95"/>
+<area shape="rect" id="Node000004" href="$db/d97/classml_1_1api_1_1_c_nd_json_input_parser.html" title="Parse JSON input where each line is a separate JSON document." alt="" coords="444,120,634,146"/>
+<area shape="poly" id="edge144_Node000003_Node000004" title=" " alt="" coords="394,130,444,130,444,136,394,136"/>
+</map>

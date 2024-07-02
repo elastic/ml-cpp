@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CNormalMeanPrecConjugate::acceptPersistInserter" name="ml::maths::common::CNormalMeanPrecConjugate::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,194,197,250"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="288,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,192,168,124,203,88,243,57,272,42,274,47,246,61,207,92,172,128,122,195"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="259,71,462,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="135,191,185,156,243,122,261,114,263,119,246,127,188,160,138,196"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a92ccd8d4477e0d16f1dbf92e5edd3cab" title="The current expected mean for the variable." alt="" coords="245,136,476,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="197,195,262,178,263,184,198,200"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="280,201,441,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="197,219,265,219,265,224,197,224"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="261,266,460,322"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="198,246,247,260,246,265,196,251"/>
+<area shape="rect" id="Node000009" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a49e9ed6833f80064eaede19f972f45b2" title="Get whether short or long (readable) tag names are desired for persistence." alt="" coords="259,345,462,386"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="133,248,183,291,246,331,258,337,256,342,243,336,180,295,129,252"/>
+<area shape="rect" id="Node000010" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html#a7c35fbd89f1e059926cccf0d53d6f62f" title="Convert to a string." alt="" coords="280,411,441,451"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="120,248,170,322,205,362,246,395,267,407,265,412,243,400,202,366,166,326,115,251"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="524,230,738,286"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="460,278,508,271,509,277,460,283"/>
+<area shape="rect" id="Node000008" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="549,309,714,350"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="460,304,534,314,533,319,460,310"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode" name="ml::maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode">
+<area shape="rect" id="Node000001" title="Estimate the number of columns computing encodings will add to the data frame." alt="" coords="528,24,753,79"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a33e664eb43c16fe682412ebf3e8aada7" title=" " alt="" coords="272,5,469,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="512,38,469,33,469,28,513,33"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ab5d92ec6920c4feb11104c29b8b64832" title=" " alt="" coords="261,56,480,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="513,69,481,73,480,68,512,64"/>
+<area shape="rect" id="Node000004" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a50ab58c0c23aa98730677efcbe317cdf" title=" " alt="" coords="5,56,213,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="245,86,213,86,213,81,245,81"/>
+</map>

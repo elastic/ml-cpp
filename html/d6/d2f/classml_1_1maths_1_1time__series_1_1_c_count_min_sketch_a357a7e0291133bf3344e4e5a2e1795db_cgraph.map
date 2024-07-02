@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::CCountMinSketch::swap" name="ml::maths::time_series::CCountMinSketch::swap">
+<area shape="rect" id="Node000001" title="Efficient swap the contents of two sketches." alt="" coords="5,22,181,63"/>
+<area shape="rect" id="Node000002" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="229,29,307,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,40,213,40,213,45,181,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="238,30,232,21,236,11,248,5,268,3,289,5,300,12,298,16,287,10,268,8,250,10,240,15,238,20,243,28"/>
+</map>

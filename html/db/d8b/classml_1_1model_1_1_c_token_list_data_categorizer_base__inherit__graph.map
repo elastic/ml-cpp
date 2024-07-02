@@ -1,0 +1,9 @@
+<map id="ml::model::CTokenListDataCategorizerBase" name="ml::model::CTokenListDataCategorizerBase">
+<area shape="rect" id="Node000001" title="Abstract base class for categorising strings based on tokens." alt="" coords="502,58,682,99"/>
+<area shape="rect" id="Node000004" href="$d4/d86/classml_1_1model_1_1_c_token_list_data_categorizer.html" title="Concrete implementation class to categorise strings." alt="" coords="730,5,1078,151"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="698,76,730,76,730,81,698,81"/>
+<area shape="rect" id="Node000002" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html" title="Interface for classes that convert a raw event string to a category." alt="" coords="263,65,454,91"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="469,76,502,76,502,81,469,81"/>
+<area shape="rect" id="Node000003" href="$d8/d9a/classml_1_1model_1_1_c_monitored_resource.html" title="Interface for resource monitoring." alt="" coords="5,65,215,91"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,76,262,76,262,81,230,81"/>
+</map>

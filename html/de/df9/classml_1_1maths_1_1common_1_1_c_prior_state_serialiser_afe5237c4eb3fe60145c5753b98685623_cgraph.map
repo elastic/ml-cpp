@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CPriorStateSerialiser::operator()" name="ml::maths::common::CPriorStateSerialiser::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,175,151,231"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="199,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,173,135,115,164,83,197,57,207,51,210,55,200,61,168,87,140,118,98,177"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="199,71,417,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="114,173,153,146,197,121,211,115,213,120,200,125,156,150,117,177"/>
+<area shape="rect" id="Node000004" href="$d1/df8/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_factory.html#a06be66ba4adccf4be5afe55b2d18dcec" title="Create reading state from its state document representation." alt="" coords="214,135,402,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="151,188,197,179,198,185,152,193"/>
+<area shape="rect" id="Node000005" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate_factory.html#a89428030e6ae61937261d77f87ec56d8" title="Create reading state from its state document representation." alt="" coords="208,215,408,271"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="152,213,193,220,192,226,151,218"/>
+<area shape="rect" id="Node000006" href="$dd/dda/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior_factory.html#a47c78b450508ff4aac533d0a15d118cf" title="Create reading state from its state document representation." alt="" coords="199,295,417,351"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="118,229,157,256,200,281,211,286,209,291,197,285,154,260,115,234"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="234,375,382,415"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="95,230,137,296,166,331,200,361,221,373,219,377,197,365,162,335,132,299,91,233"/>
+</map>

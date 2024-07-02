@@ -1,0 +1,28 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,150,202,175"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="250,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,147,178,110,248,71,261,65,263,70,251,76,180,115,125,151"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="268,85,454,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,146,252,127,254,132,165,152"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="547,102,706,143"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,154,472,135,531,129,532,135,472,140,202,159"/>
+<area shape="rect" id="Node000006" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#aebba01b08aae6c7f5824354404cfb01d" title=" " alt="" coords="252,239,470,294"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="139,173,277,230,275,235,137,178"/>
+<area shape="rect" id="Node000013" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#adf81cc3e35605b53fecb6a2a70741bd8" title="Get the seasonal component summary with period period." alt="" coords="260,319,462,374"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="117,174,170,236,209,272,251,304,259,309,256,313,248,309,205,276,166,240,113,178"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="534,37,719,78"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="453,86,518,74,519,79,454,91"/>
+<area shape="poly" id="edge9_Node000006_Node000005" title=" " alt="" coords="394,236,450,193,519,152,532,146,534,151,521,157,453,198,397,240"/>
+<area shape="rect" id="Node000007" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html#aa20b5ada9bc6546d99c78add370d2165" title="Check if this is windowed check whether the window contains index." alt="" coords="520,167,733,222"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="465,235,506,224,507,230,467,241"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="547,246,706,287"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="470,264,532,264,532,269,470,269"/>
+<area shape="rect" id="Node000009" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#ad1350df10d7a65ec6d1ccb21b0d22276" title=" " alt="" coords="550,312,704,352"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="471,291,535,307,534,312,469,296"/>
+<area shape="rect" id="Node000010" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a60c73746bf9a7548e39a98392b71a01b" title=" " alt="" coords="550,377,704,418"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="454,292,474,304,489,319,498,334,507,348,522,362,537,370,534,375,518,366,503,351,494,337,485,323,470,309,451,297"/>
+<area shape="rect" id="Node000011" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html#a7e700746038c93573f9cbe1f051fb487" title="The offset of index in the period." alt="" coords="520,441,733,497"/>
+<area shape="poly" id="edge11_Node000006_Node000011" title=" " alt="" coords="459,293,474,305,487,320,494,336,499,367,503,398,510,412,522,427,524,430,521,433,518,431,505,415,498,399,493,368,489,338,482,323,470,308,455,297"/>
+<area shape="rect" id="Node000012" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html#af4d7cb69651a22ddb891c632665891c8" title="The windowed length of the repeat." alt="" coords="520,521,733,577"/>
+<area shape="poly" id="edge12_Node000006_Node000012" title=" " alt="" coords="461,293,474,305,492,331,499,357,501,383,499,408,497,433,498,457,505,482,522,508,524,509,520,513,518,511,501,484,493,458,492,433,494,407,495,383,494,358,487,333,470,308,457,297"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="ml::model::CEventRatePopulationModelFactory::features" name="ml::model::CEventRatePopulationModelFactory::features">
+<area shape="rect" id="Node000001" title="Set the features which will be modeled." alt="" coords="538,91,757,132"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="692,78,675,72,648,70,622,72,606,77,600,82,603,90,598,91,595,81,603,72,621,66,648,65,676,67,693,73"/>
+<area shape="rect" id="Node000002" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a46eaa3d97cf343b742c3170cacc17377" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="578,88,489,62,351,39,223,27,224,21,352,34,491,57,579,83"/>
+<area shape="rect" id="Node000003" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a0ab450c5740e0de502bc2dd580f35e05" title=" " alt="" coords="5,84,223,110"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="544,90,490,82,421,78,351,78,223,86,223,81,351,73,421,73,490,77,545,85"/>
+<area shape="rect" id="Node000004" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#a2448573df75762caac12939e3283fb3c" title=" " alt="" coords="271,91,490,132"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="522,114,490,114,490,109,522,109"/>
+<area shape="rect" id="Node000005" href="$db/d96/class_c_test_fixture.html#ab5a26b1684455c0f4a740c3b6c29b640" title=" " alt="" coords="20,134,208,175"/>
+<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="543,138,490,146,342,157,209,159,209,153,342,151,490,141,542,133"/>
+<area shape="rect" id="Node000006" href="$df/dad/classml_1_1model_1_1_c_event_rate_population_model_factory.html#a8a3b78fc66f245b38ace41e43c6a7634" title=" " alt="" coords="271,206,490,247"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="594,142,491,190,445,208,443,203,489,185,592,137"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="305,88,152,34,154,29,306,83"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="255,107,223,105,223,100,255,102"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="256,134,209,142,208,136,255,129"/>
+</map>

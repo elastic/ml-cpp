@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::mode" name="ml::maths::time_series::CUnivariateTimeSeriesModel::mode">
+<area shape="rect" id="Node000001" title="Get the most likely value for the time series at time." alt="" coords="5,13,245,54"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="293,5,492,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,31,277,31,277,36,245,36"/>
+</map>

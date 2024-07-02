@@ -1,0 +1,9 @@
+<map id="ml::core::CBlockingCallCancellerThread::isShutdown" name="ml::core::CBlockingCallCancellerThread::isShutdown">
+<area shape="rect" id="Node000001" title="Has the thread been stopped?" alt="" coords="274,77,488,118"/>
+<area shape="rect" id="Node000002" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a417dc4229f16eba208070a4a2effabc5" title="Called when the thread is started." alt="" coords="8,5,223,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="288,75,193,49,194,44,289,70"/>
+<area shape="rect" id="Node000003" href="$d1/daa/classml_1_1controller_1_1_c_blocking_call_cancelling_stream_monitor.html#ada89b8deaf89a8349f6625a515eb96e7" title="Waits for end&#45;of&#45;file on the stream being monitored." alt="" coords="20,70,211,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,100,211,100,211,95,258,95"/>
+<area shape="rect" id="Node000004" href="$dd/d78/classml_1_1core_1_1_c_blocking_call_cancelling_timer.html#a87e7cb9d1758852c35cbf4bcf0694648" title=" " alt="" coords="5,149,226,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="289,125,194,151,193,146,288,120"/>
+</map>

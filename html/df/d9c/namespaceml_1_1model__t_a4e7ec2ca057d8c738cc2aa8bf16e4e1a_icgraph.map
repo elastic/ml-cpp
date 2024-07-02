@@ -1,0 +1,19 @@
+<map id="ml::model_t::includeEmptyBuckets" name="ml::model_t::includeEmptyBuckets">
+<area shape="rect" id="Node000001" title="Check if the feature has a value for empty buckets." alt="" coords="741,92,918,133"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#aae6a98db6ca88c66c6a7ad3831537ca5" title="Add the model plot data for all by field values which match terms." alt="" coords="491,5,693,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="756,89,649,49,651,44,758,84"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ae40251353894b100d0450a6fc9b80224" title=" " alt="" coords="499,120,685,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="726,127,686,132,685,127,726,122"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="250,81,443,122"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="725,112,693,111,443,106,443,101,693,106,726,107"/>
+<area shape="rect" id="Node000007" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="263,167,430,207"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="779,142,738,161,694,175,625,187,556,193,431,195,431,189,555,188,625,182,693,170,737,156,777,138"/>
+<area shape="rect" id="Node000003" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a65d16260e160c3a0de4d599a4871a7fe" title=" " alt="" coords="260,5,433,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="475,28,433,28,433,23,475,23"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="483,126,443,120,444,114,484,121"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="484,164,431,174,430,169,483,158"/>
+<area shape="rect" id="Node000006" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,89,202,115"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,104,202,104,202,99,234,99"/>
+<area shape="rect" id="Node000008" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,174,202,200"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="247,190,202,190,202,184,247,184"/>
+</map>

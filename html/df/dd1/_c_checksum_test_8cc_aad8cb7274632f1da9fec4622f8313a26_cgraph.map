@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,114,202,140"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="254,5,408,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,111,249,57,264,50,266,55,251,61,134,116"/>
+<area shape="rect" id="Node000003" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#a2b576f5bc635ebe084f2e4b4e892d542" title="32 bit hash combine modeled on boost::hash_combine." alt="" coords="264,71,398,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,111,248,101,249,107,189,116"/>
+<area shape="rect" id="Node000004" href="$db/d4a/structanonymous__namespace_02_c_checksum_test_8cc_03_1_1_s_bar.html#abe53e813b3752b6cc980aa10a3f4b941" title=" " alt="" coords="250,135,412,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,138,235,145,234,150,188,143"/>
+<area shape="rect" id="Node000005" href="$dd/de7/structanonymous__namespace_02_c_checksum_test_8cc_03_1_1_s_foo.html#a93393f63ecf67c47908d930bdf8ab6fe" title=" " alt="" coords="250,215,412,271"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="131,138,251,201,260,205,258,210,248,205,129,143"/>
+</map>

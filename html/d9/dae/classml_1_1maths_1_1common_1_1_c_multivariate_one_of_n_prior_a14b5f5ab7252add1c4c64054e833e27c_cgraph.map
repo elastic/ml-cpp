@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::operator=" name="ml::maths::common::CMultivariateOneOfNPrior::operator=">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,14,179,70"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a3377bacf5327c51d4224a65ebc43233d" title="Efficient swap of the contents of this prior and other." alt="" coords="227,22,439,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,40,211,40,211,45,179,45"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#aab0e26bc9d050b1cdb23e15b3cd22925" title="Swap the contents of this prior and other." alt="" coords="487,22,651,63"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,40,471,40,471,45,439,45"/>
+<area shape="rect" id="Node000004" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="699,29,778,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="652,40,684,40,684,45,652,45"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="710,30,704,21,708,11,719,5,739,3,759,5,770,12,767,16,757,10,738,8,721,10,712,15,709,20,714,28"/>
+</map>

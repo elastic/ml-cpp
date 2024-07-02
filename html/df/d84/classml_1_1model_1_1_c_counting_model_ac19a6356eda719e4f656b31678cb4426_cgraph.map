@@ -1,0 +1,7 @@
+<map id="ml::model::CCountingModel::setMatchedEventsDescriptions" name="ml::model::CCountingModel::setMatchedEventsDescriptions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,217,46"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a9fe3a0c7969ac10c684270ff5f536491" title="Get the scheduled events that match at sampleTime." alt="" coords="265,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,23,249,23,249,28,217,28"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="496,5,693,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,23,480,23,480,28,448,28"/>
+</map>

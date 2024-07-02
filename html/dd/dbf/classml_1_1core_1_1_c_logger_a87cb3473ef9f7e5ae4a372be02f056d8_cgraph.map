@@ -1,0 +1,13 @@
+<map id="ml::core::CLogger::reconfigureFromSettings" name="ml::core::CLogger::reconfigureFromSettings">
+<area shape="rect" id="Node000001" title="Helper for other reconfiguration methods." alt="" coords="5,51,169,92"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_uname.html#a7f04ec5f4ceca6a6e50c60161f615a79" title="uname &#45;a (or possibly a cut down version on some platforms)" alt="" coords="217,29,366,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,57,201,52,202,58,170,62"/>
+<area shape="rect" id="Node000003" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="225,79,358,120"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="170,80,210,86,209,91,169,85"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="257,31,251,21,255,11,269,5,291,3,316,5,329,12,326,17,315,10,291,8,270,10,259,15,256,20,262,27"/>
+<area shape="rect" id="Node000004" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="414,34,574,75"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="358,82,398,73,399,78,359,87"/>
+<area shape="rect" id="Node000005" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="427,123,561,164"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="359,111,412,123,411,128,358,117"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="456,123,454,113,460,104,474,99,494,97,516,99,529,105,527,110,515,104,494,102,475,104,463,108,459,114,461,122"/>
+</map>

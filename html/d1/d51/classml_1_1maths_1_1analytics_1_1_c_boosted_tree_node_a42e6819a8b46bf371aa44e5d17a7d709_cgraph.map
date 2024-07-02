@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::split" name="ml::maths::analytics::CBoostedTreeNode::split">
+<area shape="rect" id="Node000001" title="Split this node and add its child nodes to tree." alt="" coords="5,172,182,213"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a504ccbfff880668549a1dd6e8b5b3dd6" title="Get the total curvature at the rows below this node." alt="" coords="240,5,446,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,170,158,114,191,83,228,57,240,50,243,55,231,61,195,87,161,117,112,173"/>
+<area shape="rect" id="Node000003" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a04605d21c452d04e82829e8fcbafd860" title="Get the gain of the split." alt="" coords="255,71,431,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,169,229,122,249,114,251,119,231,127,133,174"/>
+<area shape="rect" id="Node000004" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a37bb43ee7b2d80e3fe8c10f429106dfd" title="Get the gain variance for alternative splits." alt="" coords="230,136,456,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,177,214,172,215,178,183,182"/>
+<area shape="rect" id="Node000005" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a7c4783f644d41b2f28dbcc3d26b3b583" title="Get the split used for storing missing values." alt="" coords="272,201,414,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="183,202,257,213,256,219,182,208"/>
+<area shape="rect" id="Node000006" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a995c81ccb79662a20b1bad467ce335fa" title="Get the feature index of the split." alt="" coords="233,280,453,321"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="128,211,176,239,231,266,247,272,245,277,229,271,173,244,126,216"/>
+<area shape="rect" id="Node000007" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a3b3f0243ca480659bc02c5ed6ce2b855" title="Get the feature value at which to split ." alt="" coords="239,345,447,386"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="111,211,160,270,194,303,231,330,242,336,240,341,228,335,190,307,156,274,107,215"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="ml::core::CConcurrentWrapper::memoryUsage" name="ml::core::CConcurrentWrapper::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this component." alt="" coords="5,85,204,126"/>
+<area shape="rect" id="Node000002" href="$d2/d16/classml_1_1core_1_1_c_concurrent_queue.html#a045bc2e137defbdadae496b64789c887" title="Get the memory used by this component." alt="" coords="252,85,440,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,103,236,103,236,108,204,108"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="488,92,694,118"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,103,472,103,472,108,441,108"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="742,5,914,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="635,89,726,61,728,66,637,94"/>
+<area shape="rect" id="Node000005" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="744,85,912,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="695,103,729,103,729,108,695,108"/>
+<area shape="rect" id="Node000006" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="962,107,1147,162"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="643,116,743,135,828,138,914,135,946,134,946,139,914,140,828,143,742,140,642,121"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="912,113,947,118,946,123,912,119"/>
+</map>

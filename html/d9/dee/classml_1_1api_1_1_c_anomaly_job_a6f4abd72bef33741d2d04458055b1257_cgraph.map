@@ -1,0 +1,5 @@
+<map id="ml::api::CAnomalyJob::~CAnomalyJob" name="ml::api::CAnomalyJob::~CAnomalyJob">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,156,46"/>
+<area shape="rect" id="Node000002" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#ae905dd9b8ef2b52b6c67a508b4eafd47" title="Blocks and waits until all queued forecasts are done." alt="" coords="204,5,375,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,23,188,23,188,28,156,28"/>
+</map>

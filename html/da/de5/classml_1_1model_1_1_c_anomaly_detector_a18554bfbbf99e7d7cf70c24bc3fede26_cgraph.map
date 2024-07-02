@@ -1,0 +1,9 @@
+<map id="ml::model::CAnomalyDetector::keyAcceptPersistInserter" name="ml::model::CAnomalyDetector::keyAcceptPersistInserter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a55edc1fdfc164c41088ea1c891d07c5b" title="Persist state by passing information to the supplied inserter." alt="" coords="272,5,432,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,43,256,36,257,41,204,48"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="251,71,453,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="204,69,236,73,235,79,203,74"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="501,5,703,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,23,486,23,486,28,433,28"/>
+</map>

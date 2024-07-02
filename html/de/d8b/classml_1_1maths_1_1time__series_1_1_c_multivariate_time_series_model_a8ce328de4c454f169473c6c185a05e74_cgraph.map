@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::addCountWeights" name="ml::maths::time_series::CMultivariateTimeSeriesModel::addCountWeights">
+<area shape="rect" id="Node000001" title="Add to trendWeights and residualWeights." alt="" coords="5,31,213,87"/>
+<area shape="rect" id="Node000002" href="$d6/d52/namespaceml_1_1maths__t.html#a27d0609294633ca4e93fca86644afc03" title="Add weight to the count weight of weights." alt="" coords="287,13,442,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,43,271,35,272,40,213,48"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="261,63,468,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="213,69,246,73,245,79,213,75"/>
+<area shape="rect" id="Node000003" href="$da/d3d/structml_1_1maths__t_1_1maths__types__detail_1_1_s_weight_arithmetic.html#af64f8ddb86f3ab1c5137251e2acd0526" title=" " alt="" coords="516,5,759,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="442,23,500,23,500,28,442,28"/>
+</map>

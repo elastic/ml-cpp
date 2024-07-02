@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CDataFramePredictiveModel::train" name="ml::maths::analytics::CDataFramePredictiveModel::train">
+<area shape="rect" id="Node000001" title="Train on the examples in the data frame supplied to the constructor." alt="" coords="200,5,397,61"/>
+<area shape="rect" id="Node000002" href="$d3/d6d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree.html#a8c5d0a4ff76ab13efd176534ec6d76b3" title="Train on the examples in the data frame supplied to the constructor." alt="" coords="5,13,152,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,36,152,36,152,31,184,31"/>
+</map>

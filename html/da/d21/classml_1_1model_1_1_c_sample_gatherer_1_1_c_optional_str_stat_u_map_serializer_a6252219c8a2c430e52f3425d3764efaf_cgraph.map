@@ -1,0 +1,14 @@
+<map id="ml::model::CSampleGatherer::COptionalStrStatUMapSerializer::operator()" name="ml::model::CSampleGatherer::COptionalStrStatUMapSerializer::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,223,152"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="271,5,489,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,93,270,57,292,49,294,54,272,61,180,98"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="271,71,489,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,108,255,104,255,109,223,113"/>
+<area shape="rect" id="Node000004" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#ab1c6149a287510e2cacc319ede0e76bd" title="Restore an order statistic." alt="" coords="290,136,470,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,135,274,141,274,146,223,140"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="540,193,758,234"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="173,150,220,170,271,186,335,198,401,206,525,213,524,218,401,211,335,203,270,191,218,175,171,155"/>
+<area shape="rect" id="Node000005" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a778d5edbde8da8c1d509c5142188fd85" title="Create a member function template so this class works with CPersistUtils::restore." alt="" coords="537,114,761,170"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="470,149,521,146,522,151,470,154"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="471,173,536,187,535,192,470,178"/>
+</map>

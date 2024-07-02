@@ -1,0 +1,19 @@
+<map id="anonymous_namespace{CDualThreadStreamBufTest.cc}::CInputThread" name="anonymous_namespace{CDualThreadStreamBufTest.cc}::CInputThread">
+<area shape="rect" id="Node000001" title=" " alt="" coords="28,346,240,402"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="5,169,132,195"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="80,208,127,345,122,347,75,210"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="97,5,262,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="151,43,108,82,90,105,79,131,72,169,67,168,74,129,86,102,104,79,147,39"/>
+<area shape="rect" id="Node000004" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="118,80,240,106"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="182,46,182,80,177,80,177,46"/>
+<area shape="rect" id="Node000007" href="$d1/d57/classml_1_1core_1_1_c_condition.html" title="Wrapper around pthread_cond_wait." alt="" coords="369,169,510,195"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="222,35,301,75,387,128,430,167,427,171,384,132,298,79,220,40"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="119,115,93,132,81,150,74,170,69,168,76,148,90,128,116,110"/>
+<area shape="rect" id="Node000005" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html" title="A stream buffer where reads and writes are processed in different threads." alt="" coords="213,258,428,283"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="179,121,181,158,185,176,194,193,212,214,234,231,282,255,280,260,232,236,208,218,189,196,180,178,175,158,174,121"/>
+<area shape="poly" id="edge10_Node000007_Node000004" title=" " alt="" coords="229,109,329,142,401,166,400,171,327,148,227,114"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="286,293,185,348,183,343,284,289"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="535,169,640,195"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="585,211,580,224,570,236,546,248,512,257,429,267,428,262,511,251,544,243,567,232,575,222,580,209"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="408,206,386,221,337,259,333,255,383,217,405,201"/>
+</map>

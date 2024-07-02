@@ -1,0 +1,7 @@
+<map id="ml::core::CRapidXmlParser" name="ml::core::CRapidXmlParser">
+<area shape="rect" id="Node000001" title="Simple C++ wrapper around the RapidXml library." alt="" coords="5,153,187,178"/>
+<area shape="rect" id="Node000002" href="$d5/da7/classml_1_1core_1_1_c_xml_parser_intf.html" title="Polymorphic interface to XML parser classes." alt="" coords="13,79,179,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,120,99,152,93,152,93,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="13,5,179,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="99,46,99,79,93,79,93,46"/>
+</map>

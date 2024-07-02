@@ -1,0 +1,14 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,196,202,222"/>
+<area shape="rect" id="Node000002" href="$d1/df8/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior_factory.html#ac0b600e1034c8c6c636839f8bf300d85" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="255,5,444,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,194,168,136,206,102,248,71,256,66,259,71,251,75,210,106,172,140,118,198"/>
+<area shape="rect" id="Node000003" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate_factory.html#a4ac9fcb997cb27402ebc945a7ef78f1f" title="Create a new non&#45;informative multivariate normal prior." alt="" coords="250,85,449,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,193,261,145,263,150,140,198"/>
+<area shape="rect" id="Node000004" href="$d3/d90/classml_1_1test_1_1_c_time_series_test_data.html#a43b18a34002cfa6f2c56ef6d0d3b19d7" title="Initialise from a text file." alt="" coords="262,189,437,230"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,207,246,207,246,212,202,212"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="259,254,440,295"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="155,220,256,247,255,252,154,225"/>
+<area shape="rect" id="Node000006" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="260,320,439,360"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="123,220,178,261,251,304,266,311,264,316,248,309,175,265,120,225"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="303,189,301,179,309,170,325,164,349,162,376,165,392,171,390,176,375,170,349,167,326,169,311,174,306,180,308,188"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRunner::computeAndSaveExecutionStrategy" name="ml::api::CDataFrameTrainBoostedTreeRunner::computeAndSaveExecutionStrategy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,224,119"/>
+<area shape="rect" id="Node000002" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a756917dec30c67957f8bc772169e3df5" title="Get the maximum permitted partition size in numbers of rows." alt="" coords="272,5,548,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,64,299,47,301,53,225,69"/>
+<area shape="rect" id="Node000003" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a69dc20a00f8a54562120d565d47dafcb" title=" " alt="" coords="313,71,507,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,88,298,88,298,94,224,94"/>
+<area shape="rect" id="Node000004" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html#a9d883f040388a02b556fc7bbc279c0e7" title=" " alt="" coords="313,136,507,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,113,301,129,299,135,223,118"/>
+</map>

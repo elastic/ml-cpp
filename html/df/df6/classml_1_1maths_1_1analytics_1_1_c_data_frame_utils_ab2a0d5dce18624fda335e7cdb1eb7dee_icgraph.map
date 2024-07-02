@@ -1,0 +1,10 @@
+<map id="ml::maths::analytics::CDataFrameUtils::columnQuantiles" name="ml::maths::analytics::CDataFrameUtils::columnQuantiles">
+<area shape="rect" id="Node000001" title=" " alt="" coords="286,47,522,88"/>
+<area shape="rect" id="Node000002" href="$de/de4/_c_data_frame_utils_test_8cc.html#af1d472a8beddac219eef733199c2cc37" title=" " alt="" coords="23,5,220,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="270,47,199,34,200,29,271,42"/>
+<area shape="rect" id="Node000003" href="$de/de4/_c_data_frame_utils_test_8cc.html#ac04f50b5356c12127872ae7f2156df61" title=" " alt="" coords="23,55,220,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="270,70,220,70,220,65,270,65"/>
+<area shape="rect" id="Node000004" href="$d4/d07/namespaceml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_data_frame_utils_8cc_03.html#a05cafc6aecac197c2d9b3ec1b49a25d3" title="Get a regression stratified row sampler for cross fold validation." alt="" coords="5,129,238,214"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="333,96,239,131,237,126,331,91"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="166,118,149,110,121,107,99,109,84,114,75,121,71,129,66,127,70,117,81,109,98,104,122,102,150,105,168,113"/>
+</map>

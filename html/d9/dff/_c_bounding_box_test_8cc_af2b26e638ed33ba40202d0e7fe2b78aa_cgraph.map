@@ -1,0 +1,30 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,274,202,300"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a4e68128aad2c2f7e8a3cfc377e407da3" title=" " alt="" coords="270,71,415,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,271,303,119,306,123,123,276"/>
+<area shape="rect" id="Node000006" href="$d4/d99/namespaceanonymous__namespace_02_c_bounding_box_test_8cc_03.html#aa068f6dfb291600071235f15c00fe813" title=" " alt="" coords="261,187,424,243"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="148,271,245,242,246,247,149,276"/>
+<area shape="rect" id="Node000009" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a973161493c1036876a26a56c6b277bcc" title=" " alt="" coords="255,267,430,307"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="202,284,240,284,240,290,202,290"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,332,435,373"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="154,298,251,325,250,330,152,303"/>
+<area shape="rect" id="Node000013" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a810979d2c639fc5c7b4ff735a6ebb222" title="Print this bounding box." alt="" coords="270,397,415,438"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="123,298,179,338,251,382,265,389,263,393,248,387,176,343,120,303"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="503,5,648,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="415,68,487,48,489,53,416,73"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a786f76053e20e60af5ece9d2a221d032" title="In&#45;place minimum, writing to y." alt="" coords="503,71,648,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="415,88,487,88,487,94,415,94"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="716,165,862,206"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,44,670,57,698,78,724,103,766,151,762,155,720,107,695,82,667,61,644,49"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="638,109,669,122,738,155,736,160,667,127,636,114"/>
+<area shape="rect" id="Node000007" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a492a6f942d6dfed9bc62a16f715208a1" title="Get the bottom left corner." alt="" coords="503,136,648,177"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="424,192,487,176,488,181,425,197"/>
+<area shape="rect" id="Node000008" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#ab6a041f5a8887eecbdff1f8dcf6942a6" title="Get the top right corner." alt="" coords="503,201,648,242"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="424,215,488,216,488,222,424,220"/>
+<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="430,285,545,277,607,267,667,251,708,234,745,212,748,217,711,239,669,256,608,272,545,282,430,290"/>
+<area shape="rect" id="Node000010" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="503,316,648,357"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="430,303,488,315,487,320,429,308"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="634,313,667,295,717,256,758,216,761,220,720,260,670,300,636,318"/>
+<area shape="rect" id="Node000012" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,381,668,422"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="436,369,468,376,467,381,435,375"/>
+</map>

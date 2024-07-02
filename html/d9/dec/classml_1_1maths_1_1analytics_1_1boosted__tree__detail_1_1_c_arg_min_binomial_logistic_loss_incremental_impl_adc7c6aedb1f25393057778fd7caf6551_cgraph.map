@@ -1,0 +1,12 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossIncrementalImpl::nextPass" name="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossIncrementalImpl::nextPass">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,38,209,109"/>
+<area shape="rect" id="Node000002" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#aaffeec53d068c5de175b905aaadbd43a" title=" " alt="" coords="508,38,711,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,61,257,59,358,56,460,59,493,60,492,66,460,64,358,61,257,64,209,67"/>
+<area shape="rect" id="Node000005" href="$da/dfd/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_binomial_logistic_loss_impl.html#a3dbf34427aeaf7c4d239d8a73edc0228" title=" " alt="" coords="257,74,460,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="209,85,241,90,241,95,209,90"/>
+<area shape="rect" id="Node000003" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a99cebcc7653a7f75b0a6abc6b87fb270" title="Get the count of statistics." alt="" coords="759,5,943,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="711,54,744,48,744,54,712,59"/>
+<area shape="rect" id="Node000004" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a5b92ae07b31b41f40fdc93356a2d2666" title="Get the range." alt="" coords="759,85,943,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="712,87,744,93,744,98,711,93"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="460,92,492,87,493,93,461,97"/>
+</map>

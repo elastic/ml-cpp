@@ -1,0 +1,11 @@
+<map id="ml::model::CMetricStatisticWrappers::restore" name="ml::model::CMetricStatisticWrappers::restore">
+<area shape="rect" id="Node000001" title="Restore a mean statistic." alt="" coords="5,49,186,90"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#a95c55225fd7be47ce4e6c1db8ed8824d" title="Initialize from a delimited string." alt="" coords="234,5,456,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,53,218,49,219,54,187,59"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="236,85,454,126"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="187,80,220,85,220,90,186,85"/>
+<area shape="rect" id="Node000003" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a3dd29272494b917553cb9c44e35ad6f5" title="Function to do conversion from string." alt="" coords="504,5,654,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="457,31,488,31,488,36,457,36"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="702,13,850,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="654,31,687,31,687,36,654,36"/>
+</map>

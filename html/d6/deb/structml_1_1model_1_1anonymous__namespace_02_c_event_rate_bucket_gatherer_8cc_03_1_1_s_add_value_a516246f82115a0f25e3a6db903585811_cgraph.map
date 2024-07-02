@@ -1,0 +1,17 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::SAddValue::operator()" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::SAddValue::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,218,148"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ade9c53f3f61747b60716c15b3922610d" title="Return the configured bucketlength of this queue." alt="" coords="279,5,454,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,74,265,55,284,49,286,54,267,60,213,79"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="266,70,467,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,97,250,94,251,99,219,103"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aedd783dbcd45bc4d7f52478d504da0b0" title="Returns the latest bucket end time, as tracked by the queue." alt="" coords="279,120,454,161"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="219,121,263,126,263,132,218,127"/>
+<area shape="rect" id="Node000007" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="279,209,454,250"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="191,146,307,200,305,205,189,151"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="515,63,690,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="467,80,499,80,499,86,467,86"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="560,63,558,53,565,44,580,38,603,36,627,38,641,45,639,50,625,44,603,41,581,43,568,48,564,54,566,61"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="738,63,914,103"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="691,80,723,80,723,86,691,86"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="322,209,320,199,327,190,343,185,366,183,392,185,407,191,405,196,391,190,366,188,344,190,330,195,325,201,327,208"/>
+</map>

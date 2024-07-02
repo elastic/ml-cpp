@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CGammaRateConjugate::nonInformativePrior" name="ml::maths::common::CGammaRateConjugate::nonInformativePrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,170,198"/>
+<area shape="rect" id="Node000002" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#a3e87240540da47015ac21d747c39f36c" title=" " alt="" coords="218,5,390,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,140,165,105,216,71,224,66,227,71,219,75,168,110,124,144"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="231,85,377,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,143,219,128,220,133,171,148"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="231,150,377,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,168,215,168,215,173,170,173"/>
+<area shape="rect" id="Node000005" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#adde1b5856046af8a3ea806a7d8ca2236" title="Get the current offset." alt="" coords="222,215,386,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="171,195,208,208,206,213,169,200"/>
+<area shape="rect" id="Node000006" href="$d3/d20/classml_1_1maths_1_1common_1_1_c_gamma_rate_conjugate.html#afc0f35d23ec67b354bfdf3c87dd53a2b" title=" " alt="" coords="222,295,386,350"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="118,197,164,238,219,280,226,284,223,289,216,285,161,243,115,201"/>
+</map>

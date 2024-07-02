@@ -1,0 +1,25 @@
+<map id="ml::model::CResourceMonitor::memoryLimit" name="ml::model::CResourceMonitor::memoryLimit">
+<area shape="rect" id="Node000001" title="Set the internal memory limit, as specified in a limits config file." alt="" coords="536,146,731,187"/>
+<area shape="rect" id="Node000002" href="$d4/de4/_c_anomaly_job_limit_test_8cc.html#a4c4b2fd0e7bbd6d5dad761b8ed4661c4" title=" " alt="" coords="281,5,478,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="602,136,552,88,520,65,487,45,460,34,462,29,489,40,523,60,555,84,606,133"/>
+<area shape="rect" id="Node000003" href="$d3/d6e/_c_resource_monitor_test_8cc.html#abe859dbc0ef3b61c3b1c090ca6413a5d" title=" " alt="" coords="271,55,488,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="584,140,538,116,487,94,452,84,454,78,489,89,540,111,587,136"/>
+<area shape="rect" id="Node000004" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a6ffc63841436e87d0a410cf7260e8ae2" title=" " alt="" coords="271,104,488,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="520,147,449,133,450,128,521,142"/>
+<area shape="rect" id="Node000005" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a70561e1d8471d0d96b1bfca4769bacce" title=" " alt="" coords="271,153,488,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="520,169,488,169,488,164,520,164"/>
+<area shape="rect" id="Node000006" href="$dd/da5/_c_resource_limit_test_8cc.html#a2597707305b58e414cbebefd137d24a6" title=" " alt="" coords="301,203,458,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="521,191,450,205,449,199,520,185"/>
+<area shape="rect" id="Node000008" href="$df/d58/classml_1_1model_1_1_c_limits.html#a9d45d66b2428646d4a09fc9651a071f1" title=" " alt="" coords="314,253,445,293"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="584,197,489,243,446,258,445,253,487,238,582,192"/>
+<area shape="rect" id="Node000012" href="$df/d58/classml_1_1model_1_1_c_limits.html#aaffeb6be6f45114c133054152623f628" title=" " alt="" coords="314,318,445,359"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="609,200,557,255,525,283,489,307,446,326,444,321,487,303,521,279,553,251,605,196"/>
+<area shape="rect" id="Node000007" href="$dd/da5/_c_resource_limit_test_8cc.html#a7332c390c143cb0b3a2043e909666861" title=" " alt="" coords="5,181,223,207"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="285,211,223,206,224,200,286,205"/>
+<area shape="rect" id="Node000009" href="$d7/daf/_c_limits_test_8cc.html#aaa4fec8fb3d1c7f97dd7d4e2849e2669" title=" " alt="" coords="16,231,212,256"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="298,267,212,257,213,252,298,261"/>
+<area shape="rect" id="Node000010" href="$d7/daf/_c_limits_test_8cc.html#a1a2a417677aed6232b2ee71e26bd6e53" title=" " alt="" coords="16,280,212,306"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="298,282,213,288,213,283,298,276"/>
+<area shape="rect" id="Node000011" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="89,329,139,355"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="300,300,223,321,140,340,139,335,222,316,298,294"/>
+</map>

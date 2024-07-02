@@ -1,0 +1,5 @@
+<map id="ml::maths::common::COneOfNPrior::decayRate" name="ml::maths::common::COneOfNPrior::decayRate">
+<area shape="rect" id="Node000001" title="Set the rate at which the prior returns to non&#45;informative." alt="" coords="250,5,427,46"/>
+<area shape="rect" id="Node000002" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

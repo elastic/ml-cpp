@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,158,202,184"/>
+<area shape="rect" id="Node000002" href="$d7/d45/classml_1_1maths_1_1common_1_1_c_categorical_tools.html#a0c825d1624c7e7e6873ce108504090ac" title=" " alt="" coords="250,54,453,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,155,257,113,259,118,142,160"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac476b9273936034b5333b76fd6e8a7de" title="Compute the p.d.f. at x for distribution." alt="" coords="270,190,433,216"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,181,255,188,254,193,202,186"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a1ba05cb5ac38aff1190468119c12e18c" title="A wrapper around lgamma which handles corner cases if requested." alt="" coords="519,5,664,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,55,503,43,504,49,454,60"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="501,70,681,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="382,187,511,130,513,135,384,192"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="502,149,681,190"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="433,189,486,182,487,187,434,194"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="519,215,664,255"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="434,211,504,221,503,226,433,217"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="509,280,674,321"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="384,214,502,265,520,272,518,276,500,269,382,219"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="554,369,628,395"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="368,214,424,267,503,330,550,359,547,363,499,335,421,271,364,218"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="552,370,544,360,548,350,565,344,591,342,621,345,636,352,633,357,620,350,591,347,566,350,552,354,549,360,556,367"/>
+</map>

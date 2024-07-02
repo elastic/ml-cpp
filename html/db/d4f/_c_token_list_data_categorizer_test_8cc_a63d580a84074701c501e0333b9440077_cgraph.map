@@ -1,0 +1,14 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,122,223,147"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="271,92,477,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,120,255,116,256,121,224,125"/>
+<area shape="rect" id="Node000006" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a21aa072b091f702f29c77caca5018d50" title="Accessor for numeric ID." alt="" coords="284,142,464,183"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="224,144,268,148,268,154,223,149"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="525,5,696,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,89,509,61,511,66,419,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="527,85,694,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="478,103,511,103,511,108,478,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="744,107,930,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="426,116,525,135,611,138,696,135,728,134,729,139,696,140,611,143,525,140,425,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="695,113,729,118,729,123,694,119"/>
+</map>

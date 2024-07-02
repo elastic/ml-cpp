@@ -1,0 +1,18 @@
+<map id="ml::maths::common::CSpline::absSlope" name="ml::maths::common::CSpline::absSlope">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,152,151,193"/>
+<area shape="rect" id="Node000002" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a89db4cff0eb3da52e08292f255fd20f7" title="Get the curvatures at the knot points of the spline." alt="" coords="199,5,344,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,150,140,104,197,57,206,51,208,56,200,61,143,108,99,153"/>
+<area shape="rect" id="Node000004" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a39e53abd1d0c2de07a44a358db269622" title="Get the knot points of the spline." alt="" coords="199,71,344,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="127,149,206,115,208,120,129,154"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="232,160,311,185"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="151,170,217,170,217,175,151,175"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="199,209,344,250"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="149,191,187,202,185,207,148,196"/>
+<area shape="rect" id="Node000007" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#af9d9ce19eea5bed22ade0c33c4d922d7" title="Get the values at the knot points of the spline." alt="" coords="199,275,344,315"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="106,191,149,225,200,259,209,265,207,269,197,264,146,229,102,195"/>
+<area shape="rect" id="Node000003" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="392,78,532,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="334,44,409,70,407,75,332,49"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="344,88,377,88,377,94,344,94"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="239,161,233,151,237,141,250,135,271,133,294,135,306,142,304,147,293,141,271,138,251,140,241,145,238,150,244,158"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="324,272,342,260,376,225,405,186,446,116,451,119,410,189,380,229,346,264,327,276"/>
+</map>

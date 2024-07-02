@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a240386af2c68df5ef40b8bd03aa341bd" title=" " alt="" coords="250,5,416,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,75,244,48,245,53,152,80"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a4c0284881cab3b8dc7f3ed3f180c60b3" title=" " alt="" coords="250,71,416,111"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,88,234,88,234,94,202,94"/>
+<area shape="rect" id="Node000007" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a701705f024cf5f26e867ac1b4bc5de2e" title=" " alt="" coords="250,136,416,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="152,102,245,129,244,134,151,107"/>
+<area shape="rect" id="Node000003" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="678,95,845,135"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,44,465,55,664,95,663,100,463,60,416,49"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a30fd71d5aa580fa9c13a5ca29e49a107" title=" " alt="" coords="464,5,630,46"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="417,23,449,23,449,28,417,28"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#abbcc2bb82dd761f9674856db5bc59bbb" title="Reset the underlying stream." alt="" coords="678,5,845,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="631,23,663,23,663,28,631,28"/>
+<area shape="rect" id="Node000008" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="464,132,630,173"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="417,152,449,152,449,157,417,157"/>
+<area shape="poly" id="edge8_Node000008_Node000003" title=" " alt="" coords="630,135,662,130,663,135,631,140"/>
+</map>

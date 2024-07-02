@@ -1,0 +1,7 @@
+<map id="ml::model::CPopulationModel::propagationTime" name="ml::model::CPopulationModel::propagationTime">
+<area shape="rect" id="Node000001" title="Get the time by which to propagate the priors on a sample." alt="" coords="5,39,198,79"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="246,5,443,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,43,230,39,230,44,198,48"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="272,71,417,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,69,257,77,256,82,198,74"/>
+</map>

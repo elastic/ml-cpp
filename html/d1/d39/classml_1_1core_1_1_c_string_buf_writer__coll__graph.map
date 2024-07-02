@@ -1,0 +1,7 @@
+<map id="ml::core::CStringBufWriter" name="ml::core::CStringBufWriter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="20,168,194,193"/>
+<area shape="rect" id="Node000002" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="5,94,209,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,135,110,167,104,167,104,135"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="10,5,204,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="110,62,110,93,104,93,104,62"/>
+</map>

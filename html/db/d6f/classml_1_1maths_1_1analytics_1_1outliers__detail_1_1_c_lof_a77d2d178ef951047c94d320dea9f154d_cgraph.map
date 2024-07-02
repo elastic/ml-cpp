@@ -1,0 +1,13 @@
+<map id="ml::maths::analytics::outliers_detail::CLof::add" name="ml::maths::analytics::outliers_detail::CLof::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,117,180,158"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="242,5,387,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,115,171,85,226,55,238,50,241,55,229,60,174,90,126,119"/>
+<area shape="rect" id="Node000004" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#ad491615fe6e6bb7e5c1fe2abd1b1b13d" title=" " alt="" coords="242,70,387,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,119,226,111,227,116,180,125"/>
+<area shape="rect" id="Node000005" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#acc93291a41d61f74d48314abbc068acc" title="The number of nearest neighbours." alt="" coords="228,150,401,206"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="180,151,213,157,212,162,179,156"/>
+<area shape="rect" id="Node000006" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a3faf298daeab7c0de080e6e333de7a11" title=" " alt="" coords="242,230,387,286"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="128,156,229,215,238,220,236,225,226,220,125,161"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="449,5,594,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="387,23,433,23,433,28,387,28"/>
+</map>

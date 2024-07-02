@@ -1,0 +1,8 @@
+<map id="ml::core::CFlatPrefixTree::buildRecursively" name="ml::core::CFlatPrefixTree::buildRecursively">
+<area shape="rect" id="Node000001" title="The recursive building helper." alt="" coords="5,29,174,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="48,29,46,19,53,10,67,5,90,3,113,5,128,11,126,16,112,10,89,8,68,10,56,15,51,21,53,28"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="222,29,400,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="174,47,206,47,206,52,174,52"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="448,37,494,63"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="400,47,432,47,432,52,400,52"/>
+</map>

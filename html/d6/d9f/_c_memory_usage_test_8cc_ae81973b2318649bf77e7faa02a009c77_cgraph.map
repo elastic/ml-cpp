@@ -1,0 +1,40 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,322,202,348"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50ba7442efeaf08f05c1791e5cb25bbc" title="Get the any visitor singleton." alt="" coords="250,14,439,40"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,321,119,271,147,199,166,160,189,122,216,86,248,54,262,45,265,49,251,58,220,89,193,125,171,163,152,202,125,273,110,322"/>
+<area shape="rect" id="Node000004" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#aaa0e704b8764a6fd0d9b939de690e0d1" title="Get the any visitor singleton." alt="" coords="262,68,427,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="108,321,126,281,156,227,197,169,221,142,248,118,254,114,257,119,251,122,225,146,201,172,160,230,130,284,113,323"/>
+<area shape="rect" id="Node000006" href="$d8/d2c/classanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_c_base.html#a770a4631a9cc65217dace345aebbfede" title=" " alt="" coords="259,133,430,188"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="114,320,169,263,207,229,248,198,256,194,258,198,251,203,210,233,173,267,118,323"/>
+<area shape="rect" id="Node000007" href="$d3/db4/classanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_c_derived.html#a785f318be63583f0eb318cdc78d4b291" title=" " alt="" coords="259,213,430,268"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="137,319,256,272,258,277,139,324"/>
+<area shape="rect" id="Node000008" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="736,316,943,341"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="202,329,250,328,721,325,721,331,250,334,202,335"/>
+<area shape="rect" id="Node000012" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#af9da9b8dc9d9ea16d09112f4ac614c2c" title="Default implementation for non&#45;pointer types." alt="" coords="262,343,427,383"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="202,344,247,349,246,354,202,349"/>
+<area shape="rect" id="Node000015" href="$db/d98/structanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_s_foo_with_memory_usage.html#ad5ec410953af29bfa6fd8e5476dcb190" title=" " alt="" coords="258,408,431,478"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="136,346,251,398,249,403,133,351"/>
+<area shape="rect" id="Node000016" href="$d7/d2d/structanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_s_bar.html#af3c5518223afa9bc4c9528fb71f99919" title=" " alt="" coords="259,502,430,558"/>
+<area shape="poly" id="edge18_Node000001_Node000016" title=" " alt="" coords="116,346,169,413,208,453,251,489,255,492,252,496,248,493,204,457,165,416,112,350"/>
+<area shape="rect" id="Node000017" href="$d8/df2/structanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_s_foo.html#a749923d441eff19998afdaba91765134" title=" " alt="" coords="259,582,430,638"/>
+<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="112,347,129,389,159,447,200,511,224,541,251,568,255,571,252,575,248,572,220,545,195,514,154,450,125,391,107,349"/>
+<area shape="rect" id="Node000018" href="$db/d98/structanonymous__namespace_02_c_memory_usage_test_8cc_03_1_1_s_foo_with_memory_usage.html#a1a2dcdc8e8302a68675fa96e69bb0c5b" title=" " alt="" coords="258,661,431,732"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="110,347,124,401,151,480,193,568,220,610,252,648,253,649,249,653,248,651,216,613,188,571,146,482,119,403,105,349"/>
+<area shape="rect" id="Node000003" href="$db/de8/classml_1_1core_1_1memory_1_1_c_any_visitor.html#a3fb7b9121638c6d5af7d186f499a77c1" title=" " alt="" coords="487,5,688,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,24,471,24,471,29,439,29"/>
+<area shape="rect" id="Node000005" href="$dd/d05/classml_1_1core_1_1memory__debug_1_1_c_any_visitor.html#a42a269050c3352b932e860276a602359" title=" " alt="" coords="505,71,670,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="428,87,490,87,490,93,427,92"/>
+<area shape="rect" id="Node000009" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="991,229,1162,284"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="884,312,975,284,976,289,885,318"/>
+<area shape="rect" id="Node000010" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="993,308,1160,349"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="943,326,977,326,977,331,943,331"/>
+<area shape="rect" id="Node000011" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1210,358,1395,414"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="896,339,991,358,1095,370,1194,378,1194,383,1095,375,990,363,895,344"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1160,347,1195,356,1194,361,1158,352"/>
+<area shape="rect" id="Node000013" href="$de/df0/structml_1_1core_1_1memory__detail_1_1_s_debug_memory_dynamic_size.html#a0b0baf0a3d6bf2367e46016e88a0ad32" title=" " alt="" coords="487,343,688,399"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="428,363,471,365,471,370,427,368"/>
+<area shape="rect" id="Node000014" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aa0a3d5d3341bb51e9df11ef0ea542a6a" title="Check if we expect an overloaded dynamicSize function." alt="" coords="737,416,942,457"/>
+<area shape="poly" id="edge15_Node000012_Node000014" title=" " alt="" coords="408,381,488,408,607,425,721,433,721,438,607,431,486,414,406,386"/>
+<area shape="poly" id="edge14_Node000013_Node000008" title=" " alt="" coords="688,351,744,342,745,347,689,357"/>
+<area shape="poly" id="edge16_Node000014_Node000011" title=" " alt="" coords="942,424,1162,402,1194,398,1195,403,1162,407,943,430"/>
+</map>

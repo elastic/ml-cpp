@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CKMeans::CKdTreeNodeData::initialize" name="ml::maths::common::CKMeans::CKdTreeNodeData::initialize">
+<area shape="rect" id="Node000001" title="Initialize the centroid if it is null." alt="" coords="5,5,204,61"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="252,13,397,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,31,236,31,236,36,204,36"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="445,13,590,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,31,429,31,429,36,397,36"/>
+</map>

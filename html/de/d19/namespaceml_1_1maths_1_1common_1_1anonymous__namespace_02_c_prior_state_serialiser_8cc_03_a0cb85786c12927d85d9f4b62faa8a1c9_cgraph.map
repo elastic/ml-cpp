@@ -1,0 +1,7 @@
+<map id="ml::maths::common::anonymous_namespace{CPriorStateSerialiser::cc}::restore" name="ml::maths::common::anonymous_namespace{CPriorStateSerialiser::cc}::restore">
+<area shape="rect" id="Node000001" title="Implements restore into the supplied pointer." alt="" coords="5,24,168,94"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="216,5,434,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,45,200,41,200,46,169,50"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="216,71,434,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,67,200,72,200,77,168,73"/>
+</map>

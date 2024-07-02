@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::mean" name="ml::maths::common::CLogNormalMeanPrecConjugate::mean">
+<area shape="rect" id="Node000001" title="Get the of the marginal likelihood." alt="" coords="5,41,258,82"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="318,5,506,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,43,302,37,303,42,259,48"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="306,70,518,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="259,75,291,79,290,85,258,81"/>
+</map>

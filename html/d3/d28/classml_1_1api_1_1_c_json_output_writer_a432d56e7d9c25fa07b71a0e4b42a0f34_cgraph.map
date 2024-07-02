@@ -1,0 +1,5 @@
+<map id="ml::api::CJsonOutputWriter::popAllocator" name="ml::api::CJsonOutputWriter::popAllocator">
+<area shape="rect" id="Node000001" title="revert to using the previous allocator for JSON output processing" alt="" coords="5,5,185,46"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a537d34210f4ab1ccc11b850845219a5d" title="Remove the last pushed allocator from the stack." alt="" coords="233,5,415,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,23,217,23,217,28,185,28"/>
+</map>

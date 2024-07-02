@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CKMostCorrelated::SCorrelation::acceptRestoreTraverser" name="ml::maths::common::CKMostCorrelated::SCorrelation::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create from part of a state document." alt="" coords="5,97,215,152"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="263,5,481,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,93,262,57,284,49,285,54,264,61,174,98"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="263,71,481,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,108,247,104,248,109,216,114"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="298,136,446,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,135,283,143,283,148,215,140"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="263,201,481,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,150,264,186,286,194,284,199,262,191,173,155"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::model::CCountingModelFactory::features" name="ml::model::CCountingModelFactory::features">
+<area shape="rect" id="Node000001" title="Set the features which will be modeled." alt="" coords="271,29,454,70"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="403,16,388,10,362,8,339,10,324,15,319,21,321,28,316,29,313,19,321,10,337,5,362,3,389,5,405,11"/>
+<area shape="rect" id="Node000002" href="$d7/d26/_c_counting_model_test_8cc.html#a41316982f546b1f08a56adff44df03f4" title=" " alt="" coords="5,12,223,37"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,41,223,38,223,33,255,36"/>
+<area shape="rect" id="Node000003" href="$d7/d26/_c_counting_model_test_8cc.html#a0ab450c5740e0de502bc2dd580f35e05" title=" " alt="" coords="5,61,223,87"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,63,223,66,223,60,255,57"/>
+</map>

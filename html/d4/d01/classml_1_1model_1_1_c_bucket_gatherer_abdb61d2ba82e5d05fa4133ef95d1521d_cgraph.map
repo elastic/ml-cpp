@@ -1,0 +1,5 @@
+<map id="ml::model::CBucketGatherer::bucketLength" name="ml::model::CBucketGatherer::bucketLength">
+<area shape="rect" id="Node000001" title="Get the length of the bucketing time interval." alt="" coords="5,5,193,46"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="241,5,415,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,23,225,23,225,28,193,28"/>
+</map>

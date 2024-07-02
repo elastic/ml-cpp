@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::clone" name="ml::maths::time_series::CUnivariateTimeSeriesModel::clone">
+<area shape="rect" id="Node000001" title="Create a copy of this model passing ownership to the caller." alt="" coords="250,5,449,61"/>
+<area shape="rect" id="Node000002" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

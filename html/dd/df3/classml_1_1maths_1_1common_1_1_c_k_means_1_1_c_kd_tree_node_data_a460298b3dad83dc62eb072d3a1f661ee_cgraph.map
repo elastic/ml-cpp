@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CKMeans::CKdTreeNodeData::add" name="ml::maths::common::CKMeans::CKdTreeNodeData::add">
+<area shape="rect" id="Node000001" title="Add x to the bounding box and centroid." alt="" coords="5,100,233,141"/>
+<area shape="rect" id="Node000002" href="$d2/d5e/classml_1_1maths_1_1common_1_1_c_bounding_box.html#a4e68128aad2c2f7e8a3cfc377e407da3" title=" " alt="" coords="307,64,453,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,102,292,94,292,99,234,107"/>
+<area shape="rect" id="Node000006" href="$dd/df3/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_kd_tree_node_data.html#a37912d15662717010d01dca748d740c4" title="Initialize the centroid if it is null." alt="" coords="281,129,479,184"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="234,133,266,138,265,143,233,139"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a650ad9c0c220c45756276ce69158801a" title="In&#45;place maximum, writing to y." alt="" coords="527,5,672,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,62,511,46,513,52,454,68"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a786f76053e20e60af5ece9d2a221d032" title="In&#45;place minimum, writing to y." alt="" coords="527,71,672,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="453,84,511,86,511,91,453,89"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="720,71,866,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="663,44,717,63,716,68,661,49"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="673,88,705,88,705,94,673,94"/>
+<area shape="rect" id="Node000007" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="527,136,672,177"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="480,154,512,154,512,159,480,159"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="661,133,716,114,717,119,663,138"/>
+</map>

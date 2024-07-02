@@ -1,0 +1,18 @@
+<map id="ml::model::anonymous_namespace{CInterimBucketCorrector::cc}::trendDecayRate" name="ml::model::anonymous_namespace{CInterimBucketCorrector::cc}::trendDecayRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,65,250,121"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="71,65,72,55,82,46,101,41,128,39,159,41,177,48,175,53,157,47,127,44,101,46,84,51,76,57,76,65"/>
+<area shape="rect" id="Node000002" href="$d6/dcd/namespaceml_1_1model_1_1anonymous__namespace_02_c_interim_bucket_corrector_8cc_03.html#a0c7ce188a52210bf0d9c05fa5bff0724" title=" " alt="" coords="298,29,542,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,75,282,71,283,77,250,81"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#abec77981754bf46c664dc4fee8bd134e" title=" " alt="" coords="321,109,519,150"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="250,106,306,112,305,118,250,111"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="365,29,366,19,376,10,394,5,420,3,450,5,468,12,466,17,449,11,420,8,395,10,379,15,371,21,371,29"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a2d8f7017909a6d10f11f815b33211c5c" title=" " alt="" coords="590,29,811,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="542,55,574,55,574,60,542,60"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="646,29,647,19,657,10,675,5,701,3,731,5,749,12,747,17,729,11,701,8,676,10,659,15,652,21,651,29"/>
+<area shape="poly" id="edge8_Node000004_Node000003" title=" " alt="" coords="501,106,575,87,576,92,503,111"/>
+<area shape="rect" id="Node000005" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a928bc41c16aebf4138d3bb3c8d27e256" title="Get the bucket length." alt="" coords="602,109,799,150"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="519,127,586,127,586,132,519,132"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="664,198,738,223"/>
+<area shape="poly" id="edge9_Node000004_Node000006" title=" " alt="" coords="494,148,649,193,648,198,492,153"/>
+<area shape="poly" id="edge10_Node000006_Node000006" title=" " alt="" coords="661,203,647,192,649,181,668,174,701,171,746,177,755,184,754,193,749,192,750,186,744,182,701,176,669,179,653,184,652,190,664,198"/>
+</map>

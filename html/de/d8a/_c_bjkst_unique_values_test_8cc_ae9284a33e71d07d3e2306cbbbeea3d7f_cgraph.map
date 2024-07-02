@@ -1,0 +1,24 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,223,202,249"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="250,5,472,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,221,163,151,203,108,248,71,255,67,258,71,251,75,206,112,167,154,115,224"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="276,150,446,191"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,220,263,193,264,198,158,225"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="268,85,454,126"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="120,220,175,179,248,136,265,129,267,134,251,141,178,184,123,225"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="281,216,441,256"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="202,233,266,233,266,239,202,239"/>
+<area shape="rect" id="Node000008" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a9871b9d6493b805fd6373d1d1850d171" title="Get an estimate of the number of unique values added." alt="" coords="286,280,436,336"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="153,247,272,280,271,286,151,252"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a5717f9fd9f2eae5a4e2b6c11d1511f42" title=" " alt="" coords="268,360,454,400"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="120,247,175,295,211,322,251,345,263,351,260,356,248,350,209,326,171,299,117,251"/>
+<area shape="rect" id="Node000010" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a858906189c1d7e4a0411c21892202f01" title="Remove a value." alt="" coords="286,424,436,480"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="114,247,165,323,205,369,251,410,274,423,271,427,248,414,201,373,161,327,110,250"/>
+<area shape="rect" id="Node000004" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="538,215,687,270"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="410,189,524,223,522,228,409,194"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="540,217,460,193,462,188,542,211"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="520,85,705,126"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="454,103,504,103,504,108,454,108"/>
+<area shape="poly" id="edge9_Node000008_Node000004" title=" " alt="" coords="435,286,522,263,523,268,437,291"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="435,429,471,410,505,381,537,347,585,281,589,285,541,350,509,384,473,414,437,434"/>
+</map>

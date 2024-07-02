@@ -1,0 +1,16 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,223,104"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="304,49,383,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,75,288,66,288,71,220,80"/>
+<area shape="rect" id="Node000007" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="271,99,416,139"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="223,102,256,106,255,111,222,107"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="464,13,638,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,54,448,45,449,50,384,59"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="694,71,853,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="384,62,679,82,678,87,383,67"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="686,5,861,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="639,28,671,27,671,32,639,33"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="633,52,680,64,678,69,632,57"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="909,71,1067,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="853,88,893,88,893,94,853,94"/>
+</map>

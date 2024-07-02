@@ -1,0 +1,9 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="250,5,397,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,43,234,36,235,42,193,48"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="250,71,397,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,70,235,75,234,81,196,75"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="445,78,491,104"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="397,88,429,88,429,94,397,94"/>
+</map>

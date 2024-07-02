@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CExpandingWindow::valuesMinusPrediction" name="ml::maths::time_series::CExpandingWindow::valuesMinusPrediction">
+<area shape="rect" id="Node000001" title="Get the bucket values minus the predictions of predictor." alt="" coords="5,31,234,87"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="69,31,70,21,79,12,96,6,120,5,146,7,163,14,161,19,145,12,119,10,97,12,82,17,75,23,75,31"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ae802d099e2030617bed1722767aa5df7" title="Extract from the compressed representation." alt="" coords="282,39,472,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,56,266,56,266,62,234,62"/>
+<area shape="rect" id="Node000003" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab038cb685491aea5eb697ee917df76d7" title="Implements inflate." alt="" coords="520,39,725,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="473,56,504,56,504,62,473,62"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a4c0284881cab3b8dc7f3ed3f180c60b3" title=" " alt="" coords="773,5,940,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="725,42,758,37,758,42,726,47"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#ac0ed8ea2148de5b2154827530f775b88" title=" " alt="" coords="773,71,940,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="726,70,758,75,758,80,725,76"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="988,71,1154,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="940,88,972,88,972,94,940,94"/>
+<area shape="rect" id="Node000007" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="1202,71,1368,111"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1155,88,1187,88,1187,94,1155,94"/>
+</map>

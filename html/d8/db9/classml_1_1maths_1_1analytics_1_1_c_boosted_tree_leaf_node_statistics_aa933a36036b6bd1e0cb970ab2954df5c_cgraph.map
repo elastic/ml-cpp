@@ -1,0 +1,10 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::operator&lt;" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::operator&lt;">
+<area shape="rect" id="Node000001" title="Order two leaves by decreasing gain in splitting them." alt="" coords="5,29,230,85"/>
+<area shape="rect" id="Node000002" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="278,29,459,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,55,262,55,262,60,230,60"/>
+<area shape="rect" id="Node000003" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="507,29,688,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="459,55,492,55,492,60,459,60"/>
+<area shape="rect" id="Node000004" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="736,29,918,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="689,55,721,55,721,60,689,60"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="782,29,783,19,791,10,806,5,827,3,851,5,866,12,864,17,850,10,827,8,807,10,794,15,788,21,787,29"/>
+</map>

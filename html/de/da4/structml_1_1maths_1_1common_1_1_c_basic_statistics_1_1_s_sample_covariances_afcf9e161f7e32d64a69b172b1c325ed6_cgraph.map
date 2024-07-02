@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBasicStatistics::SSampleCovariances::add" name="ml::maths::common::CBasicStatistics::SSampleCovariances::add">
+<area shape="rect" id="Node000001" title="Update with a generic point x." alt="" coords="5,5,288,46"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af184aba3d3646637687e34b55c15f09a" title="Get the concomitant ones vector." alt="" coords="336,5,481,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="288,23,320,23,320,28,288,28"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="529,5,674,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,23,513,23,513,28,481,28"/>
+</map>

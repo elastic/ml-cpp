@@ -1,0 +1,38 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,216,202,242"/>
+<area shape="rect" id="Node000002" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#a5439fcc62ef18c2c4e91b11ee539f6cc" title="Persist state by passing information to the supplied inserter." alt="" coords="250,5,461,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,214,165,147,204,107,248,71,255,67,258,71,251,75,207,111,169,151,116,218"/>
+<area shape="rect" id="Node000004" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#af6126f43cd6db0aa6072261d0aec5da5" title="Add a value of the cumulative density function." alt="" coords="264,85,447,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="127,214,249,151,261,145,264,150,251,156,129,218"/>
+<area shape="rect" id="Node000005" href="$d1/d7e/classml_1_1maths_1_1common_1_1_c_statistical_tests_1_1_c_cramer_von_mises.html#af8d78aedffac2ede886e55637c76041f" title="Get a checksum for this object." alt="" coords="264,165,447,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="198,213,249,206,249,211,198,218"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="263,245,448,286"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="198,240,248,247,247,252,198,245"/>
+<area shape="rect" id="Node000015" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="265,310,446,351"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="132,240,251,295,271,302,269,307,249,300,129,245"/>
+<area shape="rect" id="Node000018" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="268,400,443,440"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="119,241,174,296,251,360,298,389,296,394,248,365,170,299,115,244"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="509,13,711,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="461,31,493,31,493,36,461,36"/>
+<area shape="rect" id="Node000006" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="533,152,687,192"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="447,183,517,177,518,182,447,188"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="518,217,703,258"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="448,252,502,246,503,252,449,258"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="522,282,699,307"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="449,273,506,280,506,285,448,278"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="761,282,939,307"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="699,292,746,292,746,297,699,297"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="989,161,1169,217"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="878,279,988,227,999,222,1001,226,990,232,880,283"/>
+<area shape="rect" id="Node000012" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="989,241,1169,282"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="938,279,974,274,974,279,939,284"/>
+<area shape="rect" id="Node000013" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1006,306,1152,347"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="939,304,991,312,991,317,938,310"/>
+<area shape="rect" id="Node000014" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="996,372,1162,412"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="912,305,942,318,967,337,990,356,1002,362,999,367,987,361,963,341,939,322,910,310"/>
+<area shape="rect" id="Node000016" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="517,332,704,372"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="447,335,501,340,501,345,446,341"/>
+<area shape="rect" id="Node000017" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="759,332,941,372"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="704,349,744,349,744,355,704,355"/>
+<area shape="poly" id="edge18_Node000018_Node000018" title=" " alt="" coords="308,400,306,389,314,380,330,375,355,373,382,375,399,381,397,386,381,380,355,378,331,380,316,385,311,391,313,398"/>
+</map>

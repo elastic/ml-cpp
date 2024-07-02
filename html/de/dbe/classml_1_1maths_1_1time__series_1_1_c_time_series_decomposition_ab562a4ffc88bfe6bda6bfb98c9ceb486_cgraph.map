@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::meanVariance" name="ml::maths::time_series::CTimeSeriesDecomposition::meanVariance">
+<area shape="rect" id="Node000001" title="Get the mean variance of the baseline." alt="" coords="5,45,198,101"/>
+<area shape="rect" id="Node000002" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a703382c629df9cf8114b799aa7f3ba91" title="Get the mean variance of the baseline." alt="" coords="251,5,477,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,56,235,50,235,55,198,61"/>
+<area shape="rect" id="Node000005" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a94f5e352ecb232d2ef69c1426f8e332b" title="Get the mean error variance scale for the components." alt="" coords="246,85,482,141"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="198,85,231,90,230,95,198,90"/>
+<area shape="rect" id="Node000003" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#abdd0708b12c6e9dcff1f545ac60f4c63" title="Get the mean variance of the component residuals." alt="" coords="530,5,698,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="477,31,514,31,514,36,477,36"/>
+<area shape="rect" id="Node000004" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#af4275d996a6edec8a81a331facd37bd9" title="Get the mean variance of the function residuals." alt="" coords="746,5,940,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="698,31,731,31,731,36,698,36"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="535,93,694,134"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="482,111,519,111,519,116,482,116"/>
+</map>

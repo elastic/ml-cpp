@@ -1,0 +1,5 @@
+<map id="ml::api::CNdJsonOutputWriter::writeRow" name="ml::api::CNdJsonOutputWriter::writeRow">
+<area shape="rect" id="Node000001" title="Write the data row fields as a JSON object." alt="" coords="250,5,446,46"/>
+<area shape="rect" id="Node000002" href="$d4/d3b/_c_nd_json_output_writer_test_8cc.html#aad71247b5447a0c0b23b22b419d1d536" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#ae51ed251d716f20230fcac1413c26670" title="Check if address has alignment." alt="" coords="250,5,394,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,43,234,36,235,42,192,48"/>
+<area shape="rect" id="Node000003" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#a3aa1a681311b3ef8ef3c680880190307" title="Get the next index in buffer which is aligned to alignment." alt="" coords="250,71,394,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,70,235,76,234,81,195,75"/>
+</map>

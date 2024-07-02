@@ -1,0 +1,112 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,1118,202,1144"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a66527e0acfb84f8e9ce1dfe44b26b797" title="Persist state by passing information to the supplied inserter." alt="" coords="252,161,440,216"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,1117,153,861,196,664,247,461,287,334,325,230,330,232,292,336,252,462,201,665,158,862,110,1118"/>
+<area shape="rect" id="Node000013" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a5ee1b6f8de1e4db31d06e76f06875e1d" title=" " alt="" coords="777,981,966,1036"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="110,1116,129,1084,160,1044,200,1003,223,986,249,973,315,950,384,936,455,931,525,932,593,938,658,948,768,973,767,978,657,953,592,943,525,937,455,936,385,942,316,955,251,977,226,991,203,1007,164,1047,134,1087,114,1119"/>
+<area shape="rect" id="Node000032" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a95198d3cbfd0cda6a4553c91606cdce3" title="Get a checksum for this object." alt="" coords="252,987,440,1043"/>
+<area shape="poly" id="edge35_Node000001_Node000032" title=" " alt="" coords="127,1115,248,1053,260,1047,263,1052,251,1057,130,1120"/>
+<area shape="rect" id="Node000035" href="$dc/d0b/namespaceanonymous__namespace_02_c_multivariate_multimodal_prior_test_8cc_03.html#aaeeaffc1c40fa2b4a47e4cd370aa9588" title=" " alt="" coords="250,474,442,530"/>
+<area shape="poly" id="edge39_Node000001_Node000035" title=" " alt="" coords="107,1117,326,543,331,545,112,1119"/>
+<area shape="rect" id="Node000043" href="$dc/d0b/namespaceanonymous__namespace_02_c_multivariate_multimodal_prior_test_8cc_03.html#a5149a4f9f209c5bdc0d5bc3f4a2aa728" title=" " alt="" coords="250,1067,442,1123"/>
+<area shape="poly" id="edge50_Node000001_Node000043" title=" " alt="" coords="194,1115,234,1109,234,1114,195,1120"/>
+<area shape="rect" id="Node000044" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="255,1147,437,1187"/>
+<area shape="poly" id="edge51_Node000001_Node000044" title=" " alt="" coords="195,1142,240,1149,239,1154,194,1147"/>
+<area shape="rect" id="Node000047" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a5717f9fd9f2eae5a4e2b6c11d1511f42" title=" " alt="" coords="253,1212,439,1253"/>
+<area shape="poly" id="edge54_Node000001_Node000047" title=" " alt="" coords="132,1142,251,1197,269,1204,267,1209,249,1201,130,1147"/>
+<area shape="rect" id="Node000048" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a4185dae90d72f8e78cd3953bef9091e1" title="Reinitialize the random number generator." alt="" coords="273,1277,419,1318"/>
+<area shape="poly" id="edge55_Node000001_Node000048" title=" " alt="" coords="118,1142,172,1199,209,1233,251,1262,262,1268,260,1273,248,1267,206,1237,168,1203,114,1146"/>
+<area shape="rect" id="Node000050" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="256,1343,436,1383"/>
+<area shape="poly" id="edge57_Node000001_Node000050" title=" " alt="" coords="113,1143,132,1179,162,1229,202,1282,251,1328,259,1333,256,1337,248,1332,198,1285,158,1232,127,1182,109,1145"/>
+<area shape="rect" id="Node000051" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="259,1432,433,1473"/>
+<area shape="poly" id="edge58_Node000001_Node000051" title=" " alt="" coords="112,1143,129,1188,158,1254,199,1326,224,1361,252,1393,288,1422,285,1426,248,1397,220,1364,195,1329,154,1256,124,1190,107,1145"/>
+<area shape="rect" id="Node000003" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="516,201,704,256"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,200,501,209,500,214,440,205"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="509,280,711,321"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="392,214,439,241,491,266,508,272,506,277,489,271,436,246,389,219"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="509,5,711,46"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="371,158,423,109,455,84,489,62,514,50,517,54,491,67,458,88,426,113,375,162"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="1291,597,1468,623"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="383,158,432,129,489,106,562,90,624,83,680,84,733,92,785,107,839,128,967,186,1117,250,1177,287,1244,348,1290,407,1327,472,1354,533,1372,581,1367,583,1349,535,1322,474,1286,410,1240,351,1174,292,1114,255,965,191,837,133,783,112,732,97,680,89,625,88,562,95,491,111,435,133,386,162"/>
+<area shape="rect" id="Node000012" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="537,121,682,176"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="440,171,521,159,522,164,441,177"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2507854a990915f6440312167ef3136b" title="Get the mode of the marginal likelihood function." alt="" coords="791,201,952,256"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="704,226,776,226,776,231,704,231"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1517,478,1698,534"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1408,594,1516,543,1528,538,1530,543,1518,548,1410,599"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1518,557,1697,598"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1468,595,1502,590,1502,595,1469,600"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1535,623,1680,663"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="1469,620,1520,628,1519,633,1468,625"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1525,688,1690,729"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="1408,621,1518,673,1535,679,1533,684,1516,677,1406,626"/>
+<area shape="poly" id="edge25_Node000013_Node000007" title=" " alt="" coords="891,978,942,921,975,892,1012,867,1045,853,1076,846,1130,845,1183,842,1210,834,1241,817,1264,798,1285,776,1321,726,1348,677,1366,636,1371,638,1353,679,1326,729,1289,779,1268,802,1243,821,1212,839,1184,848,1130,851,1076,852,1047,858,1015,872,979,896,946,925,895,982"/>
+<area shape="poly" id="edge13_Node000013_Node000013" title=" " alt="" coords="822,980,822,970,831,961,848,956,872,954,898,956,915,963,913,968,897,962,871,959,849,961,834,966,827,972,827,980"/>
+<area shape="rect" id="Node000014" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2a751263a75df701648d4bb541c15168" title="Check that the samples and weights are consistent." alt="" coords="1044,1305,1212,1346"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="955,1035,968,1047,987,1079,995,1111,994,1143,990,1173,986,1203,987,1233,995,1262,1016,1292,1031,1305,1028,1309,1012,1295,990,1264,982,1233,981,1203,985,1172,989,1142,989,1112,982,1081,964,1050,952,1038"/>
+<area shape="rect" id="Node000016" href="$d6/d52/namespaceml_1_1maths__t.html#a97443791d51e7e2ac90ce6ad0590bc59" title="Extract the effective sample count from a collection of weights." alt="" coords="1063,946,1193,972"/>
+<area shape="poly" id="edge16_Node000013_Node000016" title=" " alt="" coords="966,988,1047,972,1048,977,967,993"/>
+<area shape="rect" id="Node000017" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="1032,996,1224,1021"/>
+<area shape="poly" id="edge17_Node000013_Node000017" title=" " alt="" coords="966,1006,1016,1006,1016,1011,966,1011"/>
+<area shape="rect" id="Node000018" href="$d6/d52/namespaceml_1_1maths__t.html#af4eeda938ea6ef9b5a40a869e6744783" title="Check if a non&#45;unit seasonal variance scale applies." alt="" coords="1041,1045,1215,1086"/>
+<area shape="poly" id="edge18_Node000013_Node000018" title=" " alt="" coords="967,1027,1027,1040,1025,1046,966,1032"/>
+<area shape="rect" id="Node000019" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="1051,1111,1205,1151"/>
+<area shape="poly" id="edge19_Node000013_Node000019" title=" " alt="" coords="948,1034,967,1046,982,1059,991,1072,1001,1084,1015,1095,1038,1107,1036,1112,1012,1100,997,1088,987,1075,978,1063,964,1050,945,1039"/>
+<area shape="rect" id="Node000020" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#aff534434b4cdddb810db17251126f149" title="Check if this is a non&#45;informative prior." alt="" coords="1034,1175,1222,1231"/>
+<area shape="poly" id="edge20_Node000013_Node000020" title=" " alt="" coords="953,1034,968,1046,980,1062,986,1077,992,1106,997,1134,1004,1147,1016,1161,1023,1167,1020,1171,1012,1165,999,1150,992,1135,987,1107,981,1078,975,1064,964,1050,950,1039"/>
+<area shape="rect" id="Node000021" href="$d6/d52/namespaceml_1_1maths__t.html#ac3f2fd8117301448efd380e616b9d867" title="Check if a non&#45;unit outlier weight applies." alt="" coords="1041,1256,1215,1281"/>
+<area shape="poly" id="edge21_Node000013_Node000021" title=" " alt="" coords="955,1035,968,1047,984,1073,991,1098,990,1148,988,1172,990,1195,998,1218,1016,1241,1029,1251,1025,1255,1012,1245,993,1221,985,1196,983,1172,985,1148,986,1099,979,1075,964,1050,952,1039"/>
+<area shape="rect" id="Node000022" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#aa47716c54c673390bbfe2bb6a53e9322" title="Get the expected mean of the marginal likelihood." alt="" coords="1014,881,1242,922"/>
+<area shape="poly" id="edge22_Node000013_Node000022" title=" " alt="" coords="919,978,964,954,1013,931,1030,925,1032,930,1015,936,966,958,921,983"/>
+<area shape="rect" id="Node000024" href="$d6/d52/namespaceml_1_1maths__t.html#a164825e6be0ed3a93fa1b72ab00c5a28" title="Get a weights array with outlier weight weight." alt="" coords="1041,1534,1215,1560"/>
+<area shape="poly" id="edge26_Node000013_Node000024" title=" " alt="" coords="956,1035,968,1047,978,1066,985,1089,992,1147,992,1215,989,1288,987,1361,988,1427,996,1483,1005,1504,1016,1521,1029,1532,1025,1536,1012,1525,1000,1507,991,1484,982,1428,981,1361,984,1288,987,1215,987,1148,980,1091,973,1068,964,1050,953,1038"/>
+<area shape="rect" id="Node000025" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="1290,1452,1469,1493"/>
+<area shape="poly" id="edge34_Node000013_Node000025" title=" " alt="" coords="956,1035,968,1047,991,1088,998,1129,996,1168,989,1207,982,1244,981,1282,990,1319,1001,1337,1016,1356,1041,1378,1066,1390,1092,1396,1118,1396,1175,1394,1207,1397,1243,1406,1327,1442,1325,1447,1241,1411,1206,1402,1175,1400,1118,1402,1091,1401,1065,1395,1038,1382,1012,1360,996,1340,985,1321,975,1282,976,1244,983,1206,991,1167,993,1129,986,1090,964,1050,952,1039"/>
+<area shape="rect" id="Node000026" href="$d6/d52/namespaceml_1_1maths__t.html#a0f82ce1a78d6720b7715fb9221f9b308" title="Extract the variance scale from a collection of weights." alt="" coords="1028,1420,1228,1461"/>
+<area shape="poly" id="edge28_Node000013_Node000026" title=" " alt="" coords="956,1035,968,1047,983,1070,994,1094,1002,1139,999,1184,990,1227,982,1270,980,1312,989,1356,1000,1378,1016,1400,1025,1409,1021,1413,1012,1403,995,1380,984,1357,975,1313,977,1269,985,1226,994,1183,997,1140,989,1096,979,1073,964,1050,952,1039"/>
+<area shape="rect" id="Node000027" href="$d6/d52/namespaceml_1_1maths__t.html#aea37ff2381c8daf8bd351ffb7ee6a5d0" title="Set the count weight in weights to weight." alt="" coords="1052,1485,1204,1511"/>
+<area shape="poly" id="edge29_Node000013_Node000027" title=" " alt="" coords="956,1035,968,1047,986,1075,998,1104,1004,1132,1006,1159,1000,1213,987,1265,975,1317,971,1368,974,1393,982,1419,996,1445,1016,1470,1039,1487,1036,1491,1012,1474,991,1447,977,1421,969,1394,966,1368,970,1316,982,1264,994,1212,1000,1159,999,1132,992,1105,981,1078,964,1050,952,1038"/>
+<area shape="rect" id="Node000028" href="$d6/d52/namespaceml_1_1maths__t.html#a35cfe081b501dde3d8c2f4df534e1224" title="Set the outlier weight in weights to weight." alt="" coords="1031,586,1225,612"/>
+<area shape="poly" id="edge30_Node000013_Node000028" title=" " alt="" coords="872,980,880,907,902,811,920,759,944,709,974,663,1012,622,1017,618,1021,622,1015,626,979,666,949,712,925,761,908,812,886,908,877,980"/>
+<area shape="rect" id="Node000029" href="$d6/d52/namespaceml_1_1maths__t.html#a4e2ff9d2a64df68ffeb890db05b17709" title="Set the seasonal variance scale weight in weights to weight." alt="" coords="1043,636,1213,677"/>
+<area shape="poly" id="edge31_Node000013_Node000029" title=" " alt="" coords="874,980,888,919,913,840,931,798,953,757,980,719,1012,686,1027,676,1030,680,1015,690,984,723,958,760,936,800,918,842,893,920,880,981"/>
+<area shape="rect" id="Node000030" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a27608c97cfbc7931a896cd1bfbaca9c8" title="Get the smallest component of x." alt="" coords="1055,701,1201,756"/>
+<area shape="poly" id="edge32_Node000013_Node000030" title=" " alt="" coords="880,979,898,933,926,876,964,817,987,790,1012,766,1040,749,1042,753,1015,770,990,794,968,821,930,879,903,935,885,981"/>
+<area shape="rect" id="Node000031" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a9347bd4a410c459b597fb96c305c7cbd" title="Overload sqrt for CVectorNx1." alt="" coords="1044,781,1212,807"/>
+<area shape="poly" id="edge33_Node000013_Node000031" title=" " alt="" coords="885,979,905,943,934,901,970,859,1012,823,1038,810,1040,815,1015,828,974,863,938,904,910,946,889,981"/>
+<area shape="rect" id="Node000015" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="1307,1298,1452,1354"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="1212,1323,1291,1323,1291,1328,1212,1328"/>
+<area shape="poly" id="edge24_Node000022_Node000007" title=" " alt="" coords="1212,878,1240,861,1266,836,1289,807,1326,745,1352,685,1368,637,1373,638,1357,687,1330,748,1293,810,1270,839,1244,865,1215,883"/>
+<area shape="rect" id="Node000023" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1300,881,1459,922"/>
+<area shape="poly" id="edge23_Node000022_Node000023" title=" " alt="" coords="1242,899,1284,899,1284,904,1242,904"/>
+<area shape="poly" id="edge27_Node000024_Node000025" title=" " alt="" coords="1199,1531,1241,1520,1313,1496,1314,1501,1243,1526,1201,1536"/>
+<area shape="rect" id="Node000033" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="794,1060,949,1101"/>
+<area shape="poly" id="edge36_Node000032_Node000033" title=" " alt="" coords="441,1013,578,1020,654,1027,730,1038,793,1053,792,1058,729,1043,654,1032,577,1025,440,1018"/>
+<area shape="rect" id="Node000034" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a00ce3bf67c4bcf3d302793d3a1208e49" title="Get a checksum for this object." alt="" coords="537,1053,682,1108"/>
+<area shape="poly" id="edge37_Node000032_Node000034" title=" " alt="" coords="441,1036,523,1056,521,1061,440,1041"/>
+<area shape="poly" id="edge38_Node000034_Node000033" title=" " alt="" coords="683,1078,779,1078,779,1083,683,1083"/>
+<area shape="rect" id="Node000036" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a7b7c5297d5d1c8a68a14ed170f69a7bc" title=" " alt="" coords="490,445,729,486"/>
+<area shape="poly" id="edge40_Node000035_Node000036" title=" " alt="" coords="442,486,474,481,475,487,443,491"/>
+<area shape="rect" id="Node000039" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="1039,362,1217,388"/>
+<area shape="poly" id="edge46_Node000035_Node000039" title=" " alt="" coords="395,471,440,449,489,431,560,413,632,399,777,381,912,372,1023,370,1024,375,912,378,778,386,633,405,561,419,491,436,442,454,398,476"/>
+<area shape="rect" id="Node000040" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a653b8d4c736c40e803b5d13fdcd89edb" title="Convert to a vector of vectors." alt="" coords="531,510,688,566"/>
+<area shape="poly" id="edge47_Node000035_Node000040" title=" " alt="" coords="443,512,516,522,515,528,442,517"/>
+<area shape="rect" id="Node000037" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="779,445,964,486"/>
+<area shape="poly" id="edge41_Node000036_Node000037" title=" " alt="" coords="730,463,763,463,763,468,730,468"/>
+<area shape="poly" id="edge45_Node000036_Node000039" title=" " alt="" coords="717,442,777,431,1027,388,1028,394,778,436,718,447"/>
+<area shape="rect" id="Node000038" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="1035,412,1221,453"/>
+<area shape="poly" id="edge42_Node000037_Node000038" title=" " alt="" coords="964,451,1019,444,1020,449,965,456"/>
+<area shape="poly" id="edge43_Node000037_Node000039" title=" " alt="" coords="925,442,964,425,988,411,1013,398,1038,390,1039,395,1015,403,991,415,967,429,927,447"/>
+<area shape="poly" id="edge44_Node000039_Node000007" title=" " alt="" coords="1218,385,1243,398,1268,418,1289,440,1326,490,1353,540,1371,581,1366,583,1348,542,1321,493,1285,444,1264,422,1241,403,1216,390"/>
+<area shape="rect" id="Node000041" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a2a8e0e1f7bfe768f6c5a20f9069dfd3c" title="Get the i,j &#39;th component (no bounds checking)." alt="" coords="793,510,950,566"/>
+<area shape="poly" id="edge48_Node000040_Node000041" title=" " alt="" coords="689,535,777,535,777,540,689,540"/>
+<area shape="rect" id="Node000042" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#ae8df8630abb27926eab97fade1afccdf" title=" " alt="" coords="1044,476,1212,562"/>
+<area shape="poly" id="edge49_Node000041_Node000042" title=" " alt="" coords="950,529,1028,524,1029,529,951,535"/>
+<area shape="rect" id="Node000045" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="516,1147,703,1187"/>
+<area shape="poly" id="edge52_Node000044_Node000045" title=" " alt="" coords="437,1164,500,1164,500,1170,437,1170"/>
+<area shape="rect" id="Node000046" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="781,1147,962,1187"/>
+<area shape="poly" id="edge53_Node000045_Node000046" title=" " alt="" coords="704,1164,765,1164,765,1170,704,1170"/>
+<area shape="rect" id="Node000049" href="$d2/d96/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03_1_1_c_random_number_generator.html#aa878c3172b42f558732a180785196359" title="Seed the random number generator." alt="" coords="496,1262,724,1333"/>
+<area shape="poly" id="edge56_Node000048_Node000049" title=" " alt="" coords="419,1295,480,1295,480,1300,419,1300"/>
+<area shape="poly" id="edge59_Node000051_Node000051" title=" " alt="" coords="300,1432,298,1422,306,1413,322,1407,346,1405,372,1408,387,1414,385,1419,371,1413,346,1411,323,1413,309,1417,303,1423,305,1431"/>
+</map>

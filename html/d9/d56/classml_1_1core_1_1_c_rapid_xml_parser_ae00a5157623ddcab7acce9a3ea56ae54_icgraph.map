@@ -1,0 +1,22 @@
+<map id="ml::core::CRapidXmlParser::toNodeHierarchy" name="ml::core::CRapidXmlParser::toNodeHierarchy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="494,154,675,195"/>
+<area shape="poly" id="edge8_Node000001_Node000001" title=" " alt="" coords="623,141,609,135,585,132,562,134,548,139,543,145,545,153,540,154,538,144,545,135,561,129,585,127,610,130,625,136"/>
+<area shape="rect" id="Node000002" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#ac5291555eb6a8e0e86883e0efd3dbaea" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="556,143,508,92,478,66,445,45,421,34,423,29,447,40,481,62,512,88,560,140"/>
+<area shape="rect" id="Node000003" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#af471b1726701c94765f665e7d854356a" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="541,147,496,119,445,94,414,83,415,78,447,89,498,115,544,143"/>
+<area shape="rect" id="Node000004" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3efc29603d66ba90bd2ee29bb292f0a9" title=" " alt="" coords="290,104,406,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="483,152,403,133,405,128,484,147"/>
+<area shape="rect" id="Node000007" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a69a4b118514aee14b4ce50e51c0e497d" title="Called recursively by the public toNodeHierarchy() method." alt="" coords="257,154,439,195"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="478,177,439,177,439,172,478,172"/>
+<area shape="rect" id="Node000008" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#afae636cf05c5381e91ed403fe47dac6f" title=" " alt="" coords="257,219,439,260"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="495,202,425,221,424,216,494,196"/>
+<area shape="rect" id="Node000009" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a62fa997234af569a4cf00becd24bf3f5" title="As above, but use both a node pool and a string cache." alt="" coords="257,285,439,325"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="548,207,501,241,447,274,419,286,417,281,445,269,498,237,545,202"/>
+<area shape="rect" id="Node000010" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9da74d9fae4667b2d66e3dda40db0aa0" title="As above, but use a pool to avoid XML node memory allocations where possible." alt="" coords="257,350,439,391"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="565,209,517,275,484,309,447,339,425,352,422,347,445,335,480,305,513,271,561,206"/>
+<area shape="rect" id="Node000005" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#af4c96088782be6e71d804932925df641" title=" " alt="" coords="5,80,202,106"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="274,112,202,105,203,100,275,107"/>
+<area shape="rect" id="Node000006" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a9ea89ec3facaf823378a08ff0a0b62d6" title=" " alt="" coords="5,129,202,155"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="275,127,203,135,202,129,274,122"/>
+</map>

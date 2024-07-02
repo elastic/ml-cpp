@@ -1,0 +1,7 @@
+<map id="ml::core::CCompressedLfuCache&lt; KEY, VALUE, COMPRESSED_KEY_BITS &gt;" name="ml::core::CCompressedLfuCache&lt; KEY, VALUE, COMPRESSED_KEY_BITS &gt;">
+<area shape="rect" id="Node000001" title="A memory limited least frequently used cache." alt="" coords="5,214,256,270"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html" title=" " alt="" coords="23,109,238,165"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,180,133,213,128,213,128,180"/>
+<area shape="rect" id="Node000003" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title=" " alt="" coords="15,5,246,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="133,62,133,109,128,109,128,62"/>
+</map>

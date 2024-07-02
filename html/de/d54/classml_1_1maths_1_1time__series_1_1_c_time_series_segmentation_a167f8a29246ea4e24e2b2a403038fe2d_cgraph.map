@@ -1,0 +1,28 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal" name="ml::maths::time_series::CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,187,235,242"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="283,5,505,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,184,207,132,281,78,303,66,306,70,284,82,210,136,151,188"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="580,57,739,98"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,184,228,162,282,143,355,123,430,107,564,86,565,91,431,113,356,128,283,148,230,167,180,188"/>
+<area shape="rect" id="Node000004" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a8a79e2356a43f06890f572eb74f02c7a" title="Fit a seasonal model of period period to the values [begin, end)." alt="" coords="301,187,487,242"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,212,286,212,286,217,235,217"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="580,122,739,163"/>
+<area shape="poly" id="edge11_Node000001_Node000006" title=" " alt="" coords="225,183,282,172,430,153,564,144,564,149,431,159,283,177,226,189"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="623,451,697,477"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="236,240,283,252,348,261,402,262,427,264,452,271,478,283,507,303,519,316,527,330,533,358,538,385,544,399,555,413,580,432,609,446,607,451,578,437,551,416,540,402,533,387,528,359,522,332,515,320,503,307,476,288,450,276,426,270,401,267,348,266,282,257,234,246"/>
+<area shape="rect" id="Node000010" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a0f4174befdbb15759143f5adbfa7d0a2" title=" " alt="" coords="305,341,483,382"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="175,240,342,331,339,335,172,245"/>
+<area shape="rect" id="Node000011" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a51147b595b313b0d5a857f7e8ec6136e" title=" " alt="" coords="301,405,487,461"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="142,241,200,315,240,356,284,391,291,396,289,400,281,395,236,360,196,319,138,244"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="430,184,486,145,552,108,568,101,570,106,554,113,489,150,433,188"/>
+<area shape="rect" id="Node000005" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html#aa20b5ada9bc6546d99c78add370d2165" title="Check if this is windowed check whether the window contains index." alt="" coords="553,187,766,242"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="487,212,538,212,538,217,487,217"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="486,187,567,165,568,170,488,192"/>
+<area shape="rect" id="Node000007" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html#a7e700746038c93573f9cbe1f051fb487" title="The offset of index in the period." alt="" coords="553,267,766,322"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="488,240,551,259,550,264,486,245"/>
+<area shape="rect" id="Node000008" href="$df/d98/structml_1_1maths_1_1time__series_1_1_c_signal_1_1_s_seasonal_component_summary.html#af4d7cb69651a22ddb891c632665891c8" title="The windowed length of the repeat." alt="" coords="553,347,766,402"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="478,240,507,259,523,278,531,297,539,315,555,333,559,336,556,340,551,336,535,318,526,299,519,281,503,263,475,245"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="484,241,507,259,521,279,529,299,532,337,535,375,542,393,555,413,580,433,609,447,606,452,577,438,551,416,537,396,530,376,527,338,524,300,517,282,503,263,481,245"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="620,455,608,444,611,434,629,427,660,424,700,429,710,435,712,443,706,444,706,438,698,434,660,430,630,432,615,437,613,443,624,451"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="344,341,342,331,350,322,367,316,394,314,422,317,439,323,437,328,421,322,394,319,368,321,353,326,347,332,349,339"/>
+</map>

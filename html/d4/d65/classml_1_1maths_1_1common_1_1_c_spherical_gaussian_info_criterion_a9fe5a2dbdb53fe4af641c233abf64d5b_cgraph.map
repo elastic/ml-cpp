@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CSphericalGaussianInfoCriterion::add" name="ml::maths::common::CSphericalGaussianInfoCriterion::add">
+<area shape="rect" id="Node000001" title="Update the sufficient statistics for computing info content." alt="" coords="5,63,246,103"/>
+<area shape="rect" id="Node000002" href="$d4/d65/classml_1_1maths_1_1common_1_1_c_spherical_gaussian_info_criterion.html#a9eaf8625810c8cf4d211e565c35d79c1" title="Update the sufficient statistics for computing info content." alt="" coords="294,29,534,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,66,278,63,278,68,247,72"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="341,95,487,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="247,94,326,103,325,108,246,99"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="369,29,366,19,374,10,390,5,414,3,440,5,455,11,453,16,439,10,414,8,391,10,377,15,372,21,374,28"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="582,95,727,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="487,112,566,112,566,118,487,118"/>
+</map>

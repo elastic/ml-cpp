@@ -1,0 +1,29 @@
+<map id="ml::model::CResourceMonitor::updateMemoryLimitsAndPruneThreshold" name="ml::model::CResourceMonitor::updateMemoryLimitsAndPruneThreshold">
+<area shape="rect" id="Node000001" title=" " alt="" coords="779,114,1044,155"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a2c3228f0a3fbf28f7431d2567ed933ac" title="Default constructor." alt="" coords="536,81,731,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="764,119,731,115,732,110,764,114"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a525baae0430affe818c37cff796c78bb" title="Set the internal memory limit, as specified in a limits config file." alt="" coords="536,146,731,187"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="764,154,732,158,731,152,764,149"/>
+<area shape="rect" id="Node000004" href="$d4/de4/_c_anomaly_job_limit_test_8cc.html#a4c4b2fd0e7bbd6d5dad761b8ed4661c4" title=" " alt="" coords="281,5,478,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="540,140,534,135,517,111,510,87,504,65,486,44,469,34,471,29,490,40,508,63,515,86,521,109,538,131,544,135"/>
+<area shape="rect" id="Node000005" href="$d3/d6e/_c_resource_monitor_test_8cc.html#abe859dbc0ef3b61c3b1c090ca6413a5d" title=" " alt="" coords="271,55,488,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="547,142,535,135,520,124,510,113,501,103,487,94,460,83,462,78,489,89,504,99,514,110,524,120,537,131,550,137"/>
+<area shape="rect" id="Node000006" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a6ffc63841436e87d0a410cf7260e8ae2" title=" " alt="" coords="271,104,488,130"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="520,147,449,133,450,128,521,142"/>
+<area shape="rect" id="Node000007" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a70561e1d8471d0d96b1bfca4769bacce" title=" " alt="" coords="271,153,488,179"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="520,169,488,169,488,164,520,164"/>
+<area shape="rect" id="Node000008" href="$dd/da5/_c_resource_limit_test_8cc.html#a2597707305b58e414cbebefd137d24a6" title=" " alt="" coords="301,203,458,228"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="521,191,450,205,449,199,520,185"/>
+<area shape="rect" id="Node000010" href="$df/d58/classml_1_1model_1_1_c_limits.html#a9d45d66b2428646d4a09fc9651a071f1" title=" " alt="" coords="314,253,445,293"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="584,197,489,243,446,258,445,253,487,238,582,192"/>
+<area shape="rect" id="Node000014" href="$df/d58/classml_1_1model_1_1_c_limits.html#aaffeb6be6f45114c133054152623f628" title=" " alt="" coords="314,318,445,359"/>
+<area shape="poly" id="edge13_Node000003_Node000014" title=" " alt="" coords="609,200,557,255,525,283,489,307,446,326,444,321,487,303,521,279,553,251,605,196"/>
+<area shape="rect" id="Node000009" href="$dd/da5/_c_resource_limit_test_8cc.html#a7332c390c143cb0b3a2043e909666861" title=" " alt="" coords="5,181,223,207"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="285,211,223,206,224,200,286,205"/>
+<area shape="rect" id="Node000011" href="$d7/daf/_c_limits_test_8cc.html#aaa4fec8fb3d1c7f97dd7d4e2849e2669" title=" " alt="" coords="16,231,212,256"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="298,267,212,257,213,252,298,261"/>
+<area shape="rect" id="Node000012" href="$d7/daf/_c_limits_test_8cc.html#a1a2a417677aed6232b2ee71e26bd6e53" title=" " alt="" coords="16,280,212,306"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="298,282,213,288,213,283,298,276"/>
+<area shape="rect" id="Node000013" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="89,329,139,355"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="300,300,223,321,140,340,139,335,222,316,298,294"/>
+</map>

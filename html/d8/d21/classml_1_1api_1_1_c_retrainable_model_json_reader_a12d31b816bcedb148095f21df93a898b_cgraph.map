@@ -1,0 +1,37 @@
+<map id="ml::api::CRetrainableModelJsonReader::bestForestFromCompressedJsonStream" name="ml::api::CRetrainableModelJsonReader::bestForestFromCompressedJsonStream">
+<area shape="rect" id="Node000001" title="Retrieve the best forest from a compressed and chunked JSON blob." alt="" coords="5,351,271,406"/>
+<area shape="rect" id="Node000002" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a23ccdca02952641abdd746d95d732fbc" title="Retrieve the best forest from a JSON blob." alt="" coords="319,383,538,438"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="271,390,304,394,303,399,271,396"/>
+<area shape="rect" id="Node000014" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a81e1697a89ed440ee2857261dcab8ce7" title=" " alt="" coords="612,273,795,329"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="271,358,596,313,597,318,272,363"/>
+<area shape="rect" id="Node000003" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a92e17acd17c9d8b439d2f48577530f55" title=" " alt="" coords="586,389,821,445"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="539,410,571,411,570,417,539,416"/>
+<area shape="rect" id="Node000004" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#ad50be95ed9e9b05714be0ff68b2ab9f0" title=" " alt="" coords="871,309,1054,365"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="795,386,855,367,857,373,797,391"/>
+<area shape="rect" id="Node000005" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#aca6052374a080b7b0c29a4b391f571e9" title=" " alt="" coords="871,389,1054,445"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="822,415,855,415,855,420,822,420"/>
+<area shape="rect" id="Node000006" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a31f7c18d990e5c284be5bb4b63aca1ab" title=" " alt="" coords="871,629,1054,685"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="724,444,783,527,825,574,871,615,876,619,873,623,868,619,821,577,779,531,720,447"/>
+<area shape="rect" id="Node000007" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a3ce116cdd046d19624560699171695a5" title=" " alt="" coords="871,709,1054,765"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="717,444,738,497,771,563,816,633,842,666,871,695,875,698,871,702,868,699,838,670,811,636,767,566,733,499,712,446"/>
+<area shape="rect" id="Node000008" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#ac67ef8c66b3e4f0ab7a7c96c322114d1" title=" " alt="" coords="871,789,1054,845"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="713,445,730,511,761,599,782,646,807,692,837,736,871,775,874,778,870,781,867,779,833,739,803,695,777,648,756,601,725,512,708,446"/>
+<area shape="rect" id="Node000009" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a36675eb852fb39898967e81728705678" title=" " alt="" coords="871,469,1054,525"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="797,443,857,462,855,467,795,448"/>
+<area shape="rect" id="Node000010" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#af8788fae99f224784f7d4addd27a7686" title=" " alt="" coords="871,85,1054,141"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="765,387,794,366,819,340,833,315,840,291,841,245,843,200,851,176,867,152,869,150,873,153,871,155,856,178,848,201,846,246,845,292,838,317,823,343,798,370,768,391"/>
+<area shape="rect" id="Node000011" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a837a6cf1a0926c7b194c0be91a7e1fe2" title=" " alt="" coords="871,549,1054,605"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="740,443,800,488,871,535,879,540,877,544,868,539,797,493,737,447"/>
+<area shape="rect" id="Node000012" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#af8a0fb9b990f08db02a87c2d029db2c9" title=" " alt="" coords="871,165,1054,221"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="761,387,792,365,819,340,835,312,842,285,848,259,867,231,870,229,874,233,871,235,853,261,847,287,840,314,823,343,795,370,764,391"/>
+<area shape="rect" id="Node000013" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="869,245,1056,286"/>
+<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="751,387,820,339,843,316,868,295,876,290,879,295,871,299,846,320,823,343,754,391"/>
+<area shape="poly" id="edge14_Node000014_Node000004" title=" " alt="" coords="796,311,856,320,855,325,795,317"/>
+<area shape="poly" id="edge15_Node000014_Node000005" title=" " alt="" coords="767,327,870,375,882,380,880,385,868,380,765,332"/>
+<area shape="poly" id="edge16_Node000014_Node000009" title=" " alt="" coords="761,327,793,349,823,375,839,397,847,417,855,436,871,455,875,458,871,462,867,459,850,439,842,419,834,400,819,379,790,353,758,332"/>
+<area shape="poly" id="edge17_Node000014_Node000010" title=" " alt="" coords="729,271,789,212,827,180,868,151,875,146,878,151,871,155,831,184,793,216,733,275"/>
+<area shape="poly" id="edge19_Node000014_Node000012" title=" " alt="" coords="771,270,879,225,881,230,773,275"/>
+<area shape="poly" id="edge20_Node000014_Node000013" title=" " alt="" coords="795,286,854,278,855,283,796,291"/>
+<area shape="rect" id="Node000015" href="$d9/d33/classml_1_1api_1_1_c_serializable_from_compressed_chunked_json.html#a9b3f51411a7765aec1dd25a81dc1a54c" title=" " alt="" coords="871,5,1054,61"/>
+<area shape="poly" id="edge18_Node000014_Node000015" title=" " alt="" coords="717,272,740,228,774,175,817,120,868,71,872,68,876,72,871,75,821,124,779,178,745,231,721,274"/>
+</map>

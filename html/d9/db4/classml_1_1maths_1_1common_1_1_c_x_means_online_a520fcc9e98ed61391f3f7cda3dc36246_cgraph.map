@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CXMeansOnline::minimumSplitCount" name="ml::maths::common::CXMeansOnline::minimumSplitCount">
+<area shape="rect" id="Node000001" title="Compute the minimum split count." alt="" coords="5,63,209,119"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a3596fdd65798421a6755966082b8d22f" title="The total count of points." alt="" coords="257,29,413,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,70,241,64,242,69,210,75"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="298,118,372,144"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="210,106,283,119,282,124,209,112"/>
+<area shape="poly" id="edge5_Node000002_Node000002" title=" " alt="" coords="295,29,293,19,300,10,314,5,335,3,357,5,371,11,369,16,356,10,335,8,315,10,303,15,299,20,301,28"/>
+<area shape="rect" id="Node000003" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a064fa6dd7a75362d732046a98332c4d6" title=" " alt="" coords="461,29,624,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,56,445,56,445,61,413,61"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="460,44,428,43,428,38,461,38"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="503,29,501,19,508,10,522,5,543,3,565,5,579,11,576,16,564,10,543,8,523,10,511,15,507,20,508,28"/>
+<area shape="poly" id="edge7_Node000004_Node000004" title=" " alt="" coords="300,119,293,110,297,100,312,94,335,92,360,94,373,101,371,106,359,99,335,97,313,99,301,104,299,109,304,116"/>
+</map>

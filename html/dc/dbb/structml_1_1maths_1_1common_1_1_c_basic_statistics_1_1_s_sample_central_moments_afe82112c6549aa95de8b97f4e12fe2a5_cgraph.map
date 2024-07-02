@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBasicStatistics::SSampleCentralMoments::add" name="ml::maths::common::CBasicStatistics::SSampleCentralMoments::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,228,61"/>
+<area shape="rect" id="Node000002" href="$dc/d11/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_central_moments_custom_add.html#a1d2f1151c09866740e692276871abd1f" title=" " alt="" coords="276,5,508,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,31,260,31,260,36,228,36"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="556,5,778,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="508,31,540,31,540,36,508,36"/>
+</map>

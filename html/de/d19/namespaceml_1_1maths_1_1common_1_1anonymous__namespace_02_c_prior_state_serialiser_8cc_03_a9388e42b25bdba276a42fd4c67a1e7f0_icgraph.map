@@ -1,0 +1,10 @@
+<map id="ml::maths::common::anonymous_namespace{CPriorStateSerialiser::cc}::doRestore" name="ml::maths::common::anonymous_namespace{CPriorStateSerialiser::cc}::doRestore">
+<area shape="rect" id="Node000001" title="Implements restore for std::shared_ptr." alt="" coords="216,100,378,171"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="329,88,316,81,297,79,280,80,268,85,262,92,260,100,255,99,257,89,265,81,278,75,297,73,318,76,332,83"/>
+<area shape="rect" id="Node000002" href="$de/d19/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_prior_state_serialiser_8cc_03.html#a5b56136f66dc3064dc120a33b6154117" title="Implements restore for std::shared_ptr." alt="" coords="5,5,168,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,96,166,79,168,74,204,91"/>
+<area shape="rect" id="Node000003" href="$de/d19/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_prior_state_serialiser_8cc_03.html#a831213440422cf5ac3ac44b299555aec" title="Implements restore for std::unique_ptr." alt="" coords="5,100,168,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,138,168,138,168,133,200,133"/>
+<area shape="rect" id="Node000004" href="$de/d19/namespaceml_1_1maths_1_1common_1_1anonymous__namespace_02_c_prior_state_serialiser_8cc_03.html#ab6747eebd65a56b1908b1285dcfe1134" title="Implements restore for std::unique_ptr." alt="" coords="5,195,168,265"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="204,180,168,196,166,192,202,175"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::core::CVectorRange::insert" name="ml::core::CVectorRange::insert">
+<area shape="rect" id="Node000001" title="Insert the value [begin, end) at pos." alt="" coords="5,35,168,75"/>
+<area shape="rect" id="Node000002" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a3f4d266a3c1ebb9791fae5adaf57401c" title="Input iterator to start of range." alt="" coords="230,5,393,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,42,214,36,215,41,168,47"/>
+<area shape="rect" id="Node000003" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#ab6fbb4bab268325e51ba4f5230174cef" title="Input iterator to end of range." alt="" coords="216,70,407,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,62,200,66,200,72,168,68"/>
+</map>

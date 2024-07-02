@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CPRNG::CXorShift1024Mult::fromString" name="ml::maths::common::CPRNG::CXorShift1024Mult::fromString">
+<area shape="rect" id="Node000001" title="Restore from a string." alt="" coords="5,31,194,87"/>
+<area shape="rect" id="Node000002" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="242,5,396,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,42,226,37,227,42,194,47"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="245,71,393,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,70,230,75,229,81,194,75"/>
+</map>

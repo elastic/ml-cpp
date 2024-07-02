@@ -1,0 +1,7 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d9/de8/classml_1_1core_1_1_c_regex_filter.html#ad57792da13ec900833599d677f01fc6a" title="Configures the filter for the given regularExpressions." alt="" coords="250,5,403,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,43,234,37,235,42,194,48"/>
+<area shape="rect" id="Node000003" href="$d9/de8/classml_1_1core_1_1_c_regex_filter.html#adaa527b59a5a697837f745fa40a16dfc" title="Returns true if the filter is empty." alt="" coords="250,71,403,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,70,234,75,234,80,197,75"/>
+</map>

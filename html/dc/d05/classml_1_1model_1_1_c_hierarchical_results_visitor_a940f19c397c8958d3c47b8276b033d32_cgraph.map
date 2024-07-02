@@ -1,0 +1,23 @@
+<map id="ml::model::CHierarchicalResultsVisitor::shouldWriteResult" name="ml::model::CHierarchicalResultsVisitor::shouldWriteResult">
+<area shape="rect" id="Node000001" title="Check if we&#39;ll write a result for the node." alt="" coords="5,147,223,187"/>
+<area shape="poly" id="edge11_Node000001_Node000001" title=" " alt="" coords="65,147,63,137,71,128,88,122,114,120,142,122,159,129,157,134,141,128,114,125,89,127,74,132,68,138,71,145"/>
+<area shape="rect" id="Node000002" href="$d5/df2/classml_1_1model_1_1_c_hierarchical_results.html#aa156cff0339e0c616298cedf099c9b8b" title=" " alt="" coords="291,5,457,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,144,199,104,269,62,296,50,298,55,272,67,202,108,144,148"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3578a82308dd4efac1c213646600e326" title="Check if this node is the root node." alt="" coords="996,113,1161,154"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,143,270,134,468,120,664,117,841,119,980,125,980,130,841,125,664,122,468,125,271,139,207,149"/>
+<area shape="rect" id="Node000004" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3c3becfe58de972509ea2f9c6597693e" title="Check if we can ever write a result for the node." alt="" coords="525,163,730,219"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,155,345,150,477,156,510,161,509,166,477,162,345,156,223,160"/>
+<area shape="rect" id="Node000007" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3ebc7b53ff4a5c697de838b970ac1830" title="Get the nearest ancestor of the node for which we write results." alt="" coords="271,171,477,227"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="224,178,256,182,255,187,223,183"/>
+<area shape="rect" id="Node000008" href="$dd/dab/structml_1_1model_1_1hierarchical__results__detail_1_1_s_node.html#ac889be9e65e4598ebddb00bd2a131eba" title="Returns the aggregate probability for the node." alt="" coords="297,251,451,307"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="160,185,272,237,286,243,284,247,270,241,157,190"/>
+<area shape="rect" id="Node000009" href="$df/d58/classml_1_1model_1_1_c_limits.html#ae5282d45eea6a950a429f65294035ead" title=" " alt="" coords="278,331,470,371"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="133,186,190,250,229,286,272,317,281,322,278,326,269,321,226,290,186,254,129,190"/>
+<area shape="poly" id="edge7_Node000004_Node000003" title=" " alt="" coords="730,165,778,156,882,144,980,136,980,141,883,149,779,162,731,170"/>
+<area shape="rect" id="Node000005" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#adedccb34126f54fa542741d102a483d8" title="Check if the node is a leaf." alt="" coords="780,171,946,211"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="731,188,765,188,765,194,731,194"/>
+<area shape="rect" id="Node000006" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a782a7ab20789d56e6d02c6dde2f28169" title="Check if this is a named partition." alt="" coords="778,236,948,277"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="731,217,773,229,772,234,730,222"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="920,233,946,221,994,192,1037,161,1040,166,997,196,949,225,923,238"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="477,193,509,192,510,197,477,198"/>
+</map>

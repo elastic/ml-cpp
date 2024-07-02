@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CReadWriteLockTest.cc}::CFastMutexProtectedAdder" name="anonymous_namespace{CReadWriteLockTest.cc}::CFastMutexProtectedAdder">
+<area shape="rect" id="Node000001" title=" " alt="" coords="37,255,228,310"/>
+<area shape="rect" id="Node000002" href="$dd/d6b/classml_1_1core_1_1_c_thread.html" title="Basic wrapper class around pthread_create etc." alt="" coords="5,180,132,205"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,217,115,252,110,256,84,220"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="37,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="84,42,64,60,48,81,43,107,46,134,64,179,59,181,41,136,37,107,43,79,60,56,81,38"/>
+<area shape="rect" id="Node000004" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="58,80,180,106"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="122,46,122,80,117,80,117,46"/>
+<area shape="rect" id="Node000005" href="$da/d7d/classml_1_1core_1_1_c_fast_mutex.html" title="Wrapper class around a fast simple mutex." alt="" coords="144,130,292,156"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="152,38,174,57,195,79,209,105,217,128,212,130,204,107,190,82,171,60,149,42"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="77,117,64,131,61,143,60,155,66,178,61,180,55,156,55,142,60,129,73,113"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="204,171,151,256,147,253,200,168"/>
+</map>

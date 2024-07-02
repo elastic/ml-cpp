@@ -1,0 +1,22 @@
+<map id="ml::model::CResourceMonitor::needToSendReport" name="ml::model::CResourceMonitor::needToSendReport">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1200,30,1395,71"/>
+<area shape="rect" id="Node000002" href="$d3/d6e/_c_resource_monitor_test_8cc.html#a6ffc63841436e87d0a410cf7260e8ae2" title=" " alt="" coords="626,5,844,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1184,46,844,27,844,22,1185,41"/>
+<area shape="rect" id="Node000003" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#adf4b8b3817555b0276318c2c8b01ef65" title="Send a memory usage report if it&#39;s changed by more than a certain percentage." alt="" coords="892,54,1152,110"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1185,66,1153,70,1152,64,1184,61"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="879,53,796,34,797,29,880,48"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="646,125,824,165"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="877,117,825,128,824,123,876,111"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9f65dd0e424bca17de0073ad974fa819" title=" " alt="" coords="642,59,828,100"/>
+<area shape="poly" id="edge9_Node000003_Node000008" title=" " alt="" coords="876,83,828,83,828,78,876,78"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="421,125,571,165"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="630,148,572,148,572,142,630,142"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,154,156,195"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="633,171,579,179,463,187,348,189,156,182,156,177,348,183,463,182,578,174,632,166"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,125,366,165"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="406,148,366,148,366,142,406,142"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="188,161,156,166,156,161,188,156"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,59,578,100"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="626,82,579,82,579,77,626,77"/>
+<area shape="poly" id="edge11_Node000009_Node000006" title=" " alt="" coords="415,107,354,126,352,121,413,102"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::model::CForecastModelPersist::CRestore" name="ml::model::CForecastModelPersist::CRestore">
+<area shape="rect" id="Node000001" title=" " alt="" coords="701,26,883,67"/>
+<area shape="rect" id="Node000002" href="$d1/da4/structml_1_1model_1_1_s_model_params.html" title="Wraps up model global parameters." alt="" coords="347,5,522,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="538,24,701,36,700,42,537,29"/>
+<area shape="rect" id="Node000003" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html" title="For restoring state in JSON format." alt="" coords="339,55,530,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="545,66,677,56,701,54,701,59,677,61,545,71"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html" title="Abstract interface for restoring state." alt="" coords="5,33,224,59"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="239,55,339,64,338,69,239,60"/>
+<area shape="rect" id="Node000005" href="$d2/d2d/structml_1_1core_1_1_c_json_state_restore_traverser_1_1_s_boost_json_handler.html" title=" " alt="" coords="14,83,215,124"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="230,91,338,81,338,87,231,96"/>
+</map>

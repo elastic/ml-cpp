@@ -1,0 +1,5 @@
+<map id="ml::maths::common::COrderings::SSecondGreater" name="ml::maths::common::COrderings::SSecondGreater">
+<area shape="rect" id="Node000001" title="Partial ordering of pairs based on larger second element." alt="" coords="5,109,197,150"/>
+<area shape="rect" id="Node000002" href="$db/db0/structml_1_1maths_1_1common_1_1_c_orderings_1_1_s_greater.html" title="Wrapper around various greater than comparisons." alt="" coords="27,5,175,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,62,104,109,98,109,98,62"/>
+</map>

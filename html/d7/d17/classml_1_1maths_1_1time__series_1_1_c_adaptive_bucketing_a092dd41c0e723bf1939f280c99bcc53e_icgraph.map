@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing::acceptPersistInserter" name="ml::maths::time_series::CAdaptiveBucketing::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to the supplied inserter." alt="" coords="722,45,879,101"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6a792bfd62f5be866d0d38af51199167" title="Get the accept persist function bound to this object." alt="" coords="509,45,674,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="707,76,675,76,675,71,707,71"/>
+<area shape="rect" id="Node000003" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a4d112235091ab42f595681013a79eae1" title="Persist by passing information to the supplied inserter." alt="" coords="250,5,461,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,59,461,54,462,48,494,54"/>
+<area shape="rect" id="Node000005" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#af2f908c37cb427e297cdd82c8c3e2cc4" title="Persist by passing information to the supplied inserter." alt="" coords="250,85,461,141"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="494,92,462,98,461,93,493,87"/>
+<area shape="rect" id="Node000004" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a6aeed80a5f2ae4d6e08f14a687b1df72" title="Persist state by passing information to inserter." alt="" coords="20,5,187,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,36,187,36,187,31,234,31"/>
+<area shape="rect" id="Node000006" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aeb29980902a370584104bbb6a3dd24e1" title="Persist state by passing information to inserter." alt="" coords="19,85,188,141"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,116,188,116,188,111,234,111"/>
+<area shape="rect" id="Node000007" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,166,202,191"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="235,147,202,156,157,168,155,163,201,151,234,142"/>
+</map>

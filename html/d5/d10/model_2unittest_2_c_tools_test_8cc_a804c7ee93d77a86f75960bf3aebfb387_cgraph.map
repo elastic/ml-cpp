@@ -1,0 +1,34 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,260,202,286"/>
+<area shape="rect" id="Node000002" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#ab4b2064beb54ae4b32a13dd4969f21bd" title="Add probability." alt="" coords="266,5,462,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,259,127,222,158,172,198,118,248,71,254,67,257,71,251,75,202,122,162,175,132,224,113,261"/>
+<area shape="rect" id="Node000004" href="$d8/d71/classml_1_1maths_1_1common_1_1_c_probability_of_extreme_sample.html#a474be0aa24bbb71d3833178731eb4cc5" title="Add probability." alt="" coords="250,325,478,366"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="153,284,274,318,272,323,152,289"/>
+<area shape="rect" id="Node000006" href="$d6/d2f/classml_1_1model_1_1_c_model_tools_1_1_c_probability_aggregator.html#ac863599c033980df808a9fb98148ac57" title="Add an aggregation style aggregator with weight weight." alt="" coords="268,390,460,431"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="121,284,176,328,212,353,251,375,267,382,265,387,248,380,210,358,173,333,118,289"/>
+<area shape="rect" id="Node000007" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#ad70036ba17d0e57a46bd106a15b7a4db" title=" " alt="" coords="266,165,462,221"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="147,257,256,223,257,229,149,262"/>
+<area shape="rect" id="Node000011" href="$d8/d71/classml_1_1maths_1_1common_1_1_c_probability_of_extreme_sample.html#ab1e90e3c03c064be9c48d6d9b1016abb" title=" " alt="" coords="264,245,464,301"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="202,271,248,271,248,276,202,276"/>
+<area shape="rect" id="Node000014" href="$d6/d2f/classml_1_1model_1_1_c_model_tools_1_1_c_probability_aggregator.html#a880bc27e292369d29339beaaabb9e0bb" title="Calculate the probability if possible." alt="" coords="282,85,446,141"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="116,258,171,207,208,177,248,151,267,141,269,146,251,155,211,182,174,211,119,262"/>
+<area shape="rect" id="Node000015" href="$d6/d2f/classml_1_1model_1_1_c_model_tools_1_1_c_probability_aggregator.html#a79cd529b6f84222eb1d384cb61496642" title="Check if any probabilities have been added." alt="" coords="282,455,446,510"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="115,285,166,358,205,402,251,440,270,451,267,456,248,445,202,406,162,361,110,288"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="548,25,728,66"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="463,35,533,38,532,43,462,40"/>
+<area shape="rect" id="Node000005" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="526,317,750,373"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="478,343,510,343,510,348,478,348"/>
+<area shape="rect" id="Node000008" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#a53ee742c5ac55949ed7af917a9ef75a2" title="Get the effective Mahalanobis of the probabilities added." alt="" coords="540,101,736,157"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="462,168,524,153,525,158,463,173"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="566,181,711,222"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="463,193,550,196,550,201,462,199"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="798,109,944,150"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="737,127,783,127,783,132,737,132"/>
+<area shape="poly" id="edge13_Node000011_Node000010" title=" " alt="" coords="463,244,550,221,551,227,465,250"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a5374365b490685fa702741c968a98697" title=" " alt="" coords="528,253,748,294"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="464,271,513,271,513,276,464,276"/>
+<area shape="rect" id="Node000013" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a739275d40cae59a9a72b42b772b113fc" title=" " alt="" coords="798,253,944,294"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="749,271,783,271,783,276,749,276"/>
+<area shape="poly" id="edge15_Node000014_Node000003" title=" " alt="" coords="445,90,538,67,539,72,447,96"/>
+<area shape="poly" id="edge16_Node000014_Node000010" title=" " alt="" coords="446,139,527,167,552,174,550,179,525,172,445,144"/>
+</map>

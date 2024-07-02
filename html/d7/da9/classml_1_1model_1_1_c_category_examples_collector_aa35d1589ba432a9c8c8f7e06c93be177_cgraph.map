@@ -1,0 +1,17 @@
+<map id="ml::model::CCategoryExamplesCollector::restoreExamples" name="ml::model::CCategoryExamplesCollector::restoreExamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,169,213,210"/>
+<area shape="rect" id="Node000002" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aacd44abd96032a41d0c29327e15fc2a9" title=" " alt="" coords="266,5,474,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,167,183,113,220,83,259,57,273,50,275,55,262,61,223,87,186,116,131,171"/>
+<area shape="rect" id="Node000003" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a315d9733c0ab1d1517f9f1221c7ba3c4" title="Parse from string. Returns false if unsuccessful." alt="" coords="280,71,460,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="154,166,260,122,282,114,283,119,262,127,156,171"/>
+<area shape="rect" id="Node000005" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="280,136,460,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="213,174,264,167,265,172,213,179"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="261,201,479,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="213,200,245,204,245,209,213,205"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="261,267,479,307"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="157,208,262,251,284,259,282,264,260,256,155,213"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="261,332,479,373"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="131,209,187,262,223,291,262,317,275,323,273,328,259,321,220,296,183,266,127,213"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="527,71,674,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="460,88,511,88,511,94,460,94"/>
+</map>

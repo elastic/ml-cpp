@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CExpandingWindow::endTime" name="ml::maths::time_series::CExpandingWindow::endTime">
+<area shape="rect" id="Node000001" title="Get the end time of the window." alt="" coords="5,5,211,46"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a824a6446df32e6fa757a8d236bff4604" title="Get the current bucket length." alt="" coords="259,5,492,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,23,243,23,243,28,211,28"/>
+</map>

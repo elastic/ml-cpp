@@ -1,0 +1,27 @@
+<map id="ml::maths::common::CSphericalGaussianInfoCriterion::add" name="ml::maths::common::CSphericalGaussianInfoCriterion::add">
+<area shape="rect" id="Node000001" title="Update the sufficient statistics for computing info content." alt="" coords="5,222,246,263"/>
+<area shape="rect" id="Node000002" href="$dd/dea/namespaceml_1_1maths_1_1common_1_1information__criteria__detail.html#ab5a3e55275bc43f7707255af809a815a" title=" " alt="" coords="342,5,488,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,220,201,148,244,107,292,71,327,54,329,59,295,75,248,111,205,151,144,223"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="335,85,495,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="153,220,215,178,293,136,320,126,321,131,295,141,218,182,156,224"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="342,150,488,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="209,219,327,190,328,195,211,224"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="294,215,536,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="246,240,278,240,278,245,246,245"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="335,294,495,335"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="211,261,321,288,319,294,209,266"/>
+<area shape="rect" id="Node000007" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="326,359,504,385"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="155,261,217,303,255,325,295,344,318,352,316,357,293,349,253,330,214,308,152,266"/>
+<area shape="rect" id="Node000013" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="342,409,488,450"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="145,262,207,328,249,364,295,395,328,409,326,414,292,400,245,368,203,331,141,265"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="584,359,761,385"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="504,369,568,369,568,375,504,375"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="809,239,990,294"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="700,356,808,304,819,299,822,304,810,309,703,361"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="810,318,989,359"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="762,356,794,351,795,357,762,361"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="827,384,972,424"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="762,382,812,389,811,394,762,387"/>
+<area shape="rect" id="Node000012" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="817,449,982,490"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="702,383,810,433,827,440,825,445,808,438,700,388"/>
+</map>

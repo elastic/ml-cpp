@@ -1,0 +1,17 @@
+<map id="ml::api::CGlobalCategoryId::globalId" name="ml::api::CGlobalCategoryId::globalId">
+<area shape="rect" id="Node000001" title="Accessor for numeric global ID." alt="" coords="562,47,730,88"/>
+<area shape="rect" id="Node000002" href="$de/ddc/_c_global_category_id_test_8cc.html#a65b4e89d4cbda7efbf781cff2cf1fa8a" title=" " alt="" coords="318,5,514,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="546,49,479,34,480,29,547,44"/>
+<area shape="rect" id="Node000003" href="$d8/d2b/namespaceml_1_1api.html#acb5f6540f8c5db4b325f3bb9d457f2a1" title=" " alt="" coords="349,55,483,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="546,70,484,70,484,65,546,65"/>
+<area shape="rect" id="Node000004" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a7c5660c2737bbdab0974515a892cb0d3" title="Write a category definition." alt="" coords="326,105,506,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="548,95,501,106,500,101,547,90"/>
+<area shape="rect" id="Node000005" href="$d8/dc0/_c_json_output_writer_test_8cc.html#afb323c2a4340b793602742c238912782" title=" " alt="" coords="39,33,236,59"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="332,101,317,95,293,83,269,73,229,62,230,57,271,68,295,79,319,90,334,96"/>
+<area shape="rect" id="Node000006" href="$d8/dc0/_c_json_output_writer_test_8cc.html#af17da953dfe405717471a89db121c83a" title=" " alt="" coords="39,83,236,108"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="310,116,236,108,236,103,311,111"/>
+<area shape="rect" id="Node000007" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#a1a7e3b54775933fdee1c44400c67d1e4" title=" " alt="" coords="5,133,270,173"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="311,138,270,142,270,137,310,133"/>
+<area shape="rect" id="Node000008" href="$df/d1f/classml_1_1api_1_1_c_single_field_data_categorizer.html#adf7aafa1f71582f9940594f94c9c2a55" title=" " alt="" coords="49,198,226,239"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="356,154,271,187,227,200,225,195,269,182,354,149"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::debugWeights" name="ml::maths::common::CMultivariateMultimodalPrior::debugWeights">
+<area shape="rect" id="Node000001" title="Full debug dump of the mode weights." alt="" coords="5,5,194,61"/>
+<area shape="rect" id="Node000002" href="$de/d0b/namespaceml_1_1maths_1_1common_1_1multivariate__multimodal__prior__detail.html#aaeda94710a7a1015a6c547a244341d8e" title="Implementation of a full debug dump of the mode weights." alt="" coords="242,5,423,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,31,226,31,226,36,194,36"/>
+<area shape="rect" id="Node000003" href="$d9/dc0/structml_1_1maths_1_1common_1_1_s_multimodal_prior_mode.html#a0f3f8035f23680cc0b497768fa6d2b16" title="Full debug dump of the mode weights." alt="" coords="471,5,623,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,31,455,31,455,36,424,36"/>
+</map>

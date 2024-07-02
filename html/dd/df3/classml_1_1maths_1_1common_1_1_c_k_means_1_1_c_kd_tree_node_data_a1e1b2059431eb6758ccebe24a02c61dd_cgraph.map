@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CKMeans::CKdTreeNodeData::CKdTreeNodeData" name="ml::maths::common::CKMeans::CKdTreeNodeData::CKdTreeNodeData">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,204,61"/>
+<area shape="rect" id="Node000002" href="$dd/df3/classml_1_1maths_1_1common_1_1_c_k_means_1_1_c_kd_tree_node_data.html#a37912d15662717010d01dca748d740c4" title="Initialize the centroid if it is null." alt="" coords="252,5,450,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,31,236,31,236,36,204,36"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="498,13,643,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="451,31,483,31,483,36,451,36"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="691,13,837,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="644,31,676,31,676,36,644,36"/>
+</map>

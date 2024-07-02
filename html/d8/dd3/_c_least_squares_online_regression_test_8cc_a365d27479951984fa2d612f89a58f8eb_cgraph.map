@@ -1,0 +1,26 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,164,202,190"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="260,5,483,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,162,173,118,248,71,260,65,263,70,251,76,177,122,122,166"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#afc80e7cf91ba8533fc744f369404bb6f" title=" " alt="" coords="250,85,493,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,161,249,135,276,127,277,132,250,140,154,166"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="264,149,479,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,175,249,175,249,180,202,180"/>
+<area shape="rect" id="Node000005" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a93017b581aac11b4bbf614bad81f5525" title=" " alt="" coords="255,229,488,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="154,188,250,215,277,222,276,227,249,220,152,193"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="283,294,460,335"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="121,189,176,233,212,257,251,279,269,287,267,292,248,284,210,262,173,237,118,193"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="831,196,991,236"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="475,226,491,215,503,202,509,188,513,158,518,128,525,114,539,102,572,83,602,71,630,65,658,65,716,77,784,101,815,117,843,137,887,182,883,185,839,142,812,121,782,106,715,82,658,70,631,70,603,76,574,88,543,106,530,118,523,130,518,159,514,189,507,205,495,219,479,231"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="541,116,783,172"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="464,226,492,215,516,199,540,182,552,176,554,181,542,186,519,203,494,220,465,231"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="583,196,742,236"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="488,233,567,224,567,229,489,238"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="590,261,735,302"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="489,259,574,269,574,274,488,265"/>
+<area shape="rect" id="Node000010" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6495029359b9d3665c88e58764b299fa" title=" " alt="" coords="555,325,769,381"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="461,267,494,280,519,295,542,311,556,317,553,322,540,316,516,300,492,285,459,272"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="590,405,735,446"/>
+<area shape="poly" id="edge11_Node000005_Node000011" title=" " alt="" coords="476,268,495,280,507,294,514,309,520,337,525,365,531,378,543,391,576,410,573,415,539,395,527,381,520,367,514,338,509,311,503,297,491,285,473,272"/>
+<area shape="poly" id="edge10_Node000010_Node000006" title=" " alt="" coords="757,322,782,311,832,279,875,244,878,248,835,283,785,316,759,327"/>
+</map>

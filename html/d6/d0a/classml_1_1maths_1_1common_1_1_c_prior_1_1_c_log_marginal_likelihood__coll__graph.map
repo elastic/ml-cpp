@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CPrior::CLogMarginalLikelihood" name="ml::maths::common::CPrior::CLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title="Wrapper around the jointLogMarginalLikelihood function." alt="" coords="603,80,807,121"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="335,15,480,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="496,52,610,77,609,82,495,57"/>
+<area shape="rect" id="Node000003" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,23,166,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="181,33,334,33,334,38,181,38"/>
+<area shape="rect" id="Node000004" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="329,80,486,121"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="502,98,603,98,603,103,502,103"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="9,116,162,157"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="177,124,328,107,328,112,178,129"/>
+<area shape="rect" id="Node000006" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="329,146,486,186"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="178,142,328,156,328,161,177,148"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="501,143,609,119,610,124,502,148"/>
+</map>

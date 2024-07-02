@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CPriorStateSerialiser::operator()" name="ml::maths::common::CPriorStateSerialiser::operator()">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,77,151,133"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a10751f872b0834dea342ed124d49c91a" title="Persist state by passing information to the supplied inserter." alt="" coords="227,5,373,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,79,211,59,213,64,152,84"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="199,85,401,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,103,183,103,183,108,151,108"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ad24322dcd215dd2db2a19a8394913229" title="Get the tag name for this prior." alt="" coords="227,149,373,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,126,213,146,211,151,150,131"/>
+</map>

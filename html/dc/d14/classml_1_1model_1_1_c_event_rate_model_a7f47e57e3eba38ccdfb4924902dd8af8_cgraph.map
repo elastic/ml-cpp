@@ -1,0 +1,70 @@
+<map id="ml::model::CEventRateModel::fill" name="ml::model::CEventRateModel::fill">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,598,199,639"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#aba56af5c27a1bb113941c81977171f5e" title="Get the length of the time interval used to aggregate data." alt="" coords="992,41,1189,81"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,598,103,514,110,456,121,392,139,326,165,260,199,199,245,146,285,113,328,85,375,61,423,43,473,28,524,17,628,5,731,4,828,10,916,21,990,34,989,40,915,26,828,15,731,9,629,10,525,22,474,33,425,48,377,66,331,89,288,117,249,150,204,202,169,262,144,327,126,393,115,457,109,515,106,598"/>
+<area shape="rect" id="Node000004" href="$da/d78/classml_1_1model_1_1_c_interim_bucket_corrector.html#a1f051096771a0e8365131fbc32841522" title=" " alt="" coords="267,287,444,328"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="106,597,121,545,148,476,189,402,215,369,245,339,252,334,255,338,248,343,219,372,193,405,153,478,126,547,111,598"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="522,295,699,321"/>
+<area shape="poly" id="edge27_Node000001_Node000005" title=" " alt="" coords="102,598,110,532,132,441,151,393,175,348,206,307,245,274,285,254,328,243,373,240,418,243,502,262,569,286,567,291,500,267,417,249,373,246,329,248,287,259,248,278,210,311,179,351,156,396,137,443,115,533,107,598"/>
+<area shape="rect" id="Node000011" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a64f199858ad518924390bf1031c8cc7f" title="Get the interim corrections of the current bucket." alt="" coords="247,353,464,393"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="109,596,128,556,158,504,197,450,245,404,253,399,256,404,248,409,201,454,162,507,133,558,114,599"/>
+<area shape="rect" id="Node000012" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a2f61313330f61da9c0d9493c0c02a720" title=" " alt="" coords="259,159,452,200"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="103,597,114,529,138,432,157,379,180,326,209,276,245,230,276,206,279,210,249,234,214,279,185,329,162,381,143,434,119,530,108,598"/>
+<area shape="rect" id="Node000019" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a8f8c91fb6478936a720c0454122f1137" title="Get the first time each person was seen." alt="" coords="262,418,449,459"/>
+<area shape="poly" id="edge22_Node000001_Node000019" title=" " alt="" coords="117,596,170,537,206,504,245,475,267,463,270,468,248,479,209,508,174,541,121,600"/>
+<area shape="rect" id="Node000020" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7fadcee4f4940693cb21616f1121753d" title=" " alt="" coords="257,533,454,573"/>
+<area shape="poly" id="edge23_Node000001_Node000020" title=" " alt="" coords="183,595,258,575,260,580,184,600"/>
+<area shape="rect" id="Node000021" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="512,505,709,545"/>
+<area shape="poly" id="edge31_Node000001_Node000021" title=" " alt="" coords="123,595,176,554,210,534,246,519,309,505,374,499,438,499,497,504,496,509,438,505,375,504,310,510,247,524,212,538,179,558,127,600"/>
+<area shape="rect" id="Node000022" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#aa09c77e05cb1488db95b077ba4e6ee1c" title="Get the object which calculates corrections for interim buckets." alt="" coords="259,598,452,639"/>
+<area shape="poly" id="edge25_Node000001_Node000022" title=" " alt="" coords="199,616,243,616,243,621,199,621"/>
+<area shape="rect" id="Node000023" href="$db/dc5/namespaceml_1_1core.html#a93bcdc8ec5834bac60be504a29341a09" title=" " alt="" coords="284,663,427,689"/>
+<area shape="poly" id="edge26_Node000001_Node000023" title=" " alt="" coords="195,637,281,656,280,662,194,642"/>
+<area shape="rect" id="Node000024" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a5f74bd0ea087594ff5a842bcd6950874" title="Get a read only model corresponding to feature of the person pid." alt="" coords="262,737,449,777"/>
+<area shape="poly" id="edge28_Node000001_Node000024" title=" " alt="" coords="140,637,248,699,301,727,299,732,245,703,137,642"/>
+<area shape="rect" id="Node000025" href="$df/d9c/namespaceml_1_1model__t.html#a1f18453bbc8ddb255e00279217d2fb73" title="Offset count features so that their range starts at zero." alt="" coords="273,802,438,843"/>
+<area shape="poly" id="edge30_Node000001_Node000025" title=" " alt="" coords="117,638,168,711,205,752,248,787,260,794,257,798,245,791,202,756,164,714,113,641"/>
+<area shape="rect" id="Node000026" href="$df/d9c/namespaceml_1_1model__t.html#a9bec5dc001991ededfd1236f79f6ee55" title="Get the type of probability calculation to use for feature." alt="" coords="277,867,434,908"/>
+<area shape="poly" id="edge32_Node000001_Node000026" title=" " alt="" coords="113,638,130,683,159,741,198,801,222,828,248,852,264,863,261,867,245,857,218,832,194,804,154,743,125,685,108,640"/>
+<area shape="rect" id="Node000027" href="$df/d9c/namespaceml_1_1model__t.html#a853aa9a4b9f915b3ae6f919dc41a3941" title=" " alt="" coords="264,933,447,973"/>
+<area shape="poly" id="edge33_Node000001_Node000027" title=" " alt="" coords="110,638,124,694,150,769,168,810,191,849,217,886,248,918,254,922,251,927,245,922,213,889,186,852,163,812,145,771,118,696,105,640"/>
+<area shape="rect" id="Node000028" href="$df/d9c/namespaceml_1_1model__t.html#a9dbb1ae4b63416ba57ecfbef586163c8" title=" " alt="" coords="271,998,440,1023"/>
+<area shape="poly" id="edge34_Node000001_Node000028" title=" " alt="" coords="108,639,117,706,140,799,158,850,182,899,212,944,248,983,259,991,256,995,245,987,207,947,177,901,153,852,135,801,112,707,102,640"/>
+<area shape="rect" id="Node000029" href="$d6/d52/namespaceml_1_1maths__t.html#a12dee901580c43334316b37a5d113eb3" title="Get a weights array with seasonal variance scale weight." alt="" coords="255,1047,456,1088"/>
+<area shape="poly" id="edge35_Node000001_Node000029" title=" " alt="" coords="107,639,114,713,135,820,153,877,177,934,209,987,249,1034,251,1036,247,1040,245,1038,205,990,173,937,148,879,130,821,109,714,101,640"/>
+<area shape="rect" id="Node000031" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#aa8472dde5e74067b20c594ac2b2fe671" title="Fill in the seasonal variance scale at time." alt="" coords="272,1113,439,1153"/>
+<area shape="poly" id="edge37_Node000001_Node000031" title=" " alt="" coords="106,639,109,723,116,781,128,846,145,914,171,980,205,1043,249,1098,260,1108,257,1112,245,1102,200,1046,166,983,140,915,122,847,111,782,104,724,100,639"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="1237,41,1411,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1189,58,1221,58,1221,64,1189,64"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="444,305,507,305,507,310,444,310"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="538,345,683,385"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="445,325,524,343,522,348,444,330"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="760,221,941,277"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="666,292,744,272,745,278,667,297"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="761,301,940,341"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="700,310,746,313,745,318,700,315"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="778,366,923,407"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="670,319,710,331,758,351,777,358,775,363,756,356,708,336,668,324"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="768,431,933,472"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="690,319,711,331,729,352,736,374,743,396,759,417,765,421,762,425,755,420,738,398,731,376,724,355,708,335,687,324"/>
+<area shape="rect" id="Node000013" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a136ad554666ee7f01783c3a2832bf828" title=" " alt="" coords="518,134,704,175"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="452,168,502,163,502,168,453,173"/>
+<area shape="poly" id="edge16_Node000013_Node000013" title=" " alt="" coords="566,134,563,124,571,115,587,109,611,107,637,110,652,116,650,121,635,115,611,113,588,115,574,119,569,125,571,133"/>
+<area shape="rect" id="Node000014" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a130ae59445e9fead1a64589376ca5c22" title="Check if bucket statistics are available for the specified time." alt="" coords="757,41,944,81"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="660,131,756,92,775,85,777,90,758,97,662,136"/>
+<area shape="rect" id="Node000016" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="789,171,912,197"/>
+<area shape="poly" id="edge17_Node000013_Node000016" title=" " alt="" coords="705,163,774,172,774,177,704,169"/>
+<area shape="rect" id="Node000018" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#aed340fb88b07676ae12a60f9d1f9d8c8" title="Print the current bucketing interval." alt="" coords="757,106,944,147"/>
+<area shape="poly" id="edge19_Node000013_Node000018" title=" " alt="" coords="704,141,742,136,742,142,705,146"/>
+<area shape="poly" id="edge14_Node000014_Node000002" title=" " alt="" coords="944,58,976,58,976,64,944,64"/>
+<area shape="rect" id="Node000015" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4a4c3b8c1b879528e4356799a5bca3b9" title="Get the start time of the current bucket." alt="" coords="997,106,1184,147"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="928,79,999,99,998,104,927,85"/>
+<area shape="rect" id="Node000017" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="1067,171,1114,197"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="912,181,1052,181,1052,186,912,186"/>
+<area shape="poly" id="edge20_Node000018_Node000002" title=" " alt="" coords="927,103,998,83,999,89,928,108"/>
+<area shape="poly" id="edge21_Node000018_Node000015" title=" " alt="" coords="944,124,982,124,982,129,944,129"/>
+<area shape="poly" id="edge24_Node000020_Node000021" title=" " alt="" coords="454,540,496,535,497,540,455,545"/>
+<area shape="poly" id="edge29_Node000024_Node000024" title=" " alt="" coords="308,737,306,727,313,718,330,712,355,710,383,713,399,719,397,724,381,718,355,715,331,717,316,722,311,728,313,735"/>
+<area shape="rect" id="Node000030" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="521,1047,700,1088"/>
+<area shape="poly" id="edge36_Node000029_Node000030" title=" " alt="" coords="456,1065,506,1065,506,1070,456,1070"/>
+</map>

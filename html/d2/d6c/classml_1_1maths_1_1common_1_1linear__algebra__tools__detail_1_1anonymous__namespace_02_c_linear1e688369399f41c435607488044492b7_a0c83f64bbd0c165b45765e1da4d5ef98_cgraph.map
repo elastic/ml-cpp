@@ -1,0 +1,7 @@
+<map id="ml::maths::common::linear_algebra_tools_detail::anonymous_namespace{CLinearAlgebraTools::cc}::CInverseQuadraticProduct::compute" name="ml::maths::common::linear_algebra_tools_detail::anonymous_namespace{CLinearAlgebraTools::cc}::CInverseQuadraticProduct::compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,9,214,109"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a1c40333c5d651a6df33cd4dd72b390b5" title="Get the Eigen matrix for matrix." alt="" coords="262,5,407,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,41,246,36,246,41,215,46"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a3db0a396d60198f64859f2f0f8b5810c" title="Get the Eigen vector for vector." alt="" coords="262,71,407,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,71,246,76,246,81,214,77"/>
+</map>

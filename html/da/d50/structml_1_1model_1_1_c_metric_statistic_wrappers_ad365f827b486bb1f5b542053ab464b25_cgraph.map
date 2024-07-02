@@ -1,0 +1,5 @@
+<map id="ml::model::CMetricStatisticWrappers::add" name="ml::model::CMetricStatisticWrappers::add">
+<area shape="rect" id="Node000001" title="Add value to a variance statistic." alt="" coords="5,13,186,54"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="234,5,456,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,31,218,31,218,36,186,36"/>
+</map>

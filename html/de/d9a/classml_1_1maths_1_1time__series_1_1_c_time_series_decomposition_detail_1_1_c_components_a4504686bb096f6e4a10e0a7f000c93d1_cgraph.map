@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction">
+<area shape="rect" id="Node000001" title="Test to see if using the trend improves prediction accuracy." alt="" coords="5,159,299,215"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="355,5,515,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,156,260,107,345,57,359,50,361,55,348,61,263,112,192,161"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="362,71,508,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,156,358,114,359,119,237,161"/>
+<area shape="rect" id="Node000004" href="$da/ddf/classml_1_1maths_1_1common_1_1_c_statistical_tests.html#a5adc1a4a10ae4a02c156da47c0e11f3d" title=" " alt="" coords="351,159,519,215"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="299,184,335,184,335,190,299,190"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="354,239,516,279"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="265,213,340,232,338,237,263,218"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="347,304,523,345"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="203,213,271,250,348,289,363,295,361,300,346,293,269,255,201,218"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="380,159,381,149,391,140,409,134,435,133,465,135,483,142,481,147,464,140,435,138,410,140,393,145,385,151,385,159"/>
+</map>

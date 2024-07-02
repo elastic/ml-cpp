@@ -1,0 +1,7 @@
+<map id="ml::api::CModelSizeStatsJsonWriter::writeCategorizerStats" name="ml::api::CModelSizeStatsJsonWriter::writeCategorizerStats">
+<area shape="rect" id="Node000001" title="Writes the categorizer stats in JSON format." alt="" coords="477,5,694,46"/>
+<area shape="rect" id="Node000002" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a52befc192e062add058f29a428bf554c" title="Write categorizer stats." alt="" coords="250,5,429,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="461,28,430,28,430,23,461,23"/>
+<area shape="rect" id="Node000003" href="$d8/dc0/_c_json_output_writer_test_8cc.html#ad309cbf124642fa90fc05b5706c52e34" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,28,202,28,202,23,234,23"/>
+</map>

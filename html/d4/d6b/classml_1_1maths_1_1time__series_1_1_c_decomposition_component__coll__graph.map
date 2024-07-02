@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CDecompositionComponent" name="ml::maths::time_series::CDecompositionComponent">
+<area shape="rect" id="Node000001" title="Common functionality used by our decomposition component classes." alt="" coords="5,124,199,165"/>
+<area shape="rect" id="Node000002" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html" title="A low memory representation of the value and variance splines." alt="" coords="5,5,199,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,76,105,124,99,124,99,76"/>
+</map>

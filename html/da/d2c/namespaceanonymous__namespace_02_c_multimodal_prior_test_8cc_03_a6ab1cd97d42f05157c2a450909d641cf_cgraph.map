@@ -1,0 +1,35 @@
+<map id="anonymous_namespace{CMultimodalPriorTest::cc}::probabilityOfLessLikelySample" name="anonymous_namespace{CMultimodalPriorTest::cc}::probabilityOfLessLikelySample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,162,196,233"/>
+<area shape="rect" id="Node000002" href="$da/d92/classml_1_1maths_1_1common_1_1_c_mixture_distribution.html#a773d02af49f1db3d212788c09df7bc4d" title=" " alt="" coords="252,71,398,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,159,245,131,247,136,184,164"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ac476b9273936034b5333b76fd6e8a7de" title="Compute the p.d.f. at x for distribution." alt="" coords="928,152,1091,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,189,244,187,912,164,912,169,244,192,196,195"/>
+<area shape="rect" id="Node000009" href="$da/d2c/namespaceanonymous__namespace_02_c_multimodal_prior_test_8cc_03.html#a8e9488ed4dc16327dc83319dbbd9f69c" title=" " alt="" coords="244,202,406,258"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="196,209,228,213,228,219,195,214"/>
+<area shape="rect" id="Node000015" href="$da/d92/classml_1_1maths_1_1common_1_1_c_mixture_distribution.html#ae5e759e025d6747e8a2b87d8a2d318c2" title=" " alt="" coords="252,282,398,338"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="174,231,245,267,255,272,252,277,242,272,171,236"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1146,209,1326,264"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1053,175,1133,201,1131,206,1051,180"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1147,288,1326,329"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="1026,176,1076,223,1111,250,1147,274,1156,279,1154,283,1145,279,1108,254,1073,227,1022,180"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="1164,5,1309,46"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="1022,149,1074,104,1108,78,1145,55,1154,50,1157,55,1147,60,1111,83,1077,108,1026,153"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1154,144,1319,185"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="1092,162,1138,162,1138,167,1092,167"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="1199,94,1273,120"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="1063,148,1183,117,1184,123,1064,153"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="1199,95,1191,86,1196,76,1211,70,1236,68,1264,70,1278,77,1276,82,1262,75,1236,73,1212,75,1199,80,1196,85,1203,92"/>
+<area shape="rect" id="Node000010" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="454,209,639,250"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="407,227,438,227,438,232,407,232"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="687,205,873,246"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="640,225,672,225,672,230,640,231"/>
+<area shape="rect" id="Node000012" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="691,270,869,296"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="639,248,707,264,705,269,638,253"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="921,270,1098,296"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="869,280,905,280,905,286,869,286"/>
+<area shape="poly" id="edge14_Node000013_Node000004" title=" " alt="" coords="1075,267,1130,255,1131,261,1076,272"/>
+<area shape="poly" id="edge15_Node000013_Node000005" title=" " alt="" coords="1099,290,1131,294,1131,299,1098,296"/>
+<area shape="poly" id="edge17_Node000013_Node000007" title=" " alt="" coords="1027,267,1079,232,1145,194,1157,188,1159,193,1147,199,1082,237,1030,272"/>
+<area shape="rect" id="Node000014" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1164,353,1309,394"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="1042,294,1147,338,1165,345,1163,350,1145,343,1040,299"/>
+</map>

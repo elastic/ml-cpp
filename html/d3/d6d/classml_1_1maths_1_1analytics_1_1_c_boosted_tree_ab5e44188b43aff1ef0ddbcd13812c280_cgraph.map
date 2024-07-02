@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::CBoostedTree::acceptRestoreTraverser" name="ml::maths::analytics::CBoostedTree::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Populate the object from serialized data." alt="" coords="5,63,212,119"/>
+<area shape="rect" id="Node000002" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html#ab182ff35c52545c0e2eeacc3a7c3cadb" title="Populate the object from serialized data." alt="" coords="260,63,465,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,88,244,88,244,94,212,94"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="513,5,731,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="465,63,523,48,525,53,466,68"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="513,71,731,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="465,88,498,88,498,94,465,94"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="513,136,731,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="466,114,525,129,523,134,465,119"/>
+</map>

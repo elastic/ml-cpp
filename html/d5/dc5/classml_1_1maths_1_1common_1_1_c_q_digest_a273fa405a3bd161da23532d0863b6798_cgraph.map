@@ -1,0 +1,33 @@
+<map id="ml::maths::common::CQDigest::compress" name="ml::maths::common::CQDigest::compress">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,201,151,242"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ace3b6509ca106dd32a4eb2e6370d3c16" title=" " alt="" coords="199,136,392,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,198,210,179,212,184,149,203"/>
+<area shape="rect" id="Node000014" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ab786a7ba977538a8e80958cd0e3a4c02" title="Compress the q&#45;digest bottom up in level order." alt="" coords="223,245,368,286"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="151,234,208,245,207,251,150,239"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#abf63a375afd4dbf1c3cc2ab5a71c0a18" title="Get the count of entries in the node range." alt="" coords="453,5,621,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="321,133,374,95,439,57,453,50,455,55,441,61,377,100,324,138"/>
+<area shape="rect" id="Node000004" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ab9793b4bd47bda1b3d3b033649a2ce21" title="Detach this node from the q&#45;digest." alt="" coords="449,71,624,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="372,133,443,113,445,119,374,138"/>
+<area shape="rect" id="Node000006" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#aa17f297e060c3ee9973afd1385cd8012" title="Is this a parent of node?" alt="" coords="445,136,629,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="392,154,429,154,429,159,392,159"/>
+<area shape="rect" id="Node000008" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#ad1e528d7b18413e5be4abcf02cbdb0b7" title="Get the sibling of node if it exists in the q&#45;digest." alt="" coords="450,233,623,274"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="349,175,472,225,469,230,347,180"/>
+<area shape="rect" id="Node000005" href="$d0/d9b/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node_allocator.html#a3241eff491f878dc26f8d349177af6b1" title="Recycle node." alt="" coords="691,39,870,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="624,80,675,75,675,80,625,85"/>
+<area shape="rect" id="Node000007" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a62e14dba68743c55542ed7257187d9bd" title="Get the span of universe values covered by the node." alt="" coords="698,119,863,159"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="629,147,682,143,683,149,629,152"/>
+<area shape="poly" id="edge13_Node000008_Node000007" title=" " alt="" coords="569,230,621,200,680,170,697,163,699,168,682,175,623,205,572,235"/>
+<area shape="rect" id="Node000009" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a05e8610fc1f0bb68e489f12a9f05f4f1" title="Is this the left child of a node in the complete tree." alt="" coords="681,184,880,225"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="623,234,666,225,667,230,624,239"/>
+<area shape="rect" id="Node000010" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a8d3456c45ef060449b8bdb9ac37cfcec" title="Get the maximum value covered by the node." alt="" coords="700,249,861,290"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="624,257,684,261,684,266,624,262"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="695,314,866,340"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="598,272,682,299,711,307,709,312,681,304,597,277"/>
+<area shape="rect" id="Node000012" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a16cf5766d48e7da71599bcc571abd5ca" title="Get the minimum value covered by the node." alt="" coords="702,364,859,405"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="613,272,635,285,651,302,660,319,668,335,683,350,690,355,687,359,680,354,663,338,655,321,647,305,632,289,611,277"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="697,429,864,455"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="618,272,635,285,648,302,655,319,659,352,663,384,670,399,683,414,688,419,685,423,679,418,666,402,658,386,654,353,650,320,644,305,631,289,615,277"/>
+<area shape="poly" id="edge15_Node000014_Node000014" title=" " alt="" coords="254,245,252,235,259,226,273,221,295,219,319,221,333,227,331,232,318,226,295,224,275,226,262,231,257,237,259,244"/>
+<area shape="rect" id="Node000015" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a65a4eff2aae40127d3488ba474404c8f" title="Fill in nodes with q&#45;digest nodes in post&#45;order." alt="" coords="440,299,633,339"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="369,279,428,292,427,297,368,284"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultimodalPrior::minusLogJointCdfComplement" name="ml::maths::common::CMultimodalPrior::minusLogJointCdfComplement">
+<area shape="rect" id="Node000001" title=" " alt="" coords="494,24,679,79"/>
+<area shape="rect" id="Node000002" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="478,39,444,34,445,29,479,34"/>
+<area shape="rect" id="Node000003" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a236094eeaa29e6579535cfcb269470ce" title=" " alt="" coords="254,56,442,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="479,69,443,74,442,68,478,63"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="5,45,202,71"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="238,75,202,71,202,66,238,69"/>
+<area shape="rect" id="Node000005" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a2d3e8c3f456edaa91eb01029f8af8353" title=" " alt="" coords="5,95,202,120"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="238,97,202,101,202,95,238,92"/>
+</map>

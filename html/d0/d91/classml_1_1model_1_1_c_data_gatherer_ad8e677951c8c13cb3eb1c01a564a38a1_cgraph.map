@@ -1,0 +1,14 @@
+<map id="ml::model::CDataGatherer::CDataGatherer" name="ml::model::CDataGatherer::CDataGatherer">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,87,180,127"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abaaeada8d59172f01e365d1167a7d340" title="Get the attribute field name if one exists." alt="" coords="450,5,624,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,84,175,61,227,43,279,32,333,26,434,20,435,26,334,31,280,38,228,48,177,66,131,88"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a49ba26e3d0cfddd003e479d1ea38cc51" title="Create the bucket specific data gatherer." alt="" coords="228,57,402,98"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,93,212,89,212,94,180,98"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a663b4ffe2c7f28a1f5ce4495b7d1f9d0" title=" " alt="" coords="450,75,624,115"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="180,108,286,110,402,107,434,105,435,110,402,112,286,115,180,113"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a5236067c034227c6106f76b8f929d8cb" title="Get the name of the field containing the metric value." alt="" coords="450,148,624,189"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="180,116,435,152,434,157,180,122"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="402,55,434,47,435,52,403,60"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="403,82,435,84,434,90,402,87"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="368,96,472,139,470,144,366,101"/>
+</map>

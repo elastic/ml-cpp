@@ -1,0 +1,5 @@
+<map id="anonymous_namespace{CNamedPipeFactory.cc}::CRetryingFileDescriptorSink" name="anonymous_namespace{CNamedPipeFactory.cc}::CRetryingFileDescriptorSink">
+<area shape="rect" id="Node000001" title="Replacement for boost::iostreams::file_descriptor_sink that retries on EINTR." alt="" coords="5,94,201,150"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="31,5,175,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,61,106,93,100,93,100,61"/>
+</map>

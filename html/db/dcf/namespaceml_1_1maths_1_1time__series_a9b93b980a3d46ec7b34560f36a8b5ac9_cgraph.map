@@ -1,0 +1,19 @@
+<map id="ml::maths::time_series::swap" name="ml::maths::time_series::swap">
+<area shape="rect" id="Node000001" title="Create a free function which will be picked up in Koenig lookup." alt="" coords="5,129,160,170"/>
+<area shape="rect" id="Node000002" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aa1171b969875547456fb6408515dde6c" title="An efficient swap of the contents of two components." alt="" coords="208,129,407,170"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,147,192,147,192,152,160,152"/>
+<area shape="rect" id="Node000003" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a55a66bcc4dc09c4d2894daeb9f87984b" title="An efficient swap of the contents of two components." alt="" coords="455,72,687,112"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,126,459,113,460,119,405,131"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="977,111,1055,137"/>
+<area shape="poly" id="edge10_Node000002_Node000005" title=" " alt="" coords="407,143,961,123,961,128,408,148"/>
+<area shape="rect" id="Node000006" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#aaf5ace52bf9a3652dd5e106cfc9d52a1" title="Efficiently swap the contents of two bucketing objects." alt="" coords="466,187,677,242"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="393,168,451,182,450,187,392,173"/>
+<area shape="rect" id="Node000004" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#ae70cc278752f70d13e962e8aba9bd6de" title="An efficient swap of the contents of two packed splines." alt="" coords="735,5,929,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="664,68,720,56,721,61,665,74"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="688,97,961,117,961,123,687,103"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="893,59,930,77,977,101,974,106,927,82,891,64"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="985,112,979,102,982,93,995,87,1016,84,1038,87,1050,93,1047,98,1036,92,1016,90,997,92,986,96,984,102,989,109"/>
+<area shape="rect" id="Node000007" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a85cb234aec56c89b52edf564c5a2e2ed" title="Efficiently swap the contents of two bucketing objects." alt="" coords="738,190,926,231"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="677,210,723,210,723,215,677,216"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="880,187,928,165,975,142,977,147,930,170,883,192"/>
+</map>

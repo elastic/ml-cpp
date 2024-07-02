@@ -1,0 +1,23 @@
+<map id="ml::api::CModelSizeStatsJsonWriter::writeCommonFields" name="ml::api::CModelSizeStatsJsonWriter::writeCommonFields">
+<area shape="rect" id="Node000001" title=" " alt="" coords="759,161,967,201"/>
+<area shape="rect" id="Node000002" href="$dd/d2d/classml_1_1api_1_1_c_model_size_stats_json_writer.html#af9cacd1636c09355e1a21fd6798b8699" title="Writes the model size stats in the results in JSON format." alt="" coords="518,127,688,168"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="743,168,688,161,689,156,744,163"/>
+<area shape="rect" id="Node000009" href="$dd/d2d/classml_1_1api_1_1_c_model_size_stats_json_writer.html#a72dca423165fb133e6435af93bafb0f1" title="Writes the categorizer stats in JSON format." alt="" coords="494,193,711,233"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="744,198,712,202,712,197,743,193"/>
+<area shape="rect" id="Node000003" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a2cecb37653e65b35ed15f2a1ceea6b52" title=" " alt="" coords="258,55,438,96"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="513,125,422,99,423,94,514,120"/>
+<area shape="rect" id="Node000006" href="$d4/d18/classml_1_1api_1_1_c_model_snapshot_json_writer.html#a1c2bc163fc12e0f34558d55789c149fd" title="Writes the given model snapshot in JSON format." alt="" coords="250,127,446,168"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="502,150,446,150,446,145,502,145"/>
+<area shape="rect" id="Node000004" href="$d8/dc0/_c_json_output_writer_test_8cc.html#a01d74040343c34f8a3f78ee4c9fa04a4" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="243,54,161,34,162,29,244,48"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2e4b68625f7ef27e4dcce8a0377d1511" title=" " alt="" coords="28,55,179,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="242,78,179,78,179,73,242,73"/>
+<area shape="rect" id="Node000007" href="$d0/da3/_c_model_snapshot_json_writer_test_8cc.html#a0d6de50cd7f9e4c3769edafff9c39a9c" title=" " alt="" coords="5,120,202,146"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="234,143,202,141,202,136,234,138"/>
+<area shape="rect" id="Node000008" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="79,169,128,195"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="235,166,129,181,128,176,234,161"/>
+<area shape="rect" id="Node000010" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a52befc192e062add058f29a428bf554c" title="Write categorizer stats." alt="" coords="258,205,438,245"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="479,221,438,223,438,218,479,216"/>
+<area shape="rect" id="Node000011" href="$d8/dc0/_c_json_output_writer_test_8cc.html#ad309cbf124642fa90fc05b5706c52e34" title=" " alt="" coords="5,219,202,244"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="243,230,202,231,202,226,242,225"/>
+</map>

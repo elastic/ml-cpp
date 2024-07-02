@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::acceptPersistInserter" name="ml::maths::common::CMultivariateMultimodalPrior::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,143,194,198"/>
+<area shape="rect" id="Node000002" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="249,5,437,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,140,184,105,240,71,251,66,253,70,243,75,187,110,139,144"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="242,85,444,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,143,249,127,251,133,195,148"/>
+<area shape="rect" id="Node000005" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="242,150,444,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="194,168,226,168,226,173,194,173"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="254,215,432,241"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="195,190,271,208,270,213,194,195"/>
+<area shape="rect" id="Node000011" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="270,265,416,321"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="146,196,243,251,257,258,255,262,240,256,144,201"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2507854a990915f6440312167ef3136b" title="Get the mode of the marginal likelihood function." alt="" coords="502,5,662,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="437,31,486,31,486,36,437,36"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="492,107,672,162"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="408,212,443,200,467,187,491,172,501,167,503,172,493,177,470,192,445,205,409,217"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="493,186,672,227"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="432,217,477,213,477,219,432,223"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="510,252,655,292"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="417,239,495,253,494,258,416,244"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="500,317,665,358"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="419,239,445,251,461,263,471,276,479,289,494,302,503,307,500,312,490,306,475,293,466,280,457,267,443,255,416,244"/>
+</map>

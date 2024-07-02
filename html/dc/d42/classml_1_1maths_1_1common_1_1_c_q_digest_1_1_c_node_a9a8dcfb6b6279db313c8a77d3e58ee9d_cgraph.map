@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CQDigest::CNode::takeDescendants" name="ml::maths::common::CQDigest::CNode::takeDescendants">
+<area shape="rect" id="Node000001" title="Take the descendants of node." alt="" coords="5,71,244,111"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#aa303a3813df42b88b691fa119d2d2bb3" title="Get an iterator over the descendants." alt="" coords="298,5,542,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,67,309,47,310,53,220,73"/>
+<area shape="rect" id="Node000003" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a198945cc76287e683c61098c63a201c7" title="Get the end of the descendants." alt="" coords="303,71,537,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,88,287,88,287,94,244,94"/>
+<area shape="rect" id="Node000004" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#af2db840a35a1a1035727c5f637eff67c" title="Get the number of descendants." alt="" coords="292,136,548,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,109,310,129,309,135,219,115"/>
+</map>

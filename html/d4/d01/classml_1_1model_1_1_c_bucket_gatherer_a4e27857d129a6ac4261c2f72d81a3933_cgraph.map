@@ -1,0 +1,7 @@
+<map id="ml::model::CBucketGatherer::printCurrentBucket" name="ml::model::CBucketGatherer::printCurrentBucket">
+<area shape="rect" id="Node000001" title="Print the current bucket." alt="" coords="5,5,193,46"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#abdb61d2ba82e5d05fa4133ef95d1521d" title="Get the length of the bucketing time interval." alt="" coords="241,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,23,225,23,225,28,193,28"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="476,5,650,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,23,461,23,461,28,428,28"/>
+</map>

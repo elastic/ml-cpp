@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::trainingStateCallback" name="ml::maths::analytics::CBoostedTreeFactory::trainingStateCallback">
+<area shape="rect" id="Node000001" title="Set the callback function for training state recording." alt="" coords="549,20,706,75"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a0236b39f67cc28f8ec947ab5462c2e1b" title=" " alt="" coords="273,5,470,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="533,39,470,32,470,27,534,34"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a0e87cc12e0f8ee140ac125ee3f4af37c" title=" " alt="" coords="242,55,501,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="534,60,502,64,501,59,533,55"/>
+<area shape="rect" id="Node000004" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#a953f26e0a0895039f15c11b6623c9130" title=" " alt="" coords="5,55,194,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="226,78,194,78,194,73,226,73"/>
+</map>

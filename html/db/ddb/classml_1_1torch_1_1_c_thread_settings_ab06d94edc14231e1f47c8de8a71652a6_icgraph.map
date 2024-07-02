@@ -1,0 +1,23 @@
+<map id="ml::torch::CThreadSettings::numThreadsPerAllocation" name="ml::torch::CThreadSettings::numThreadsPerAllocation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="593,229,772,269"/>
+<area shape="rect" id="Node000002" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#aae8e6e20b3236d38e12c03da67f15fb3" title=" " alt="" coords="347,146,545,187"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="607,226,506,190,508,185,609,220"/>
+<area shape="rect" id="Node000009" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#afffa0d6534748af519cb641d9b013428" title="Write thread settings to the output stream." alt="" coords="365,261,527,301"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="578,266,528,272,528,267,577,260"/>
+<area shape="rect" id="Node000003" href="$d2/d90/_c_thread_settings_test_8cc.html#ad530f26e1806f1f84a4401afec597acd" title=" " alt="" coords="103,5,299,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="414,136,363,88,331,65,298,45,272,34,274,29,300,40,334,60,366,84,418,132"/>
+<area shape="rect" id="Node000004" href="$d2/d90/_c_thread_settings_test_8cc.html#a7dc613ce2f9d4a1235376377ea894d8d" title=" " alt="" coords="103,55,299,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="395,140,349,116,298,94,265,83,266,78,300,89,351,111,398,136"/>
+<area shape="rect" id="Node000005" href="$d2/d90/_c_thread_settings_test_8cc.html#a778b6025a3af29a9060c13439408ea97" title=" " alt="" coords="103,104,299,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="331,146,268,133,269,128,332,141"/>
+<area shape="rect" id="Node000006" href="$d2/d90/_c_thread_settings_test_8cc.html#a3a8dfe3deb241a5ff0e0f481ec1734fe" title=" " alt="" coords="103,153,299,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="331,169,299,169,299,164,331,164"/>
+<area shape="rect" id="Node000007" href="$d2/d90/_c_thread_settings_test_8cc.html#ae0fbd45a6c63bb89b3deddf377479d29" title=" " alt="" coords="103,203,299,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="332,192,269,205,268,199,331,187"/>
+<area shape="rect" id="Node000008" href="$db/ddb/classml_1_1torch_1_1_c_thread_settings.html#a6d5c107b6d8b7921cca857e671090d3b" title=" " alt="" coords="112,253,290,293"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="396,197,300,243,271,254,269,249,298,238,393,192"/>
+<area shape="rect" id="Node000010" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a33100332b80e6f9f822a74ebab666229" title=" " alt="" coords="124,317,278,343"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="350,303,269,319,268,314,349,298"/>
+<area shape="rect" id="Node000011" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,317,55,343"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="108,333,55,333,55,328,108,328"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CChangePoint" name="ml::maths::time_series::CChangePoint">
+<area shape="rect" id="Node000001" title="Represents a sudden change to a time series model." alt="" coords="5,71,160,111"/>
+<area shape="rect" id="Node000002" href="$d8/de3/classml_1_1maths_1_1time__series_1_1_c_level_shift.html" title="Represents a level shift of a time series." alt="" coords="208,5,362,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,63,219,44,220,49,163,68"/>
+<area shape="rect" id="Node000003" href="$d9/d5e/classml_1_1maths_1_1time__series_1_1_c_scale.html" title="Represents a linear scale of a time series." alt="" coords="208,71,362,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,88,208,88,208,94,175,94"/>
+<area shape="rect" id="Node000004" href="$d1/de5/classml_1_1maths_1_1time__series_1_1_c_time_shift.html" title="Represents a time shift of a time series." alt="" coords="208,136,362,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="163,114,220,133,219,138,161,119"/>
+</map>

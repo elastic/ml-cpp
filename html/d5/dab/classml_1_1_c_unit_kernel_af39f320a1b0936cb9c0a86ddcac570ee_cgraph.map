@@ -1,0 +1,9 @@
+<map id="ml::CUnitKernel::operator()" name="ml::CUnitKernel::operator()">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,183,104"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a8b13320ac3b008442f01ff2629e413a9" title="Get an iterator over the elements." alt="" coords="245,5,390,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,75,230,48,232,53,141,80"/>
+<area shape="rect" id="Node000003" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#ad8327efc1376c289b532924c80d91016" title="Get an iterator to the end of the elements." alt="" coords="245,71,390,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,88,229,88,229,94,183,94"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a75b29b55e46905369a324dbf334c483c" title=" " alt="" coords="231,135,404,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="137,102,217,128,215,133,135,107"/>
+</map>

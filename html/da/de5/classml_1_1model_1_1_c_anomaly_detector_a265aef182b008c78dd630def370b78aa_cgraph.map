@@ -1,0 +1,28 @@
+<map id="ml::model::CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter" name="ml::model::CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,279,248,335"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a2fab62dee801121410863305a92829d0" title="Persist state by passing information to the supplied inserter." alt="" coords="326,147,501,187"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,276,355,192,357,197,187,281"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="840,265,1043,306"/>
+<area shape="poly" id="edge12_Node000001_Node000007" title=" " alt="" coords="248,301,824,286,825,291,248,307"/>
+<area shape="rect" id="Node000010" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a963c831fb7b7a8d808f3f5874c1941e4" title=" " alt="" coords="296,344,531,385"/>
+<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="248,329,294,338,293,343,247,334"/>
+<area shape="rect" id="Node000003" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a993506ec963cd3d649c9ea71ea0be288" title=" " alt="" coords="579,48,792,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,144,578,99,600,92,602,97,580,104,466,149"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="840,5,1043,46"/>
+<area shape="poly" id="edge8_Node000002_Node000004" title=" " alt="" coords="430,144,491,86,532,57,578,34,640,17,704,8,767,6,825,8,825,14,767,11,704,14,641,22,580,39,535,61,494,90,434,148"/>
+<area shape="rect" id="Node000006" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#ad4901379e36f4bc802c66e84c25fbec7" title="Persist the sample counts to a state document." alt="" coords="595,113,777,154"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="501,154,579,144,580,149,501,159"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="461,185,517,208,580,228,706,255,825,272,824,277,705,260,578,234,515,213,459,190"/>
+<area shape="rect" id="Node000008" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ade6028073a50c65aef70fc39b8fe0c91" title=" " alt="" coords="599,179,773,219"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="501,175,583,184,582,190,501,180"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="792,48,825,42,825,48,793,53"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="864,99,1019,139"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="792,87,850,98,849,103,791,92"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="777,126,849,122,849,127,777,131"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="749,217,865,257,864,262,747,223"/>
+<area shape="rect" id="Node000009" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43e3bdd9e7807bfb67e5970e21ee9bfc" title="Persist state by passing information inserter." alt="" coords="848,179,1035,219"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="773,196,832,196,832,202,773,202"/>
+<area shape="poly" id="edge15_Node000010_Node000007" title=" " alt="" coords="531,355,657,343,792,323,857,308,858,313,793,328,658,348,532,360"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a5d1c82c0b243133039bdcb9d98097ee3" title="Persist state by passing information to the supplied inserter." alt="" coords="587,395,784,435"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="527,383,572,391,571,396,526,388"/>
+</map>

@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,200,202,226"/>
+<area shape="rect" id="Node000002" href="$db/d52/classml_1_1maths_1_1analytics_1_1_c_make_data_frame_category_encoder.html#aac6ec94577beb78301fddf614edf7637" title="Estimate the memory that selecting encoding will require." alt="" coords="250,77,487,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,197,249,143,265,136,267,141,251,148,132,202"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="276,157,461,198"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="202,197,260,189,260,195,202,202"/>
+<area shape="rect" id="Node000009" href="$db/d52/classml_1_1maths_1_1analytics_1_1_c_make_data_frame_category_encoder.html#a8f5e3ca2a8491382423fba3d94ba3158" title="Make the encoding." alt="" coords="250,221,487,277"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="202,224,234,228,234,234,202,229"/>
+<area shape="rect" id="Node000010" href="$db/dc5/namespaceml_1_1core.html#ad33a8c894a51d4c037dc16c63a6fdd7a" title=" " alt="" coords="278,301,459,342"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="128,224,183,255,251,287,268,293,267,298,249,292,180,260,125,229"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="535,92,741,118"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="488,103,519,103,519,108,488,108"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="789,5,961,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="682,89,773,61,775,66,684,94"/>
+<area shape="rect" id="Node000005" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="791,85,959,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="742,103,776,103,776,108,742,108"/>
+<area shape="rect" id="Node000006" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1009,107,1194,162"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="690,116,790,135,875,138,961,135,993,134,993,139,961,140,875,143,789,140,689,121"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="959,113,994,118,993,123,959,119"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="546,157,731,198"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="462,175,530,175,530,180,462,180"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#aac4e088f4a6bdb18132433afd6260fdf" title=" " alt="" coords="548,272,728,312"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="459,309,532,301,532,306,460,314"/>
+<area shape="rect" id="Node000012" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="799,300,951,340"/>
+<area shape="poly" id="edge13_Node000010_Node000012" title=" " alt="" coords="459,320,741,321,784,320,784,326,741,326,459,326"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="729,300,784,306,784,312,728,305"/>
+</map>

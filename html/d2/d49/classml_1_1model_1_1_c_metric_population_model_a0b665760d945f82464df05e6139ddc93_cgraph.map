@@ -1,0 +1,10 @@
+<map id="ml::model::CMetricPopulationModel::CMetricPopulationModel" name="ml::model::CMetricPopulationModel::CMetricPopulationModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,212,103"/>
+<area shape="rect" id="Node000002" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a8a2c0ed4ca0eff978e5310d306a17bb6" title="Initialize the feature models." alt="" coords="260,63,453,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,80,244,80,244,86,212,86"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a9d01e0c353a938402db76b498a332b61" title=" " alt="" coords="503,29,696,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,67,487,62,488,68,454,72"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="501,95,698,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="454,93,486,97,485,103,453,98"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="554,29,552,19,559,10,575,5,600,3,626,5,641,11,639,16,625,10,600,8,576,10,562,15,557,21,559,28"/>
+</map>

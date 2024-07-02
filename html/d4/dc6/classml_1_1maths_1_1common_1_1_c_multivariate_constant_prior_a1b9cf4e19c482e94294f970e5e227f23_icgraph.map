@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::constant" name="ml::maths::common::CMultivariateConstantPrior::constant">
+<area shape="rect" id="Node000001" title="Get the constant value." alt="" coords="692,71,871,126"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a7826c21d2dd2049f647196fa6d842128" title="Create by traversing a state document." alt="" coords="462,5,640,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="677,72,640,61,641,56,678,67"/>
+<area shape="rect" id="Node000003" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a0cf582eab6aea5aa0a7988a3942d9ee7" title="Compute the bivariate const bivariate prior." alt="" coords="5,104,184,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="677,106,232,126,184,129,184,124,232,121,677,100"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a8ff96822ab306f47106ca70fe8e06d0e" title=" " alt="" coords="458,136,644,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="678,131,646,140,644,135,677,125"/>
+<area shape="rect" id="Node000005" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a40bce069a8271a030cff366e62056c2c" title=" " alt="" coords="232,136,410,192"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="443,167,410,167,410,161,443,161"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="216,152,184,147,185,142,217,146"/>
+</map>

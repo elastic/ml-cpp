@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior" name="ml::maths::common::CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior">
+<area shape="rect" id="Node000001" title=" " alt="" coords="492,5,718,76"/>
+<area shape="rect" id="Node000002" href="$d6/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes_feature_density_from_prior.html#a86153b42dbb729eba693e7a0c5e12590" title=" " alt="" coords="223,13,444,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="477,43,445,43,445,38,477,38"/>
+<area shape="rect" id="Node000003" href="$df/ddd/classml_1_1maths_1_1common_1_1_c_naive_bayes_1_1_c_class.html#a84b877bc1efbae5664132a851be3c732" title="Initialize by reading state from traverser." alt="" coords="5,13,175,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="207,43,175,43,175,38,207,38"/>
+</map>

@@ -1,0 +1,29 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl" name="ml::maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl">
+<area shape="rect" id="Node000001" title="Finds the value to add to a set of predicted log&#45;odds which minimises regularised cross entropy loss ..." alt="" coords="1107,145,1335,201"/>
+<area shape="rect" id="Node000002" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html" title=" " alt="" coords="770,65,912,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="928,108,1107,146,1106,151,927,113"/>
+<area shape="rect" id="Node000003" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html" title=" " alt="" coords="749,145,933,201"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="948,170,1106,170,1106,175,948,175"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="375,10,558,66"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="574,51,655,74,684,87,704,101,751,130,774,142,772,147,748,135,701,105,681,92,653,79,573,56"/>
+<area shape="rect" id="Node000005" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="355,89,579,160"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="594,138,750,158,749,164,594,144"/>
+<area shape="rect" id="Node000006" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="5,5,230,76"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="245,69,355,95,354,100,244,74"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="10,100,225,155"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="241,124,354,123,354,128,241,129"/>
+<area shape="rect" id="Node000008" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="355,184,579,255"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="594,206,725,190,749,187,750,192,726,196,595,211"/>
+<area shape="rect" id="Node000009" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="5,183,230,253"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="245,216,354,216,354,222,245,221"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="10,277,225,333"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="240,272,353,244,355,249,241,277"/>
+<area shape="rect" id="Node000011" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html" title=" " alt="" coords="756,419,926,460"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="883,408,1178,199,1181,203,886,412"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="279,278,654,454"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="670,403,756,420,755,425,669,408"/>
+<area shape="rect" id="Node000013" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html" title=" " alt="" coords="394,477,539,548"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="554,493,755,453,756,459,555,498"/>
+<area shape="rect" id="Node000014" href="$de/dc8/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_c_empty.html" title="SFINAE check that N is at least 1." alt="" coords="385,572,548,627"/>
+<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="563,584,609,573,653,558,700,536,744,509,813,458,817,462,747,513,702,540,655,563,610,578,564,589"/>
+</map>

@@ -1,0 +1,36 @@
+<map id="ml::model::CMetricPopulationModelDetailsView::dataTimeInterval" name="ml::model::CMetricPopulationModelDetailsView::dataTimeInterval">
+<area shape="rect" id="Node000001" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="5,71,237,111"/>
+<area shape="rect" id="Node000002" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#ada665beba75182a0478cc359a8ed3eb3" title="Get the first time each attribute was seen." alt="" coords="285,5,477,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,67,282,48,283,53,205,73"/>
+<area shape="rect" id="Node000003" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#a65964d7d16037132ce4c47a9883f78bb" title="Get the last time each attribute was seen." alt="" coords="285,71,477,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,88,269,88,269,94,237,94"/>
+<area shape="rect" id="Node000004" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a9de5faae9f74562f082ef22702d77c8a" title="Try to get the by field identifier corresponding to byFieldValue." alt="" coords="295,136,467,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="205,109,283,129,282,134,204,115"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a7ddd3ed867d3d665951c08ad67ceb814" title=" " alt="" coords="537,5,711,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="454,133,475,121,490,106,499,90,507,73,523,57,532,51,535,56,527,61,512,76,503,92,495,109,479,125,457,138"/>
+<area shape="rect" id="Node000013" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a364ae8bdfdd6c0cf18c65181eb40936c" title="Get the underlying model." alt="" coords="538,71,710,111"/>
+<area shape="poly" id="edge14_Node000004_Node000013" title=" " alt="" coords="458,133,530,113,531,119,460,138"/>
+<area shape="rect" id="Node000014" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="525,136,722,177"/>
+<area shape="poly" id="edge15_Node000004_Node000014" title=" " alt="" coords="468,154,509,154,509,159,468,159"/>
+<area shape="rect" id="Node000015" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a0cded7b0f451fb941b0fd591e23fd581" title="True if this is a population model." alt="" coords="525,201,722,242"/>
+<area shape="poly" id="edge16_Node000004_Node000015" title=" " alt="" coords="460,175,531,194,530,199,458,180"/>
+<area shape="rect" id="Node000016" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ae88825a3dcd39af9d9ec2c055aa435bc" title=" " alt="" coords="537,267,711,307"/>
+<area shape="poly" id="edge17_Node000004_Node000016" title=" " alt="" coords="410,175,462,213,526,251,541,258,539,263,524,256,459,218,407,179"/>
+<area shape="rect" id="Node000006" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a8d9d0f248ce54fe797a09237e12a58bc" title=" " alt="" coords="770,136,953,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="695,44,724,57,778,89,825,124,822,128,775,94,721,61,693,49"/>
+<area shape="rect" id="Node000007" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a81a1671a3a7bb10d96da0cb54144a3c4" title=" " alt="" coords="1019,136,1202,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="953,162,1004,163,1003,168,953,168"/>
+<area shape="rect" id="Node000008" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#ad9fd3a9d86ddfb73b3395df3227b851a" title="Translate word to a dictionary word." alt="" coords="1001,225,1220,266"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="921,175,1038,217,1036,222,920,180"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="1019,150,968,150,968,145,1019,145"/>
+<area shape="poly" id="edge13_Node000008_Node000008" title=" " alt="" coords="1064,225,1061,215,1069,206,1085,201,1110,199,1137,201,1153,207,1151,212,1136,206,1110,204,1087,206,1072,211,1067,217,1069,224"/>
+<area shape="rect" id="Node000009" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ade14a464041834a501408e4fd90d5540" title=" " alt="" coords="1268,160,1487,201"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="1196,222,1276,202,1277,208,1197,227"/>
+<area shape="rect" id="Node000011" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="1268,225,1487,266"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="1220,243,1252,243,1252,248,1220,248"/>
+<area shape="rect" id="Node000012" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ac2086c554c00278219bf073d2a5736c2" title=" " alt="" coords="1268,291,1487,331"/>
+<area shape="poly" id="edge12_Node000008_Node000012" title=" " alt="" coords="1197,264,1277,284,1276,289,1196,269"/>
+<area shape="rect" id="Node000010" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#ade1c3a08b72697f0009fa91d14daa719" title=" " alt="" coords="1535,160,1679,201"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="1488,178,1520,178,1520,183,1488,183"/>
+<area shape="poly" id="edge18_Node000016_Node000006" title=" " alt="" coords="693,264,721,251,775,219,822,185,825,189,778,223,724,256,695,269"/>
+</map>

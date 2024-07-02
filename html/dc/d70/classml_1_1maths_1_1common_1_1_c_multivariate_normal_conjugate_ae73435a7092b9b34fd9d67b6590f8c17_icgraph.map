@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::equalTolerance" name="ml::maths::common::CMultivariateNormalConjugate::equalTolerance">
+<area shape="rect" id="Node000001" title="Check if two priors are equal to the specified tolerance." alt="" coords="250,16,449,71"/>
+<area shape="rect" id="Node000002" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#af162eb99ecd0ec522c40c28d057ff799" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,34,202,31,202,26,234,29"/>
+<area shape="rect" id="Node000003" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a2b3ca0dceaafd9f87732e59b47b6ac40" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,57,202,61,202,55,234,52"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,114,202,140"/>
+<area shape="rect" id="Node000002" href="$d0/d57/namespaceanonymous__namespace_02_c_bayesian_optimisation_test_8cc_03.html#a58322eb9c36cf4e07cf238194be27129" title=" " alt="" coords="250,99,490,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,124,234,124,234,130,202,130"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a94afe530cefc662df551daeca82331b9" title="Persist by passing information to inserter." alt="" coords="560,63,718,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,108,544,101,545,106,491,114"/>
+<area shape="rect" id="Node000008" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="538,143,740,183"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="491,140,523,145,522,150,490,146"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="788,5,991,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="718,68,793,48,795,53,720,73"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="812,71,967,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="719,88,797,88,797,94,719,94"/>
+<area shape="rect" id="Node000006" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#ade2dfc116d155a15eb089bf70a67e174" title="Persist to a string." alt="" coords="792,135,987,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="720,111,778,128,776,133,718,116"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="1039,143,1193,183"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="988,160,1023,160,1023,166,988,166"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter" name="ml::maths::analytics::CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter">
+<area shape="rect" id="Node000001" title="Set the number of search rounds to use per hyperparameter which is being tuned." alt="" coords="250,16,567,71"/>
+<area shape="rect" id="Node000002" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a4e1c0e0de9f626fad962689ed85016bf" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,32,202,29,202,24,235,26"/>
+<area shape="rect" id="Node000003" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a2b3a881306243787cf8fd45a756d5977" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,60,202,62,202,57,234,55"/>
+</map>

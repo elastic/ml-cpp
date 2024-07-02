@@ -1,0 +1,18 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeClassifierRunner::validate" name="ml::api::CDataFrameTrainBoostedTreeClassifierRunner::validate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,142,198,198"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a98c07237121a3650c9dd105580d7d14d" title="Write the values of the categories for each column." alt="" coords="246,81,422,122"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,139,247,124,248,129,199,144"/>
+<area shape="rect" id="Node000006" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#ab6875fb65c5381470b1d4bbad83418a4" title="Write the column names." alt="" coords="258,149,410,190"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="198,167,243,167,243,172,198,172"/>
+<area shape="rect" id="Node000008" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="258,215,410,255"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="199,194,245,207,243,212,198,199"/>
+<area shape="rect" id="Node000003" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#adbec6b52ba93143243d78a66e41ff9f6" title=" " alt="" coords="475,5,651,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,78,484,49,486,54,398,83"/>
+<area shape="rect" id="Node000004" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aeca9fb679495b0b198bfa68310278f80" title=" " alt="" coords="470,70,655,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,97,455,97,455,102,423,103"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="473,149,653,190"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="406,120,478,142,477,147,404,125"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="410,167,457,167,457,172,410,172"/>
+<area shape="rect" id="Node000007" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a3117ea048fe8bbc3dfe9180a40bc1a8b" title=" " alt="" coords="487,215,638,255"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="408,188,475,207,474,212,407,193"/>
+</map>

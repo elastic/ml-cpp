@@ -1,0 +1,11 @@
+<map id="ml::model_t::inverseOffsetCountToZero" name="ml::model_t::inverseOffsetCountToZero">
+<area shape="rect" id="Node000001" title="The inverse of offsetCountToZero." alt="" coords="273,100,448,141"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#af2bc7b92e10c479ae661af0b5c51ebae" title=" " alt="" coords="18,5,212,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="303,96,224,61,188,49,190,44,226,57,305,91"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a0a00f27876d274e092ad6f760bd251ff" title=" " alt="" coords="5,71,225,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,111,225,107,225,101,257,105"/>
+<area shape="rect" id="Node000004" href="$d8/d9e/_c_model_types_test_8cc.html#a9b4a3994bc0c6e5b43c31dc372f95d4b" title=" " alt="" coords="17,136,213,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,135,214,140,213,134,257,129"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#ab98a5b26d460463569d016b32b4b48fa" title="The inverse of offsetCountToZero." alt="" coords="27,185,203,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="296,149,226,176,191,187,190,182,224,171,295,144"/>
+</map>

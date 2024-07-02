@@ -1,0 +1,24 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::unpack" name="ml::maths::time_series::CMultivariateTimeSeriesModel::unpack">
+<area shape="rect" id="Node000001" title="Unpack the weights in weights." alt="" coords="800,211,1008,266"/>
+<area shape="rect" id="Node000002" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a6bafa8fd1529e7a1b24b538c3191d403" title="Compute the probability for correlated series." alt="" coords="529,5,728,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="873,200,821,136,787,103,751,75,728,63,730,58,754,71,791,99,825,132,877,196"/>
+<area shape="rect" id="Node000004" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a2b5c91aa7f696a1ce4a27df0ebe00bbd" title=" " alt="" coords="529,85,728,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="844,205,751,156,723,144,725,139,753,151,847,200"/>
+<area shape="rect" id="Node000005" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#adb51ecd61bf74a7be604a33fb3a75f24" title="Get the most likely value for the time series at time." alt="" coords="505,189,752,230"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="785,228,753,225,753,220,785,223"/>
+<area shape="rect" id="Node000006" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#abf4f75f6217413e2d2fa4515eba38105" title="Get the local maxima of the residual distribution." alt="" coords="250,211,457,266"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="785,243,752,244,505,244,457,243,457,238,505,239,752,239,785,238"/>
+<area shape="rect" id="Node000007" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#acba8104c96a977b3eede89f940aad3a9" title="Compute the probability of drawing value at time." alt="" coords="525,328,732,384"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="824,275,697,330,695,325,822,270"/>
+<area shape="rect" id="Node000008" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7015518321c48a29b9fbf372e98fb84f" title="Update the residual models." alt="" coords="525,408,732,464"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="876,280,823,341,790,371,754,398,732,410,729,405,751,394,787,367,819,337,872,276"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a24874bc00a4f05cb755223d282eeea0b" title="Compute the probability of drawing value at time." alt="" coords="254,5,453,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="513,36,454,36,454,31,513,31"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="674,176,657,170,629,167,602,169,586,174,580,180,582,187,577,189,575,179,583,170,601,164,629,162,658,165,676,171"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="490,227,458,230,457,225,489,221"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="674,316,657,309,629,307,604,309,588,313,581,320,581,328,575,327,576,317,586,309,603,303,629,301,658,304,676,311"/>
+<area shape="rect" id="Node000009" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="250,408,457,464"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="509,439,457,439,457,433,509,433"/>
+<area shape="rect" id="Node000010" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,423,202,449"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="234,439,202,439,202,433,234,433"/>
+</map>

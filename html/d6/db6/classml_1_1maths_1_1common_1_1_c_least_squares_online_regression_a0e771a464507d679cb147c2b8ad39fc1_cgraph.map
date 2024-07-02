@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::linearScale" name="ml::maths::common::CLeastSquaresOnlineRegression::linearScale">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,19,220,74"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="530,46,689,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,19,280,10,346,4,415,4,483,12,521,23,556,37,554,42,519,28,481,17,415,9,346,9,280,15,221,24"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="288,26,462,67"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,44,272,44,272,49,220,49"/>
+<area shape="rect" id="Node000004" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a3247311f1446dcfda413dcc02c899f35" title="Scale the statistics&#39; count by scale." alt="" coords="268,115,482,170"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,73,284,107,282,112,190,78"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="462,112,530,90,531,95,463,117"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="329,114,329,104,338,96,353,90,375,88,400,91,415,98,412,102,398,96,375,93,354,95,341,100,334,106,334,114"/>
+</map>

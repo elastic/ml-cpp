@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CKMeans::CKdTreeNodeData::add" name="ml::maths::common::CKMeans::CKdTreeNodeData::add">
+<area shape="rect" id="Node000001" title="Combine the bounding boxes and centroids." alt="" coords="476,13,703,54"/>
+<area shape="rect" id="Node000002" href="$d5/de3/structml_1_1maths_1_1common_1_1_c_k_means_1_1_s_data_propagator.html#a2ad37d5b80e528b0d03cc0edd7479bb3" title="Update data with the data from child." alt="" coords="241,5,428,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,36,428,36,428,31,460,31"/>
+<area shape="rect" id="Node000003" href="$d5/de3/structml_1_1maths_1_1common_1_1_c_k_means_1_1_s_data_propagator.html#a6fbfb273fde5fe8eee9ef6c901da5e3d" title="Propagate the data to node." alt="" coords="5,5,193,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="225,36,193,36,193,31,225,31"/>
+</map>

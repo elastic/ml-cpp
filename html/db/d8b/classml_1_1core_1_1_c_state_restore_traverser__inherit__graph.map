@@ -1,0 +1,7 @@
+<map id="ml::core::CStateRestoreTraverser" name="ml::core::CStateRestoreTraverser">
+<area shape="rect" id="Node000001" title="Abstract interface for restoring state." alt="" coords="95,5,313,31"/>
+<area shape="rect" id="Node000002" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html" title="For restoring state in JSON format." alt="" coords="5,79,197,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,43,128,81,125,77,174,38"/>
+<area shape="rect" id="Node000003" href="$df/def/classml_1_1core_1_1_c_rapid_xml_state_restore_traverser.html" title="For restoring state in XML format." alt="" coords="221,79,395,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,38,284,76,280,81,230,43"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ml::model::CPopulationModel::sampleRateWeight" name="ml::model::CPopulationModel::sampleRateWeight">
+<area shape="rect" id="Node000001" title=" " alt="" coords="273,51,465,91"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="5,5,225,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,54,225,48,226,43,258,48"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="18,95,212,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,93,212,101,212,96,257,88"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="157,82,141,76,115,73,91,75,76,80,70,86,73,93,67,95,65,85,73,76,90,70,115,68,142,70,159,77"/>
+</map>

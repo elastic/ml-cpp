@@ -1,0 +1,17 @@
+<map id="anonymous_namespace{CPerPartitionCategoryIdMapperTest::cc}::persistAndRestore" name="anonymous_namespace{CPerPartitionCategoryIdMapperTest::cc}::persistAndRestore">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,216,152"/>
+<area shape="rect" id="Node000002" href="$d1/d2f/classml_1_1api_1_1_c_per_partition_category_id_mapper.html#acc0abcb86f229910de4d008b8a0219ec" title="Persist the mapper passing information to inserter." alt="" coords="272,39,479,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,96,275,81,276,86,217,101"/>
+<area shape="rect" id="Node000004" href="$d1/d2f/classml_1_1api_1_1_c_per_partition_category_id_mapper.html#a42ec6b687fbf343a1bd84c3bcd0fc349" title="Restore the mapper reading state from traverser." alt="" coords="264,136,487,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="217,134,248,138,248,144,216,140"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="543,5,745,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="479,43,527,37,528,43,480,49"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="535,71,753,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="461,133,542,113,544,118,463,138"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="535,136,753,177"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="488,154,520,154,520,159,488,159"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="571,201,718,242"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="463,175,556,198,555,203,461,180"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="535,267,753,307"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="407,175,465,213,536,251,553,258,551,263,534,256,462,218,404,179"/>
+</map>

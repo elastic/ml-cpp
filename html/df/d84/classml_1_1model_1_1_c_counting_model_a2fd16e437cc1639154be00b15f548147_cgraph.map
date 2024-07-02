@@ -1,0 +1,11 @@
+<map id="ml::model::CCountingModel::updateRecycledModels" name="ml::model::CCountingModel::updateRecycledModels">
+<area shape="rect" id="Node000001" title="Reinitialize the time series models for recycled people." alt="" coords="5,71,189,111"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="238,5,436,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,68,244,48,246,53,175,73"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#abfdf685a3e3bd9099ba9cbd2cb31a842" title="Get unique identifiers of any people that have been recycled." alt="" coords="250,71,424,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,88,234,88,234,94,189,94"/>
+<area shape="rect" id="Node000005" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a08e148d55e471baa28b50b6b41c5aa99" title=" " alt="" coords="237,136,437,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,109,246,129,244,134,173,114"/>
+<area shape="rect" id="Node000004" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#adc5d59447dd8ce35097cd9256046c91e" title="Get unique identifiers of any names that have been recycled." alt="" coords="485,71,667,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="425,88,470,88,470,94,425,94"/>
+</map>

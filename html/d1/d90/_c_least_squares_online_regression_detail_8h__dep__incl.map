@@ -1,0 +1,31 @@
+<map id="include/maths/common/CLeastSquaresOnlineRegressionDetail.h" name="include/maths/common/CLeastSquaresOnlineRegressionDetail.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1342,5,1561,61"/>
+<area shape="rect" id="Node000002" href="$d2/dff/_c_lowess_detail_8h.html" title=" " alt="" coords="235,117,391,157"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1327,37,1146,42,915,53,659,75,530,92,404,112,374,118,373,113,403,106,529,86,659,70,915,48,1145,36,1327,32"/>
+<area shape="rect" id="Node000006" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html" title=" " alt="" coords="416,109,634,165"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1327,44,1017,68,832,87,646,112,635,114,634,108,646,106,831,81,1017,62,1327,39"/>
+<area shape="rect" id="Node000007" href="$db/de7/_c_seasonal_component_8cc.html" title=" " alt="" coords="658,117,832,157"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1327,47,1101,72,972,90,844,112,813,118,812,113,843,106,971,84,1101,66,1327,42"/>
+<area shape="rect" id="Node000008" href="$de/d21/_c_seasonal_component_adaptive_bucketing_8cc.html" title=" " alt="" coords="856,109,1063,165"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="1327,61,1076,112,1064,114,1063,109,1075,106,1326,56"/>
+<area shape="rect" id="Node000009" href="$da/dcd/_c_time_series_decomposition_detail_8cc.html" title=" " alt="" coords="1087,117,1328,157"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1373,70,1256,118,1254,113,1371,65"/>
+<area shape="rect" id="Node000010" href="$db/d07/_c_time_series_segmentation_8cc.html" title=" " alt="" coords="1352,117,1551,157"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1454,77,1454,116,1449,116,1449,77"/>
+<area shape="rect" id="Node000011" href="$d4/d4c/_c_time_series_test_for_change_8cc.html" title=" " alt="" coords="1575,117,1784,157"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1527,65,1636,113,1634,118,1525,70"/>
+<area shape="rect" id="Node000012" href="$da/d92/_c_time_series_test_for_seasonality_8cc.html" title=" " alt="" coords="1807,117,2037,157"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1576,59,1831,113,1830,119,1575,64"/>
+<area shape="rect" id="Node000013" href="$d5/d03/_c_trend_component_8cc.html" title=" " alt="" coords="2061,117,2215,157"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="1576,41,1798,65,1924,83,2049,106,2077,113,2076,119,2048,112,1923,89,1797,70,1576,47"/>
+<area shape="rect" id="Node000014" href="$d0/d56/_c_seasonal_component_test_8cc.html" title=" " alt="" coords="2239,109,2442,165"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="1576,39,1874,62,2051,81,2228,106,2239,108,2238,114,2227,112,2051,87,1874,67,1576,44"/>
+<area shape="rect" id="Node000015" href="$d5/d8a/_c_trend_component_test_8cc.html" title=" " alt="" coords="2467,117,2692,157"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="1576,36,1749,43,1969,57,2211,77,2454,106,2494,113,2494,118,2454,112,2211,83,1968,62,1749,49,1576,41"/>
+<area shape="rect" id="Node000003" href="$d8/d49/_c_boosted_tree_factory_8cc.html" title=" " alt="" coords="5,213,175,253"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="253,166,138,215,136,210,251,161"/>
+<area shape="rect" id="Node000004" href="$dd/d1f/_c_boosted_tree_hyperparameters_8cc.html" title=" " alt="" coords="199,213,426,253"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="315,173,315,212,310,212,310,173"/>
+<area shape="rect" id="Node000005" href="$d4/d0b/_c_lowess_test_8cc.html" title=" " alt="" coords="450,213,626,253"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="375,161,492,210,490,215,373,166"/>
+</map>

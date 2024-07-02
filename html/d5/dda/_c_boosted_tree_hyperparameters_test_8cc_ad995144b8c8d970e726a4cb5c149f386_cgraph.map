@@ -1,0 +1,31 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,444,202,470"/>
+<area shape="rect" id="Node000002" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#acb69e5de8f5c4076d7db50a5fa11202e" title="Get the writeable data downsample factor when computing loss derivatives." alt="" coords="263,5,476,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,443,112,378,135,278,153,223,178,168,209,117,248,71,251,68,255,72,252,75,213,120,182,171,158,225,140,280,117,379,109,444"/>
+<area shape="rect" id="Node000003" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a0d81750b61c6df0478fbbca4cb3a4a1e" title="Get the writeable weight shrinkage." alt="" coords="250,85,489,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="104,443,116,387,141,304,160,258,183,213,213,171,248,135,252,132,255,136,251,139,217,175,188,216,164,260,146,305,121,388,109,444"/>
+<area shape="rect" id="Node000004" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a9a3e31bf5ad07fa5749927a9644e2149" title="Get the writeable growth in weight shrinkage per tree which is added." alt="" coords="263,149,476,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="107,443,123,400,152,339,194,273,219,242,248,215,253,211,256,216,251,219,223,246,198,276,157,341,128,402,112,445"/>
+<area shape="rect" id="Node000005" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a605d08006f5e5dbb8c86b26f2e0c1495" title="Get the writeable fraction of features which are selected for training a tree." alt="" coords="263,229,476,285"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="111,442,163,373,203,331,248,295,256,290,259,295,251,299,206,335,167,376,115,446"/>
+<area shape="rect" id="Node000006" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a85fcb90e4a2fc6a9f953bca9f99ccd59" title="Get the writeable multiplier of the square leaf weight penalty." alt="" coords="263,309,476,365"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="125,441,180,409,249,375,263,369,265,374,251,380,183,414,128,446"/>
+<area shape="rect" id="Node000007" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a04ba6ce1f50aeb4c5e0fdcb580c0a683" title="Set the maximum number of trees to use." alt="" coords="263,389,476,445"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="193,441,247,433,248,438,194,446"/>
+<area shape="rect" id="Node000008" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a216a66ead683286e52bd0665de0c537c" title="Get the writeable multiplier of prediction change penalty." alt="" coords="263,469,476,525"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="194,468,248,476,247,481,193,473"/>
+<area shape="rect" id="Node000009" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#aca388f8b0af7492d6ab13c89e9eb70c2" title="Get the writeable weight shrinkage to use when retraining a tree." alt="" coords="263,549,476,605"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="128,468,183,500,251,535,265,541,263,546,249,540,180,505,125,473"/>
+<area shape="rect" id="Node000010" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2bb0597c65fb4e601ca673ab7d3229b6" title=" " alt="" coords="270,629,469,670"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="115,469,166,539,206,580,251,615,259,620,257,624,248,619,202,584,162,542,111,472"/>
+<area shape="rect" id="Node000013" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a27d8f97a3e05a8093933477d1707d060" title="Get the writable soft depth tree depth limit." alt="" coords="263,693,476,749"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="112,469,130,510,159,566,200,627,224,655,251,679,256,683,253,687,248,683,220,658,195,630,154,569,125,512,107,472"/>
+<area shape="rect" id="Node000014" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a76ffa4aec928e1234208ef0bf878d0c8" title="Get the writeable multiplier of the tree size penalty." alt="" coords="263,773,476,829"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="110,470,123,523,149,601,168,643,191,685,219,725,251,759,255,762,252,766,248,763,215,728,186,688,163,646,144,603,118,524,105,471"/>
+<area shape="rect" id="Node000015" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ac16c40eafcf2c11c34ba4c3f7e8439ad" title="Get the writeable tolerance in the depth tree depth limit." alt="" coords="263,853,476,909"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="109,470,117,536,140,635,158,689,182,744,213,795,252,839,255,842,251,846,248,843,209,798,178,746,153,691,135,636,112,537,103,471"/>
+<area shape="rect" id="Node000011" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="551,593,696,634"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="469,632,535,623,536,628,470,638"/>
+<area shape="rect" id="Node000012" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="537,657,710,713"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="470,661,522,668,521,673,469,666"/>
+</map>

@@ -1,0 +1,44 @@
+<map id="ml::maths::common::CSampling::normalSample" name="ml::maths::common::CSampling::normalSample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="843,266,1020,306"/>
+<area shape="rect" id="Node000002" href="$dc/d36/namespaceml_1_1maths_1_1time__series_1_1anonymous__namespace_02_c_time_series_decomposition_detail_8cc_03.html#a5216a01771b849282b827c7aec9fc85a" title="Add on mean zero variance normally distributed noise to values." alt="" coords="568,29,790,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="909,254,862,184,830,146,794,113,777,103,780,98,797,109,834,142,866,180,914,251"/>
+<area shape="rect" id="Node000003" href="$d2/df8/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble.html#ab1ee098a5a913bf877ae3c28ee59fbf8" title=" " alt="" coords="588,124,770,195"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="884,259,794,208,769,197,771,192,797,204,887,255"/>
+<area shape="rect" id="Node000004" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#aa4bcae8545bcb0ffcc78f442e58a72ad" title=" " alt="" coords="583,218,774,274"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="828,272,774,264,775,259,828,267"/>
+<area shape="rect" id="Node000005" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#aea5fd07d815eefdedd55f0cbe59a10e7" title="Generate b random projections." alt="" coords="583,298,774,354"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="828,305,775,313,774,308,828,300"/>
+<area shape="rect" id="Node000008" href="$d5/d9a/classml_1_1maths_1_1time__series_1_1_c_decay_rate_controller.html#ae193f4e0103f5a59a126dac63377a591" title=" " alt="" coords="598,378,759,434"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="888,317,796,368,761,383,759,378,794,364,885,313"/>
+<area shape="rect" id="Node000020" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ac6fe9c56bac4ebdcf0aa1b22e3c73e71" title="Randomly sample the covariance matrix prior." alt="" coords="562,557,795,613"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="905,320,706,558,702,555,901,316"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="718,18,703,11,679,8,658,10,644,15,636,21,634,29,629,28,631,18,641,10,657,5,679,3,704,5,721,13"/>
+<area shape="rect" id="Node000006" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#af2a0e8b478209ee582972ea18b6e3859" title="Set up the projections." alt="" coords="303,29,495,85"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="568,296,560,288,543,263,535,239,534,215,535,191,535,145,528,122,512,98,493,83,497,79,516,95,533,119,541,144,541,191,539,215,541,238,548,261,564,284,572,292"/>
+<area shape="rect" id="Node000007" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a8f49c49d91cb2d4ec0431b5d37309760" title=" " alt="" coords="25,29,216,85"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="287,59,216,59,216,54,287,54"/>
+<area shape="rect" id="Node000009" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#ab51593e521d47a4bea264b57debe49a4" title=" " alt="" coords="284,109,514,165"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="583,386,560,368,543,343,535,319,534,295,535,271,535,225,528,202,512,178,499,167,503,163,516,175,533,199,541,224,541,271,539,295,541,318,548,341,564,364,586,381"/>
+<area shape="rect" id="Node000010" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#aa5b30755fe0907c3b6d0e988042c4317" title=" " alt="" coords="284,189,514,245"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="582,384,560,368,548,354,541,340,535,312,530,285,523,272,512,259,497,247,501,243,516,255,528,269,535,283,541,311,546,338,553,351,564,364,585,379"/>
+<area shape="rect" id="Node000011" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#a71ecd656f158dc79e7597f4d9e8f86dc" title=" " alt="" coords="301,269,497,295"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="582,381,560,368,545,352,536,337,528,322,513,308,491,298,493,293,515,304,532,318,541,334,549,349,564,364,585,376"/>
+<area shape="rect" id="Node000012" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#a8eb4bfd997fcd9d463d42cba56f51070" title=" " alt="" coords="301,319,497,344"/>
+<area shape="poly" id="edge12_Node000008_Node000012" title=" " alt="" coords="582,378,513,358,468,347,470,342,515,353,584,373"/>
+<area shape="rect" id="Node000013" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#aefd1407b575544ec0c71c8c8c8f71f45" title=" " alt="" coords="301,368,497,394"/>
+<area shape="poly" id="edge13_Node000008_Node000013" title=" " alt="" coords="582,400,497,392,498,387,583,395"/>
+<area shape="rect" id="Node000014" href="$d2/d92/_c_decay_rate_controller_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="301,417,497,443"/>
+<area shape="poly" id="edge14_Node000008_Node000014" title=" " alt="" coords="583,417,498,424,497,419,582,412"/>
+<area shape="rect" id="Node000015" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aa6e7191d99df015fef8879cc35acabcf" title=" " alt="" coords="290,467,508,492"/>
+<area shape="poly" id="edge15_Node000008_Node000015" title=" " alt="" coords="584,439,515,458,469,469,468,463,513,453,582,433"/>
+<area shape="rect" id="Node000016" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#aab271baedce8409a164cc1b5d2fd8f4a" title=" " alt="" coords="290,516,508,542"/>
+<area shape="poly" id="edge16_Node000008_Node000016" title=" " alt="" coords="628,445,575,478,515,507,482,518,480,513,513,502,572,473,625,440"/>
+<area shape="rect" id="Node000017" href="$d0/da9/_c_time_series_decomposition_test_8cc.html#a1b19faa9fbce83f5f41bdb2ae950b300" title=" " alt="" coords="290,565,508,591"/>
+<area shape="poly" id="edge17_Node000008_Node000017" title=" " alt="" coords="646,448,589,505,554,533,515,556,489,567,487,562,513,552,551,528,586,501,643,444"/>
+<area shape="rect" id="Node000018" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#ac9e677865598c39278e7e9f46c3cb383" title=" " alt="" coords="318,616,480,671"/>
+<area shape="poly" id="edge18_Node000008_Node000018" title=" " alt="" coords="646,447,564,546,542,578,532,592,516,606,481,624,479,619,512,601,528,588,538,575,560,543,642,444"/>
+<area shape="rect" id="Node000019" href="$d0/def/namespaceanonymous__namespace_02_c_trend_component_test_8cc_03.html#a00bf6a87699dd2fc2b849cdd664344d3" title=" " alt="" coords="5,616,236,671"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="302,646,236,646,236,641,302,641"/>
+<area shape="rect" id="Node000021" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a7713d2e9c0cc33ac218648f23444bfc5" title=" " alt="" coords="301,696,497,722"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="628,624,575,657,515,686,477,698,476,693,513,681,572,652,625,619"/>
+</map>

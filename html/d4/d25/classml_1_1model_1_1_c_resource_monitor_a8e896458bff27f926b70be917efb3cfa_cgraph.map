@@ -1,0 +1,5 @@
+<map id="ml::model::CResourceMonitor::categorizerAllocationFailures" name="ml::model::CResourceMonitor::categorizerAllocationFailures">
+<area shape="rect" id="Node000001" title="Set categorizer allocation failures." alt="" coords="5,5,202,46"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a52f731283a172ede22376557eea42542" title="Get categorizer allocation failures." alt="" coords="250,5,446,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,23,234,23,234,28,202,28"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CBucketGatherer::baseAcceptPersistInserter" name="ml::model::CBucketGatherer::baseAcceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="257,39,444,79"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a4c69459545a20a6008ff568fd7a43008" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,209,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,47,209,42,209,37,242,41"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a30250e6c90f12b6f4ab4c30eade22118" title="Persist state by passing information to the supplied inserter." alt="" coords="5,71,209,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,76,209,80,209,75,241,71"/>
+</map>

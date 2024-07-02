@@ -1,0 +1,9 @@
+<map id="bin/pytorch_inference/CResultWriter.h" name="bin/pytorch_inference/CResultWriter.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="175,5,320,46"/>
+<area shape="rect" id="Node000002" href="$d4/d95/_c_result_writer_8cc.html" title=" " alt="" coords="5,94,151,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,56,117,96,115,91,194,51"/>
+<area shape="rect" id="Node000003" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html" title=" " alt="" coords="175,94,320,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="250,62,250,94,245,94,245,62"/>
+<area shape="rect" id="Node000004" href="$dd/d97/_c_result_writer_test_8cc.html" title=" " alt="" coords="345,94,542,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="307,50,400,91,398,96,304,55"/>
+</map>

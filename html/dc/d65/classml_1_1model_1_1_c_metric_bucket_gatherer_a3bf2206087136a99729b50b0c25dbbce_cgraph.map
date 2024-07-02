@@ -1,0 +1,29 @@
+<map id="ml::model::CMetricBucketGatherer::acceptRestoreTraverserInternal" name="ml::model::CMetricBucketGatherer::acceptRestoreTraverserInternal">
+<area shape="rect" id="Node000001" title="Internal restore function." alt="" coords="5,255,225,311"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="648,5,867,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,253,182,211,239,161,307,112,381,73,443,51,508,37,573,28,632,23,633,28,573,33,509,42,445,56,383,77,310,117,243,165,186,215,144,257"/>
+<area shape="rect" id="Node000003" href="$d0/df6/_c_program_counters_test_8cc.html#a231e256c542aeedb2429fec4219ddb20" title=" " alt="" coords="273,209,334,235"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,252,257,234,258,239,203,257"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="684,291,831,331"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="225,285,669,305,668,310,225,290"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="648,356,867,397"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="226,296,633,356,632,361,225,302"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="401,87,582,127"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="316,206,345,181,381,154,422,132,424,136,383,159,348,185,320,210"/>
+<area shape="rect" id="Node000007" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a73534a30556e6da5a77583a919c1d52a" title="Restore the static members of this class from persisted state." alt="" coords="386,168,596,209"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="334,214,370,207,371,212,335,219"/>
+<area shape="rect" id="Node000012" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="382,233,600,274"/>
+<area shape="poly" id="edge13_Node000003_Node000012" title=" " alt="" coords="335,224,367,230,366,235,334,229"/>
+<area shape="rect" id="Node000005" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="664,71,851,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="582,99,648,95,648,100,582,104"/>
+<area shape="rect" id="Node000006" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="915,71,1096,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="852,88,899,88,899,94,852,94"/>
+<area shape="poly" id="edge9_Node000007_Node000002" title=" " alt="" coords="553,165,577,153,598,137,614,117,621,97,629,77,647,57,654,52,657,56,650,61,634,80,626,99,619,120,602,141,580,157,556,170"/>
+<area shape="rect" id="Node000008" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="663,160,852,201"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="597,183,648,181,648,186,597,188"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="648,225,867,266"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="589,207,645,219,644,224,588,212"/>
+<area shape="poly" id="edge11_Node000007_Node000010" title=" " alt="" coords="578,207,602,219,618,234,627,248,635,262,650,275,671,287,668,292,647,280,631,266,622,251,613,237,599,224,576,212"/>
+<area shape="poly" id="edge12_Node000007_Node000011" title=" " alt="" coords="585,207,602,220,615,235,622,251,627,282,631,312,638,327,650,341,655,345,651,349,646,345,634,330,626,314,622,283,617,252,611,238,599,224,582,211"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="711,160,709,150,716,141,733,135,758,133,784,136,800,142,798,147,783,141,757,139,734,141,719,145,714,151,716,159"/>
+</map>

@@ -1,0 +1,103 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,781,202,807"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a96b161bd77a09901d484b92a74095527" title=" " alt="" coords="257,533,417,573"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,779,303,583,307,586,119,783"/>
+<area shape="rect" id="Node000006" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a66a37b2edea9b32f644381214e26b879" title="Get the clusters." alt="" coords="492,717,676,757"/>
+<area shape="poly" id="edge59_Node000001_Node000006" title=" " alt="" coords="202,779,249,773,476,746,477,751,250,778,203,784"/>
+<area shape="rect" id="Node000016" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="1978,629,2158,669"/>
+<area shape="poly" id="edge63_Node000001_Node000016" title=" " alt="" coords="202,792,583,792,1621,792,1678,788,1735,779,1844,749,1941,710,2016,674,2018,679,1943,715,1846,754,1736,784,1678,793,1621,797,583,797,202,797"/>
+<area shape="rect" id="Node000037" href="$d8/d31/namespaceanonymous__namespace_02_c_x_means_online1d_test_8cc_03.html#aecb89b3d5d86d61c45f9114369993b08" title=" " alt="" coords="256,832,418,887"/>
+<area shape="poly" id="edge60_Node000001_Node000037" title=" " alt="" coords="153,805,241,830,240,835,151,810"/>
+<area shape="rect" id="Node000038" href="$d3/d90/classml_1_1test_1_1_c_time_series_test_data.html#a43b18a34002cfa6f2c56ef6d0d3b19d7" title="Initialise from a text file." alt="" coords="250,935,424,976"/>
+<area shape="poly" id="edge61_Node000001_Node000038" title=" " alt="" coords="124,805,251,897,291,924,289,929,248,902,121,810"/>
+<area shape="rect" id="Node000003" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a7b304bf6aeadfa3729267698abc45936" title="Update the statistics with the collection x." alt="" coords="472,222,696,278"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="341,531,355,482,381,417,419,349,443,317,470,288,474,285,477,289,474,292,447,320,423,351,386,420,360,484,346,533"/>
+<area shape="rect" id="Node000004" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#abcabb7b5750133a0f54c4d9bee6973fe" title=" " alt="" coords="1051,586,1228,627"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="417,561,569,579,745,594,897,601,1035,603,1035,609,897,606,744,599,568,584,417,566"/>
+<area shape="rect" id="Node000005" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a27a8cb85db7bf18509c0a8b9cd4e76e0" title="The total count of points." alt="" coords="1317,529,1487,569"/>
+<area shape="poly" id="edge8_Node000002_Node000005" title=" " alt="" coords="417,541,568,526,744,514,892,510,1007,512,1269,532,1302,535,1301,540,1269,537,1007,517,892,515,744,519,569,532,417,546"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="353,572,401,636,435,671,473,701,483,707,481,712,471,706,431,675,397,640,349,575"/>
+<area shape="rect" id="Node000007" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a97ac74929ac25b30cf436d709f51e0c7" title="Merge cluster and adjacentCluster if they are close enough." alt="" coords="478,414,691,455"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="368,530,415,500,471,470,501,458,503,463,473,475,418,505,370,534"/>
+<area shape="rect" id="Node000030" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#ab84711602bf8c629f2fac7e5098d1196" title="Split cluster if we find a good split." alt="" coords="483,651,686,692"/>
+<area shape="poly" id="edge45_Node000002_Node000030" title=" " alt="" coords="370,572,418,601,473,630,503,643,501,648,471,635,415,606,368,576"/>
+<area shape="rect" id="Node000032" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a9eb8163f529da1bc2707b05df5c436b2" title="Remove any clusters which are effectively dead." alt="" coords="499,302,669,343"/>
+<area shape="poly" id="edge49_Node000002_Node000032" title=" " alt="" coords="352,530,403,470,470,400,536,349,539,354,474,404,407,473,356,534"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1228,593,1326,571,1327,576,1229,598"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="1317,561,1216,584,1214,579,1316,556"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="1361,528,1359,519,1366,510,1380,504,1402,502,1426,504,1440,510,1438,515,1424,509,1402,507,1381,509,1369,514,1364,520,1366,527"/>
+<area shape="rect" id="Node000008" href="$da/d1b/classml_1_1maths_1_1common_1_1_c_x_means_online1d_1_1_c_cluster.html#a3f8e070447b51273ef256ed48ac2dc2f" title="Get the unique index of this cluster." alt="" coords="758,334,948,390"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="662,411,742,389,744,394,664,416"/>
+<area shape="rect" id="Node000009" href="$da/d1b/classml_1_1maths_1_1common_1_1_c_x_means_online1d_1_1_c_cluster.html#a76478d3e5142c9436a6283fe0b55ab47" title="Merge this and other cluster." alt="" coords="758,254,948,310"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="613,411,743,320,754,315,756,319,746,324,616,415"/>
+<area shape="rect" id="Node000028" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#ab53d9091a858b5c86dccd5ee331af2f2" title="Get the callback function to invoke when two clusters are merged." alt="" coords="774,414,932,455"/>
+<area shape="poly" id="edge41_Node000007_Node000028" title=" " alt="" coords="691,432,759,432,759,437,691,437"/>
+<area shape="rect" id="Node000029" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a330bb576c0f87f4441258f95517745d3" title="Get the Winsorization interval." alt="" coords="746,529,960,585"/>
+<area shape="poly" id="edge42_Node000007_Node000029" title=" " alt="" coords="632,453,778,520,776,525,630,457"/>
+<area shape="rect" id="Node000010" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a9932c9d4c4a33bee460d7dc2d214e828" title=" " alt="" coords="1318,234,1487,290"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="948,260,1009,252,1082,247,1139,246,1269,252,1302,253,1302,258,1269,257,1139,252,1083,252,1010,257,949,265"/>
+<area shape="rect" id="Node000024" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a441ce9f90eb752d6526e882661652117" title="Get the index generator." alt="" coords="1026,410,1253,451"/>
+<area shape="poly" id="edge35_Node000009_Node000024" title=" " alt="" coords="946,308,963,320,980,340,988,360,995,379,1011,396,1017,400,1014,405,1008,400,991,381,983,362,975,343,960,324,943,313"/>
+<area shape="rect" id="Node000025" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#aea3b436acf2e3540f3778a42beb1d67c" title=" " alt="" coords="1055,85,1224,141"/>
+<area shape="poly" id="edge36_Node000009_Node000025" title=" " alt="" coords="936,251,960,240,1087,148,1090,152,963,244,939,256"/>
+<area shape="rect" id="Node000026" href="$d5/d01/classml_1_1maths_1_1common_1_1_c_clusterer_types_1_1_c_index_generator.html#ae877d4551a677349ed4d4157e144e6ea" title="Get the next available unique cluster index." alt="" coords="1010,266,1269,307"/>
+<area shape="poly" id="edge39_Node000009_Node000026" title=" " alt="" coords="949,281,994,281,994,287,949,286"/>
+<area shape="rect" id="Node000027" href="$d5/d01/classml_1_1maths_1_1common_1_1_c_clusterer_types_1_1_c_index_generator.html#a419d40e52a51f286d44c7dd827f46976" title="Recycle the specified cluster index." alt="" coords="1026,330,1253,386"/>
+<area shape="poly" id="edge40_Node000009_Node000027" title=" " alt="" coords="949,305,1018,323,1017,328,948,310"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="2465,317,2625,357"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1459,231,1533,199,1627,166,1732,139,1786,132,1840,129,2069,129,2158,123,2230,114,2264,114,2299,120,2336,133,2377,155,2396,173,2405,192,2412,213,2426,235,2463,273,2503,305,2499,309,2460,277,2422,238,2407,215,2400,194,2392,176,2374,159,2334,137,2297,125,2264,120,2230,120,2159,128,2070,134,1840,134,1787,137,1733,145,1628,171,1535,204,1461,236"/>
+<area shape="rect" id="Node000012" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a41b03b9aa43852d910b1e291f3b8f335" title=" " alt="" coords="1757,300,1926,355"/>
+<area shape="poly" id="edge14_Node000010_Node000012" title=" " alt="" coords="1488,272,1742,310,1741,315,1487,277"/>
+<area shape="rect" id="Node000015" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#af0937b5e417657ae571dc1f9422b49b3" title="Print this classifier for debug." alt="" coords="1757,510,1926,566"/>
+<area shape="poly" id="edge19_Node000010_Node000015" title=" " alt="" coords="1419,289,1438,324,1465,365,1498,405,1537,440,1585,469,1638,492,1692,509,1742,521,1741,526,1690,514,1636,497,1583,474,1534,444,1494,409,1461,368,1434,327,1415,292"/>
+<area shape="rect" id="Node000017" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a70aadff7ed11ca66ff3e0b2c17b02233" title="Reduce the number of tuples until we satisfy the space constraint." alt="" coords="1757,169,1926,225"/>
+<area shape="poly" id="edge21_Node000010_Node000017" title=" " alt="" coords="1487,247,1741,209,1742,214,1488,252"/>
+<area shape="rect" id="Node000022" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#aec6a5530e7aa5c6ddc4a99c21209264b" title=" " alt="" coords="1535,374,1705,430"/>
+<area shape="poly" id="edge27_Node000010_Node000022" title=" " alt="" coords="1438,288,1551,364,1548,368,1435,293"/>
+<area shape="rect" id="Node000013" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#ae8b7fc7ef242e4c130467aa40a509851" title=" " alt="" coords="1984,306,2153,362"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="1926,327,1968,329,1968,334,1926,333"/>
+<area shape="poly" id="edge16_Node000013_Node000010" title=" " alt="" coords="1995,308,1929,290,1816,274,1701,265,1594,261,1503,261,1503,256,1594,256,1701,259,1817,268,1931,285,1996,303"/>
+<area shape="poly" id="edge17_Node000013_Node000011" title=" " alt="" coords="2139,360,2207,378,2291,386,2375,378,2464,359,2465,365,2376,383,2291,392,2206,383,2138,365"/>
+<area shape="rect" id="Node000014" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a183a03ccaeb5624e18d1309b787b2af1" title="Wrapper to evaluate the specified object function." alt="" coords="2206,313,2376,369"/>
+<area shape="poly" id="edge18_Node000013_Node000014" title=" " alt="" coords="2153,334,2191,335,2191,340,2153,339"/>
+<area shape="poly" id="edge20_Node000015_Node000016" title=" " alt="" coords="1902,564,2012,619,2010,624,1899,569"/>
+<area shape="rect" id="Node000018" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a6c65badb9cba6c03fdde185b4ab8f501" title="Get the indices of the closest categories." alt="" coords="1984,169,2153,225"/>
+<area shape="poly" id="edge22_Node000017_Node000018" title=" " alt="" coords="1926,194,1968,194,1968,200,1926,200"/>
+<area shape="rect" id="Node000019" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#a0c0ba018ea39b0e44381d376369b9e89" title="Get the total deviation of the specified class." alt="" coords="2206,169,2376,225"/>
+<area shape="poly" id="edge23_Node000018_Node000019" title=" " alt="" coords="2153,194,2191,194,2191,200,2153,200"/>
+<area shape="rect" id="Node000021" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="2211,249,2371,289"/>
+<area shape="poly" id="edge26_Node000018_Node000021" title=" " alt="" coords="2154,222,2212,241,2211,246,2153,227"/>
+<area shape="poly" id="edge24_Node000019_Node000011" title=" " alt="" coords="2354,223,2377,234,2499,306,2496,310,2374,239,2352,228"/>
+<area shape="rect" id="Node000020" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="2424,169,2666,225"/>
+<area shape="poly" id="edge25_Node000019_Node000020" title=" " alt="" coords="2376,194,2408,194,2408,200,2376,200"/>
+<area shape="poly" id="edge28_Node000022_Node000010" title=" " alt="" coords="1584,376,1471,301,1474,296,1587,372"/>
+<area shape="poly" id="edge30_Node000022_Node000011" title=" " alt="" coords="1690,428,1753,445,1847,458,1928,465,1999,465,2065,459,2131,449,2202,434,2375,393,2428,378,2478,361,2480,366,2430,383,2376,398,2203,439,2132,454,2066,465,1999,470,1927,470,1847,464,1752,450,1689,433"/>
+<area shape="poly" id="edge31_Node000022_Node000012" title=" " alt="" coords="1704,371,1742,358,1743,363,1705,376"/>
+<area shape="poly" id="edge32_Node000022_Node000015" title=" " alt="" coords="1662,428,1754,489,1773,500,1770,505,1751,494,1659,433"/>
+<area shape="poly" id="edge33_Node000022_Node000017" title=" " alt="" coords="1649,372,1797,234,1801,237,1653,376"/>
+<area shape="poly" id="edge34_Node000022_Node000022" title=" " alt="" coords="1577,374,1578,364,1585,355,1600,350,1620,348,1643,350,1657,357,1655,362,1641,355,1620,353,1601,355,1588,360,1583,366,1582,374"/>
+<area shape="rect" id="Node000023" href="$d6/d59/classml_1_1maths_1_1common_1_1_c_natural_breaks_classifier.html#affc74ff36afc321ddf3dc8a5e2a7d1de" title=" " alt="" coords="1753,380,1930,435"/>
+<area shape="poly" id="edge29_Node000022_Node000023" title=" " alt="" coords="1705,402,1737,402,1737,408,1705,407"/>
+<area shape="poly" id="edge37_Node000025_Node000010" title=" " alt="" coords="1226,137,1270,157,1318,188,1360,222,1357,226,1315,193,1268,162,1223,141"/>
+<area shape="poly" id="edge38_Node000025_Node000017" title=" " alt="" coords="1225,120,1741,182,1741,188,1224,126"/>
+<area shape="poly" id="edge43_Node000029_Node000004" title=" " alt="" coords="961,573,1036,586,1035,591,960,578"/>
+<area shape="poly" id="edge44_Node000029_Node000005" title=" " alt="" coords="960,553,1302,548,1302,553,960,558"/>
+<area shape="poly" id="edge46_Node000030_Node000004" title=" " alt="" coords="650,690,716,706,794,719,878,721,920,717,961,709,1000,695,1037,676,1100,634,1103,639,1040,680,1002,700,962,714,921,723,878,727,793,724,714,711,649,695"/>
+<area shape="poly" id="edge48_Node000030_Node000029" title=" " alt="" coords="633,648,771,589,773,594,635,653"/>
+<area shape="rect" id="Node000031" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#ab45fb80d5020067beaa42956b2359fdb" title="Get the callback function to invoke when a cluster is split." alt="" coords="780,659,926,700"/>
+<area shape="poly" id="edge47_Node000030_Node000031" title=" " alt="" coords="686,672,765,674,765,680,686,677"/>
+<area shape="poly" id="edge52_Node000032_Node000008" title=" " alt="" coords="670,332,743,343,742,348,669,337"/>
+<area shape="poly" id="edge53_Node000032_Node000009" title=" " alt="" coords="669,307,742,296,743,301,670,312"/>
+<area shape="poly" id="edge54_Node000032_Node000028" title=" " alt="" coords="624,341,680,370,745,400,762,406,760,411,743,405,678,375,621,346"/>
+<area shape="rect" id="Node000033" href="$da/d1b/classml_1_1maths_1_1common_1_1_c_x_means_online1d_1_1_c_cluster.html#a4fd24688ebfd89c99d1699f3f1e1a62d" title="Get the &quot;centroid&quot; of the cluster. This is the mean of the prior." alt="" coords="758,94,948,150"/>
+<area shape="poly" id="edge50_Node000032_Node000033" title=" " alt="" coords="668,305,695,288,707,273,714,258,718,226,722,194,729,177,742,160,745,158,749,162,746,164,734,180,728,195,724,227,719,260,712,276,698,292,671,309"/>
+<area shape="rect" id="Node000034" href="$da/d1b/classml_1_1maths_1_1common_1_1_c_x_means_online1d_1_1_c_cluster.html#a706010ef30086ab0761f41fd0f172e42" title="Get the total count of values added to the cluster." alt="" coords="758,174,948,230"/>
+<area shape="poly" id="edge51_Node000032_Node000034" title=" " alt="" coords="669,300,695,288,709,277,718,265,728,253,743,240,750,235,753,240,746,244,732,256,723,268,713,280,698,292,671,305"/>
+<area shape="rect" id="Node000035" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a69c47be332a788842ba2efee5616932d" title="Compute the minimum split count." alt="" coords="744,14,962,70"/>
+<area shape="poly" id="edge55_Node000032_Node000035" title=" " alt="" coords="668,306,694,288,712,263,720,238,721,213,719,187,716,161,717,135,725,108,742,81,744,79,748,82,746,84,729,110,722,135,722,161,724,187,726,213,725,239,717,266,698,292,671,311"/>
+<area shape="poly" id="edge56_Node000035_Node000005" title=" " alt="" coords="945,68,963,80,980,98,988,116,996,134,1011,151,1046,173,1079,187,1142,198,1174,202,1205,211,1238,226,1271,252,1298,282,1321,315,1358,387,1382,456,1397,512,1391,514,1377,458,1353,389,1317,318,1294,285,1267,256,1235,231,1203,216,1173,208,1142,203,1078,192,1044,178,1008,155,992,137,983,119,975,101,960,84,942,73"/>
+<area shape="rect" id="Node000036" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="1102,29,1177,55"/>
+<area shape="poly" id="edge57_Node000035_Node000036" title=" " alt="" coords="962,40,1087,40,1087,45,962,45"/>
+<area shape="poly" id="edge58_Node000036_Node000036" title=" " alt="" coords="1100,33,1088,23,1091,12,1109,5,1139,3,1179,7,1189,13,1191,20,1186,21,1185,16,1177,12,1139,8,1110,10,1095,15,1093,21,1103,29"/>
+<area shape="poly" id="edge62_Node000038_Node000038" title=" " alt="" coords="293,935,291,925,298,916,313,911,337,909,362,911,377,917,375,922,361,916,337,914,315,916,301,920,296,926,298,934"/>
+</map>

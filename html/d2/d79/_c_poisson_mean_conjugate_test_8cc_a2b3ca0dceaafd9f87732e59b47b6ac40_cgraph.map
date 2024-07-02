@@ -1,0 +1,88 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,729,202,755"/>
+<area shape="rect" id="Node000002" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aaecfd47149c25c9d39e2d39c16db79f6" title=" " alt="" coords="258,337,427,392"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,727,313,404,318,407,115,730"/>
+<area shape="rect" id="Node000008" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="722,645,892,671"/>
+<area shape="poly" id="edge41_Node000001_Node000008" title=" " alt="" coords="167,726,249,711,496,682,706,663,707,668,496,687,250,717,168,731"/>
+<area shape="rect" id="Node000029" href="$d6/d52/namespaceml_1_1maths__t.html#ada4a548a75926941dd80046eefa40d2c" title="Get a weights array with count variance scale weight." alt="" coords="486,726,666,766"/>
+<area shape="poly" id="edge39_Node000001_Node000029" title=" " alt="" coords="202,733,250,731,342,729,435,731,470,733,469,739,435,737,342,734,250,737,202,739"/>
+<area shape="rect" id="Node000030" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a00bdf90461cb43da631822ed89dfe08d" title="Check if two priors are equal to the specified tolerance." alt="" coords="258,746,427,802"/>
+<area shape="poly" id="edge42_Node000001_Node000030" title=" " alt="" coords="203,753,243,758,242,763,202,758"/>
+<area shape="rect" id="Node000031" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a841f18a9941172185842c3a7248eb22d" title=" " alt="" coords="250,826,435,866"/>
+<area shape="poly" id="edge43_Node000001_Node000031" title=" " alt="" coords="131,753,251,812,265,817,263,822,249,816,128,758"/>
+<area shape="rect" id="Node000033" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#ab10a8f528e13b5a637fcf0a7bbf32ffd" title=" " alt="" coords="722,875,892,931"/>
+<area shape="poly" id="edge45_Node000001_Node000033" title=" " alt="" coords="116,754,137,781,167,815,206,849,251,876,308,896,369,910,430,920,492,925,608,924,707,916,707,921,608,930,491,930,430,925,368,916,307,901,249,880,203,854,164,819,133,784,112,757"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="503,102,648,142"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="369,335,543,151,547,155,373,338"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="949,52,1141,77"/>
+<area shape="poly" id="edge36_Node000002_Node000004" title=" " alt="" coords="344,336,356,276,380,200,398,161,420,124,448,91,482,64,545,32,614,13,685,4,756,4,824,10,888,20,990,44,989,50,887,25,824,15,756,9,685,9,615,18,547,37,484,68,452,95,425,127,403,164,385,202,361,278,350,337"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="730,102,884,142"/>
+<area shape="poly" id="edge37_Node000002_Node000005" title=" " alt="" coords="388,334,531,249,622,199,715,153,731,146,733,151,717,158,625,204,534,253,390,338"/>
+<area shape="rect" id="Node000006" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3a130962f14186a49d17b9fb2dd28d23" title=" " alt="" coords="491,337,660,392"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="428,371,475,371,475,376,428,376"/>
+<area shape="rect" id="Node000016" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="965,371,1125,412"/>
+<area shape="poly" id="edge38_Node000002_Node000016" title=" " alt="" coords="409,391,504,425,627,457,693,467,762,473,830,471,897,461,989,417,991,422,898,466,831,476,762,478,693,473,625,462,503,430,407,396"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="532,102,530,92,537,83,552,77,576,75,601,77,615,84,613,89,599,83,576,80,554,82,540,87,535,93,537,100"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="648,101,716,87,828,74,933,66,934,72,828,79,717,93,649,106"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="649,119,715,119,715,125,649,125"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="490,359,443,358,443,353,490,353"/>
+<area shape="rect" id="Node000007" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ae5e69b6369506c1b73435a180ae6e15e" title="Get an iterator over the finite values of a double container." alt="" coords="720,167,894,208"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="607,334,666,276,689,246,699,232,715,219,723,213,726,218,718,223,703,236,693,249,670,280,611,338"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="587,392,604,442,631,504,669,568,692,598,718,624,736,636,733,640,715,628,688,601,664,571,626,506,599,444,582,394"/>
+<area shape="rect" id="Node000010" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a495d7b7223c096aafe97ab6a699b8ae4" title="Get a finite values iterator at the end of a double container." alt="" coords="725,232,889,273"/>
+<area shape="poly" id="edge11_Node000006_Node000010" title=" " alt="" coords="620,334,715,282,727,277,730,282,718,287,623,339"/>
+<area shape="rect" id="Node000011" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a0dfe532c96b277832d11003624ef3be8" title=" " alt="" coords="716,297,898,352"/>
+<area shape="poly" id="edge12_Node000006_Node000011" title=" " alt="" coords="660,347,700,340,701,346,661,353"/>
+<area shape="poly" id="edge20_Node000006_Node000016" title=" " alt="" coords="615,391,662,420,717,442,767,453,806,455,846,451,897,442,942,431,984,415,986,420,944,436,898,447,847,456,807,460,766,458,716,447,660,424,612,395"/>
+<area shape="rect" id="Node000017" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aeed4fcb0af6e6443e7d66b3375829ceb" title="Get the current offset." alt="" coords="722,377,892,432"/>
+<area shape="poly" id="edge21_Node000006_Node000017" title=" " alt="" coords="661,377,707,385,706,390,660,382"/>
+<area shape="rect" id="Node000018" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a63aff10621982fdf0398a5859f5ec065" title=" " alt="" coords="718,558,896,614"/>
+<area shape="poly" id="edge22_Node000006_Node000018" title=" " alt="" coords="608,391,767,545,764,549,605,395"/>
+<area shape="rect" id="Node000009" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="955,826,1135,866"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="819,670,868,737,905,777,947,812,955,816,952,821,944,816,901,781,864,741,814,673"/>
+<area shape="poly" id="edge13_Node000011_Node000004" title=" " alt="" coords="881,294,896,283,913,263,922,244,930,224,943,199,1022,88,1026,91,948,202,935,226,927,246,918,266,899,287,884,298"/>
+<area shape="rect" id="Node000012" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ad5c82e6b7ca86beebfe0e2ac507a88d8" title="Check the floating point status of value." alt="" coords="965,256,1125,297"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="898,304,949,293,950,298,899,309"/>
+<area shape="rect" id="Node000014" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="1227,199,1372,240"/>
+<area shape="poly" id="edge17_Node000011_Node000014" title=" " alt="" coords="876,294,896,283,919,261,929,251,945,242,1012,222,1083,211,1151,207,1211,208,1211,214,1151,213,1083,216,1013,227,947,247,932,255,923,265,899,287,878,299"/>
+<area shape="rect" id="Node000015" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="1215,558,1384,614"/>
+<area shape="poly" id="edge18_Node000011_Node000015" title=" " alt="" coords="898,312,956,311,1020,316,1085,330,1145,357,1171,375,1194,397,1234,446,1264,497,1285,543,1280,545,1259,500,1229,449,1190,400,1168,379,1143,362,1084,336,1020,321,956,316,898,317"/>
+<area shape="poly" id="edge19_Node000011_Node000016" title=" " alt="" coords="899,348,956,364,954,369,898,353"/>
+<area shape="rect" id="Node000013" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="1227,264,1372,305"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="1126,277,1211,279,1211,285,1125,282"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="1125,256,1211,236,1212,242,1126,261"/>
+<area shape="poly" id="edge23_Node000018_Node000015" title=" " alt="" coords="870,555,896,537,910,520,917,503,926,486,944,472,997,451,1043,446,1089,454,1145,471,1178,485,1209,504,1261,545,1258,550,1206,508,1176,490,1143,476,1088,459,1043,451,999,456,947,476,931,489,922,505,914,523,899,541,873,560"/>
+<area shape="poly" id="edge31_Node000018_Node000016" title=" " alt="" coords="874,556,896,538,913,510,918,483,925,456,932,442,944,428,956,418,960,422,948,432,936,445,930,458,924,485,918,512,900,541,877,560"/>
+<area shape="rect" id="Node000019" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aa9dd4c0348956079c101d25076f85789" title="Get the support for the marginal likelihood function." alt="" coords="954,486,1136,542"/>
+<area shape="poly" id="edge24_Node000018_Node000019" title=" " alt="" coords="896,556,938,543,940,549,897,562"/>
+<area shape="rect" id="Node000020" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="956,776,1134,801"/>
+<area shape="poly" id="edge25_Node000018_Node000020" title=" " alt="" coords="878,612,900,631,912,649,919,666,922,699,927,731,934,746,948,761,953,766,949,770,944,765,930,749,922,733,917,700,913,667,907,651,896,634,874,616"/>
+<area shape="rect" id="Node000026" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a89cebe7fa9b569c2bebfbd2e98719c45" title="Compute the variance of the prior distribution." alt="" coords="960,695,1130,751"/>
+<area shape="poly" id="edge32_Node000018_Node000026" title=" " alt="" coords="871,612,899,631,914,644,923,657,933,669,947,681,954,685,951,690,944,685,929,672,919,660,910,648,896,635,868,616"/>
+<area shape="rect" id="Node000027" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="972,566,1118,606"/>
+<area shape="poly" id="edge34_Node000018_Node000027" title=" " alt="" coords="897,583,956,583,956,589,897,589"/>
+<area shape="rect" id="Node000028" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a76cd2d98ee5eb75044bd14d645246a83" title="Get the support for a log&#45;t distribution." alt="" coords="972,631,1118,672"/>
+<area shape="poly" id="edge35_Node000018_Node000028" title=" " alt="" coords="897,608,958,625,956,630,896,613"/>
+<area shape="rect" id="Node000021" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="1211,776,1388,801"/>
+<area shape="poly" id="edge26_Node000020_Node000021" title=" " alt="" coords="1134,786,1195,786,1195,791,1134,791"/>
+<area shape="rect" id="Node000022" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1454,657,1635,712"/>
+<area shape="poly" id="edge27_Node000021_Node000022" title=" " alt="" coords="1331,773,1462,716,1464,721,1333,778"/>
+<area shape="rect" id="Node000023" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1455,736,1634,777"/>
+<area shape="poly" id="edge28_Node000021_Node000023" title=" " alt="" coords="1388,774,1439,768,1440,773,1389,780"/>
+<area shape="rect" id="Node000024" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1472,802,1617,842"/>
+<area shape="poly" id="edge29_Node000021_Node000024" title=" " alt="" coords="1389,798,1457,807,1456,813,1388,803"/>
+<area shape="rect" id="Node000025" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1462,867,1627,908"/>
+<area shape="poly" id="edge30_Node000021_Node000025" title=" " alt="" coords="1332,800,1455,852,1473,858,1471,863,1453,856,1330,805"/>
+<area shape="poly" id="edge33_Node000026_Node000015" title=" " alt="" coords="1118,693,1143,681,1243,621,1246,625,1145,686,1121,697"/>
+<area shape="poly" id="edge40_Node000029_Node000009" title=" " alt="" coords="667,763,940,821,939,826,666,768"/>
+<area shape="rect" id="Node000032" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,826,668,866"/>
+<area shape="poly" id="edge44_Node000031_Node000032" title=" " alt="" coords="435,843,467,843,467,849,435,849"/>
+<area shape="poly" id="edge46_Node000033_Node000015" title=" " alt="" coords="892,917,952,922,1018,919,1084,905,1114,893,1142,876,1156,864,1165,852,1173,826,1178,797,1190,762,1230,689,1269,625,1273,628,1235,692,1194,764,1183,798,1178,828,1169,855,1160,868,1146,880,1117,898,1085,910,1019,925,952,927,892,922"/>
+<area shape="poly" id="edge47_Node000033_Node000020" title=" " alt="" coords="843,873,890,841,945,812,964,804,966,809,947,816,893,846,846,877"/>
+<area shape="rect" id="Node000034" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a381af1c908bffc4a5ea7ece3fab06650" title=" " alt="" coords="946,941,1144,996"/>
+<area shape="poly" id="edge48_Node000033_Node000034" title=" " alt="" coords="893,924,931,935,930,940,891,929"/>
+<area shape="rect" id="Node000035" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c42b03dbe9b3d12d04c78d8c0898dba" title=" " alt="" coords="1192,905,1406,960"/>
+<area shape="poly" id="edge49_Node000034_Node000035" title=" " alt="" coords="1144,952,1176,947,1177,953,1145,957"/>
+<area shape="rect" id="Node000036" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="1217,984,1382,1025"/>
+<area shape="poly" id="edge50_Node000034_Node000036" title=" " alt="" coords="1145,980,1202,988,1201,994,1144,985"/>
+</map>

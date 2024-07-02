@@ -1,0 +1,8 @@
+<map id="ml::core::CLogger::reset" name="ml::core::CLogger::reset">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,51,139,91"/>
+<area shape="rect" id="Node000002" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="187,5,347,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,53,171,45,172,50,140,58"/>
+<area shape="rect" id="Node000003" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="200,95,334,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="140,83,186,94,184,99,138,89"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="230,95,228,85,234,76,247,70,267,68,288,70,301,77,298,81,287,76,267,73,248,75,237,80,233,86,235,93"/>
+</map>

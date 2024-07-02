@@ -1,0 +1,36 @@
+<map id="ml::maths::time_series::CExpandingWindow::add" name="ml::maths::time_series::CExpandingWindow::add">
+<area shape="rect" id="Node000001" title="Add value at time." alt="" coords="5,249,182,290"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="247,5,470,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,247,119,210,147,162,183,113,228,71,234,67,237,71,231,75,187,117,151,165,124,212,106,250"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="279,85,438,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="108,247,158,192,191,162,228,136,263,121,265,126,231,141,194,166,161,195,112,250"/>
+<area shape="rect" id="Node000004" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ae802d099e2030617bed1722767aa5df7" title="Extract from the compressed representation." alt="" coords="263,150,454,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="132,246,177,223,229,201,253,193,254,198,231,206,180,228,134,251"/>
+<area shape="rect" id="Node000010" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a677ba94de500e8c47fbcbae8b18cb249" title="Set the start time to time." alt="" coords="257,216,460,256"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="182,255,241,248,242,253,182,261"/>
+<area shape="rect" id="Node000012" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a4bcb82fc11f9cd78ca1fd9b7b4eaeab8" title="Check if we need to compress by increasing the bucket span." alt="" coords="230,281,487,322"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="182,277,215,281,214,286,182,282"/>
+<area shape="rect" id="Node000015" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a024ada4a13ec2b5173eca2f0f4c77870" title="Size of range." alt="" coords="277,346,440,387"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="135,287,231,331,263,341,261,346,229,336,132,292"/>
+<area shape="rect" id="Node000016" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="319,435,398,461"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="114,288,163,341,196,370,231,396,268,416,306,430,304,435,266,420,228,401,192,374,160,345,110,292"/>
+<area shape="rect" id="Node000017" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="270,485,447,526"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="105,289,122,328,149,377,186,428,207,451,231,471,257,485,255,490,228,475,204,455,181,432,144,380,117,330,100,291"/>
+<area shape="rect" id="Node000005" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab038cb685491aea5eb697ee917df76d7" title="Implements inflate." alt="" coords="535,150,740,191"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="454,168,520,168,520,173,454,173"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a4c0284881cab3b8dc7f3ed3f180c60b3" title=" " alt="" coords="822,118,988,159"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="741,156,806,148,807,153,741,161"/>
+<area shape="rect" id="Node000007" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#ac0ed8ea2148de5b2154827530f775b88" title=" " alt="" coords="822,184,988,224"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="741,181,807,189,806,194,741,186"/>
+<area shape="rect" id="Node000008" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="1070,184,1236,224"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="989,201,1055,201,1055,207,989,207"/>
+<area shape="rect" id="Node000009" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="1284,184,1450,224"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1237,201,1269,201,1269,207,1237,207"/>
+<area shape="rect" id="Node000011" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="565,216,710,256"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="460,233,550,233,550,239,460,239"/>
+<area shape="rect" id="Node000013" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#ab8000e6b7e7cb9ec3e9ac86ea5881230" title="Get the end time of the window." alt="" coords="535,281,740,322"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="487,299,519,299,519,304,487,304"/>
+<area shape="rect" id="Node000014" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a824a6446df32e6fa757a8d236bff4604" title="Get the current bucket length." alt="" coords="788,281,1022,322"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="741,299,773,299,773,304,741,304"/>
+<area shape="poly" id="edge16_Node000016_Node000016" title=" " alt="" coords="317,438,306,427,311,417,328,411,358,408,396,412,406,417,410,423,406,426,403,421,394,417,358,414,329,416,314,421,312,426,320,434"/>
+</map>

@@ -1,0 +1,39 @@
+<map id="ml::maths::analytics::anonymous_namespace{CDataFrameUtils::cc}::computeEncodedCategory" name="ml::maths::analytics::anonymous_namespace{CDataFrameUtils::cc}::computeEncodedCategory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,138,189,209"/>
+<area shape="poly" id="edge21_Node000001_Node000001" title=" " alt="" coords="55,137,57,127,65,119,79,114,97,112,118,114,132,121,129,126,117,119,97,117,80,119,68,123,62,130,60,138"/>
+<area shape="rect" id="Node000002" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a14983d724f72c6f95eae7081e63982e0" title="Add a sample of the random variable (X, Y)." alt="" coords="237,88,376,129"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,142,223,131,225,136,190,148"/>
+<area shape="rect" id="Node000003" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a524ecc4b1b2b2db6137ac9a765255866" title="Clear all state." alt="" coords="237,153,376,194"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,171,221,171,221,176,189,176"/>
+<area shape="rect" id="Node000004" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a6a1b3ebe8e310b688863321d206d0ecd" title="Compute MICe for the samples added." alt="" coords="237,219,376,259"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="190,200,225,211,223,216,188,205"/>
+<area shape="rect" id="Node000005" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a0e95fbea187f79b08e136e87ef7b5a66" title=" " alt="" coords="669,5,834,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="360,216,374,204,386,186,392,168,394,132,398,96,407,79,422,62,448,45,476,31,536,14,597,8,654,9,654,14,597,13,537,19,478,36,451,49,426,66,411,82,403,98,400,132,397,169,391,188,378,207,363,220"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="917,84,1063,125"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="351,216,375,203,398,187,423,171,483,145,532,128,582,116,647,106,713,98,781,95,902,96,902,102,781,100,714,104,648,111,583,121,533,133,485,150,425,176,401,191,377,208,354,221"/>
+<area shape="rect" id="Node000008" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a3c20cbd0cb24eaac0c33c7f8cdfad38c" title=" " alt="" coords="424,284,599,325"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="373,257,432,276,430,281,372,262"/>
+<area shape="rect" id="Node000010" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1124,353,1202,379"/>
+<area shape="poly" id="edge20_Node000004_Node000010" title=" " alt="" coords="327,258,369,299,396,318,425,334,518,364,615,383,713,394,809,397,900,395,982,389,1108,373,1109,378,983,394,900,400,809,402,713,399,614,389,516,369,423,339,393,323,365,303,323,262"/>
+<area shape="rect" id="Node000011" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#afe3f1ca0e85e9f0b71caee5678698b59" title=" " alt="" coords="436,185,588,226"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="376,225,420,218,420,223,377,230"/>
+<area shape="rect" id="Node000016" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a0bf1e5ae3789c4dd6d393a404a56133d" title=" " alt="" coords="442,431,581,471"/>
+<area shape="poly" id="edge19_Node000004_Node000016" title=" " alt="" coords="319,259,359,332,390,373,426,410,440,421,437,425,422,414,386,377,355,334,315,261"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="905,13,1075,39"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="834,23,889,23,889,28,834,28"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa109a900bcefae1f4d36f8b89d71d93a" title="Linearly interpolate a function on the interval [a, b]." alt="" coords="904,316,1076,357"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="600,311,648,315,888,329,888,335,647,320,599,316"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1077,348,1109,354,1108,359,1076,354"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="1134,354,1128,344,1132,335,1144,328,1163,326,1184,329,1195,335,1193,340,1182,334,1163,331,1145,333,1136,338,1133,344,1138,351"/>
+<area shape="poly" id="edge14_Node000011_Node000005" title=" " alt="" coords="539,183,709,54,712,58,542,187"/>
+<area shape="rect" id="Node000012" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a725c9b8e73dd1244d334f406fe5090ff" title=" " alt="" coords="682,120,821,161"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="587,182,666,161,667,166,589,188"/>
+<area shape="rect" id="Node000013" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#a100602bc3b7dd9fdc7a44f94b7c0e44a" title="L1 norm." alt="" coords="679,185,824,226"/>
+<area shape="poly" id="edge15_Node000011_Node000013" title=" " alt="" coords="588,203,663,203,663,208,588,208"/>
+<area shape="rect" id="Node000015" href="$d2/d68/classml_1_1maths_1_1analytics_1_1_c_mic.html#a39c2eb20f26dffcc31888e0dda5bdd74" title=" " alt="" coords="647,250,856,306"/>
+<area shape="poly" id="edge17_Node000011_Node000015" title=" " alt="" coords="582,224,643,242,642,247,581,229"/>
+<area shape="poly" id="edge13_Node000012_Node000007" title=" " alt="" coords="821,127,901,115,902,120,822,132"/>
+<area shape="rect" id="Node000014" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a4abe9f756785bbf9b4aed04852d005f4" title=" " alt="" coords="915,170,1065,241"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="825,203,899,203,899,208,825,208"/>
+<area shape="poly" id="edge18_Node000015_Node000009" title=" " alt="" coords="857,301,890,309,889,314,856,306"/>
+</map>

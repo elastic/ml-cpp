@@ -1,0 +1,5 @@
+<map id="ml::model::CTokenListCategory::acceptPersistInserter" name="ml::model::CTokenListCategory::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="260,13,465,54"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#a6dfac51c5ec06e3a63ce94278c1dab8e" title="Used by deferred persistence functions." alt="" coords="5,5,212,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,36,212,36,212,31,244,31"/>
+</map>

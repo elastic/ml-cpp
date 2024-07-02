@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::centredResidualMoments" name="ml::maths::time_series::CTimeSeriesSegmentation::centredResidualMoments">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,176,191,232"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="255,5,477,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,174,171,122,203,94,237,71,247,66,249,70,240,75,206,99,175,125,125,177"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="286,85,446,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="153,173,238,136,270,125,272,130,240,141,155,178"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="286,150,446,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="191,190,271,180,271,185,192,195"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="279,216,453,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="192,212,263,221,262,226,191,218"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="239,281,493,322"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="156,230,240,265,264,273,263,279,238,270,154,235"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="329,370,403,395"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="125,230,176,281,207,307,240,331,277,350,315,365,313,370,275,355,237,335,204,311,172,285,122,234"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="327,374,314,363,317,352,335,345,366,343,407,348,417,355,418,362,413,363,413,357,406,353,366,348,336,351,321,356,319,362,330,369"/>
+</map>

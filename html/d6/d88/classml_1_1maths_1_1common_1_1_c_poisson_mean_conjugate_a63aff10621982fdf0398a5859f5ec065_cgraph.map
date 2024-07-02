@@ -1,0 +1,28 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::sampleMarginalLikelihood" name="ml::maths::common::CPoissonMeanConjugate::sampleMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,208,184,264"/>
+<area shape="rect" id="Node000002" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="465,79,634,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,212,412,151,454,137,456,142,414,156,185,217"/>
+<area shape="rect" id="Node000003" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#aa9dd4c0348956079c101d25076f85789" title="Get the support for the marginal likelihood function." alt="" coords="232,85,413,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,205,230,157,251,146,254,151,233,162,147,210"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="234,280,411,306"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,256,254,273,253,279,184,261"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="242,216,403,256"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="184,233,227,233,227,239,184,239"/>
+<area shape="rect" id="Node000011" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a89cebe7fa9b569c2bebfbd2e98719c45" title="Compute the variance of the prior distribution." alt="" coords="238,5,407,61"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="111,206,160,140,193,104,230,71,235,67,239,71,233,75,197,107,164,143,116,209"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4a647fc88044a7ef18aedd86b37619f0" title=" " alt="" coords="250,330,395,371"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="139,262,183,290,233,316,245,321,242,326,230,321,181,294,136,266"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a76cd2d98ee5eb75044bd14d645246a83" title="Get the support for a log&#45;t distribution." alt="" coords="250,396,395,436"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="117,262,166,321,198,353,233,380,242,386,240,390,230,385,195,357,162,325,113,266"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="461,280,638,306"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="411,291,446,291,446,296,411,296"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="686,160,867,216"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="577,277,685,225,696,220,699,225,687,230,580,282"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="687,240,866,280"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="639,277,671,273,672,278,639,283"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="704,305,849,346"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="639,303,689,310,688,315,639,308"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="694,370,859,411"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="579,304,687,355,704,362,702,367,685,360,577,309"/>
+<area shape="poly" id="edge11_Node000011_Node000002" title=" " alt="" coords="408,58,451,72,450,77,406,63"/>
+</map>

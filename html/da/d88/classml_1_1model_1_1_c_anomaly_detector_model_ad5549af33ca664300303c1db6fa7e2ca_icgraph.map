@@ -1,0 +1,25 @@
+<map id="ml::model::CAnomalyDetectorModel::personFrequency" name="ml::model::CAnomalyDetectorModel::personFrequency">
+<area shape="rect" id="Node000001" title="Get the frequency of the person identified by pid." alt="" coords="725,152,923,193"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4cdec68d47c3fc48c1f9bcc497561dc6" title="Restore the model reading state from the supplied traverser." alt="" coords="491,65,677,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="750,149,642,109,644,104,752,144"/>
+<area shape="rect" id="Node000007" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ae40251353894b100d0450a6fc9b80224" title=" " alt="" coords="491,180,677,221"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="710,188,678,192,677,187,709,183"/>
+<area shape="rect" id="Node000008" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="250,141,443,182"/>
+<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="710,172,677,171,444,166,444,161,677,166,710,166"/>
+<area shape="rect" id="Node000010" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="263,217,430,258"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="771,202,726,221,678,235,614,245,548,249,431,247,431,242,548,244,613,239,677,230,725,216,769,197"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a6f8f5dc995a35c2935947e846e5e82ff" title="Restore reading state from traverser." alt="" coords="250,5,443,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="485,64,429,49,431,44,487,58"/>
+<area shape="rect" id="Node000005" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a2a17aefca31ae55eb498c8b09f8c64bc" title="Restore reading state from traverser." alt="" coords="262,71,431,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="475,91,432,92,432,86,475,85"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a7c8373ba03a89e9dc49a6ab803b7625d" title=" " alt="" coords="7,5,200,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,28,201,28,201,23,234,23"/>
+<area shape="rect" id="Node000006" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#af612a9f6e4723891cf536bf1c97229f3" title=" " alt="" coords="20,71,187,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="246,94,188,94,188,88,246,88"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="475,185,443,180,444,175,476,180"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="476,220,431,227,430,222,475,215"/>
+<area shape="rect" id="Node000009" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,149,202,175"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="234,164,202,164,202,159,234,159"/>
+<area shape="rect" id="Node000011" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,225,202,251"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="247,240,202,240,202,235,247,235"/>
+</map>

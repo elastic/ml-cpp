@@ -1,0 +1,16 @@
+<map id="ml::model::CSampleCounts::count" name="ml::model::CSampleCounts::count">
+<area shape="rect" id="Node000001" title="Get the sample count identified by id." alt="" coords="564,153,746,194"/>
+<area shape="rect" id="Node000002" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#aa3fb946c8c4e1a9c5930ed0d1d32669c" title="Get the effective sample count identified by id." alt="" coords="312,5,494,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="620,145,572,105,515,67,475,49,477,44,517,62,575,100,623,141"/>
+<area shape="rect" id="Node000003" href="$d0/d73/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_do_sample.html#ac6df3149d94e4b8a59f95b5ffbe2716a" title=" " alt="" coords="5,182,242,238"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="606,148,563,127,515,111,452,98,402,92,352,96,290,111,254,125,218,143,160,184,157,179,216,139,251,120,289,106,352,91,402,87,453,93,517,106,565,122,609,143"/>
+<area shape="rect" id="Node000004" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a16b1b8fee1cb4fa5105464ab25c0f4c1" title="Refresh the sample count identified by id." alt="" coords="312,120,494,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="548,162,494,155,495,150,549,157"/>
+<area shape="rect" id="Node000005" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a346ebcbd738ca0f81b8a934c3f3dc6a4" title="Reset the sample count identified by id." alt="" coords="312,185,494,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="549,190,495,197,494,191,548,185"/>
+<area shape="rect" id="Node000006" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a85220e7ea5e5b23efed7fa3094d08417" title="Update the mean non&#45;zero bucket counts and age the count data." alt="" coords="290,251,516,291"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="600,204,517,240,481,253,479,248,515,235,598,199"/>
+<area shape="rect" id="Node000007" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a0b5a52bfccdcedeb3fc2bd04dd9e944b" title="Update the effective sample variances to reflect new sample for id." alt="" coords="312,316,494,357"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="629,208,580,258,550,283,517,305,491,318,488,313,515,301,547,279,577,254,625,204"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="308,313,289,305,224,274,167,240,170,236,226,269,291,301,310,308"/>
+</map>

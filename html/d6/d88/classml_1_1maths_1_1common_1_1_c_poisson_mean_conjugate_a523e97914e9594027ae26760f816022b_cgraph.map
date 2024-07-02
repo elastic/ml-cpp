@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::probabilityOfLessLikelySamples" name="ml::maths::common::CPoissonMeanConjugate::probabilityOfLessLikelySamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,81,221,137"/>
+<area shape="rect" id="Node000002" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#ad70036ba17d0e57a46bd106a15b7a4db" title=" " alt="" coords="269,41,465,97"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,90,253,84,254,90,222,95"/>
+<area shape="rect" id="Node000006" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a3b9a5bf3458e15c40cdd9e7c94b587c8" title="Check if this is a non&#45;informative prior." alt="" coords="282,121,452,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="222,124,267,131,266,136,221,129"/>
+<area shape="rect" id="Node000003" href="$d2/ddb/classml_1_1maths_1_1common_1_1_c_joint_probability_of_less_likely_samples.html#a53ee742c5ac55949ed7af917a9ef75a2" title="Get the effective Mahalanobis of the probabilities added." alt="" coords="513,5,709,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="465,52,497,47,498,53,466,57"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="539,85,684,126"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="466,81,524,90,523,95,465,86"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="757,13,903,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="710,31,742,31,742,36,710,36"/>
+</map>

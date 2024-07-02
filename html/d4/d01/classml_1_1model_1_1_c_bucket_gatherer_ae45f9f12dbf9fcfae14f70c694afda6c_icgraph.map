@@ -1,0 +1,18 @@
+<map id="ml::model::CBucketGatherer::clear" name="ml::model::CBucketGatherer::clear">
+<area shape="rect" id="Node000001" title="Clear this data gatherer." alt="" coords="810,71,998,111"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a4a267ee203ef2eb35ca8d23abb5ad424" title="Restore the state." alt="" coords="563,71,762,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="795,94,763,94,763,88,795,88"/>
+<area shape="rect" id="Node000007" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#aa462d404776d106559f0cf7ef0ae41b3" title="Clear this data gatherer." alt="" coords="563,5,762,46"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="811,69,740,49,741,44,813,64"/>
+<area shape="rect" id="Node000008" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a4e7dc00661edd1c059355d1cbeb838fa" title="Clear this data gatherer." alt="" coords="576,136,749,177"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="813,118,741,138,740,133,811,113"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a73daa1cafc20e4b58bfe482621fad1c6" title="Fill in the state from traverser." alt="" coords="296,5,515,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="564,69,488,49,489,44,566,64"/>
+<area shape="rect" id="Node000005" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ab60939b8735a07e8c2db1b54768e8e83" title="Fill in the state from traverser." alt="" coords="296,71,515,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="547,94,516,94,516,88,547,88"/>
+<area shape="rect" id="Node000004" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a578e7856f8ed7e9012c7f477bfc896ce" title="Construct from a state document." alt="" coords="5,5,248,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="280,28,248,28,248,23,280,23"/>
+<area shape="rect" id="Node000006" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa56151076ac089b82ccaa49b1823a15b" title="Construct from a state document." alt="" coords="18,71,235,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="280,94,235,94,235,88,280,88"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="547,28,516,28,516,23,547,23"/>
+</map>

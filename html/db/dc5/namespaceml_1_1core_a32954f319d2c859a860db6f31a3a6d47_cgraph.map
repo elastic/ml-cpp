@@ -1,0 +1,5 @@
+<map id="ml::core::wait_for_all_valid" name="ml::core::wait_for_all_valid">
+<area shape="rect" id="Node000001" title="Wait for all valid futures to be available." alt="" coords="5,5,128,46"/>
+<area shape="rect" id="Node000002" href="$db/dc5/namespaceml_1_1core.html#a3bd410013c1e617808fc6b113cbd0f5f" title="Wait for a valid future to be available otherwise return immediately." alt="" coords="176,5,298,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,23,160,23,160,28,128,28"/>
+</map>

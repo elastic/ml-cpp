@@ -1,0 +1,25 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,236,202,261"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="269,75,435,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,233,303,122,306,126,128,237"/>
+<area shape="rect" id="Node000005" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a94cd8731f55917f0fd93f676c7230886" title="Get a checksum for the sketch." alt="" coords="250,195,454,235"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="202,232,234,228,235,233,203,238"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="259,260,445,301"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="203,258,244,264,244,269,202,264"/>
+<area shape="rect" id="Node000009" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a357a7e0291133bf3344e4e5a2e1795db" title="Efficient swap the contents of two sketches." alt="" coords="264,333,440,374"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="136,259,251,310,286,324,284,329,249,315,134,264"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="507,5,683,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,71,506,48,507,53,427,77"/>
+<area shape="rect" id="Node000004" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="735,75,919,115"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="435,99,720,100,720,105,435,105"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="666,44,743,67,741,72,665,49"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="735,90,450,90,450,85,735,85"/>
+<area shape="poly" id="edge8_Node000005_Node000004" title=" " alt="" coords="435,192,728,117,729,122,436,197"/>
+<area shape="rect" id="Node000006" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="518,195,672,235"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="454,212,502,212,502,218,454,218"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="502,260,687,301"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="445,278,487,278,487,283,445,283"/>
+<area shape="rect" id="Node000010" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="556,349,634,375"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="440,354,540,357,540,363,440,359"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="556,350,549,340,553,330,569,324,595,322,623,325,637,332,635,336,622,330,595,327,570,330,557,334,554,340,560,347"/>
+</map>

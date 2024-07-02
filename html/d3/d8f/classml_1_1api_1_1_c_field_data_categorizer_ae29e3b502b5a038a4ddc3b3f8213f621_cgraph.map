@@ -1,0 +1,23 @@
+<map id="ml::api::CFieldDataCategorizer::finalise" name="ml::api::CFieldDataCategorizer::finalise">
+<area shape="rect" id="Node000001" title="Perform any final processing once all input data has been seen." alt="" coords="5,136,207,177"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html#a1e32d2575e8bfb2e819e7b4e2a78128e" title="Perform any final processing once all input data has been seen." alt="" coords="273,5,438,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,133,187,95,253,57,269,50,271,55,256,61,190,100,136,138"/>
+<area shape="rect" id="Node000003" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#afc722d7c5c58211fb12b30ab3f9ab76e" title=" " alt="" coords="266,71,445,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,133,260,113,261,118,187,138"/>
+<area shape="rect" id="Node000007" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="290,136,421,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="207,154,274,154,274,159,207,159"/>
+<area shape="rect" id="Node000008" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a539ee0ae2e961f8431c51d11a7d13111" title=" " alt="" coords="257,201,454,242"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="187,175,261,194,260,199,186,180"/>
+<area shape="rect" id="Node000011" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad60ee9fa782930472475f957d5f8653c" title=" " alt="" coords="255,267,456,307"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="136,175,190,213,256,251,271,258,269,263,253,256,187,218,133,179"/>
+<area shape="rect" id="Node000004" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html#ad334ee264d822aad2e5eda619049a72a" title=" " alt="" coords="504,71,716,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="446,88,488,88,488,94,446,94"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a43e84f02ec131b99d4f1844f94634301" title=" " alt="" coords="771,39,953,79"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="716,75,755,70,756,75,717,80"/>
+<area shape="rect" id="Node000006" href="$d0/d1b/classml_1_1core_1_1_c_json_output_stream_wrapper.html#a8eedb9769cd12d61a8c647dbbfa890de" title=" " alt="" coords="764,104,960,145"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="717,102,749,107,749,112,716,108"/>
+<area shape="rect" id="Node000009" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="543,168,677,209"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="454,206,527,196,528,202,455,211"/>
+<area shape="rect" id="Node000010" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#ac25482f1bd4c99b31b3d92dec69d8b43" title=" " alt="" coords="543,233,677,274"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="455,231,528,241,527,246,454,237"/>
+</map>

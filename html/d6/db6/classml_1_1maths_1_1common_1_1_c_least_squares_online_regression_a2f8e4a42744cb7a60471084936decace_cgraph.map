@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CLeastSquaresOnlineRegression::scaled" name="ml::maths::common::CLeastSquaresOnlineRegression::scaled">
+<area shape="rect" id="Node000001" title="Multiply the statistics&#39; count by scale." alt="" coords="5,29,220,85"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a3247311f1446dcfda413dcc02c899f35" title="Scale the statistics&#39; count by scale." alt="" coords="268,29,482,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,55,252,55,252,60,220,60"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="329,29,329,19,338,10,353,5,375,3,400,5,415,12,412,17,398,10,375,8,354,10,341,15,334,21,334,29"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="530,37,689,78"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="482,55,514,55,514,60,482,60"/>
+</map>

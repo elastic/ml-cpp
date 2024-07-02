@@ -1,0 +1,49 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,486,202,512"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#aff23285c867b0b62fe5540733a9045e3" title=" " alt="" coords="270,249,426,304"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,484,303,313,306,317,121,488"/>
+<area shape="rect" id="Node000012" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab16bff29c046195a6727342f4135410f" title=" " alt="" coords="250,407,446,448"/>
+<area shape="poly" id="edge17_Node000001_Node000012" title=" " alt="" coords="149,483,261,450,262,455,150,488"/>
+<area shape="rect" id="Node000014" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a20826b9899bd2bfb06b8ab4e99c3a250" title=" " alt="" coords="270,471,426,527"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="202,497,254,497,254,502,202,502"/>
+<area shape="rect" id="Node000017" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a365d3c0c294813c23e36431084e13d84" title=" " alt="" coords="270,551,426,607"/>
+<area shape="poly" id="edge22_Node000001_Node000017" title=" " alt="" coords="146,510,256,546,254,552,144,515"/>
+<area shape="rect" id="Node000018" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a93c259e83a19457adfab10a3e505b489" title=" " alt="" coords="255,631,441,687"/>
+<area shape="poly" id="edge23_Node000001_Node000018" title=" " alt="" coords="120,511,175,561,212,590,251,617,259,622,257,626,248,622,209,595,171,565,116,515"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="514,227,659,268"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,264,498,255,499,261,427,270"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="729,226,921,252"/>
+<area shape="poly" id="edge6_Node000002_Node000004" title=" " alt="" coords="383,246,433,214,463,200,493,189,545,178,586,176,680,189,772,218,770,223,679,194,586,181,545,183,495,194,465,204,436,219,386,251"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="748,284,902,325"/>
+<area shape="poly" id="edge7_Node000002_Node000005" title=" " alt="" coords="427,279,733,297,733,302,426,284"/>
+<area shape="rect" id="Node000006" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="514,342,659,382"/>
+<area shape="poly" id="edge8_Node000002_Node000006" title=" " alt="" coords="427,302,514,333,512,338,426,307"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a71c31c0af0d9b1d37fd06dcdb3b80492" title=" " alt="" coords="509,73,665,128"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="374,247,427,197,492,145,510,134,513,139,496,149,431,201,378,251"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="542,227,540,217,547,208,563,202,587,200,612,203,628,209,626,214,611,208,587,206,564,208,550,212,545,218,547,226"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="660,242,714,240,714,246,660,248"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="661,262,734,280,733,285,659,267"/>
+<area shape="rect" id="Node000008" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ab394643d489a3fec9502a01be07f0013" title="Get the categories." alt="" coords="747,138,903,194"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="666,119,733,138,731,143,664,125"/>
+<area shape="rect" id="Node000009" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a42234485447630f5f9cf0dd8c87b116a" title="Efficient swap of the contents of this prior and other." alt="" coords="727,23,923,64"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="665,79,722,65,723,70,666,84"/>
+<area shape="rect" id="Node000011" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1164,30,1242,56"/>
+<area shape="poly" id="edge16_Node000007_Node000011" title=" " alt="" coords="665,102,757,103,870,100,993,91,1115,73,1158,60,1160,65,1117,78,994,97,871,106,757,108,665,107"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4ef6e7ff28c4e5a1c85a17a841b373fb" title="Swap the contents of this prior and other." alt="" coords="971,23,1116,64"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="923,41,955,41,955,46,923,46"/>
+<area shape="poly" id="edge15_Node000009_Node000011" title=" " alt="" coords="905,20,1006,5,1062,3,1117,9,1160,22,1159,27,1115,14,1061,9,1006,10,906,25"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1116,41,1149,41,1149,46,1116,46"/>
+<area shape="poly" id="edge14_Node000011_Node000011" title=" " alt="" coords="1176,31,1171,22,1174,12,1185,6,1203,4,1223,6,1233,13,1230,17,1221,11,1203,9,1187,11,1178,16,1176,21,1180,29"/>
+<area shape="rect" id="Node000013" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="494,407,679,448"/>
+<area shape="poly" id="edge18_Node000012_Node000013" title=" " alt="" coords="447,425,478,425,478,430,447,430"/>
+<area shape="rect" id="Node000015" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0cba7f8b12e783f4859d267c8e251b2f" title=" " alt="" coords="505,471,669,527"/>
+<area shape="poly" id="edge20_Node000014_Node000015" title=" " alt="" coords="426,497,489,497,489,502,426,502"/>
+<area shape="rect" id="Node000016" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="514,551,659,592"/>
+<area shape="poly" id="edge21_Node000014_Node000016" title=" " alt="" coords="427,520,503,543,501,548,426,525"/>
+<area shape="poly" id="edge25_Node000018_Node000005" title=" " alt="" coords="388,685,448,723,485,742,524,757,564,767,604,770,643,763,678,745,722,704,756,654,782,598,800,539,811,481,818,427,822,340,827,340,824,427,817,482,805,541,787,600,761,656,726,707,681,749,644,768,605,775,564,772,523,762,483,747,446,728,385,690"/>
+<area shape="poly" id="edge24_Node000018_Node000016" title=" " alt="" coords="420,628,493,601,510,595,512,600,495,606,422,633"/>
+<area shape="rect" id="Node000019" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ac733c981cec582ec45d16dd5fe55f78a" title="Check if this is a non&#45;informative prior." alt="" coords="509,615,665,671"/>
+<area shape="poly" id="edge26_Node000018_Node000019" title=" " alt="" coords="441,650,493,647,493,652,441,656"/>
+<area shape="rect" id="Node000020" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="507,695,667,736"/>
+<area shape="poly" id="edge27_Node000018_Node000020" title=" " alt="" coords="442,679,492,690,490,696,441,684"/>
+</map>

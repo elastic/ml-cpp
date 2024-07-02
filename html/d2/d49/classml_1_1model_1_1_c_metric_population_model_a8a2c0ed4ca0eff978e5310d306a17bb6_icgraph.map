@@ -1,0 +1,9 @@
+<map id="ml::model::CMetricPopulationModel::initialize" name="ml::model::CMetricPopulationModel::initialize">
+<area shape="rect" id="Node000001" title="Initialize the feature models." alt="" coords="501,39,694,79"/>
+<area shape="rect" id="Node000002" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a0b665760d945f82464df05e6139ddc93" title=" " alt="" coords="247,5,453,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,47,453,42,454,37,486,41"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a457145bf09b5ea76f7b8174152355d1d" title=" " alt="" coords="247,71,453,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="486,76,454,80,453,75,485,71"/>
+<area shape="rect" id="Node000003" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aec8409e613696df163d439f7ada93410" title=" " alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="231,28,199,28,199,23,231,23"/>
+</map>

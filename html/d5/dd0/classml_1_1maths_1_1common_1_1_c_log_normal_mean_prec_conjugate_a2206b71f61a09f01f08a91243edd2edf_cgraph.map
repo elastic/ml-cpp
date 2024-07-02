@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::sampleMarginalLikelihood" name="ml::maths::common::CLogNormalMeanPrecConjugate::sampleMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,151,218,207"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="566,14,778,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,149,153,119,184,86,222,55,265,31,336,11,411,3,484,5,551,13,550,18,484,10,411,9,337,16,267,36,225,59,188,90,157,123,134,153"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af78702e0026fda4f354f8b88a94408fc" title="Get the support for the marginal likelihood function." alt="" coords="286,46,498,101"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,148,265,111,284,104,285,109,267,116,177,153"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a62671217507eb150fd9b59ec8053fedc" title="Get the of the marginal likelihood." alt="" coords="266,125,518,166"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="218,164,250,160,250,165,219,169"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="312,191,472,231"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="219,188,297,197,296,203,218,194"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="355,279,429,305"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="181,205,267,240,343,271,341,276,265,245,179,210"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a76cd2d98ee5eb75044bd14d645246a83" title="Get the support for a log&#45;t distribution." alt="" coords="319,329,465,370"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="138,205,193,262,229,291,267,315,305,331,303,336,264,320,226,295,190,266,134,209"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="483,122,517,111,602,74,604,79,519,116,484,127"/>
+<area shape="rect" id="Node000005" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="578,125,766,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="519,143,562,143,562,148,519,148"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="353,284,338,274,340,262,359,255,392,253,437,259,446,266,445,274,440,273,441,268,435,263,392,258,360,260,344,266,343,272,356,280"/>
+</map>

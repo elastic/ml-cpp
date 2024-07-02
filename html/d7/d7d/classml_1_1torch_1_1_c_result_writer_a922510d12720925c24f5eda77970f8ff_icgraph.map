@@ -1,0 +1,11 @@
+<map id="ml::torch::CResultWriter::writePrediction" name="ml::torch::CResultWriter::writePrediction">
+<area shape="rect" id="Node000001" title="Write the prediction portion of an inference result." alt="" coords="557,23,720,64"/>
+<area shape="rect" id="Node000002" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#a84e56a8c13f698a41ebe2d67e17d703f" title=" " alt="" coords="347,23,509,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="542,46,510,46,510,41,542,41"/>
+<area shape="rect" id="Node000003" href="$dd/d97/_c_result_writer_test_8cc.html#a79419a9602f76d618aed96ea545c54fe" title=" " alt="" coords="103,5,299,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="331,35,299,32,300,26,331,30"/>
+<area shape="rect" id="Node000004" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3b30d4583627b6e9c54794197a465ce0" title=" " alt="" coords="147,55,255,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="332,56,256,64,255,59,331,51"/>
+<area shape="rect" id="Node000005" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,55,55,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="131,70,55,70,55,65,131,65"/>
+</map>

@@ -1,0 +1,24 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$df/dee/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_word.html#aecce704563c61a5d5d76264f6b87f50c" title=" " alt="" coords="250,5,469,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,75,262,48,263,53,157,80"/>
+<area shape="rect" id="Node000004" href="$df/dee/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_word.html#a7e709be42799b616ab4dbc2ca0ed7fcb" title=" " alt="" coords="250,71,469,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,88,234,88,234,94,202,94"/>
+<area shape="rect" id="Node000007" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#ad9fd3a9d86ddfb73b3395df3227b851a" title="Translate word to a dictionary word." alt="" coords="250,180,469,221"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="137,102,297,171,295,176,135,107"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="553,5,700,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="469,23,538,23,538,28,469,28"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="553,71,700,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="469,88,538,88,538,94,469,94"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="833,78,879,104"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="701,88,817,88,817,94,701,94"/>
+<area shape="poly" id="edge11_Node000007_Node000007" title=" " alt="" coords="311,180,309,170,317,161,334,155,359,153,387,156,403,162,401,167,386,161,359,159,335,161,320,165,314,171,317,179"/>
+<area shape="rect" id="Node000008" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ade14a464041834a501408e4fd90d5540" title=" " alt="" coords="517,136,736,177"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="469,180,501,174,502,180,470,185"/>
+<area shape="rect" id="Node000010" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="517,201,736,242"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="470,206,502,209,501,214,469,212"/>
+<area shape="rect" id="Node000011" href="$db/d19/classml_1_1core_1_1_c_compressed_dictionary_1_1_c_translator.html#ac2086c554c00278219bf073d2a5736c2" title=" " alt="" coords="517,267,736,307"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="422,219,518,251,543,259,541,264,516,256,420,224"/>
+<area shape="rect" id="Node000009" href="$d1/dbe/classml_1_1core_1_1_c_hashing.html#ade1c3a08b72697f0009fa91d14daa719" title=" " alt="" coords="784,136,928,177"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="737,154,769,154,769,159,737,159"/>
+</map>

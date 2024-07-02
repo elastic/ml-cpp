@@ -1,0 +1,6 @@
+<map id="ml::core::CProgramCounters" name="ml::core::CProgramCounters">
+<area shape="rect" id="Node000001" title="A collection of runtime global counters." alt="" coords="5,109,194,135"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="210,114,220,122,212,129,194,132,194,127,210,124,215,122,208,119"/>
+<area shape="rect" id="Node000002" href="$dd/d73/classml_1_1core_1_1_c_program_counters_1_1_c_counter.html" title="An atomic counter object." alt="" coords="5,5,194,46"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="102,61,102,109,97,109,97,61"/>
+</map>

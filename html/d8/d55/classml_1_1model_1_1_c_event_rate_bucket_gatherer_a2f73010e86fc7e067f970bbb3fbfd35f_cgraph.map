@@ -1,0 +1,12 @@
+<map id="ml::model::CEventRateBucketGatherer::recyclePeople" name="ml::model::CEventRateBucketGatherer::recyclePeople">
+<area shape="rect" id="Node000001" title="Stop gathering data on the people identified by peopleToRemove." alt="" coords="5,35,205,75"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a2fe5889882e39d0134993002dc51c8e2" title="Stop gathering data on the people identified by peopleToRemove." alt="" coords="253,5,440,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,40,237,36,237,42,205,46"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ab27631f14f5ae505aeb401f3d56f57a9" title=" " alt="" coords="488,35,675,75"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="205,54,253,55,440,55,472,55,472,60,440,60,253,60,205,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="441,35,473,39,472,44,440,40"/>
+<area shape="rect" id="Node000004" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aaac5e7883124c0e9e52148da200bf513" title=" " alt="" coords="738,5,913,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="676,41,722,35,722,41,676,46"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a9ec72fa26aac807ff6f7f2df6a6aea47" title="Returns an iterator pointing to the end of the queue." alt="" coords="723,70,928,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="676,63,708,67,708,72,676,68"/>
+</map>

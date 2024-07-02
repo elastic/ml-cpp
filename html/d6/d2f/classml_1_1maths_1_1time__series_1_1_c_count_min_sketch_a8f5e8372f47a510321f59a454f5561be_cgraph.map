@@ -1,0 +1,12 @@
+<map id="ml::maths::time_series::CCountMinSketch::age" name="ml::maths::time_series::CCountMinSketch::age">
+<area shape="rect" id="Node000001" title="Age the counts forwards time." alt="" coords="5,35,171,75"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a40f2d9ee88b35a25c2ce49cf96136b14" title="Get the count of category category." alt="" coords="219,63,395,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,63,203,67,203,72,171,68"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#a56f17163a890f446044bba47f59c2baa" title="Maybe switch to sketching the counts." alt="" coords="443,5,626,46"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="171,47,428,30,428,35,171,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="389,60,436,48,437,53,391,65"/>
+<area shape="rect" id="Node000004" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#afd2809fe4233ba9975b4cef9638918b3" title=" " alt="" coords="674,5,840,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="627,32,658,32,658,37,627,37"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="680,49,627,60,515,74,411,82,410,76,515,69,626,55,679,44"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="674,20,642,19,642,14,674,14"/>
+</map>

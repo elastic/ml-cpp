@@ -1,0 +1,35 @@
+<map id="ml::maths::common::CMultinomialConjugate::isNonInformative" name="ml::maths::common::CMultinomialConjugate::isNonInformative">
+<area shape="rect" id="Node000001" title="Check if this is a non&#45;informative prior." alt="" coords="748,339,905,394"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a0912e8aacb9f277d9a1ada0b97927457" title=" " alt="" coords="494,5,700,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="815,324,801,268,779,202,745,134,723,103,699,75,684,63,687,59,702,71,728,100,749,131,783,200,807,267,820,323"/>
+<area shape="rect" id="Node000004" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a44165d20e344eab83c9778755214eaed" title=" " alt="" coords="507,85,688,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="808,326,791,285,767,240,736,195,699,155,682,144,685,139,702,151,740,191,771,237,795,283,813,323"/>
+<area shape="rect" id="Node000006" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a72c8cf8b1ad24bd365bba28aadf1f2d1" title=" " alt="" coords="496,245,698,315"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="736,335,691,318,693,313,738,330"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#aca6aae35fcd1ef162ccab1d5615da2af" title="Get the mean of the marginal likelihood function." alt="" coords="513,339,681,394"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="733,369,682,369,682,364,733,364"/>
+<area shape="rect" id="Node000008" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ae6badcaf18587f6ab902a0d653e9956e" title="Get the mode of the marginal likelihood function." alt="" coords="513,419,681,474"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="734,401,680,421,678,416,733,396"/>
+<area shape="rect" id="Node000009" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ac1a81279e9777bdc7e852ce1b71c4e39" title="Get the variance of the marginal likelihood." alt="" coords="504,499,690,554"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="794,408,752,449,702,489,681,500,678,496,699,484,749,445,790,404"/>
+<area shape="rect" id="Node000010" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#af8ff2f5160cda632ed916f5e52a36cb1" title=" " alt="" coords="519,579,675,634"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="811,409,793,447,769,489,738,532,702,569,677,585,674,580,699,564,734,528,764,487,788,445,806,407"/>
+<area shape="rect" id="Node000011" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a93c259e83a19457adfab10a3e505b489" title=" " alt="" coords="505,165,690,221"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="794,328,752,279,699,234,682,224,684,219,702,230,756,276,798,324"/>
+<area shape="rect" id="Node000015" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a78d0579d7008ddbab109ca18672a8a61" title=" " alt="" coords="508,659,686,714"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="819,410,805,464,782,527,748,592,727,622,702,648,687,660,684,656,699,645,722,618,743,589,777,525,800,462,814,409"/>
+<area shape="rect" id="Node000003" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#add1709563bb83b07b590394daeb0c33b" title=" " alt="" coords="250,36,446,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="479,43,447,46,446,40,478,38"/>
+<area shape="rect" id="Node000005" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="250,107,446,133"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="491,119,446,120,446,115,491,113"/>
+<area shape="poly" id="edge12_Node000011_Node000003" title=" " alt="" coords="498,159,492,155,477,140,467,126,459,111,444,97,416,79,387,65,389,60,419,74,448,92,463,108,472,123,481,137,496,151,501,155"/>
+<area shape="poly" id="edge11_Node000011_Node000005" title=" " alt="" coords="489,164,394,136,395,131,490,159"/>
+<area shape="rect" id="Node000012" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="250,232,446,258"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="490,218,414,234,412,229,489,213"/>
+<area shape="rect" id="Node000013" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="251,168,445,208"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="489,194,445,193,445,187,489,188"/>
+<area shape="rect" id="Node000014" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,175,202,201"/>
+<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="236,191,202,191,202,185,236,185"/>
+<area shape="rect" id="Node000016" href="$d9/d37/_c_multinomial_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="250,674,446,699"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="492,689,447,689,447,684,492,684"/>
+</map>

@@ -1,0 +1,32 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,242,202,268"/>
+<area shape="rect" id="Node000002" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#ac50c7a872afade137518ba5b65e57928" title="Persist state by passing information to the supplied inserter." alt="" coords="280,104,488,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,239,174,198,210,175,249,155,268,148,270,153,251,160,213,180,177,202,122,244"/>
+<area shape="rect" id="Node000008" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aeb0b9e7f03d29f31dc80d3f8eff759c4" title=" " alt="" coords="280,169,488,210"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="161,239,278,211,279,217,163,244"/>
+<area shape="rect" id="Node000011" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a67ba17e3c79351914d8163a6e862f99d" title="Returns the number of examples currently stored for a given category." alt="" coords="250,235,518,275"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="202,252,234,252,234,258,202,258"/>
+<area shape="rect" id="Node000012" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="293,300,475,341"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="163,266,279,293,278,299,161,271"/>
+<area shape="rect" id="Node000015" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="297,389,471,430"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="124,266,179,306,251,350,315,380,313,385,248,355,177,310,121,271"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="569,39,771,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="475,101,562,81,563,86,477,106"/>
+<area shape="rect" id="Node000004" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a75ad47809bafe3252076857394f8db44" title=" " alt="" coords="566,104,773,145"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="488,122,551,122,551,127,488,127"/>
+<area shape="rect" id="Node000005" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aacd44abd96032a41d0c29327e15fc2a9" title=" " alt="" coords="821,5,1029,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="743,101,772,89,796,73,820,57,836,50,838,55,823,61,799,77,775,93,745,106"/>
+<area shape="rect" id="Node000006" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a21aa072b091f702f29c77caca5018d50" title="Accessor for numeric ID." alt="" coords="835,71,1015,111"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="773,108,819,102,820,107,774,113"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="824,136,1026,177"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="774,135,809,139,808,144,773,140"/>
+<area shape="rect" id="Node000009" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a618f11819ae9e04fc29998bf74d602b9" title=" " alt="" coords="566,169,773,210"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="488,187,551,187,551,192,488,192"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ab2eb099dd240ff6f226480c258e65854" title=" " alt="" coords="851,201,999,242"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="774,200,836,208,835,213,773,205"/>
+<area shape="rect" id="Node000013" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="576,300,763,341"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="475,318,561,318,561,323,475,323"/>
+<area shape="rect" id="Node000014" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="834,300,1016,341"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="764,318,819,318,819,323,764,323"/>
+<area shape="poly" id="edge15_Node000015_Node000015" title=" " alt="" coords="332,389,329,379,338,370,356,365,384,363,414,365,432,371,430,376,413,370,384,368,357,370,340,375,334,381,337,388"/>
+</map>

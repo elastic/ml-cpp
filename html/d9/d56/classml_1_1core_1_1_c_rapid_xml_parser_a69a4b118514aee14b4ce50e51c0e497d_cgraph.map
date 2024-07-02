@@ -1,0 +1,11 @@
+<map id="ml::core::CRapidXmlParser::toNodeHierarchy" name="ml::core::CRapidXmlParser::toNodeHierarchy">
+<area shape="rect" id="Node000001" title="Called recursively by the public toNodeHierarchy() method." alt="" coords="5,95,187,135"/>
+<area shape="rect" id="Node000002" href="$d3/df3/classml_1_1core_1_1_c_xml_node_with_children_pool.html#a6147f0d47d5d40fd6e958bdd7cbe604f" title=" " alt="" coords="235,5,450,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,92,234,56,256,49,258,54,236,62,147,97"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1core_1_1_c_string_cache.html#af22bfc60f12eb1a755ac6478d79317d6" title="Look up a char pointer when the length is not known." alt="" coords="263,95,422,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,112,248,112,248,118,187,118"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ae00a5157623ddcab7acce9a3ea56ae54" title=" " alt="" coords="252,184,433,225"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="155,133,271,176,269,181,154,138"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="296,95,294,85,301,76,318,70,342,68,369,70,385,77,383,82,368,76,342,73,319,75,304,80,299,86,301,93"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="296,184,294,174,301,165,318,159,342,157,369,160,385,166,383,171,368,165,342,163,319,165,304,169,299,175,301,183"/>
+</map>

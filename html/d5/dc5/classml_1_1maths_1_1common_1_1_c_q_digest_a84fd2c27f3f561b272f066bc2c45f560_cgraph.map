@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CQDigest::quantileSublevelSetSupremum" name="ml::maths::common::CQDigest::quantileSublevelSetSupremum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,121,188,176"/>
+<area shape="rect" id="Node000002" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a8d3456c45ef060449b8bdb9ac37cfcec" title="Get the maximum value covered by the node." alt="" coords="271,5,432,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,118,183,89,235,62,265,49,267,54,237,67,186,94,140,122"/>
+<area shape="rect" id="Node000003" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#aca33548a3aad68a5e063512c9f29c65c" title="Get the total number of values added to the q&#45;digest." alt="" coords="515,96,660,137"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,117,235,106,304,99,374,98,499,104,499,109,374,103,305,104,236,111,182,122"/>
+<area shape="rect" id="Node000004" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a6af6421ae91bca028924b8b07db9c751" title=" " alt="" coords="236,121,467,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="188,146,220,146,220,151,188,151"/>
+<area shape="rect" id="Node000005" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a10b5460f807ae25b03a63528e8ff14c1" title="Get the maximum knot point less than x." alt="" coords="249,201,454,256"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="188,174,246,193,245,198,187,179"/>
+<area shape="rect" id="Node000006" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#aff7ccb44839056a94b6c1778d0b833f5" title="Get the minimum knot point greater than x." alt="" coords="254,281,449,336"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="126,175,175,221,237,266,246,271,244,276,234,271,172,225,122,178"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="467,130,499,126,500,131,468,135"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ml::core::CDualThreadStreamBuf::signalEndOfFile" name="ml::core::CDualThreadStreamBuf::signalEndOfFile">
+<area shape="rect" id="Node000001" title="Set the end&#45;of&#45;file flag." alt="" coords="5,47,201,87"/>
+<area shape="rect" id="Node000002" href="$d1/d57/classml_1_1core_1_1_c_condition.html#adf8ff0b46ed94d5031927e967b854b1b" title="Wake up a single thread that is blocked in wait." alt="" coords="492,5,633,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,56,476,31,477,36,201,61"/>
+<area shape="rect" id="Node000003" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="249,75,444,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,76,234,79,233,85,201,81"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="412,71,482,49,484,54,413,77"/>
+<area shape="rect" id="Node000004" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="524,94,602,120"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="445,98,508,101,508,107,444,103"/>
+<area shape="rect" id="Node000005" href="$d1/d57/classml_1_1core_1_1_c_condition.html#a3b7521bdef190c38a10e67b14ec0b5d0" title=" " alt="" coords="492,144,633,185"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="413,113,484,136,482,141,412,119"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="527,95,520,86,524,76,539,70,563,68,589,70,603,77,600,82,588,75,563,73,540,75,528,80,525,85,531,92"/>
+</map>

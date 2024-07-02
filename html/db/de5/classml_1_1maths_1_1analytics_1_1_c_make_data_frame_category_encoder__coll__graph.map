@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CMakeDataFrameCategoryEncoder" name="ml::maths::analytics::CMakeDataFrameCategoryEncoder">
+<area shape="rect" id="Node000001" title="Implements the named parameter idiom for CDataFrameCategoryEncoder." alt="" coords="630,22,868,63"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html" title="A data frame representation." alt="" coords="334,5,485,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="500,22,630,31,630,36,500,27"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html" title="A compact representation of binary vector." alt="" coords="317,55,501,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="516,57,606,51,629,49,630,54,607,56,517,62"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,32,268,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="283,65,316,65,316,70,283,70"/>
+</map>

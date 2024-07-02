@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::accept" name="ml::maths::analytics::CBoostedTreeImpl::accept">
+<area shape="rect" id="Node000001" title="Visit this tree trainer implementation." alt="" coords="5,93,191,134"/>
+<area shape="rect" id="Node000002" href="$da/df0/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_1_1_c_visitor.html#a234ec3b17a4d56759de971efc6e92986" title=" " alt="" coords="239,5,415,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,90,230,64,232,69,159,95"/>
+<area shape="rect" id="Node000003" href="$da/df0/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_1_1_c_visitor.html#a57d91a28a2fbdc3187b64c6ab6219691" title=" " alt="" coords="243,85,411,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,111,227,111,227,116,191,116"/>
+<area shape="rect" id="Node000004" href="$da/df0/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_1_1_c_visitor.html#acce47269e5208195a9cf1188c882543a" title=" " alt="" coords="243,165,411,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="159,131,232,157,230,162,157,136"/>
+</map>

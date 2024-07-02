@@ -1,0 +1,22 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,168,202,193"/>
+<area shape="rect" id="Node000002" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#aeb3d647c052ad9d6f61a6ca52dd66f04" title="Get a checksum for this object." alt="" coords="260,17,464,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,165,176,125,248,81,288,62,290,67,251,85,179,130,124,169"/>
+<area shape="rect" id="Node000004" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a22fbbfa241486de72d95c407ef315cc6" title="Get all the features for time." alt="" coords="267,95,457,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="157,164,263,137,264,142,158,170"/>
+<area shape="rect" id="Node000006" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#aae1b2c9650958e418072df389017b9f8" title="Initialize from value." alt="" coords="250,160,474,201"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="202,178,234,178,234,183,202,183"/>
+<area shape="rect" id="Node000008" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="275,225,449,251"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="165,191,286,218,285,223,164,196"/>
+<area shape="rect" id="Node000009" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a8563020cb3f0bfc8bec78c8cd65c895e" title="Convert to a delimited string." alt="" coords="257,275,467,315"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="126,191,181,225,251,261,266,267,264,272,249,265,178,230,123,196"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="522,5,676,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,30,506,28,507,33,464,35"/>
+<area shape="rect" id="Node000005" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="528,95,671,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="458,112,512,112,512,118,458,118"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="555,95,552,85,560,76,575,70,599,68,625,70,640,77,638,82,624,76,599,73,576,75,563,80,558,86,560,93"/>
+<area shape="rect" id="Node000007" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="522,160,676,201"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="475,178,506,178,506,183,475,183"/>
+<area shape="rect" id="Node000010" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="522,275,676,315"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="467,292,506,292,506,298,467,298"/>
+</map>

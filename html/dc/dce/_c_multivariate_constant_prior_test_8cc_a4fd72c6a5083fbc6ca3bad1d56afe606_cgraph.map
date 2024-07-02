@@ -1,0 +1,15 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,151,202,177"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aa5fcc1973a56c4be82ba5756ab965fb1" title="Set the constant if it hasn&#39;t been set." alt="" coords="251,5,429,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,148,179,112,248,71,258,66,260,71,251,75,181,116,126,153"/>
+<area shape="rect" id="Node000003" href="$d4/da6/namespaceml.html#a303ae6a2f20b09f1a5fec07f14f5abbf" title="A constant function." alt="" coords="293,86,387,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,148,278,113,279,118,153,153"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a3aa5601346727c68b762412aac8d5969" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="251,136,429,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,161,235,161,235,167,202,167"/>
+<area shape="rect" id="Node000006" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="250,216,430,256"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="149,175,257,208,256,213,147,180"/>
+<area shape="rect" id="Node000007" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="250,281,430,322"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="122,175,177,218,251,266,264,272,261,277,248,270,174,223,119,179"/>
+<area shape="rect" id="Node000005" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="478,136,656,192"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="429,161,463,161,463,167,429,167"/>
+</map>

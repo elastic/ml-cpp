@@ -1,0 +1,18 @@
+<map id="anonymous_namespace{CBoostedTreeInferenceModelBuilderTest::cc}::generateCategoricalData" name="anonymous_namespace{CBoostedTreeInferenceModelBuilderTest::cc}::generateCategoricalData">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,76,270,132"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a0a3185884e1b5736f1c049042bd48ead" title="Throw away n random numbers." alt="" coords="318,16,503,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,73,310,58,312,63,252,78"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a66f60130ad0a15acf8df5dd8ab8f4a75" title=" " alt="" coords="318,84,503,124"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="270,101,302,101,302,107,270,107"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a5717f9fd9f2eae5a4e2b6c11d1511f42" title=" " alt="" coords="318,149,503,190"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="257,130,309,142,307,147,256,135"/>
+<area shape="rect" id="Node000003" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#aa787913b7e0a0956bb98a8fb947bcaed" title="Discard the next n random numbers." alt="" coords="551,5,739,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="503,32,535,32,535,37,503,37"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a404ada1c9b84c0049e143865cb425e2f" title=" " alt="" coords="553,85,738,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="503,102,537,102,537,107,503,107"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="787,44,973,84"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="738,86,772,80,773,85,739,91"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="843,132,917,158"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="739,118,828,134,827,139,738,124"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="841,134,833,124,838,114,854,108,880,106,909,108,923,115,921,120,907,114,880,111,855,113,842,118,839,123,845,130"/>
+</map>

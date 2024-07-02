@@ -1,0 +1,15 @@
+<map id="ml::model::CInterimBucketCorrector::acceptPersistInserter" name="ml::model::CInterimBucketCorrector::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,71,213,111"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="271,5,473,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,67,272,48,273,53,194,73"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="295,71,449,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,88,279,88,279,94,213,94"/>
+<area shape="rect" id="Node000004" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#aaef61f5660b9649997b6fc2879e4bec7" title="Convert to a delimited string." alt="" coords="261,135,483,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,109,254,128,253,133,185,114"/>
+<area shape="rect" id="Node000005" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="531,135,681,191"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="484,160,515,160,515,166,484,166"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="729,143,877,183"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="681,160,714,160,714,166,681,166"/>
+<area shape="rect" id="Node000007" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="925,143,1063,183"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="877,160,909,160,909,166,877,166"/>
+</map>

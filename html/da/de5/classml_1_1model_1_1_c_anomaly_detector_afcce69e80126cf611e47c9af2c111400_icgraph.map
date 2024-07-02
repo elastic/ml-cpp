@@ -1,0 +1,7 @@
+<map id="ml::model::CAnomalyDetector::model" name="ml::model::CAnomalyDetector::model">
+<area shape="rect" id="Node000001" title=" " alt="" coords="251,39,448,79"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7e6bd4649eea94780ec213c850c83a31" title="Generate maths models for forecasting." alt="" coords="5,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,46,203,42,204,36,236,41"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a2f020f888c58e97fdb815fab7d474097" title="Generate ForecastPrerequistes, e.g. memory requirements." alt="" coords="5,71,203,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="236,77,204,81,203,75,235,71"/>
+</map>

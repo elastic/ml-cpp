@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::setToNonInformative" name="ml::maths::common::CMultivariateNormalConjugate::setToNonInformative">
+<area shape="rect" id="Node000001" title="Reset the prior to non&#45;informative." alt="" coords="5,85,205,141"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a21eabf1d872bdbd8f9d50c20f6757c95" title="Get the data type." alt="" coords="531,5,676,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,82,252,71,390,49,515,37,516,42,391,55,253,76,203,87"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="531,165,676,221"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,139,253,151,391,172,516,184,515,190,390,177,252,156,202,144"/>
+<area shape="rect" id="Node000004" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a1cb6624626b886e1ac0753a4e8120957" title=" " alt="" coords="253,85,452,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="205,111,237,111,237,116,205,116"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="441,82,515,58,517,63,443,87"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="443,139,517,163,515,168,441,144"/>
+<area shape="rect" id="Node000005" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ad1d8ec5f9bd8d6aee3ea1e7e3f6a7820" title=" " alt="" coords="500,85,707,141"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="453,111,485,111,485,116,453,116"/>
+</map>

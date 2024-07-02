@@ -1,0 +1,7 @@
+<map id="ml::maths::common::linear_algebra_tools_detail::anonymous_namespace{CLinearAlgebraTools::cc}::CGaussianLogLikelihood::compute" name="ml::maths::common::linear_algebra_tools_detail::anonymous_namespace{CLinearAlgebraTools::cc}::CGaussianLogLikelihood::compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,237,102"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a1c40333c5d651a6df33cd4dd72b390b5" title="Get the Eigen matrix for matrix." alt="" coords="285,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,40,269,35,270,41,237,45"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a3db0a396d60198f64859f2f0f8b5810c" title="Get the Eigen vector for vector." alt="" coords="285,71,430,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,72,270,76,269,82,237,77"/>
+</map>

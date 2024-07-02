@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::retrainedTreeEta" name="ml::maths::analytics::CBoostedTreeHyperparameters::retrainedTreeEta">
+<area shape="rect" id="Node000001" title="Get the writeable weight shrinkage to use when retraining a tree." alt="" coords="250,16,463,71"/>
+<area shape="rect" id="Node000002" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#ad995144b8c8d970e726a4cb5c149f386" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,34,202,31,202,25,234,29"/>
+<area shape="rect" id="Node000003" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a4183512580fb2100a1968f89f957dcb3" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,58,202,61,202,56,234,52"/>
+</map>

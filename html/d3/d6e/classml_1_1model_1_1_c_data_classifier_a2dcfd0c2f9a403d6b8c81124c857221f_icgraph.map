@@ -1,0 +1,7 @@
+<map id="ml::model::CDataClassifier::acceptPersistInserter" name="ml::model::CDataClassifier::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="302,39,481,79"/>
+<area shape="rect" id="Node000002" href="$d5/d4e/classml_1_1model_1_1_c_gatherer_tools_1_1_c_sum_gatherer.html#a325460fa13cb12a793a5ef04d82d32e0" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,254,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="286,48,254,44,254,39,287,43"/>
+<area shape="rect" id="Node000003" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a999b179d072fdafec1ee8f6a04319b35" title="Persist state by passing information to the supplied inserter." alt="" coords="34,71,225,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="286,74,226,82,225,77,286,69"/>
+</map>

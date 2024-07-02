@@ -1,0 +1,94 @@
+<map id="CTestFixture::addTestData" name="CTestFixture::addTestData">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,642,184,668"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a9fe3f391606e4a75419e14a31f47e583" title="Extract and add the necessary details of an event record." alt="" coords="232,104,429,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,641,311,158,316,160,104,643"/>
+<area shape="rect" id="Node000007" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a8c242e575ca46e218cb088b9398a1231" title="Update the results with this detector model&#39;s results." alt="" coords="232,373,429,414"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="106,640,298,424,302,428,110,643"/>
+<area shape="rect" id="Node000022" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aed60c474bb11e41c1cd328ced5655fc7" title="Returns the sum of used memory plus any extra memory." alt="" coords="1487,652,1682,693"/>
+<area shape="poly" id="edge50_Node000001_Node000022" title=" " alt="" coords="184,652,587,652,1093,652,1294,656,1472,663,1471,669,1294,661,1093,658,587,658,184,658"/>
+<area shape="rect" id="Node000033" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a955928e1218d7daadb2a1ce224c68b04" title=" " alt="" coords="994,715,1189,755"/>
+<area shape="poly" id="edge44_Node000001_Node000033" title=" " alt="" coords="184,665,232,671,644,706,979,727,978,732,644,711,231,676,184,671"/>
+<area shape="rect" id="Node000036" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5878bd942cb0fa1c4375bb3ee54d9344" title="Update the moments that are used to determine whether memory is stable." alt="" coords="233,948,428,989"/>
+<area shape="poly" id="edge51_Node000001_Node000036" title=" " alt="" coords="108,667,307,934,302,937,104,670"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#ad04d7526f123b756fbc0a155db041b2e" title=" " alt="" coords="490,5,687,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,101,476,57,498,49,500,54,478,61,375,106"/>
+<area shape="rect" id="Node000004" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="523,136,654,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="430,134,507,144,506,149,429,139"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="509,71,667,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="429,109,493,101,494,106,430,114"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="767,71,925,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="668,88,752,88,752,94,668,94"/>
+<area shape="poly" id="edge29_Node000007_Node000004" title=" " alt="" coords="339,372,359,334,390,286,429,236,475,193,507,175,509,180,479,197,432,240,394,289,364,337,344,374"/>
+<area shape="rect" id="Node000008" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a0bd562ebde300c9318a312a9020420fc" title="Get the bucket length." alt="" coords="747,397,945,438"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="429,396,732,410,732,415,429,401"/>
+<area shape="rect" id="Node000009" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="747,463,945,503"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="357,412,410,450,443,467,478,480,542,494,608,499,672,500,732,496,732,501,673,505,608,505,541,499,476,486,441,472,408,454,354,417"/>
+<area shape="rect" id="Node000012" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a82f53955869f9555fa4335a54cafe2ac" title=" " alt="" coords="490,431,687,471"/>
+<area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="425,412,479,424,478,429,424,417"/>
+<area shape="rect" id="Node000015" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a017c483afa2953800923ab6f0da0d9c6" title="Clears all extra memory." alt="" coords="994,243,1189,283"/>
+<area shape="poly" id="edge17_Node000007_Node000015" title=" " alt="" coords="341,372,362,340,392,301,430,265,476,237,545,213,617,199,690,194,763,195,833,202,899,211,1009,236,1007,241,898,217,833,207,763,201,691,199,618,205,546,218,478,241,434,269,396,305,366,343,345,375"/>
+<area shape="rect" id="Node000023" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="516,316,661,357"/>
+<area shape="poly" id="edge28_Node000007_Node000023" title=" " alt="" coords="424,370,500,353,501,358,425,375"/>
+<area shape="rect" id="Node000024" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#ab059a961c32c5243f63c122596c30abd" title="Sample the model in the interval [startTime, endTime]." alt="" coords="490,545,687,586"/>
+<area shape="poly" id="edge30_Node000007_Node000024" title=" " alt="" coords="351,413,405,468,440,498,478,525,502,537,499,541,476,529,437,502,401,472,347,416"/>
+<area shape="rect" id="Node000032" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#af52bc9edca07cb59e19e21cb845cfa3a" title="Updates the last sampled bucket." alt="" coords="490,251,687,291"/>
+<area shape="poly" id="edge43_Node000007_Node000032" title=" " alt="" coords="359,371,412,336,476,302,494,295,496,299,478,307,415,341,362,375"/>
+<area shape="rect" id="Node000010" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="993,455,1190,495"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="945,477,977,476,977,481,945,482"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="1045,455,1043,445,1051,436,1067,430,1091,428,1118,430,1133,437,1131,442,1116,436,1091,433,1068,435,1054,440,1048,446,1051,453"/>
+<area shape="rect" id="Node000011" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="1256,447,1416,487"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1191,469,1240,467,1240,473,1191,474"/>
+<area shape="poly" id="edge13_Node000012_Node000008" title=" " alt="" coords="687,436,732,430,733,435,688,441"/>
+<area shape="poly" id="edge14_Node000012_Node000009" title=" " alt="" coords="688,461,733,466,732,472,687,466"/>
+<area shape="rect" id="Node000013" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a7b72a8daaa40b863b1a3baca51630e9e" title="Get a description of this anomaly detector." alt="" coords="747,332,945,373"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="637,428,746,383,767,376,768,381,748,388,639,433"/>
+<area shape="rect" id="Node000014" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="1001,332,1182,373"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="945,350,986,350,986,355,945,355"/>
+<area shape="rect" id="Node000016" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1cf1c108bb07110b0d95c2e5b9e99ad5" title=" " alt="" coords="1238,512,1433,553"/>
+<area shape="poly" id="edge18_Node000015_Node000016" title=" " alt="" coords="1146,282,1171,298,1192,319,1207,343,1213,367,1214,412,1216,454,1224,475,1240,497,1243,501,1240,504,1236,501,1220,478,1211,455,1209,412,1208,368,1202,345,1188,322,1167,302,1143,286"/>
+<area shape="rect" id="Node000017" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a666a89154a86726709e80b1800861a8f" title=" " alt="" coords="1487,407,1682,447"/>
+<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="1404,509,1432,497,1456,480,1480,463,1506,451,1508,456,1483,468,1459,485,1435,501,1406,514"/>
+<area shape="rect" id="Node000019" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="1757,531,1945,571"/>
+<area shape="poly" id="edge22_Node000016_Node000019" title=" " alt="" coords="1434,512,1481,507,1585,500,1688,507,1769,523,1768,529,1687,512,1585,505,1482,512,1434,518"/>
+<area shape="rect" id="Node000020" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#adaa0f7f080ef8046ac0829817b886a3e" title="Get the high memory limit with margin applied." alt="" coords="1487,521,1682,562"/>
+<area shape="poly" id="edge24_Node000016_Node000020" title=" " alt="" coords="1434,533,1471,535,1471,540,1434,539"/>
+<area shape="rect" id="Node000021" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a0b836618d7b75d94a8adf9669d8be908" title="Get the low memory limit with margin applied." alt="" coords="1487,587,1682,627"/>
+<area shape="poly" id="edge25_Node000016_Node000021" title=" " alt="" coords="1407,551,1500,579,1499,584,1405,556"/>
+<area shape="poly" id="edge26_Node000016_Node000022" title=" " alt="" coords="1415,551,1435,564,1452,582,1460,601,1467,619,1483,637,1490,642,1487,646,1480,641,1463,622,1455,603,1447,585,1432,568,1412,555"/>
+<area shape="poly" id="edge20_Node000017_Node000017" title=" " alt="" coords="1538,407,1536,397,1543,388,1560,382,1585,380,1611,382,1627,389,1625,394,1610,388,1584,385,1561,387,1546,392,1541,398,1543,405"/>
+<area shape="rect" id="Node000018" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="1736,407,1966,447"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="1683,424,1720,424,1720,430,1683,430"/>
+<area shape="poly" id="edge23_Node000019_Node000019" title=" " alt="" coords="1803,531,1801,521,1808,512,1825,506,1851,504,1878,506,1895,513,1893,518,1877,512,1851,509,1826,511,1811,516,1806,522,1808,529"/>
+<area shape="poly" id="edge27_Node000022_Node000019" title=" " alt="" coords="1655,649,1687,637,1747,607,1802,577,1804,582,1750,612,1689,641,1656,654"/>
+<area shape="poly" id="edge31_Node000024_Node000008" title=" " alt="" coords="616,543,746,449,760,442,763,447,749,453,619,547"/>
+<area shape="poly" id="edge32_Node000024_Node000009" title=" " alt="" coords="653,542,765,506,766,511,655,547"/>
+<area shape="rect" id="Node000025" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a1fe23e430ce7a98d9ce61fd19e7446b5" title="Recalculate the memory usage regardless of whether there is a memory limit." alt="" coords="994,549,1189,590"/>
+<area shape="poly" id="edge33_Node000024_Node000025" title=" " alt="" coords="688,562,945,563,978,564,978,569,945,568,687,568"/>
+<area shape="rect" id="Node000031" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a86ff39cf29b848aaaf719f583b6b85b6" title="Recalculate the memory usage if there is a memory limit." alt="" coords="748,577,944,618"/>
+<area shape="poly" id="edge41_Node000024_Node000031" title=" " alt="" coords="688,575,733,581,733,586,687,581"/>
+<area shape="poly" id="edge40_Node000025_Node000016" title=" " alt="" coords="1189,552,1222,547,1223,552,1190,557"/>
+<area shape="rect" id="Node000026" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#ab98d5a5316283e47e262b02400df076c" title="Update the given model and recalculate the total usage." alt="" coords="1238,577,1433,618"/>
+<area shape="poly" id="edge34_Node000025_Node000026" title=" " alt="" coords="1190,578,1223,582,1222,587,1189,584"/>
+<area shape="rect" id="Node000027" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="1481,726,1688,752"/>
+<area shape="poly" id="edge35_Node000026_Node000027" title=" " alt="" coords="1362,617,1415,659,1483,702,1520,718,1518,723,1480,707,1412,663,1359,621"/>
+<area shape="rect" id="Node000028" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1765,639,1937,695"/>
+<area shape="poly" id="edge36_Node000027_Node000028" title=" " alt="" coords="1634,723,1750,691,1751,697,1636,728"/>
+<area shape="rect" id="Node000029" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1767,719,1935,759"/>
+<area shape="poly" id="edge37_Node000027_Node000029" title=" " alt="" coords="1688,736,1752,736,1752,742,1688,742"/>
+<area shape="rect" id="Node000030" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="2014,741,2199,796"/>
+<area shape="poly" id="edge39_Node000027_Node000030" title=" " alt="" coords="1637,750,1736,768,1873,775,1999,773,1999,778,1872,781,1735,774,1636,755"/>
+<area shape="poly" id="edge38_Node000029_Node000030" title=" " alt="" coords="1935,746,1999,753,1998,759,1935,751"/>
+<area shape="poly" id="edge42_Node000031_Node000025" title=" " alt="" coords="944,584,978,580,978,585,945,589"/>
+<area shape="poly" id="edge49_Node000033_Node000016" title=" " alt="" coords="1103,713,1155,640,1193,599,1236,563,1246,558,1249,562,1240,568,1197,603,1159,644,1107,716"/>
+<area shape="poly" id="edge48_Node000033_Node000022" title=" " alt="" coords="1189,720,1471,684,1472,689,1190,725"/>
+<area shape="poly" id="edge45_Node000033_Node000027" title=" " alt="" coords="1190,733,1466,735,1466,741,1190,738"/>
+<area shape="rect" id="Node000034" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#aca302b559dc4865ac025cd39e58023dc" title=" " alt="" coords="1238,859,1433,899"/>
+<area shape="poly" id="edge46_Node000033_Node000034" title=" " alt="" coords="1117,754,1171,798,1239,843,1253,850,1250,855,1237,848,1168,803,1114,758"/>
+<area shape="rect" id="Node000035" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#ad9061455efcf19f20b1e1c4394a43e0f" title=" " alt="" coords="1238,793,1433,834"/>
+<area shape="poly" id="edge47_Node000033_Node000035" title=" " alt="" coords="1158,753,1256,785,1255,791,1156,758"/>
+<area shape="poly" id="edge54_Node000036_Node000022" title=" " alt="" coords="428,956,621,941,845,934,1093,934,1146,937,1194,944,1277,958,1315,959,1352,954,1390,938,1432,909,1450,887,1459,865,1461,841,1458,816,1456,791,1456,765,1463,738,1479,712,1493,699,1497,703,1483,715,1468,740,1461,765,1461,791,1464,816,1466,841,1464,866,1455,890,1435,913,1393,943,1353,959,1315,965,1276,963,1193,949,1146,942,1093,939,845,939,621,947,429,961"/>
+<area shape="rect" id="Node000037" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="477,1054,699,1110"/>
+<area shape="poly" id="edge52_Node000036_Node000037" title=" " alt="" coords="371,987,478,1039,492,1045,490,1050,476,1044,369,992"/>
+<area shape="rect" id="Node000038" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="477,974,699,1030"/>
+<area shape="poly" id="edge53_Node000036_Node000038" title=" " alt="" coords="429,978,462,983,461,988,428,984"/>
+</map>

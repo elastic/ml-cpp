@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CQDigest::CNode::acceptRestoreTraverser" name="ml::maths::common::CQDigest::CNode::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create from an XML node tree." alt="" coords="5,97,227,152"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="275,5,493,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,93,274,57,296,49,298,54,276,61,183,98"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="275,71,493,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,108,259,104,259,109,227,113"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="310,136,458,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="227,135,295,143,295,148,227,140"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="275,201,493,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="184,150,276,186,299,194,297,199,274,191,182,155"/>
+</map>

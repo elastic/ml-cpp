@@ -1,0 +1,13 @@
+<map id="ml::maths::common::basic_statistics_detail::SCovariancesLedoitWolf&lt; CAnnotatedVector&lt; POINT, SCountAndVariance &gt; &gt;::estimate" name="ml::maths::common::basic_statistics_detail::SCovariancesLedoitWolf&lt; CAnnotatedVector&lt; POINT, SCountAndVariance &gt; &gt;::estimate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,230,206"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="319,5,479,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,117,223,85,277,57,303,46,305,51,279,61,225,90,177,122"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="326,71,472,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,132,310,111,312,116,231,137"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a5945c9a3674aef95880de4b69007f783" title=" " alt="" coords="278,135,520,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="230,160,262,160,262,166,230,166"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="319,215,479,255"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="231,189,305,208,303,213,230,194"/>
+<area shape="rect" id="Node000006" href="$d7/dff/structml_1_1maths_1_1common_1_1basic__statistics__detail_1_1_s_covariances_ledoit_wolf.html#a53c615329239b9c713014465aaa70648" title=" " alt="" coords="293,279,505,335"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="178,204,227,236,279,265,291,270,289,275,276,269,224,240,176,209"/>
+</map>

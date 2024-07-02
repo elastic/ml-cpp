@@ -1,0 +1,18 @@
+<map id="ml::model::CBucketGatherer::timeNow" name="ml::model::CBucketGatherer::timeNow">
+<area shape="rect" id="Node000001" title="Roll time forwards to time." alt="" coords="5,136,193,177"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a794eebfe66b9f75492ea3bfe3ccaaf39" title="Roll time forwards to time and update depending on skipUpdates." alt="" coords="241,136,428,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,154,225,154,225,159,193,159"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a2c7e791c52bd0462e846a1c00293758e" title="Get an iterator at the beginning the influencing field names." alt="" coords="476,5,663,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="360,133,411,95,475,57,489,50,491,55,477,61,414,100,363,138"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#abdb61d2ba82e5d05fa4133ef95d1521d" title="Get the length of the bucketing time interval." alt="" coords="476,71,663,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="409,133,478,114,480,119,411,138"/>
+<area shape="rect" id="Node000006" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ac54d017c129c4452424eaede2a5b7949" title="Get an iterator at the end of the influencing field names." alt="" coords="476,136,663,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="429,154,460,154,460,159,429,159"/>
+<area shape="rect" id="Node000007" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="482,225,657,266"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="391,175,501,217,499,222,389,180"/>
+<area shape="rect" id="Node000008" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a91e66d1958e4e5b4ace49aab4235a90f" title="Handle the start of a new bucketing interval." alt="" coords="476,291,663,331"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="357,175,409,225,442,252,477,275,489,282,486,286,475,280,439,256,405,229,353,179"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="711,71,886,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="664,88,696,88,696,94,664,94"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="527,225,524,215,531,206,547,201,570,199,594,201,609,207,607,212,593,206,570,204,548,206,535,211,530,217,532,224"/>
+</map>

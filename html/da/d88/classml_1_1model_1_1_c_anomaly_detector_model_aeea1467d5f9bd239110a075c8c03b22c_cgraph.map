@@ -1,0 +1,16 @@
+<map id="ml::model::CAnomalyDetectorModel::estimateMemoryUsage" name="ml::model::CAnomalyDetectorModel::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,95,205,135"/>
+<area shape="rect" id="Node000002" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#a8fcdc8ee3d34dca08481a0a5c8e2290b" title=" " alt="" coords="253,61,490,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,100,237,96,237,101,206,105"/>
+<area shape="rect" id="Node000007" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a621663c2b04973ffe8a7dbb7ed6cf98e" title="Get the model memory usage estimator." alt="" coords="269,127,474,167"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="206,124,253,130,253,135,205,130"/>
+<area shape="rect" id="Node000003" href="$d3/d6d/classml_1_1core_1_1_c_program_counters.html#a0669d71b56b650d4392e16b7ebf83570" title="Provide access to the relevant counter from the collection." alt="" coords="563,29,751,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,66,547,59,548,65,491,71"/>
+<area shape="rect" id="Node000004" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html#ad255e1a3fa47f4a0bd0d48604a328ecb" title="Get the maximum amount by which we&#39;ll extrapolate the memory usage." alt="" coords="538,95,775,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="491,93,523,97,522,102,490,98"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="609,29,607,19,615,10,631,5,657,3,684,5,700,11,698,16,683,10,657,8,633,10,618,15,612,21,615,28"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="823,77,994,103"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="775,100,807,97,808,102,776,106"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="825,126,992,152"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="776,124,810,127,810,132,775,129"/>
+</map>

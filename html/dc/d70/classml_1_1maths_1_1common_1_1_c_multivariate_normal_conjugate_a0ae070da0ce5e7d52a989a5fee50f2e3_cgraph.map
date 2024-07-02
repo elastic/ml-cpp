@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::print" name="ml::maths::common::CMultivariateNormalConjugate::print">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,94,205,150"/>
+<area shape="rect" id="Node000002" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#adf9bfad63f32b984fed17da61c051b69" title="Get the covariance matrix for the marginal likelihood." alt="" coords="273,14,472,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,91,262,72,263,77,201,96"/>
+<area shape="rect" id="Node000005" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a282358c48df9393af90423cf34979d4f" title="Check if this is a non&#45;informative prior." alt="" coords="273,94,472,150"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="205,120,257,120,257,125,205,125"/>
+<area shape="rect" id="Node000006" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a443affb1b42ac877baaaf89fa2da457f" title="Get the expected mean of the marginal likelihood." alt="" coords="253,174,492,215"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="206,147,253,160,279,167,278,172,252,165,204,152"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="540,22,685,63"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="472,40,524,40,524,45,472,45"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="733,29,808,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="686,40,718,40,718,45,686,45"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="743,30,738,21,741,11,753,5,771,3,790,5,800,12,797,16,788,10,770,8,754,10,746,15,744,20,748,28"/>
+<area shape="rect" id="Node000007" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a1cdd59c83e4751618dd40701b33e56c2" title="Check if the prior is being used to model integer data." alt="" coords="540,166,685,222"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="493,192,524,192,524,197,493,197"/>
+</map>

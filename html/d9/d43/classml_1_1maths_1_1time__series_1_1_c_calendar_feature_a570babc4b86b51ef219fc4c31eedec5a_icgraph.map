@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CCalendarFeature::print" name="ml::maths::time_series::CCalendarFeature::print">
+<area shape="rect" id="Node000001" title="Get a debug description of the feature." alt="" coords="315,85,483,126"/>
+<area shape="rect" id="Node000002" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#ab087df90a1b1b3adac4441af5023b55c" title="Add a new calendar component." alt="" coords="5,5,267,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="307,83,240,64,241,59,308,78"/>
+<area shape="rect" id="Node000003" href="$db/dcf/namespaceml_1_1maths_1_1time__series.html#acd89a074d94cf199231baeaa7895d49a" title=" " alt="" coords="59,85,213,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="299,108,214,108,214,103,299,103"/>
+<area shape="rect" id="Node000004" href="$d5/d30/classml_1_1maths_1_1time__series_1_1_c_calendar_feature_and_t_z.html#a4bd14a504683100edbe9de87ef45d100" title="Get a debug description of the feature." alt="" coords="49,149,223,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="308,133,224,156,223,151,306,128"/>
+</map>

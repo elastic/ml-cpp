@@ -1,0 +1,13 @@
+<map id="anonymous_namespace{CNdJsonInputParserTest.cc}::CSetupVisitor" name="anonymous_namespace{CNdJsonInputParserTest.cc}::CSetupVisitor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="25,348,220,403"/>
+<area shape="rect" id="Node000002" href="$d6/d83/classml_1_1api_1_1_c_nd_json_output_writer.html" title="Write output data in JSON format, one document per line." alt="" coords="24,259,221,285"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,300,125,347,120,347,120,300"/>
+<area shape="rect" id="Node000003" href="$df/d34/classml_1_1api_1_1_c_simple_output_writer.html" title="Interface for simple output of homogenous key/value pairs." alt="" coords="5,170,197,196"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="110,211,122,258,117,259,105,212"/>
+<area shape="rect" id="Node000004" href="$d8/d43/classml_1_1core_1_1_c_stream_writer.html" title=" " alt="" coords="221,170,384,196"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="265,206,149,261,146,256,262,201"/>
+<area shape="rect" id="Node000005" href="$d0/def/classml_1_1core_1_1_c_boost_json_line_writer.html" title=" " alt="" coords="207,95,398,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="305,136,305,170,300,170,300,136"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html" title="A Json writer with fixed length allocator pool With utility functions for adding fields to JSON objec..." alt="" coords="206,5,399,46"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="305,61,305,95,300,95,300,61"/>
+</map>

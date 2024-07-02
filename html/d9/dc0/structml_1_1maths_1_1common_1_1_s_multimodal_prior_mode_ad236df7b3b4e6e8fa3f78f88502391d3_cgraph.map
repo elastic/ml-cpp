@@ -1,0 +1,11 @@
+<map id="ml::maths::common::SMultimodalPriorMode::acceptRestoreTraverser" name="ml::maths::common::SMultimodalPriorMode::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create from part of a state document." alt="" coords="5,111,175,166"/>
+<area shape="rect" id="Node000002" href="$d9/dc0/structml_1_1maths_1_1common_1_1_s_multimodal_prior_mode.html#a9d47c72fe979df97c66f8d223cbac8cb" title=" " alt="" coords="245,5,419,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,108,222,71,236,65,238,70,224,76,146,113"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="223,85,441,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,124,207,120,208,125,176,129"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="223,150,441,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,147,208,151,207,157,175,152"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="223,216,441,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="146,164,224,200,244,208,242,213,222,205,144,169"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="ml::api::CTrainedModel::CFeatureNameProvider::fieldName" name="ml::api::CTrainedModel::CFeatureNameProvider::fieldName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="545,63,711,119"/>
+<area shape="rect" id="Node000002" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a2068593eeb992ef731cc737e4ee04da3" title=" " alt="" coords="253,5,494,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="529,68,455,49,456,44,531,63"/>
+<area shape="rect" id="Node000004" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a3b18dd74e39e1bcbd1c8db02551c7fbe" title=" " alt="" coords="261,71,486,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="529,94,486,94,486,88,529,88"/>
+<area shape="rect" id="Node000005" href="$d8/d04/classml_1_1api_1_1_c_boosted_tree_inference_model_builder.html#a89ed0edd79b71d8f5140d2fe36123b67" title=" " alt="" coords="250,136,497,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="531,119,456,138,455,133,529,114"/>
+<area shape="rect" id="Node000003" href="$d8/dc2/_c_boosted_tree_inference_model_builder_test_8cc.html#a47455df0a75da44940391da922696eaf" title=" " alt="" coords="5,46,202,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="238,45,202,50,202,44,237,40"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="245,78,202,73,202,68,246,73"/>
+</map>

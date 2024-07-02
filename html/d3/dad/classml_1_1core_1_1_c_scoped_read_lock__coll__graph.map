@@ -1,0 +1,8 @@
+<map id="ml::core::CScopedReadLock" name="ml::core::CScopedReadLock">
+<area shape="rect" id="Node000001" title="Implementation of Scoped Locking idiom/pattern." alt="" coords="5,169,195,195"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="12,5,177,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,47,102,169,97,169,93,47"/>
+<area shape="rect" id="Node000003" href="$dd/dc7/classml_1_1core_1_1_c_read_write_lock.html" title="Wrapper class around pthread rw lock." alt="" coords="116,80,292,106"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="127,38,187,78,184,82,124,42"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,118,116,171,113,167,176,114"/>
+</map>

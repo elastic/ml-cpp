@@ -1,0 +1,16 @@
+<map id="ml::maths::time_series::CTrendComponent::CForecastLevel" name="ml::maths::time_series::CTrendComponent::CForecastLevel">
+<area shape="rect" id="Node000001" title="Forecasts the level model by path roll out." alt="" coords="850,79,1089,120"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="538,5,704,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="697,32,826,62,883,76,882,81,825,67,696,38"/>
+<area shape="rect" id="Node000003" href="$d4/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes.html" title="Implements a Naive Bayes classifier." alt="" coords="548,55,694,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="709,79,849,89,849,94,709,84"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html" title="A conjugate prior distribution for a normal variable." alt="" coords="525,121,717,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="732,125,849,111,850,116,733,130"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="329,163,474,204"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="488,164,524,157,525,162,490,169"/>
+<area shape="rect" id="Node000006" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,136,166,162"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="181,132,190,132,368,127,525,132,525,137,368,132,190,137,181,138"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="181,160,190,162,329,175,328,181,189,167,181,166"/>
+<area shape="rect" id="Node000007" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="523,186,719,227"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="712,179,825,145,907,118,909,123,826,150,714,184"/>
+</map>

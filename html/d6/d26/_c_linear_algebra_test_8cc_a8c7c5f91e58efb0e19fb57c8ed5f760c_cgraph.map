@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,78,202,104"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="269,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,75,254,48,256,53,155,80"/>
+<area shape="rect" id="Node000003" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a43ed721e2cab9fd15215bbfc34896ee4" title="Get the mean of the matrix elements." alt="" coords="250,71,447,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,88,234,88,234,94,202,94"/>
+<area shape="rect" id="Node000005" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a76145b1cf7edeb44dad3f32e7d6f2b96" title="Get the trace." alt="" coords="270,145,427,200"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="146,102,256,139,254,144,144,107"/>
+<area shape="rect" id="Node000004" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a3d5fe3ef22bc9c29a6b866fc353af73e" title=" " alt="" coords="495,39,662,125"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="447,84,479,83,479,88,448,90"/>
+<area shape="rect" id="Node000006" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a162add484b2805c82788941ccf146d31" title=" " alt="" coords="495,148,662,234"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="428,176,480,180,479,186,427,181"/>
+</map>

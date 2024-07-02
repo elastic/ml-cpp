@@ -1,0 +1,42 @@
+<map id="ml::model::CSampleGatherer::featureData" name="ml::model::CSampleGatherer::featureData">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,251,196,291"/>
+<area shape="rect" id="Node000002" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#a4458307df4ab8f653908bf0bf2194bd6" title="Returns the combined count of all the measurements." alt="" coords="260,5,429,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,249,127,209,156,157,194,103,242,57,249,52,252,56,245,61,198,107,160,160,131,211,113,251"/>
+<area shape="rect" id="Node000004" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a97fd56f20988fde7e7a1981f9ae6bcbc" title="Returns 1.0 since this is not available." alt="" coords="254,71,435,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="114,248,166,186,202,151,242,121,251,116,253,121,245,125,205,155,170,189,118,252"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="244,136,445,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="125,248,177,209,243,171,261,164,263,169,245,176,180,213,128,252"/>
+<area shape="rect" id="Node000008" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a7d8bbb4d98ef322ee357a952ad331ae3" title="Forward to the value function." alt="" coords="254,185,435,226"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="178,248,250,228,252,233,180,253"/>
+<area shape="rect" id="Node000009" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html#a2512b4dff7a14110b893430ef9ca7bcf" title="Check if the values are all integers." alt="" coords="255,251,434,291"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="196,268,239,268,239,274,196,274"/>
+<area shape="rect" id="Node000010" href="$d3/d6e/classml_1_1model_1_1_c_data_classifier.html#a13f98651d1e94c14420b79f4a2b11f23" title="Check if the values are all positive." alt="" coords="255,316,434,357"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="180,289,252,309,250,314,178,294"/>
+<area shape="rect" id="Node000011" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ad9152389320356c28a74d4840a929e59" title="Returns the mean time of all the measurements." alt="" coords="260,381,429,422"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="129,290,181,328,245,366,260,373,258,378,242,371,178,332,126,294"/>
+<area shape="rect" id="Node000013" href="$d9/dcb/classml_1_1model_1_1_c_metric_partial_statistic.html#ae949469432decbaff601c88431943d6a" title="Returns the aggregated value of all the measurements." alt="" coords="260,447,429,487"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="117,290,168,359,204,398,245,431,254,437,252,442,242,436,200,402,163,363,112,293"/>
+<area shape="rect" id="Node000015" href="$df/d9c/namespaceml_1_1model__t.html#a18db9394ce804db46f9f7694c21934b3" title=" " alt="" coords="255,536,434,561"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="113,291,132,333,161,387,199,445,245,497,267,513,292,526,289,531,265,518,242,501,195,448,156,390,127,335,108,293"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="514,5,673,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,23,499,23,499,28,430,28"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="506,128,681,169"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="446,146,490,146,490,151,446,151"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="548,128,546,118,553,109,569,103,594,101,620,104,635,110,633,115,618,109,594,107,571,109,556,113,551,119,553,127"/>
+<area shape="rect" id="Node000007" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="748,128,923,169"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="682,146,732,146,732,151,682,151"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="514,381,673,422"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="430,399,499,399,499,404,430,404"/>
+<area shape="rect" id="Node000014" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a661bd8a0db4975639e7b2a7555610989" title="Get the median value of an order statistic." alt="" coords="504,447,684,487"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="430,464,488,464,488,470,430,470"/>
+<area shape="rect" id="Node000016" href="$df/d9c/namespaceml_1_1model__t.html#a7bf7c04ac4013033bc79dbd51c37daf1" title="Check if feature models the mean of some quantity." alt="" coords="502,512,685,537"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="434,537,486,532,487,537,435,542"/>
+<area shape="rect" id="Node000018" href="$df/d9c/namespaceml_1_1model__t.html#ad13c348b83bf923026873475ac32bc86" title="Check if feature models the median of some quantity." alt="" coords="497,561,690,587"/>
+<area shape="poly" id="edge18_Node000015_Node000018" title=" " alt="" coords="435,555,482,560,481,565,434,560"/>
+<area shape="rect" id="Node000019" href="$df/d9c/namespaceml_1_1model__t.html#a045e29b0adddc0ab27dd8a5a2a0d0dc6" title="Check if feature models the variance of some quantity." alt="" coords="493,610,694,636"/>
+<area shape="poly" id="edge20_Node000015_Node000019" title=" " alt="" coords="383,559,494,596,519,603,518,609,492,602,381,564"/>
+<area shape="rect" id="Node000017" href="$df/d9c/namespaceml_1_1model__t.html#a1482559951b2d7c70f5c33ffc3248342" title=" " alt="" coords="742,561,929,587"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="661,535,755,555,754,560,660,540"/>
+<area shape="poly" id="edge19_Node000018_Node000017" title=" " alt="" coords="691,571,727,571,727,576,691,576"/>
+<area shape="poly" id="edge21_Node000019_Node000017" title=" " alt="" coords="660,607,754,588,755,593,661,612"/>
+</map>

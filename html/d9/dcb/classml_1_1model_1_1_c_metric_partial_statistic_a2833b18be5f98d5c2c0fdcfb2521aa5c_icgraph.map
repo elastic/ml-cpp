@@ -1,0 +1,13 @@
+<map id="ml::model::CMetricPartialStatistic::restore" name="ml::model::CMetricPartialStatistic::restore">
+<area shape="rect" id="Node000001" title="Restore from the supplied state document traverser." alt="" coords="777,68,947,109"/>
+<area shape="rect" id="Node000002" href="$db/d17/structml_1_1model_1_1_c_sample_queue_1_1_s_sub_sample.html#a6bb6d3f5a5ad7d2033a219911d30213e" title="Restore from a state document." alt="" coords="476,35,729,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="762,78,730,74,730,69,762,73"/>
+<area shape="rect" id="Node000006" href="$d6/df7/structml_1_1model_1_1_c_sample_gatherer_1_1_s_stat_serializer.html#a362de0973bb43a93f615c7c6fc718fef" title=" " alt="" coords="508,100,698,141"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="762,103,699,111,698,106,762,98"/>
+<area shape="rect" id="Node000003" href="$db/de5/classml_1_1model_1_1_c_sample_queue.html#a4038d37803356a616d916f54776c89ec" title="Restore by getting information from the state document traverser." alt="" coords="250,35,428,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,58,429,58,429,52,460,52"/>
+<area shape="rect" id="Node000004" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#acb986ed2182f4aca7213a7cad5919c2f" title="Create from part of a state document." alt="" coords="8,5,199,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,45,199,40,199,35,235,39"/>
+<area shape="rect" id="Node000005" href="$d5/df7/_c_sample_queue_test_8cc.html#a198486660676a176453a9cfe2c6324c6" title=" " alt="" coords="5,70,202,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="235,70,203,74,202,69,234,65"/>
+</map>

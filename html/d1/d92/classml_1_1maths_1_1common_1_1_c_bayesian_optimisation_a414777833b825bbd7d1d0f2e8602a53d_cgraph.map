@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CBayesianOptimisation::evaluate1D" name="ml::maths::common::CBayesianOptimisation::evaluate1D">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,109,164,165"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="44,109,44,99,52,90,65,85,85,83,106,85,120,92,117,97,105,90,84,88,66,90,55,95,49,101,49,109"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#aa56e37b0e1538d1963615b9e9189c3cd" title=" " alt="" coords="212,109,370,165"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="164,135,196,135,196,140,164,140"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="418,5,576,61"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="347,106,426,66,428,71,349,111"/>
+<area shape="rect" id="Node000004" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="418,109,576,165"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="370,135,402,135,402,140,370,140"/>
+<area shape="rect" id="Node000006" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="418,189,576,245"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="366,163,410,181,408,186,364,168"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="456,109,457,99,464,90,478,85,497,83,519,85,532,92,530,97,517,90,497,88,479,90,467,95,462,101,462,109"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="631,117,777,158"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="577,135,616,135,616,140,577,140"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="624,197,784,238"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="577,215,609,215,609,220,577,220"/>
+</map>

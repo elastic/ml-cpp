@@ -1,0 +1,17 @@
+<map id="ml::maths::common::CBasicStatistics::CMinMax&lt; T, LESS, GREATER &gt;" name="ml::maths::common::CBasicStatistics::CMinMax&lt; T, LESS, GREATER &gt;">
+<area shape="rect" id="Node000001" title="An accumulator of the minimum and maximum value in a collection." alt="" coords="598,93,782,149"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="304,13,478,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="494,65,599,94,597,99,493,71"/>
+<area shape="rect" id="Node000003" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="279,93,503,149"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="519,118,598,118,598,123,519,123"/>
+<area shape="rect" id="Node000004" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="5,5,230,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="245,75,294,90,293,95,244,80"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="10,100,225,141"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="241,118,279,118,279,123,241,123"/>
+<area shape="rect" id="Node000006" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html" title=" " alt="" coords="279,173,503,229"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="512,166,597,143,599,148,513,171"/>
+<area shape="rect" id="Node000007" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title=" " alt="" coords="5,165,230,236"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="245,198,278,198,278,203,245,203"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="10,260,225,315"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="222,252,300,226,302,232,223,257"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CTools" name="ml::maths::common::CTools">
+<area shape="rect" id="Node000001" title="A collection of utility functionality." alt="" coords="390,31,535,72"/>
+<area shape="rect" id="Node000002" href="$d1/dfe/classml_1_1core_1_1_c_non_instantiatable.html" title="Similar idea to boost::noncopyable, but for instantiation." alt="" coords="19,5,208,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,25,366,38,389,41,389,46,365,43,222,30"/>
+<area shape="rect" id="Node000003" href="$d5/d44/classml_1_1maths_1_1common_1_1_c_tools_1_1_c_lookup_table_for_fast_log.html" title=" " alt="" coords="5,56,222,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,70,389,55,390,61,237,75"/>
+</map>

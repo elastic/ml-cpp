@@ -1,0 +1,37 @@
+<map id="ml::maths::common::CQuantileSketch::quantile" name="ml::maths::common::CQuantileSketch::quantile">
+<area shape="rect" id="Node000001" title="Get the quantile corresponding to percentage." alt="" coords="725,251,899,292"/>
+<area shape="poly" id="edge10_Node000001_Node000001" title=" " alt="" coords="850,238,836,232,812,230,790,232,776,236,771,242,773,250,768,251,766,241,773,232,789,227,812,225,837,227,852,233"/>
+<area shape="rect" id="Node000002" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a04632c1ffdd5a8dd9ca3c784dc96a9a1" title="Add error at time." alt="" coords="250,146,433,187"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="785,241,738,193,709,171,676,154,612,138,545,134,481,138,423,148,422,143,480,133,545,128,613,133,678,149,712,166,742,189,788,237"/>
+<area shape="rect" id="Node000009" href="$df/d30/_c_quantile_sketch_test_8cc.html#a4456284527dfd2ad7edf94269b2a8a32" title=" " alt="" coords="481,324,677,350"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="729,299,678,314,634,326,633,321,677,309,727,294"/>
+<area shape="rect" id="Node000010" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a27eb6c2fa43de60123a334adf8b6af52" title="Get the estimated median absolute deviation." alt="" coords="503,374,656,415"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="774,304,730,335,679,365,652,376,650,371,676,360,727,330,771,299"/>
+<area shape="rect" id="Node000011" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a5b32858860428f652fdb827d8406d5ca" title="Get an estimate of the value of the survival function for error." alt="" coords="502,164,656,219"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="736,248,656,220,657,215,737,243"/>
+<area shape="rect" id="Node000012" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a215a430bcddcaa0f0c9df83967092abc" title="Check if there are calendar components." alt="" coords="250,69,433,109"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="789,240,743,179,712,149,676,126,616,103,553,90,491,84,434,84,434,78,491,79,554,84,618,98,679,121,715,145,747,175,793,236"/>
+<area shape="rect" id="Node000013" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a08f74e2805d6948d4bc8e1a97a2a0aea" title="Get the value of a median statistic." alt="" coords="489,439,669,480"/>
+<area shape="poly" id="edge19_Node000001_Node000013" title=" " alt="" coords="792,306,745,368,714,400,679,428,656,441,653,436,676,424,710,396,741,365,788,303"/>
+<area shape="rect" id="Node000014" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a0c3513717fd49c8226a0ef695ccce7cc" title="Winsorise error." alt="" coords="502,244,656,299"/>
+<area shape="poly" id="edge20_Node000001_Node000014" title=" " alt="" coords="710,274,657,274,657,269,710,269"/>
+<area shape="rect" id="Node000003" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a37eee8b832f4febaaebc1c9f05f187a9" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="236,191,169,205,168,199,235,186"/>
+<area shape="rect" id="Node000004" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#ad9e2cc94e80c8604915b68ddc3aa5752" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="271,140,248,123,232,102,224,81,217,62,200,44,182,34,184,29,203,40,221,59,229,79,236,99,252,119,275,136"/>
+<area shape="rect" id="Node000005" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="295,197,251,221,203,243,169,254,168,249,201,238,249,217,293,192"/>
+<area shape="rect" id="Node000006" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a720f1331ae3b8d86f7fcae16e96d541c" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="281,141,248,123,225,108,201,94,170,83,172,78,203,89,228,103,251,119,284,136"/>
+<area shape="rect" id="Node000007" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a366733c8c476fd204113d30efcbf97ec" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="235,147,168,133,169,128,236,142"/>
+<area shape="rect" id="Node000008" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a455a37ad76d620e12e26b4a5308fa4c2" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="235,169,202,169,202,164,235,164"/>
+<area shape="poly" id="edge12_Node000011_Node000002" title=" " alt="" coords="486,184,433,179,433,173,487,179"/>
+<area shape="poly" id="edge14_Node000012_Node000003" title=" " alt="" coords="277,119,251,136,237,151,229,165,219,180,203,194,181,204,179,200,200,189,215,176,224,163,233,148,248,132,275,115"/>
+<area shape="poly" id="edge15_Node000012_Node000004" title=" " alt="" coords="266,66,201,45,162,34,163,29,202,40,268,60"/>
+<area shape="poly" id="edge16_Node000012_Node000006" title=" " alt="" coords="234,82,202,79,202,74,234,77"/>
+<area shape="poly" id="edge17_Node000012_Node000007" title=" " alt="" coords="234,104,202,108,202,103,234,99"/>
+<area shape="poly" id="edge18_Node000012_Node000008" title=" " alt="" coords="277,118,202,145,165,155,163,150,201,140,276,113"/>
+<area shape="poly" id="edge21_Node000014_Node000002" title=" " alt="" coords="493,240,480,234,384,189,387,185,482,229,495,235"/>
+</map>

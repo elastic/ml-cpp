@@ -1,0 +1,5 @@
+<map id="ml::model::CHierarchicalResultsLevelSet&lt; T &gt;" name="ml::model::CHierarchicalResultsLevelSet&lt; T &gt;">
+<area shape="rect" id="Node000001" title="Defines a set of objects with one set for each distinct level in the hierarchical results." alt="" coords="5,94,171,135"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="5,5,171,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,62,91,94,85,94,85,62"/>
+</map>

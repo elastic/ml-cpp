@@ -1,0 +1,25 @@
+<map id="ml::maths::common::CBayesianOptimisation::minusExpectedImprovementAndGradient" name="ml::maths::common::CBayesianOptimisation::minusExpectedImprovementAndGradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,179,224,250"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="272,5,430,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,177,203,124,270,71,276,67,279,72,273,75,207,128,152,180"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="278,85,424,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,176,290,130,292,135,193,181"/>
+<area shape="rect" id="Node000004" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="479,224,637,280"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,220,430,237,463,240,463,245,430,242,224,226"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="685,232,831,272"/>
+<area shape="poly" id="edge11_Node000001_Node000005" title=" " alt="" coords="224,188,314,175,418,166,529,168,584,174,638,185,679,200,716,220,713,225,677,205,637,190,583,180,529,173,418,172,314,180,224,193"/>
+<area shape="rect" id="Node000006" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a1fbfc98c04fb1484fd2130baf2c35f01" title=" " alt="" coords="272,252,430,308"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="225,242,257,251,256,256,223,247"/>
+<area shape="rect" id="Node000007" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="272,335,430,390"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="168,248,273,318,284,324,282,329,270,322,165,253"/>
+<area shape="rect" id="Node000009" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="278,418,424,459"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="141,249,196,324,233,364,273,400,284,408,281,412,270,405,229,368,192,327,136,252"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="518,223,519,214,526,205,539,199,558,197,579,200,592,207,589,212,577,205,558,203,540,204,529,209,524,216,523,224"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="637,249,670,249,670,255,637,255"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="430,266,462,262,463,267,431,272"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="430,289,529,296,584,295,637,289,692,275,693,280,638,294,584,300,529,301,430,294"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="478,354,637,395"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="431,364,463,366,462,372,430,370"/>
+<area shape="rect" id="Node000010" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="485,420,630,460"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="424,436,470,437,470,442,424,442"/>
+</map>

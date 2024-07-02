@@ -1,0 +1,9 @@
+<map id="ml::core::CXmlNodeWithChildrenPool::newNode" name="ml::core::CXmlNodeWithChildrenPool::newNode">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,221,79"/>
+<area shape="rect" id="Node000002" href="$d3/df3/classml_1_1core_1_1_c_xml_node_with_children_pool.html#a6147f0d47d5d40fd6e958bdd7cbe604f" title=" " alt="" coords="269,5,484,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,43,253,39,254,44,221,48"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="303,71,450,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,69,287,78,287,83,221,75"/>
+<area shape="rect" id="Node000004" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="532,71,670,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="450,88,517,88,517,94,450,94"/>
+</map>

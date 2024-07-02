@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CKMeansOnline1d::cluster" name="ml::maths::common::CKMeansOnline1d::cluster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="484,93,661,134"/>
+<area shape="rect" id="Node000002" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#ac51ddb1b133c35d446fa00f0b62c9edd" title="Persist state by passing information to the supplied inserter." alt="" coords="215,5,434,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="492,90,412,64,414,59,494,85"/>
+<area shape="rect" id="Node000003" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#a00764f896ab03897b785484cd5658bc9" title="Restore by traversing a state document." alt="" coords="213,85,436,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="468,116,437,116,437,111,468,111"/>
+<area shape="rect" id="Node000004" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#acd4160fd795d81a2f9f64c1c233fa094" title=" " alt="" coords="245,165,404,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,141,437,156,399,167,397,162,435,151,486,136"/>
+<area shape="rect" id="Node000005" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#ad83de322d780db3b7107206f8122aec3" title="Update the clustering with points." alt="" coords="5,165,165,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="229,188,165,188,165,183,229,183"/>
+</map>

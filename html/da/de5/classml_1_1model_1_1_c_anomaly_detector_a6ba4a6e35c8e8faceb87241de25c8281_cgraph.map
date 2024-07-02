@@ -1,0 +1,12 @@
+<map id="ml::model::CAnomalyDetector::generateModelPlot" name="ml::model::CAnomalyDetector::generateModelPlot">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a0bd562ebde300c9318a312a9020420fc" title="Get the bucket length." alt="" coords="251,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,43,235,39,235,44,203,48"/>
+<area shape="rect" id="Node000003" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a742354d4ac7a6d46f6d6b3c39f8a155e" title="Set the data bucketing interval." alt="" coords="251,71,448,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,69,235,73,235,79,203,75"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="496,71,693,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="448,88,480,88,480,94,448,94"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="552,71,550,61,557,52,572,46,595,44,619,46,634,53,632,58,618,52,595,49,573,51,560,56,555,62,557,69"/>
+<area shape="rect" id="Node000005" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="741,71,902,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="694,88,726,88,726,94,694,94"/>
+</map>

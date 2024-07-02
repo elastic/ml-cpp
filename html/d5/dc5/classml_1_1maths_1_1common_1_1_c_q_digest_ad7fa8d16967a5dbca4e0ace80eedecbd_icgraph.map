@@ -1,0 +1,18 @@
+<map id="ml::maths::common::CQDigest::add" name="ml::maths::common::CQDigest::add">
+<area shape="rect" id="Node000001" title="Add n values value to the q&#45;digest." alt="" coords="494,146,639,187"/>
+<area shape="rect" id="Node000002" href="$db/d32/_c_q_digest_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="540,135,499,88,473,64,445,44,421,34,423,29,447,40,476,60,503,84,544,132"/>
+<area shape="rect" id="Node000003" href="$db/d32/_c_q_digest_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="524,139,487,115,445,94,414,83,416,78,447,89,489,110,527,134"/>
+<area shape="rect" id="Node000004" href="$db/d32/_c_q_digest_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="250,104,446,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="478,149,408,133,409,128,479,144"/>
+<area shape="rect" id="Node000005" href="$db/d32/_c_q_digest_test_8cc.html#afeec754f0da6511188570bb040d8a231" title=" " alt="" coords="250,153,446,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="478,169,447,169,447,164,478,164"/>
+<area shape="rect" id="Node000006" href="$db/d32/_c_q_digest_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,259,202,284"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="479,189,164,261,163,255,478,183"/>
+<area shape="rect" id="Node000007" href="$db/d32/_c_q_digest_test_8cc.html#a5cbafdc07efaf526c2d772259395c248" title=" " alt="" coords="250,255,446,280"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="522,197,447,238,397,257,395,252,445,233,520,193"/>
+<area shape="rect" id="Node000008" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a4979e7ef438c7e50142ce809d29126fb" title=" " alt="" coords="275,305,421,345"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="544,201,502,249,476,274,447,295,422,308,420,303,445,291,473,270,499,245,540,197"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="259,308,165,288,166,282,260,303"/>
+</map>

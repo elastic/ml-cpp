@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CSampling::seed" name="ml::maths::common::CSampling::seed">
+<area shape="rect" id="Node000001" title="Reinitialize the random number generator." alt="" coords="5,20,151,61"/>
+<area shape="rect" id="Node000002" href="$d2/d96/classml_1_1maths_1_1common_1_1anonymous__namespace_02_c_sampling_8cc_03_1_1_c_random_number_generator.html#aa878c3172b42f558732a180785196359" title="Seed the random number generator." alt="" coords="199,5,427,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,38,183,38,183,43,151,43"/>
+</map>

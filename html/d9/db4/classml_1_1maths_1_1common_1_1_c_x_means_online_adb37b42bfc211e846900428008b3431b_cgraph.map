@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CXMeansOnline::swap" name="ml::maths::common::CXMeansOnline::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of two x&#45;means objects." alt="" coords="5,35,161,75"/>
+<area shape="rect" id="Node000002" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#a6bf5f137b400d73883e777a1ff726080" title="Swap the CClusterer state of two derived objects." alt="" coords="209,5,354,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,41,193,36,194,41,161,46"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="402,42,480,68"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="161,54,209,55,354,55,386,54,386,60,354,60,209,60,161,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="355,36,387,43,387,48,354,42"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="414,43,409,34,412,24,423,18,441,16,461,18,471,25,468,29,459,23,441,21,425,23,416,27,414,33,418,40"/>
+</map>

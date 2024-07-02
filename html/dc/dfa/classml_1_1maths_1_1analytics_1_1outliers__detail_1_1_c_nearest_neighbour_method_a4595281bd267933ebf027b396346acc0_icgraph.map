@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::compute" name="ml::maths::analytics::outliers_detail::CNearestNeighbourMethod::compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="235,45,416,101"/>
+<area shape="rect" id="Node000002" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#aefd1193fea1fd8e18d58b4efcc47fd40" title=" " alt="" coords="5,5,187,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,57,187,52,187,46,220,52"/>
+<area shape="rect" id="Node000003" href="$dc/dfa/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_nearest_neighbour_method.html#aebbe73deb40b3c650976095f215fba02" title="Compute the outlier scores for points." alt="" coords="9,85,183,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,94,184,101,183,95,219,89"/>
+</map>

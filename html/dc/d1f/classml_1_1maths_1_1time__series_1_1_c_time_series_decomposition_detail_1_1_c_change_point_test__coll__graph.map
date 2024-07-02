@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest" name="ml::maths::time_series::CTimeSeriesDecompositionDetail::CChangePointTest">
+<area shape="rect" id="Node000001" title="Checks for sudden change or change events." alt="" coords="814,141,1040,197"/>
+<area shape="rect" id="Node000002" href="$dc/d37/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_handler.html" title="The basic interface for one aspect of the modeling of a time series decomposition." alt="" coords="367,8,594,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="609,55,699,76,791,103,874,138,872,143,789,108,698,81,608,60"/>
+<area shape="rect" id="Node000003" href="$d7/d1c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_mediator.html" title="Manages communication between handlers." alt="" coords="5,5,232,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="247,31,367,32,367,38,247,37"/>
+<area shape="rect" id="Node000004" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html" title="A simple state machine implementation." alt="" coords="397,91,564,117"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="580,116,790,147,814,150,813,155,790,152,579,121"/>
+<area shape="rect" id="Node000005" href="$df/d93/classml_1_1core_1_1_c_state_machine_1_1_c_machine_deque.html" title="A custom paired down std::deque like container." alt="" coords="35,85,202,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="217,102,397,101,397,107,217,107"/>
+<area shape="rect" id="Node000006" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="365,141,596,197"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="612,167,814,167,814,172,612,172"/>
+<area shape="rect" id="Node000007" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="374,221,587,277"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="602,225,813,187,814,192,603,230"/>
+<area shape="rect" id="Node000008" href="$d9/dc4/classml_1_1maths_1_1time__series_1_1_c_outlier_weight_derate.html" title="Determines the outlier weight derate which should apply after a change." alt="" coords="402,301,559,342"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="573,309,679,289,735,274,789,255,843,227,889,195,892,200,846,232,791,260,736,280,680,295,574,314"/>
+</map>

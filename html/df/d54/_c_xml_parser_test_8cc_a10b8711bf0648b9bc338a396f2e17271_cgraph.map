@@ -1,0 +1,16 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,102,202,128"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a9b5cb396d70323afcb44a5aed363546e" title=" " alt="" coords="253,5,401,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,99,259,50,261,55,139,104"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#aac78b67c0f30017dd1b528690e8bc617" title=" " alt="" coords="250,95,404,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,112,234,112,234,118,202,118"/>
+<area shape="rect" id="Node000004" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a5fcfffb26dafc67f42f8bf01a2ae9222" title="Parse XML stored in a string." alt="" coords="253,160,401,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="151,126,241,153,240,158,149,131"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="289,95,287,85,293,76,307,70,327,68,348,70,361,77,359,81,347,76,327,73,308,75,297,80,292,86,294,93"/>
+<area shape="rect" id="Node000005" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a79c507fe3b080722648fc5f4d219ffdb" title="Parse XML stored in a char buffer." alt="" coords="452,160,599,201"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="401,178,436,178,436,183,401,183"/>
+<area shape="rect" id="Node000006" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="647,127,795,167"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="599,165,631,160,632,165,600,170"/>
+<area shape="rect" id="Node000007" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="647,192,795,233"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="600,190,632,195,631,200,599,195"/>
+</map>

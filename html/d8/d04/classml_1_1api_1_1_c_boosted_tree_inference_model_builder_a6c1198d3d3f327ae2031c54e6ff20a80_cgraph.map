@@ -1,0 +1,9 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder" name="ml::api::CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,248,133"/>
+<area shape="rect" id="Node000002" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#aea723330d7d41699efadb2c7afaaabe8" title=" " alt="" coords="296,5,486,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,74,280,60,282,66,232,79"/>
+<area shape="rect" id="Node000003" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a2ee6223328001650dbe8ccc5891b4a8f" title=" " alt="" coords="307,85,475,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="248,103,292,103,292,108,248,108"/>
+<area shape="rect" id="Node000004" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a72052c57e93733e1e75ec20604df916b" title=" " alt="" coords="307,150,475,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,131,292,144,291,149,241,136"/>
+</map>

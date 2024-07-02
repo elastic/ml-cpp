@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::residualModes" name="ml::maths::time_series::CMultivariateTimeSeriesModel::residualModes">
+<area shape="rect" id="Node000001" title="Get the local maxima of the residual distribution." alt="" coords="5,57,213,113"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#adb51ecd61bf74a7be604a33fb3a75f24" title="Get the most likely value for the time series at time." alt="" coords="261,36,508,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,71,245,68,245,73,213,77"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7bb422b74018d6e1f743ceaaa683991f" title="Unpack the weights in weights." alt="" coords="556,85,763,141"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="213,88,540,104,540,110,213,93"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="333,36,330,25,339,16,357,11,384,9,414,11,431,17,430,22,413,16,384,14,358,16,342,21,336,27,338,34"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a671726fda51fe4320c83ff13ef56cc7e" title="Get the model dimension." alt="" coords="556,5,763,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="508,43,540,40,540,46,509,48"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="486,74,541,86,540,91,485,79"/>
+<area shape="rect" id="Node000005" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="811,93,991,134"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="764,111,796,111,796,116,764,116"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBjkstUniqueValues::SSketch::acceptPersistInserter" name="ml::maths::common::CBjkstUniqueValues::SSketch::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Convert to a node tree." alt="" coords="5,31,209,87"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="257,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,43,241,39,241,44,210,48"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="281,71,435,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,69,265,77,265,82,209,75"/>
+</map>

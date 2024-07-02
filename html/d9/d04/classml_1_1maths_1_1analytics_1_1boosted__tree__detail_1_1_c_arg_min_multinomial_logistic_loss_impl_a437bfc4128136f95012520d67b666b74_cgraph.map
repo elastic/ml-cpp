@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl::objectiveGradient" name="ml::maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl::objectiveGradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,26,197,97"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a1275d8d8cc89529273f1207029ce6bc6" title=" " alt="" coords="256,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,44,240,38,241,43,198,50"/>
+<area shape="rect" id="Node000004" href="$db/da8/classml_1_1maths_1_1analytics_1_1boosted__tree__detail_1_1_c_arg_min_loss_impl.html#a4573c44bdd35101f2e847c3bc416d5cf" title=" " alt="" coords="245,70,428,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,74,230,79,229,84,197,79"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ad274bfc63fa66be17ff93bd668a4d6a4" title="A version of std::log which is stable across platforms." alt="" coords="476,5,621,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,23,460,23,460,28,417,28"/>
+</map>

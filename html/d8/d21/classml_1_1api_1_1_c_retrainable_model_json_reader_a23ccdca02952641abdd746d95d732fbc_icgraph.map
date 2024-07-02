@@ -1,0 +1,7 @@
+<map id="ml::api::CRetrainableModelJsonReader::bestForestFromJsonStream" name="ml::api::CRetrainableModelJsonReader::bestForestFromJsonStream">
+<area shape="rect" id="Node000001" title="Retrieve the best forest from a JSON blob." alt="" coords="584,5,803,61"/>
+<area shape="rect" id="Node000002" href="$d8/d21/classml_1_1api_1_1_c_retrainable_model_json_reader.html#a12d31b816bcedb148095f21df93a898b" title="Retrieve the best forest from a compressed and chunked JSON blob." alt="" coords="271,5,536,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="568,36,536,36,536,31,568,31"/>
+<area shape="rect" id="Node000003" href="$d9/d8c/classml_1_1api_1_1_c_data_frame_train_boosted_tree_runner.html#ad60a80e1adc9fee7b028ae04211b7217" title=" " alt="" coords="5,5,223,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="255,36,223,36,223,31,255,31"/>
+</map>

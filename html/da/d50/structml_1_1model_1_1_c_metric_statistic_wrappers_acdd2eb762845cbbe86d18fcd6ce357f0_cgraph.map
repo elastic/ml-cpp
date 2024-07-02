@@ -1,0 +1,7 @@
+<map id="ml::model::CMetricStatisticWrappers::persist" name="ml::model::CMetricStatisticWrappers::persist">
+<area shape="rect" id="Node000001" title="Persist an order statistic." alt="" coords="5,41,186,82"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="245,5,447,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,46,229,40,230,45,187,51"/>
+<area shape="rect" id="Node000003" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="234,70,458,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,72,218,77,218,82,186,77"/>
+</map>

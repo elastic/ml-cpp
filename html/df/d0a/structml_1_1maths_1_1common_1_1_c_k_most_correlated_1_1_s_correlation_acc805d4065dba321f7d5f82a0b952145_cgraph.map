@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CKMostCorrelated::SCorrelation::update" name="ml::maths::common::CKMostCorrelated::SCorrelation::update">
+<area shape="rect" id="Node000001" title="Update the correlation with a new projection." alt="" coords="5,5,215,61"/>
+<area shape="rect" id="Node000002" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#ac25371051c14bae4925cb663fda67da0" title="Get the projected residuals." alt="" coords="263,13,453,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,31,247,31,247,36,215,36"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::CAnomalyDetector::initSimpleCounting" name="ml::model::CAnomalyDetector::initSimpleCounting">
+<area shape="rect" id="Node000001" title="Initializes simple counting by adding a person called &quot;count&quot;." alt="" coords="5,5,203,46"/>
+<area shape="rect" id="Node000002" href="$df/d58/classml_1_1model_1_1_c_limits.html#ac4583bfef9fed58d9a2fbd066fbbb75f" title="Access to the resource monitor." alt="" coords="251,5,382,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,23,235,23,235,28,203,28"/>
+</map>

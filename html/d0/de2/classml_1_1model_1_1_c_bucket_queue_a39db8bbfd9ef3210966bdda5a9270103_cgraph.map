@@ -1,0 +1,8 @@
+<map id="ml::model::CBucketQueue::CBucketQueue" name="ml::model::CBucketQueue::CBucketQueue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,181,70"/>
+<area shape="rect" id="Node000002" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aee088622de9e7408e1417d8f3c424512" title="Fill the queue with default constructed bucket values." alt="" coords="229,29,404,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,47,213,47,213,52,181,52"/>
+<area shape="rect" id="Node000003" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a840fde1f2194381acf159ec0e886b98c" title=" " alt="" coords="452,29,627,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,47,437,47,437,52,404,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="497,29,495,19,502,10,517,5,540,3,564,5,578,11,576,16,562,10,540,8,518,10,505,15,501,21,503,28"/>
+</map>

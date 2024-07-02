@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,199,202,225"/>
+<area shape="rect" id="Node000002" href="$d2/dba/namespaceanonymous__namespace_02_c_boosted_tree_leaf_node_statistics_test_8cc_03.html#af669580008612427f1f8f6f09c8c27aa" title=" " alt="" coords="250,87,479,142"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,196,273,146,275,151,141,201"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="547,165,732,206"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="202,204,531,188,531,193,202,210"/>
+<area shape="rect" id="Node000007" href="$db/dc5/namespaceml_1_1core.html#ae7211fe95a8d123b3e75f488e1ea297d" title=" " alt="" coords="274,220,455,260"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="202,220,259,226,258,231,202,225"/>
+<area shape="rect" id="Node000008" href="$db/dc5/namespaceml_1_1core.html#a2430a4f75d204055797e21dff2a01418" title=" " alt="" coords="274,285,455,326"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="135,223,251,269,274,277,272,282,249,274,133,228"/>
+<area shape="rect" id="Node000003" href="$d2/dba/namespaceanonymous__namespace_02_c_boosted_tree_leaf_node_statistics_test_8cc_03.html#a74d9e266845bb6ffbe8cf42af44ba0a1" title=" " alt="" coords="528,5,750,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,83,527,63,529,68,462,89"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="476,140,543,158,542,163,475,146"/>
+<area shape="rect" id="Node000006" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#a8872fb3f830057927ac332e6dac8118f" title="Zero all values." alt="" coords="527,85,751,141"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="479,111,512,111,512,116,480,117"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="799,165,985,206"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="732,183,784,183,784,188,732,188"/>
+</map>

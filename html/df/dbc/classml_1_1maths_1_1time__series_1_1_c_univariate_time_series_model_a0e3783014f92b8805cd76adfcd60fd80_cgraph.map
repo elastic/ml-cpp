@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::confidenceInterval" name="ml::maths::time_series::CUnivariateTimeSeriesModel::confidenceInterval">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,34,205,90"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="57,33,57,23,66,15,82,9,105,7,131,10,147,17,145,21,130,15,105,12,83,14,69,19,62,25,62,34"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="273,5,432,46"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="205,44,257,37,258,42,206,50"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="253,70,452,126"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="206,74,238,78,237,84,205,79"/>
+</map>

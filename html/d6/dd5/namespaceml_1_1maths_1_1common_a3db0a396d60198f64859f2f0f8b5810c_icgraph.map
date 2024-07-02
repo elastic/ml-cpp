@@ -1,0 +1,22 @@
+<map id="ml::maths::common::toDenseVector" name="ml::maths::common::toDenseVector">
+<area shape="rect" id="Node000001" title="Get the Eigen vector for vector." alt="" coords="827,174,973,214"/>
+<area shape="rect" id="Node000002" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a6bffdd688c36189a1a090b201ba1e3ef" title=" " alt="" coords="568,13,759,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="870,164,829,122,778,83,756,71,758,67,781,78,832,118,874,160"/>
+<area shape="rect" id="Node000005" href="$d6/dd1/classml_1_1maths_1_1common_1_1linear__algebra__tools__detail_1_1anonymous__namespace_02_c_linear8a4ea16b44139656b813374076717181.html#a4b96ae2f00639a0e01b4683c37086bee" title=" " alt="" coords="548,93,779,178"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="812,175,779,167,781,162,813,170"/>
+<area shape="rect" id="Node000006" href="$d2/d6c/classml_1_1maths_1_1common_1_1linear__algebra__tools__detail_1_1anonymous__namespace_02_c_linear1e688369399f41c435607488044492b7.html#a0c83f64bbd0c165b45765e1da4d5ef98" title=" " alt="" coords="560,202,768,303"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="813,218,769,229,768,224,812,213"/>
+<area shape="rect" id="Node000007" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a9bc354c5c8c226b7fbae55540d40eda2" title=" " alt="" coords="568,328,759,383"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="876,229,834,274,781,318,759,329,757,325,778,313,830,270,872,225"/>
+<area shape="rect" id="Node000003" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html#a70fada545d244b60c8e917e8b1abafb1" title=" " alt="" coords="250,5,500,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="552,43,500,43,500,38,552,38"/>
+<area shape="rect" id="Node000004" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#ac5c49de3fff5a02af0ebf7a795b49f68" title=" " alt="" coords="279,170,471,226"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="561,77,549,83,475,127,413,172,410,168,472,123,547,78,559,73"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="559,323,547,318,472,273,410,228,413,224,475,269,549,313,561,319"/>
+<area shape="rect" id="Node000008" href="$d9/d66/classanonymous__namespace_02_c_random_projection_clusterer_test_8cc_03_1_1_c_random_projection_clusterer_for_test.html#a8294b6b423f3011ee5cd12c2866f68e5" title=" " alt="" coords="250,320,500,391"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="552,358,500,358,500,353,552,353"/>
+<area shape="rect" id="Node000009" href="$de/d50/_c_random_projection_clusterer_test_8cc.html#a293e640ea3f34d338623f52a352d7755" title=" " alt="" coords="5,317,202,343"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="234,345,202,342,203,337,234,340"/>
+<area shape="rect" id="Node000010" href="$de/d50/_c_random_projection_clusterer_test_8cc.html#a651349096cbe6e43ed6d6beea6258e53" title=" " alt="" coords="5,367,202,392"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="234,370,203,373,202,368,234,365"/>
+</map>

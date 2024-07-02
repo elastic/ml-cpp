@@ -1,0 +1,8 @@
+<map id="ml::core::CThread" name="ml::core::CThread">
+<area shape="rect" id="Node000001" title="Basic wrapper class around pthread_create etc." alt="" coords="30,169,157,195"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,5,171,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,47,96,169,90,169,86,47"/>
+<area shape="rect" id="Node000003" href="$d9/d39/classml_1_1core_1_1_c_mutex.html" title="Wrapper class around pthread mutex." alt="" coords="110,80,232,106"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="115,39,159,78,156,82,111,43"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,120,106,170,102,167,148,116"/>
+</map>

@@ -1,0 +1,25 @@
+<map id="ml::model::CEventRateModel::acceptPersistInserter" name="ml::model::CEventRateModel::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to inserter." alt="" coords="5,267,199,307"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a685ed04c3bce8ae4a3fedd0df7e27b71" title="Persist state by passing information to the supplied inserter." alt="" coords="262,129,418,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,264,273,190,275,195,142,268"/>
+<area shape="rect" id="Node000007" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#acd4e0a8b4659d0cb1302ebb17778f847" title="Persist state by passing information to the supplied inserter." alt="" coords="247,328,433,369"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="184,305,245,321,243,326,183,311"/>
+<area shape="rect" id="Node000008" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="481,267,683,307"/>
+<area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="199,284,466,284,466,290,199,290"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="510,5,655,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="374,126,423,91,480,57,495,50,497,54,482,61,426,95,377,130"/>
+<area shape="rect" id="Node000004" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="481,201,683,242"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="419,175,490,194,489,199,418,180"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="502,71,662,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="418,133,489,113,490,118,419,138"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="505,136,659,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="418,154,489,154,489,159,418,159"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="366,325,417,289,480,253,495,246,498,250,482,257,420,293,369,330"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="422,325,484,309,485,314,424,330"/>
+<area shape="rect" id="Node000009" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="505,332,659,373"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="434,347,489,348,489,353,433,353"/>
+<area shape="rect" id="Node000010" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ae8ee1fb659a027d9ce811237b0757e6e" title="Get the person bucket counts." alt="" coords="484,397,681,438"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="414,367,495,390,493,395,413,372"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a5b47e20772653d5294010dd256a62e0c" title="Get the total count of buckets in the window." alt="" coords="484,463,681,503"/>
+<area shape="poly" id="edge11_Node000007_Node000011" title=" " alt="" coords="367,367,418,407,482,447,496,454,494,459,480,452,415,411,363,371"/>
+</map>

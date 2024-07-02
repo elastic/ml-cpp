@@ -1,0 +1,20 @@
+<map id="ml::maths::common::CMultimodalPrior::minusLogJointCdfImpl" name="ml::maths::common::CMultimodalPrior::minusLogJointCdfImpl">
+<area shape="rect" id="Node000001" title="Implementation of log of the joint c.d.f. of the marginal likelihood." alt="" coords="727,56,913,111"/>
+<area shape="rect" id="Node000002" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a0fd526b1baffa0fef1d5be92bea04acd" title=" " alt="" coords="494,96,679,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="712,105,680,110,679,105,711,99"/>
+<area shape="rect" id="Node000008" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#aa060d5877b93e922f31b3a623c525bba" title=" " alt="" coords="494,16,679,71"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="711,68,679,62,680,57,712,62"/>
+<area shape="rect" id="Node000003" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="500,90,492,86,469,65,459,55,445,46,415,34,417,29,447,41,462,51,472,61,496,81,503,86"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="250,136,446,162"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="479,138,447,141,446,136,478,132"/>
+<area shape="rect" id="Node000005" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a2d3e8c3f456edaa91eb01029f8af8353" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="508,160,447,177,384,184,319,187,202,181,202,176,319,181,383,179,445,172,507,155"/>
+<area shape="rect" id="Node000006" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a236094eeaa29e6579535cfcb269470ce" title=" " alt="" coords="254,56,442,111"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="478,108,442,102,443,97,479,103"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="250,119,145,155,143,150,248,114"/>
+<area shape="rect" id="Node000007" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="5,71,202,96"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="238,86,202,86,202,81,238,81"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="478,35,446,31,447,26,479,29"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="479,64,443,70,442,65,478,59"/>
+</map>

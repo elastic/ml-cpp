@@ -1,0 +1,6 @@
+<map id="ml::model::CSearchKey::swap" name="ml::model::CSearchKey::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of two objects of this class." alt="" coords="5,22,166,63"/>
+<area shape="rect" id="Node000002" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="214,29,292,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,40,198,40,198,45,166,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="224,30,219,21,222,11,234,5,253,3,273,5,284,12,281,16,271,10,253,8,235,10,226,15,224,20,229,28"/>
+</map>

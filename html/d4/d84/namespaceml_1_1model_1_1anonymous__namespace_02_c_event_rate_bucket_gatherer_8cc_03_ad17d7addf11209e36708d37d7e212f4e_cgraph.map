@@ -1,0 +1,6 @@
+<map id="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::applyFunc" name="ml::model::anonymous_namespace{CEventRateBucketGatherer::cc}::applyFunc">
+<area shape="rect" id="Node000001" title="Apply a function f to all the data held in featureData." alt="" coords="5,29,218,85"/>
+<area shape="rect" id="Node000002" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#ac57f0bc7ae22035be9e8d73d3fe6eefe" title="Apply a function f to all the data held in [begin, end)." alt="" coords="266,29,478,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,55,250,55,250,60,218,60"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="321,29,322,19,331,10,348,5,372,3,399,5,416,12,414,17,398,10,372,8,349,10,334,15,327,21,326,29"/>
+</map>

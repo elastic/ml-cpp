@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,207,202,233"/>
+<area shape="rect" id="Node000002" href="$df/dbb/classanonymous__namespace_02_c_calendar_feature_test_8cc_03_1_1_c_scope_g_m_t.html#af86a56a3dff8edf089c39f5244b211d9" title=" " alt="" coords="250,5,463,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,205,166,142,205,104,248,71,256,66,259,71,251,75,208,108,170,146,117,208"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="532,122,675,163"/>
+<area shape="poly" id="edge11_Node000001_Node000003" title=" " alt="" coords="160,204,249,185,390,164,516,149,517,154,390,169,250,190,161,209"/>
+<area shape="rect" id="Node000005" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a3607b3055f28fad83ce62738fb9b4f97" title="Get the date fields." alt="" coords="285,265,428,306"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="157,231,270,260,269,265,155,236"/>
+<area shape="rect" id="Node000007" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a22fbbfa241486de72d95c407ef315cc6" title="Get all the features for time." alt="" coords="261,200,452,240"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="202,217,246,217,246,223,202,223"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="264,380,449,420"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="116,231,169,296,207,333,251,366,259,370,257,375,248,370,204,337,165,299,112,235"/>
+<area shape="rect" id="Node000010" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="269,330,444,355"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="122,231,177,272,213,295,251,315,271,322,269,327,249,320,210,300,174,277,119,235"/>
+<area shape="rect" id="Node000011" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#af5feca49312bf37c506b4c15204bde0f" title=" " alt="" coords="268,85,445,126"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="127,204,182,174,249,141,279,129,281,134,251,146,184,179,129,209"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,59,464,71,551,112,549,117,462,76,434,64"/>
+<area shape="rect" id="Node000004" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a9c7f8f529afaf758d76c8888c1391fad" title=" " alt="" coords="532,13,675,54"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="464,31,516,31,516,36,464,36"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="557,122,555,112,563,103,579,98,604,96,630,98,646,104,644,109,629,103,604,101,580,103,566,108,560,113,562,121"/>
+<area shape="rect" id="Node000006" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a105014c82ea43b365e7f7431d81f6dc7" title="Convert a UTC time to local time in the current timezone." alt="" coords="532,265,675,306"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="428,283,517,283,517,288,428,288"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="423,196,521,165,523,170,425,201"/>
+<area shape="rect" id="Node000009" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="511,380,696,420"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="449,397,495,397,495,403,449,403"/>
+<area shape="poly" id="edge14_Node000011_Node000003" title=" " alt="" coords="445,116,517,127,516,132,445,121"/>
+</map>

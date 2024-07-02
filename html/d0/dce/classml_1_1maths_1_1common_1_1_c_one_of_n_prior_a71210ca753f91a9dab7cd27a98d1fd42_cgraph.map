@@ -1,0 +1,5 @@
+<map id="ml::maths::common::COneOfNPrior::badWeights" name="ml::maths::common::COneOfNPrior::badWeights">
+<area shape="rect" id="Node000001" title="Check that the model weights are valid." alt="" coords="5,5,188,46"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="236,5,389,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,23,220,23,220,28,188,28"/>
+</map>

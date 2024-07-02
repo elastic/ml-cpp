@@ -1,0 +1,11 @@
+<map id="ml::maths::time_series::CExpandingWindow::doInflate" name="ml::maths::time_series::CExpandingWindow::doInflate">
+<area shape="rect" id="Node000001" title="Implements inflate." alt="" coords="5,39,211,79"/>
+<area shape="rect" id="Node000002" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a4c0284881cab3b8dc7f3ed3f180c60b3" title=" " alt="" coords="259,5,425,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,42,243,37,244,42,211,47"/>
+<area shape="rect" id="Node000003" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#ac0ed8ea2148de5b2154827530f775b88" title=" " alt="" coords="259,71,425,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,70,244,75,243,80,211,76"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a56f1f2c74e79e8738058bd407eae07d7" title="Preparation before returning any data." alt="" coords="473,71,639,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="426,88,458,88,458,94,426,94"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="687,71,854,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="640,88,672,88,672,94,640,94"/>
+</map>

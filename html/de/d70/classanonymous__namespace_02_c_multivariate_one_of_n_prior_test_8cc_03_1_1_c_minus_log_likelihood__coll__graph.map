@@ -1,0 +1,9 @@
+<map id="anonymous_namespace{CMultivariateOneOfNPriorTest.cc}::CMinusLogLikelihood" name="anonymous_namespace{CMultivariateOneOfNPriorTest.cc}::CMinusLogLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="494,30,719,86"/>
+<area shape="rect" id="Node000002" href="$d6/dd2/classml_1_1maths_1_1common_1_1_c_gradient_descent_1_1_c_function.html" title="The interface for the function calculation." alt="" coords="200,5,397,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="413,35,494,43,494,49,413,40"/>
+<area shape="rect" id="Node000003" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html" title="Interface for a multivariate prior distribution which assumes data are from one of N models." alt="" coords="212,71,385,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="401,77,493,67,494,72,401,83"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html" title="Interface for a multivariate prior distribution function." alt="" coords="5,71,151,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="166,88,211,88,211,94,166,94"/>
+</map>

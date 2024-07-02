@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CTrendComponent::variance" name="ml::maths::time_series::CTrendComponent::variance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,118,202,159"/>
+<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="57,118,55,108,63,99,79,94,104,92,130,94,146,100,144,105,129,99,103,97,80,99,65,104,60,109,62,117"/>
+<area shape="rect" id="Node000002" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a49532d0f071c0b14f7c912b6af8f0895" title="Get the mean count of samples in the prediction." alt="" coords="261,85,440,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,123,245,117,246,122,202,128"/>
+<area shape="rect" id="Node000006" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a6e49f58e9388dfb77ecfb0ec83117dcc" title="Check if the trend has been estimated." alt="" coords="250,150,451,191"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="202,149,235,153,234,158,202,154"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="499,5,721,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,82,492,63,493,68,427,87"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="538,85,683,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="441,103,522,103,522,108,441,108"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="531,150,690,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="435,124,516,144,515,149,433,129"/>
+</map>

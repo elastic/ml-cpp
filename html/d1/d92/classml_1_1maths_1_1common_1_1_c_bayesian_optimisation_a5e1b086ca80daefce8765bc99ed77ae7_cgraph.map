@@ -1,0 +1,20 @@
+<map id="ml::maths::common::CBayesianOptimisation::minusLikelihoodAndGradient" name="ml::maths::common::CBayesianOptimisation::minusLikelihoodAndGradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,175,200,230"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#abf51451ad15bac08b729405954e04406" title=" " alt="" coords="248,95,406,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,172,232,153,234,158,184,177"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="455,29,613,85"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="126,173,177,123,211,99,247,80,294,65,344,55,438,49,439,54,345,60,296,70,249,85,213,104,181,127,129,176"/>
+<area shape="rect" id="Node000005" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="248,175,406,230"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="200,200,232,200,232,205,200,205"/>
+<area shape="rect" id="Node000006" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="248,255,406,310"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="184,228,234,247,232,252,182,233"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a94bfaf7bfdeb4d2466949bde27e48cc9" title="Compute a value from x which will be stable across platforms." alt="" coords="254,334,400,375"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="134,229,186,274,249,320,257,325,254,329,246,325,182,279,130,233"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,95,439,84,440,89,407,100"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="661,70,807,111"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="406,114,646,95,646,100,407,119"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="494,29,495,19,502,10,515,5,534,3,555,5,568,12,565,17,553,10,534,8,516,10,505,15,500,21,499,29"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="614,68,647,73,646,79,613,73"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="454,262,613,303"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="407,280,439,280,439,285,407,285"/>
+</map>

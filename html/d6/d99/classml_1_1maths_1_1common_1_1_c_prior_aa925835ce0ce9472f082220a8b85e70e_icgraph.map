@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CPrior::marginalLikelihoodConfidenceInterval" name="ml::maths::common::CPrior::marginalLikelihoodConfidenceInterval">
+<area shape="rect" id="Node000001" title=" " alt="" coords="510,48,683,103"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a7b0d409d4f98f3f0cdacd2fe90e04375" title=" " alt="" coords="283,22,429,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="494,64,429,55,429,50,495,59"/>
+<area shape="rect" id="Node000005" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a421c6e06bd98b4f2ef3ec18c230d558c" title="Print a representation of the clusters that can be plotted in octave." alt="" coords="250,87,462,128"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="495,92,463,96,462,91,494,86"/>
+<area shape="rect" id="Node000003" href="$d1/d27/_c_prior_test_8cc.html#a1c84e3447139da8e30194d4cd171d188" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="267,36,202,30,202,25,268,31"/>
+<area shape="rect" id="Node000004" href="$df/d0f/_c_multimodal_prior_test_8cc.html#a2d3e8c3f456edaa91eb01029f8af8353" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="268,54,202,60,202,55,267,48"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::core::persist_utils_detail::CPersisterImpl&lt; BasicPersist &gt;::newLevel" name="ml::core::persist_utils_detail::CPersisterImpl&lt; BasicPersist &gt;::newLevel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,188,119"/>
+<area shape="rect" id="Node000002" href="$d2/d01/namespaceml_1_1core_1_1persist__utils__detail.html#adb4593f908eda6b094a95c16cc47c4f2" title=" " alt="" coords="242,5,388,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,61,229,48,231,54,189,66"/>
+<area shape="rect" id="Node000003" href="$d2/d01/namespaceml_1_1core_1_1persist__utils__detail.html#a084851b39c8c506469f69ba5b609bb48" title="Convenience function to call the appropriate persist implementation." alt="" coords="242,71,388,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,88,226,88,226,94,188,94"/>
+<area shape="rect" id="Node000004" href="$d2/d01/namespaceml_1_1core_1_1persist__utils__detail.html#ac85df5fa02bb5185ec7477fc3b0be1d9" title=" " alt="" coords="236,136,394,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,116,231,128,229,134,187,121"/>
+</map>

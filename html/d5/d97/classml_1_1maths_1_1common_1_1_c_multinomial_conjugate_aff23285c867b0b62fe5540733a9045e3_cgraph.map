@@ -1,0 +1,27 @@
+<map id="ml::maths::common::CMultinomialConjugate::addSamples" name="ml::maths::common::CMultinomialConjugate::addSamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,110,162,166"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="215,61,361,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,114,200,103,201,108,163,119"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="416,20,607,46"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="104,108,148,61,177,39,209,22,269,7,331,3,390,6,443,14,442,19,390,11,331,8,270,12,211,27,179,44,151,65,107,112"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="435,82,588,123"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="162,129,419,107,420,113,162,134"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="215,175,361,216"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="163,158,201,168,200,174,161,163"/>
+<area shape="rect" id="Node000006" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a71c31c0af0d9b1d37fd06dcdb3b80492" title=" " alt="" coords="210,240,366,295"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="123,164,211,225,218,230,216,234,208,230,120,169"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="249,60,247,51,253,42,267,36,288,34,310,36,323,43,321,47,309,41,288,39,268,41,257,46,252,52,254,59"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="360,63,433,47,434,52,362,68"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="361,85,420,91,420,96,361,90"/>
+<area shape="rect" id="Node000007" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ab394643d489a3fec9502a01be07f0013" title="Get the categories." alt="" coords="434,168,590,223"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="366,240,418,223,419,228,367,245"/>
+<area shape="rect" id="Node000008" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#a42234485447630f5f9cf0dd8c87b116a" title="Efficient swap of the contents of this prior and other." alt="" coords="414,247,609,288"/>
+<area shape="poly" id="edge10_Node000006_Node000008" title=" " alt="" coords="367,265,398,265,398,270,367,270"/>
+<area shape="rect" id="Node000010" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="851,261,929,287"/>
+<area shape="poly" id="edge15_Node000006_Node000010" title=" " alt="" coords="367,288,414,297,532,304,649,301,754,292,835,281,836,286,754,297,649,306,532,310,414,302,366,293"/>
+<area shape="rect" id="Node000009" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a4ef6e7ff28c4e5a1c85a17a841b373fb" title="Swap the contents of this prior and other." alt="" coords="657,197,803,237"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="601,244,641,235,643,240,603,249"/>
+<area shape="poly" id="edge14_Node000008_Node000010" title=" " alt="" coords="610,267,835,271,835,276,610,272"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="789,235,838,253,836,258,788,240"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="862,262,857,253,860,243,872,237,890,235,909,237,920,244,917,248,908,242,890,240,873,242,865,247,863,252,867,260"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CAnomalyScore::CNormalizer::quantile" name="ml::model::CAnomalyScore::CNormalizer::quantile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="250,23,431,64"/>
+<area shape="rect" id="Node000002" href="$db/dcc/_c_anomaly_score_test_8cc.html#a99a610f377a192869df12de832f96767" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,35,202,31,203,26,235,30"/>
+<area shape="rect" id="Node000003" href="$db/dcc/_c_anomaly_score_test_8cc.html#a3762211201633346d940bcce73429185" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,57,203,60,202,55,234,52"/>
+</map>

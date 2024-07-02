@@ -1,0 +1,15 @@
+<map id="anonymous_namespace{CTimeSeriesModelTest::cc}::univariateMultimodal" name="anonymous_namespace{CTimeSeriesModelTest::cc}::univariateMultimodal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,180,133"/>
+<area shape="rect" id="Node000002" href="$de/d96/namespaceanonymous__namespace_02_c_time_series_model_test_8cc_03.html#acc707b580a03c7a7d11c10616e8c870a" title=" " alt="" coords="228,77,390,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,103,212,103,212,108,180,108"/>
+<area shape="rect" id="Node000003" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#a50db15168844c09785be841bcd6300cf" title=" " alt="" coords="438,77,629,133"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,103,422,103,422,108,390,108"/>
+<area shape="rect" id="Node000004" href="$d4/d8c/classml_1_1maths_1_1common_1_1_c_normal_mean_prec_conjugate.html#af0084c26c8ffb922e567485a3a4df6dc" title=" " alt="" coords="677,5,877,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="629,74,665,63,667,69,631,79"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="704,85,850,126"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="630,103,689,103,689,108,630,108"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="704,150,850,191"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="630,128,690,144,689,150,629,133"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="925,13,1085,54"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="877,31,909,31,909,36,877,36"/>
+</map>

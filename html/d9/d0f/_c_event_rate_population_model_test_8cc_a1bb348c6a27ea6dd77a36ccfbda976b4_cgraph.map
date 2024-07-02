@@ -1,0 +1,18 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,108,223,133"/>
+<area shape="rect" id="Node000002" href="$dd/da5/_c_resource_limit_test_8cc.html#a42550f82a54d1b80f18819bb79e831d4" title=" " alt="" coords="324,78,403,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,105,308,95,309,100,223,110"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a841f18a9941172185842c3a7248eb22d" title=" " alt="" coords="271,128,456,169"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="223,130,256,134,255,139,223,135"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="510,13,684,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,79,496,56,497,61,404,84"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="745,71,904,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="403,88,730,88,730,94,403,94"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="737,5,912,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="684,28,722,27,722,32,685,33"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="681,52,731,65,730,70,679,57"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="960,71,1118,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="904,88,944,88,944,94,904,94"/>
+<area shape="rect" id="Node000008" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="504,128,689,169"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="456,146,488,146,488,151,456,151"/>
+</map>

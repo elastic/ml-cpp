@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CCalendarComponent" name="ml::maths::time_series::CCalendarComponent">
+<area shape="rect" id="Node000001" title="Estimates a calendar component of a time series." alt="" coords="27,94,185,135"/>
+<area shape="rect" id="Node000003" href="$d8/dca/classanonymous__namespace_02_c_calendar_component_test_8cc_03_1_1_c_test_calendar_component.html" title=" " alt="" coords="5,183,207,238"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="109,150,109,182,103,182,103,150"/>
+<area shape="rect" id="Node000002" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html" title="Common functionality used by our decomposition component classes." alt="" coords="9,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,62,109,94,103,94,103,62"/>
+</map>

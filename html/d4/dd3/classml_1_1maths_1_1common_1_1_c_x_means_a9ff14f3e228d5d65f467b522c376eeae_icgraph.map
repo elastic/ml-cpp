@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CXMeans::centres" name="ml::maths::common::CXMeans::centres">
+<area shape="rect" id="Node000001" title="Get the best centres found to date." alt="" coords="732,135,878,176"/>
+<area shape="rect" id="Node000002" href="$da/dda/_c_x_means_test_8cc.html#a33812218119d981a1cace17e25a46eae" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="716,134,684,126,415,72,191,34,192,29,416,67,685,121,718,129"/>
+<area shape="rect" id="Node000003" href="$da/dda/_c_x_means_test_8cc.html#a4e506db6061c23b77bfdd43b4bc59d1b" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="718,182,685,190,568,215,450,234,321,250,202,260,202,255,321,244,450,229,567,210,684,185,716,177"/>
+<area shape="rect" id="Node000004" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a0f8da7aa364058983261bea45c2ffeed" title=" " alt="" coords="498,135,684,176"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="717,158,685,158,685,153,717,153"/>
+<area shape="rect" id="Node000005" href="$dc/d5a/classanonymous__namespace_02_c_x_means_test_8cc_03_1_1_c_x_means_for_test.html#a3230d24291399e29daea5d56d4a1fb3f" title=" " alt="" coords="250,164,450,219"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="483,174,451,179,450,174,482,169"/>
+<area shape="rect" id="Node000006" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a9f5b7c70857b7a3cbf80c2ca4bab03f0" title=" " alt="" coords="277,99,423,140"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="482,142,422,133,423,128,483,137"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="300,93,253,68,201,45,168,34,169,29,203,40,255,63,303,89"/>
+<area shape="poly" id="edge9_Node000006_Node000003" title=" " alt="" coords="265,144,252,153,235,175,229,197,222,221,203,243,185,254,182,249,200,239,217,218,223,196,230,173,248,150,262,140"/>
+<area shape="rect" id="Node000007" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#ad1d2c146ed4b5cdcccd8324ff995ea07" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="261,104,167,84,168,78,262,98"/>
+<area shape="rect" id="Node000008" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a8b6fd6dbbc11dcbb38b70853d4a6f621" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="262,121,202,121,202,115,262,116"/>
+<area shape="rect" id="Node000009" href="$da/dda/_c_x_means_test_8cc.html#ac537603fa04b9fb6b6fd57505ea8f08c" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="262,139,176,155,175,150,261,133"/>
+<area shape="rect" id="Node000010" href="$da/dda/_c_x_means_test_8cc.html#ad0b9cf69929ba93f6531bdedcffc851b" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge11_Node000006_Node000010" title=" " alt="" coords="264,147,251,154,237,164,228,174,218,184,203,194,176,205,174,200,200,189,214,180,224,170,234,160,248,149,262,142"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="ml::model::CAnomalyDetectorModel::checksum" name="ml::model::CAnomalyDetectorModel::checksum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="513,71,710,111"/>
+<area shape="rect" id="Node000002" href="$df/d84/classml_1_1model_1_1_c_counting_model.html#a736932e947b15b5f5c4c28fdd08e77f0" title=" " alt="" coords="277,5,461,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="518,69,447,49,448,44,520,64"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a50801a59156575f2b0aba11eb2133990" title=" " alt="" coords="276,71,462,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="497,94,462,94,462,88,497,88"/>
+<area shape="rect" id="Node000006" href="$dc/d29/classml_1_1model_1_1_c_population_model.html#af2875d2a8845eeea788d2a0b1628459d" title=" " alt="" coords="273,136,465,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="520,118,448,138,447,133,518,113"/>
+<area shape="rect" id="Node000004" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#ab67106c4d3aad8198aaa5a855adc4381" title=" " alt="" coords="18,5,212,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="272,69,196,49,197,44,273,64"/>
+<area shape="rect" id="Node000005" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#ad712a6ddb099e5262fa7da1368d8a2b4" title=" " alt="" coords="31,71,199,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="260,94,199,94,199,88,260,88"/>
+<area shape="rect" id="Node000007" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af69c2e5f1982375ccfe0bd8dea2f37ee" title=" " alt="" coords="5,136,225,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="257,159,225,159,225,154,257,154"/>
+<area shape="rect" id="Node000008" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a27ec593b5693111444a833c8755b50b2" title=" " alt="" coords="18,201,212,242"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="273,184,197,203,196,198,272,179"/>
+</map>

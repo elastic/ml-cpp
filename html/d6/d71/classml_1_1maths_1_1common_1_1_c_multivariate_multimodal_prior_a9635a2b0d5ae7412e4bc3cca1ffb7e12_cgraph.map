@@ -1,0 +1,25 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::propagateForwardsByTime" name="ml::maths::common::CMultivariateMultimodalPrior::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Update the prior for the specified elapsed time." alt="" coords="5,141,194,197"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="259,12,413,52"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,139,181,100,240,62,251,56,253,61,243,66,184,104,134,143"/>
+<area shape="rect" id="Node000003" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#aff534434b4cdddb810db17251126f149" title="Check if this is a non&#45;informative prior." alt="" coords="242,76,430,132"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,140,226,131,227,137,195,146"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="247,156,425,182"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,167,232,167,232,172,194,172"/>
+<area shape="rect" id="Node000009" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a50c918a456ffddc195707ba3b60aa6a5" title="Get the number of samples received." alt="" coords="263,207,409,262"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="195,193,249,208,247,213,193,198"/>
+<area shape="rect" id="Node000010" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a140e632aa40a33b4638b58208af58d19" title="Get the scaled decay rate for use by propagateForwardsByTime." alt="" coords="263,287,409,342"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="136,195,185,234,243,272,251,277,249,281,240,277,182,238,132,200"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="478,5,658,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="406,153,428,142,444,125,452,108,460,90,476,71,480,68,484,72,480,75,465,93,457,110,449,128,432,146,409,158"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="479,85,658,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="386,153,429,141,478,128,479,133,431,146,388,158"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="496,150,641,191"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="425,167,480,167,480,173,425,172"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="486,216,651,256"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="388,180,431,192,485,208,483,213,429,197,387,185"/>
+<area shape="rect" id="Node000011" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#accd062d2a97e419e5d718ca32f0c23aa" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="496,284,641,340"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="409,311,480,310,480,316,409,316"/>
+<area shape="rect" id="Node000012" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="496,364,641,420"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="409,336,481,360,480,365,408,341"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::model::CUniqueStringFeatureData::acceptRestoreTraverser" name="ml::model::CUniqueStringFeatureData::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Initialize state reading from traverser." alt="" coords="5,71,247,111"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="295,5,513,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,67,299,47,300,53,216,73"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="295,71,513,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,88,279,88,279,94,247,94"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="295,136,513,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,109,300,129,299,135,215,115"/>
+</map>

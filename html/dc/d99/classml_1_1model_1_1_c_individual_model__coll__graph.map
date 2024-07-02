@@ -1,0 +1,7 @@
+<map id="ml::model::CIndividualModel" name="ml::model::CIndividualModel">
+<area shape="rect" id="Node000001" title="The most basic individual model interface." alt="" coords="131,109,317,135"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="5,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,54,210,106,207,111,139,58"/>
+<area shape="rect" id="Node000003" href="$de/dba/classml_1_1model_1_1_c_memory_usage_estimator.html" title="Estimate memory usage based on previous model parameters." alt="" coords="227,13,464,39"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="320,50,241,111,238,106,317,46"/>
+</map>

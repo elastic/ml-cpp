@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::downsampleFactor" name="ml::maths::analytics::CBoostedTreeHyperparameters::downsampleFactor">
+<area shape="rect" id="Node000001" title="Get the writeable data downsample factor when computing loss derivatives." alt="" coords="250,138,463,194"/>
+<area shape="rect" id="Node000002" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#ad995144b8c8d970e726a4cb5c149f386" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="315,129,263,85,200,45,174,34,176,29,203,40,266,80,319,125"/>
+<area shape="rect" id="Node000003" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a37fd6cac82a7ddb795e04fba38975a08" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="289,133,201,94,167,84,168,78,203,89,291,128"/>
+<area shape="rect" id="Node000004" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a4e1c0e0de9f626fad962689ed85016bf" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="234,145,173,133,174,128,235,140"/>
+<area shape="rect" id="Node000005" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a2b3a881306243787cf8fd45a756d5977" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="234,169,202,169,202,164,234,164"/>
+<area shape="rect" id="Node000006" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#af21c9ddaf2e16d345b7039f29e443fa0" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="235,193,174,205,173,199,234,187"/>
+<area shape="rect" id="Node000007" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a4183512580fb2100a1968f89f957dcb3" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="291,204,203,243,168,254,167,249,201,238,289,199"/>
+<area shape="rect" id="Node000008" href="$d5/dda/_c_boosted_tree_hyperparameters_test_8cc.html#a9f588347bc5306f084ac12d50d113614" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="319,207,266,252,203,293,176,303,174,298,200,288,263,248,315,203"/>
+</map>

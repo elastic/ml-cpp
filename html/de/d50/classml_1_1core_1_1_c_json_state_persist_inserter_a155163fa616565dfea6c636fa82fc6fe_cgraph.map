@@ -1,0 +1,20 @@
+<map id="ml::core::CJsonStatePersistInserter::insertValue" name="ml::core::CJsonStatePersistInserter::insertValue">
+<area shape="rect" id="Node000001" title="Store a name/value." alt="" coords="5,132,192,173"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3e682c1a84193d87d74cf25162d8b209" title=" " alt="" coords="488,103,670,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,144,472,127,472,132,192,149"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abc2850b89685437da0d9d93504ff6aa9" title=" " alt="" coords="240,160,422,201"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="192,161,224,165,224,170,192,166"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="736,136,919,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="671,133,721,139,720,145,671,138"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="736,71,919,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="671,109,720,102,721,107,671,114"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="470,37,688,78"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="358,157,408,123,469,89,486,81,488,86,471,93,411,127,361,162"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="488,168,670,209"/>
+<area shape="poly" id="edge9_Node000005_Node000008" title=" " alt="" coords="423,181,473,182,472,188,423,186"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="659,76,690,89,714,105,738,121,751,127,749,132,735,125,711,109,687,93,657,81"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="689,70,721,74,721,79,689,75"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="736,5,919,46"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="689,41,721,37,721,42,689,46"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="671,174,720,167,721,173,671,179"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::model::CPopulationModel" name="ml::model::CPopulationModel">
+<area shape="rect" id="Node000001" title="The most basic population model interface." alt="" coords="105,109,298,135"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="5,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,55,191,107,187,111,133,59"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html" title="The BJSKT algorithm for estimating the number of unique values in a collection." alt="" coords="227,5,373,46"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="270,59,215,111,212,107,267,55"/>
+</map>

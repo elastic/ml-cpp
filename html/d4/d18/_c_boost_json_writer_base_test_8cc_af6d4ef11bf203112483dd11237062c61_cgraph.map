@@ -1,0 +1,35 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,580,202,606"/>
+<area shape="rect" id="Node000002" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#acd60bd99ee02254a900a3fab3a44efc2" title=" " alt="" coords="261,5,447,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,580,104,495,110,432,121,361,138,285,164,208,200,136,222,102,248,71,250,69,254,73,252,75,227,106,205,139,169,211,144,286,126,362,115,433,109,496,107,580"/>
+<area shape="rect" id="Node000003" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a61412bff22999d4cab2ae98ac1219526" title=" " alt="" coords="250,85,458,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,580,109,507,129,393,148,329,173,266,206,205,248,151,250,149,254,153,252,155,210,208,178,268,153,331,135,394,114,507,108,580"/>
+<area shape="rect" id="Node000004" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a9127ba443e81cf9f26917b04870ca5f7" title=" " alt="" coords="261,165,447,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="104,580,114,518,138,425,157,374,181,323,211,274,248,231,250,229,254,233,252,235,216,277,186,325,162,376,144,427,119,519,109,580"/>
+<area shape="rect" id="Node000005" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a58a46e30c3baa33d9389086cb67340a6" title=" " alt="" coords="261,245,447,301"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="105,579,120,530,148,458,190,380,217,344,248,311,252,308,255,312,251,315,221,347,194,383,153,461,125,532,111,581"/>
+<area shape="rect" id="Node000006" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#abaf23d4a9e569e2aa8007d6f07b4a625" title=" " alt="" coords="261,325,447,381"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="109,579,128,542,158,492,199,439,248,391,254,387,257,391,251,395,203,442,163,495,132,545,113,581"/>
+<area shape="rect" id="Node000007" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a717d981bcf4a36b5072ea0ee710365b4" title=" " alt="" coords="261,405,447,461"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="116,578,171,527,208,498,248,471,257,466,260,471,251,475,211,502,174,531,120,582"/>
+<area shape="rect" id="Node000008" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#adc4d5b015850b6f8973600b9c0204516" title=" " alt="" coords="261,485,447,541"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="145,577,249,544,251,549,147,582"/>
+<area shape="rect" id="Node000009" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a997daa7e23074a5c8c70eacfccf6f2ed" title=" " alt="" coords="261,565,447,621"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="202,591,245,591,245,596,202,596"/>
+<area shape="rect" id="Node000010" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a6f963bb3885651bbc2979992b47699b2" title=" " alt="" coords="261,645,447,701"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="147,604,251,638,249,643,145,609"/>
+<area shape="rect" id="Node000011" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a89d3a6dbddf9fa206db34d6c2ac4bca3" title=" " alt="" coords="261,725,447,781"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="120,604,174,655,211,684,251,711,260,716,257,720,248,715,208,689,171,659,116,608"/>
+<area shape="rect" id="Node000012" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a9a0550d8cb5dc71ce35379fd12c3a9e4" title=" " alt="" coords="261,805,447,861"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="113,605,132,642,163,691,203,744,251,791,257,795,254,799,248,795,199,748,158,694,128,644,109,608"/>
+<area shape="rect" id="Node000013" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#aacebf24aee899cbab781e39d50c5355c" title=" " alt="" coords="261,885,447,941"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="111,606,125,655,153,726,194,803,221,839,251,871,255,874,252,878,248,875,217,843,190,806,148,728,120,656,105,607"/>
+<area shape="rect" id="Node000014" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a35b1abce0123c6332e361d19f2c92a04" title="Trim whitespace characters from the beginning and end of a string." alt="" coords="280,965,428,1006"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="109,606,118,668,142,761,160,812,184,863,215,910,251,951,268,963,265,967,248,955,210,913,180,865,155,814,137,763,113,669,104,607"/>
+<area shape="rect" id="Node000016" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#a2252317354912d0174795bf41dbd64d0" title=" " alt="" coords="257,1029,451,1085"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="108,606,115,677,137,786,155,847,179,907,211,965,252,1015,254,1017,250,1021,248,1019,207,968,175,910,150,848,131,787,110,678,103,607"/>
+<area shape="rect" id="Node000017" href="$db/d0a/namespaceanonymous__namespace_02_c_boost_json_writer_base_test_8cc_03.html#ada599011d620b6770af7c973bbb96677" title=" " alt="" coords="261,1109,447,1165"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="107,606,110,688,117,749,128,818,145,891,171,964,206,1034,252,1095,254,1097,250,1101,248,1099,201,1037,166,966,140,893,123,819,111,750,105,689,102,607"/>
+<area shape="rect" id="Node000015" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a735030108b69ffc78cd71c89e6ffe322" title="Trim certain characters from the beginning and end of a string." alt="" coords="506,965,653,1006"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="428,983,491,983,491,988,428,988"/>
+</map>

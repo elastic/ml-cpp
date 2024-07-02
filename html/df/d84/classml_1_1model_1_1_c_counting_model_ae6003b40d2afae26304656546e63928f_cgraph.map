@@ -1,0 +1,7 @@
+<map id="ml::model::CCountingModel::updateCurrentBucketsStats" name="ml::model::CCountingModel::updateCurrentBucketsStats">
+<area shape="rect" id="Node000001" title="Update start time and counts for the given bucket." alt="" coords="5,39,196,79"/>
+<area shape="rect" id="Node000002" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="244,5,441,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,43,228,39,229,44,196,49"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#aa268b598e23a63128e424cbccb922698" title=" " alt="" coords="255,71,430,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,69,240,75,239,80,196,74"/>
+</map>

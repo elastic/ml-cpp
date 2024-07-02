@@ -1,0 +1,5 @@
+<map id="ml::model::CTokenListDataCategorizerBase::addCategoryMatch" name="ml::model::CTokenListDataCategorizerBase::addCategoryMatch">
+<area shape="rect" id="Node000001" title="Add a match to an existing category." alt="" coords="5,5,242,46"/>
+<area shape="rect" id="Node000002" href="$dc/d68/classml_1_1model_1_1_c_token_list_data_categorizer_base.html#af76a6f9a170d56b50222cb8883a501c4" title="Is the category considered rare?" alt="" coords="290,5,542,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,23,274,23,274,28,242,28"/>
+</map>

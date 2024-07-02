@@ -1,0 +1,48 @@
+<map id="ml::api::CDetectionRulesJsonParser::parseRules" name="ml::api::CDetectionRulesJsonParser::parseRules">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,225,174,266"/>
+<area shape="rect" id="Node000002" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#aef2be125334190e647740176ae3384d8" title=" " alt="" coords="231,95,429,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,222,276,141,279,146,130,227"/>
+<area shape="rect" id="Node000005" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#a4db9fb39b792cca6015e3530b3b94067" title=" " alt="" coords="222,225,438,266"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="174,243,206,243,206,248,174,248"/>
+<area shape="rect" id="Node000016" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#ab78ec78c6c5c42dc5d69986bbde2f1ae" title=" " alt="" coords="234,441,426,482"/>
+<area shape="poly" id="edge21_Node000001_Node000016" title=" " alt="" coords="115,264,296,429,293,433,112,268"/>
+<area shape="rect" id="Node000003" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#adad7aef7e3127095b45e43b500f1d4ce" title="Set the rule&#39;s action." alt="" coords="516,29,695,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,91,502,71,503,77,419,97"/>
+<area shape="rect" id="Node000004" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#ab62c0971db19308d61db53587caf35ac" title=" " alt="" coords="509,95,703,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="429,112,493,112,493,118,429,118"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="555,29,553,19,561,10,579,5,606,3,635,5,652,11,650,16,633,10,606,8,580,10,564,15,558,21,560,28"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="357,223,415,184,485,146,504,138,506,143,487,151,417,189,360,227"/>
+<area shape="rect" id="Node000006" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#ac0b5d425298ba8b6afa5dcad95302fbe" title="Add a condition." alt="" coords="516,291,695,331"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="419,264,503,284,502,289,418,269"/>
+<area shape="rect" id="Node000007" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#a38aa87bb5a858cc60f48294d5f812dd3" title=" " alt="" coords="486,225,725,266"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="438,243,471,243,471,248,438,248"/>
+<area shape="rect" id="Node000010" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#aa2d16a9769f2e5b6abaef61866c9f72e" title=" " alt="" coords="490,356,722,397"/>
+<area shape="poly" id="edge12_Node000005_Node000010" title=" " alt="" coords="360,264,417,303,487,341,506,348,504,353,485,345,415,307,357,269"/>
+<area shape="rect" id="Node000012" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#a5981c3417c9f240068dd8325f30f779f" title=" " alt="" coords="499,160,713,201"/>
+<area shape="poly" id="edge16_Node000005_Node000012" title=" " alt="" coords="418,222,502,202,503,207,419,227"/>
+<area shape="rect" id="Node000008" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#aa1cfd7395a5f4f682dbe1d195d5547ba" title="Set which value the condition applies to." alt="" coords="786,248,965,289"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="726,253,771,257,770,262,726,258"/>
+<area shape="rect" id="Node000009" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#aabcc8e86071f562407f92dc8b6d28d0f" title=" " alt="" coords="777,393,974,434"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="708,264,727,277,739,290,746,303,752,330,758,355,764,368,775,380,778,382,775,386,771,384,760,371,753,357,747,331,741,305,735,293,724,281,705,269"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="825,248,823,238,831,229,849,223,876,221,904,224,922,230,920,235,903,229,875,227,850,229,834,233,828,239,830,247"/>
+<area shape="poly" id="edge13_Node000010_Node000009" title=" " alt="" coords="723,390,762,395,761,401,722,395"/>
+<area shape="rect" id="Node000011" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#a257904c06b1ac1ac776d9ede219f5d2a" title="Set the condition operator." alt="" coords="775,344,976,369"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="722,365,760,362,760,368,722,370"/>
+<area shape="poly" id="edge15_Node000011_Node000011" title=" " alt="" coords="831,345,822,335,828,325,846,319,876,317,910,320,926,327,924,332,908,325,875,322,847,324,831,329,828,334,835,341"/>
+<area shape="rect" id="Node000013" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#a97fd6aef1f66e593accb81c86a8d7961" title=" " alt="" coords="773,109,978,150"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="713,158,758,149,759,154,714,163"/>
+<area shape="rect" id="Node000014" href="$dd/da5/_c_resource_limit_test_8cc.html#adfff002e956fa0ecb7a8a4d4ce39f79f" title=" " alt="" coords="844,174,907,200"/>
+<area shape="poly" id="edge18_Node000012_Node000014" title=" " alt="" coords="713,180,829,183,829,189,713,186"/>
+<area shape="rect" id="Node000015" href="$dc/d9e/classml_1_1model_1_1_c_rule_condition.html#a3e8f18eddbd1b14c858893cb756f9014" title="Set the condition value." alt="" coords="786,44,965,85"/>
+<area shape="poly" id="edge19_Node000012_Node000015" title=" " alt="" coords="698,157,724,145,738,133,747,121,757,108,772,95,783,89,785,94,775,100,761,112,752,124,742,137,727,149,701,162"/>
+<area shape="poly" id="edge20_Node000015_Node000015" title=" " alt="" coords="825,44,823,34,831,25,849,19,876,17,904,20,922,26,920,31,903,25,875,23,850,25,834,29,828,35,830,43"/>
+<area shape="poly" id="edge24_Node000016_Node000009" title=" " alt="" coords="426,451,761,421,762,426,426,456"/>
+<area shape="rect" id="Node000017" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#ae188e4b636c58c2212853a24f7e12f3c" title="Adds a requirement for field not to be in filter for the rule to apply." alt="" coords="516,471,695,511"/>
+<area shape="poly" id="edge22_Node000016_Node000017" title=" " alt="" coords="426,469,501,477,500,483,426,474"/>
+<area shape="rect" id="Node000019" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#aef89915a8ffea6235d7ea9fd3823711b" title="Adds a requirement for field not to be in filter for the rule to apply." alt="" coords="516,536,695,577"/>
+<area shape="poly" id="edge25_Node000016_Node000019" title=" " alt="" coords="381,480,487,520,512,529,510,534,485,526,379,485"/>
+<area shape="rect" id="Node000018" href="$db/d04/classml_1_1model_1_1_c_rule_scope.html#aba1be0fe7b0dfbcca92edbf1f728222c" title="Adds a requirement for field not to be in filter for the rule to apply." alt="" coords="795,471,956,511"/>
+<area shape="poly" id="edge23_Node000017_Node000018" title=" " alt="" coords="696,488,780,488,780,494,696,494"/>
+<area shape="rect" id="Node000020" href="$db/d04/classml_1_1model_1_1_c_rule_scope.html#a48c8ed55f90e4737ba6c3157329df0d2" title="Adds a requirement for field to be in filter for the rule to apply." alt="" coords="795,536,956,577"/>
+<area shape="poly" id="edge26_Node000019_Node000020" title=" " alt="" coords="696,554,780,554,780,559,696,559"/>
+</map>

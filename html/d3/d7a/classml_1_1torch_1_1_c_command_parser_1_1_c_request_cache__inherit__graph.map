@@ -1,0 +1,5 @@
+<map id="ml::torch::CCommandParser::CRequestCache" name="ml::torch::CCommandParser::CRequestCache">
+<area shape="rect" id="Node000001" title="Memory limited inference request LFU cache." alt="" coords="5,94,194,135"/>
+<area shape="rect" id="Node000002" href="$d4/d2a/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache_interface.html" title="Inference request cache interface." alt="" coords="5,5,194,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,62,102,94,97,94,97,62"/>
+</map>

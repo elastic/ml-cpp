@@ -1,0 +1,12 @@
+<map id="ml::model::CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults" name="ml::model::CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults">
+<area shape="rect" id="Node000001" title="Get the nearest ancestor of the node for which we write results." alt="" coords="5,63,212,119"/>
+<area shape="rect" id="Node000002" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3c3becfe58de972509ea2f9c6597693e" title="Check if we can ever write a result for the node." alt="" coords="260,63,465,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,88,244,88,244,94,212,94"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#adedccb34126f54fa542741d102a483d8" title="Check if the node is a leaf." alt="" coords="515,5,680,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,60,506,48,508,53,466,65"/>
+<area shape="rect" id="Node000004" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a782a7ab20789d56e6d02c6dde2f28169" title="Check if this is a named partition." alt="" coords="513,71,682,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="465,88,497,88,497,94,465,94"/>
+<area shape="rect" id="Node000005" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html#a3578a82308dd4efac1c213646600e326" title="Check if this node is the root node." alt="" coords="730,100,896,141"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="466,113,513,120,598,124,682,120,715,120,715,125,682,126,598,129,513,126,465,118"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="683,100,715,104,714,110,682,105"/>
+</map>

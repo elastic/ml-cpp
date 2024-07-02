@@ -1,0 +1,21 @@
+<map id="ml::maths::common::CMultimodalPrior::propagateForwardsByTime" name="ml::maths::common::CMultimodalPrior::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,192,184"/>
+<area shape="rect" id="Node000002" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="258,5,450,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,126,181,90,238,57,255,49,257,54,241,61,184,95,135,130"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="277,71,431,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,130,261,112,263,117,193,135"/>
+<area shape="rect" id="Node000004" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a86bc6fa34f4e3ad50a0cb21032bf48a0" title="Check if this is a non&#45;informative prior." alt="" coords="240,136,468,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,154,224,154,224,159,192,159"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="265,201,443,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="193,175,240,186,278,194,277,199,239,191,191,180"/>
+<area shape="rect" id="Node000010" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="274,251,434,291"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="143,182,189,210,241,237,260,244,258,249,239,241,186,215,140,187"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="516,81,696,136"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="436,198,467,186,481,177,491,167,514,146,522,141,525,146,518,150,494,171,484,181,469,191,438,203"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="517,160,696,201"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="442,199,501,192,502,197,443,205"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="534,225,679,266"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="443,222,518,232,517,237,442,228"/>
+<area shape="rect" id="Node000009" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="524,291,689,331"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="437,225,469,237,484,246,494,256,517,275,529,281,526,286,515,280,491,260,481,250,467,241,435,230"/>
+</map>

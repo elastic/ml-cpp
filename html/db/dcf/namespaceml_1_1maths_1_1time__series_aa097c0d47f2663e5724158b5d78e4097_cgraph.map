@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::swap" name="ml::maths::time_series::swap">
+<area shape="rect" id="Node000001" title="Create a free function which will be found by Koenig lookup." alt="" coords="5,22,160,63"/>
+<area shape="rect" id="Node000002" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#adf33dfb801057114699c3c3d119eb552" title="Efficiently swap the state of this and other." alt="" coords="208,14,434,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,40,192,40,192,45,160,45"/>
+<area shape="rect" id="Node000003" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="482,29,560,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,40,466,40,466,45,434,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="488,30,481,21,485,11,499,5,521,3,546,5,558,12,556,17,544,10,521,8,500,10,489,15,486,20,492,27"/>
+</map>

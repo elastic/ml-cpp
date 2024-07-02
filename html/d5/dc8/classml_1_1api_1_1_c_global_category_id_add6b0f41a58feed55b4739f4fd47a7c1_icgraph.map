@@ -1,0 +1,9 @@
+<map id="ml::api::CGlobalCategoryId::softFailure" name="ml::api::CGlobalCategoryId::softFailure">
+<area shape="rect" id="Node000001" title="Get an object representing a soft failure." alt="" coords="250,47,418,88"/>
+<area shape="rect" id="Node000002" href="$de/ddc/_c_global_category_id_test_8cc.html#a65b4e89d4cbda7efbf781cff2cf1fa8a" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,49,166,34,167,29,235,44"/>
+<area shape="rect" id="Node000003" href="$de/ddc/_c_global_category_id_test_8cc.html#a30a0c754cd721a045698917d942ef9a6" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$d8/d4d/_c_per_partition_category_id_mapper_test_8cc.html#a1f4c74d7fe40b7d88f386eda70bcdf50" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,91,167,106,166,101,234,86"/>
+</map>

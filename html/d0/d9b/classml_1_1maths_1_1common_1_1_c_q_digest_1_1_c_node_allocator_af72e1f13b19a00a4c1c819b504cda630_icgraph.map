@@ -1,0 +1,38 @@
+<map id="ml::maths::common::CQDigest::CNodeAllocator::create" name="ml::maths::common::CQDigest::CNodeAllocator::create">
+<area shape="rect" id="Node000001" title="Create a new node." alt="" coords="996,206,1175,262"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#abd724b3e68201b465f54912c4aad2c77" title="Create from an XML node tree." alt="" coords="494,67,721,108"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1050,196,1004,152,977,131,947,115,891,97,833,86,776,81,722,81,722,75,776,76,834,81,893,92,949,110,979,127,1008,148,1054,192"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a0d7672b838afa4f460eec71866d56f47" title="Reset the quantiles to the state before any values were added." alt="" coords="535,291,680,332"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="981,262,948,269,806,291,681,307,680,301,805,286,947,264,980,257"/>
+<area shape="rect" id="Node000007" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#aaaa0c781fd337c742a814c7917b62660" title=" " alt="" coords="786,329,931,369"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1024,272,949,313,911,330,908,326,946,308,1022,268"/>
+<area shape="rect" id="Node000008" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a3332f4e91061ef22141f6d0436e0c6ac" title="Expand the node to fit value." alt="" coords="769,214,948,255"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="980,237,948,237,948,232,980,232"/>
+<area shape="rect" id="Node000015" href="$dc/d42/classml_1_1maths_1_1common_1_1_c_q_digest_1_1_c_node.html#a5d1c722a4dfa25d2a541fc5eb75b1c58" title=" " alt="" coords="774,149,943,189"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="980,207,931,192,932,187,982,202"/>
+<area shape="rect" id="Node000003" href="$db/d32/_c_q_digest_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="519,65,445,45,404,34,405,29,447,40,520,60"/>
+<area shape="rect" id="Node000005" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#a4979e7ef438c7e50142ce809d29126fb" title=" " alt="" coords="275,305,421,345"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="519,319,421,324,421,318,519,313"/>
+<area shape="rect" id="Node000006" href="$db/d32/_c_q_digest_test_8cc.html#a51cb3a96be6e10a3f2dff8ef985b6028" title=" " alt="" coords="5,209,202,235"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="264,301,249,295,183,266,128,238,131,233,185,261,251,290,266,296"/>
+<area shape="rect" id="Node000009" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ad7fa8d16967a5dbca4e0ace80eedecbd" title="Add n values value to the q&#45;digest." alt="" coords="535,149,680,189"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="762,212,680,190,682,185,763,207"/>
+<area shape="rect" id="Node000014" href="$d5/dc5/classml_1_1maths_1_1common_1_1_c_q_digest.html#ab07683726c0768aad600d5be60e3b02e" title="Merge this and digest." alt="" coords="535,214,680,255"/>
+<area shape="poly" id="edge16_Node000008_Node000014" title=" " alt="" coords="754,237,681,237,681,232,754,232"/>
+<area shape="poly" id="edge11_Node000009_Node000003" title=" " alt="" coords="526,144,492,121,476,101,468,81,461,62,444,44,425,34,428,29,448,40,465,59,473,79,481,98,496,118,529,139"/>
+<area shape="poly" id="edge15_Node000009_Node000005" title=" " alt="" coords="522,189,496,204,479,226,472,248,466,272,448,295,422,311,419,306,444,291,461,269,467,247,474,223,492,200,519,184"/>
+<area shape="poly" id="edge13_Node000009_Node000006" title=" " alt="" coords="519,150,459,140,391,134,320,135,250,146,213,159,178,176,124,211,121,207,176,172,211,154,249,141,319,130,391,129,460,135,520,145"/>
+<area shape="rect" id="Node000010" href="$db/d32/_c_q_digest_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="250,255,446,280"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="521,193,495,204,481,214,472,225,462,235,447,246,421,257,419,252,445,241,459,231,468,221,478,211,493,200,519,188"/>
+<area shape="rect" id="Node000011" href="$db/d32/_c_q_digest_test_8cc.html#a5c190761343fe47c41c73e777a93a36b" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="544,145,445,102,391,83,393,78,447,97,546,140"/>
+<area shape="rect" id="Node000012" href="$db/d32/_c_q_digest_test_8cc.html#afeec754f0da6511188570bb040d8a231" title=" " alt="" coords="250,156,446,182"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="519,172,447,172,447,166,519,166"/>
+<area shape="rect" id="Node000013" href="$db/d32/_c_q_digest_test_8cc.html#a5cbafdc07efaf526c2d772259395c248" title=" " alt="" coords="250,205,446,231"/>
+<area shape="poly" id="edge14_Node000009_Node000013" title=" " alt="" coords="520,188,420,207,419,202,519,183"/>
+<area shape="poly" id="edge18_Node000015_Node000002" title=" " alt="" coords="778,146,672,111,674,106,780,141"/>
+<area shape="poly" id="edge19_Node000015_Node000009" title=" " alt="" coords="759,172,681,172,681,166,759,166"/>
+<area shape="poly" id="edge21_Node000015_Node000014" title=" " alt="" coords="763,196,682,218,680,213,762,191"/>
+<area shape="poly" id="edge20_Node000015_Node000015" title=" " alt="" coords="895,135,882,129,858,127,837,129,824,134,819,140,821,147,816,148,814,139,821,129,836,124,859,122,883,124,898,130"/>
+</map>

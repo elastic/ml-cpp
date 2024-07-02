@@ -1,0 +1,26 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,148,202,173"/>
+<area shape="rect" id="Node000002" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html#ab99b3fb40460503ed491e848d72e57c5" title=" " alt="" coords="250,17,439,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,145,178,108,248,69,264,62,266,67,251,73,180,113,125,149"/>
+<area shape="rect" id="Node000008" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html#a5dbd4bca04628356e649c20284fd2929" title="Calculate how similar two strings are." alt="" coords="257,107,432,147"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="201,144,241,139,242,144,201,150"/>
+<area shape="rect" id="Node000009" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html#a327181de01432e9546c8987c7114edb7" title=" " alt="" coords="257,172,432,213"/>
+<area shape="poly" id="edge13_Node000001_Node000009" title=" " alt="" coords="202,171,242,176,241,181,202,176"/>
+<area shape="rect" id="Node000010" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html#a12647120d2ffd75e2626f29ebc4546cc" title=" " alt="" coords="257,237,432,278"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="134,171,251,222,269,229,268,234,249,227,132,176"/>
+<area shape="rect" id="Node000003" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a240386af2c68df5ef40b8bd03aa341bd" title=" " alt="" coords="487,95,653,135"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,56,495,87,493,92,405,61"/>
+<area shape="rect" id="Node000007" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a33a7d0f1d501369f530b5ebbab453406" title=" " alt="" coords="487,29,653,70"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="440,40,472,42,471,47,440,45"/>
+<area shape="rect" id="Node000004" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a0363f5504717d24c48cb00db48b3643d" title="Process the input input in chunks." alt="" coords="701,29,868,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="638,92,700,73,701,78,640,97"/>
+<area shape="rect" id="Node000005" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#a30fd71d5aa580fa9c13a5ca29e49a107" title=" " alt="" coords="701,95,868,135"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="654,112,686,112,686,118,654,118"/>
+<area shape="rect" id="Node000006" href="$d0/dde/classml_1_1core_1_1_c_compress_util.html#abbcc2bb82dd761f9674856db5bc59bbb" title="Reset the underlying stream." alt="" coords="916,95,1082,135"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="868,112,900,112,900,118,868,118"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="654,47,686,47,686,52,654,52"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="530,29,528,19,534,10,549,5,570,3,593,5,607,11,605,16,592,10,570,8,550,10,537,15,533,20,535,28"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="432,120,471,118,471,123,432,125"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="405,104,493,73,495,78,407,109"/>
+<area shape="poly" id="edge12_Node000008_Node000008" title=" " alt="" coords="302,107,300,97,307,88,322,82,344,80,369,82,383,89,381,94,367,88,344,85,323,87,310,92,305,98,307,105"/>
+</map>

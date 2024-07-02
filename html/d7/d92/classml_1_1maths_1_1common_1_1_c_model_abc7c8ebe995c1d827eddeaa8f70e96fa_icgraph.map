@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CModel::acceptPersistInserter" name="ml::maths::common::CModel::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="213,13,411,54"/>
+<area shape="rect" id="Node000002" href="$d1/d8d/classml_1_1maths_1_1time__series_1_1_c_model_state_serialiser.html#ae5213aff3dcd14c24ed5df68593bd93c" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,165,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,36,165,36,165,31,197,31"/>
+</map>

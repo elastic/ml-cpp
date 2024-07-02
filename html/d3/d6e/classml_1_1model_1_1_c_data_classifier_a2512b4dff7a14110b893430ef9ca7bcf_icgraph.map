@@ -1,0 +1,9 @@
+<map id="ml::model::CDataClassifier::isInteger" name="ml::model::CDataClassifier::isInteger">
+<area shape="rect" id="Node000001" title="Check if the values are all integers." alt="" coords="244,71,423,111"/>
+<area shape="rect" id="Node000002" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a4f344208fbf025532bf42445c27a50f2" title="Get the checksum of this gatherer." alt="" coords="5,5,196,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,69,175,49,177,44,245,63"/>
+<area shape="rect" id="Node000003" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#abe3aa5567654a1d07e41fe49ae42d6db" title=" " alt="" coords="5,71,196,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,94,196,94,196,88,228,88"/>
+<area shape="rect" id="Node000004" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a0272c41b53ec509bf9529165fdff6250" title="Print this gatherer for debug." alt="" coords="5,136,196,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="245,119,177,138,175,133,243,113"/>
+</map>

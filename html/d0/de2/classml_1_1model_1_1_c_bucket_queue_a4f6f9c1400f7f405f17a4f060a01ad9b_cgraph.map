@@ -1,0 +1,13 @@
+<map id="ml::model::CBucketQueue::acceptRestoreTraverser" name="ml::model::CBucketQueue::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,136,181,177"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="229,5,447,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,133,166,95,227,57,243,50,245,54,230,61,169,99,120,138"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="229,71,447,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,133,244,113,245,118,173,138"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="261,136,415,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="181,154,245,154,245,159,181,159"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="264,201,412,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="173,175,250,196,249,201,171,180"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="229,267,447,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="120,175,169,214,230,251,245,258,243,263,227,256,166,218,116,179"/>
+</map>

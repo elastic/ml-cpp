@@ -1,0 +1,31 @@
+<map id="ml::maths::common::CXMeans::CCluster::centre" name="ml::maths::common::CXMeans::CCluster::centre">
+<area shape="rect" id="Node000001" title="Set the cluster centre." alt="" coords="724,144,908,184"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="853,130,839,124,816,122,794,124,781,129,776,135,778,142,773,143,771,134,778,124,793,119,816,117,841,119,855,125"/>
+<area shape="rect" id="Node000002" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#ad3ee6beaa15a726b1da19cd972b31fb0" title=" " alt="" coords="498,13,676,54"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="776,136,729,102,675,69,648,56,651,52,678,64,732,97,779,132"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#af566bd2727a0bb2031a14287bca4a0aa" title=" " alt="" coords="515,78,660,119"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="727,141,660,122,661,117,729,136"/>
+<area shape="rect" id="Node000012" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ae51ebe694bff622a5ffc9e8b0808af27" title=" " alt="" coords="515,144,660,184"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="709,167,660,167,660,161,709,161"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a92eba34f650323784504c3b6dab8d166" title=" " alt="" coords="515,209,660,250"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="729,191,661,211,660,206,727,186"/>
+<area shape="rect" id="Node000014" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#ae90f98dc3d3fe03723f46b7961cf44b3" title=" " alt="" coords="515,274,660,315"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="779,196,732,230,678,264,651,276,648,271,675,259,729,226,776,192"/>
+<area shape="rect" id="Node000003" href="$dc/d5a/classanonymous__namespace_02_c_x_means_test_8cc_03_1_1_c_x_means_for_test.html#a600bcc4d6e1f42510c0e2d73ea67681f" title=" " alt="" coords="250,5,450,61"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="482,36,450,36,450,31,482,31"/>
+<area shape="rect" id="Node000004" href="$d4/dd3/classml_1_1maths_1_1common_1_1_c_x_means.html#a9f5b7c70857b7a3cbf80c2ca4bab03f0" title=" " alt="" coords="277,180,423,220"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="510,63,499,69,461,96,426,126,371,181,367,177,422,122,458,91,497,64,507,58"/>
+<area shape="rect" id="Node000005" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#ad1d2c146ed4b5cdcccd8324ff995ea07" title=" " alt="" coords="5,63,202,89"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="311,172,260,136,201,102,171,92,173,87,203,97,263,131,314,168"/>
+<area shape="rect" id="Node000006" href="$da/dda/_c_x_means_test_8cc.html#a33812218119d981a1cace17e25a46eae" title=" " alt="" coords="5,112,202,138"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="276,176,201,152,162,141,163,136,202,147,278,171"/>
+<area shape="rect" id="Node000007" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a8b6fd6dbbc11dcbb38b70853d4a6f621" title=" " alt="" coords="5,162,202,187"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="261,193,202,187,203,182,262,188"/>
+<area shape="rect" id="Node000008" href="$da/dda/_c_x_means_test_8cc.html#a4e506db6061c23b77bfdd43b4bc59d1b" title=" " alt="" coords="5,211,202,237"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="262,211,203,217,202,212,261,206"/>
+<area shape="rect" id="Node000009" href="$da/dda/_c_x_means_test_8cc.html#ac537603fa04b9fb6b6fd57505ea8f08c" title=" " alt="" coords="5,260,202,286"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="276,228,202,252,163,262,162,257,201,247,275,223"/>
+<area shape="rect" id="Node000010" href="$da/dda/_c_x_means_test_8cc.html#ad0b9cf69929ba93f6531bdedcffc851b" title=" " alt="" coords="5,310,202,335"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="313,232,263,268,203,301,173,312,171,307,201,296,260,263,310,228"/>
+<area shape="poly" id="edge15_Node000014_Node000004" title=" " alt="" coords="515,271,497,264,399,223,401,218,499,259,517,266"/>
+</map>

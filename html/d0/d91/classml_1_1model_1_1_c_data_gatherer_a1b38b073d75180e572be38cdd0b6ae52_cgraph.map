@@ -1,0 +1,10 @@
+<map id="ml::model::CDataGatherer::maxDimension" name="ml::model::CDataGatherer::maxDimension">
+<area shape="rect" id="Node000001" title="Get the maximum size of all the member containers." alt="" coords="5,39,180,79"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a297aa68a600b7bf3938bdf0c062572c9" title=" " alt="" coords="228,5,402,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,43,212,38,213,44,180,49"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a7764c1ec39238f2f60c456948093f84b" title=" " alt="" coords="228,71,402,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,69,213,74,212,79,180,74"/>
+<area shape="rect" id="Node000003" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a48738901bb6e09e5ec631806d8e6215c" title=" " alt="" coords="450,39,632,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,36,435,41,434,46,402,41"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="402,76,434,71,435,77,403,81"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::anonymous_namespace{CBoostedTreeImpl.cc}::CResetAndJumpOnExit" name="ml::maths::analytics::anonymous_namespace{CBoostedTreeImpl.cc}::CResetAndJumpOnExit">
+<area shape="rect" id="Node000001" title="Resets a random number generator then jumps 2^64 values using the RAII idiom." alt="" coords="18,124,188,195"/>
+<area shape="rect" id="Node000002" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html" title="The xoroshiro128+ pseudo&#45;random number generator." alt="" coords="5,5,201,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,61,106,124,100,124,100,61"/>
+</map>

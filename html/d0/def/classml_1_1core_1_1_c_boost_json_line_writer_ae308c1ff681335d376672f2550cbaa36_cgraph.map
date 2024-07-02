@@ -1,0 +1,12 @@
+<map id="ml::core::CBoostJsonLineWriter::onObjectBegin" name="ml::core::CBoostJsonLineWriter::onObjectBegin">
+<area shape="rect" id="Node000001" title="Overwrites the Writer::onObjectBegin in order to count nested objects." alt="" coords="5,39,178,79"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a0bfaf41d409565d4b091676c48750501" title=" " alt="" coords="226,5,408,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,44,210,39,211,44,179,49"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a688d4dc1c2cdab063e0bc24f22b7ce9f" title=" " alt="" coords="226,71,408,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,69,210,73,210,78,178,74"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="456,5,638,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,23,440,23,440,28,408,28"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="390,68,458,48,459,53,392,73"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="456,71,638,111"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="408,88,440,88,440,94,408,94"/>
+</map>

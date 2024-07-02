@@ -1,0 +1,17 @@
+<map id="ml::core::CLogger::reconfigureFromFile" name="ml::core::CLogger::reconfigureFromFile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,83,142,124"/>
+<area shape="rect" id="Node000002" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a87cb3473ef9f7e5ae4a372be02f056d8" title="Helper for other reconfiguration methods." alt="" coords="190,50,353,91"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,89,174,84,175,89,142,95"/>
+<area shape="rect" id="Node000007" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a98a081fefcfcac50f60f2471273a0fad" title=" " alt="" coords="191,115,352,156"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="142,112,176,117,175,123,142,117"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_uname.html#a7f04ec5f4ceca6a6e50c60161f615a79" title="uname &#45;a (or possibly a cut down version on some platforms)" alt="" coords="401,29,550,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="353,56,385,52,386,57,354,62"/>
+<area shape="rect" id="Node000004" href="$dd/dbf/classml_1_1core_1_1_c_logger.html#a0c404e8fe9fd645334f6ed45a8be06d3" title=" " alt="" coords="409,79,542,120"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="354,79,395,85,394,90,353,85"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="442,31,435,21,439,11,453,5,476,3,501,5,513,12,511,17,499,10,476,8,454,10,443,15,440,20,446,27"/>
+<area shape="rect" id="Node000005" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a7025edb767e792d12d4becef06d26cfb" title=" " alt="" coords="598,34,759,75"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="542,82,583,73,584,78,543,87"/>
+<area shape="rect" id="Node000006" href="$d1/d3c/classml_1_1core_1_1_c_process.html#ae0537aa1b2cd74a9de8033d9ad9ce6f6" title="Access to singleton." alt="" coords="611,123,746,164"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="543,111,597,123,596,128,542,117"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="640,123,638,113,644,104,658,99,679,97,701,99,714,105,711,110,699,104,678,102,659,104,648,108,643,114,645,122"/>
+</map>

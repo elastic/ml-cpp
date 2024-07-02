@@ -1,0 +1,7 @@
+<map id="ml::maths::analytics::data_frame_utils_detail::SRowTo&lt; common::CMemoryMappedDenseVector&lt; T, ALIGNMENT &gt; &gt;::dispatch" name="ml::maths::analytics::data_frame_utils_detail::SRowTo&lt; common::CMemoryMappedDenseVector&lt; T, ALIGNMENT &gt; &gt;::dispatch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,258,102"/>
+<area shape="rect" id="Node000002" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="341,5,499,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,42,325,34,325,39,258,47"/>
+<area shape="rect" id="Node000003" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#a300a27ce4db15ede46e073b18a3fbdc0" title="Get the number of columns." alt="" coords="306,71,534,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,70,291,74,290,79,258,76"/>
+</map>

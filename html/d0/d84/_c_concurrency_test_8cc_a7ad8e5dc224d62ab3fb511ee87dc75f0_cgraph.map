@@ -1,0 +1,25 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,255,202,281"/>
+<area shape="rect" id="Node000002" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="282,182,399,223"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,252,266,220,268,225,154,257"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#ae7211fe95a8d123b3e75f488e1ea297d" title=" " alt="" coords="250,248,431,288"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="202,265,234,265,234,271,202,271"/>
+<area shape="rect" id="Node000012" href="$db/dc5/namespaceml_1_1core.html#a2430a4f75d204055797e21dff2a01418" title=" " alt="" coords="250,313,431,354"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="154,279,250,306,249,311,152,284"/>
+<area shape="rect" id="Node000003" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="501,146,666,187"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,191,485,178,486,184,400,197"/>
+<area shape="rect" id="Node000010" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="479,211,687,266"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="400,208,464,218,464,223,399,214"/>
+<area shape="rect" id="Node000004" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="782,92,893,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="666,144,766,120,767,125,667,149"/>
+<area shape="rect" id="Node000007" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="735,154,940,179"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="666,164,720,164,720,169,666,169"/>
+<area shape="rect" id="Node000009" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="754,204,921,244"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="667,183,739,199,738,204,666,188"/>
+<area shape="rect" id="Node000005" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="988,5,1184,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="884,89,973,63,974,68,885,94"/>
+<area shape="rect" id="Node000006" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="1017,85,1155,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="893,103,1001,103,1001,108,893,108"/>
+<area shape="rect" id="Node000008" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="995,149,1177,205"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="940,168,980,170,979,175,940,174"/>
+</map>

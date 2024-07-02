@@ -1,0 +1,15 @@
+<map id="ml::maths::common::CVectorNx1::dimension" name="ml::maths::common::CVectorNx1::dimension">
+<area shape="rect" id="Node000001" title="Get the dimension." alt="" coords="764,125,925,166"/>
+<area shape="rect" id="Node000002" href="$df/d0a/structml_1_1maths_1_1common_1_1_c_k_most_correlated_1_1_s_correlation.html#a6c5f31d8960d415f9b022f028a0ae177" title=" " alt="" coords="507,77,716,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="749,131,716,126,717,121,750,126"/>
+<area shape="rect" id="Node000006" href="$d6/d71/classml_1_1maths_1_1common_1_1_c_multivariate_multimodal_prior.html#a02790fa2ead779d1ed7ff62c896ac1da" title=" " alt="" coords="518,157,706,213"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="749,164,707,172,706,166,748,159"/>
+<area shape="rect" id="Node000003" href="$d8/de0/namespaceanonymous__namespace_02_c_k_most_correlated_test_8cc_03.html#ac5eabf80b6d499328f4a97a1298dbd3d" title=" " alt="" coords="270,5,439,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="495,75,438,59,440,54,496,70"/>
+<area shape="rect" id="Node000005" href="$df/d0a/structml_1_1maths_1_1common_1_1_c_k_most_correlated_1_1_s_correlation.html#a1605b642b62cb8e1cf1ba6eea3479e82" title=" " alt="" coords="250,85,459,141"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="491,112,459,113,459,107,491,106"/>
+<area shape="rect" id="Node000004" href="$db/de9/_c_k_most_correlated_test_8cc.html#a550e1f0a501cda708bd8243f3aa45c91" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="255,36,202,36,202,31,255,31"/>
+<area shape="rect" id="Node000007" href="$dc/d5d/_c_multivariate_multimodal_prior_test_8cc.html#aa9c14a97dde3a40c6e18f999716115b9" title=" " alt="" coords="256,172,453,198"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="502,188,453,188,453,183,502,183"/>
+</map>

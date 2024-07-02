@@ -1,0 +1,19 @@
+<map id="ml::maths::common::las::las_detail::SEstimateVectorMemoryUsage::value" name="ml::maths::common::las::las_detail::SEstimateVectorMemoryUsage::value">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1121,140,1304,195"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6a3cd00c6fa74f6a65c087dff4dde84b" title=" " alt="" coords="850,107,1032,148"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1104,154,1032,143,1033,138,1105,149"/>
+<area shape="rect" id="Node000009" href="$d5/d3c/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_vector_memory_usage_3_01_c_annod0038841670b77eb9f8e9f373e614fa7.html#a6cfa2a69894726810c57c0ea6c0bc9f7" title=" " alt="" coords="809,172,1073,243"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1105,186,1074,190,1073,185,1105,180"/>
+<area shape="rect" id="Node000003" href="$d2/df8/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble.html#aa50cc771b15ef0b6077cddcbd4ddca11" title="Estimate the amount of memory that will be used by the ensemble." alt="" coords="557,5,739,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="854,105,739,70,741,65,856,99"/>
+<area shape="rect" id="Node000005" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a9d25e0a65f4529b3659e69f9751b0b2a" title=" " alt="" coords="547,100,749,155"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="835,130,750,130,750,125,835,125"/>
+<area shape="rect" id="Node000006" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html#a4c16fa5db8d05689da22d5509f156a28" title="Estimate the amount of memory this node will use." alt="" coords="535,180,761,235"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="842,155,810,163,746,181,744,176,809,158,841,150"/>
+<area shape="rect" id="Node000004" href="$dc/dc6/classml_1_1maths_1_1analytics_1_1_c_outliers.html#a5a20f9f11d3a875a885854f7ad485d7b" title=" " alt="" coords="284,13,474,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="541,43,474,43,474,38,541,38"/>
+<area shape="rect" id="Node000007" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a989fa2e6ba47bfeda6f4ecf09f4fee5b" title=" " alt="" coords="271,187,487,228"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="519,210,487,210,487,205,519,205"/>
+<area shape="rect" id="Node000008" href="$d5/d40/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble_1_1_c_model.html#a8d106dbd9228459536e3627ba01267db" title=" " alt="" coords="5,172,223,243"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="255,210,223,210,223,205,255,205"/>
+</map>

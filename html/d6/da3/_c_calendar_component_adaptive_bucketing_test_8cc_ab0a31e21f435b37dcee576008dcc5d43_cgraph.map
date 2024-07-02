@@ -1,0 +1,12 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,58,223,84"/>
+<area shape="rect" id="Node000002" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#abb8ac869621af2850bb19fab26feb3e2" title="Parse a string ignoring CDATA elements." alt="" coords="271,5,452,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,55,255,42,256,48,189,60"/>
+<area shape="rect" id="Node000005" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html#a4131195236b20f74e3b1ed54c1299074" title="Convert to UTF&#45;8 XML representation." alt="" coords="274,95,449,135"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="191,82,259,94,258,99,190,87"/>
+<area shape="rect" id="Node000003" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="500,5,687,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,23,484,23,484,28,452,28"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="735,5,917,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="688,23,720,23,720,28,688,28"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="318,95,315,85,323,76,338,70,361,68,386,70,401,77,399,82,385,76,361,73,339,75,326,80,321,86,323,93"/>
+</map>

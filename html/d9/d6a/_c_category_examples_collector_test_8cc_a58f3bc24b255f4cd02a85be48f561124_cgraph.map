@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#aeb0b9e7f03d29f31dc80d3f8eff759c4" title=" " alt="" coords="280,5,488,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,45,264,37,265,42,202,50"/>
+<area shape="rect" id="Node000005" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a67ba17e3c79351914d8163a6e862f99d" title="Returns the number of examples currently stored for a given category." alt="" coords="250,71,518,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="202,68,235,71,234,77,202,73"/>
+<area shape="rect" id="Node000003" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html#a618f11819ae9e04fc29998bf74d602b9" title=" " alt="" coords="566,5,773,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="488,23,551,23,551,28,488,28"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ab2eb099dd240ff6f226480c258e65854" title=" " alt="" coords="821,5,969,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="774,23,806,23,806,28,774,28"/>
+</map>

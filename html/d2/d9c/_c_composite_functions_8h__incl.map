@@ -1,0 +1,16 @@
+<map id="include/maths/common/CCompositeFunctions.h" name="include/maths/common/CCompositeFunctions.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="190,5,356,46"/>
+<area shape="rect" id="Node000002" href="$d9/da9/core_2_constants_8h.html" title=" " alt="" coords="114,94,235,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,48,203,86,200,82,247,44"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="239,168,296,193"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="275,46,271,152,266,152,269,46"/>
+<area shape="rect" id="Node000007" href="$d2/de5/maths_2common_2_import_export_8h.html" title=" " alt="" coords="311,94,512,120"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="309,44,379,84,376,88,306,49"/>
+<area shape="rect" id="Node000003" href="$db/d04/_core_types_8h.html" title=" " alt="" coords="5,168,130,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="158,122,100,161,97,156,155,118"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="192,118,241,156,238,160,188,122"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="153,168,206,193"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="178,120,180,152,175,152,172,120"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="39,241,96,267"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="70,194,70,226,65,226,65,194"/>
+</map>

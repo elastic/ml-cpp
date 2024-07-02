@@ -1,0 +1,30 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,150,223,176"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a8b43d0376aaa1522c3c5bb2c3cf8f008" title="Get a checksum for this object." alt="" coords="271,63,480,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,147,257,121,258,126,164,152"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="283,143,468,183"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="223,160,267,160,267,166,223,166"/>
+<area shape="rect" id="Node000014" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="288,208,463,233"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="177,174,299,201,298,206,175,179"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="796,5,951,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="473,60,528,48,660,32,780,25,781,30,660,38,528,54,474,65"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ae1ab8a15d4b830ecb11ac1249993bc17" title="Get a checksum for this object." alt="" coords="543,63,699,119"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="481,88,527,88,527,94,481,94"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="699,68,781,47,782,52,700,73"/>
+<area shape="rect" id="Node000005" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="761,70,986,126"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="700,90,746,92,746,97,699,96"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="528,143,713,183"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="468,160,512,160,512,166,468,166"/>
+<area shape="rect" id="Node000008" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="532,208,709,233"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="466,181,548,201,547,206,465,187"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="785,208,962,233"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="710,218,770,218,770,223,710,223"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1034,87,1214,143"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="905,205,1040,147,1043,152,907,209"/>
+<area shape="rect" id="Node000011" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1034,167,1214,207"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="962,206,1018,198,1019,204,963,211"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1051,232,1197,273"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="963,229,1036,239,1036,244,962,234"/>
+<area shape="rect" id="Node000013" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1041,297,1207,338"/>
+<area shape="poly" id="edge13_Node000009_Node000013" title=" " alt="" coords="909,231,1035,282,1053,289,1051,294,1033,287,907,236"/>
+</map>

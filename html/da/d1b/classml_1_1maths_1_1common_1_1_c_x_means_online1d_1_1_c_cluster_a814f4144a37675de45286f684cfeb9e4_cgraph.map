@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CXMeansOnline1d::CCluster::dataType" name="ml::maths::common::CXMeansOnline1d::CCluster::dataType">
+<area shape="rect" id="Node000001" title="Set the type of data in the cluster." alt="" coords="5,22,196,78"/>
+<area shape="rect" id="Node000002" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#ac29502e5c4688c08ba70c0e1fda85b1f" title="Set the type of data being clustered." alt="" coords="244,29,435,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,47,228,47,228,52,196,52"/>
+<area shape="poly" id="edge6_Node000002_Node000002" title=" " alt="" coords="296,29,293,19,301,10,316,5,339,3,364,5,379,11,377,16,363,10,339,8,317,10,304,15,299,21,301,28"/>
+<area shape="rect" id="Node000003" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#abcabb7b5750133a0f54c4d9bee6973fe" title=" " alt="" coords="483,29,660,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="435,47,467,47,467,52,435,52"/>
+<area shape="rect" id="Node000004" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html#a27a8cb85db7bf18509c0a8b9cd4e76e0" title="The total count of points." alt="" coords="708,29,879,70"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="661,56,693,56,692,61,661,61"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="708,44,676,43,676,38,708,38"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="752,29,750,19,756,10,771,5,794,3,818,5,832,11,830,16,816,10,793,8,772,10,760,15,755,21,757,28"/>
+</map>

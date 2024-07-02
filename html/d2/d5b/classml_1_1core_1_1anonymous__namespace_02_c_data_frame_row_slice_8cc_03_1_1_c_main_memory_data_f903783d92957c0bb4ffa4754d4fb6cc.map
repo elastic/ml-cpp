@@ -1,0 +1,5 @@
+<map id="ml::core::anonymous_namespace{CDataFrameRowSlice.cc}::CMainMemoryDataFrameRowSliceHandle" name="ml::core::anonymous_namespace{CDataFrameRowSlice.cc}::CMainMemoryDataFrameRowSliceHandle">
+<area shape="rect" id="Node000001" title="A handle for reading CRawDataFrameRowSlice objects." alt="" coords="5,109,282,165"/>
+<area shape="rect" id="Node000002" href="$da/ddc/classml_1_1core_1_1data__frame__row__slice__detail_1_1_c_data_frame_row_slice_handle_impl.html" title="The implementation backing a data frame row slice handle." alt="" coords="41,5,246,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,77,146,108,141,108,141,77"/>
+</map>

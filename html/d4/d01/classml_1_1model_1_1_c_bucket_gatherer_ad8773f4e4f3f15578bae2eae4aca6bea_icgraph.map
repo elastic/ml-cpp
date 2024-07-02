@@ -1,0 +1,8 @@
+<map id="ml::model::CBucketGatherer::checksum" name="ml::model::CBucketGatherer::checksum">
+<area shape="rect" id="Node000001" title="Get the checksum of this gatherer." alt="" coords="253,63,440,103"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a967a6b38b6d2c83fff4fe69023db143d" title="Get the checksum of this gatherer." alt="" coords="5,29,205,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,71,205,66,205,61,237,65"/>
+<area shape="rect" id="Node000003" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a42ac34b4c955df26458a3421c9f14669" title="Get the checksum of this gatherer." alt="" coords="18,95,192,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="237,100,192,106,192,101,237,95"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="144,16,130,10,105,8,82,10,68,15,63,21,65,28,60,29,57,19,65,10,81,5,105,3,131,5,146,11"/>
+</map>

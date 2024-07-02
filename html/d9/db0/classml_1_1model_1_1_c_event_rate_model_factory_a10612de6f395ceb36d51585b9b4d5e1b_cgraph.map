@@ -1,0 +1,20 @@
+<map id="ml::model::CEventRateModelFactory::makeDataGatherer" name="ml::model::CEventRateModelFactory::makeDataGatherer">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,199,75"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a4c2361335ef97eebb66e5e2852ef0f4e" title="Get global model configuration parameters." alt="" coords="488,5,663,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,46,472,29,473,35,199,52"/>
+<area shape="rect" id="Node000003" href="$d9/db0/classml_1_1model_1_1_c_event_rate_model_factory.html#a2effbca36be840008072526083d1e141" title="Get the search key corresponding to this factory." alt="" coords="247,63,440,103"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,64,231,67,231,73,199,69"/>
+<area shape="poly" id="edge10_Node000003_Node000002" title=" " alt="" coords="428,60,475,48,477,53,429,65"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="510,71,642,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="440,84,494,86,494,91,440,89"/>
+<area shape="rect" id="Node000005" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="711,5,844,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="641,76,720,49,722,54,643,81"/>
+<area shape="rect" id="Node000006" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="711,71,844,111"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="642,97,696,97,695,103,642,102"/>
+<area shape="rect" id="Node000007" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="716,136,839,161"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="643,107,716,128,714,133,641,112"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="712,41,633,67,632,62,710,36"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="711,85,657,85,658,79,711,80"/>
+<area shape="rect" id="Node000008" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="892,136,938,161"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="839,146,876,146,876,151,839,151"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ml::api::CEncoding::CSizeInfo" name="ml::api::CEncoding::CSizeInfo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="72,199,205,240"/>
+<area shape="rect" id="Node000002" href="$d3/d04/classml_1_1api_1_1_c_serializable_to_json_document.html" title="Interface for adding all elements of an inference model definition to a JSON writer." alt="" coords="5,95,165,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,148,130,197,126,200,100,151"/>
+<area shape="rect" id="Node000003" href="$d7/d50/classml_1_1api_1_1_c_encoding.html" title=" " alt="" coords="188,103,321,129"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,141,163,200,159,196,227,137"/>
+<area shape="rect" id="Node000004" href="$d6/d00/classml_1_1api_1_1_c_serializable_to_json_stream.html" title="Interface for writing the inference model defition JSON description to a stream." alt="" coords="175,5,334,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="257,62,257,102,252,102,252,62"/>
+</map>

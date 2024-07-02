@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultinomialConjugate" name="ml::maths::common::CMultinomialConjugate">
+<area shape="rect" id="Node000001" title="A conjugate prior distribution for a multinomial variable." alt="" coords="68,94,225,135"/>
+<area shape="rect" id="Node000003" href="$d1/dd8/classml_1_1_c_prior_test_interface_mixin.html" title=" " alt="" coords="5,183,288,223"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,150,134,182,128,182,126,150"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="149,150,149,182,144,182,144,150"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="167,150,165,182,159,182,162,150"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="74,5,219,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,62,149,94,144,94,144,62"/>
+</map>

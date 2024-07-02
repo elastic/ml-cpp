@@ -1,0 +1,9 @@
+<map id="ml::api::CPersistenceManager::doForegroundPersist" name="ml::api::CPersistenceManager::doForegroundPersist">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,203,111"/>
+<area shape="rect" id="Node000002" href="$db/d84/classml_1_1api_1_1_c_persistence_manager.html#a0c1ba61de9599d565cd6f8bd595aa23f" title="Is background persistence currently in progress?" alt="" coords="251,5,448,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,67,255,48,256,53,184,73"/>
+<area shape="rect" id="Node000003" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="282,71,417,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,88,267,88,267,94,203,94"/>
+<area shape="rect" id="Node000004" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#ac25482f1bd4c99b31b3d92dec69d8b43" title=" " alt="" coords="282,136,417,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,109,268,132,266,137,182,115"/>
+</map>

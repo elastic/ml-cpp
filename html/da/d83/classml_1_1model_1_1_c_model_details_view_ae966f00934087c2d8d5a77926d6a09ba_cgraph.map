@@ -1,0 +1,16 @@
+<map id="ml::model::CModelDetailsView::isByFieldIdActive" name="ml::model::CModelDetailsView::isByFieldIdActive">
+<area shape="rect" id="Node000001" title="Check if the by field identified by byFieldId is currently in use." alt="" coords="5,136,178,177"/>
+<area shape="rect" id="Node000002" href="$da/d83/classml_1_1model_1_1_c_model_details_view.html#a364ae8bdfdd6c0cf18c65181eb40936c" title="Get the underlying model." alt="" coords="238,5,411,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,134,164,95,224,57,238,50,240,55,227,61,167,100,118,138"/>
+<area shape="rect" id="Node000003" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="226,71,423,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,133,234,114,235,119,167,138"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a01a461f14a805f86bfc44c38b015ba47" title="Check that the person is no longer being modeled." alt="" coords="237,136,412,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="178,154,222,154,222,159,178,159"/>
+<area shape="rect" id="Node000006" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad433daea23da24cfde03e0c13ec15e99" title="Check that the person is no longer being modeled." alt="" coords="237,201,412,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="167,175,235,194,234,199,166,180"/>
+<area shape="rect" id="Node000007" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a0cded7b0f451fb941b0fd591e23fd581" title="True if this is a population model." alt="" coords="226,267,423,307"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="118,175,167,213,227,251,240,258,238,263,224,256,164,217,115,179"/>
+<area shape="rect" id="Node000005" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="471,169,653,210"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="412,166,456,172,455,177,412,171"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="412,207,455,201,456,207,412,213"/>
+</map>

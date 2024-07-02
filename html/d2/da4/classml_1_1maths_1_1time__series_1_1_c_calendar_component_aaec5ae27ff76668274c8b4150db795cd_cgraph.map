@@ -1,0 +1,85 @@
+<map id="ml::maths::time_series::CCalendarComponent::add" name="ml::maths::time_series::CCalendarComponent::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,869,193,910"/>
+<area shape="rect" id="Node000002" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#abe3e59a1d71e5a8a2a55c517a1b1326b" title=" " alt="" coords="486,399,695,454"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,867,547,463,551,467,124,871"/>
+<area shape="rect" id="Node000017" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a388c580a49ddd380233c6f70e6693df1" title=" " alt="" coords="241,897,438,938"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="194,897,225,901,225,907,193,903"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="1050,5,1272,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="601,397,621,352,652,295,692,237,742,186,810,139,886,102,962,74,1034,54,1035,59,964,79,888,107,813,143,745,190,696,240,656,298,626,354,605,399"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ae2696aac19d821a93c85936a4d999c35" title=" " alt="" coords="776,200,953,240"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="608,397,663,327,700,289,742,256,764,244,766,249,745,261,703,293,667,330,612,400"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="1083,344,1239,400"/>
+<area shape="poly" id="edge14_Node000002_Node000005" title=" " alt="" coords="635,396,685,370,743,351,828,338,914,336,996,342,1068,351,1067,356,996,347,914,342,828,343,744,356,688,375,638,401"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1081,280,1241,320"/>
+<area shape="poly" id="edge17_Node000002_Node000008" title=" " alt="" coords="623,396,676,358,709,340,742,325,826,304,912,293,994,289,1066,290,1065,296,994,295,912,298,827,310,744,330,711,344,679,362,626,401"/>
+<area shape="rect" id="Node000010" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a97d7a759ccbfea9510e14f580d58f586" title="Add a large error in bucket." alt="" coords="786,365,943,421"/>
+<area shape="poly" id="edge11_Node000002_Node000010" title=" " alt="" coords="695,411,770,402,771,407,696,416"/>
+<area shape="rect" id="Node000012" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="1083,517,1239,573"/>
+<area shape="poly" id="edge15_Node000002_Node000012" title=" " alt="" coords="696,433,835,452,986,481,1075,509,1074,514,985,486,834,457,695,439"/>
+<area shape="rect" id="Node000013" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="743,496,986,552"/>
+<area shape="poly" id="edge16_Node000002_Node000013" title=" " alt="" coords="672,452,770,488,769,493,670,457"/>
+<area shape="rect" id="Node000014" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#aa7a60039b1bc1a55160fd72d275cc874" title="Get the specified moment provided it exists." alt="" coords="777,576,952,616"/>
+<area shape="poly" id="edge18_Node000002_Node000014" title=" " alt="" coords="617,453,672,508,707,537,745,562,764,571,762,575,742,566,704,541,668,512,613,456"/>
+<area shape="rect" id="Node000015" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#afe92b2fae82a591e7b16461184166e3a" title="Get the value at time." alt="" coords="760,640,969,696"/>
+<area shape="poly" id="edge19_Node000002_Node000015" title=" " alt="" coords="608,454,630,492,661,539,700,585,745,626,751,630,748,634,742,630,696,589,657,542,626,495,604,456"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="885,197,961,127,1001,93,1032,71,1043,65,1045,70,1035,75,1004,98,964,131,889,201"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="893,238,956,283,1035,329,1069,344,1067,349,1032,334,953,288,890,243"/>
+<area shape="rect" id="Node000006" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="1336,280,1492,336"/>
+<area shape="poly" id="edge10_Node000004_Node000006" title=" " alt="" coords="954,222,1111,237,1200,249,1289,265,1322,274,1320,279,1287,270,1199,254,1110,242,953,227"/>
+<area shape="rect" id="Node000007" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a46c659da01617c9298587c1c52d3025d" title="Get the count in bucket." alt="" coords="1083,85,1239,141"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="915,196,1033,151,1067,139,1068,144,1035,156,917,201"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="943,238,1069,272,1067,278,942,243"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a4062b0969553b6d4137ff5f348f2adad" title="Make a mean accumulator." alt="" coords="1034,165,1288,206"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="953,207,1018,199,1018,205,954,212"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="1239,350,1320,329,1321,334,1240,355"/>
+<area shape="poly" id="edge12_Node000010_Node000005" title=" " alt="" coords="943,385,1067,376,1068,381,943,390"/>
+<area shape="rect" id="Node000011" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="1088,424,1234,464"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="943,404,1074,426,1073,432,943,409"/>
+<area shape="poly" id="edge20_Node000015_Node000005" title=" " alt="" coords="968,640,984,626,1001,599,1009,573,1010,547,1007,520,1004,493,1005,466,1013,438,1032,410,1048,396,1067,386,1069,390,1051,400,1036,414,1018,440,1010,466,1009,493,1012,519,1015,546,1014,574,1006,602,988,630,971,644"/>
+<area shape="poly" id="edge21_Node000015_Node000012" title=" " alt="" coords="954,637,985,625,1090,578,1092,583,987,630,956,642"/>
+<area shape="rect" id="Node000016" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="1088,649,1234,690"/>
+<area shape="poly" id="edge22_Node000015_Node000016" title=" " alt="" coords="970,666,1073,666,1073,671,970,671"/>
+<area shape="rect" id="Node000018" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a11c4767ff6cf37dbe054fb54e5cc2c51" title="The count in the bucket containing time." alt="" coords="486,712,695,768"/>
+<area shape="poly" id="edge24_Node000017_Node000018" title=" " alt="" coords="368,894,536,775,539,779,371,899"/>
+<area shape="rect" id="Node000020" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a33ede80a59d48272a5912f65df1f5f7c" title="Get the calendar feature." alt="" coords="508,987,674,1042"/>
+<area shape="poly" id="edge27_Node000017_Node000020" title=" " alt="" coords="395,936,504,978,502,983,393,941"/>
+<area shape="rect" id="Node000022" href="$d5/d30/classml_1_1maths_1_1time__series_1_1_c_calendar_feature_and_t_z.html#a1f2b1cc2615ab8f9d5d622e3a53ea05c" title=" " alt="" coords="504,1103,678,1158"/>
+<area shape="poly" id="edge29_Node000017_Node000022" title=" " alt="" coords="363,936,418,990,488,1052,538,1091,534,1095,484,1057,415,994,359,940"/>
+<area shape="rect" id="Node000025" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a12ba038b73ecbc680cd9f65dad842ada" title=" " alt="" coords="494,889,687,945"/>
+<area shape="poly" id="edge33_Node000017_Node000025" title=" " alt="" coords="439,915,479,915,479,920,439,920"/>
+<area shape="poly" id="edge26_Node000018_Node000015" title=" " alt="" coords="695,710,744,697,746,702,696,715"/>
+<area shape="rect" id="Node000019" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="785,720,944,760"/>
+<area shape="poly" id="edge25_Node000018_Node000019" title=" " alt="" coords="696,737,769,737,769,743,696,743"/>
+<area shape="rect" id="Node000021" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#ab95df8fb3c0db917e4acac8547c58b84" title="Get the calendar feature." alt="" coords="760,1089,969,1145"/>
+<area shape="poly" id="edge28_Node000020_Node000021" title=" " alt="" coords="659,1040,744,1075,762,1081,761,1086,742,1080,657,1045"/>
+<area shape="rect" id="Node000023" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#af5feca49312bf37c506b4c15204bde0f" title=" " alt="" coords="776,1169,953,1210"/>
+<area shape="poly" id="edge30_Node000022_Node000023" title=" " alt="" coords="679,1147,761,1164,760,1170,678,1152"/>
+<area shape="rect" id="Node000024" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="1089,1169,1233,1210"/>
+<area shape="poly" id="edge31_Node000023_Node000024" title=" " alt="" coords="953,1187,1074,1187,1074,1192,953,1192"/>
+<area shape="poly" id="edge32_Node000024_Node000024" title=" " alt="" coords="1113,1169,1111,1159,1119,1150,1136,1144,1161,1142,1188,1145,1204,1151,1202,1156,1187,1150,1161,1147,1137,1149,1122,1154,1116,1160,1119,1167"/>
+<area shape="poly" id="edge44_Node000025_Node000025" title=" " alt="" coords="542,889,542,879,551,870,567,865,591,863,617,865,633,872,631,877,616,870,591,868,568,870,554,875,547,881,547,889"/>
+<area shape="rect" id="Node000026" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a97df4201d641144adf5b18796772b2f8" title="Check if the seasonal component has been estimated." alt="" coords="768,849,961,905"/>
+<area shape="poly" id="edge34_Node000025_Node000026" title=" " alt="" coords="688,900,752,891,753,896,688,906"/>
+<area shape="rect" id="Node000028" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#ad30fb657633042521274a54322d0ee30" title=" " alt="" coords="792,785,937,826"/>
+<area shape="poly" id="edge36_Node000025_Node000028" title=" " alt="" coords="638,886,687,860,742,835,776,823,778,828,744,840,690,864,640,891"/>
+<area shape="rect" id="Node000033" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#af8299f80413e15ef9efd31aaedb8052d" title="Get the value spline." alt="" coords="768,929,961,985"/>
+<area shape="poly" id="edge45_Node000025_Node000033" title=" " alt="" coords="688,929,753,938,752,944,688,934"/>
+<area shape="rect" id="Node000035" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a3577f924b3f733c1f709efee2a826be7" title="Get the variance spline." alt="" coords="768,1009,961,1065"/>
+<area shape="poly" id="edge47_Node000025_Node000035" title=" " alt="" coords="645,943,744,995,760,1001,758,1006,742,1000,642,948"/>
+<area shape="rect" id="Node000027" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a638a84f6600ed79cb6063c02dd83b38b" title="Check if the splines have been initialized." alt="" coords="1064,912,1258,968"/>
+<area shape="poly" id="edge35_Node000026_Node000027" title=" " alt="" coords="962,895,1050,914,1048,919,961,900"/>
+<area shape="poly" id="edge41_Node000028_Node000016" title=" " alt="" coords="937,791,962,782,984,770,999,754,1007,737,1016,720,1032,703,1072,683,1074,688,1035,707,1020,723,1012,740,1004,757,987,774,964,787,939,796"/>
+<area shape="rect" id="Node000029" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a89db4cff0eb3da52e08292f255fd20f7" title="Get the curvatures at the knot points of the spline." alt="" coords="1088,848,1234,888"/>
+<area shape="poly" id="edge37_Node000028_Node000029" title=" " alt="" coords="938,818,1074,847,1072,852,937,823"/>
+<area shape="rect" id="Node000031" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#a39e53abd1d0c2de07a44a358db269622" title="Get the knot points of the spline." alt="" coords="1088,717,1234,758"/>
+<area shape="poly" id="edge39_Node000028_Node000031" title=" " alt="" coords="937,786,1072,755,1074,760,938,791"/>
+<area shape="rect" id="Node000032" href="$d5/d99/classml_1_1maths_1_1common_1_1_c_spline.html#af9d9ce19eea5bed22ade0c33c4d922d7" title="Get the values at the knot points of the spline." alt="" coords="1088,782,1234,823"/>
+<area shape="poly" id="edge42_Node000028_Node000032" title=" " alt="" coords="938,802,1073,801,1073,806,938,807"/>
+<area shape="rect" id="Node000030" href="$db/dc5/namespaceml_1_1core.html#a7fabda180cc1b8ddeaa756bf40ba24c5" title=" " alt="" coords="1344,790,1484,815"/>
+<area shape="poly" id="edge38_Node000029_Node000030" title=" " alt="" coords="1233,847,1346,817,1347,822,1235,852"/>
+<area shape="poly" id="edge40_Node000031_Node000030" title=" " alt="" coords="1235,753,1347,783,1346,788,1233,758"/>
+<area shape="poly" id="edge43_Node000032_Node000030" title=" " alt="" coords="1234,800,1328,800,1328,805,1234,805"/>
+<area shape="rect" id="Node000034" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#af06ce53f8fd739ff1f611b52cdc0bf42" title="Get a constant spline reference." alt="" coords="1064,1001,1258,1057"/>
+<area shape="poly" id="edge46_Node000033_Node000034" title=" " alt="" coords="962,978,1050,999,1048,1005,961,983"/>
+<area shape="poly" id="edge48_Node000035_Node000034" title=" " alt="" coords="962,1032,1049,1030,1049,1035,962,1037"/>
+</map>

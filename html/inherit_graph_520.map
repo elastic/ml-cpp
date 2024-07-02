@@ -1,0 +1,15 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d3/d5e/classml_1_1maths_1_1common_1_1_c_clusterer_types.html" title="Factors out the non&#45;template part of CClusterer for improved compile times." alt="" coords="5,56,151,97"/>
+<area shape="rect" id="Node000001" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html" title=" " alt="" coords="199,13,367,69"/>
+<area shape="poly" id="edge232_Node000000_Node000001" title=" " alt="" coords="166,59,198,53,199,58,167,64"/>
+<area shape="rect" id="Node000004" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html" title="Interface for clustering functionality." alt="" coords="208,92,358,133"/>
+<area shape="poly" id="edge235_Node000000_Node000004" title=" " alt="" coords="167,89,208,97,207,102,166,95"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html" title="A single pass online clusterer based on the x&#45;means algorithm of Pelleg and Moore." alt="" coords="415,20,579,61"/>
+<area shape="poly" id="edge233_Node000001_Node000002" title=" " alt="" coords="382,38,414,38,414,43,382,43"/>
+<area shape="rect" id="Node000003" href="$d0/dcd/classanonymous__namespace_02_c_x_means_online_test_8cc_03_1_1_c_x_means_online_for_test.html" title=" " alt="" coords="627,5,796,76"/>
+<area shape="poly" id="edge234_Node000002_Node000003" title=" " alt="" coords="595,38,627,38,627,43,595,43"/>
+<area shape="rect" id="Node000005" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html" title="A single pass online clusterer which assigns points to a fixed clustering of the data." alt="" coords="425,88,570,129"/>
+<area shape="poly" id="edge236_Node000004_Node000005" title=" " alt="" coords="372,108,424,107,424,113,373,114"/>
+<area shape="rect" id="Node000006" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html" title="A single pass online clusterer based on the x&#45;means algorithm of Pelleg and Moore." alt="" coords="425,154,570,194"/>
+<area shape="poly" id="edge237_Node000004_Node000006" title=" " alt="" coords="372,135,425,151,423,156,370,140"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,107,202,133"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#ac954927b9335015bfcce14a8a6f310d3" title="Euclidean norm." alt="" coords="250,60,407,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,104,234,94,235,99,180,109"/>
+<area shape="rect" id="Node000006" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#ac30c893f2ab1adc59aded7daceb99e02" title="Get the Frobenius norm." alt="" coords="250,128,407,184"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="188,131,235,138,234,143,187,136"/>
+<area shape="rect" id="Node000003" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#abcca910e9026ef13d4087e30ee3bcc03" title="Inner product." alt="" coords="466,56,611,96"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,76,450,75,450,80,407,81"/>
+<area shape="rect" id="Node000004" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a20d1bb135682b5741deae937d92e6dc2" title="Get read only reference." alt="" coords="670,5,816,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="611,58,654,49,656,54,612,63"/>
+<area shape="rect" id="Node000005" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a58169b3ce034b25724b509f49069311f" title=" " alt="" coords="670,85,816,155"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="612,89,656,98,654,104,611,94"/>
+<area shape="rect" id="Node000007" href="$d5/d23/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_symmetric_matrix.html#a22de1d1dd2f70cdf6389b8695dc3eff2" title=" " alt="" coords="455,120,622,205"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="408,156,440,157,439,162,407,161"/>
+</map>

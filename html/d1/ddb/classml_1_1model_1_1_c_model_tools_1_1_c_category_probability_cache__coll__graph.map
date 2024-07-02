@@ -1,0 +1,9 @@
+<map id="ml::model::CModelTools::CCategoryProbabilityCache" name="ml::model::CModelTools::CCategoryProbabilityCache">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,303,197,343"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html" title="A conjugate prior distribution for a multinomial variable." alt="" coords="23,199,179,240"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,255,104,302,98,302,98,255"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="28,109,174,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="104,165,104,199,98,199,98,165"/>
+<area shape="rect" id="Node000004" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="21,5,181,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="104,47,104,109,98,109,98,47"/>
+</map>

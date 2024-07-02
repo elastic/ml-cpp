@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CMultivariateMultimodalPrior::decayRate" name="ml::maths::common::CMultivariateMultimodalPrior::decayRate">
+<area shape="rect" id="Node000001" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="5,5,194,61"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2507854a990915f6440312167ef3136b" title="Get the mode of the marginal likelihood function." alt="" coords="242,5,402,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,31,226,31,226,36,194,36"/>
+</map>

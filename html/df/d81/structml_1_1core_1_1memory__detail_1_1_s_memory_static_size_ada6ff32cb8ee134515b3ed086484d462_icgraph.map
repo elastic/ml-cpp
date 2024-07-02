@@ -1,0 +1,17 @@
+<map id="ml::core::memory_detail::SMemoryStaticSize::dispatch" name="ml::core::memory_detail::SMemoryStaticSize::dispatch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="497,126,699,167"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#ad1eb3a1e5bb2a0ebc5548f99454d6c94" title="Default implementation." alt="" coords="260,133,449,159"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="481,149,449,149,449,144,481,144"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#acc2337679740193395745ec432e72773" title=" " alt="" coords="5,5,212,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="326,125,275,83,243,62,211,45,182,34,184,29,213,40,246,58,278,79,329,120"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#ac7e48e23ef7946b44f2b3057b75451bb" title=" " alt="" coords="5,55,212,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="307,129,211,94,172,83,173,78,212,89,309,124"/>
+<area shape="rect" id="Node000005" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a0dc19a4c38b697ee2c43a92ed7876a94" title="Default implementation for pointer types." alt="" coords="5,104,212,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="244,136,212,132,212,127,245,130"/>
+<area shape="rect" id="Node000006" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#afcf390215a27ad4a72b45bbd80554b6e" title=" " alt="" coords="26,154,191,195"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="245,161,192,167,191,162,244,156"/>
+<area shape="rect" id="Node000007" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#ab688367dfd537102abc5900e29c7cb30" title=" " alt="" coords="26,219,191,260"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="311,168,213,209,177,221,176,216,211,204,308,163"/>
+<area shape="rect" id="Node000008" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#a848740e9e29e1338d8e0e38af695f48c" title="Default implementation for pointer types." alt="" coords="26,285,191,325"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="333,173,282,223,248,250,213,274,186,286,184,282,210,269,245,246,278,219,330,169"/>
+</map>

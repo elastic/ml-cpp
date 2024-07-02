@@ -1,0 +1,13 @@
+<map id="ml::model::CBucketGatherer::removeAttributes" name="ml::model::CBucketGatherer::removeAttributes">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,193,79"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a297aa68a600b7bf3938bdf0c062572c9" title=" " alt="" coords="247,5,422,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,43,231,38,232,43,194,48"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ab27631f14f5ae505aeb401f3d56f57a9" title=" " alt="" coords="241,71,428,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,69,226,74,225,79,193,74"/>
+<area shape="rect" id="Node000003" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#a48738901bb6e09e5ec631806d8e6215c" title=" " alt="" coords="487,5,669,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,23,472,23,472,28,422,28"/>
+<area shape="rect" id="Node000005" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#aaac5e7883124c0e9e52148da200bf513" title=" " alt="" coords="491,71,666,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="429,88,475,88,475,94,429,94"/>
+<area shape="rect" id="Node000006" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a9ec72fa26aac807ff6f7f2df6a6aea47" title="Returns an iterator pointing to the end of the queue." alt="" coords="476,136,680,161"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="424,109,506,129,505,134,423,115"/>
+</map>

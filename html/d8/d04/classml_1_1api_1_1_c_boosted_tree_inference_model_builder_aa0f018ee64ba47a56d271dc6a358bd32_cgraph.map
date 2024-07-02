@@ -1,0 +1,7 @@
+<map id="ml::api::CBoostedTreeInferenceModelBuilder::addNode" name="ml::api::CBoostedTreeInferenceModelBuilder::addNode">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,212,79"/>
+<area shape="rect" id="Node000002" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#a389bad31c541e617d550a2f2e62d700b" title=" " alt="" coords="271,5,416,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,42,255,36,256,41,212,47"/>
+<area shape="rect" id="Node000003" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#a72052c57e93733e1e75ec20604df916b" title=" " alt="" coords="260,71,427,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,70,245,75,244,80,212,76"/>
+</map>

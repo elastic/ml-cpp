@@ -1,0 +1,5 @@
+<map id="ml::model::CModelFactory" name="ml::model::CModelFactory">
+<area shape="rect" id="Node000001" title="A factory class interface for the CAnomalyDetectorModel hierarchy." alt="" coords="5,94,181,120"/>
+<area shape="rect" id="Node000002" href="$d1/da4/structml_1_1model_1_1_s_model_params.html" title="Wraps up model global parameters." alt="" coords="5,5,181,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,47,96,94,90,94,90,47"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::api::CPerPartitionCategoryIdMapper" name="ml::api::CPerPartitionCategoryIdMapper">
+<area shape="rect" id="Node000001" title="Category ID mapper for use with per&#45;partition categorization." alt="" coords="5,79,205,120"/>
+<area shape="rect" id="Node000002" href="$d4/d9e/classml_1_1api_1_1_c_category_id_mapper.html" title="Interface for mappers between local and global category IDs." alt="" coords="12,5,198,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,46,108,79,102,79,102,46"/>
+</map>

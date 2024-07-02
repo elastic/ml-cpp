@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CKMeans::dispersion" name="ml::maths::common::CKMeans::dispersion">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,174,152,215"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="200,5,422,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,172,137,122,166,95,198,71,206,66,209,71,201,75,170,99,141,126,98,175"/>
+<area shape="rect" id="Node000003" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a982a4cbb6af5d653b1de13107214a6bc" title="Get the cluster centres." alt="" coords="238,85,384,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="120,171,199,136,222,128,224,133,201,141,122,176"/>
+<area shape="rect" id="Node000004" href="$d6/ded/classml_1_1maths_1_1common_1_1_c_k_means.html#a24a384979cfc49796c37e726d8807d2b" title=" " alt="" coords="238,174,384,215"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,192,223,192,223,197,152,197"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="238,240,384,280"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="153,212,224,233,223,238,151,218"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="231,305,391,346"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="102,213,145,252,201,290,218,297,216,302,198,294,142,256,98,217"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="267,174,265,164,272,155,288,150,311,148,336,150,351,156,349,161,335,155,311,153,289,155,275,159,270,165,272,173"/>
+<area shape="rect" id="Node000006" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="470,240,615,280"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="384,257,455,257,455,263,384,263"/>
+</map>

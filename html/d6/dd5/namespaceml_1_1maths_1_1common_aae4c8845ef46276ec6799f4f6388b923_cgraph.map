@@ -1,0 +1,9 @@
+<map id="ml::maths::common::scaleCovariances" name="ml::maths::common::scaleCovariances">
+<area shape="rect" id="Node000001" title="Scale the rows and columns by scale." alt="" coords="5,22,151,63"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="392,29,466,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,37,199,36,344,36,376,37,376,42,344,41,199,41,151,42"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="199,50,344,91"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="151,50,183,55,183,60,150,55"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="402,30,397,21,400,11,411,5,429,3,448,5,459,12,456,16,447,10,429,8,413,10,404,15,402,20,407,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="344,55,376,49,377,54,345,60"/>
+</map>

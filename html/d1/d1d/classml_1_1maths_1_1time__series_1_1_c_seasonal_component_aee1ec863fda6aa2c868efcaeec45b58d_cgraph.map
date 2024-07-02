@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CSeasonalComponent::slope" name="ml::maths::time_series::CSeasonalComponent::slope">
+<area shape="rect" id="Node000001" title="Get the common slope of the bucket regression models." alt="" coords="5,117,205,158"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a0234f443748abafc85d09712af578b95" title="Get the common slope of the bucket regression models." alt="" coords="253,110,464,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,135,237,135,237,140,205,140"/>
+<area shape="rect" id="Node000003" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a86fe66601db1049b6d8ec0555b1299b1" title="Update the statistic with the collection x." alt="" coords="512,5,724,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,107,456,80,511,55,527,49,529,54,513,60,459,85,409,112"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="540,70,696,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="464,119,524,109,525,115,465,124"/>
+<area shape="rect" id="Node000006" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#a99cebcc7653a7f75b0a6abc6b87fb270" title="Get the count of statistics." alt="" coords="527,150,710,206"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="465,151,511,159,511,164,464,157"/>
+<area shape="rect" id="Node000007" href="$d4/d5a/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_min_max.html#ac052ec404660d4d946481a96d7960f00" title="Get the margin by which all the values have the same sign." alt="" coords="527,230,710,286"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="411,164,513,215,526,221,524,226,511,220,409,168"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="772,70,929,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="697,95,757,95,757,100,697,100"/>
+</map>

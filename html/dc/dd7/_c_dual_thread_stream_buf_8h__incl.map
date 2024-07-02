@@ -1,0 +1,29 @@
+<map id="include/core/CDualThreadStreamBuf.h" name="include/core/CDualThreadStreamBuf.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="346,5,519,46"/>
+<area shape="rect" id="Node000002" href="$d8/da3/_c_condition_8h.html" title=" " alt="" coords="135,94,261,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="375,49,249,91,248,86,373,44"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="24,241,161,267"/>
+<area shape="poly" id="edge13_Node000001_Node000004" title=" " alt="" coords="346,40,238,60,180,76,124,96,58,122,34,139,12,169,9,187,17,203,33,219,53,232,50,236,30,223,13,206,4,187,7,167,30,135,55,117,122,92,179,71,237,55,345,35"/>
+<area shape="rect" id="Node000008" href="$d2/d78/_c_mutex_8h.html" title=" " alt="" coords="300,94,407,120"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="415,48,378,85,375,81,411,45"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="432,94,590,120"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="454,45,490,81,487,85,450,48"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="614,94,675,120"/>
+<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="486,44,600,86,598,91,484,49"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="698,94,777,120"/>
+<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="509,44,684,89,683,94,508,49"/>
+<area shape="rect" id="Node000003" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="116,168,266,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="199,120,196,152,191,152,194,120"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="134,114,103,120,72,131,44,147,21,169,17,185,24,201,38,217,57,231,54,235,35,221,19,204,11,186,17,166,41,142,70,126,102,115,133,109"/>
+<area shape="rect" id="Node000005" href="$da/d3e/_windows_safe_8h.html" title=" " alt="" coords="291,168,433,193"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="227,118,321,159,319,164,225,123"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="457,168,533,193"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="249,118,443,164,442,169,248,123"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="32,168,92,193"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="176,123,100,162,97,158,174,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="176,196,123,234,120,230,173,192"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="327,123,234,163,232,159,325,118"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="408,115,490,136,525,150,547,166,552,181,546,195,528,206,495,215,398,230,176,250,176,245,398,225,494,210,526,201,542,192,547,181,542,169,522,154,488,141,407,120"/>
+<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="358,120,361,152,356,153,352,120"/>
+<area shape="poly" id="edge12_Node000008_Node000006" title=" " alt="" coords="379,118,459,158,456,163,377,123"/>
+</map>

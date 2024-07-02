@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CXMeansOnline::CCluster::swap" name="ml::maths::common::CXMeansOnline::CCluster::swap">
+<area shape="rect" id="Node000001" title="Efficiently swap the contents of this and other." alt="" coords="677,82,893,123"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a6e8712bba1acc8cbf86b7a27d90e8607" title="Remove any clusters which are effectively dead." alt="" coords="468,49,624,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="661,88,624,83,625,77,662,83"/>
+<area shape="rect" id="Node000006" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a5ef2ff9d66b1783cef4733ddccd5a9ea" title="Remove the cluster with index." alt="" coords="462,114,629,155"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="662,122,630,126,629,121,662,116"/>
+<area shape="poly" id="edge5_Node000002_Node000002" title=" " alt="" coords="579,36,566,30,546,27,526,29,515,34,510,40,512,48,507,49,505,39,511,30,525,24,546,22,568,25,581,31"/>
+<area shape="rect" id="Node000003" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a0614699098b1f7a97a048c241df4260f" title=" " alt="" coords="269,49,414,90"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,72,414,72,414,67,452,67"/>
+<area shape="rect" id="Node000004" href="$d0/dcd/classanonymous__namespace_02_c_x_means_online_test_8cc_03_1_1_c_x_means_online_for_test.html#a5525fbbb11d9b7c96f5069cdfd36d6dd" title=" " alt="" coords="5,5,221,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="253,58,221,53,222,48,254,53"/>
+<area shape="rect" id="Node000005" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a0c74e5722793ab9d23410917d38c3bae" title="Update the clustering with points." alt="" coords="40,85,186,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="254,86,186,96,186,91,253,80"/>
+</map>

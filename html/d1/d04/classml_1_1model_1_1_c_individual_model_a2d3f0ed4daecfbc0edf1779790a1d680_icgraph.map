@@ -1,0 +1,9 @@
+<map id="ml::model::CIndividualModel::sampleBucketStatistics" name="ml::model::CIndividualModel::sampleBucketStatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="247,71,433,111"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a60955fb365980cd8c47e2e6eb16dc746" title=" " alt="" coords="5,5,199,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,69,178,49,180,44,250,64"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a7b4b256a8fe1451550402fb91417dcc5" title=" " alt="" coords="9,71,195,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,94,196,94,196,88,231,88"/>
+<area shape="rect" id="Node000004" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#acdd3555393b6e886576132bd820d28d3" title=" " alt="" coords="18,136,186,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="250,118,180,138,178,133,249,113"/>
+</map>

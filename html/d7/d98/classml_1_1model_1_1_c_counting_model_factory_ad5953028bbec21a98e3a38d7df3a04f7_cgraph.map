@@ -1,0 +1,7 @@
+<map id="ml::model::CCountingModelFactory::makeModel" name="ml::model::CCountingModelFactory::makeModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,189,79"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a5fcf9418a000a57973009fc354b2c35b" title="Get the singleton interim bucket correction calculator." alt="" coords="237,5,412,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,43,221,38,222,43,189,48"/>
+<area shape="rect" id="Node000003" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#a4c2361335ef97eebb66e5e2852ef0f4e" title="Get global model configuration parameters." alt="" coords="237,71,412,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,69,222,74,221,79,189,75"/>
+</map>

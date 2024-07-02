@@ -1,0 +1,7 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::acceptPersistInserter" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist by passing information to inserter." alt="" coords="5,41,220,97"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aabbe813ad8ae2be858782aa73b1174cc" title=" " alt="" coords="268,5,482,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,52,252,47,253,53,221,57"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="298,85,452,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,81,282,90,282,95,220,87"/>
+</map>

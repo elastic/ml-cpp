@@ -1,0 +1,15 @@
+<map id="anonymous_namespace{CSystemCallFilterTest::cc}::openPipeAndRead" name="anonymous_namespace{CSystemCallFilterTest::cc}::openPipeAndRead">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,169,152"/>
+<area shape="rect" id="Node000002" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a1710b622abe2af1f0bdf6ef5e9ba80f2" title=" " alt="" coords="217,104,415,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,122,201,122,201,127,169,127"/>
+<area shape="rect" id="Node000003" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#aa43125277b181d9dbd4263ff45f8ba75" title=" " alt="" coords="463,104,661,145"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,122,447,122,447,127,416,127"/>
+<area shape="rect" id="Node000004" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#ad6c48125c40ec2d7825628445118eac8" title=" " alt="" coords="709,5,870,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="608,101,708,57,724,50,726,55,710,61,610,106"/>
+<area shape="rect" id="Node000005" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#acc911f7595fc8451a15ccc6389162721" title=" " alt="" coords="709,71,870,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="661,107,693,102,694,108,662,112"/>
+<area shape="rect" id="Node000006" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a0ac6930dbe3831527169f29e1794fa18" title=" " alt="" coords="709,136,870,177"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="662,136,694,140,693,146,661,141"/>
+<area shape="rect" id="Node000007" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a9b938fd4fd923da6d926426fe06c9e14" title=" " alt="" coords="709,201,870,242"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="612,143,710,186,726,192,724,197,708,191,610,148"/>
+</map>

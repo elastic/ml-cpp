@@ -1,0 +1,15 @@
+<map id="anonymous_namespace{CBayesianOptimisationTest::cc}::testPersistRestoreIsIdempotent" name="anonymous_namespace{CBayesianOptimisationTest::cc}::testPersistRestoreIsIdempotent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,99,246,155"/>
+<area shape="rect" id="Node000002" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#a94afe530cefc662df551daeca82331b9" title="Persist by passing information to inserter." alt="" coords="316,63,474,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,108,300,101,301,106,246,114"/>
+<area shape="rect" id="Node000007" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="294,143,496,183"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="246,140,279,145,278,150,246,146"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="544,5,746,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="474,68,549,48,550,53,475,73"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="568,71,722,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="475,88,552,88,552,94,475,94"/>
+<area shape="rect" id="Node000005" href="$d8/dca/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_o_shiro128_plus.html#ade2dfc116d155a15eb089bf70a67e174" title="Persist to a string." alt="" coords="548,135,743,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="475,111,533,128,532,133,474,116"/>
+<area shape="rect" id="Node000006" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="794,143,949,183"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="743,160,779,160,779,166,743,166"/>
+</map>

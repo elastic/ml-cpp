@@ -1,0 +1,17 @@
+<map id="ml::model::CRuleScope::include" name="ml::model::CRuleScope::include">
+<area shape="rect" id="Node000001" title="Adds a requirement for field to be in filter for the rule to apply." alt="" coords="714,97,875,137"/>
+<area shape="rect" id="Node000002" href="$da/dfc/classml_1_1model_1_1_c_detection_rule.html#aef89915a8ffea6235d7ea9fd3823711b" title="Adds a requirement for field not to be in filter for the rule to apply." alt="" coords="487,97,666,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="699,120,667,120,667,114,699,114"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/_c_detection_rule_test_8cc.html#ab74b81f93055a7b2b354c82e33b725d3" title=" " alt="" coords="222,5,439,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="529,91,486,66,438,45,404,34,405,29,440,40,488,62,532,86"/>
+<area shape="rect" id="Node000004" href="$d2/d5e/_c_detection_rule_test_8cc.html#ab3d2c36d20c60308c08300fa2be5e6a7" title=" " alt="" coords="222,55,439,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="471,98,398,84,399,78,472,93"/>
+<area shape="rect" id="Node000005" href="$d2/d5e/_c_detection_rule_test_8cc.html#ad55f30d621848ecaa77f9260b71b6af3" title=" " alt="" coords="222,104,439,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="471,120,439,120,439,114,471,114"/>
+<area shape="rect" id="Node000006" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a46eaa3d97cf343b742c3170cacc17377" title=" " alt="" coords="222,153,439,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="472,140,399,155,398,150,471,135"/>
+<area shape="rect" id="Node000007" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#ab78ec78c6c5c42dc5d69986bbde2f1ae" title=" " alt="" coords="235,203,426,244"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="530,148,440,194,410,205,408,200,438,189,528,143"/>
+<area shape="rect" id="Node000008" href="$d3/d1e/classml_1_1api_1_1_c_detection_rules_json_parser.html#aeda936c0be5b391da129009db4c67891" title=" " alt="" coords="5,203,174,244"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="219,226,174,226,174,221,219,221"/>
+</map>

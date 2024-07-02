@@ -1,0 +1,9 @@
+<map id="ml::model::CModelFactory::interimBucketCorrector" name="ml::model::CModelFactory::interimBucketCorrector">
+<area shape="rect" id="Node000001" title="Get the singleton interim bucket correction calculator." alt="" coords="237,71,412,111"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html#aad89a50a8843eeb143202fb7e6f68c40" title=" " alt="" coords="9,5,185,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,69,170,49,171,44,238,63"/>
+<area shape="rect" id="Node000003" href="$d7/d98/classml_1_1model_1_1_c_counting_model_factory.html#aca50ec111640f869dfc7fb52ce048e89" title=" " alt="" coords="5,71,189,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,94,189,94,189,88,221,88"/>
+<area shape="rect" id="Node000004" href="$d7/d98/classml_1_1model_1_1_c_counting_model_factory.html#ad5953028bbec21a98e3a38d7df3a04f7" title=" " alt="" coords="5,136,189,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="238,119,171,138,170,133,236,113"/>
+</map>

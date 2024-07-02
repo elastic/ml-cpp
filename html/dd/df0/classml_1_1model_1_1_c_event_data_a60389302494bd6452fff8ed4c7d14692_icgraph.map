@@ -1,0 +1,9 @@
+<map id="ml::model::CEventData::addInfluence" name="ml::model::CEventData::addInfluence">
+<area shape="rect" id="Node000001" title="Add an influencing field value." alt="" coords="253,71,411,111"/>
+<area shape="rect" id="Node000002" href="$dc/dec/class_c_model_test_fixture_base.html#a2f41d426ed1f2e97d94138adaa1c1538" title=" " alt="" coords="24,5,186,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,69,178,49,179,44,246,63"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#aab59d74835388b2ed32bead094f1fe56" title=" " alt="" coords="5,71,205,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,94,205,94,205,88,237,88"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ad476fb6d42cbcdb08069828c6f6dd25b" title=" " alt="" coords="18,136,192,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="246,119,179,138,178,133,244,113"/>
+</map>

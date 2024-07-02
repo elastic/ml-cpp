@@ -1,0 +1,53 @@
+<map id="ml::maths::time_series::CTimeSeriesCorrelations::correlated" name="ml::maths::time_series::CTimeSeriesCorrelations::correlated">
+<area shape="rect" id="Node000001" title="Get the ids of the time series correlated with id." alt="" coords="1538,321,1714,377"/>
+<area shape="poly" id="edge17_Node000001_Node000001" title=" " alt="" coords="1664,309,1649,302,1626,300,1605,302,1592,306,1585,313,1585,321,1580,320,1581,310,1589,302,1604,296,1626,294,1651,297,1666,304"/>
+<area shape="rect" id="Node000002" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a6e2bb65f71bc88dde8ff1805da317537" title="Clear all correlation information for time series identified id." alt="" coords="1303,189,1478,245"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1574,314,1489,259,1466,248,1468,243,1492,255,1577,309"/>
+<area shape="rect" id="Node000018" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a18bd1295009706fe570d460c4d288867" title=" " alt="" coords="1303,269,1478,325"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="1523,329,1478,319,1479,314,1524,324"/>
+<area shape="rect" id="Node000019" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a4497db416823b24756a4849b24e0427b" title=" " alt="" coords="1291,373,1490,429"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="1524,374,1491,381,1490,376,1522,369"/>
+<area shape="rect" id="Node000025" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a1bb271a76e4522f3af2a11f4ce6fdd24" title=" " alt="" coords="1303,453,1478,509"/>
+<area shape="poly" id="edge26_Node000001_Node000025" title=" " alt="" coords="1577,389,1492,443,1468,455,1466,450,1489,439,1574,384"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#af70ae3b7e35842307abe81d11676369e" title=" " alt="" coords="997,114,1243,170"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1287,191,1223,173,1224,168,1289,186"/>
+<area shape="rect" id="Node000016" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a4ed8916d0908fdff6996388ff320d3c7" title="Remove the time series identified by id." alt="" coords="1032,194,1208,250"/>
+<area shape="poly" id="edge15_Node000002_Node000016" title=" " alt="" coords="1288,222,1208,223,1208,218,1287,216"/>
+<area shape="rect" id="Node000004" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa7c97f17985bf16b0f1b937ab0f2e73b" title="Update the trend with samples." alt="" coords="745,114,945,170"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="981,145,945,145,945,140,981,140"/>
+<area shape="rect" id="Node000005" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#abbc951e2c02da8dc7291c1e137066120" title="Update the model with new samples." alt="" coords="494,114,693,170"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="730,145,694,145,694,140,730,140"/>
+<area shape="rect" id="Node000006" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="545,107,498,74,445,45,416,34,418,29,447,40,501,69,548,102"/>
+<area shape="rect" id="Node000007" href="$d1/dde/_c_forecast_test_8cc.html#ad42e086bd0f9327a48da0ca36b1f8a92" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="500,111,445,94,407,84,408,78,447,89,501,106"/>
+<area shape="rect" id="Node000008" href="$d1/dde/_c_forecast_test_8cc.html#a70cc70fe7d81a6f242ec06a81071f5bd" title=" " alt="" coords="250,104,446,130"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="478,133,446,130,447,124,479,128"/>
+<area shape="rect" id="Node000009" href="$d1/dde/_c_forecast_test_8cc.html#a0208c9401947e7d3e4e1b46c59f26337" title=" " alt="" coords="250,153,446,179"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="479,156,447,159,446,154,478,151"/>
+<area shape="rect" id="Node000010" href="$d9/d15/_c_time_series_model_test_8cc.html#ad5ee31f31475c4d41301af0340450ba9" title=" " alt="" coords="250,203,446,228"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="498,178,447,194,407,205,406,199,445,189,497,173"/>
+<area shape="rect" id="Node000011" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#a6ede2ad9f3a7a40577da81f22f10d7bf" title=" " alt="" coords="267,253,429,309"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="545,181,498,213,447,243,424,255,421,250,445,238,495,208,542,177"/>
+<area shape="rect" id="Node000012" href="$d1/dde/_c_forecast_test_8cc.html#a28992938b93647afb83a53246e509905" title=" " alt="" coords="5,193,202,219"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="255,250,201,233,162,222,164,217,202,228,256,245"/>
+<area shape="rect" id="Node000013" href="$d1/dde/_c_forecast_test_8cc.html#a19e2174c93ee23be6129488081463518" title=" " alt="" coords="5,243,202,268"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="251,273,202,268,202,263,251,268"/>
+<area shape="rect" id="Node000014" href="$d1/dde/_c_forecast_test_8cc.html#a6f0a097737936cba7ec32a5bce60ca3d" title=" " alt="" coords="5,292,202,318"/>
+<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="251,293,202,298,202,293,251,288"/>
+<area shape="rect" id="Node000015" href="$d1/dde/_c_forecast_test_8cc.html#a3bf9a5986a59219078bac60c69302d4b" title=" " alt="" coords="5,341,202,367"/>
+<area shape="poly" id="edge14_Node000011_Node000015" title=" " alt="" coords="254,317,202,333,163,343,162,338,201,328,252,312"/>
+<area shape="rect" id="Node000017" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a2a4c8e7c01816b32d4c40e0338ba77f7" title=" " alt="" coords="741,194,949,250"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="1017,225,949,225,949,220,1017,220"/>
+<area shape="poly" id="edge24_Node000019_Node000019" title=" " alt="" coords="1428,361,1414,354,1391,352,1370,354,1356,358,1350,365,1350,373,1345,372,1345,362,1354,354,1369,348,1391,346,1415,349,1430,356"/>
+<area shape="rect" id="Node000020" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a6bafa8fd1529e7a1b24b538c3191d403" title="Compute the probability for correlated series." alt="" coords="1020,286,1220,342"/>
+<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="1286,370,1208,345,1210,340,1288,365"/>
+<area shape="rect" id="Node000022" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a2b5c91aa7f696a1ce4a27df0ebe00bbd" title=" " alt="" coords="1020,366,1220,422"/>
+<area shape="poly" id="edge22_Node000019_Node000022" title=" " alt="" coords="1275,401,1220,399,1220,394,1275,395"/>
+<area shape="rect" id="Node000023" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#add0e727556bea054ba91db9dd85233ba" title="Get the correlated time series identifier pairs if any." alt="" coords="1020,446,1220,502"/>
+<area shape="poly" id="edge23_Node000019_Node000023" title=" " alt="" coords="1277,434,1221,450,1219,445,1275,429"/>
+<area shape="rect" id="Node000024" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#aa82bbb853d097c3a42f01423bbfeccab" title="Remove any trend components from value." alt="" coords="1020,526,1220,582"/>
+<area shape="poly" id="edge25_Node000019_Node000024" title=" " alt="" coords="1297,439,1293,443,1277,461,1270,479,1262,498,1245,516,1221,531,1219,526,1241,512,1257,495,1265,477,1273,458,1289,439,1294,435"/>
+<area shape="rect" id="Node000021" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a24874bc00a4f05cb755223d282eeea0b" title="Compute the probability of drawing value at time." alt="" coords="745,286,945,342"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="1005,317,945,317,945,312,1005,312"/>
+</map>

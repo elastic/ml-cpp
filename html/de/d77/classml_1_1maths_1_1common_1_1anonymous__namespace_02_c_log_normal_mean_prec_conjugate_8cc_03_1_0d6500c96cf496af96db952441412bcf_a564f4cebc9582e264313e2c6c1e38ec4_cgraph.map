@@ -1,0 +1,5 @@
+<map id="ml::maths::common::anonymous_namespace{CLogNormalMeanPrecConjugate::cc}::detail::CLogMarginalLikelihood::operator()" name="ml::maths::common::anonymous_namespace{CLogNormalMeanPrecConjugate::cc}::detail::CLogMarginalLikelihood::operator()">
+<area shape="rect" id="Node000001" title="Evaluate the log marginal likelihood at the offset x." alt="" coords="5,5,238,91"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="286,20,508,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,46,270,46,270,51,238,51"/>
+</map>

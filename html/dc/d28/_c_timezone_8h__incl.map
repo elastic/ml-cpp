@@ -1,0 +1,25 @@
+<map id="include/core/CTimezone.h" name="include/core/CTimezone.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="522,5,695,31"/>
+<area shape="rect" id="Node000002" href="$d5/d79/_c_fast_mutex_8h.html" title=" " alt="" coords="234,87,367,112"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="562,34,363,85,362,80,560,29"/>
+<area shape="rect" id="Node000003" href="$db/d30/_c_non_copyable_8h.html" title=" " alt="" coords="5,168,156,193"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="522,24,455,29,379,40,299,57,223,81,189,98,157,118,106,159,102,155,154,114,186,93,221,77,298,51,378,34,454,24,521,19"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="124,241,261,267"/>
+<area shape="poly" id="edge10_Node000001_Node000004" title=" " alt="" coords="590,34,562,54,536,81,520,111,515,140,507,168,498,182,485,196,449,213,396,227,277,247,276,242,395,222,447,208,482,191,494,179,502,166,509,139,515,110,532,77,559,50,587,29"/>
+<area shape="rect" id="Node000007" href="$db/d04/_core_types_8h.html" title=" " alt="" coords="546,87,671,112"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="611,31,611,71,606,71,606,31"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="631,168,688,193"/>
+<area shape="poly" id="edge13_Node000001_Node000008" title=" " alt="" coords="635,29,663,49,686,78,691,98,690,118,677,155,672,153,684,117,685,98,681,80,659,53,632,34"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="747,79,892,120"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="642,29,753,71,751,76,640,34"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="917,87,970,112"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="696,28,797,47,905,76,908,77,906,82,904,82,796,52,695,34"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="268,115,129,165,127,160,266,110"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="281,115,249,138,220,169,206,198,199,227,194,225,201,196,216,166,246,134,278,110"/>
+<area shape="rect" id="Node000005" href="$da/d3e/_windows_safe_8h.html" title=" " alt="" coords="229,168,372,193"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="303,113,303,152,298,152,298,113"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="396,168,472,193"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="322,110,402,157,399,162,319,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="101,192,162,230,159,235,98,196"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="618,111,645,153,641,156,614,114"/>
+</map>

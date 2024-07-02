@@ -1,0 +1,14 @@
+<map id="ml::maths::time_series::CMultivariateTimeSeriesModel::seasonalWeight" name="ml::maths::time_series::CMultivariateTimeSeriesModel::seasonalWeight">
+<area shape="rect" id="Node000001" title="Fill in the seasonal variance scale at time." alt="" coords="760,109,968,165"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a366b66f66057fe1716e4e3bfebdab552" title=" " alt="" coords="505,5,712,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="782,105,711,76,682,64,684,59,713,71,784,100"/>
+<area shape="rect" id="Node000003" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#acba8104c96a977b3eede89f940aad3a9" title="Compute the probability of drawing value at time." alt="" coords="505,109,712,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="745,140,713,140,713,135,745,135"/>
+<area shape="rect" id="Node000004" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a7015518321c48a29b9fbf372e98fb84f" title="Update the residual models." alt="" coords="505,189,712,245"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="760,173,701,191,699,186,758,168"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="650,97,634,90,609,88,586,90,571,95,564,101,564,109,559,109,560,99,569,90,585,85,609,83,635,85,652,92"/>
+<area shape="rect" id="Node000005" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#ac1749b25a670d20a8a7a930dcbf4af15" title="Update the model with new samples." alt="" coords="250,189,457,245"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="489,220,457,220,457,215,489,215"/>
+<area shape="rect" id="Node000006" href="$d9/d15/_c_time_series_model_test_8cc.html#abc483ac7520debe8bbc5a076238e7a3b" title=" " alt="" coords="5,204,202,230"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="234,220,202,220,202,215,234,215"/>
+</map>

@@ -1,0 +1,26 @@
+<map id="ml::model::CHierarchicalResults::empty" name="ml::model::CHierarchicalResults::empty">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1256,37,1422,78"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#af8bea3a425a0f4edfe99bb0ef525fb13" title="Write out interim results for the bucket starting at bucketStartTime." alt="" coords="860,5,1010,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1251,36,1208,28,1105,22,1010,24,1010,18,1105,17,1209,23,1252,31"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a13e6b57c735a0fbab0c720e3f82b6f7d" title="Write out the results for the bucket starting at bucketStartTime." alt="" coords="860,71,1010,111"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1252,85,1209,92,1105,99,1010,98,1010,93,1105,94,1208,87,1251,79"/>
+<area shape="rect" id="Node000010" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a0da41bef834a954e36c08d3b349a0f27" title=" " alt="" coords="1058,37,1208,78"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="1241,60,1209,60,1209,55,1241,55"/>
+<area shape="rect" id="Node000003" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9f65dd0e424bca17de0073ad974fa819" title=" " alt="" coords="626,5,812,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="844,28,812,28,812,23,844,23"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#ad73da3c668b230305f4bed2fe3fc5b2c" title="Generate interim results." alt="" coords="414,5,578,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="611,28,579,28,579,23,611,23"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,71,366,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="415,54,354,73,352,67,413,48"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,100,156,141"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="188,108,156,112,156,107,188,102"/>
+<area shape="poly" id="edge11_Node000007_Node000003" title=" " alt="" coords="850,68,788,49,790,44,852,63"/>
+<area shape="rect" id="Node000008" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2fd3ad014eff086eb116db9026050cf5" title="Output any results new results which are available at time." alt="" coords="630,71,808,111"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="844,94,808,94,808,88,844,88"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="626,118,579,126,463,134,348,136,156,129,156,124,348,131,463,129,578,120,625,113"/>
+<area shape="rect" id="Node000009" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a9680062014284b51fb38536b2a5dafb8" title=" " alt="" coords="421,71,571,111"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="614,94,572,94,572,88,614,88"/>
+<area shape="poly" id="edge9_Node000009_Node000005" title=" " alt="" coords="406,94,366,94,366,88,406,88"/>
+<area shape="poly" id="edge13_Node000010_Node000002" title=" " alt="" coords="1043,46,1010,40,1011,35,1043,41"/>
+<area shape="poly" id="edge14_Node000010_Node000007" title=" " alt="" coords="1043,75,1011,81,1010,76,1043,70"/>
+</map>

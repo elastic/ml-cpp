@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal" name="ml::maths::time_series::CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,188,235,244"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="283,5,505,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,186,204,129,241,98,281,71,290,66,293,70,284,75,245,102,208,133,149,190"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="314,85,474,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,185,282,136,303,128,305,133,284,141,176,190"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="314,150,474,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,194,298,184,299,189,236,199"/>
+<area shape="rect" id="Node000005" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a0f4174befdbb15759143f5adbfa7d0a2" title=" " alt="" coords="305,240,483,280"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="236,232,290,241,289,246,235,237"/>
+<area shape="rect" id="Node000006" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="357,328,431,354"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="182,242,284,289,349,319,347,324,282,294,180,247"/>
+<area shape="rect" id="Node000007" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a51147b595b313b0d5a857f7e8ec6136e" title=" " alt="" coords="301,379,487,434"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="147,242,206,303,243,336,284,364,292,369,290,374,281,369,240,340,202,307,143,246"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="343,240,340,229,349,220,367,215,394,213,423,215,441,221,439,226,422,220,394,218,368,220,351,225,345,231,348,238"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="355,333,341,322,344,311,362,304,394,302,437,307,447,314,447,322,441,322,442,316,435,312,394,307,363,309,347,315,346,320,358,328"/>
+</map>

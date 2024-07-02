@@ -1,0 +1,13 @@
+<map id="ml::model::CHierarchicalResultsAggregator::propagateForwardByTime" name="ml::model::CHierarchicalResultsAggregator::propagateForwardByTime">
+<area shape="rect" id="Node000001" title="Age the quantile sketches." alt="" coords="5,95,200,151"/>
+<area shape="rect" id="Node000002" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#ac4da813330cc3aa9eb9478cce03bf63c" title="Age the sketches by reducing the count." alt="" coords="255,45,484,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,93,247,80,285,72,286,77,248,86,201,98"/>
+<area shape="rect" id="Node000005" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html#af27cf44002a6589026b454858681da21" title=" " alt="" coords="248,95,491,151"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="200,120,232,120,232,126,200,126"/>
+<area shape="rect" id="Node000006" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#af7d637a6ce6b1af0d591e4567b38b841" title="Get the largest probability that will be corrected." alt="" coords="269,175,470,215"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="201,147,248,160,275,168,274,173,247,166,199,153"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#aa5ffb65761bce66610d034c69f06d19a" title="Age by scaling the counts." alt="" coords="565,5,714,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="483,42,549,34,549,39,484,47"/>
+<area shape="rect" id="Node000004" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a33af7cddc4636961dfe9e975b3e85e74" title="Get the sketch for detector." alt="" coords="539,71,739,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="479,68,524,74,523,79,478,74"/>
+</map>

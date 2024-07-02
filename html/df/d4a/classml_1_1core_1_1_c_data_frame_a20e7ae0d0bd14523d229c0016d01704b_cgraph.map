@@ -1,0 +1,22 @@
+<map id="ml::core::CDataFrame::estimateMemoryUsage" name="ml::core::CDataFrame::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,176,170,216"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a580121c1e395ee4fc20fadc05a5c8bb9" title=" " alt="" coords="245,28,397,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,173,152,125,183,100,216,78,230,71,232,75,219,82,186,104,156,129,109,177"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="218,92,424,118"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,173,167,150,217,128,240,120,242,125,219,133,169,154,126,177"/>
+<area shape="rect" id="Node000007" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a8195a0466acb3ebe8154058a91837dcf" title="Check if the data frame resides in main memory." alt="" coords="245,142,397,183"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="170,181,230,173,230,178,171,187"/>
+<area shape="rect" id="Node000008" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="245,208,397,248"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="171,204,230,213,230,218,170,210"/>
+<area shape="rect" id="Node000009" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="245,273,397,314"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="128,214,219,257,238,265,236,270,217,262,126,219"/>
+<area shape="rect" id="Node000010" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#aeee6d40962c3d8ec78ca95ac8b9c6434" title="Round up sizeof(T) up to multiple of alignment bytes." alt="" coords="249,338,393,379"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="106,215,153,269,185,298,219,323,236,332,233,336,216,327,181,302,150,272,102,219"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="472,5,643,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="379,89,423,77,465,64,466,69,425,82,381,94"/>
+<area shape="rect" id="Node000005" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="474,85,641,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="425,103,458,103,458,108,425,108"/>
+<area shape="rect" id="Node000006" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="691,107,877,162"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="373,116,472,135,558,138,643,135,675,134,676,139,643,140,558,143,472,140,372,121"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="642,113,676,118,676,123,641,119"/>
+</map>

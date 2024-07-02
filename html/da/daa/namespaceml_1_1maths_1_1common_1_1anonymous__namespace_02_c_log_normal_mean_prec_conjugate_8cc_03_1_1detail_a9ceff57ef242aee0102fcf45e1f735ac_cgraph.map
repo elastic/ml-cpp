@@ -1,0 +1,7 @@
+<map id="ml::maths::common::anonymous_namespace{CLogNormalMeanPrecConjugate::cc}::detail::locationAndScale" name="ml::maths::common::anonymous_namespace{CLogNormalMeanPrecConjugate::cc}::detail::locationAndScale">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,222,100"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="75,28,77,18,84,10,97,5,114,3,133,5,146,12,143,17,131,10,113,8,98,10,87,14,81,21,80,29"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="270,52,344,78"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="222,62,254,62,254,67,222,67"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="274,53,268,43,272,33,285,27,307,25,331,28,343,35,340,39,329,33,307,30,287,32,276,37,273,43,279,50"/>
+</map>

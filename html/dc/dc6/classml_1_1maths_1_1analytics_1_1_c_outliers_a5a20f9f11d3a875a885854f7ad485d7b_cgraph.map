@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::COutliers::estimateMemoryUsedByCompute" name="ml::maths::analytics::COutliers::estimateMemoryUsedByCompute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,34,195,90"/>
+<area shape="rect" id="Node000002" href="$d2/df8/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble.html#aa50cc771b15ef0b6077cddcbd4ddca11" title="Estimate the amount of memory that will be used by the ensemble." alt="" coords="243,26,425,97"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,59,227,59,227,64,195,64"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a6a3cd00c6fa74f6a65c087dff4dde84b" title=" " alt="" coords="473,41,654,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,59,458,59,458,64,426,64"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="721,5,867,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="655,45,705,37,706,42,655,50"/>
+<area shape="rect" id="Node000005" href="$d8/d2a/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_vector_memory_usage.html#a9bc22250998a90f679020a079365bb3a" title=" " alt="" coords="702,70,886,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="655,73,687,78,686,84,655,79"/>
+</map>

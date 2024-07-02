@@ -1,0 +1,11 @@
+<map id="ml::model::CLimits::processSetting" name="ml::model::CLimits::processSetting">
+<area shape="rect" id="Node000001" title="Helper method for init()." alt="" coords="429,47,560,88"/>
+<area shape="rect" id="Node000002" href="$df/d58/classml_1_1model_1_1_c_limits.html#a9d45d66b2428646d4a09fc9651a071f1" title=" " alt="" coords="250,47,381,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="414,70,381,70,381,65,414,65"/>
+<area shape="rect" id="Node000003" href="$d7/daf/_c_limits_test_8cc.html#aaa4fec8fb3d1c7f97dd7d4e2849e2669" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="234,51,161,34,163,29,235,46"/>
+<area shape="rect" id="Node000004" href="$d7/daf/_c_limits_test_8cc.html#a1a2a417677aed6232b2ee71e26bd6e53" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000005" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="79,104,128,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="235,89,129,114,128,109,234,84"/>
+</map>

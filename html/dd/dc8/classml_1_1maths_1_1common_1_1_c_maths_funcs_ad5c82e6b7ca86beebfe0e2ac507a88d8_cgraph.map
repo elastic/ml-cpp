@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMathsFuncs::fpStatus" name="ml::maths::common::CMathsFuncs::fpStatus">
+<area shape="rect" id="Node000001" title="Check the floating point status of value." alt="" coords="5,39,166,79"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="214,5,359,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,43,198,38,199,43,167,48"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="214,71,359,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,69,199,74,198,80,166,74"/>
+</map>

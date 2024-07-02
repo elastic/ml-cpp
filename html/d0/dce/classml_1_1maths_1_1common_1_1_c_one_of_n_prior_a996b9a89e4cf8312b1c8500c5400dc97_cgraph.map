@@ -1,0 +1,9 @@
+<map id="ml::maths::common::COneOfNPrior::marginalLikelihoodVariance" name="ml::maths::common::COneOfNPrior::marginalLikelihoodVariance">
+<area shape="rect" id="Node000001" title="Get the variance of the marginal likelihood." alt="" coords="5,31,227,87"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a6ebf8a8f265d7d778b384b44b524f543" title="Check if this is a non&#45;informative prior." alt="" coords="275,5,488,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,42,259,38,260,44,228,48"/>
+<area shape="rect" id="Node000003" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="302,71,461,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,70,287,77,286,82,227,75"/>
+<area shape="rect" id="Node000004" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="536,71,714,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="462,88,521,88,521,94,462,94"/>
+</map>

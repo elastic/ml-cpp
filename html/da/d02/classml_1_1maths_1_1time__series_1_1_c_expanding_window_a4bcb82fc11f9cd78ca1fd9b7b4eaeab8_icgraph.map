@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CExpandingWindow::needToCompress" name="ml::maths::time_series::CExpandingWindow::needToCompress">
+<area shape="rect" id="Node000001" title="Check if we need to compress by increasing the bucket span." alt="" coords="230,5,487,46"/>
+<area shape="rect" id="Node000002" href="$da/d02/classml_1_1maths_1_1time__series_1_1_c_expanding_window.html#a783a4d2e34d8f9e29c418056480e58c3" title="Add value at time." alt="" coords="5,5,182,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,28,182,28,182,23,214,23"/>
+</map>

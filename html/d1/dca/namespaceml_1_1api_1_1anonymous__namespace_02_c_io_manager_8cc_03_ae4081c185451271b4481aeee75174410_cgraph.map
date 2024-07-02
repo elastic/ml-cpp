@@ -1,0 +1,29 @@
+<map id="ml::api::anonymous_namespace{CIoManager::cc}::setUpIStream" name="ml::api::anonymous_namespace{CIoManager::cc}::setUpIStream">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,162,176,218"/>
+<area shape="poly" id="edge10_Node000001_Node000001" title=" " alt="" coords="43,161,43,151,52,143,68,137,91,135,116,138,132,145,130,149,115,143,90,140,69,142,55,147,48,153,48,162"/>
+<area shape="rect" id="Node000002" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a21ad1d7b705431289b08898d39edeb6c" title="Has this object cancelled the blocking call?" alt="" coords="224,39,445,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,159,168,124,222,90,238,83,240,88,225,95,171,128,125,164"/>
+<area shape="rect" id="Node000003" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#a1710b622abe2af1f0bdf6ef5e9ba80f2" title=" " alt="" coords="235,104,434,145"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,164,240,147,242,152,177,169"/>
+<area shape="rect" id="Node000009" href="$d5/de6/classml_1_1core_1_1_c_blocking_call_canceller_thread.html#a8ab33073a42edb20c4204bc6c1ea0d21" title=" " alt="" coords="227,169,442,210"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="176,187,212,187,212,192,176,192"/>
+<area shape="rect" id="Node000011" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a4ce9b2a29072dd3e01a2bf00fc8c8ef7" title=" " alt="" coords="267,259,402,299"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="169,215,263,250,262,255,167,220"/>
+<area shape="rect" id="Node000012" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a814dcabc28a39c3896ba170f7a5aa14c" title=" " alt="" coords="255,324,414,349"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="116,216,163,264,193,288,225,309,241,316,239,321,222,313,190,293,160,268,113,220"/>
+<area shape="rect" id="Node000004" href="$d2/d43/classml_1_1core_1_1_c_named_pipe_factory.html#aa43125277b181d9dbd4263ff45f8ba75" title=" " alt="" coords="493,104,691,145"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="434,122,478,122,478,127,434,127"/>
+<area shape="rect" id="Node000005" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#ad6c48125c40ec2d7825628445118eac8" title=" " alt="" coords="739,5,900,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="638,101,738,57,754,50,756,55,740,61,640,106"/>
+<area shape="rect" id="Node000006" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#acc911f7595fc8451a15ccc6389162721" title=" " alt="" coords="739,71,900,111"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="691,107,723,102,724,108,692,112"/>
+<area shape="rect" id="Node000007" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a0ac6930dbe3831527169f29e1794fa18" title=" " alt="" coords="739,136,900,177"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="692,136,724,140,723,146,691,141"/>
+<area shape="rect" id="Node000008" href="$d9/d03/classml_1_1core_1_1_c_os_file_funcs.html#a9b938fd4fd923da6d926426fe06c9e14" title=" " alt="" coords="739,201,900,242"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="663,143,693,155,717,170,741,186,753,192,751,197,738,191,714,175,690,160,661,148"/>
+<area shape="rect" id="Node000010" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#add8f5de1cd33a71f2330b865941ec77c" title="Has the thread been started?" alt="" coords="525,169,659,210"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="442,187,509,187,509,192,442,192"/>
+<area shape="poly" id="edge12_Node000011_Node000011" title=" " alt="" coords="289,259,286,249,294,240,310,234,334,232,361,234,376,241,374,246,359,240,334,237,311,239,297,244,291,250,294,257"/>
+<area shape="rect" id="Node000013" href="$dd/d6b/classml_1_1core_1_1_c_thread.html#a2370f39be11cf3fa7913562e93983659" title=" " alt="" coords="525,316,659,357"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="415,334,510,334,510,339,415,339"/>
+</map>

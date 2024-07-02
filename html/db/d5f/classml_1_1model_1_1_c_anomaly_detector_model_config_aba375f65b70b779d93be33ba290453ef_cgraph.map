@@ -1,0 +1,10 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::interimBucketCorrector" name="ml::model::CAnomalyDetectorModelConfig::interimBucketCorrector">
+<area shape="rect" id="Node000001" title="Set the single interim bucket correction calculator." alt="" coords="5,63,242,103"/>
+<area shape="rect" id="Node000002" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#ad708938c61acd59b0a5b161a8735c408" title=" " alt="" coords="309,29,507,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,66,294,60,294,66,243,72"/>
+<area shape="rect" id="Node000004" href="$db/d5f/classml_1_1model_1_1_c_anomaly_detector_model_config.html#a400511065c26e9b2836101d923d9d36e" title="Get the single interim bucket correction calculator." alt="" coords="290,95,526,135"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="243,94,275,97,274,103,242,99"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="362,29,359,19,367,10,383,5,408,3,434,5,450,11,448,16,433,10,408,8,384,10,370,15,364,21,367,28"/>
+<area shape="rect" id="Node000003" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a7bda6bb372b0d85dcbdcc3932fee829c" title="Get an identifier for this search." alt="" coords="574,29,734,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="507,47,558,47,558,52,507,52"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::count" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::count">
+<area shape="rect" id="Node000001" title="Get the count in the bucket containing time." alt="" coords="5,74,217,130"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a67df7080419d4fea499800237e7252da" title="Get the effective number of points being fitted." alt="" coords="265,17,479,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,76,249,69,250,74,218,81"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#afc5300b15c5b31b179ad2c7fe42e50bf" title="Get the regression to use at time." alt="" coords="266,114,478,170"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="217,115,251,121,250,126,217,121"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="527,5,686,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="479,33,511,31,512,36,480,38"/>
+<area shape="rect" id="Node000005" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a6d4f51305a1c7a66545e3c32c65b64b4" title="Compute the index of the bucket to which time belongs." alt="" coords="529,70,685,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="478,119,513,113,514,118,479,124"/>
+<area shape="rect" id="Node000007" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="529,150,685,206"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="478,155,514,161,513,166,478,161"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="534,229,679,270"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="429,168,528,215,540,221,538,225,526,220,427,172"/>
+<area shape="rect" id="Node000006" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#accb62bcb1fa68ef47631b2139e00b790" title="Get the offset w.r.t. the start of the bucketing of time." alt="" coords="734,70,891,126"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="685,95,719,95,719,100,685,100"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CTreeShapFeatureImportance" name="ml::maths::analytics::CTreeShapFeatureImportance">
+<area shape="rect" id="Node000001" title="Computes SHAP (SHapley Additive exPlanation) values for feature importance estimation for gradient bo..." alt="" coords="6,109,210,150"/>
+<area shape="rect" id="Node000002" href="$d8/d6e/classml_1_1maths_1_1analytics_1_1_c_data_frame_category_encoder.html" title="Performs encoding of the categorical columns in a data frame." alt="" coords="5,5,211,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,62,111,109,105,109,105,62"/>
+</map>

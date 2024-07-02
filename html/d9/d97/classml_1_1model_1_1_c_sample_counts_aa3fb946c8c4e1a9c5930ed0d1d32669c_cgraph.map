@@ -1,0 +1,21 @@
+<map id="ml::model::CSampleCounts::effectiveSampleCount" name="ml::model::CSampleCounts::effectiveSampleCount">
+<area shape="rect" id="Node000001" title="Get the effective sample count identified by id." alt="" coords="5,104,188,145"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="247,5,407,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,101,235,57,251,50,254,55,237,61,141,106"/>
+<area shape="rect" id="Node000003" href="$d9/d97/classml_1_1model_1_1_c_sample_counts.html#a56d90d6c26c79a6018ee984c9243fe5a" title="Get the sample count identified by id." alt="" coords="236,71,418,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,109,220,104,220,109,188,114"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="247,136,407,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="188,134,232,141,232,146,187,140"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="238,201,416,227"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="139,143,237,186,259,193,257,198,235,191,137,148"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="466,201,643,227"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="416,211,450,211,450,216,416,216"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="691,81,872,136"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="582,198,690,146,701,141,704,146,692,151,585,203"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="692,160,871,201"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="644,198,676,193,677,198,644,203"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="709,225,854,266"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="644,224,694,231,693,236,644,229"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="699,291,864,331"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="584,225,692,275,709,282,707,287,690,280,582,229"/>
+</map>

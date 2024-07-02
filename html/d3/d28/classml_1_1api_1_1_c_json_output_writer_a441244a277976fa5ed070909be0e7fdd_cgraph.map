@@ -1,0 +1,22 @@
+<map id="ml::api::CJsonOutputWriter::addPopulationCauseFields" name="ml::api::CJsonOutputWriter::addPopulationCauseFields">
+<area shape="rect" id="Node000001" title="Write the fields for a population detector cause." alt="" coords="5,98,190,139"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a31e64f6c9f4a6e0f8be1922a94df1b12" title=" " alt="" coords="238,164,452,204"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,137,251,157,250,162,177,142"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="511,33,693,74"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="118,96,169,54,202,34,237,19,273,10,310,5,386,4,457,13,520,26,519,31,457,18,385,10,311,10,274,15,239,24,204,39,172,59,121,100"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa83f6b8bf6f7cbeecdd920880a43afab" title=" " alt="" coords="253,33,437,74"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="177,95,250,76,251,81,178,100"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ac40688d77c7e2cb06f91410e15377644" title=" " alt="" coords="241,98,449,139"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="190,116,226,116,226,121,190,121"/>
+<area shape="rect" id="Node000009" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a058a018ccc5053ea3dca56b878fc3ce8" title="Return a new boost::json object." alt="" coords="254,229,436,270"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="125,137,176,176,239,214,254,221,252,226,236,218,173,180,122,142"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="429,161,450,149,466,133,474,118,482,101,498,85,507,79,510,83,502,89,487,104,478,120,470,137,454,153,431,166"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a011a9816a0d40454f8c5939dab75fa23" title="Log a message if we&#39;re trying to add nan/infinity to a JSON array." alt="" coords="500,98,703,139"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="427,161,504,141,505,146,428,166"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1be4161314de57fc4dfd54336d37329b" title="Return a new boost::json array." alt="" coords="511,164,693,204"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="452,181,495,181,495,187,452,187"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abf4d06b98db199c538b352f260909019" title=" " alt="" coords="511,229,693,270"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="428,202,505,222,504,227,427,208"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="437,51,495,51,495,56,437,56"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="427,95,504,76,505,81,428,100"/>
+</map>

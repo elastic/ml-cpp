@@ -1,0 +1,12 @@
+<map id="ml::api::CDataFrameOutliersInstrumentation" name="ml::api::CDataFrameOutliersInstrumentation">
+<area shape="rect" id="Node000001" title="Instrumentation class for Outlier Detection jobs." alt="" coords="675,77,864,118"/>
+<area shape="rect" id="Node000002" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html" title="Instrumentation class for collecting data frame analysis job statistics." alt="" coords="322,5,515,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="531,46,676,76,675,81,530,51"/>
+<area shape="rect" id="Node000003" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,35,250,91"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="265,43,321,35,322,41,265,48"/>
+<area shape="rect" id="Node000004" href="$d3/d41/classml_1_1maths_1_1analytics_1_1_c_data_frame_outliers_instrumentation_interface.html" title="Instrumentation interface for Outlier Detection jobs." alt="" coords="299,70,538,126"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="265,77,299,81,298,86,265,82"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="554,95,675,95,675,100,554,100"/>
+<area shape="rect" id="Node000005" href="$de/d59/structml_1_1maths_1_1analytics_1_1_c_outliers_1_1_s_compute_parameters.html" title="The parameters for compute." alt="" coords="308,149,529,190"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="535,143,675,114,676,120,536,148"/>
+</map>

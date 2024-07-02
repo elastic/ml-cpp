@@ -1,0 +1,19 @@
+<map id="ml::torch::CResultWriter::writeTensor" name="ml::torch::CResultWriter::writeTensor">
+<area shape="rect" id="Node000001" title="Write a one dimensional tensor." alt="" coords="978,71,1140,111"/>
+<area shape="rect" id="Node000002" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#a3b35cc694afbc432bdba3c390520d3af" title="Write a 2D inference result." alt="" coords="768,5,930,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="976,68,916,49,918,44,978,63"/>
+<area shape="rect" id="Node000003" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#aad08cd03812a5fb7ddc7f8a51506a91b" title="Write a 3D inference result." alt="" coords="768,71,930,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="963,94,931,94,931,88,963,88"/>
+<area shape="rect" id="Node000009" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#af914d614e7ad90cfae3180eca996e710" title="Write an N dimensional tensor for N &gt; 1." alt="" coords="768,136,930,177"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="978,119,918,138,916,133,976,114"/>
+<area shape="rect" id="Node000004" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#a922510d12720925c24f5eda77970f8ff" title="Write the prediction portion of an inference result." alt="" coords="557,71,720,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="752,94,720,94,720,88,752,88"/>
+<area shape="rect" id="Node000005" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#a84e56a8c13f698a41ebe2d67e17d703f" title=" " alt="" coords="347,71,509,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="542,94,510,94,510,88,542,88"/>
+<area shape="rect" id="Node000006" href="$dd/d97/_c_result_writer_test_8cc.html#a79419a9602f76d618aed96ea545c54fe" title=" " alt="" coords="103,53,299,79"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="331,83,299,79,300,74,331,78"/>
+<area shape="rect" id="Node000007" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3b30d4583627b6e9c54794197a465ce0" title=" " alt="" coords="147,102,255,128"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="332,104,256,112,255,107,331,99"/>
+<area shape="rect" id="Node000008" href="$da/d80/bin_2pytorch__inference_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,102,55,128"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="131,118,55,118,55,112,131,112"/>
+</map>

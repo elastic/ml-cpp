@@ -1,0 +1,5 @@
+<map id="ml::core::CMemoryCircuitBreakerStub" name="ml::core::CMemoryCircuitBreakerStub">
+<area shape="rect" id="Node000001" title="The memory circuit breaker stub." alt="" coords="5,94,177,135"/>
+<area shape="rect" id="Node000002" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html" title="The memory circuit breaker interface." alt="" coords="5,5,177,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,62,94,94,88,94,88,62"/>
+</map>

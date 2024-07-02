@@ -1,0 +1,23 @@
+<map id="ml::maths::common::CPoissonMeanConjugate::priorMean" name="ml::maths::common::CPoissonMeanConjugate::priorMean">
+<area shape="rect" id="Node000001" title="Compute the mean of the prior distribution." alt="" coords="530,73,699,129"/>
+<area shape="rect" id="Node000002" href="$d7/d56/_c_one_of_n_prior_test_8cc.html#a8c7d3b980d93b3e6cb061c05e716d798" title=" " alt="" coords="286,5,482,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="541,69,481,45,446,34,447,29,483,40,543,64"/>
+<area shape="rect" id="Node000003" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="286,55,482,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="514,89,477,84,478,78,515,84"/>
+<area shape="rect" id="Node000004" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a5868d47e93d9dbf335aa23f6f4a5dfa0" title="Get the mean of the marginal likelihood function." alt="" coords="299,105,469,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="515,117,469,124,468,118,514,112"/>
+<area shape="rect" id="Node000009" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#a23122fbf812a97a5ef2fa7524cb8a057" title="Get the variance of the marginal likelihood." alt="" coords="291,185,477,241"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="553,139,483,175,458,187,455,182,481,170,550,134"/>
+<area shape="rect" id="Node000005" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="23,69,220,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="283,116,191,98,192,93,284,111"/>
+<area shape="rect" id="Node000006" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a2c8d659343b709fde4b0714ff57d5a9d" title=" " alt="" coords="23,20,220,46"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="293,100,284,95,260,76,236,59,207,49,209,44,239,54,264,72,287,91,296,95"/>
+<area shape="rect" id="Node000007" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="23,200,220,226"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="300,169,238,190,192,202,191,197,237,185,298,164"/>
+<area shape="rect" id="Node000008" href="$d6/d88/classml_1_1maths_1_1common_1_1_c_poisson_mean_conjugate.html#af0eda2c90c7c91dc03fd5075203b1fbd" title=" " alt="" coords="5,120,238,175"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="284,141,238,144,238,138,283,136"/>
+<area shape="poly" id="edge10_Node000009_Node000007" title=" " alt="" coords="275,216,220,216,220,210,275,210"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="275,189,235,178,236,173,276,183"/>
+<area shape="rect" id="Node000010" href="$d2/d79/_c_poisson_mean_conjugate_test_8cc.html#a8ba076ed64fdfc9519ac621d60bfdd69" title=" " alt="" coords="23,249,220,275"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="276,236,194,251,193,246,275,231"/>
+</map>

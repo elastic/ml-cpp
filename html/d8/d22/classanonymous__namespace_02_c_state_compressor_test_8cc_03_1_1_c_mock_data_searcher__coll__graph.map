@@ -1,0 +1,12 @@
+<map id="anonymous_namespace{CStateCompressorTest.cc}::CMockDataSearcher" name="anonymous_namespace{CStateCompressorTest.cc}::CMockDataSearcher">
+<area shape="rect" id="Node000001" title=" " alt="" coords="871,14,1055,70"/>
+<area shape="rect" id="Node000002" href="$da/d5c/classml_1_1core_1_1_c_data_searcher.html" title="Interface class for retrieving data by running a search." alt="" coords="392,5,559,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,20,871,35,870,40,574,26"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="5,32,171,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,35,392,21,392,27,186,41"/>
+<area shape="rect" id="Node000005" href="$d8/d48/classml_1_1core_1_1_c_data_adder.html" title="Abstract interface for data adder." alt="" coords="220,59,368,84"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="186,55,220,59,219,65,185,60"/>
+<area shape="rect" id="Node000004" href="$dc/d29/classanonymous__namespace_02_c_state_compressor_test_8cc_03_1_1_c_mock_data_adder.html" title=" " alt="" coords="583,54,767,110"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="782,65,870,52,871,58,783,70"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="384,71,582,77,582,82,384,77"/>
+</map>

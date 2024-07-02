@@ -1,0 +1,7 @@
+<map id="ml::model::CLocalCategoryId::isHardFailure" name="ml::model::CLocalCategoryId::isHardFailure">
+<area shape="rect" id="Node000001" title="Does the object represent a hard failure?" alt="" coords="271,23,451,64"/>
+<area shape="rect" id="Node000002" href="$d6/dbc/_c_local_category_id_test_8cc.html#a65b4e89d4cbda7efbf781cff2cf1fa8a" title=" " alt="" coords="16,5,212,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,35,212,31,213,26,255,30"/>
+<area shape="rect" id="Node000003" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a3e5e3b351a939742e894579e8d23300a" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="256,56,223,60,223,54,255,51"/>
+</map>

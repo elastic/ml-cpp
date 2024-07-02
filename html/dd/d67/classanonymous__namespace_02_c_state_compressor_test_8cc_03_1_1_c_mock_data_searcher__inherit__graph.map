@@ -1,0 +1,7 @@
+<map id="anonymous_namespace{CStateCompressorTest.cc}::CMockDataSearcher" name="anonymous_namespace{CStateCompressorTest.cc}::CMockDataSearcher">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,153,190,208"/>
+<area shape="rect" id="Node000002" href="$da/d5c/classml_1_1core_1_1_c_data_searcher.html" title="Interface class for retrieving data by running a search." alt="" coords="14,79,181,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,120,100,152,95,152,95,120"/>
+<area shape="rect" id="Node000003" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="15,5,180,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,46,100,79,95,79,95,46"/>
+</map>

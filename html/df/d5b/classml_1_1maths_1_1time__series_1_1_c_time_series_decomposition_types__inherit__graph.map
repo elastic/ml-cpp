@@ -1,0 +1,12 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionTypes" name="ml::maths::time_series::CTimeSeriesDecompositionTypes">
+<area shape="rect" id="Node000001" title="Type definitions shared by the CTimeSeriesDecompositionInterface hierarchy and CTimeSeriesDecompositi..." alt="" coords="5,39,233,79"/>
+<area shape="rect" id="Node000002" href="$d0/da4/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail.html" title="Utilities for computing the decomposition." alt="" coords="289,5,516,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="248,41,288,36,289,42,249,46"/>
+<area shape="rect" id="Node000004" href="$d0/d56/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_interface.html" title="The interface for decomposing times series into seasonal, calendar cyclical and trend components." alt="" coords="281,71,524,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="248,71,280,75,280,80,248,76"/>
+<area shape="rect" id="Node000003" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html" title="Decomposes a time series into a linear combination of trend and cyclical functions and a stationary r..." alt="" coords="586,5,778,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="531,23,585,23,585,28,531,28"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="507,64,591,44,592,49,508,69"/>
+<area shape="rect" id="Node000005" href="$d7/d62/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_stub.html" title="Stub out the interface if it is known that the time series being modeled can&#39;t have seasonality." alt="" coords="572,71,791,111"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="540,88,571,88,571,94,540,94"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::core::CProcessStats::residentSetSize" name="ml::core::CProcessStats::residentSetSize">
+<area shape="rect" id="Node000001" title="return the RSS of this process in bytes" alt="" coords="5,39,171,79"/>
+<area shape="rect" id="Node000002" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a3b6905e30d6e4de2397f97ec3241de77" title=" " alt="" coords="219,5,366,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,43,203,38,204,43,171,48"/>
+<area shape="rect" id="Node000003" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a504ec34c7321cc8c90aeedb7879bb152" title=" " alt="" coords="219,71,366,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,69,204,74,203,80,170,75"/>
+</map>

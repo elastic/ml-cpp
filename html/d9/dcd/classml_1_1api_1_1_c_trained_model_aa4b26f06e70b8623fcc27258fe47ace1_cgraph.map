@@ -1,0 +1,20 @@
+<map id="ml::api::CTrainedModel::addToJsonStream" name="ml::api::CTrainedModel::addToJsonStream">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,132,162,173"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a3e682c1a84193d87d74cf25162d8b209" title=" " alt="" coords="458,103,640,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,145,442,127,443,132,162,150"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abc2850b89685437da0d9d93504ff6aa9" title=" " alt="" coords="210,160,392,201"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="163,160,195,164,194,169,162,165"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="706,136,889,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="641,133,691,139,690,145,641,138"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="706,71,889,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="641,109,690,102,691,107,641,114"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="440,37,658,78"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="328,157,378,123,439,89,456,81,458,86,441,93,381,127,331,162"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="458,168,640,209"/>
+<area shape="poly" id="edge9_Node000005_Node000008" title=" " alt="" coords="393,181,443,182,442,188,393,186"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="629,76,660,89,684,105,708,121,721,127,719,132,705,125,681,109,657,93,627,81"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="659,70,691,74,691,79,659,75"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="706,5,889,46"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="659,41,691,37,691,42,659,46"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="641,174,690,167,691,173,641,179"/>
+</map>

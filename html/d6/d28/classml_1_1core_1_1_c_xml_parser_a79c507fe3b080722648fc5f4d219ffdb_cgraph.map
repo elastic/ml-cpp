@@ -1,0 +1,7 @@
+<map id="ml::core::CXmlParser::parseBuffer" name="ml::core::CXmlParser::parseBuffer">
+<area shape="rect" id="Node000001" title="Parse XML stored in a char buffer." alt="" coords="5,39,153,79"/>
+<area shape="rect" id="Node000002" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a0f80204a4c32fd71d6dc68a32c0b7cd0" title=" " alt="" coords="201,5,348,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,44,185,38,186,44,154,49"/>
+<area shape="rect" id="Node000003" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a38e352813497c0ee42c1e94b18c88500" title="Called on every error." alt="" coords="201,71,348,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="154,68,186,74,185,79,153,74"/>
+</map>

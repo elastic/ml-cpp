@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CBootstrapClusterer::run" name="ml::maths::common::CBootstrapClusterer::run">
+<area shape="rect" id="Node000001" title=" " alt="" coords="443,39,609,79"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aabd7128384bbfcd2736cf13d2ce453c2" title="Cluster points using B bootstrap samples using k&#45;means." alt="" coords="250,5,395,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="427,46,395,40,396,35,428,40"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa90935097a74d25465b30b362d82da7d" title=" " alt="" coords="250,71,395,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="428,77,396,82,395,77,427,72"/>
+<area shape="rect" id="Node000004" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a827f72a6bc2775ceff50425a5649ba21" title=" " alt="" coords="5,53,202,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="234,83,202,80,203,74,234,78"/>
+<area shape="rect" id="Node000005" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a8b6fd6dbbc11dcbb38b70853d4a6f621" title=" " alt="" coords="5,102,202,128"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="234,103,203,107,202,102,234,98"/>
+</map>

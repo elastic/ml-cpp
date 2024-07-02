@@ -1,0 +1,33 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,164,202,190"/>
+<area shape="rect" id="Node000002" href="$d5/d8b/classml_1_1maths_1_1time__series_1_1_c_diurnal_time.html#a5ac395078cfb8975eadaa194756424f3" title="Get a checksum for this object." alt="" coords="250,85,427,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,161,254,128,256,133,149,166"/>
+<area shape="rect" id="Node000006" href="$d7/d96/classml_1_1maths_1_1time__series_1_1_c_general_period_time.html#a7a9a9bf9b1436d9adc4e6271d6972101" title="Get a checksum for this object." alt="" coords="259,5,418,61"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="119,162,175,119,248,71,257,66,259,71,251,75,178,124,123,166"/>
+<area shape="rect" id="Node000007" href="$d5/d8b/classml_1_1maths_1_1time__series_1_1_c_diurnal_time.html#ab87e71e73d391cdeb77e3532e258de43" title="Initialize from a string created by persist." alt="" coords="250,229,427,270"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="149,188,256,221,254,226,147,193"/>
+<area shape="rect" id="Node000009" href="$d7/d96/classml_1_1maths_1_1time__series_1_1_c_general_period_time.html#aea71ff30bd035ba69bbbb2367eb429e8" title="Initialize from a string created by persist." alt="" coords="259,149,418,205"/>
+<area shape="poly" id="edge13_Node000001_Node000009" title=" " alt="" coords="202,175,244,175,244,180,202,180"/>
+<area shape="rect" id="Node000010" href="$d7/d96/classml_1_1maths_1_1time__series_1_1_c_general_period_time.html#a708867b782b64b3fdefdb26d1fdf80d5" title="Convert to a string." alt="" coords="259,293,418,349"/>
+<area shape="poly" id="edge17_Node000001_Node000010" title=" " alt="" coords="123,188,178,231,251,279,259,283,257,288,248,283,175,235,119,193"/>
+<area shape="rect" id="Node000003" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="510,21,664,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,82,494,62,496,67,421,87"/>
+<area shape="rect" id="Node000004" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a555ae559c855e6ba4728fe9f3d5fc8b9" title="Get the period." alt="" coords="505,160,670,200"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="409,124,476,144,503,152,501,157,474,149,407,129"/>
+<area shape="rect" id="Node000005" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#af4076672b3bb99b89307335a739efae4" title="Get the origin of the time coordinates." alt="" coords="475,94,699,135"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="428,106,459,107,459,112,427,111"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="418,33,494,36,494,41,418,38"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="412,59,429,71,445,91,453,110,461,127,477,144,492,154,489,158,473,149,456,130,448,112,440,93,425,75,409,64"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="419,56,509,86,508,91,417,62"/>
+<area shape="poly" id="edge11_Node000007_Node000004" title=" " alt="" coords="413,226,496,202,498,207,415,231"/>
+<area shape="poly" id="edge12_Node000007_Node000005" title=" " alt="" coords="408,226,425,215,441,198,448,181,457,163,473,146,482,140,485,144,477,150,461,166,453,183,445,201,429,219,410,231"/>
+<area shape="rect" id="Node000008" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="510,228,664,268"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="427,246,495,246,495,251,428,251"/>
+<area shape="poly" id="edge15_Node000009_Node000004" title=" " alt="" coords="418,175,489,176,489,181,418,181"/>
+<area shape="poly" id="edge16_Node000009_Node000005" title=" " alt="" coords="417,155,488,137,489,142,419,160"/>
+<area shape="poly" id="edge14_Node000009_Node000008" title=" " alt="" coords="419,197,499,220,497,225,417,202"/>
+<area shape="poly" id="edge18_Node000010_Node000004" title=" " alt="" coords="409,291,425,279,440,263,448,247,457,230,473,214,489,204,492,209,477,218,461,233,453,249,444,266,429,283,412,295"/>
+<area shape="poly" id="edge19_Node000010_Node000005" title=" " alt="" coords="412,291,425,279,437,263,443,246,447,213,452,180,459,163,473,146,478,142,481,146,477,150,464,166,457,181,452,214,449,248,442,265,429,283,415,295"/>
+<area shape="rect" id="Node000011" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="510,301,664,342"/>
+<area shape="poly" id="edge20_Node000010_Node000011" title=" " alt="" coords="418,319,494,319,494,324,418,324"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::mixture_detail::CMixtureModeImpl" name="ml::maths::common::mixture_detail::CMixtureModeImpl">
+<area shape="rect" id="Node000001" title="Implements the &quot;polymorphic&quot; mixture mode." alt="" coords="64,5,284,46"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1maths_1_1common_1_1_c_mixture_mode_3_01false_01_4.html" title="A wrapper around one of the standard mode distributions." alt="" coords="5,94,164,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,59,107,95,103,92,141,55"/>
+<area shape="rect" id="Node000003" href="$d1/ddc/classml_1_1maths_1_1common_1_1_c_mixture_mode_3_01true_01_4.html" title="A wrapper around the complement of one of the standard mode distributions." alt="" coords="188,94,341,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,55,246,92,242,95,203,59"/>
+</map>

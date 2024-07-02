@@ -1,0 +1,26 @@
+<map id="ml::api::CFieldDataCategorizer::nextGlobalId" name="ml::api::CFieldDataCategorizer::nextGlobalId">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1295,120,1496,161"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af0512e7af8b366ddbd6ff3ba5d57d855" title=" " alt="" coords="1046,120,1247,161"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1279,143,1247,143,1247,138,1279,138"/>
+<area shape="rect" id="Node000003" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#af6160754cda17c2eaaa6dd156e58ddf0" title=" " alt="" coords="796,23,998,63"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1077,116,950,66,952,61,1079,111"/>
+<area shape="rect" id="Node000007" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a110b26f93f51fa3cac00337ec10a873f" title=" " alt="" coords="796,120,998,161"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1030,143,998,143,998,138,1030,138"/>
+<area shape="rect" id="Node000011" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#aac21b11f7ed43197729993aea4520cda" title=" " alt="" coords="796,185,998,226"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="1052,168,978,187,977,182,1051,163"/>
+<area shape="rect" id="Node000004" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#aa3e87f78905aac0dad06c12115df9c93" title="Restore previously saved state." alt="" coords="535,5,736,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="780,38,736,35,736,30,781,33"/>
+<area shape="rect" id="Node000005" href="$d7/d70/namespaceanonymous__namespace_02_c_restore_previous_state_test_8cc_03.html#a65cdcdb2b463665e9a44e7182c021586" title=" " alt="" coords="271,31,474,87"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="520,43,475,49,474,43,519,38"/>
+<area shape="rect" id="Node000006" href="$d1/d67/_c_restore_previous_state_test_8cc.html#a66f991e848ab003c0f3d1946bd498998" title=" " alt="" coords="5,46,223,72"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="255,62,223,62,223,56,255,56"/>
+<area shape="rect" id="Node000008" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a01adb279c7fd317365425df860a58701" title="Persist current state due to the periodic persistence being triggered." alt="" coords="522,136,748,177"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="781,150,749,152,749,147,780,145"/>
+<area shape="rect" id="Node000010" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#a167a5537982229550ffd28774d9fd0f4" title="Persist current state." alt="" coords="535,71,736,111"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="781,121,736,113,737,107,782,116"/>
+<area shape="rect" id="Node000009" href="$de/d5e/bin_2categorize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Group machine generated messages into categories by similarity." alt="" coords="348,144,397,169"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="506,159,397,159,397,154,506,154"/>
+<area shape="poly" id="edge10_Node000010_Node000005" title=" " alt="" coords="518,79,474,74,475,69,519,74"/>
+<area shape="rect" id="Node000012" href="$d3/d8f/classml_1_1api_1_1_c_field_data_categorizer.html#ad9934d581fe7465d1317a23c0664ca82" title=" " alt="" coords="535,201,736,242"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="781,215,736,218,736,213,780,210"/>
+</map>

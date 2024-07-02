@@ -1,0 +1,15 @@
+<map id="ml::maths::common::multivariate_multimodal_prior_detail::sampleMarginalLikelihood" name="ml::maths::common::multivariate_multimodal_prior_detail::sampleMarginalLikelihood">
+<area shape="rect" id="Node000001" title="Implementation of marginal likelihood sample." alt="" coords="5,140,254,196"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="308,126,485,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="254,152,292,147,292,153,254,157"/>
+<area shape="rect" id="Node000007" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a9ce168c59defc3b6cd3f0566a100e9b6" title=" " alt="" coords="302,176,491,216"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="254,178,286,182,286,187,254,184"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="539,5,719,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,123,538,71,550,65,552,70,540,76,427,128"/>
+<area shape="rect" id="Node000004" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="540,85,719,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="485,123,524,118,524,123,486,128"/>
+<area shape="rect" id="Node000005" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="557,150,702,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="486,148,541,156,541,161,485,153"/>
+<area shape="rect" id="Node000006" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="547,216,712,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="462,149,492,162,517,181,540,200,552,206,549,211,538,205,514,185,490,166,460,154"/>
+</map>

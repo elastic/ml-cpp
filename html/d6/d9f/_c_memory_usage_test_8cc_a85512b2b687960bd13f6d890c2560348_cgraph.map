@@ -1,0 +1,16 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,151,202,177"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="250,122,456,147"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,150,234,146,234,151,203,155"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="260,172,446,212"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="203,172,245,177,244,182,202,178"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="511,5,682,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,119,513,65,515,70,387,124"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="513,85,680,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="456,119,497,114,498,120,457,125"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="737,107,923,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="457,134,504,135,689,135,721,134,722,139,689,140,504,140,456,139"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="681,113,722,118,722,124,680,118"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="504,200,689,240"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="446,200,489,205,488,210,446,205"/>
+</map>

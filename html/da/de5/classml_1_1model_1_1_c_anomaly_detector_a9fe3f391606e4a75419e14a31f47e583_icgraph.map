@@ -1,0 +1,23 @@
+<map id="ml::model::CAnomalyDetector::addRecord" name="ml::model::CAnomalyDetector::addRecord">
+<area shape="rect" id="Node000001" title="Extract and add the necessary details of an event record." alt="" coords="496,135,693,176"/>
+<area shape="rect" id="Node000002" href="$db/d96/class_c_test_fixture.html#a9552787d9c98889661f815d763a67ddd" title=" " alt="" coords="260,5,438,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="559,126,509,85,447,46,416,34,418,29,449,41,512,80,563,122"/>
+<area shape="rect" id="Node000003" href="$de/d28/namespaceanonymous__namespace_02_c_metric_anomaly_detector_test_8cc_03.html#ab2a1c57ee6cc0ecca12817779358807b" title=" " alt="" coords="250,56,448,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="508,133,445,114,447,109,509,128"/>
+<area shape="rect" id="Node000005" href="$db/d96/class_c_test_fixture.html#ae6e7970b3e143b5f27bb024d9b6bf70c" title=" " alt="" coords="253,135,445,176"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="480,158,445,158,445,153,480,153"/>
+<area shape="rect" id="Node000006" href="$db/dd1/namespaceanonymous__namespace_02_c_event_rate_anomaly_detector_test_8cc_03.html#a99976d32cecc938c19b13008246468d7" title=" " alt="" coords="250,200,448,255"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="509,183,447,202,445,197,508,178"/>
+<area shape="rect" id="Node000009" href="$de/d28/namespaceanonymous__namespace_02_c_metric_anomaly_detector_test_8cc_03.html#a9e046f42ae6df22bf7ed03732a9ce385" title=" " alt="" coords="250,280,448,335"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="561,188,510,229,449,270,427,282,424,277,447,265,507,225,558,184"/>
+<area shape="rect" id="Node000004" href="$d8/d33/_c_metric_anomaly_detector_test_8cc.html#a24811e7a52266cd6001175f7a0e95e89" title=" " alt="" coords="5,71,202,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="235,86,202,86,202,81,235,81"/>
+<area shape="rect" id="Node000007" href="$d1/dde/_c_event_rate_anomaly_detector_test_8cc.html#a7cab539cf527537c9c6bcf0b03c6674b" title=" " alt="" coords="5,173,202,199"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="234,211,184,202,184,197,235,206"/>
+<area shape="rect" id="Node000008" href="$d1/dde/_c_event_rate_anomaly_detector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,223,202,248"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="234,234,202,235,202,230,234,229"/>
+<area shape="rect" id="Node000010" href="$d8/d33/_c_metric_anomaly_detector_test_8cc.html#a7cab539cf527537c9c6bcf0b03c6674b" title=" " alt="" coords="5,287,202,312"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="235,306,202,305,202,300,235,301"/>
+<area shape="rect" id="Node000011" href="$d8/d33/_c_metric_anomaly_detector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,336,202,362"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="235,329,184,338,184,333,234,324"/>
+</map>

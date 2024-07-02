@@ -1,0 +1,22 @@
+<map id="ml::maths::common::CGammaRateConjugate::acceptRestoreTraverser" name="ml::maths::common::CGammaRateConjugate::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Read parameters from traverser." alt="" coords="5,226,175,282"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="261,5,407,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,224,118,186,145,141,179,95,221,56,245,42,248,47,224,60,183,98,149,144,123,189,105,227"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#a95c55225fd7be47ce4e6c1db8ed8824d" title="Initialize from a delimited string." alt="" coords="223,70,445,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="118,223,165,183,221,142,243,130,246,135,224,147,168,187,122,227"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="691,111,839,151"/>
+<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="137,223,178,202,222,186,310,169,431,154,676,134,676,139,432,159,310,174,223,191,180,207,140,228"/>
+<area shape="rect" id="Node000006" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html#a9e4ccdf3ecd1047e6cf3527ec7d9b429" title="Set from a string." alt="" coords="254,200,414,241"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="175,239,238,231,238,236,175,245"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="225,265,443,306"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="175,262,210,267,209,272,175,267"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="225,331,443,371"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="146,280,224,315,245,323,243,328,222,320,144,285"/>
+<area shape="rect" id="Node000009" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="254,396,414,437"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="115,280,162,332,192,358,224,381,241,389,238,394,221,385,188,362,158,335,111,284"/>
+<area shape="rect" id="Node000010" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="225,461,443,502"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="105,281,124,318,150,363,183,408,224,446,232,452,230,456,221,450,179,412,145,366,119,321,101,283"/>
+<area shape="rect" id="Node000004" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a3dd29272494b917553cb9c44e35ad6f5" title="Function to do conversion from string." alt="" coords="493,70,643,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="446,95,477,95,477,100,446,100"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="644,108,677,113,676,119,643,113"/>
+</map>

@@ -1,0 +1,55 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,738,202,764"/>
+<area shape="rect" id="Node000002" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a11f6b20226f1a89d9e49106fb46e5a75" title="Persist by passing information to inserter." alt="" coords="263,63,476,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,738,105,647,111,578,123,499,140,414,166,327,201,243,248,165,267,143,291,125,294,129,271,147,252,169,206,245,171,329,146,415,128,500,117,578,111,647,107,738"/>
+<area shape="rect" id="Node000005" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a0bf75263a9e64627b65b38c08c0a335a" title="Populate the object from serialized data." alt="" coords="263,179,476,235"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="102,737,104,655,110,593,121,523,139,450,165,376,200,307,223,275,248,245,250,243,254,246,252,249,227,278,205,309,169,378,144,451,126,524,115,594,109,655,107,738"/>
+<area shape="rect" id="Node000009" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="258,259,481,315"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="103,738,109,666,130,556,148,495,173,434,206,376,248,325,250,323,254,327,252,329,211,379,178,436,153,497,135,557,114,667,108,738"/>
+<area shape="rect" id="Node000010" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ad0706ca3d7ed63b18ea52ca12a527dc4" title=" " alt="" coords="263,339,476,395"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="104,737,115,677,139,589,158,540,182,491,212,445,248,405,251,402,255,406,252,409,216,448,187,494,163,542,144,590,120,679,109,738"/>
+<area shape="rect" id="Node000012" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a125ba50634c256d987d15ab9422b0e32" title="Compute a checksum for this object." alt="" coords="263,419,476,475"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="106,737,121,690,149,622,191,549,217,515,248,485,252,482,255,486,251,489,221,518,195,552,154,624,126,692,111,739"/>
+<area shape="rect" id="Node000014" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#acb69e5de8f5c4076d7db50a5fa11202e" title="Get the writeable data downsample factor when computing loss derivatives." alt="" coords="263,499,476,555"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="109,736,129,702,160,656,200,607,248,565,255,561,258,565,251,569,204,611,164,659,134,705,114,739"/>
+<area shape="rect" id="Node000015" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a0d81750b61c6df0478fbbca4cb3a4a1e" title="Get the writeable weight shrinkage." alt="" coords="250,579,489,619"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="115,736,169,684,207,654,248,629,260,623,263,628,251,633,210,659,173,688,119,740"/>
+<area shape="rect" id="Node000016" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a9a3e31bf5ad07fa5749927a9644e2149" title="Get the writeable growth in weight shrinkage per tree which is added." alt="" coords="263,643,476,699"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="148,735,260,701,261,706,150,740"/>
+<area shape="rect" id="Node000017" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a605d08006f5e5dbb8c86b26f2e0c1495" title="Get the writeable fraction of features which are selected for training a tree." alt="" coords="263,723,476,779"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="202,748,247,748,247,754,202,754"/>
+<area shape="rect" id="Node000018" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a85fcb90e4a2fc6a9f953bca9f99ccd59" title="Get the writeable multiplier of the square leaf weight penalty." alt="" coords="263,803,476,859"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="150,762,261,796,260,801,148,767"/>
+<area shape="rect" id="Node000019" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a04ba6ce1f50aeb4c5e0fdcb580c0a683" title="Set the maximum number of trees to use." alt="" coords="263,883,476,939"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="119,762,174,813,211,843,251,869,261,874,259,879,248,873,208,847,170,817,116,766"/>
+<area shape="rect" id="Node000020" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a216a66ead683286e52bd0665de0c537c" title="Get the writeable multiplier of prediction change penalty." alt="" coords="263,963,476,1019"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="113,763,132,800,162,850,202,903,251,949,257,953,254,958,248,953,198,906,158,853,127,802,108,766"/>
+<area shape="rect" id="Node000021" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#aca388f8b0af7492d6ab13c89e9eb70c2" title="Get the writeable weight shrinkage to use when retraining a tree." alt="" coords="263,1043,476,1099"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="110,764,125,813,152,885,171,923,194,962,220,998,251,1029,255,1032,252,1036,248,1033,216,1001,189,965,166,926,147,887,120,815,105,765"/>
+<area shape="rect" id="Node000022" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2bb0597c65fb4e601ca673ab7d3229b6" title=" " alt="" coords="270,1123,469,1163"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="109,764,118,826,141,919,159,971,183,1021,214,1068,251,1109,258,1114,255,1119,248,1113,210,1072,179,1024,154,973,136,921,112,827,103,765"/>
+<area shape="rect" id="Node000025" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a27d8f97a3e05a8093933477d1707d060" title="Get the writable soft depth tree depth limit." alt="" coords="263,1187,476,1243"/>
+<area shape="poly" id="edge24_Node000001_Node000025" title=" " alt="" coords="108,764,114,835,135,945,153,1005,178,1066,211,1123,252,1173,254,1175,250,1179,248,1177,206,1126,173,1068,148,1007,130,946,109,836,103,764"/>
+<area shape="rect" id="Node000026" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a76ffa4aec928e1234208ef0bf878d0c8" title="Get the writeable multiplier of the tree size penalty." alt="" coords="263,1267,476,1323"/>
+<area shape="poly" id="edge25_Node000001_Node000026" title=" " alt="" coords="107,764,109,847,115,908,126,978,144,1051,169,1124,205,1193,227,1224,252,1253,254,1256,250,1259,248,1257,223,1227,200,1195,165,1126,139,1052,121,979,110,909,104,847,102,765"/>
+<area shape="rect" id="Node000027" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ac16c40eafcf2c11c34ba4c3f7e8439ad" title="Get the writeable tolerance in the depth tree depth limit." alt="" coords="263,1347,476,1403"/>
+<area shape="poly" id="edge26_Node000001_Node000027" title=" " alt="" coords="109,764,124,873,154,1045,173,1135,197,1218,223,1287,237,1313,252,1333,253,1335,250,1339,248,1337,232,1316,218,1289,192,1220,168,1137,148,1046,119,874,104,764"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a82a406707dfde7a86539a04a2437e9e9" title="Persist collection passing state to inserter using tag for elements." alt="" coords="569,5,723,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,63,553,45,554,50,477,68"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a0b886656631603fdd10c62bf11e50739" title=" " alt="" coords="569,71,723,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="477,88,553,88,553,94,477,94"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="537,136,755,177"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="476,185,521,176,522,182,477,190"/>
+<area shape="rect" id="Node000007" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="537,201,755,242"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="477,210,522,212,521,218,477,215"/>
+<area shape="rect" id="Node000008" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="569,267,723,307"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="469,233,559,259,558,264,467,238"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="567,347,726,387"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="477,364,551,364,551,370,477,370"/>
+<area shape="rect" id="Node000013" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="569,427,723,467"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="477,444,553,444,553,450,477,450"/>
+<area shape="rect" id="Node000023" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="574,1087,719,1127"/>
+<area shape="poly" id="edge22_Node000022_Node000023" title=" " alt="" coords="469,1127,558,1116,558,1121,470,1133"/>
+<area shape="rect" id="Node000024" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="560,1151,733,1207"/>
+<area shape="poly" id="edge23_Node000022_Node000024" title=" " alt="" coords="470,1153,545,1163,544,1168,469,1159"/>
+</map>

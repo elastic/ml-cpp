@@ -1,0 +1,7 @@
+<map id="ml::model_t::CResultType::asUint" name="ml::model_t::CResultType::asUint">
+<area shape="rect" id="Node000001" title="Get as an unsigned integer." alt="" coords="259,39,432,79"/>
+<area shape="rect" id="Node000002" href="$d9/dbd/structml_1_1model_1_1_s_attribute_probability.html#ae35835fe81bfcea0690d5c386c60e44d" title="Persist the probability passing information to inserter." alt="" coords="5,5,211,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,47,211,43,211,37,244,42"/>
+<area shape="rect" id="Node000003" href="$d9/dbd/structml_1_1model_1_1_s_attribute_probability.html#a29bccd7f7d5748558e0fb0690955a864" title=" " alt="" coords="5,71,211,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,75,211,80,211,74,243,70"/>
+</map>

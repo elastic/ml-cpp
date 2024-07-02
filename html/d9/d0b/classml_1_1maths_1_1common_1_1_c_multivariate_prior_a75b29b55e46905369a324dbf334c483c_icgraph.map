@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CMultivariatePrior::jointLogMarginalLikelihood" name="ml::maths::common::CMultivariatePrior::jointLogMarginalLikelihood">
+<area shape="rect" id="Node000001" title=" " alt="" coords="239,55,412,111"/>
+<area shape="rect" id="Node000002" href="$d7/dab/classml_1_1_c_covariance_kernel.html#a2997b4837495414efa388ecc50b75e69" title=" " alt="" coords="20,5,176,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,60,176,48,177,43,225,55"/>
+<area shape="rect" id="Node000003" href="$dd/d20/classml_1_1_c_mean_kernel.html#ad7332c9b670291a70325114c3865f712" title=" " alt="" coords="5,70,191,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,86,191,86,191,80,223,80"/>
+<area shape="rect" id="Node000004" href="$d5/dab/classml_1_1_c_unit_kernel.html#af39f320a1b0936cb9c0a86ddcac570ee" title=" " alt="" coords="9,120,187,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,108,161,121,160,116,223,102"/>
+</map>

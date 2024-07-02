@@ -1,0 +1,9 @@
+<map id="ml::core::CBoostJsonWriterBase::makeDoc" name="ml::core::CBoostJsonWriterBase::makeDoc">
+<area shape="rect" id="Node000001" title="Return a new boost::json document." alt="" coords="5,5,188,46"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1a4e776753ad90ee9fd2c68dc5aedf5a" title=" " alt="" coords="236,5,418,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,23,220,23,220,28,188,28"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a32db0bc2a291141e60a96d39ed8bb5ad" title=" " alt="" coords="466,5,648,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,23,450,23,450,28,418,28"/>
+<area shape="rect" id="Node000004" href="$dc/db5/classml_1_1core_1_1_c_boost_json_pool_allocator.html#a98200c8989d605f86f133014ba20b34e" title=" " alt="" coords="696,5,871,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="649,23,681,23,681,28,649,28"/>
+</map>

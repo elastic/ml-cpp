@@ -1,0 +1,39 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,298,202,323"/>
+<area shape="rect" id="Node000002" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a6705414e150d4a2f8d67c5dcbdda6aba" title="Get a writable pointer to the start of the row split indices." alt="" coords="291,5,433,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,296,124,253,153,193,194,128,220,98,248,71,276,54,278,58,251,75,224,101,199,131,158,196,129,255,112,298"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="269,85,455,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="110,296,130,263,161,220,201,175,248,136,258,130,261,135,251,141,205,179,165,224,135,266,115,298"/>
+<area shape="rect" id="Node000006" href="$db/dc5/namespaceml_1_1core.html#ad33a8c894a51d4c037dc16c63a6fdd7a" title=" " alt="" coords="271,150,453,191"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="117,295,172,249,209,223,248,200,261,195,263,199,251,205,212,227,175,253,121,299"/>
+<area shape="rect" id="Node000009" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="277,215,447,241"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="133,295,186,272,249,249,274,242,276,247,250,254,188,277,135,300"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="279,264,445,290"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="202,295,263,287,264,292,203,300"/>
+<area shape="rect" id="Node000011" href="$d2/d97/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_workspace.html#a1f2e8e29d165294ad7350e3037b133ea" title="Re&#45;initialize the masks and derivatives." alt="" coords="250,315,474,370"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="203,320,234,324,234,329,202,325"/>
+<area shape="rect" id="Node000012" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a816fe01fae7e3b8e42205daea8c86591" title=" " alt="" coords="269,418,455,459"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="133,322,306,408,304,413,131,326"/>
+<area shape="rect" id="Node000014" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2bb0597c65fb4e601ca673ab7d3229b6" title=" " alt="" coords="262,484,462,524"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="115,322,167,392,206,433,251,468,261,474,259,479,248,473,202,437,163,395,111,326"/>
+<area shape="rect" id="Node000017" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#a27d8f97a3e05a8093933477d1707d060" title="Get the writable soft depth tree depth limit." alt="" coords="255,548,469,604"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="112,323,130,363,159,420,200,481,224,509,251,534,256,537,253,542,248,538,220,513,196,484,154,423,125,366,107,325"/>
+<area shape="rect" id="Node000018" href="$dd/d06/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_hyperparameters.html#ac54f14b48962d72638a4eb2f91481695" title="Get the writable tolerance in the depth tree depth limit." alt="" coords="255,628,469,684"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="110,323,123,376,149,454,168,497,191,539,219,579,252,614,255,617,252,621,248,618,215,582,187,542,163,499,144,456,118,378,105,324"/>
+<area shape="rect" id="Node000003" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="555,13,713,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,31,540,31,540,36,434,36"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="542,85,727,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="455,103,526,103,526,108,455,108"/>
+<area shape="rect" id="Node000007" href="$db/dc5/namespaceml_1_1core.html#aac4e088f4a6bdb18132433afd6260fdf" title=" " alt="" coords="544,150,724,191"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="453,168,528,168,528,173,453,173"/>
+<area shape="rect" id="Node000008" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="794,180,946,220"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="452,189,522,200,585,204,634,204,746,200,779,199,779,205,746,205,634,209,585,209,522,205,451,194"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="725,179,779,186,778,191,725,184"/>
+<area shape="poly" id="edge14_Node000012_Node000012" title=" " alt="" coords="313,418,311,408,319,399,336,393,362,392,390,394,406,400,404,405,388,399,362,397,337,399,322,404,316,409,319,417"/>
+<area shape="rect" id="Node000013" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html#a1506d8cb603ea3b7f437688a4a1e282a" title=" " alt="" coords="522,418,746,459"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="455,436,506,436,506,441,455,441"/>
+<area shape="rect" id="Node000015" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="562,484,707,524"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="462,501,546,501,546,507,462,507"/>
+<area shape="rect" id="Node000016" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="548,548,721,604"/>
+<area shape="poly" id="edge17_Node000014_Node000016" title=" " alt="" coords="442,522,533,547,532,552,441,527"/>
+</map>

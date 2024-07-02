@@ -1,0 +1,13 @@
+<map id="ml::model::CDataCategorizer" name="ml::model::CDataCategorizer">
+<area shape="rect" id="Node000001" title="Interface for classes that convert a raw event string to a category." alt="" coords="1164,55,1356,80"/>
+<area shape="rect" id="Node000002" href="$d8/d9a/classml_1_1model_1_1_c_monitored_resource.html" title="Interface for resource monitoring." alt="" coords="775,5,984,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1000,28,1141,45,1183,51,1183,57,1140,50,999,33"/>
+<area shape="rect" id="Node000003" href="$df/d58/classml_1_1model_1_1_c_limits.html" title="Holds configurable limits for the models." alt="" coords="814,55,945,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="961,65,1164,65,1164,70,961,70"/>
+<area shape="rect" id="Node000004" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html" title="Assess memory used by models and decide on further memory allocations." alt="" coords="411,55,606,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="622,65,813,65,813,70,622,70"/>
+<area shape="rect" id="Node000005" href="$d8/d84/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean_var.html" title=" " alt="" coords="5,40,218,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="233,65,410,65,410,70,233,70"/>
+<area shape="rect" id="Node000006" href="$d7/da9/classml_1_1model_1_1_c_category_examples_collector.html" title="Collects up to a configurable number of distinct examples per category." alt="" coords="776,105,983,145"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="998,106,1140,85,1182,78,1183,84,1141,90,999,111"/>
+</map>

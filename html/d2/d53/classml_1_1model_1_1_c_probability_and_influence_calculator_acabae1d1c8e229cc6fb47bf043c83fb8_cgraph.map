@@ -1,0 +1,17 @@
+<map id="ml::model::CProbabilityAndInfluenceCalculator::addProbability" name="ml::model::CProbabilityAndInfluenceCalculator::addProbability">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,170,229,211"/>
+<area shape="rect" id="Node000002" href="$df/d9c/namespaceml_1_1model__t.html#aa0d217158ec070702fdf8608d881f3f2" title="Get the adjusted probability for feature." alt="" coords="284,5,478,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,168,191,105,231,70,275,41,290,34,292,39,278,46,234,75,195,109,136,171"/>
+<area shape="rect" id="Node000003" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a2d8de720af7ac23ed4e72352a2863cf1" title="Remove any trend components from value." alt="" coords="308,55,454,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="153,167,210,136,276,105,292,99,294,104,278,110,212,141,155,172"/>
+<area shape="rect" id="Node000004" href="$df/d9c/namespaceml_1_1model__t.html#a3e8b4899466756ed85a5fb2bcda946ae" title=" " alt="" coords="301,120,461,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="213,167,303,147,304,152,214,172"/>
+<area shape="rect" id="Node000005" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a22eb0fa00c0365c591f1f2054402c5d6" title="Compute the probability of drawing value at time." alt="" coords="308,170,454,211"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="229,188,292,188,292,193,229,193"/>
+<area shape="rect" id="Node000006" href="$dd/d6d/classml_1_1maths_1_1common_1_1_c_model_probability_params.html#a8dc1ee0d8a8bc38875f6687026ef3672" title="Set the confidence interval to use when detrending." alt="" coords="286,234,476,290"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="195,209,271,230,270,235,194,214"/>
+<area shape="rect" id="Node000007" href="$df/d9c/namespaceml_1_1model__t.html#a0dc3b466fcafd9f42d7658a42b8a4877" title=" " alt="" coords="277,315,485,340"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="143,209,202,255,239,279,278,300,296,307,294,312,276,305,236,284,199,259,140,213"/>
+<area shape="rect" id="Node000008" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="358,364,404,390"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="134,209,192,279,232,318,278,350,310,364,343,371,342,376,308,369,275,355,229,322,188,283,130,212"/>
+</map>

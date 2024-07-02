@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CQuantileSketch::quantile" name="ml::maths::common::CQuantileSketch::quantile">
+<area shape="rect" id="Node000001" title="Compute quantiles on the supplied knots." alt="" coords="5,39,179,79"/>
+<area shape="rect" id="Node000002" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ac539b2faba6d25270e8b47730113e59b" title="Get the total count of points added." alt="" coords="227,5,387,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,43,211,38,211,43,179,48"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#ad63e71bc0bdee23ee7576a74bf40840c" title="Get read only knots." alt="" coords="227,71,387,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,69,211,74,211,79,179,75"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,177,202,203"/>
+<area shape="rect" id="Node000002" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#af4d1edc94078d7a1874f18483cec5495" title="Accessor for numeric global ID." alt="" coords="250,5,418,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,175,169,119,207,86,248,57,258,51,261,56,251,61,210,91,173,123,118,178"/>
+<area shape="rect" id="Node000003" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#a3f24853eac3cabb372ca78b9c0bec6c3" title="Does the object represent a hard failure?" alt="" coords="250,71,418,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,174,249,122,265,115,267,120,251,127,135,179"/>
+<area shape="rect" id="Node000004" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#aae3d3c0759b83f3a4a4ca4f47282dc2a" title="Does the object represent a soft failure?" alt="" coords="250,136,418,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="196,174,234,168,234,173,197,179"/>
+<area shape="rect" id="Node000005" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#a63aef96d7d74072f7cc80d1439bed3d8" title="Does the object represent a valid category?" alt="" coords="250,201,418,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="201,201,235,205,234,211,200,206"/>
+<area shape="rect" id="Node000006" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#a927f6d2a0013436ffa32d473e418118b" title="Print for debug." alt="" coords="250,267,418,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="135,201,251,251,267,258,265,263,249,256,133,205"/>
+<area shape="rect" id="Node000007" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#add6b0f41a58feed55b4739f4fd47a7c1" title="Get an object representing a soft failure." alt="" coords="250,332,418,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="119,201,173,256,211,288,251,317,261,322,258,327,248,321,207,292,169,260,115,205"/>
+</map>

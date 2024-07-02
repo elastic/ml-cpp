@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CGaussianInfoCriterion::logDeterminant" name="ml::maths::common::CGaussianInfoCriterion::logDeterminant">
+<area shape="rect" id="Node000001" title="Compute the log of the determinant of covariance." alt="" coords="5,113,163,169"/>
+<area shape="rect" id="Node000002" href="$dd/dea/namespaceml_1_1maths_1_1common_1_1information__criteria__detail.html#ab5a3e55275bc43f7707255af809a815a" title=" " alt="" coords="259,5,405,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,111,210,71,243,57,245,62,212,76,134,115"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="252,85,412,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="163,127,236,116,237,122,164,132"/>
+<area shape="rect" id="Node000004" href="$dd/dea/namespaceml_1_1maths_1_1common_1_1information__criteria__detail.html#a086323e08ee4cc1417d7380e8faa0f86" title="The log determinant of our internal heap symmetric matrix." alt="" coords="254,149,410,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="164,150,239,161,238,166,163,155"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a5945c9a3674aef95880de4b69007f783" title=" " alt="" coords="211,229,453,285"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="128,167,212,215,226,221,224,226,209,220,126,172"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a1c40333c5d651a6df33cd4dd72b390b5" title="Get the Eigen matrix for matrix." alt="" coords="501,157,646,198"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="410,175,485,175,485,180,410,180"/>
+</map>

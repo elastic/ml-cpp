@@ -1,0 +1,33 @@
+<map id="ml::maths::common::CPrior::adjustOffsetWithCost" name="ml::maths::common::CPrior::adjustOffsetWithCost">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,389,198,430"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab82606a46bea23ff725b9356188d04cb" title="Get a set of sample for the prior to use in adjust offset." alt="" coords="253,95,457,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,388,122,339,149,274,190,205,215,174,244,146,250,141,254,146,247,150,219,177,194,208,154,276,127,341,111,390"/>
+<area shape="rect" id="Node000008" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ae5e69b6369506c1b73435a180ae6e15e" title="Get an iterator over the finite values of a double container." alt="" coords="268,160,442,201"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="110,388,130,350,159,303,198,254,244,212,253,206,256,210,247,216,201,257,163,306,134,353,115,390"/>
+<area shape="rect" id="Node000009" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a495d7b7223c096aafe97ab6a699b8ae4" title="Get a finite values iterator at the end of a double container." alt="" coords="273,225,437,266"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="118,387,171,332,206,303,244,277,257,270,259,275,247,281,209,307,175,336,122,391"/>
+<area shape="rect" id="Node000010" href="$dd/d9b/classml_1_1maths_1_1common_1_1_c_solvers.html#a6991aa4d28fbb05caccfa0a0ba81af6b" title=" " alt="" coords="270,291,440,331"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="144,386,245,342,266,334,268,339,247,347,146,391"/>
+<area shape="rect" id="Node000011" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#af0e6ec0387c452be4881098dcba3cb2e" title="Check if this is a non&#45;informative prior." alt="" coords="272,356,438,397"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="198,394,256,387,257,392,199,400"/>
+<area shape="rect" id="Node000012" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a98b6f04128cfad47070cbc826cba4c91" title=" " alt="" coords="246,421,464,462"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="199,419,231,423,230,429,198,425"/>
+<area shape="rect" id="Node000013" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ac140caa598e0575d986708f724d8adc5" title="Get the current sample offset." alt="" coords="282,487,428,527"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="147,428,247,471,268,479,267,484,245,476,145,433"/>
+<area shape="rect" id="Node000014" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a80deb8a1b42f66dd185d657eec72d1e1" title=" " alt="" coords="282,552,428,593"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="122,429,175,483,210,512,247,537,269,547,267,552,244,541,206,516,171,486,119,433"/>
+<area shape="rect" id="Node000015" href="$d2/d48/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_offset_parameters.html#a5682a0f6b12d0351f5c43171c42fdda0" title="Capture a collection of re&#45;samples from the prior." alt="" coords="265,617,445,672"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="115,429,135,466,165,512,202,560,247,602,253,607,250,611,244,606,198,564,160,515,131,469,110,432"/>
+<area shape="rect" id="Node000016" href="$d2/d48/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_offset_parameters.html#a5adc1bc77b83a5cd61688af9f51710db" title="Add a collection of samples." alt="" coords="265,697,445,752"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="111,430,126,480,154,548,194,620,219,653,247,682,254,688,251,692,244,686,215,656,189,623,149,550,121,482,105,431"/>
+<area shape="rect" id="Node000003" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="535,13,705,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,92,511,48,539,40,541,45,513,54,403,97"/>
+<area shape="rect" id="Node000005" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#aa7050a38225859a73ee35ad1bde0a7b7" title="Get a debug description of the prior parameters." alt="" coords="547,63,692,103"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="457,100,531,91,532,96,457,105"/>
+<area shape="rect" id="Node000006" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="540,128,700,169"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="457,125,525,134,524,139,457,130"/>
+<area shape="rect" id="Node000007" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a3c4f72902c27c46005cd085d824c1364" title=" " alt="" coords="512,193,727,234"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="434,133,465,146,489,162,513,178,529,185,527,190,511,183,487,167,463,151,432,138"/>
+<area shape="rect" id="Node000004" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="775,5,955,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="705,23,760,23,760,28,705,28"/>
+</map>

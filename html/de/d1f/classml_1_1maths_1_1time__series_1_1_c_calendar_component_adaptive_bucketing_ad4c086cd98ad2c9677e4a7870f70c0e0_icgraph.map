@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::propagateForwardsByTime" name="ml::maths::time_series::CCalendarComponentAdaptiveBucketing::propagateForwardsByTime">
+<area shape="rect" id="Node000001" title="Age the bucket values to account for time elapsed time." alt="" coords="231,5,474,61"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#adca4057c99aa68d23805e87653ae2c32" title="Age out old data to account for elapsed time." alt="" coords="5,5,183,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,36,183,36,183,31,215,31"/>
+</map>

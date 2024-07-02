@@ -1,0 +1,111 @@
+<map id="ml::model::CBucketQueue::size" name="ml::model::CBucketQueue::size">
+<area shape="rect" id="Node000001" title="Returns the size of the queue." alt="" coords="1572,971,1748,1011"/>
+<area shape="rect" id="Node000002" href="$de/d3c/_c_bucket_queue_test_8cc.html#ac36f3fe5f0c60b67c640e9f9dae6c4ac" title=" " alt="" coords="844,54,1040,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1652,956,1638,878,1614,772,1576,656,1551,599,1522,546,1420,390,1374,330,1325,278,1272,231,1211,187,1138,142,1051,93,1025,83,1027,78,1053,89,1141,137,1214,183,1276,227,1329,274,1378,326,1425,387,1527,543,1556,597,1581,655,1619,771,1644,876,1657,955"/>
+<area shape="rect" id="Node000003" href="$de/d3c/_c_bucket_queue_test_8cc.html#af1ecdaaec7660c59081ab71596a3a2ae" title=" " alt="" coords="844,957,1040,983"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1557,991,1040,975,1041,970,1557,985"/>
+<area shape="rect" id="Node000004" href="$de/d3c/_c_bucket_queue_test_8cc.html#ab1b0242d045a649049af9912e81c336b" title=" " alt="" coords="844,1006,1040,1032"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1557,998,1041,1018,1040,1013,1557,992"/>
+<area shape="rect" id="Node000005" href="$de/d3c/_c_bucket_queue_test_8cc.html#a2dd605bfa1d79f422500d5940dfcd055" title=" " alt="" coords="844,1056,1040,1081"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1557,1006,1525,1010,1041,1061,1040,1056,1524,1004,1557,1001"/>
+<area shape="rect" id="Node000006" href="$de/d3c/_c_bucket_queue_test_8cc.html#a484205a1bac84ffd7518d7da9577054e" title=" " alt="" coords="844,1105,1040,1131"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1581,1019,1525,1034,1395,1059,1263,1081,1041,1110,1040,1105,1263,1076,1394,1054,1524,1028,1580,1014"/>
+<area shape="rect" id="Node000007" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="1349,580,1524,621"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1637,959,1447,622,1452,620,1642,956"/>
+<area shape="poly" id="edge66_Node000007_Node000007" title=" " alt="" coords="1473,567,1459,561,1437,559,1415,561,1402,565,1398,571,1400,579,1394,580,1392,570,1399,561,1414,555,1437,553,1461,556,1475,562"/>
+<area shape="rect" id="Node000008" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="1100,588,1301,613"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1334,603,1301,603,1301,598,1334,598"/>
+<area shape="rect" id="Node000043" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a047201b738e8d522612325c5b2a17d01" title=" " alt="" coords="1100,538,1301,564"/>
+<area shape="poly" id="edge65_Node000007_Node000043" title=" " alt="" coords="1334,582,1265,567,1266,562,1335,576"/>
+<area shape="poly" id="edge10_Node000008_Node000002" title=" " alt="" coords="1098,579,1098,578,1086,559,1078,536,1070,478,1070,408,1073,333,1077,259,1077,190,1069,132,1061,110,1050,93,1037,82,1041,78,1054,89,1066,108,1074,131,1082,189,1082,259,1079,334,1075,408,1075,477,1083,535,1091,557,1102,575,1102,575"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="1198,629,1186,695,1161,782,1142,827,1118,871,1089,912,1053,948,1037,959,1034,954,1050,944,1085,909,1113,869,1137,825,1156,780,1181,694,1193,628"/>
+<area shape="poly" id="edge12_Node000008_Node000004" title=" " alt="" coords="1200,629,1191,703,1167,803,1148,856,1124,908,1092,956,1053,997,1037,1008,1034,1003,1050,993,1088,952,1119,905,1144,854,1162,802,1185,702,1195,628"/>
+<area shape="poly" id="edge13_Node000008_Node000005" title=" " alt="" coords="1201,629,1195,711,1187,765,1174,824,1155,885,1130,944,1096,999,1053,1046,1038,1057,1035,1053,1050,1042,1092,996,1125,941,1150,883,1169,823,1182,764,1190,710,1196,628"/>
+<area shape="poly" id="edge14_Node000008_Node000006" title=" " alt="" coords="1202,629,1199,719,1192,780,1180,845,1162,913,1136,980,1100,1042,1053,1096,1038,1107,1035,1102,1050,1092,1096,1039,1131,978,1157,912,1175,844,1187,779,1194,719,1197,629"/>
+<area shape="rect" id="Node000009" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a7c4736c5e93d96f26ce43a050956013a" title=" " alt="" coords="832,329,1052,355"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1099,580,1098,578,1079,552,1071,525,1070,498,1073,471,1076,445,1076,419,1068,394,1050,369,1034,357,1037,353,1054,365,1073,391,1081,418,1081,445,1078,472,1075,498,1076,524,1083,549,1102,575,1103,576"/>
+<area shape="rect" id="Node000010" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="573,381,760,422"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="1102,581,1098,578,1086,567,1079,554,1073,529,1067,505,1061,494,1050,484,1016,474,942,457,760,422,761,416,943,452,1017,468,1053,479,1065,491,1072,503,1078,528,1084,552,1091,563,1101,574,1105,577"/>
+<area shape="rect" id="Node000011" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a90e223289901def64d3ea439b8e55318" title=" " alt="" coords="848,493,1036,534"/>
+<area shape="poly" id="edge15_Node000008_Node000011" title=" " alt="" coords="1119,586,1099,579,1074,567,1051,555,1005,537,1007,532,1053,550,1077,562,1101,574,1121,580"/>
+<area shape="rect" id="Node000018" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a32ec9e67fa740e3dafa3b9b9a4d3f769" title="Has this pid/cid pair had only explicit null records?" alt="" coords="573,945,760,986"/>
+<area shape="poly" id="edge40_Node000008_Node000018" title=" " alt="" coords="1098,588,1022,580,944,576,877,581,852,588,834,598,816,617,804,636,796,656,793,676,796,718,806,762,817,806,822,851,820,873,814,896,803,918,786,940,762,957,759,953,782,936,798,915,809,894,814,872,816,851,812,807,801,763,791,719,788,676,791,655,799,634,812,614,831,594,850,583,876,576,944,571,1023,574,1099,582"/>
+<area shape="rect" id="Node000026" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#abe3aa5567654a1d07e41fe49ae42d6db" title=" " alt="" coords="847,608,1037,649"/>
+<area shape="poly" id="edge39_Node000008_Node000026" title=" " alt="" coords="1085,616,1038,621,1037,615,1084,610"/>
+<area shape="rect" id="Node000027" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a171f23cf0b25928c3f79ff0b87a882b7" title=" " alt="" coords="848,379,1036,419"/>
+<area shape="poly" id="edge41_Node000008_Node000027" title=" " alt="" coords="1101,581,1098,578,1083,561,1076,543,1072,508,1069,473,1063,456,1050,440,1025,422,1028,418,1054,436,1067,454,1074,472,1077,508,1081,542,1088,558,1102,574,1104,577"/>
+<area shape="rect" id="Node000035" href="$d6/deb/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_add_value.html#ad0d96ef2fd1026c012695f376a6b5e43" title=" " alt="" coords="836,673,1048,744"/>
+<area shape="poly" id="edge57_Node000008_Node000035" title=" " alt="" coords="1154,622,1029,675,1027,670,1152,617"/>
+<area shape="rect" id="Node000036" href="$d6/deb/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_add_value.html#a516246f82115a0f25e3a6db903585811" title=" " alt="" coords="836,768,1048,838"/>
+<area shape="poly" id="edge58_Node000008_Node000036" title=" " alt="" coords="1182,627,1128,691,1093,727,1053,759,1036,770,1033,765,1050,754,1089,723,1125,688,1178,624"/>
+<area shape="rect" id="Node000037" href="$db/d24/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_new_bucket.html#af5ff0578fe6dbdbaef4f885329059e5a" title=" " alt="" coords="836,862,1048,933"/>
+<area shape="poly" id="edge59_Node000008_Node000037" title=" " alt="" coords="1192,629,1173,676,1143,736,1103,798,1080,827,1053,853,1039,864,1036,860,1050,849,1076,823,1099,795,1138,733,1168,674,1187,627"/>
+<area shape="rect" id="Node000038" href="$db/d24/structml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03_1_1_s_new_bucket.html#a56891521acc16a62a0a8d789c7976317" title=" " alt="" coords="836,104,1048,174"/>
+<area shape="poly" id="edge60_Node000008_Node000038" title=" " alt="" coords="1099,579,1098,578,1079,553,1066,529,1058,505,1055,480,1058,433,1069,385,1079,337,1084,289,1082,264,1076,239,1066,214,1050,189,1038,177,1042,173,1054,185,1070,212,1081,238,1087,263,1089,289,1085,338,1074,386,1064,433,1060,480,1064,504,1071,527,1083,551,1102,575,1103,576"/>
+<area shape="rect" id="Node000039" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43784d519db9888cbf7799677939e3f4" title=" " alt="" coords="848,199,1036,239"/>
+<area shape="poly" id="edge61_Node000008_Node000039" title=" " alt="" coords="1099,579,1098,578,1082,558,1071,537,1061,496,1064,455,1072,415,1080,375,1083,335,1074,294,1064,274,1050,254,1034,241,1038,237,1054,251,1069,272,1079,293,1088,334,1085,375,1077,416,1069,456,1067,496,1076,535,1086,555,1102,575,1103,576"/>
+<area shape="rect" id="Node000042" href="$da/d18/classml_1_1model_1_1_c_sample_gatherer.html#a04397ce85081b3edf1163a0995b5fa37" title="Reset the bucket state for the bucket containing bucketStart." alt="" coords="847,264,1037,305"/>
+<area shape="poly" id="edge64_Node000008_Node000042" title=" " alt="" coords="1099,580,1098,578,1075,545,1066,512,1067,479,1072,447,1077,414,1078,382,1071,350,1050,318,1036,306,1039,302,1054,315,1075,348,1084,382,1083,415,1077,448,1072,480,1072,512,1080,543,1102,575,1103,576"/>
+<area shape="poly" id="edge16_Node000011_Node000010" title=" " alt="" coords="858,490,831,477,807,460,783,443,741,425,743,420,786,438,810,455,834,473,860,485"/>
+<area shape="rect" id="Node000012" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a2ce1fe60e7bdbec0fc0905af8c8ffec5" title=" " alt="" coords="277,439,476,479"/>
+<area shape="poly" id="edge17_Node000011_Node000012" title=" " alt="" coords="833,506,476,471,477,466,833,501"/>
+<area shape="rect" id="Node000014" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ad8773f4e4f3f15578bae2eae4aca6bea" title="Get the checksum of this gatherer." alt="" coords="573,741,760,782"/>
+<area shape="poly" id="edge19_Node000011_Node000014" title=" " alt="" coords="845,545,834,554,819,575,812,596,811,638,810,681,802,703,786,725,762,743,759,739,782,721,797,700,805,680,806,638,807,595,815,573,830,551,841,541"/>
+<area shape="rect" id="Node000017" href="$dc/d7f/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_extract_feature_data.html#a4e75f5c726cdf2d6a369daefffcf3b72" title=" " alt="" coords="258,958,495,1029"/>
+<area shape="poly" id="edge23_Node000011_Node000017" title=" " alt="" coords="888,545,858,568,835,598,823,634,818,684,819,804,820,865,817,921,806,967,798,986,786,1000,753,1023,716,1039,677,1048,637,1052,556,1048,481,1032,482,1027,556,1042,637,1047,676,1043,715,1034,750,1018,783,996,793,983,801,966,811,920,815,865,814,804,813,683,818,633,830,595,855,564,885,540"/>
+<area shape="poly" id="edge24_Node000011_Node000018" title=" " alt="" coords="843,545,834,554,818,578,807,602,801,625,798,648,802,694,812,740,821,786,825,832,822,856,815,880,804,904,786,929,762,949,758,944,782,925,799,902,810,878,817,855,819,832,816,786,806,741,796,695,793,648,795,624,802,600,813,575,830,551,839,541"/>
+<area shape="rect" id="Node000019" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a1598d511c6389ed6d0933db39378e386" title=" " alt="" coords="277,851,476,891"/>
+<area shape="poly" id="edge33_Node000011_Node000019" title=" " alt="" coords="843,545,834,554,820,575,810,596,804,639,808,681,818,724,827,766,829,807,825,827,817,847,804,866,786,885,745,912,699,928,650,935,601,934,552,928,505,918,428,895,429,889,507,913,553,923,601,929,650,929,698,923,743,907,783,881,800,863,812,844,820,826,823,806,821,766,813,725,803,682,798,639,805,595,815,573,830,551,840,541"/>
+<area shape="rect" id="Node000020" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a9ea89de686e4a058869087501c6f928c" title=" " alt="" coords="268,504,485,545"/>
+<area shape="poly" id="edge28_Node000011_Node000020" title=" " alt="" coords="833,518,485,525,485,520,833,513"/>
+<area shape="rect" id="Node000021" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a0537e861fd1382d54526807308b2f1af" title=" " alt="" coords="272,569,481,610"/>
+<area shape="poly" id="edge30_Node000011_Node000021" title=" " alt="" coords="846,544,834,554,822,570,816,586,813,619,809,652,801,667,786,681,755,700,726,710,699,715,672,713,615,701,547,681,416,613,418,608,549,677,616,695,672,708,698,709,725,705,752,695,783,677,797,664,804,650,808,618,811,585,818,567,830,550,843,540"/>
+<area shape="rect" id="Node000022" href="$d0/d73/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_do_sample.html#ac6df3149d94e4b8a59f95b5ffbe2716a" title=" " alt="" coords="548,547,784,603"/>
+<area shape="poly" id="edge32_Node000011_Node000022" title=" " alt="" coords="833,540,785,551,784,546,832,535"/>
+<area shape="rect" id="Node000023" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a35f1dfeec887070d175414042262d66f" title=" " alt="" coords="277,229,476,270"/>
+<area shape="poly" id="edge34_Node000011_Node000023" title=" " alt="" coords="890,487,858,463,830,433,819,414,814,397,810,364,804,334,796,320,783,306,761,294,731,284,652,268,562,259,476,254,477,249,562,254,653,263,732,279,763,289,786,302,801,317,809,332,815,363,819,396,824,412,834,429,862,459,893,483"/>
+<area shape="rect" id="Node000024" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a3655c1bcf787a15454a64dce843f566b" title=" " alt="" coords="573,627,760,667"/>
+<area shape="poly" id="edge36_Node000011_Node000024" title=" " alt="" coords="852,543,834,554,819,570,811,585,802,601,786,617,761,630,759,626,783,613,798,598,806,583,815,567,831,550,849,539"/>
+<area shape="rect" id="Node000025" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a913845fb0b570d71229a85c9ce664e53" title="Start a new bucket." alt="" coords="580,831,753,871"/>
+<area shape="poly" id="edge37_Node000011_Node000025" title=" " alt="" coords="844,545,834,554,815,584,807,613,806,642,809,671,813,701,813,731,805,763,786,795,764,817,737,833,734,828,761,813,782,792,800,761,807,731,807,701,804,672,801,642,801,612,810,582,830,551,840,541"/>
+<area shape="rect" id="Node000013" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a32f7941b2eb5ac819d0adc0a3fe73905" title=" " alt="" coords="5,439,205,479"/>
+<area shape="poly" id="edge18_Node000012_Node000013" title=" " alt="" coords="261,462,205,462,205,456,261,456"/>
+<area shape="rect" id="Node000015" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a967a6b38b6d2c83fff4fe69023db143d" title="Get the checksum of this gatherer." alt="" coords="277,691,476,731"/>
+<area shape="poly" id="edge20_Node000014_Node000015" title=" " alt="" coords="557,745,476,731,477,726,558,740"/>
+<area shape="rect" id="Node000016" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a42ac34b4c955df26458a3421c9f14669" title="Get the checksum of this gatherer." alt="" coords="290,756,463,797"/>
+<area shape="poly" id="edge22_Node000014_Node000016" title=" " alt="" coords="557,770,464,775,463,769,557,765"/>
+<area shape="poly" id="edge21_Node000015_Node000015" title=" " alt="" coords="421,678,404,672,376,669,350,671,334,676,328,682,331,689,326,691,323,681,332,672,349,666,376,664,405,666,423,673"/>
+<area shape="poly" id="edge25_Node000018_Node000017" title=" " alt="" coords="557,979,495,985,495,980,557,974"/>
+<area shape="poly" id="edge26_Node000018_Node000019" title=" " alt="" coords="586,943,440,894,442,889,588,937"/>
+<area shape="poly" id="edge27_Node000019_Node000013" title=" " alt="" coords="300,846,274,830,251,810,218,769,190,724,167,677,148,629,121,542,107,480,112,479,126,541,153,627,172,674,195,721,222,766,255,806,277,826,303,841"/>
+<area shape="poly" id="edge29_Node000020_Node000013" title=" " alt="" coords="274,502,192,483,193,477,275,497"/>
+<area shape="poly" id="edge31_Node000021_Node000013" title=" " alt="" coords="270,566,252,559,184,521,130,482,133,477,187,516,254,554,272,561"/>
+<area shape="poly" id="edge35_Node000023_Node000013" title=" " alt="" coords="264,278,254,284,209,320,171,363,141,405,120,440,115,437,136,403,167,360,206,316,251,279,261,274"/>
+<area shape="poly" id="edge38_Node000025_Node000025" title=" " alt="" coords="712,818,695,812,666,809,640,811,623,816,617,822,620,829,615,831,612,821,621,812,639,806,666,804,696,806,713,813"/>
+<area shape="poly" id="edge42_Node000027_Node000010" title=" " alt="" coords="833,403,760,403,760,398,833,397"/>
+<area shape="rect" id="Node000028" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#af336a89e53320767103d8026f068204a" title=" " alt="" coords="567,316,766,357"/>
+<area shape="poly" id="edge43_Node000027_Node000028" title=" " alt="" coords="834,377,758,360,759,355,835,372"/>
+<area shape="rect" id="Node000031" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#afc19aab84969f770859f424c7a4c4162" title=" " alt="" coords="567,201,766,242"/>
+<area shape="poly" id="edge53_Node000027_Node000031" title=" " alt="" coords="834,372,830,369,818,356,811,342,806,314,800,288,794,275,783,262,756,245,759,240,786,258,798,272,805,286,811,313,816,340,823,353,834,365,837,368"/>
+<area shape="rect" id="Node000032" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ae92653096d1454cb4ccf4da74eff7b02" title="Persist state by passing information to the supplied inserter." alt="" coords="573,136,760,177"/>
+<area shape="poly" id="edge54_Node000027_Node000032" title=" " alt="" coords="834,372,830,369,814,346,806,323,806,278,805,234,798,213,782,192,759,175,762,170,786,188,803,210,811,233,811,278,811,322,819,344,834,365,838,369"/>
+<area shape="poly" id="edge44_Node000028_Node000012" title=" " alt="" coords="559,366,550,372,535,385,526,399,517,414,502,428,477,441,474,436,498,423,513,410,522,396,531,382,546,368,557,361"/>
+<area shape="poly" id="edge51_Node000028_Node000019" title=" " alt="" coords="556,365,550,371,530,399,517,426,509,453,505,479,509,531,521,584,533,638,539,693,538,721,531,750,520,780,502,810,477,835,447,853,445,848,474,831,498,807,515,777,526,748,532,720,534,693,528,639,516,585,504,532,500,479,504,451,512,424,526,396,546,368,552,361"/>
+<area shape="poly" id="edge49_Node000028_Node000020" title=" " alt="" coords="555,367,550,372,538,386,531,400,527,431,522,462,515,478,502,493,484,506,481,501,498,489,510,475,517,460,521,430,526,399,533,383,546,368,552,363"/>
+<area shape="poly" id="edge50_Node000028_Node000021" title=" " alt="" coords="556,366,550,371,534,394,526,417,525,440,527,463,529,487,527,511,519,535,502,558,483,573,479,569,498,554,515,532,522,510,523,487,521,463,520,440,521,416,529,392,546,368,552,362"/>
+<area shape="poly" id="edge52_Node000028_Node000023" title=" " alt="" coords="586,313,547,300,499,284,460,273,462,268,501,279,549,295,588,308"/>
+<area shape="rect" id="Node000029" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ad4163d245882e7cc2fa87d0a77f107fc" title=" " alt="" coords="253,373,500,414"/>
+<area shape="poly" id="edge45_Node000028_Node000029" title=" " alt="" coords="552,362,483,375,482,370,551,356"/>
+<area shape="rect" id="Node000030" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ab2f142b0f0e1cb7ebd950ee851e6e488" title=" " alt="" coords="253,294,500,350"/>
+<area shape="poly" id="edge47_Node000028_Node000030" title=" " alt="" coords="551,333,500,331,501,325,551,328"/>
+<area shape="poly" id="edge46_Node000029_Node000013" title=" " alt="" coords="275,421,193,441,192,435,274,416"/>
+<area shape="poly" id="edge48_Node000030_Node000013" title=" " alt="" coords="267,358,254,364,188,402,134,441,131,436,185,398,251,359,265,353"/>
+<area shape="rect" id="Node000033" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a4c69459545a20a6008ff568fd7a43008" title="Persist state by passing information to the supplied inserter." alt="" coords="275,85,478,126"/>
+<area shape="poly" id="edge55_Node000032_Node000033" title=" " alt="" coords="557,140,478,126,479,121,558,135"/>
+<area shape="rect" id="Node000034" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a30250e6c90f12b6f4ab4c30eade22118" title="Persist state by passing information to the supplied inserter." alt="" coords="275,151,478,191"/>
+<area shape="poly" id="edge56_Node000032_Node000034" title=" " alt="" coords="557,165,479,169,478,163,557,159"/>
+<area shape="rect" id="Node000040" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#ab0d59a6b6336b0fc2ad87a70c8ccf6d4" title="Reset bucket and return true if bucket was successfully reset or false otherwise." alt="" coords="567,71,766,111"/>
+<area shape="poly" id="edge62_Node000039_Node000040" title=" " alt="" coords="840,194,831,188,815,172,806,156,798,141,783,126,760,114,762,109,786,122,802,138,811,154,819,169,834,184,843,189"/>
+<area shape="rect" id="Node000041" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a1dd2d544b77a79ab83cfd6adc5903da7" title="Reset bucket and return true if bucket was successfully reset or false otherwise." alt="" coords="580,5,753,46"/>
+<area shape="poly" id="edge63_Node000039_Node000041" title=" " alt="" coords="836,192,830,188,817,171,810,155,806,123,802,91,795,76,783,61,752,42,755,38,786,57,800,73,807,89,811,122,815,154,822,169,834,184,839,188"/>
+</map>

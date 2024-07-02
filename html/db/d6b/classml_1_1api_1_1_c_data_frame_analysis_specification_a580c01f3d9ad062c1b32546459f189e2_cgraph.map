@@ -1,0 +1,21 @@
+<map id="ml::api::CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification" name="ml::api::CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,235,184"/>
+<area shape="rect" id="Node000002" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html#a8aa3efab4b8b783a2d45dc2d312b88df" title=" " alt="" coords="283,37,476,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,125,282,89,302,81,304,86,284,93,190,130"/>
+<area shape="rect" id="Node000006" href="$d5/d07/classml_1_1core_1_1_c_boost_json_parser.html#af72dcb0c0282a3644f340eeea38caa8c" title=" " alt="" coords="286,103,473,143"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="235,139,270,134,271,140,235,144"/>
+<area shape="rect" id="Node000007" href="$d3/d01/classml_1_1api_1_1_c_anomaly_job_config_reader.html#ae1c4da32a4b4ceacd257d508a1d60f42" title="Extract the parameters from a JSON object." alt="" coords="285,168,474,209"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="235,168,270,172,269,177,235,173"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a3b6905e30d6e4de2397f97ec3241de77" title=" " alt="" coords="306,233,453,274"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="192,182,284,218,304,225,302,230,282,223,190,187"/>
+<area shape="rect" id="Node000003" href="$dd/ddc/classml_1_1api_1_1_c_data_frame_analysis_config_reader.html#ad3e65d9d55edc7b615f8d7f8e7dc7762" title="Extract the parameters from a JSON object." alt="" coords="551,37,744,78"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,55,535,55,535,60,476,60"/>
+<area shape="rect" id="Node000004" href="$d5/dca/classml_1_1api_1_1_c_data_frame_analysis_parameters.html#a057154834fd1ef0dd5e206486ffa5afb" title="Add parameter." alt="" coords="831,5,1025,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="744,44,815,36,816,41,745,49"/>
+<area shape="rect" id="Node000005" href="$d8/db3/classml_1_1api_1_1_c_data_frame_analysis_config_reader_1_1_c_parameter.html#a31e2bc25af6f5b369f1c2cee98f1ed15" title="Get the name of the parameter." alt="" coords="818,71,1038,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="745,66,803,74,803,79,744,72"/>
+<area shape="rect" id="Node000008" href="$dc/df4/classml_1_1api_1_1_c_anomaly_job_parameters.html#a291245b6452b5bbdf0b5e00aaeed7ddc" title="Add parameter." alt="" coords="524,148,770,173"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="474,176,508,172,509,178,474,181"/>
+<area shape="rect" id="Node000009" href="$dd/dbb/classml_1_1api_1_1_c_anomaly_job_config_reader_1_1_c_parameter.html#ad10e452ce3499aa3721dbf407cb96bf7" title="Get the name of the parameter." alt="" coords="553,197,741,238"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="474,196,538,203,537,208,474,201"/>
+</map>

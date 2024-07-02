@@ -1,0 +1,5 @@
+<map id="ml::model::CGathererTools::CSumGatherer::featureData" name="ml::model::CGathererTools::CSumGatherer::featureData">
+<area shape="rect" id="Node000001" title="Get the feature data for the current bucketing interval." alt="" coords="5,5,198,46"/>
+<area shape="rect" id="Node000002" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a7566935000a6e7b24d92cb2327e39169" title="Checks whether a double holds an an integer." alt="" coords="246,5,406,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,23,230,23,230,28,198,28"/>
+</map>

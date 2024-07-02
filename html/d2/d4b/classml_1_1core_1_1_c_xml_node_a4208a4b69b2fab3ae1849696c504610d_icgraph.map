@@ -1,0 +1,33 @@
+<map id="ml::core::CXmlNode::value" name="ml::core::CXmlNode::value">
+<area shape="rect" id="Node000001" title=" " alt="" coords="494,267,634,308"/>
+<area shape="rect" id="Node000002" href="$df/d54/_c_xml_parser_test_8cc.html#ab70192395519de73426c8698e8797f64" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="553,253,540,205,519,148,487,92,467,66,444,44,427,34,430,29,448,40,471,63,492,89,524,146,546,203,559,251"/>
+<area shape="rect" id="Node000003" href="$df/d54/_c_xml_parser_test_8cc.html#aaf78814cd7672c042b6bc67297425b5e" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="549,253,533,215,511,172,481,129,444,94,426,83,429,79,448,89,486,126,516,169,538,213,554,251"/>
+<area shape="rect" id="Node000004" href="$df/d54/_c_xml_parser_test_8cc.html#ae376e1df905782436336614002382ce6" title=" " alt="" coords="250,104,446,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="542,255,502,198,475,169,445,144,421,133,423,128,447,140,479,165,506,194,546,252"/>
+<area shape="rect" id="Node000005" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#adca50421c9bfc9721e6c8c5e7c7e0a72" title="Called recursively by the convert() method." alt="" coords="257,178,439,219"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="508,262,445,234,412,221,414,217,447,229,510,257"/>
+<area shape="rect" id="Node000007" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#ae5e56fa3d79de30028d7a7e66586dd73" title="Called recursively by the convert() method." alt="" coords="274,267,422,308"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="479,290,422,290,422,285,479,285"/>
+<area shape="rect" id="Node000009" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a830b28ba85f5cc14b565c0da4b460cf4" title=" " alt="" coords="271,333,425,373"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="481,315,419,334,417,329,480,310"/>
+<area shape="rect" id="Node000010" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#a6c3f0da70a681719faafb3d382a8eaf4" title=" " alt="" coords="271,398,425,439"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="534,321,494,355,447,387,421,400,419,395,445,383,491,351,530,317"/>
+<area shape="rect" id="Node000011" href="$df/d54/_c_xml_parser_test_8cc.html#a65df461916b01f4ced713d913b679e58" title=" " alt="" coords="290,463,406,488"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="550,323,510,389,481,423,448,452,428,463,407,470,405,465,426,458,444,448,477,420,505,386,545,320"/>
+<area shape="rect" id="Node000015" href="$d2/d4b/classml_1_1core_1_1_c_xml_node.html#ac10474cd8ff1209884c691fdd34088cc" title="Set value." alt="" coords="278,513,418,553"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="555,324,540,365,517,413,487,461,448,503,420,520,417,515,444,499,482,458,513,410,535,363,550,322"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="383,165,370,159,348,156,327,158,315,163,310,169,312,177,307,178,305,168,312,159,326,153,348,151,371,154,385,160"/>
+<area shape="rect" id="Node000006" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a0073cf8167c52901b11cc22dfc8b89eb" title=" " alt="" coords="13,178,194,219"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="242,201,194,201,194,196,242,196"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="383,254,370,248,348,246,327,248,315,252,310,258,312,266,307,267,305,257,312,248,326,243,348,241,371,243,385,249"/>
+<area shape="rect" id="Node000008" href="$d6/d28/classml_1_1core_1_1_c_xml_parser.html#add7741a4a249b53ab04e2277bb5c1955" title=" " alt="" coords="30,267,177,308"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="259,290,178,290,178,285,259,285"/>
+<area shape="rect" id="Node000012" href="$df/d54/_c_xml_parser_test_8cc.html#af4c96088782be6e71d804932925df641" title=" " alt="" coords="5,413,202,439"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="275,464,170,442,171,437,276,458"/>
+<area shape="rect" id="Node000013" href="$df/d54/_c_xml_parser_test_8cc.html#a2834ed432a04a58d2d6f057f5fb6f7ad" title=" " alt="" coords="5,463,202,488"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="275,478,202,478,202,473,275,473"/>
+<area shape="rect" id="Node000014" href="$df/d54/_c_xml_parser_test_8cc.html#a893b0d0bab076003690bdf825f0aa52c" title=" " alt="" coords="5,512,202,538"/>
+<area shape="poly" id="edge15_Node000011_Node000014" title=" " alt="" coords="276,493,171,514,170,509,275,487"/>
+</map>

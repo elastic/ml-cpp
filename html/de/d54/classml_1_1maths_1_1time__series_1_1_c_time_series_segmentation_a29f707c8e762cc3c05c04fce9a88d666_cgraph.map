@@ -1,0 +1,52 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::piecewiseTimeShifted" name="ml::maths::time_series::CTimeSeriesSegmentation::piecewiseTimeShifted">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,308,191,364"/>
+<area shape="rect" id="Node000002" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#aaa5c74e106068e50ce7db92dde07e39a" title=" " alt="" coords="239,308,464,364"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,333,223,333,223,339,191,339"/>
+<area shape="rect" id="Node000009" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#ade0740c32139b44f9940357d1c20f494" title=" " alt="" coords="541,88,726,144"/>
+<area shape="poly" id="edge17_Node000001_Node000009" title=" " alt="" coords="158,305,238,269,542,147,544,152,240,274,160,310"/>
+<area shape="rect" id="Node000013" href="$de/d54/classml_1_1maths_1_1time__series_1_1_c_time_series_segmentation.html#a58b4fa5f860c0c09445bad8cdfa71d08" title="Choose the final segmentation we&#39;ll use." alt="" coords="259,600,444,656"/>
+<area shape="poly" id="edge18_Node000001_Node000013" title=" " alt="" coords="125,362,318,586,314,590,121,366"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="302,307,303,297,312,289,328,283,351,281,378,284,394,291,392,296,377,289,351,287,329,289,314,293,307,300,307,308"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="802,271,1025,326"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,327,754,308,787,306,787,311,755,313,465,332"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="834,376,993,416"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="385,362,442,404,476,424,513,439,555,448,599,453,686,450,769,437,839,419,840,424,770,442,687,456,598,458,554,454,511,444,474,429,439,409,382,366"/>
+<area shape="rect" id="Node000005" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="512,373,754,429"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="465,359,498,367,496,372,464,365"/>
+<area shape="rect" id="Node000006" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="834,165,993,206"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="375,306,433,251,470,225,511,204,589,182,671,171,749,169,818,172,818,177,749,174,671,176,591,187,513,209,473,229,436,255,379,309"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a5374365b490685fa702741c968a98697" title=" " alt="" coords="523,504,743,544"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="378,362,436,423,473,455,513,483,537,495,535,500,511,487,470,459,432,427,374,366"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="370,306,428,234,467,195,510,160,530,148,533,153,514,165,471,199,432,238,374,309"/>
+<area shape="rect" id="Node000012" href="$da/ddf/classml_1_1maths_1_1common_1_1_c_statistical_tests.html#adc5785fa3e77f2867e550c55e8c9e089" title=" " alt="" coords="546,243,720,298"/>
+<area shape="poly" id="edge15_Node000002_Node000012" title=" " alt="" coords="464,307,530,292,532,297,465,312"/>
+<area shape="rect" id="Node000008" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a739275d40cae59a9a72b42b772b113fc" title=" " alt="" coords="841,504,986,544"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="744,521,825,521,825,527,744,527"/>
+<area shape="poly" id="edge10_Node000009_Node000003" title=" " alt="" coords="679,142,858,260,855,264,676,146"/>
+<area shape="poly" id="edge11_Node000009_Node000004" title=" " alt="" coords="686,142,723,170,756,205,768,224,774,241,779,273,785,304,792,320,804,337,821,353,841,366,838,370,818,357,800,340,788,323,780,306,774,274,769,242,763,226,752,208,720,174,683,146"/>
+<area shape="poly" id="edge12_Node000009_Node000006" title=" " alt="" coords="727,136,819,159,818,164,726,141"/>
+<area shape="rect" id="Node000010" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a6b7faad96d97de516da6d0bb3e363123" title=" " alt="" coords="806,85,1021,141"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="726,112,791,112,791,117,726,118"/>
+<area shape="rect" id="Node000011" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#abafa6a3e479a561fbfb940256d98db93" title=" " alt="" coords="806,5,1021,61"/>
+<area shape="poly" id="edge14_Node000009_Node000011" title=" " alt="" coords="725,86,801,63,803,68,727,91"/>
+<area shape="poly" id="edge16_Node000012_Node000012" title=" " alt="" coords="579,242,579,232,589,223,607,218,633,216,663,219,681,226,679,231,662,224,633,221,608,223,592,228,584,234,584,242"/>
+<area shape="rect" id="Node000014" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#a5a201aef02e6c31059f2ce7699456e60" title="Calls lexicographicalCompareWith supplying std::less&lt;&gt; for comparison." alt="" coords="543,568,724,624"/>
+<area shape="poly" id="edge19_Node000013_Node000014" title=" " alt="" coords="444,615,526,605,527,611,445,620"/>
+<area shape="rect" id="Node000017" href="$db/dc5/namespaceml_1_1core.html#a2b5881ff0585e795579611e3a7f2707a" title="Make a vector subrange." alt="" coords="560,648,707,674"/>
+<area shape="poly" id="edge23_Node000013_Node000017" title=" " alt="" coords="445,636,544,648,544,653,444,641"/>
+<area shape="rect" id="Node000018" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#aaf1103e5c428d67f245c11be5ee75024" title=" " alt="" coords="522,698,745,739"/>
+<area shape="poly" id="edge24_Node000013_Node000018" title=" " alt="" coords="426,654,513,684,536,691,535,696,511,689,425,659"/>
+<area shape="rect" id="Node000015" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ae59743d66349e20f589c98333e2118ff" title=" " alt="" coords="823,568,1004,624"/>
+<area shape="poly" id="edge20_Node000014_Node000015" title=" " alt="" coords="724,593,807,593,807,599,724,599"/>
+<area shape="rect" id="Node000016" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#ac28e26aa59df21d5c8b12b9ca580b957" title=" " alt="" coords="1073,568,1254,624"/>
+<area shape="poly" id="edge21_Node000015_Node000016" title=" " alt="" coords="1005,593,1057,593,1057,599,1005,599"/>
+<area shape="poly" id="edge22_Node000016_Node000016" title=" " alt="" coords="1128,567,1128,558,1135,549,1146,543,1163,541,1182,544,1194,551,1191,555,1181,549,1163,547,1148,548,1138,553,1133,559,1133,568"/>
+<area shape="rect" id="Node000019" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="825,683,1002,709"/>
+<area shape="poly" id="edge25_Node000018_Node000019" title=" " alt="" coords="745,707,810,702,810,707,746,712"/>
+<area shape="rect" id="Node000021" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="1302,710,1380,735"/>
+<area shape="poly" id="edge29_Node000018_Node000021" title=" " alt="" coords="745,718,802,719,1028,723,1254,723,1286,722,1286,727,1254,728,1028,728,802,724,745,723"/>
+<area shape="rect" id="Node000020" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="1079,673,1248,714"/>
+<area shape="poly" id="edge26_Node000019_Node000020" title=" " alt="" coords="1002,692,1063,692,1063,697,1002,698"/>
+<area shape="poly" id="edge27_Node000020_Node000021" title=" " alt="" coords="1249,705,1287,711,1286,716,1248,710"/>
+<area shape="poly" id="edge28_Node000021_Node000021" title=" " alt="" coords="1311,711,1305,701,1309,691,1321,685,1341,683,1363,686,1374,692,1371,697,1361,691,1341,688,1323,690,1313,695,1311,700,1316,708"/>
+</map>

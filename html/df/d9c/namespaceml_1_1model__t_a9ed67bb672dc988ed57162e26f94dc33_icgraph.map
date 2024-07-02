@@ -1,0 +1,10 @@
+<map id="ml::model_t::isSampled" name="ml::model_t::isSampled">
+<area shape="rect" id="Node000001" title="Check if the feature is sampled." alt="" coords="491,58,649,84"/>
+<area shape="rect" id="Node000002" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="263,5,430,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,57,430,45,431,40,489,52"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="250,95,443,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,90,444,99,443,93,486,85"/>
+<area shape="rect" id="Node000003" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,13,202,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="247,28,202,28,202,23,247,23"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="383,82,369,76,346,73,325,75,312,80,307,86,309,93,304,95,302,85,309,76,324,70,346,68,371,70,385,77"/>
+</map>

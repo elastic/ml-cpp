@@ -1,0 +1,10 @@
+<map id="ml::maths::time_series::CLevelShift::checksum" name="ml::maths::time_series::CLevelShift::checksum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,171,75"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="449,5,603,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,47,433,29,434,34,171,52"/>
+<area shape="rect" id="Node000003" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html#a40a031cfe5951e481f0005bcc703a407" title=" " alt="" coords="219,63,401,103"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,63,203,67,203,72,171,68"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="388,60,433,48,435,53,390,65"/>
+<area shape="rect" id="Node000004" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html#a1075907c4fdffec597a67c3aa4aac827" title=" " alt="" coords="449,71,603,111"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="401,84,433,85,433,90,401,89"/>
+</map>

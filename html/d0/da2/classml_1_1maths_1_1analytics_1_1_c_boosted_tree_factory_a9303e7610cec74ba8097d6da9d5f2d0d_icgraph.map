@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::forceAcceptIncrementalTraining" name="ml::maths::analytics::CBoostedTreeFactory::forceAcceptIncrementalTraining">
+<area shape="rect" id="Node000001" title="Set whether or not to always accept the result of incremental training." alt="" coords="250,5,463,61"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#ade2c22791fe24f882b5212cac26d7e3c" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

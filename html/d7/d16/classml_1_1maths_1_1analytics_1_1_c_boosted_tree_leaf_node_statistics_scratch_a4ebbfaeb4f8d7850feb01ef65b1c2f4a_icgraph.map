@@ -1,0 +1,17 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsScratch::split" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsScratch::split">
+<area shape="rect" id="Node000001" title=" " alt="" coords="875,50,1100,106"/>
+<area shape="poly" id="edge8_Node000001_Node000001" title=" " alt="" coords="1032,38,1015,31,987,29,963,31,948,36,940,42,940,50,935,50,935,40,945,31,962,25,988,24,1017,26,1034,33"/>
+<area shape="rect" id="Node000002" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,5,275,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="860,74,827,73,275,49,275,43,827,67,860,69"/>
+<area shape="rect" id="Node000003" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a7bf7df4a4e12a976495091fd48ea307f" title=" " alt="" coords="603,82,827,138"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="860,96,828,99,828,94,860,90"/>
+<area shape="rect" id="Node000004" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#abf8d02e25f46d9d9d0dbe61376e66999" title=" " alt="" coords="323,85,555,141"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="588,114,555,114,555,109,587,109"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="307,84,274,76,276,71,308,78"/>
+<area shape="rect" id="Node000005" href="$da/d0f/_c_boosted_tree_leaf_node_statistics_test_8cc.html#a12e25436cd30e1de9f5cd30640b2318d" title=" " alt="" coords="42,100,238,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="307,115,239,115,239,110,307,110"/>
+<area shape="rect" id="Node000006" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a7bc4acc23ebf2e84fbbbad033bae6113" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,149,275,220"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="308,147,276,155,274,150,307,142"/>
+<area shape="rect" id="Node000007" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a01bd47ba3a2b2abbc45d007a428820da" title=" " alt="" coords="5,244,275,315"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="395,153,340,195,276,235,253,246,251,241,273,230,337,191,392,148"/>
+</map>

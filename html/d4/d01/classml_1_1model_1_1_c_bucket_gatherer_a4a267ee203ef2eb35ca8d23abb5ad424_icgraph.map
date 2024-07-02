@@ -1,0 +1,11 @@
+<map id="ml::model::CBucketGatherer::baseAcceptRestoreTraverser" name="ml::model::CBucketGatherer::baseAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Restore the state." alt="" coords="563,39,762,79"/>
+<area shape="rect" id="Node000002" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a73daa1cafc20e4b58bfe482621fad1c6" title="Fill in the state from traverser." alt="" coords="296,5,515,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="547,47,515,43,516,37,548,41"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#ab60939b8735a07e8c2db1b54768e8e83" title="Fill in the state from traverser." alt="" coords="296,71,515,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="548,76,516,80,515,75,547,71"/>
+<area shape="rect" id="Node000003" href="$d8/d55/classml_1_1model_1_1_c_event_rate_bucket_gatherer.html#a578e7856f8ed7e9012c7f477bfc896ce" title="Construct from a state document." alt="" coords="5,5,248,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="280,28,248,28,248,23,280,23"/>
+<area shape="rect" id="Node000005" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#aa56151076ac089b82ccaa49b1823a15b" title="Construct from a state document." alt="" coords="18,71,235,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="280,94,235,94,235,88,280,88"/>
+</map>

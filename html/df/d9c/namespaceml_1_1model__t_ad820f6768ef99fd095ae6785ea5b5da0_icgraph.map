@@ -1,0 +1,12 @@
+<map id="ml::model_t::outputFunctionName" name="ml::model_t::outputFunctionName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="490,63,708,88"/>
+<area shape="rect" id="Node000002" href="$d8/d9e/_c_model_types_test_8cc.html#a9b4a3994bc0c6e5b43c31dc372f95d4b" title=" " alt="" coords="246,5,442,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="523,61,404,34,405,29,524,56"/>
+<area shape="rect" id="Node000003" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#ac25fc5edeec8266029294a76efca6650" title=" " alt="" coords="248,55,440,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="475,78,440,78,440,73,475,73"/>
+<area shape="rect" id="Node000005" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a8c34c640a67e47e08aa6034cbc4c9a86" title=" " alt="" coords="248,121,440,161"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="532,95,427,122,426,117,531,90"/>
+<area shape="rect" id="Node000004" href="$d2/d7a/classml_1_1api_1_1_c_hierarchical_results_writer.html#a299c45abf554a4a915e6c6e1a2a16b15" title="Write node." alt="" coords="5,89,198,129"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="232,94,199,98,198,93,232,88"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="232,129,198,124,199,119,232,123"/>
+</map>

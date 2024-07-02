@@ -1,0 +1,9 @@
+<map id="ml::model::CInterimBucketCorrector::finalBucketCount" name="ml::model::CInterimBucketCorrector::finalBucketCount">
+<area shape="rect" id="Node000001" title="Updates the bucket count model with a new bucket count." alt="" coords="250,47,433,88"/>
+<area shape="rect" id="Node000002" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#a3dde9e525df70d3a611f319ed3251ae1" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,48,168,34,169,29,235,43"/>
+<area shape="rect" id="Node000003" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#a4d42adb12f48cdff9f1c16577ca3680b" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,70,202,70,202,65,234,65"/>
+<area shape="rect" id="Node000004" href="$da/d4f/_c_interim_bucket_corrector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,92,169,106,168,101,234,87"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeNode::deployedSize" name="ml::maths::analytics::CBoostedTreeNode::deployedSize">
+<area shape="rect" id="Node000001" title="Get the memory the node will will use in bytes when deployed." alt="" coords="5,5,236,46"/>
+<area shape="rect" id="Node000002" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a184e1a3b02f20b79fa20cb52d4da8367" title="Check if this is a leaf node." alt="" coords="284,5,471,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,23,268,23,268,28,236,28"/>
+</map>

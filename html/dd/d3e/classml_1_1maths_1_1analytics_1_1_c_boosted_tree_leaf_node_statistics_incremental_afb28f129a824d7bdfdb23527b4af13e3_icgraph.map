@@ -1,0 +1,15 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange" name="ml::maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange">
+<area shape="rect" id="Node000001" title=" " alt="" coords="928,110,1158,166"/>
+<area shape="rect" id="Node000002" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a87c50aeebda7b2f957a61606295451ba" title=" " alt="" coords="649,110,880,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="913,141,881,141,881,136,913,136"/>
+<area shape="rect" id="Node000003" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a148adb8fd7b6ad022e084aba0fb48d9f" title=" " alt="" coords="346,110,601,166"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="633,141,602,141,602,136,633,136"/>
+<area shape="rect" id="Node000004" href="$da/d0f/_c_boosted_tree_leaf_node_statistics_test_8cc.html#a12e25436cd30e1de9f5cd30640b2318d" title=" " alt="" coords="53,5,250,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="416,104,360,72,297,45,250,32,251,27,299,40,362,67,419,100"/>
+<area shape="rect" id="Node000005" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a35d65536888b061faf1fb6a447347a99" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,55,298,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="330,120,298,115,299,109,331,114"/>
+<area shape="rect" id="Node000006" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,150,298,220"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="331,162,299,166,298,161,330,156"/>
+<area shape="rect" id="Node000007" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a58fd2782d8c92cc89789b5307d1dd44e" title=" " alt="" coords="5,244,298,315"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="412,176,299,234,268,246,266,241,297,229,410,172"/>
+</map>

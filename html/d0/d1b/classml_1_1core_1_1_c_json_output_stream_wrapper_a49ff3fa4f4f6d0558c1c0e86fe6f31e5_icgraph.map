@@ -1,0 +1,5 @@
+<map id="ml::core::CJsonOutputStreamWrapper::releaseBuffer" name="ml::core::CJsonOutputStreamWrapper::releaseBuffer">
+<area shape="rect" id="Node000001" title="Releases a buffer from the pool, remaining data will be written before returning it." alt="" coords="285,13,480,54"/>
+<area shape="rect" id="Node000002" href="$d8/dc0/classml_1_1core_1_1_c_boost_json_concurrent_line_writer.html#a29c4cfedf614e34b1ae29f6b0e606d72" title=" " alt="" coords="5,5,237,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="269,36,237,36,237,31,269,31"/>
+</map>

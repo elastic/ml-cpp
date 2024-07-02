@@ -1,0 +1,5 @@
+<map id="ml::api::CAnomalyJob::restoreSingleDetector" name="ml::api::CAnomalyJob::restoreSingleDetector">
+<area shape="rect" id="Node000001" title="Attempt to restore one detector from an already&#45;created traverser." alt="" coords="204,5,359,46"/>
+<area shape="rect" id="Node000002" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a910f607ad3397b1023628cfbf9a46328" title="Attempt to restore the detectors." alt="" coords="5,5,156,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,28,156,28,156,23,188,23"/>
+</map>

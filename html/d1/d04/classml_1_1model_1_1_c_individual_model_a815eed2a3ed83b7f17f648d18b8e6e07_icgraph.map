@@ -1,0 +1,17 @@
+<map id="ml::model::CIndividualModel::currentBucketCount" name="ml::model::CIndividualModel::currentBucketCount">
+<area shape="rect" id="Node000001" title=" " alt="" coords="747,71,934,111"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a859435dc2079e62468fe75e069353edf" title=" " alt="" coords="499,5,692,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="746,69,674,49,675,44,747,64"/>
+<area shape="rect" id="Node000003" href="$d5/df0/classml_1_1model_1_1_c_metric_model_details_view.html#a4ec8fcce257e3c9ae930e30d81d8146b" title=" " alt="" coords="491,71,699,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="731,94,700,94,700,88,731,88"/>
+<area shape="rect" id="Node000004" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ae40251353894b100d0450a6fc9b80224" title=" " alt="" coords="502,136,688,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="747,118,675,138,674,133,746,113"/>
+<area shape="rect" id="Node000005" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#a5f6241aadc05102c032854e593798b2c" title=" " alt="" coords="250,103,443,143"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="486,144,443,139,444,133,487,139"/>
+<area shape="rect" id="Node000007" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#adafa1ccfb4f10c872ea039bbb2ff80b6" title=" " alt="" coords="263,168,430,209"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="487,173,431,180,430,175,486,168"/>
+<area shape="rect" id="Node000006" href="$df/d44/_c_model_memory_test_8cc.html#a84a19efc4ae2859d720e5a7a5d5836e5" title=" " alt="" coords="5,110,202,136"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,126,202,126,202,120,234,120"/>
+<area shape="rect" id="Node000008" href="$df/d44/_c_model_memory_test_8cc.html#aadb4ceb11ad77a33ace61c59ca8117b4" title=" " alt="" coords="5,176,202,201"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="247,191,202,191,202,186,247,186"/>
+</map>

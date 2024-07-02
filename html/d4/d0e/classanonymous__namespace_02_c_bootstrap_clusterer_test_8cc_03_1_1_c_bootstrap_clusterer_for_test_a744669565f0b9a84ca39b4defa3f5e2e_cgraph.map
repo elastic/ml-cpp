@@ -1,0 +1,14 @@
+<map id="anonymous_namespace{CBootstrapClustererTest::cc}::CBootstrapClustererForTest::buildClusterGraph" name="anonymous_namespace{CBootstrapClustererTest::cc}::CBootstrapClustererForTest::buildClusterGraph">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,123,224,194"/>
+<area shape="rect" id="Node000002" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a01e9d48f7a694b40df64ba1b443a84ce" title=" " alt="" coords="272,131,417,186"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,156,256,156,256,161,224,161"/>
+<area shape="rect" id="Node000003" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#a7c5fe009ccf83f80ee4d5f020b6d8e2b" title=" " alt="" coords="465,5,610,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,128,464,71,470,67,473,71,466,75,385,132"/>
+<area shape="rect" id="Node000004" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#af3ed4ab0f0243d2c3d64112bf4251e39" title=" " alt="" coords="465,85,610,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="417,139,449,131,450,136,418,144"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="499,190,577,215"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="418,172,484,188,483,193,417,178"/>
+<area shape="rect" id="Node000006" href="$dd/d00/classml_1_1maths_1_1common_1_1_c_bootstrap_clusterer.html#ab7e5fca2b66e6c99a2354ab2970ab6ed" title=" " alt="" coords="465,240,610,296"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="395,184,466,226,474,230,471,234,464,230,392,189"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="505,191,499,181,503,171,516,165,538,163,561,166,574,173,571,177,560,171,538,168,517,170,507,175,504,180,510,188"/>
+</map>

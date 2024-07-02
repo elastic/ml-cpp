@@ -1,0 +1,6 @@
+<map id="ml::core::CLoopProgress::CLoopProgress" name="ml::core::CLoopProgress::CLoopProgress">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,172,63"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="220,29,294,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,40,204,40,204,45,172,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="228,30,223,21,226,11,238,5,257,3,277,5,288,12,285,16,276,10,257,8,239,10,230,15,228,20,233,28"/>
+</map>

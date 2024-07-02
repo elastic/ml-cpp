@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultivariatePrior::probabilityOfLessLikelySamples" name="ml::maths::common::CMultivariatePrior::probabilityOfLessLikelySamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,213,101"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="261,5,406,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,52,245,46,246,51,213,57"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0bb62f633064d92cb861da6463a0766" title="Check if this is a non&#45;informative prior." alt="" coords="261,85,406,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,89,246,95,245,100,212,94"/>
+</map>

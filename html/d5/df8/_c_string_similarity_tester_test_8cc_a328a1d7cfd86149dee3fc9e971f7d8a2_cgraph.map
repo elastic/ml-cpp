@@ -1,0 +1,18 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,96,202,121"/>
+<area shape="rect" id="Node000002" href="$d6/d10/classml_1_1core_1_1_c_string_similarity_tester.html#a5b1d2da4df53e397802191a787c07aed" title=" " alt="" coords="250,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,92,266,49,267,54,144,97"/>
+<area shape="rect" id="Node000003" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aac7a09b1eb8cb23144bbf5535678fa76" title="Current time in seconds since the epoch." alt="" coords="254,70,429,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,95,238,91,239,97,202,100"/>
+<area shape="rect" id="Node000004" href="$d1/dff/_c_container_throughput_test_8cc.html#acb99ee2c1bf9405788d8b79e238fc8a3" title=" " alt="" coords="295,120,388,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,116,280,124,279,129,202,121"/>
+<area shape="rect" id="Node000005" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aacc70e4361f1d93fe02f2b30dcf830e8" title=" " alt="" coords="270,169,413,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="145,119,266,161,264,166,143,124"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#aa01789c83cf4462555ecff7fb3997a92" title="Factor out common code from the three string conversion methods." alt="" coords="481,169,623,210"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="413,187,465,187,465,192,413,192"/>
+<area shape="rect" id="Node000007" href="$d3/dbc/classml_1_1core_1_1_c_timezone.html#a2902c3156d206af22cc5a10ada54cbe9" title="Get the singleton instance." alt="" coords="671,136,815,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="623,175,655,169,656,174,624,180"/>
+<area shape="rect" id="Node000008" href="$da/dfe/classml_1_1core_1_1_c_str_f_time.html#ae266bb129cbd5b8085fa9975d35cd54a" title=" " alt="" coords="673,201,813,242"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="624,199,658,205,657,210,623,204"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="707,136,705,126,711,117,724,111,743,109,764,112,776,118,774,123,762,117,743,115,725,117,714,121,710,127,712,135"/>
+</map>

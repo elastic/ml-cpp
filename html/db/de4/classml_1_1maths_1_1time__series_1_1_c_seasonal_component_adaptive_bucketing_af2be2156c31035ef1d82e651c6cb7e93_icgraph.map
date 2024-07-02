@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::variance" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::variance">
+<area shape="rect" id="Node000001" title="Get the variance of bucket." alt="" coords="265,45,476,101"/>
+<area shape="rect" id="Node000002" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a7788048c4073d0de15ee0e9bbcb65855" title="Add the function initial value at time." alt="" coords="5,5,217,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,57,217,52,218,47,250,52"/>
+<area shape="rect" id="Node000003" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#ae66a9e8b24faf14042bb7bca8a52fbc0" title=" " alt="" coords="5,85,217,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="250,94,218,99,217,94,249,89"/>
+</map>

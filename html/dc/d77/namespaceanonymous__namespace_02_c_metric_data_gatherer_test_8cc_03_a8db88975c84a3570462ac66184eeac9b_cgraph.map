@@ -1,0 +1,16 @@
+<map id="anonymous_namespace{CMetricDataGathererTest::cc}::addArrival" name="anonymous_namespace{CMetricDataGathererTest::cc}::addArrival">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,180,119"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="228,13,402,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,66,218,56,219,61,181,71"/>
+<area shape="rect" id="Node000004" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="458,71,616,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="180,88,443,88,443,94,180,94"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="241,128,389,169"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="181,111,227,123,226,128,179,116"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="450,5,624,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,28,434,27,435,32,402,33"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="397,52,443,64,442,69,395,57"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="672,71,831,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="617,88,657,88,657,94,617,94"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="514,136,560,161"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="389,146,498,146,498,151,389,151"/>
+</map>

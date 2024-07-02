@@ -1,0 +1,19 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::bivariate" name="ml::maths::common::CMultivariateConstantPrior::bivariate">
+<area shape="rect" id="Node000001" title="Compute the bivariate const bivariate prior." alt="" coords="5,103,184,159"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a2a751263a75df701648d4bb541c15168" title="Check that the samples and weights are consistent." alt="" coords="237,39,405,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,100,239,82,241,87,185,105"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a40bce069a8271a030cff366e62056c2c" title=" " alt="" coords="232,263,410,319"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="125,157,173,203,233,249,240,253,237,257,230,253,170,207,121,161"/>
+<area shape="rect" id="Node000006" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a1b9cf4e19c482e94294f970e5e227f23" title="Get the constant value." alt="" coords="692,87,871,143"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="120,101,168,59,198,39,231,24,294,9,359,3,425,5,490,14,552,27,610,43,706,78,705,83,608,49,551,32,489,19,425,11,360,8,295,14,233,30,201,44,171,63,123,105"/>
+<area shape="rect" id="Node000007" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="232,183,410,239"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="176,157,227,175,225,180,174,162"/>
+<area shape="rect" id="Node000008" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#a0cc325ce7a2381d35ffc3986fbe1f6d2" title="Get the remaining variables." alt="" coords="248,103,394,159"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="184,128,233,128,233,134,184,134"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html#ac0c7f255ca28c7fc4b4e1da2c639554c" title="Get the dimension of the prior." alt="" coords="479,71,624,127"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,71,464,81,463,86,405,76"/>
+<area shape="rect" id="Node000005" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a8ff96822ab306f47106ca70fe8e06d0e" title=" " alt="" coords="458,191,644,247"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="409,261,445,249,446,255,411,266"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="614,188,703,147,705,152,616,193"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="393,118,463,109,463,114,394,124"/>
+</map>

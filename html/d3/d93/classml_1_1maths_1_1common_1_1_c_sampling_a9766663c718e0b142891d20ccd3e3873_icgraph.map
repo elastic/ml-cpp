@@ -1,0 +1,39 @@
+<map id="ml::maths::common::CSampling::multivariateNormalSample" name="ml::maths::common::CSampling::multivariateNormalSample">
+<area shape="rect" id="Node000001" title=" " alt="" coords="497,361,699,417"/>
+<area shape="rect" id="Node000002" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#a827f72a6bc2775ceff50425a5649ba21" title=" " alt="" coords="251,5,448,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="588,346,574,279,548,197,530,155,507,114,480,77,447,44,431,34,434,29,451,40,484,73,511,111,534,153,553,195,579,278,594,345"/>
+<area shape="rect" id="Node000003" href="$d8/dfa/_c_basic_statistics_test_8cc.html#aa90991f875cd7503529f02c7112c2479" title=" " alt="" coords="251,55,448,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="585,346,568,288,541,220,501,151,476,120,447,94,430,83,433,79,451,89,480,117,505,148,545,218,573,287,590,345"/>
+<area shape="rect" id="Node000004" href="$da/dd9/_c_bootstrap_clusterer_test_8cc.html#ad1d2c146ed4b5cdcccd8324ff995ea07" title=" " alt="" coords="251,104,448,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="581,347,561,299,533,243,495,189,472,164,447,143,429,132,431,128,451,139,476,160,499,185,537,241,566,297,586,345"/>
+<area shape="rect" id="Node000005" href="$dd/d6d/_c_information_criteria_test_8cc.html#ae8266460a997d696263a700b5c8b62fe" title=" " alt="" coords="251,153,448,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="575,349,553,310,524,268,489,227,448,192,427,182,429,177,450,188,493,223,529,265,558,308,579,346"/>
+<area shape="rect" id="Node000006" href="$dd/d6d/_c_information_criteria_test_8cc.html#ad6aef434a1c1f8682f2414ea3c5d09f1" title=" " alt="" coords="251,203,448,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="566,350,514,293,482,265,448,242,424,231,426,226,450,237,486,261,518,290,569,347"/>
+<area shape="rect" id="Node000007" href="$da/dda/_c_x_means_test_8cc.html#aba3c04b99529009eb0a2b5d356f3c483" title=" " alt="" coords="251,252,448,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="549,353,501,320,448,291,419,281,420,276,450,286,504,316,552,349"/>
+<area shape="rect" id="Node000008" href="$da/dda/_c_x_means_test_8cc.html#a22f816764a076ad3590e2cb9d3b6f3bc" title=" " alt="" coords="251,301,448,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="503,358,448,341,409,330,410,325,450,336,505,353"/>
+<area shape="rect" id="Node000009" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="251,351,448,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="481,380,448,376,448,371,482,374"/>
+<area shape="rect" id="Node000010" href="$d2/d9c/_c_sampling_test_8cc.html#af8e0d7a0f6c8209909b2f65a44ae1624" title=" " alt="" coords="251,400,448,426"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="482,403,448,406,448,401,481,397"/>
+<area shape="rect" id="Node000011" href="$d1/db3/_c_k_means_test_8cc.html#aacc7c4dd73c33d4ccbf3805715cccdce" title=" " alt="" coords="251,449,448,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="502,425,450,441,410,451,408,446,448,436,500,419"/>
+<area shape="rect" id="Node000012" href="$d8/dd1/_c_k_means_online_test_8cc.html#a45cd79edeef18ab0be3817a1a7a80557" title=" " alt="" coords="251,499,448,524"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="552,428,504,461,450,490,420,501,418,496,448,485,501,456,549,424"/>
+<area shape="rect" id="Node000013" href="$dd/d6d/_c_information_criteria_test_8cc.html#acb5145a628e8b94d3d332c5062894499" title=" " alt="" coords="251,548,448,574"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="569,430,518,487,486,515,450,539,426,550,424,545,448,534,482,511,514,483,565,427"/>
+<area shape="rect" id="Node000014" href="$dd/d6d/_c_information_criteria_test_8cc.html#a38c81a49b7c52d7d5ad13448d372f999" title=" " alt="" coords="251,597,448,623"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="579,432,557,470,528,512,492,554,450,588,429,599,427,594,448,584,489,550,524,509,553,467,574,429"/>
+<area shape="rect" id="Node000015" href="$d8/de0/namespaceanonymous__namespace_02_c_k_most_correlated_test_8cc_03.html#ac5eabf80b6d499328f4a97a1298dbd3d" title=" " alt="" coords="265,648,434,703"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="584,433,563,479,534,534,496,589,451,638,434,649,431,645,447,633,492,586,529,531,558,477,579,430"/>
+<area shape="rect" id="Node000017" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#ab89d6a6749362b51b11ffc40273ccdb5" title="Randomly sample from the marginal over the mean." alt="" coords="250,728,449,783"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="591,432,574,495,546,571,506,649,480,685,451,717,436,729,432,725,447,714,476,682,501,646,541,568,569,493,586,431"/>
+<area shape="rect" id="Node000019" href="$dc/d70/classml_1_1maths_1_1common_1_1_c_multivariate_normal_conjugate.html#a1de75cac5ad9e7164f89ed7c02eb09f1" title="Randomly sample from the predictive distribution." alt="" coords="250,808,449,863"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="595,432,583,509,557,606,538,657,515,707,486,755,451,797,437,809,433,805,447,794,481,752,510,705,533,655,552,604,577,508,590,432"/>
+<area shape="rect" id="Node000016" href="$db/de9/_c_k_most_correlated_test_8cc.html#a550e1f0a501cda708bd8243f3aa45c91" title=" " alt="" coords="5,663,202,688"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="249,678,202,678,202,673,249,673"/>
+<area shape="rect" id="Node000018" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a52d38ad1a8f1b294f4b166e4c5b88fe9" title=" " alt="" coords="5,743,202,768"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="234,758,202,758,202,753,234,753"/>
+</map>

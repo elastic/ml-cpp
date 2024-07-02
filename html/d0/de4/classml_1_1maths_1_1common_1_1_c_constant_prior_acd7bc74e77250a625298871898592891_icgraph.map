@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CConstantPrior::constant" name="ml::maths::common::CConstantPrior::constant">
+<area shape="rect" id="Node000001" title="Get the constant value." alt="" coords="461,49,630,90"/>
+<area shape="rect" id="Node000002" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#ac511155ebc840a35a50139110735466d" title="Create by traversing a state document." alt="" coords="206,5,411,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="445,57,410,51,411,46,446,51"/>
+<area shape="rect" id="Node000003" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#a2e972cedcd5440a2277b4a00bcea6094" title=" " alt="" coords="204,85,413,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="446,87,414,92,413,87,445,82"/>
+<area shape="rect" id="Node000004" href="$d0/de4/classml_1_1maths_1_1common_1_1_c_constant_prior.html#af701e23f6af7b3ecfba8c4ba3a1769ea" title=" " alt="" coords="5,85,156,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="189,108,156,108,156,103,189,103"/>
+</map>

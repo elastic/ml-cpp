@@ -1,0 +1,7 @@
+<map id="ml::model::function_t::anonymous_namespace{FunctionTypes::cc}::addFeatures" name="ml::model::function_t::anonymous_namespace{FunctionTypes::cc}::addFeatures">
+<area shape="rect" id="Node000001" title="Add the features corresponding to function to map." alt="" coords="269,37,485,93"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="419,24,403,18,377,15,353,17,338,22,331,29,331,37,325,36,326,26,335,18,352,12,377,10,404,13,421,20"/>
+<area shape="rect" id="Node000002" href="$df/d4c/namespaceml_1_1model_1_1function__t_1_1anonymous__namespace_02_function_types_8cc_03.html#a255d4ac7870dd2725938beb2c47d1a40" title="Build a map from features to the functions which include them." alt="" coords="5,29,221,100"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="253,67,221,67,221,62,253,62"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="155,18,139,11,113,8,91,10,76,15,68,21,66,29,61,28,64,18,74,10,90,5,113,3,140,5,157,13"/>
+</map>

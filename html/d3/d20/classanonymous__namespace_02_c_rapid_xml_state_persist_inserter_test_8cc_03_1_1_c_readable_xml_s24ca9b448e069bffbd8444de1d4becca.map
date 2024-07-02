@@ -1,0 +1,9 @@
+<map id="anonymous_namespace{CRapidXmlStatePersistInserterTest.cc}::CReadableXmlStatePersistInserter" name="anonymous_namespace{CRapidXmlStatePersistInserterTest.cc}::CReadableXmlStatePersistInserter">
+<area shape="rect" id="Node000001" title="Persist state as XML with meaningful tag names." alt="" coords="5,241,242,312"/>
+<area shape="rect" id="Node000002" href="$d2/d72/classml_1_1core_1_1_c_rapid_xml_state_persist_inserter.html" title="For persisting state in XML format." alt="" coords="36,153,211,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,209,126,241,121,241,121,209"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html" title="Abstract interface for persisting state." alt="" coords="22,79,225,105"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="126,120,126,152,121,152,121,120"/>
+<area shape="rect" id="Node000004" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="41,5,206,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="126,46,126,79,121,79,121,46"/>
+</map>

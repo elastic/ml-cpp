@@ -1,0 +1,15 @@
+<map id="ml::maths::time_series::CSeasonalTime::startOfPeriod" name="ml::maths::time_series::CSeasonalTime::startOfPeriod">
+<area shape="rect" id="Node000001" title="Get the start time of the period containing time." alt="" coords="5,70,213,111"/>
+<area shape="rect" id="Node000002" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#af6730dab6229fee67aaa34a8290491ad" title=" " alt="" coords="297,37,442,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,75,281,66,282,71,214,80"/>
+<area shape="rect" id="Node000003" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a350bd63567cd3401d5c375d9e3bd728f" title="Get the start of the window containing time." alt="" coords="261,102,478,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,101,245,105,245,110,213,106"/>
+<area shape="rect" id="Node000004" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6068afe55b344946a9eb4a1eb91a832b" title="Get the start of the repeat containing time." alt="" coords="526,29,743,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="454,99,510,85,512,90,456,104"/>
+<area shape="rect" id="Node000005" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a0d1174c2ef0e69bba09af71e7d837fb4" title="Get the start of the window pattern." alt="" coords="791,70,1036,111"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="478,113,776,96,776,101,478,119"/>
+<area shape="rect" id="Node000006" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6584008b4716036277991ff9622c092a" title="Get the start of the window." alt="" coords="534,160,736,200"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="467,141,523,153,522,158,466,146"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="583,29,584,19,593,10,610,5,635,3,662,5,679,12,677,17,661,10,635,8,611,10,596,15,589,21,588,29"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="744,68,776,71,776,77,744,73"/>
+</map>

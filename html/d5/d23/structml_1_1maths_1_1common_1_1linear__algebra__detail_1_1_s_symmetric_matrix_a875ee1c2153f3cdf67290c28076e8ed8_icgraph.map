@@ -1,0 +1,27 @@
+<map id="ml::maths::common::linear_algebra_detail::SSymmetricMatrix::base" name="ml::maths::common::linear_algebra_detail::SSymmetricMatrix::base">
+<area shape="rect" id="Node000001" title="Get read only reference." alt="" coords="514,322,687,378"/>
+<area shape="rect" id="Node000002" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#afecf4d10ea624d54992d096f014d94d4" title="Matrix addition." alt="" coords="265,5,466,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="589,307,574,251,549,185,513,117,490,87,464,60,449,49,452,44,468,56,494,83,518,115,554,182,579,250,594,306"/>
+<area shape="rect" id="Node000003" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a65cd009c3c5586ca730c84a577632487" title="Matrix addition." alt="" coords="287,70,444,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="580,309,561,269,535,224,503,179,464,140,443,125,446,121,468,136,507,176,540,221,566,266,585,307"/>
+<area shape="rect" id="Node000004" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#ab87dfab9d5e76a9061ba65c53e72f139" title="Matrix subtraction." alt="" coords="267,149,464,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="570,311,524,255,496,228,465,204,444,193,446,188,467,199,499,224,528,252,574,307"/>
+<area shape="rect" id="Node000005" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a48b63ccddb9fe8b141109b1154d0bf1e" title="Matrix subtraction." alt="" coords="287,214,444,270"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="532,317,465,284,438,272,440,268,467,279,534,312"/>
+<area shape="rect" id="Node000006" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#a4f9eee13fe97718519cdaa85fd233a52" title="Lexicographical total ordering." alt="" coords="269,293,462,334"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="498,337,462,331,463,326,499,331"/>
+<area shape="rect" id="Node000007" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#af64b74d5eb26c260d1786b814bbc6ff0" title="Lexicographical total ordering." alt="" coords="287,358,444,414"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="499,368,445,376,444,371,498,363"/>
+<area shape="rect" id="Node000008" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#a881753e2b7ec96e8f7f5fe4894a87a16" title=" " alt="" coords="269,437,462,478"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="543,388,467,428,439,439,437,434,465,423,541,384"/>
+<area shape="rect" id="Node000010" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a78957f40733f9fd62bdabb90c8c4caf5" title="Assignment if the underlying type is implicitly convertible." alt="" coords="287,502,444,558"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="571,392,525,443,468,492,446,505,443,500,464,487,522,439,567,388"/>
+<area shape="rect" id="Node000012" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#a00a015d4d75e3fd929b17eb0228e6459" title="Check if two matrices are identically equal." alt="" coords="265,581,466,622"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="587,393,568,436,542,483,509,531,468,572,450,583,447,579,464,568,505,527,538,481,563,433,582,391"/>
+<area shape="rect" id="Node000013" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#ae8764a750590e2410ea151d4f359b635" title="Check if two matrices are identically equal." alt="" coords="287,646,444,702"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="592,393,576,448,551,512,515,578,493,608,468,636,446,651,443,647,464,632,489,605,511,575,546,510,571,446,587,392"/>
+<area shape="rect" id="Node000009" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#ab0c069a3bdcc90231d957a0f6fdb62fa" title=" " alt="" coords="5,426,217,482"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="253,459,217,458,217,453,253,453"/>
+<area shape="rect" id="Node000011" href="$d2/d38/classml_1_1maths_1_1common_1_1_c_symmetric_matrix_nx_n.html#a1ebd5631b78c3723fdb9fbbd51c0e15f" title=" " alt="" coords="28,506,194,562"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="271,534,194,535,194,530,271,528"/>
+</map>

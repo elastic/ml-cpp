@@ -1,0 +1,5 @@
+<map id="ml::model::CForecastDataSink::SForecastResultSeries" name="ml::model::CForecastDataSink::SForecastResultSeries">
+<area shape="rect" id="Node000001" title="Everything that defines 1 series of forecasts." alt="" coords="5,94,196,135"/>
+<area shape="rect" id="Node000002" href="$d1/da4/structml_1_1model_1_1_s_model_params.html" title="Wraps up model global parameters." alt="" coords="13,5,188,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,46,103,93,98,93,98,46"/>
+</map>

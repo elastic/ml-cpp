@@ -1,0 +1,42 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::prepareDataFrameForPredict" name="ml::maths::analytics::CBoostedTreeFactory::prepareDataFrameForPredict">
+<area shape="rect" id="Node000001" title="Resize the data frame with the extra columns used by prediction." alt="" coords="5,183,203,238"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="251,92,457,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,180,196,153,250,128,272,120,274,125,252,133,199,158,151,184"/>
+<area shape="rect" id="Node000006" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a172b481c5a197c69ff80433ecc160980" title="Get the extra columns needed for prediction." alt="" coords="269,143,439,198"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="203,192,253,184,254,189,203,197"/>
+<area shape="rect" id="Node000007" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a44377bf93e7ef0cbb196b6326e23ca07" title="Get the tags for extra columns needed for prediction." alt="" coords="258,223,450,278"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="203,224,243,230,242,235,203,229"/>
+<area shape="rect" id="Node000008" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a0b9eed636cc0bb7c1b637d24e9df0dbb" title=" " alt="" coords="278,302,430,343"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="153,237,200,263,252,288,266,294,264,299,250,293,197,268,150,241"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="505,5,676,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="398,89,489,61,491,66,399,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="507,85,674,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="458,103,491,103,491,108,458,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="724,107,910,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="406,116,505,135,591,138,676,135,708,134,709,139,676,140,591,143,505,140,405,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="675,113,709,118,709,123,674,119"/>
+<area shape="rect" id="Node000009" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#aa763a0bfdcc5d46694e9eeb0d410dee4" title="Get the number of columns in the data frame." alt="" coords="515,269,666,310"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="430,309,499,299,500,305,430,315"/>
+<area shape="rect" id="Node000010" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#afe3d3491cace08707ded5f2e5de02e4a" title=" " alt="" coords="515,334,666,375"/>
+<area shape="poly" id="edge10_Node000008_Node000010" title=" " alt="" coords="430,330,500,340,499,345,430,335"/>
+<area shape="rect" id="Node000011" href="$db/dc5/namespaceml_1_1core.html#a0a2362a18f8564c40c8d85480d6645ca" title=" " alt="" coords="758,301,876,342"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="666,341,742,329,743,335,667,346"/>
+<area shape="rect" id="Node000020" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#a2fb7854074e15d768c1f087a6340a8ad" title="Round up n items of T so they use a multiple of alignment size memory." alt="" coords="745,366,889,407"/>
+<area shape="poly" id="edge20_Node000010_Node000020" title=" " alt="" coords="667,363,730,372,729,377,666,368"/>
+<area shape="rect" id="Node000012" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#aca729744cf1ab3ce2d0f17c4d6e8f3e3" title=" " alt="" coords="979,265,1145,306"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="875,310,963,297,964,302,876,315"/>
+<area shape="rect" id="Node000019" href="$df/d10/classml_1_1core_1_1concurrency__detail_1_1_c_default_async_executor_busy_for_scope.html#aa9e8bc64fe6b9fd35860e1be6c34db52" title=" " alt="" coords="958,329,1166,385"/>
+<area shape="poly" id="edge19_Node000011_Node000019" title=" " alt="" coords="876,327,942,337,942,342,875,332"/>
+<area shape="rect" id="Node000013" href="$db/dc5/namespaceml_1_1core.html#aefce23c29106b3507fb80ce9ce64a10d" title=" " alt="" coords="1261,211,1372,237"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="1144,263,1245,238,1246,243,1146,268"/>
+<area shape="rect" id="Node000016" href="$db/dc5/namespaceml_1_1core.html#a514736cf5469484b399fb7dd913c754d" title=" " alt="" coords="1214,272,1418,298"/>
+<area shape="poly" id="edge16_Node000012_Node000016" title=" " alt="" coords="1145,283,1199,283,1199,288,1145,288"/>
+<area shape="rect" id="Node000018" href="$db/dc5/namespaceml_1_1core.html#a0d31866d6ef3973344ddfbf398d09fc0" title="Get the conjunction of all futures." alt="" coords="1233,322,1400,363"/>
+<area shape="poly" id="edge18_Node000012_Node000018" title=" " alt="" coords="1145,301,1218,318,1217,323,1144,306"/>
+<area shape="rect" id="Node000014" href="$d1/d87/namespaceml_1_1core_1_1concurrency__detail.html#abed0bdc95d236dd9d9e52120448fd049" title=" " alt="" coords="1466,124,1663,180"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="1362,208,1451,182,1453,187,1364,213"/>
+<area shape="rect" id="Node000015" href="$d5/d40/classml_1_1core_1_1_c_executor.html#a5665713543d485a2b3afa13030ad5a97" title=" " alt="" coords="1495,204,1634,244"/>
+<area shape="poly" id="edge15_Node000013_Node000015" title=" " alt="" coords="1372,221,1480,221,1480,227,1372,227"/>
+<area shape="rect" id="Node000017" href="$df/d30/classml_1_1core_1_1anonymous__namespace_02_concurrency_8cc_03_1_1_c_executor_holder.html#afcebfc23de1baba7d76523d8d201f97c" title=" " alt="" coords="1474,268,1655,324"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="1419,287,1458,289,1458,294,1419,292"/>
+</map>

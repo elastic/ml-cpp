@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CBjkstUniqueValues::SSketch::acceptRestoreTraverser" name="ml::maths::common::CBjkstUniqueValues::SSketch::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Create by traversing a state document." alt="" coords="5,97,225,152"/>
+<area shape="rect" id="Node000002" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="305,5,459,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,93,272,57,294,49,296,54,274,61,181,98"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="273,71,491,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,108,257,104,258,109,226,113"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="273,136,491,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="226,135,258,139,257,144,225,140"/>
+<area shape="rect" id="Node000005" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="273,201,491,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="183,150,274,186,296,193,294,198,272,191,181,155"/>
+</map>

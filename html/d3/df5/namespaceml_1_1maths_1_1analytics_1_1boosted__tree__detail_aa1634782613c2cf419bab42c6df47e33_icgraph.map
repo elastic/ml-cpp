@@ -1,0 +1,39 @@
+<map id="ml::maths::analytics::boosted_tree_detail::lossHessianUpperTriangleSize" name="ml::maths::analytics::boosted_tree_detail::lossHessianUpperTriangleSize">
+<area shape="rect" id="Node000001" title="Get the size of upper triangle of the loss Hessain." alt="" coords="1566,270,1774,326"/>
+<area shape="rect" id="Node000002" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#aec94047991e4d01476ce8b1ca67370bb" title="Read the loss flat column major Hessian from row." alt="" coords="1373,150,1515,206"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1601,265,1497,209,1499,204,1604,260"/>
+<area shape="rect" id="Node000004" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a04631b8c8e05b4bf4556073adfbe4cc8" title="Read all the loss derivatives from row into an aligned vector." alt="" coords="1370,270,1518,326"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1550,301,1518,301,1518,295,1550,295"/>
+<area shape="rect" id="Node000017" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a71e5d09c5b0d4c157c32e263fc88afc1" title="Zero the loss Hessian of row." alt="" coords="1373,350,1515,406"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="1576,334,1516,355,1515,350,1574,329"/>
+<area shape="rect" id="Node000003" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#acbc195fb61730ab3879bac6165a4e861" title="Get the candidate splits values for each feature." alt="" coords="1108,130,1311,186"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1357,173,1311,169,1311,164,1357,168"/>
+<area shape="rect" id="Node000005" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a2c36f73cfc2f1a44017cfef56e6f734c" title=" " alt="" coords="1097,210,1322,266"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1354,278,1320,269,1321,264,1355,273"/>
+<area shape="rect" id="Node000016" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a3b941d2f0e7e2391ca85d2080df0943a" title=" " alt="" coords="1097,290,1322,346"/>
+<area shape="poly" id="edge15_Node000004_Node000016" title=" " alt="" coords="1354,308,1322,311,1322,306,1354,303"/>
+<area shape="rect" id="Node000006" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#afcc48e1c1b5c538b3a440b53396c1f32" title=" " alt="" coords="749,170,1008,226"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1082,225,1008,216,1009,211,1082,220"/>
+<area shape="rect" id="Node000011" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a77ea64b3fea48703a3d12a2b85647ac3" title=" " alt="" coords="708,250,1049,306"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="1082,256,1050,260,1050,255,1082,251"/>
+<area shape="rect" id="Node000007" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a0237defd99251283c628bd8bf8f6fb06" title=" " alt="" coords="387,90,619,146"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="733,170,619,145,620,140,734,165"/>
+<area shape="rect" id="Node000010" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a5ef6beabe2a4e21700ad82f0be8065aa" title=" " alt="" coords="387,170,619,226"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="733,201,619,201,619,195,733,195"/>
+<area shape="rect" id="Node000008" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#a58fd2782d8c92cc89789b5307d1dd44e" title=" " alt="" coords="5,5,298,76"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="371,92,298,76,299,70,372,87"/>
+<area shape="rect" id="Node000009" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a01bd47ba3a2b2abbc45d007a428820da" title=" " alt="" coords="17,100,286,171"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="371,127,287,131,286,126,371,122"/>
+<area shape="rect" id="Node000012" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#add2f9a15ce5d175905d149616654804f" title=" " alt="" coords="346,250,660,306"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="692,281,660,281,660,275,692,275"/>
+<area shape="rect" id="Node000015" href="$d8/db9/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics.html#a8c9aa3adac5b15a52f41037afee07cea" title=" " alt="" coords="346,330,660,386"/>
+<area shape="poly" id="edge14_Node000011_Node000015" title=" " alt="" coords="730,312,638,332,636,327,729,307"/>
+<area shape="rect" id="Node000013" href="$dd/d3e/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_incremental.html#af3b4e69634a5df9f9c05993f4c91eada" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="5,227,298,297"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="330,273,298,271,298,266,330,267"/>
+<area shape="rect" id="Node000014" href="$d7/d16/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_scratch.html#a4c5bded390aac813ca64a15a3c0fbc79" title="Only called by split but is public so it&#39;s accessible to std::make_shared." alt="" coords="17,321,286,392"/>
+<area shape="poly" id="edge13_Node000012_Node000014" title=" " alt="" coords="362,312,287,329,286,324,360,307"/>
+<area shape="rect" id="Node000018" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a21592bc4e4168ec4d2deddf007a95947" title=" " alt="" coords="1108,370,1311,426"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="1357,388,1312,392,1311,387,1357,383"/>
+<area shape="rect" id="Node000019" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#a7b597d9575b3aa75b0e2e252271504d5" title=" " alt="" coords="759,378,998,418"/>
+<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="1092,401,999,401,999,395,1092,395"/>
+</map>

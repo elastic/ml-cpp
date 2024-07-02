@@ -1,0 +1,28 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,213,202,239"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a3ea9eae87751ba58e0d185105ee1b5fe" title=" " alt="" coords="272,29,418,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,211,166,149,205,113,248,81,259,75,262,79,251,85,209,117,170,153,117,214"/>
+<area shape="rect" id="Node000003" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#ab8e7a0ebf06b518095627e818ccb9442" title="Check the tree invariants." alt="" coords="258,95,432,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="126,210,181,179,249,146,265,139,267,144,251,151,184,184,129,215"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="252,160,438,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="175,210,236,198,237,203,176,215"/>
+<area shape="rect" id="Node000006" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a5edf91ac0e247b9ce08a0387add7a39a" title="Branch and bound search for nearest n neighbours of point." alt="" coords="250,249,440,290"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="178,236,235,247,234,252,177,242"/>
+<area shape="rect" id="Node000009" href="$dc/d0f/namespaceanonymous__namespace_02_c_kd_tree_test_8cc_03.html#abc23f426517c4959019d7d3e12aa5c3e" title=" " alt="" coords="255,314,435,370"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="130,237,251,299,263,305,260,310,248,304,127,241"/>
+<area shape="rect" id="Node000012" href="$dc/d0f/namespaceanonymous__namespace_02_c_kd_tree_test_8cc_03.html#a88422cc6f9031a2055bb3213aa8d104c" title=" " alt="" coords="264,393,426,434"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="116,237,168,305,207,345,251,379,259,384,256,388,248,384,203,349,164,308,112,241"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="299,29,297,19,305,10,321,5,345,3,371,5,386,11,384,16,370,10,345,8,322,10,308,15,302,21,305,28"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="508,160,693,201"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="438,178,492,178,492,183,438,183"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="299,249,297,239,305,230,321,225,345,223,371,225,386,231,384,236,370,230,345,228,322,230,308,235,302,241,305,248"/>
+<area shape="rect" id="Node000007" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ad394918852715da2d44a8775c80c7e87" title="Get the concomitant zero vector." alt="" coords="528,249,673,290"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="441,267,512,267,512,272,441,272"/>
+<area shape="rect" id="Node000008" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="760,321,906,362"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="674,287,713,299,758,313,756,319,712,304,672,292"/>
+<area shape="rect" id="Node000010" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html#a161be897a50a9000cc53f01f869b3c4a" title="Remove all statistics." alt="" coords="488,314,712,370"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="435,339,473,339,473,344,435,344"/>
+<area shape="rect" id="Node000011" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a4e786dc51dafb50d3686bbb5dbfa7623" title="Euclidean distance implementation for one of our internal vectors." alt="" coords="528,393,673,434"/>
+<area shape="poly" id="edge12_Node000009_Node000011" title=" " alt="" coords="436,364,513,387,512,392,434,370"/>
+<area shape="poly" id="edge13_Node000011_Node000008" title=" " alt="" coords="672,391,712,379,756,365,758,370,713,384,674,396"/>
+</map>

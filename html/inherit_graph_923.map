@@ -1,0 +1,26 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html" title="The model interface." alt="" coords="5,111,203,152"/>
+<area shape="rect" id="Node000001" href="$df/d84/classml_1_1model_1_1_c_counting_model.html" title="A very simple model for counting events in the sampled bucket." alt="" coords="255,44,439,70"/>
+<area shape="poly" id="edge505_Node000000_Node000001" title=" " alt="" coords="175,103,250,78,288,68,290,73,251,83,177,108"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html" title="The most basic individual model interface." alt="" coords="254,93,440,119"/>
+<area shape="poly" id="edge506_Node000000_Node000002" title=" " alt="" coords="218,117,253,113,254,119,218,122"/>
+<area shape="rect" id="Node000008" href="$da/de5/classml_1_1model_1_1_c_mock_model.html" title="Mock a model and allow setting of bucket values and baselines." alt="" coords="265,143,429,168"/>
+<area shape="poly" id="edge511_Node000000_Node000008" title=" " alt="" coords="218,140,265,145,265,150,218,145"/>
+<area shape="rect" id="Node000009" href="$dc/d29/classml_1_1model_1_1_c_population_model.html" title="The most basic population model interface." alt="" coords="251,192,443,218"/>
+<area shape="poly" id="edge512_Node000000_Node000009" title=" " alt="" coords="179,155,251,178,290,189,288,194,250,183,177,160"/>
+<area shape="rect" id="Node000003" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html" title="The event rate model common functionality." alt="" coords="504,104,697,130"/>
+<area shape="poly" id="edge507_Node000002_Node000003" title=" " alt="" coords="456,108,504,110,504,115,456,113"/>
+<area shape="rect" id="Node000007" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html" title="The metric model common functionality." alt="" coords="517,5,684,31"/>
+<area shape="poly" id="edge509_Node000002_Node000007" title=" " alt="" coords="430,85,442,80,456,70,465,60,475,50,490,40,518,29,520,34,492,45,478,54,469,64,459,74,444,84,432,90"/>
+<area shape="rect" id="Node000004" href="$d6/dcc/class_c_mock_event_rate_model.html" title=" " alt="" coords="758,80,919,106"/>
+<area shape="poly" id="edge508_Node000003_Node000004" title=" " alt="" coords="713,103,758,98,758,104,713,108"/>
+<area shape="rect" id="Node000006" href="$d2/d1d/class_c_mock_metric_model.html" title=" " alt="" coords="771,31,906,56"/>
+<area shape="poly" id="edge510_Node000007_Node000006" title=" " alt="" coords="700,26,771,34,771,39,700,31"/>
+<area shape="rect" id="Node000010" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html" title="The model for computing the anomalousness of the rate at which each person in a population generates ..." alt="" coords="491,239,710,280"/>
+<area shape="poly" id="edge513_Node000009_Node000010" title=" " alt="" coords="425,219,504,236,503,241,424,224"/>
+<area shape="rect" id="Node000011" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html" title="The model for computing the anomalousness of the values each person in a population generates in a da..." alt="" coords="504,174,697,215"/>
+<area shape="poly" id="edge514_Node000009_Node000011" title=" " alt="" coords="458,197,504,196,504,201,459,203"/>
+<area shape="rect" id="Node000005" href="$da/d99/class_c_mock_model_interface.html" title=" " alt="" coords="526,55,675,80"/>
+<area shape="poly" id="edge515_Node000005_Node000004" title=" " alt="" coords="691,74,758,82,758,87,690,80"/>
+<area shape="poly" id="edge516_Node000005_Node000006" title=" " alt="" coords="690,56,771,48,771,53,691,61"/>
+</map>

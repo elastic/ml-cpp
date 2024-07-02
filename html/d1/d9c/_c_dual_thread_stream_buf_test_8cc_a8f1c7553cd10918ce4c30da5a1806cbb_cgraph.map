@@ -1,0 +1,17 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,202,82"/>
+<area shape="rect" id="Node000002" href="$db/d94/namespaceanonymous__namespace_02_c_dual_thread_stream_buf_test_8cc_03.html#a24bb9c79e19c5b15692a972a971faf1e" title=" " alt="" coords="253,5,442,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,53,237,47,238,52,195,58"/>
+<area shape="rect" id="Node000003" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="250,85,445,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,80,235,86,234,91,195,85"/>
+<area shape="rect" id="Node000004" href="$d1/d57/classml_1_1core_1_1_c_condition.html#adf8ff0b46ed94d5031927e967b854b1b" title="Wake up a single thread that is blocked in wait." alt="" coords="736,44,878,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="445,94,720,69,721,74,446,99"/>
+<area shape="rect" id="Node000005" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="493,113,688,154"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="446,114,478,118,477,123,445,119"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="656,110,726,87,728,92,658,115"/>
+<area shape="rect" id="Node000006" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="768,132,846,158"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="689,136,753,140,753,145,689,141"/>
+<area shape="rect" id="Node000007" href="$d1/d57/classml_1_1core_1_1_c_condition.html#a3b7521bdef190c38a10e67b14ec0b5d0" title=" " alt="" coords="736,182,878,223"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="658,152,728,174,726,180,656,157"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="771,134,764,124,768,114,783,108,807,106,833,108,847,115,845,120,832,113,807,111,784,113,772,118,769,123,775,130"/>
+</map>

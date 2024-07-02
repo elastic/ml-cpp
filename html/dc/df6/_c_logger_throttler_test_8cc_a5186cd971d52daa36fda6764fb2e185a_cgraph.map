@@ -1,0 +1,15 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,70,202,96"/>
+<area shape="rect" id="Node000002" href="$d4/dc4/classml_1_1core_1_1_c_logger_throttler.html#ad66d1bd2fe84366ccf976e833459a19e" title=" " alt="" coords="250,29,423,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,67,234,62,234,67,198,72"/>
+<area shape="rect" id="Node000004" href="$d4/dc4/classml_1_1core_1_1_c_logger_throttler.html#a828b6f22543b35b04043c47eb77c0ddf" title=" " alt="" coords="250,95,423,135"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="202,94,234,98,234,104,201,99"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="292,29,290,19,298,10,313,5,336,3,361,5,376,11,374,16,360,10,336,8,314,10,301,15,296,21,298,28"/>
+<area shape="rect" id="Node000003" href="$da/dc2/classml_1_1core_1_1_c_logger_throttler_1_1_c_impl.html#a876c3c3a5f8addf7e9e8ac874d605623" title=" " alt="" coords="471,29,678,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,47,455,47,455,52,423,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="533,29,531,19,537,10,552,5,575,3,599,5,613,11,611,16,597,10,575,8,553,10,541,15,536,21,538,28"/>
+<area shape="rect" id="Node000005" href="$da/dc2/classml_1_1core_1_1_c_logger_throttler_1_1_c_impl.html#abbd8d83ccdb4a10cb2a5f83d2d1748a0" title=" " alt="" coords="488,95,661,135"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="423,112,473,112,473,118,423,118"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#ad866aed0c9880f80b8531fd518d491f6" title="Current time in milliseconds since the epoch." alt="" coords="726,95,869,135"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="662,112,711,112,711,118,662,118"/>
+</map>

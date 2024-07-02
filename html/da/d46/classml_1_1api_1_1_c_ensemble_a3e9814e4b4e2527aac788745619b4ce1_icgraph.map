@@ -1,0 +1,5 @@
+<map id="ml::api::CEnsemble::classificationLabels" name="ml::api::CEnsemble::classificationLabels">
+<area shape="rect" id="Node000001" title="Get the labels to use for each class." alt="" coords="210,5,353,46"/>
+<area shape="rect" id="Node000002" href="$d9/dcd/classml_1_1api_1_1_c_trained_model.html#adb0145ca470f9aa3ee94490c6fa2560b" title="Set the labels to use for each class." alt="" coords="5,5,162,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,28,162,28,162,23,194,23"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d7/d1b/classml_1_1maths_1_1common_1_1_c_naive_bayes_feature_density.html" title="The interface expected by CNaiveBayes for implementations of the class conditional density functions." alt="" coords="5,13,197,54"/>
+<area shape="rect" id="Node000001" href="$d6/dc5/classml_1_1maths_1_1common_1_1_c_naive_bayes_feature_density_from_prior.html" title="An implementation of the class conditional density function based on the CPrior hierarchy." alt="" coords="245,5,466,61"/>
+<area shape="poly" id="edge423_Node000000_Node000001" title=" " alt="" coords="212,31,244,31,244,36,212,36"/>
+</map>

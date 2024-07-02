@@ -1,0 +1,19 @@
+<map id="ml::core::CPackedBitVector::debugMemoryUsage" name="ml::core::CPackedBitVector::debugMemoryUsage">
+<area shape="rect" id="Node000001" title="Debug the memory used by this object." alt="" coords="5,134,190,175"/>
+<area shape="rect" id="Node000002" href="$d8/ddf/namespaceml_1_1core_1_1memory__debug.html#af9da9b8dc9d9ea16d09112f4ac614c2c" title="Default implementation for non&#45;pointer types." alt="" coords="238,134,403,175"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,152,222,152,222,157,190,157"/>
+<area shape="rect" id="Node000003" href="$de/df0/structml_1_1core_1_1memory__detail_1_1_s_debug_memory_dynamic_size.html#a0b0baf0a3d6bf2367e46016e88a0ad32" title=" " alt="" coords="451,83,652,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,136,435,130,436,135,404,141"/>
+<area shape="rect" id="Node000008" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#aa0a3d5d3341bb51e9df11ef0ea542a6a" title="Check if we expect an overloaded dynamicSize function." alt="" coords="701,188,906,228"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="403,161,686,192,685,198,403,166"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="700,95,907,121"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="653,107,685,106,685,112,653,112"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="955,5,1126,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="846,92,939,62,941,67,848,97"/>
+<area shape="rect" id="Node000006" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="957,85,1124,126"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="907,104,941,104,941,109,907,109"/>
+<area shape="rect" id="Node000007" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1174,135,1359,190"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="866,119,955,135,1060,146,1159,154,1158,159,1059,152,954,140,865,124"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1124,123,1159,133,1158,138,1122,129"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="906,198,1126,179,1158,175,1159,180,1126,184,907,203"/>
+</map>

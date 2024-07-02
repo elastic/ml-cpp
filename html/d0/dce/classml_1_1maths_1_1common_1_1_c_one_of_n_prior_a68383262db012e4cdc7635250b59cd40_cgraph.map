@@ -1,0 +1,7 @@
+<map id="ml::maths::common::COneOfNPrior::isSelectedModelMultimodal" name="ml::maths::common::COneOfNPrior::isSelectedModelMultimodal">
+<area shape="rect" id="Node000001" title="Determines whether the selected distribution is multimodal." alt="" coords="5,5,216,61"/>
+<area shape="rect" id="Node000002" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="264,13,423,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,31,248,31,248,36,216,36"/>
+<area shape="rect" id="Node000003" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="471,13,649,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,31,455,31,455,36,423,36"/>
+</map>

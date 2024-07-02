@@ -1,0 +1,11 @@
+<map id="ml::model::CHierarchicalResultsAggregator" name="ml::model::CHierarchicalResultsAggregator">
+<area shape="rect" id="Node000001" title="Aggregates the probabilities up a collection hierarchical results." alt="" coords="722,63,888,103"/>
+<area shape="rect" id="Node000002" href="$d8/dff/classml_1_1model_1_1_c_hierarchical_results_level_set.html" title=" " alt="" coords="418,63,673,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="689,80,722,80,722,86,689,86"/>
+<area shape="rect" id="Node000003" href="$dc/d05/classml_1_1model_1_1_c_hierarchical_results_visitor.html" title="Interface for visiting the results." alt="" coords="49,5,215,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,37,418,63,417,68,230,42"/>
+<area shape="rect" id="Node000004" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html" title="A space efficient representation of a dictionary." alt="" coords="5,70,259,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="274,80,417,80,417,86,274,86"/>
+<area shape="rect" id="Node000005" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html" title="Equalizers a set of detector probabilities at a result node." alt="" coords="32,120,232,145"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="247,118,393,101,417,98,418,103,394,106,248,123"/>
+</map>

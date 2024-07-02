@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CCountMinSketch::SSketch::SSketch" name="ml::maths::time_series::CCountMinSketch::SSketch::SSketch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,200,97"/>
+<area shape="rect" id="Node000002" href="$d9/d6f/classml_1_1core_1_1_c_hashing_1_1_c_universal_hash.html#ad88842d5047647c407e974e73481c30e" title=" " alt="" coords="248,5,431,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,52,232,47,232,52,200,57"/>
+<area shape="rect" id="Node000003" href="$d6/d2f/classml_1_1maths_1_1time__series_1_1_c_count_min_sketch.html#aac750a3bb3251468fe125a69cffef0d9" title="Get the number of rows." alt="" coords="253,85,426,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,81,238,87,237,92,200,87"/>
+</map>

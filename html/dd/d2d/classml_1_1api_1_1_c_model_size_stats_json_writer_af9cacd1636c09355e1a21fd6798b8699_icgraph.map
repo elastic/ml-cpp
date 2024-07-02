@@ -1,0 +1,15 @@
+<map id="ml::api::CModelSizeStatsJsonWriter::write" name="ml::api::CModelSizeStatsJsonWriter::write">
+<area shape="rect" id="Node000001" title="Writes the model size stats in the results in JSON format." alt="" coords="494,87,664,128"/>
+<area shape="rect" id="Node000002" href="$d3/d28/classml_1_1api_1_1_c_json_output_writer.html#a2cecb37653e65b35ed15f2a1ceea6b52" title=" " alt="" coords="258,54,438,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="478,96,438,90,438,84,479,90"/>
+<area shape="rect" id="Node000005" href="$d4/d18/classml_1_1api_1_1_c_model_snapshot_json_writer.html#a1c2bc163fc12e0f34558d55789c149fd" title="Writes the given model snapshot in JSON format." alt="" coords="250,119,446,160"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="479,124,447,129,446,123,478,119"/>
+<area shape="rect" id="Node000003" href="$d8/dc0/_c_json_output_writer_test_8cc.html#a01d74040343c34f8a3f78ee4c9fa04a4" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="242,53,162,34,163,29,244,48"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a2e4b68625f7ef27e4dcce8a0377d1511" title=" " alt="" coords="28,55,179,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="242,77,179,78,179,72,242,72"/>
+<area shape="rect" id="Node000006" href="$d0/da3/_c_model_snapshot_json_writer_test_8cc.html#a0d6de50cd7f9e4c3769edafff9c39a9c" title=" " alt="" coords="5,124,202,150"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,141,202,141,202,135,234,136"/>
+<area shape="rect" id="Node000007" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="79,173,128,199"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="235,164,129,184,128,179,234,158"/>
+</map>

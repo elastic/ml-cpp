@@ -1,0 +1,18 @@
+<map id="ml::maths::time_series::CChangePoint::add" name="ml::maths::time_series::CChangePoint::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,222,160,263"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="208,5,430,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,220,135,148,167,107,206,71,212,67,215,71,209,75,171,111,139,151,96,223"/>
+<area shape="rect" id="Node000003" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#ac8ed3ffac05aa18c71f9f05d973506ec" title=" " alt="" coords="208,85,430,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="106,220,152,185,206,151,217,145,220,150,209,155,155,190,110,224"/>
+<area shape="rect" id="Node000004" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html#a8ecd74a312847e00415836e1fcf66569" title=" " alt="" coords="222,165,416,206"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="159,221,217,207,218,212,160,226"/>
+<area shape="rect" id="Node000005" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html#adcc61221f8e7dd7f45c41d42dd5a851a" title=" " alt="" coords="478,194,632,235"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="160,235,463,217,463,223,160,241"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="246,280,392,320"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="160,259,232,276,231,281,159,264"/>
+<area shape="rect" id="Node000007" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html#aee7a8d3b5cd29cf4af162f8f895bdb36" title=" " alt="" coords="216,345,422,386"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="109,261,154,296,209,329,225,337,223,341,206,334,151,300,106,265"/>
+<area shape="rect" id="Node000008" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html#ae384fc55894537047b1c488540e2523b" title=" " alt="" coords="242,410,396,451"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="97,262,141,328,172,364,209,395,229,406,226,411,206,399,169,368,136,331,93,265"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="417,195,463,200,462,206,416,200"/>
+</map>

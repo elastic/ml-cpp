@@ -1,0 +1,8 @@
+<map id="ml::core::CRapidXmlParser::toNodeHierarchy" name="ml::core::CRapidXmlParser::toNodeHierarchy">
+<area shape="rect" id="Node000001" title="As above, but use both a node pool and a string cache." alt="" coords="5,51,187,91"/>
+<area shape="rect" id="Node000002" href="$d6/d2f/classml_1_1core_1_1_c_string_cache.html#a845c32750d85988c43b647de79e8adfe" title=" " alt="" coords="237,5,414,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,50,221,44,222,49,187,56"/>
+<area shape="rect" id="Node000003" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ae00a5157623ddcab7acce9a3ea56ae54" title=" " alt="" coords="235,95,416,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,86,220,92,219,97,186,91"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="282,95,280,85,287,76,302,70,325,68,350,70,365,77,363,82,349,76,325,73,303,75,290,80,285,86,287,93"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::api::CFieldDataCategorizer" name="ml::api::CFieldDataCategorizer">
+<area shape="rect" id="Node000001" title="Categorize input records and add categorization fields before passing down the chain." alt="" coords="5,79,207,105"/>
+<area shape="rect" id="Node000003" href="$d5/d84/class_c_test_field_data_categorizer.html" title="A test convenience wrapper for the ML categorizer." alt="" coords="16,153,196,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="109,120,109,152,103,152,103,120"/>
+<area shape="rect" id="Node000002" href="$d4/dc5/classml_1_1api_1_1_c_data_processor.html" title="Abstract interface for classes that process data records." alt="" coords="23,5,189,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,46,109,79,103,79,103,46"/>
+</map>

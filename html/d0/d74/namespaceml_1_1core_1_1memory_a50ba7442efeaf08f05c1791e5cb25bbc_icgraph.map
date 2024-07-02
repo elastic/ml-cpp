@@ -1,0 +1,11 @@
+<map id="ml::core::memory::anyVisitor" name="ml::core::memory::anyVisitor">
+<area shape="rect" id="Node000001" title="Get the any visitor singleton." alt="" coords="307,88,496,114"/>
+<area shape="rect" id="Node000002" href="$d6/d9f/_c_memory_usage_test_8cc.html#ae81973b2318649bf77e7faa02a009c77" title=" " alt="" coords="34,5,230,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="357,83,310,63,258,45,216,34,217,29,259,40,312,58,360,79"/>
+<area shape="rect" id="Node000003" href="$d0/d74/namespaceml_1_1core_1_1memory.html#afc6a8a7f171fd9b2cbd82df7dd31760b" title=" " alt="" coords="29,55,235,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="291,90,236,83,236,78,292,85"/>
+<area shape="rect" id="Node000004" href="$d4/d84/namespaceml_1_1model_1_1anonymous__namespace_02_c_event_rate_bucket_gatherer_8cc_03.html#a833bff300ce68f6ac67303721853bc77" title="Register the callbacks for computing the size of feature data gatherers." alt="" coords="5,105,259,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="292,117,259,120,259,115,291,111"/>
+<area shape="rect" id="Node000005" href="$d4/d51/namespaceml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03.html#ab8644cb2ce559bb1893d56a9cfc003bb" title="Register the callbacks for computing the size of feature data gatherers." alt="" coords="14,185,250,241"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="365,124,260,175,229,187,227,182,258,170,362,119"/>
+</map>

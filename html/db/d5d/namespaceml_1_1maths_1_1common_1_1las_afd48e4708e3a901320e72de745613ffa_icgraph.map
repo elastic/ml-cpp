@@ -1,0 +1,15 @@
+<map id="ml::maths::common::las::componentwise" name="ml::maths::common::las::componentwise">
+<area shape="rect" id="Node000001" title="Expose componentwise operations for our internal vectors." alt="" coords="336,153,481,194"/>
+<area shape="rect" id="Node000002" href="$de/da4/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_covariances.html#a3e62aca12b7433855b4308c11f23b614" title="Update the mean and covariances with x." alt="" coords="5,5,288,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="380,143,339,99,314,78,286,60,262,49,264,44,289,55,317,74,343,95,384,139"/>
+<area shape="rect" id="Node000003" href="$d6/d26/_c_linear_algebra_test_8cc.html#acc80dd395d463f62036e0cf5859e3362" title=" " alt="" coords="48,70,245,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="361,147,326,128,287,111,244,99,246,94,289,106,328,123,364,143"/>
+<area shape="rect" id="Node000004" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#af49e4ce4d3525995d5c0710196f36b5e" title=" " alt="" coords="74,120,219,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="320,165,219,152,220,147,320,160"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#ac812dddeebeb3630430308e6aabf6ce5" title="Expose componentwise operations for our annotated vectors." alt="" coords="74,185,219,226"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="320,187,220,199,219,194,320,182"/>
+<area shape="rect" id="Node000006" href="$de/da4/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_covariances.html#a0e76df1e620031a3f65433657848b2d9" title=" " alt="" coords="20,250,273,306"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="361,204,289,240,257,252,255,247,287,235,359,199"/>
+<area shape="rect" id="Node000007" href="$de/da4/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_covariances.html#a7bc93aa3612d095d33d055a89dca59a8" title=" " alt="" coords="20,330,273,386"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="390,209,348,266,321,295,289,320,268,332,266,327,286,315,317,291,344,262,385,206"/>
+</map>

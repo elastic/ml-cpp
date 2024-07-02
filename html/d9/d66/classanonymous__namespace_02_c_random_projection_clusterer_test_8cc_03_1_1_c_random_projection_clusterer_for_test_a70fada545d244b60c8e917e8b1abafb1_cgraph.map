@@ -1,0 +1,24 @@
+<map id="anonymous_namespace{CRandomProjectionClustererTest::cc}::CRandomProjectionClustererForTest::clusterProjections" name="anonymous_namespace{CRandomProjectionClustererTest::cc}::CRandomProjectionClustererForTest::clusterProjections">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,169,256,239"/>
+<area shape="rect" id="Node000002" href="$df/dc5/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer_batch.html#a6bffdd688c36189a1a090b201ba1e3ef" title=" " alt="" coords="304,176,495,232"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,201,288,201,288,207,256,207"/>
+<area shape="rect" id="Node000003" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a921051eb0acbca540d51809ef71ccb16" title=" " alt="" coords="552,5,752,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,174,475,122,507,95,542,71,550,66,552,71,544,75,510,99,479,126,427,177"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#af03eadb7e5acbc684512996689872e23" title=" " alt="" coords="553,85,750,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="457,173,542,136,563,128,565,133,544,141,459,178"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="572,150,731,191"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="495,189,556,180,557,186,496,194"/>
+<area shape="rect" id="Node000009" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#a34a41e33a9f3d3ac5cca1dc671ed1775" title="Get the random number generator." alt="" coords="543,216,760,256"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="496,213,528,217,527,223,495,219"/>
+<area shape="rect" id="Node000010" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a1c40333c5d651a6df33cd4dd72b390b5" title="Get the Eigen matrix for matrix." alt="" coords="579,281,724,322"/>
+<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="461,230,544,265,566,273,564,278,542,270,459,235"/>
+<area shape="rect" id="Node000011" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a3db0a396d60198f64859f2f0f8b5810c" title="Get the Eigen vector for vector." alt="" coords="579,346,724,387"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="427,230,478,281,510,308,544,331,566,341,564,346,542,335,507,312,474,285,423,234"/>
+<area shape="rect" id="Node000005" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="808,53,954,94"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="750,89,793,83,793,88,751,94"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="808,118,954,159"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="751,117,793,123,793,128,750,122"/>
+<area shape="rect" id="Node000007" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="1002,126,1076,151"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="954,136,986,136,986,141,954,141"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1012,127,1007,117,1010,107,1021,101,1039,99,1058,102,1068,108,1065,113,1056,107,1039,104,1023,106,1014,111,1012,116,1016,124"/>
+</map>

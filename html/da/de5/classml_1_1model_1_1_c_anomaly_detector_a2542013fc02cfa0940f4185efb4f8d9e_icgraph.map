@@ -1,0 +1,15 @@
+<map id="ml::model::CAnomalyDetector::legacyModelsAcceptRestoreTraverser" name="ml::model::CAnomalyDetector::legacyModelsAcceptRestoreTraverser">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1192,27,1443,68"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a8adfd2727596e4bea659a658a2596342" title=" " alt="" coords="897,20,1144,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1176,50,1144,50,1144,45,1176,45"/>
+<area shape="rect" id="Node000003" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a726240d9188106a26eed0f14f357138d" title="Populate the object from a state document." alt="" coords="651,27,849,68"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="881,50,849,50,849,45,881,45"/>
+<area shape="rect" id="Node000004" href="$d1/dde/_c_event_rate_anomaly_detector_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="407,5,603,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="636,36,604,33,604,27,636,31"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a6b8795062cb0d967fbf3613bf2f3a892" title=" " alt="" coords="430,55,580,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="636,63,581,70,581,64,636,58"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a18ed174f8525a11920b71fad4bce3ca6" title="Attempt to restore one detector from an already&#45;created traverser." alt="" coords="204,55,359,96"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="414,78,359,78,359,73,414,73"/>
+<area shape="rect" id="Node000007" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a910f607ad3397b1023628cfbf9a46328" title="Attempt to restore the detectors." alt="" coords="5,55,156,96"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="188,78,156,78,156,73,188,73"/>
+</map>

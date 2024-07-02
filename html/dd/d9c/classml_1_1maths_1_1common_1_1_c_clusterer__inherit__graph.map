@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CClusterer&lt; POINT &gt;" name="ml::maths::common::CClusterer&lt; POINT &gt;">
+<area shape="rect" id="Node000001" title="Interface for clustering functionality." alt="" coords="199,39,348,79"/>
+<area shape="rect" id="Node000003" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html" title="A single pass online clusterer which assigns points to a fixed clustering of the data." alt="" coords="396,5,588,46"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="363,43,395,38,396,43,364,48"/>
+<area shape="rect" id="Node000004" href="$d7/d0b/classml_1_1maths_1_1common_1_1_c_x_means_online1d.html" title="A single pass online clusterer based on the x&#45;means algorithm of Pelleg and Moore." alt="" coords="396,71,588,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="364,69,396,74,395,80,363,75"/>
+<area shape="rect" id="Node000002" href="$d3/d5e/classml_1_1maths_1_1common_1_1_c_clusterer_types.html" title="Factors out the non&#45;template part of CClusterer for improved compile times." alt="" coords="5,39,151,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,56,198,56,198,62,166,62"/>
+</map>

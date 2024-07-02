@@ -1,0 +1,5 @@
+<map id="ml::maths::analytics::CBoostedTreeHyperparameters::penaltyForDepth" name="ml::maths::analytics::CBoostedTreeHyperparameters::penaltyForDepth">
+<area shape="rect" id="Node000001" title="Get the penalty which applies to a leaf at depth depth." alt="" coords="5,5,219,61"/>
+<area shape="rect" id="Node000002" href="$df/d22/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_parameter.html#a2f705c05556ad6e8e2503e357e24a628" title="Get the value." alt="" coords="267,5,440,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,31,251,31,251,36,219,36"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::anonymous_namespace{CSignal::cc}::scale" name="ml::maths::time_series::anonymous_namespace{CSignal::cc}::scale">
+<area shape="rect" id="Node000001" title="Scale f by scale." alt="" coords="5,14,176,70"/>
+<area shape="rect" id="Node000002" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="224,29,298,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,40,208,40,208,45,176,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="232,30,226,21,230,11,242,5,261,3,282,5,292,12,290,16,280,10,261,8,243,10,234,15,232,20,236,28"/>
+</map>

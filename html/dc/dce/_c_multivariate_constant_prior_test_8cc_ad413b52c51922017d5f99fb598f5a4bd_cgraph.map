@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,202,145"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aa5fcc1973a56c4be82ba5756ab965fb1" title="Set the constant if it hasn&#39;t been set." alt="" coords="262,5,440,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,116,249,71,263,65,265,70,251,76,139,121"/>
+<area shape="rect" id="Node000003" href="$d4/da6/namespaceml.html#a303ae6a2f20b09f1a5fec07f14f5abbf" title="A constant function." alt="" coords="304,86,398,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,116,289,104,289,109,203,121"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a7c288d82b074f1c0e20919028a7ee326" title="Get the covariance matrix of the marginal likelihood." alt="" coords="250,136,452,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,142,235,146,234,151,202,147"/>
+<area shape="rect" id="Node000006" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="261,216,441,256"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="130,143,185,171,251,201,266,207,264,212,249,206,182,176,128,148"/>
+<area shape="rect" id="Node000005" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="500,136,678,192"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="452,161,484,161,484,167,452,167"/>
+</map>

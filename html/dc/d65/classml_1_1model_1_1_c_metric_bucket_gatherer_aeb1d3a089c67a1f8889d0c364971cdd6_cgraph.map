@@ -1,0 +1,12 @@
+<map id="ml::model::CMetricBucketGatherer::initializeFieldNamesPart1" name="ml::model::CMetricBucketGatherer::initializeFieldNamesPart1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,233,133"/>
+<area shape="rect" id="Node000002" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a639a565e5c40b0d007530ea8b69ce862" title=" " alt="" coords="281,5,470,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,89,297,49,299,54,183,94"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ab77b58e133683b882f2b07618cd670a8" title="Is this a population data gatherer?" alt="" coords="518,35,692,75"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="233,96,502,64,503,70,233,102"/>
+<area shape="rect" id="Node000004" href="$dc/d65/classml_1_1model_1_1_c_metric_bucket_gatherer.html#a9b51c0706dde2f7a9dd1ca73dc5b3113" title=" " alt="" coords="285,120,466,161"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="233,122,269,126,269,131,233,127"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a8dd4e45e9f85981261149fa85e38077e" title=" " alt="" coords="288,185,463,226"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="176,131,282,170,302,177,300,182,280,175,175,136"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="471,35,503,39,502,45,470,40"/>
+</map>

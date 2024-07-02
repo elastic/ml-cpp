@@ -1,0 +1,12 @@
+<map id="ml::core::CCompressUtil::memoryUsage" name="ml::core::CCompressUtil::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by these compression utils." alt="" coords="5,85,172,126"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="220,92,426,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,103,204,103,204,108,172,108"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="474,5,645,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,89,458,61,460,66,368,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="476,85,643,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="427,103,460,103,460,108,427,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="693,107,879,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="375,116,474,135,560,138,645,135,677,134,678,139,645,140,560,143,474,140,374,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="644,113,678,118,678,123,643,119"/>
+</map>

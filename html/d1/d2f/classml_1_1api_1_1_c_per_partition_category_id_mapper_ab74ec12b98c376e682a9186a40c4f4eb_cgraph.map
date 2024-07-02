@@ -1,0 +1,9 @@
+<map id="ml::api::CPerPartitionCategoryIdMapper::map" name="ml::api::CPerPartitionCategoryIdMapper::map">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,205,111"/>
+<area shape="rect" id="Node000002" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a21aa072b091f702f29c77caca5018d50" title="Accessor for numeric ID." alt="" coords="253,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,68,251,48,252,53,182,73"/>
+<area shape="rect" id="Node000003" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a4f6c7412af5d3b0649a076d7fc1190e9" title=" " alt="" coords="253,71,433,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,88,237,88,237,94,205,94"/>
+<area shape="rect" id="Node000004" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a578496142b73983101e1eb8f0157062d" title="Does the object represent a valid category?" alt="" coords="253,136,433,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,109,252,129,251,134,181,114"/>
+</map>

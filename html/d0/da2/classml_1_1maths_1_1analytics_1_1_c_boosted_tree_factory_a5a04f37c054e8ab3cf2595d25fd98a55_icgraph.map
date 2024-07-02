@@ -1,0 +1,9 @@
+<map id="ml::maths::analytics::CBoostedTreeFactory::classAssignmentObjective" name="ml::maths::analytics::CBoostedTreeFactory::classAssignmentObjective">
+<area shape="rect" id="Node000001" title="Set the objective to use when choosing the class assignments." alt="" coords="358,40,542,95"/>
+<area shape="rect" id="Node000002" href="$d2/d06/_c_boosted_tree_test_8cc.html#a4c7a92ef21f98f76c712c828bd374140" title=" " alt="" coords="59,5,256,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="342,50,309,45,245,34,246,29,310,40,343,45"/>
+<area shape="rect" id="Node000003" href="$d7/d59/_c_data_frame_analyzer_training_test_8cc.html#a936c781a96ffd661f7d6b25670410bd8" title=" " alt="" coords="59,55,256,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="342,70,256,70,256,65,342,65"/>
+<area shape="rect" id="Node000004" href="$d1/d12/classml_1_1api_1_1_c_data_frame_train_boosted_tree_classifier_runner.html#afc123039459c50697e0b873d47fd7ef6" title="This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory." alt="" coords="5,105,310,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="343,94,286,107,285,102,342,89"/>
+</map>

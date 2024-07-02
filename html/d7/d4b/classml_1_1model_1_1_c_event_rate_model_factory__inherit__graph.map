@@ -1,0 +1,5 @@
+<map id="ml::model::CEventRateModelFactory" name="ml::model::CEventRateModelFactory">
+<area shape="rect" id="Node000001" title="A factory class implementation for CEventRateModel." alt="" coords="5,79,199,120"/>
+<area shape="rect" id="Node000002" href="$da/d0d/classml_1_1model_1_1_c_model_factory.html" title="A factory class interface for the CAnomalyDetectorModel hierarchy." alt="" coords="14,5,190,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,46,105,79,99,79,99,46"/>
+</map>

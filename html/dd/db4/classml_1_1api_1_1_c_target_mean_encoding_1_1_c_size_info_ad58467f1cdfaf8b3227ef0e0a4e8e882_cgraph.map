@@ -1,0 +1,13 @@
+<map id="ml::api::CTargetMeanEncoding::CSizeInfo::addToJsonDocument" name="ml::api::CTargetMeanEncoding::CSizeInfo::addToJsonDocument">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,224,90"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="538,5,720,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,46,271,35,402,25,522,22,522,27,402,30,272,40,205,51"/>
+<area shape="rect" id="Node000003" href="$d7/d88/classml_1_1api_1_1_c_encoding_1_1_c_size_info.html#a4bac434acd7e608287bfda801c25c722" title=" " alt="" coords="272,49,490,90"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,67,256,67,256,72,224,72"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ae797de3cab0d65432a6032f1be02e10c" title=" " alt="" coords="544,83,714,123"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="203,88,272,99,405,106,528,105,528,111,405,112,271,104,202,93"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="490,48,522,42,523,47,491,53"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="491,82,529,87,528,92,490,87"/>
+<area shape="rect" id="Node000005" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#ab2eb099dd240ff6f226480c258e65854" title=" " alt="" coords="768,83,916,123"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="715,100,753,100,753,106,715,106"/>
+</map>

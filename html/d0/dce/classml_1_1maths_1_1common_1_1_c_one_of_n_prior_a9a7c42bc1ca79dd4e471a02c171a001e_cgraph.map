@@ -1,0 +1,11 @@
+<map id="ml::maths::common::COneOfNPrior::marginalLikelihoodConfidenceInterval" name="ml::maths::common::COneOfNPrior::marginalLikelihoodConfidenceInterval">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,227,133"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="275,5,497,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,74,263,63,265,68,224,79"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="306,85,466,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,103,290,103,290,108,227,108"/>
+<area shape="rect" id="Node000004" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="306,150,466,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="228,129,292,145,290,150,227,135"/>
+<area shape="rect" id="Node000005" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="545,150,723,191"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="466,168,529,168,529,173,466,173"/>
+</map>

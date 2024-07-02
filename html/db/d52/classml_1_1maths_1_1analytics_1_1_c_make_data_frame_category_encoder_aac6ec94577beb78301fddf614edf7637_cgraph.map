@@ -1,0 +1,12 @@
+<map id="ml::maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage" name="ml::maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage">
+<area shape="rect" id="Node000001" title="Estimate the memory that selecting encoding will require." alt="" coords="5,77,243,133"/>
+<area shape="rect" id="Node000002" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="291,92,497,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,103,275,103,275,108,243,108"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="545,5,716,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,89,529,61,531,66,439,94"/>
+<area shape="rect" id="Node000004" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="547,85,714,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="498,103,531,103,531,108,498,108"/>
+<area shape="rect" id="Node000005" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="764,107,950,162"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="446,116,545,135,631,138,716,135,748,134,749,139,716,140,631,143,545,140,445,121"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="715,113,749,118,749,123,714,119"/>
+</map>

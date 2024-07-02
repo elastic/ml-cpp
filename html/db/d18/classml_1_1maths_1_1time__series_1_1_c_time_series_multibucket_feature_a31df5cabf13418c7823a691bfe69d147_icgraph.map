@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketFeature::value" name="ml::maths::time_series::CTimeSeriesMultibucketFeature::value">
+<area shape="rect" id="Node000001" title="Get the feature value." alt="" coords="270,45,486,101"/>
+<area shape="rect" id="Node000002" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a872cfd3894f80f273a142305461bbdb2" title=" " alt="" coords="5,5,222,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="254,57,222,52,223,47,255,52"/>
+<area shape="rect" id="Node000003" href="$db/d18/classml_1_1maths_1_1time__series_1_1_c_time_series_multibucket_feature.html#a6f6af3e2e4a46d27b33b9c987a19b2e4" title="Univariate implementation returns value." alt="" coords="5,85,222,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,94,223,99,222,94,254,89"/>
+</map>

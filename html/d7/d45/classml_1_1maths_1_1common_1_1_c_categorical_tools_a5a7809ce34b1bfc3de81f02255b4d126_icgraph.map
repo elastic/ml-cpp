@@ -1,0 +1,13 @@
+<map id="ml::maths::common::CCategoricalTools::binomialCoefficient" name="ml::maths::common::CCategoricalTools::binomialCoefficient">
+<area shape="rect" id="Node000001" title="Get the binomial coefficient ." alt="" coords="552,34,736,90"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a3bd76df87e364a407389f4fac4a171e9" title="Get the mean in the interval [a, b]." alt="" coords="250,5,504,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="536,50,504,46,505,40,537,45"/>
+<area shape="rect" id="Node000003" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#a3d67ef9f665630e03078ed3e06719bc9" title=" " alt="" coords="270,70,484,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="537,79,485,86,484,81,536,73"/>
+<area shape="rect" id="Node000004" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#a7ff992440c0b98be761736b3d41e140b" title=" " alt="" coords="5,36,202,61"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="254,78,178,64,179,59,255,73"/>
+<area shape="rect" id="Node000005" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#a4374f1611d1b37fa576a01f0ef7281ae" title=" " alt="" coords="5,85,202,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="254,100,202,100,202,95,254,95"/>
+<area shape="rect" id="Node000006" href="$d8/dd3/_c_least_squares_online_regression_test_8cc.html#af3bee7c7ae7c93442a9847fd0be1f467" title=" " alt="" coords="5,134,202,160"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="255,122,179,136,178,131,254,117"/>
+</map>

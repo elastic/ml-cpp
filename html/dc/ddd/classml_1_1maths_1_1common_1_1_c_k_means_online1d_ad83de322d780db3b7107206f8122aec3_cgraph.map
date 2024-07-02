@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CKMeansOnline1d::add" name="ml::maths::common::CKMeansOnline1d::add">
+<area shape="rect" id="Node000001" title="Update the clustering with points." alt="" coords="5,63,165,103"/>
+<area shape="rect" id="Node000002" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#acd4160fd795d81a2f9f64c1c233fa094" title=" " alt="" coords="213,63,372,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,80,197,80,197,86,165,86"/>
+<area shape="rect" id="Node000003" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#a50506d8b4237c138dcb37d41d2ec71b4" title=" " alt="" coords="420,5,597,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="371,60,414,48,415,53,372,65"/>
+<area shape="rect" id="Node000004" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#ac182665ede711777946c74c2847cdb98" title=" " alt="" coords="645,27,826,67"/>
+<area shape="poly" id="edge7_Node000002_Node000004" title=" " alt="" coords="372,74,630,53,630,58,373,79"/>
+<area shape="rect" id="Node000006" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="424,121,594,147"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="373,99,437,114,436,119,372,104"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="598,31,630,34,630,40,598,37"/>
+<area shape="rect" id="Node000005" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#ad26de20c50dddbd59faf76329fb1342b" title="Check if the cluster identified by index exists." alt="" coords="874,27,1075,67"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="826,44,858,44,858,50,826,50"/>
+<area shape="rect" id="Node000007" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="646,113,825,154"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="594,131,630,131,630,136,594,136"/>
+</map>

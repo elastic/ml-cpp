@@ -1,0 +1,9 @@
+<map id="ml::maths::common::las::columns" name="ml::maths::common::las::columns">
+<area shape="rect" id="Node000001" title="Get the number of columns of a matrix." alt="" coords="292,77,437,118"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a8ed4131aac8031b39e0c3cb692a6d313" title=" " alt="" coords="34,5,215,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="288,75,243,60,205,49,206,44,244,55,289,69"/>
+<area shape="rect" id="Node000003" href="$db/d6f/classml_1_1maths_1_1analytics_1_1outliers__detail_1_1_c_lof.html#a60ba415829ec622fe215b26a834aee12" title=" " alt="" coords="52,70,197,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="276,100,198,100,198,95,276,95"/>
+<area shape="rect" id="Node000004" href="$d5/dc0/structml_1_1maths_1_1common_1_1las_1_1las__detail_1_1_s_estimate_matrix_memory_usage_3_01_c_densf7f30deb2ce8584e7c1cf858eee950fa.html#a7332b58c0b591152d239a9f29bc5ae37" title=" " alt="" coords="5,149,244,220"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="292,126,225,151,223,146,290,121"/>
+</map>

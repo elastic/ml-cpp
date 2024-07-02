@@ -1,0 +1,13 @@
+<map id="include/maths/time_series/CSeasonalTime.h" name="include/maths/time_series/CSeasonalTime.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="223,5,395,46"/>
+<area shape="rect" id="Node000002" href="$db/d04/_core_types_8h.html" title=" " alt="" coords="5,102,130,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,49,117,98,115,93,253,44"/>
+<area shape="rect" id="Node000004" href="$dc/de4/maths_2time__series_2_import_export_8h.html" title=" " alt="" coords="154,94,323,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="295,48,266,84,262,80,291,45"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="347,102,415,127"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="327,45,363,88,359,91,323,48"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="440,102,493,127"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="346,44,432,91,430,96,343,49"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="39,183,96,208"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="70,128,70,167,65,167,65,128"/>
+</map>

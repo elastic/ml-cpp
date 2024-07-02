@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CKdTree::nextCoordinate" name="ml::maths::common::CKdTree::nextCoordinate">
+<area shape="rect" id="Node000001" title="Get the next coordinate." alt="" coords="244,95,413,135"/>
+<area shape="rect" id="Node000002" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#abcf3664f91dad10abada305d3b6dd6bc" title="Recursively build the k&#45;d tree." alt="" coords="12,29,189,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,93,173,73,175,68,242,87"/>
+<area shape="rect" id="Node000003" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#ab64d1841401ea1f0c0bcc89e41aa0671" title="Recursively find the nearest point to point." alt="" coords="9,95,192,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="228,118,193,118,193,112,228,112"/>
+<area shape="rect" id="Node000004" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a72958209c67f09d1046d13455ea9471a" title="Recursively find the nearest point to point." alt="" coords="5,160,196,201"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="242,143,175,162,173,157,240,137"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="138,16,124,10,100,8,79,10,66,15,61,21,63,28,58,29,55,19,62,10,78,5,101,3,125,5,140,11"/>
+</map>

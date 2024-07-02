@@ -1,0 +1,30 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,270,223,296"/>
+<area shape="rect" id="Node000002" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a1af7d8c6235516fb298f41a61883ecc8" title=" " alt="" coords="276,97,451,152"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,268,304,159,306,163,137,272"/>
+<area shape="rect" id="Node000009" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a4cd48ff34bb6af0d1f6cc1ac85b467f0" title=" " alt="" coords="276,255,451,311"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="223,280,261,280,261,286,223,286"/>
+<area shape="rect" id="Node000013" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="271,364,456,405"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="149,294,298,355,296,360,147,299"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="510,17,684,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,93,525,61,527,66,441,98"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="745,71,904,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="451,115,730,95,730,100,451,121"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="523,132,670,173"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="451,132,508,139,507,144,450,137"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="737,5,912,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="684,30,722,28,722,34,685,36"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="685,56,730,66,729,71,684,61"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="960,71,1118,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="904,88,944,88,944,94,904,94"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="755,136,894,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="671,151,740,152,740,158,670,156"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4234f219d2f791a607a53f98c51f3bdf" title=" " alt="" coords="510,197,684,238"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="450,256,506,240,508,245,451,261"/>
+<area shape="rect" id="Node000011" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#adfe0a09c8df37ba22cf5c2cedc08738b" title="Get the event person identifier." alt="" coords="518,263,676,303"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="451,280,502,280,502,286,451,286"/>
+<area shape="rect" id="Node000012" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad3019c240ddc4fb25c7945282a0e8496" title=" " alt="" coords="510,328,684,369"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="451,305,508,321,506,326,450,310"/>
+<area shape="rect" id="Node000014" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="504,393,689,434"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="457,393,489,397,488,403,456,399"/>
+</map>

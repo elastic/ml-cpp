@@ -1,0 +1,36 @@
+<map id="ml::maths::common::CMultivariateConstantPrior::isNonInformative" name="ml::maths::common::CMultivariateConstantPrior::isNonInformative">
+<area shape="rect" id="Node000001" title="Check if this is a non&#45;informative prior." alt="" coords="744,305,923,361"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a0cf582eab6aea5aa0a7988a3942d9ee7" title="Compute the bivariate const bivariate prior." alt="" coords="506,5,684,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="818,291,800,242,774,184,739,126,695,75,679,64,682,59,698,71,743,123,779,182,805,240,823,289"/>
+<area shape="rect" id="Node000003" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a8f68ba9b239e83d2177bb0f4b27d6870" title=" " alt="" coords="497,86,693,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="814,292,795,252,769,206,736,162,695,125,676,114,678,110,698,120,739,158,773,203,800,249,819,290"/>
+<area shape="rect" id="Node000004" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a2d1803e07cd07ffb5647e9983b09bb76" title=" " alt="" coords="497,135,693,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="806,294,759,232,729,201,695,175,670,164,672,159,698,171,732,197,763,228,810,290"/>
+<area shape="rect" id="Node000005" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a47d34030b49fa44fecf67a21c4551f13" title=" " alt="" coords="505,185,686,241"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="774,299,695,256,670,244,672,239,698,251,776,295"/>
+<area shape="rect" id="Node000007" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a7c288d82b074f1c0e20919028a7ee326" title="Get the covariance matrix of the marginal likelihood." alt="" coords="494,265,696,321"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="728,318,696,313,697,308,729,313"/>
+<area shape="rect" id="Node000009" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a3aa5601346727c68b762412aac8d5969" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="506,345,684,401"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="730,353,685,361,684,356,729,348"/>
+<area shape="rect" id="Node000013" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a637fd5e6ac95aec93dbbc80a49187445" title="Get the diagonal of the covariance matrix of the marginal likelihood." alt="" coords="499,425,692,481"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="776,372,698,416,672,427,670,422,695,411,774,367"/>
+<area shape="rect" id="Node000014" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a9ba831a9717e905c405c35d13f2e698c" title=" " alt="" coords="506,505,684,561"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="808,375,761,436,731,468,698,495,679,507,676,503,695,491,727,464,757,433,804,372"/>
+<area shape="rect" id="Node000015" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a91c0f2072fcba5db8833575a6814d731" title="Get numberSamples times the constant." alt="" coords="506,585,684,641"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="821,377,802,423,775,475,741,529,698,575,682,587,679,583,695,571,737,525,771,473,797,420,816,375"/>
+<area shape="rect" id="Node000017" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#a5a1b852d7cb6f8dd51cb1400dd3205dd" title="Get the corresponding constant univariate prior." alt="" coords="506,665,684,721"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="827,377,813,438,788,512,750,588,726,623,698,655,683,667,680,663,694,651,722,620,746,585,783,510,807,437,822,376"/>
+<area shape="rect" id="Node000006" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="250,200,446,226"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="489,216,446,216,446,211,489,211"/>
+<area shape="rect" id="Node000008" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#ad413b52c51922017d5f99fb598f5a4bd" title=" " alt="" coords="250,271,446,297"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="478,291,446,290,447,285,479,286"/>
+<area shape="rect" id="Node000010" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a4fd72c6a5083fbc6ca3bad1d56afe606" title=" " alt="" coords="250,320,446,346"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="490,359,431,349,432,344,491,354"/>
+<area shape="rect" id="Node000011" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,404,202,430"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="491,385,202,411,202,406,491,380"/>
+<area shape="rect" id="Node000012" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#affd8ffe835112d5ce58fda6758289f15" title="Returns constant or zero if unset (by equidistribution)." alt="" coords="259,421,437,477"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="492,408,438,424,437,419,490,402"/>
+<area shape="poly" id="edge12_Node000012_Node000011" title=" " alt="" coords="243,438,202,433,203,427,243,433"/>
+<area shape="rect" id="Node000016" href="$dc/dce/_c_multivariate_constant_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="250,600,446,626"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="490,616,446,616,446,611,490,611"/>
+</map>

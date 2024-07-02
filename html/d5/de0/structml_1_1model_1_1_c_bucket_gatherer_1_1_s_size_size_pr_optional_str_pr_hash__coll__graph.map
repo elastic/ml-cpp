@@ -1,0 +1,5 @@
+<map id="ml::model::CBucketGatherer::SSizeSizePrOptionalStrPrHash" name="ml::model::CBucketGatherer::SSizeSizePrOptionalStrPrHash">
+<area shape="rect" id="Node000001" title="Hashes a ((size_t, size_t), string*) pair." alt="" coords="5,109,218,150"/>
+<area shape="rect" id="Node000002" href="$d3/dcf/classml_1_1core_1_1_c_hashing_1_1_c_murmur_hash2_string.html" title=" " alt="" coords="34,5,189,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,62,114,109,109,109,109,62"/>
+</map>

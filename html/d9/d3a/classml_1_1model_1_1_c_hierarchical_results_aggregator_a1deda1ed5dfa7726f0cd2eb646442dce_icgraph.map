@@ -1,0 +1,5 @@
+<map id="ml::model::CHierarchicalResultsAggregator::aggregateLeaf" name="ml::model::CHierarchicalResultsAggregator::aggregateLeaf">
+<area shape="rect" id="Node000001" title="Aggregate at a leaf node." alt="" coords="219,5,438,46"/>
+<area shape="rect" id="Node000002" href="$d9/d3a/classml_1_1model_1_1_c_hierarchical_results_aggregator.html#aaaf9f722a5855913332ae94c8364d178" title="Compute the aggregate probability for node." alt="" coords="5,5,171,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,28,171,28,171,23,203,23"/>
+</map>

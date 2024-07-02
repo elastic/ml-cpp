@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,202,145"/>
+<area shape="rect" id="Node000002" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aa5fcc1973a56c4be82ba5756ab965fb1" title="Set the constant if it hasn&#39;t been set." alt="" coords="250,5,429,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,116,256,65,258,70,137,121"/>
+<area shape="rect" id="Node000003" href="$d4/da6/namespaceml.html#a303ae6a2f20b09f1a5fec07f14f5abbf" title="A constant function." alt="" coords="293,86,386,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,116,277,105,277,110,199,121"/>
+<area shape="rect" id="Node000004" href="$d4/dc6/classml_1_1maths_1_1common_1_1_c_multivariate_constant_prior.html#aec7b5713f242edc537bcee2345148f4a" title="Check if this is a non&#45;informative prior." alt="" coords="250,136,429,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,143,235,147,234,152,202,148"/>
+<area shape="rect" id="Node000005" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#a3fd436e6b939aba273ca7d941e789ee4" title="Get a single conformable unit weight for weight." alt="" coords="250,216,429,256"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="131,143,251,201,264,207,262,212,249,206,128,148"/>
+</map>

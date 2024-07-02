@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::initialize" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::initialize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,217,133"/>
+<area shape="rect" id="Node000002" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#aee4b961577250cd3b17e0cc93e50d922" title=" " alt="" coords="292,5,449,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,74,276,56,278,62,214,79"/>
+<area shape="rect" id="Node000003" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a83bf2ff948fc0a5e9dbd5079a9ad3918" title="Get the number of buckets." alt="" coords="280,85,461,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,103,265,103,265,108,217,108"/>
+<area shape="rect" id="Node000004" href="$db/de4/classml_1_1maths_1_1time__series_1_1_c_seasonal_component_adaptive_bucketing.html#a9094abe278a9f173f58ad5e40b5b00c2" title="Get the time provider." alt="" coords="265,149,476,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="214,131,254,142,252,147,213,136"/>
+</map>

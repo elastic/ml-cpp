@@ -1,0 +1,12 @@
+<map id="ml::core::CPackedBitVector::extendLastRun" name="ml::core::CPackedBitVector::extendLastRun">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,33,190,74"/>
+<area shape="rect" id="Node000002" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae9a4d87a78e7e3718e0299017868b307" title=" " alt="" coords="470,5,654,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,30,237,19,349,13,454,15,454,20,349,18,238,24,176,35"/>
+<area shape="rect" id="Node000003" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a40946f8d81f39c2c7f724d906ebbebe5" title=" " alt="" coords="238,99,422,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,72,241,91,239,96,171,77"/>
+<area shape="rect" id="Node000005" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#a495d71889bdd3fa04554c3a69bfe4140" title=" " alt="" coords="238,33,422,74"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="190,51,222,51,222,56,190,56"/>
+<area shape="rect" id="Node000004" href="$d6/d52/classml_1_1core_1_1_c_packed_bit_vector.html#ae6d9c61f436a57a38691bb19b4054e73" title=" " alt="" coords="470,99,654,139"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="423,116,454,116,454,122,423,122"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="422,40,454,36,455,41,423,45"/>
+</map>

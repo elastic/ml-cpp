@@ -1,0 +1,38 @@
+<map id="include/core/CStringSimilarityTester.h" name="include/core/CStringSimilarityTester.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1077,5,1271,46"/>
+<area shape="rect" id="Node000002" href="$d3/df2/_c_token_list_data_categorizer_8h.html" title=" " alt="" coords="896,94,1068,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1118,55,1026,96,1024,91,1116,50"/>
+<area shape="rect" id="Node000017" href="$dd/dd9/_c_string_similarity_tester_8cc.html" title=" " alt="" coords="1091,94,1257,135"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="1177,62,1177,94,1171,94,1171,62"/>
+<area shape="rect" id="Node000018" href="$d5/df8/_c_string_similarity_tester_test_8cc.html" title=" " alt="" coords="1280,94,1439,135"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="1231,50,1319,91,1316,96,1229,55"/>
+<area shape="rect" id="Node000003" href="$d6/dc2/_c_field_data_categorizer_8h.html" title=" " alt="" coords="542,198,772,223"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="900,142,700,200,698,194,899,137"/>
+<area shape="rect" id="Node000008" href="$de/dd5/_c_single_field_data_categorizer_test_8cc.html" title=" " alt="" coords="938,286,1125,327"/>
+<area shape="poly" id="edge14_Node000002_Node000008" title=" " alt="" coords="962,149,952,170,945,192,943,215,948,237,968,264,995,284,991,288,965,267,944,239,938,216,940,191,947,168,958,147"/>
+<area shape="rect" id="Node000015" href="$d3/d6e/_c_resource_monitor_test_8cc.html" title=" " alt="" coords="957,190,1135,231"/>
+<area shape="poly" id="edge15_Node000002_Node000015" title=" " alt="" coords="1006,146,1035,188,1031,191,1002,149"/>
+<area shape="rect" id="Node000016" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html" title=" " alt="" coords="1158,183,1345,238"/>
+<area shape="poly" id="edge16_Node000002_Node000016" title=" " alt="" coords="1054,138,1174,180,1173,185,1052,143"/>
+<area shape="rect" id="Node000004" href="$d2/dab/bin_2autodetect_2_main_8cc.html" title=" " alt="" coords="5,294,159,320"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="553,229,375,255,172,289,137,296,136,291,171,284,374,250,552,223"/>
+<area shape="rect" id="Node000005" href="$de/d5e/bin_2categorize_2_main_8cc.html" title=" " alt="" coords="183,294,336,320"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="591,230,311,296,310,291,590,225"/>
+<area shape="rect" id="Node000006" href="$d5/d77/_c_field_data_categorizer_8cc.html" title=" " alt="" coords="360,294,569,320"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="619,233,490,296,488,291,617,228"/>
+<area shape="rect" id="Node000007" href="$d5/d82/lib_2api_2dump__state_2_main_8cc.html" title=" " alt="" coords="593,286,720,327"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="659,239,659,286,654,286,654,239"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="721,225,953,283,952,288,719,230"/>
+<area shape="rect" id="Node000009" href="$dc/d56/_c_test_field_data_categorizer_8h.html" title=" " alt="" coords="744,286,913,327"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="693,229,794,284,792,288,691,233"/>
+<area shape="rect" id="Node000010" href="$d6/d2e/_c_field_data_categorizer_test_8cc.html" title=" " alt="" coords="343,375,515,416"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="729,332,516,378,515,373,728,327"/>
+<area shape="rect" id="Node000011" href="$df/df3/_c_persistence_manager_test_8cc.html" title=" " alt="" coords="539,375,724,416"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="771,336,677,377,675,372,769,331"/>
+<area shape="rect" id="Node000012" href="$d1/d67/_c_restore_previous_state_test_8cc.html" title=" " alt="" coords="748,375,910,416"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="831,343,831,375,826,375,826,343"/>
+<area shape="rect" id="Node000013" href="$d4/de2/_c_single_stream_data_adder_test_8cc.html" title=" " alt="" coords="934,375,1102,416"/>
+<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="886,331,976,372,974,377,884,336"/>
+<area shape="rect" id="Node000014" href="$d0/d5d/_c_test_field_data_categorizer_8cc.html" title=" " alt="" coords="1127,375,1296,416"/>
+<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="929,328,1127,372,1126,378,928,333"/>
+</map>

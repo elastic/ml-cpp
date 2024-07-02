@@ -1,0 +1,16 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::memoryUsage" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the amount of memory the cache is consuming." alt="" coords="5,45,220,101"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aabbe813ad8ae2be858782aa73b1174cc" title=" " alt="" coords="276,5,490,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,55,260,49,260,54,220,60"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a680d5ef01b7087952e789e827fa58685" title=" " alt="" coords="268,85,498,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,86,252,91,252,96,220,92"/>
+<area shape="rect" id="Node000004" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="546,100,752,126"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="499,111,530,111,530,116,499,116"/>
+<area shape="rect" id="Node000005" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="800,13,972,69"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="693,97,784,69,786,74,695,102"/>
+<area shape="rect" id="Node000006" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="802,93,970,134"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="753,111,787,111,787,116,753,116"/>
+<area shape="rect" id="Node000007" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1020,115,1205,170"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="701,124,801,143,886,146,972,143,1004,142,1004,147,972,148,886,151,800,148,700,129"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="970,121,1005,126,1004,131,970,127"/>
+</map>

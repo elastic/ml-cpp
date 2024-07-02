@@ -1,0 +1,10 @@
+<map id="ml::model::anonymous_namespace{CAnomalyScore::cc}::scoreToProbability" name="ml::model::anonymous_namespace{CAnomalyScore::cc}::scoreToProbability">
+<area shape="rect" id="Node000001" title="The function to convert raw scores to probabilities." alt="" coords="5,31,200,87"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="55,31,55,21,64,12,80,6,103,5,128,7,144,14,142,19,127,12,102,10,81,12,67,16,60,23,60,31"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a4f633dfe34e191585b6689cea2201616" title="The inverse of the anomalyScore function." alt="" coords="248,39,445,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,56,232,56,232,62,200,62"/>
+<area shape="rect" id="Node000003" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#ab6f36e9dea375508adf0d7604a97a2f5" title=" " alt="" coords="493,5,673,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="445,42,477,38,478,43,446,48"/>
+<area shape="rect" id="Node000004" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="511,71,656,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="446,70,495,76,494,82,445,75"/>
+</map>

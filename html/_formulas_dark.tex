@@ -1,0 +1,1154 @@
+\documentclass{article}
+\usepackage{iftex}
+\usepackage{ifthen}
+\usepackage{epsfig}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\color{white}
+\pagecolor{black}
+% Packages requested by user
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\ifPDFTeX
+\usepackage{newunicodechar}
+  \makeatletter
+    \def\doxynewunicodechar#1#2{%
+    \@tempswafalse
+    \edef\nuc@tempa{\detokenize{#1}}%
+    \if\relax\nuc@tempa\relax
+      \nuc@emptyargerr
+    \else
+      \edef\@tempb{\expandafter\@car\nuc@tempa\@nil}%
+      \nuc@check
+      \if@tempswa
+        \@namedef{u8:\nuc@tempa}{#2}%
+      \fi
+    \fi
+  }
+  \makeatother
+  \doxynewunicodechar{⁻}{${}^{-}$}% Superscript minus
+  \doxynewunicodechar{²}{${}^{2}$}% Superscript two
+  \doxynewunicodechar{³}{${}^{3}$}% Superscript three
+
+\fi
+\pagestyle{empty}
+\begin{document}
+$1/(1 + \exp(-\vec{w}^T \vec{x}))$
+\pagebreak
+
+$\exp(\vec{w}^T \vec{x})$
+\pagebreak
+
+$\displaystyle P = 1 - \prod_{i=0}^{n}{\left(1 - \frac{i}{2^{64}}\right)}$
+\pagebreak
+
+$n$
+\pagebreak
+
+$\displaystyle P = 1 - \exp(\frac{-n^2}{2^{64}})$
+\pagebreak
+
+$n = 2^{28}$
+\pagebreak
+
+$0.004^N$
+\pagebreak
+
+$1.5 \times 10^{-5}$
+\pagebreak
+
+$[ i \lfloor m / \min(m,n) \rfloor, (i+1) \lfloor m / \min(m,n) \rfloor)$
+\pagebreak
+
+$m$
+\pagebreak
+
+$\displaystyle f_{a,b}(x) = ((ax + b)\ \textup{mod}\ p)\ \textup{mod}\ m$
+\pagebreak
+
+$\displaystyle f(\{x_i\}) = \sum_i{h_i(x_i)}\ \textup{mod}\ m$
+\pagebreak
+
+$h_i(.)$
+\pagebreak
+
+$2^{32}$
+\pagebreak
+
+$2^{64}$
+\pagebreak
+
+$(ax + b)\textup{ mod }p \neq ((ax + b)\textup{ mod }2^{64})\textup{ mod }p$
+\pagebreak
+
+$p = 4294967291$
+\pagebreak
+
+$p$
+\pagebreak
+
+$Z/p$
+\pagebreak
+
+$\displaystyle h_{a,b}\ :\ U \rightarrow [m-1]$
+\pagebreak
+
+$\displaystyle h_{a,b}\ :\ U \rightarrow [2^{32}]$
+\pagebreak
+
+$\displaystyle h\ :\ U \rightarrow [m-1]$
+\pagebreak
+
+$\left(\Sigma, S, \delta, s_0\right)$
+\pagebreak
+
+$\Sigma$
+\pagebreak
+
+$S$
+\pagebreak
+
+$\delta$
+\pagebreak
+
+$\delta : S \cross \Sigma \leftarrow S$
+\pagebreak
+
+$s_0$
+\pagebreak
+
+$O(N)$
+\pagebreak
+
+$N^{th}$
+\pagebreak
+
+$\delta : \Sigma \times S \rightarrow S$
+\pagebreak
+
+$\displaystyle arg\min_w{ \lambda w^2 -\sum_i{ a_i \log(S(p_i + w)) + (1 - a_i) \log(1 - S(p_i + w)) } }$
+\pagebreak
+
+$\displaystyle arg\min_w{ \lambda w^2 -\sum_{B}{ c_{1,B} \log(S(\bar{p}_B + w)) + c_{0,B} \log(1 - S(\bar{p}_B + w)) } }$
+\pagebreak
+
+$B$
+\pagebreak
+
+$\bar{p}_B$
+\pagebreak
+
+$c_{0,B}$
+\pagebreak
+
+$c_{1,B}$
+\pagebreak
+
+$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_i{ \log([softmax(p_i + w)]_{a_i}) } }$
+\pagebreak
+
+$a_i$
+\pagebreak
+
+$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_P{ c_{a_i, P} \log([softmax(\bar{p}_P + w)]) } }$
+\pagebreak
+
+$P$
+\pagebreak
+
+$\bar{p}_P$
+\pagebreak
+
+$c_{a_i, P}$
+\pagebreak
+
+$\{a_i\}$
+\pagebreak
+
+$(\log(1+p) - \log(1+a))^2$
+\pagebreak
+
+$p_i$
+\pagebreak
+
+$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2$
+\pagebreak
+
+$w_i = \frac{\log(1+p_i) - \log(1+a_i)}{(1+p_i)(p_i-a_i)}$
+\pagebreak
+
+$c_i$
+\pagebreak
+
+$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2$
+\pagebreak
+
+$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)$
+\pagebreak
+
+\[
+    l_i(p) = \delta^2 \left(\sqrt{1 + \frac{(a_i - p_i)^{2}}{\delta^2}} - 1\right) +
+             \frac{-a_i+p_i}{\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}} (p - p_i) +
+             \frac{-a_i+p_i}{2\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}(a_i-p_i)} (p - p_i)^2
+\]
+\pagebreak
+
+$p = p_i$
+\pagebreak
+
+\[\frac{-a_i + p_i}{\sqrt{\frac{\delta^2 + (a_i - p_i)^2}{\delta^2}}}\]
+\pagebreak
+
+\[\frac{1}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}\]
+\pagebreak
+
+$\displaystyle l_i(p) = -(1 - a_i) \log(1 - S(p)) - a_i \log(S(p))$
+\pagebreak
+
+$S(\cdot)$
+\pagebreak
+
+$\displaystyle l_i(p) = -\sum_i a_{ij} \log(\sigma(p))$
+\pagebreak
+
+$\sigma(p)$
+\pagebreak
+
+$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}$
+\pagebreak
+
+$x^* = arg\min_x\{\sum_i{L(p_i + x, a_i)}\}$
+\pagebreak
+
+$n_A$
+\pagebreak
+
+$n_B$
+\pagebreak
+
+$k$
+\pagebreak
+
+$\frac{n_A}{k}$
+\pagebreak
+
+$\frac{n_B}{k}$
+\pagebreak
+
+$\sum_{x,y} P(x,y) \log\left(\frac{P(x,y)}{P(x)P(y)}\right)$
+\pagebreak
+
+$k l < B(n)$
+\pagebreak
+
+$l$
+\pagebreak
+
+$B(n) = n^{\alpha}$
+\pagebreak
+
+$\alpha < 1$
+\pagebreak
+
+$O(N^2)$
+\pagebreak
+
+$A = \{x_i\}$
+\pagebreak
+
+$B = \{x_j\}$
+\pagebreak
+
+$\displaystyle d_s(A, B) = min_{i,j}{d(x_i, x_j)$
+\pagebreak
+
+$\displaystyle d_c(A,B) = min_{i,j}{d(x_i, x_j)$
+\pagebreak
+
+$M(n, N) = \sum_{i=1}^{N}{ (x_i - M(1, N))^n } = \sum_{i=1}^{N}{ (x_i - M(1, N-1) + (M(1, N-1) - M(1, N)))^n }$
+\pagebreak
+
+$M(1, N)$
+\pagebreak
+
+$N$
+\pagebreak
+
+$n > 1$
+\pagebreak
+
+$O(N log(n))$
+\pagebreak
+
+$n << N$
+\pagebreak
+
+$(x, f(x), \sigma^2(x))$
+\pagebreak
+
+$\sigma^2(x)$
+\pagebreak
+
+$f(x)$
+\pagebreak
+
+$\displaystyle arg\max_x \doubleE_x[max(f^* - f, 0)]$
+\pagebreak
+
+$\displaystyle K(x,y|\theta_0, \theta_1) = \theta_0^2 exp(-(x-y)^t D(\theta_1) (x-y)))$
+\pagebreak
+
+$[D(\theta_1)]_{ij} = (\theta_{1,i}^2 + \epsilon)\delta_{ij}$
+\pagebreak
+
+$\epsilon$
+\pagebreak
+
+$\displaystyle P\left(\left|\frac{e}{n} - 1\right| > \epsilon\right) < \delta$
+\pagebreak
+
+$e$
+\pagebreak
+
+$\displaystyle O\left(\left|\frac{1}{\epsilon^2}\log(\epsilon)log(\delta)\right|\right)$
+\pagebreak
+
+$\displaystyle (44 + 3m)k$
+\pagebreak
+
+$m = 1/\epsilon^2$
+\pagebreak
+
+$k = -\log(\delta)$
+\pagebreak
+
+$O(m)$
+\pagebreak
+
+$A^{(i)}$
+\pagebreak
+
+$B^{(j)}$
+\pagebreak
+
+$\Omega_i$
+\pagebreak
+
+$\Omega_j$
+\pagebreak
+
+$\displaystyle \frac{\| A^{(i)} \cap B^{(j)} \|}{ \| \Omega_i \cup B^{(j)} \| }$
+\pagebreak
+
+$\displaystyle \frac{\| A^{(i)} \cap B^{(j)} \|}{ \| A^{(i)} \cup \Omega_j \| }$
+\pagebreak
+
+$|A|$
+\pagebreak
+
+$V - |A|$
+\pagebreak
+
+$\(\{n_i\}\)$
+\pagebreak
+
+$\(\displaystyle f(\{n_j\}) = \frac{n!}{\prod_i{n_j}}\prod_i{p_j^{n_j}}\)$
+\pagebreak
+
+$\(n = \sum_i{n_i}\)$
+\pagebreak
+
+$\(\displaystyle \sum_{\{n_j : f(\{n_j\}) \leq f(\{n_i\})\} }{ f(\{n_j\}) }\)$
+\pagebreak
+
+$\displaystyle \sum_{\{\{n_j\}:\sum{n_j}=n\}} H(n_k) n! \prod_{j=1}^m\frac{p_j^{n_j}}{n_j!}$
+\pagebreak
+
+$H(.)$
+\pagebreak
+
+$\displaystyle E[unique(Y)]=\sum_{\{\{n_j\}:n_j>0,\sum{n_j}=n\}}kn!\prod_{j=1}^k{\frac{p_j^{n_j}}{n_j!}} $
+\pagebreak
+
+$Y$
+\pagebreak
+
+$\binom{n}{m}$
+\pagebreak
+
+$\(\displaystyle \log\left(\frac{n!}{m!(n-m)!}p^m(1-p)^{n-m}\right)\)$
+\pagebreak
+
+$\(m \leq n\)$
+\pagebreak
+
+$\(\displaystyle \log\left(\frac{n!}{ \prod_i{n_i!} }p^n_i\right)\)$
+\pagebreak
+
+$\(n = sum_i{n_i}\)$
+\pagebreak
+
+$f(x) = x - c$
+\pagebreak
+
+$f(x) = -x$
+\pagebreak
+
+$f(x) = e^x$
+\pagebreak
+
+$h(x) = f(x)g(x)$
+\pagebreak
+
+$x - c$
+\pagebreak
+
+$(\epsilon, \rho)$
+\pagebreak
+
+$-p_i \log(p_i)$
+\pagebreak
+
+$T$
+\pagebreak
+
+$k = O\left(\frac{1}{\epsilon^2}\right)$
+\pagebreak
+
+$\frac{1}{\epsilon^2} \log(T) \log(\frac{T}{\epsilon}$
+\pagebreak
+
+$Y - u$
+\pagebreak
+
+$u$
+\pagebreak
+
+$a$
+\pagebreak
+
+$b$
+\pagebreak
+
+$P([a,m]) = P([m,b]) = p / 100 / 2$
+\pagebreak
+
+$\displaystyle mean = \frac{a}{b}$
+\pagebreak
+
+$\displaystyle variance = \frac{a}{b^2}$
+\pagebreak
+
+$\displaystyle a_i' = \frac{a}{\gamma_i}$
+\pagebreak
+
+$\displaystyle b_i' = \frac{b}{\gamma_i}$
+\pagebreak
+
+$\displaystyle f(x_i) = \frac{(b_i')^{a_i'}}{\Gamma(a_i')}x_i^{a_i'-1}e^{-b_i'x_i}$
+\pagebreak
+
+$-\log(\prod_i{F(x_i)})$
+\pagebreak
+
+$F(.)$
+\pagebreak
+
+$\{x_i\}$
+\pagebreak
+
+$\gamma_i$
+\pagebreak
+
+$(0,\infty)$
+\pagebreak
+
+$X = Y - u$
+\pagebreak
+
+$-u$
+\pagebreak
+
+$BIC = -2 log(L(x)) - k log(n)$
+\pagebreak
+
+$L(x)$
+\pagebreak
+
+$AIC_c = -2 log(L(x)) + 2 k + \frac{k(k+1)}{n - k - 1}$
+\pagebreak
+
+$m = \frac{1}{n}\sum_{i=1}{n}{x_i}$
+\pagebreak
+
+$v = \sum_{i=1}{n}{ (x_i - m)^t (x_i - m) }$
+\pagebreak
+
+$frac{D(D+1)}{2}$
+\pagebreak
+
+$p = \left \lceil \log_2(x) \right \rceil$
+\pagebreak
+
+$\frac{n!}{k!(n-k)!}$
+\pagebreak
+
+$O(2^l l^d)$
+\pagebreak
+
+$2^l$
+\pagebreak
+
+$d$
+\pagebreak
+
+$O(2^{ld}$
+\pagebreak
+
+$\|I\|_1 = l$
+\pagebreak
+
+$I$
+\pagebreak
+
+$\sqrt{\sum_i x_i^2}$
+\pagebreak
+
+$O(k)$
+\pagebreak
+
+$M$
+\pagebreak
+
+$O(N + M)$
+\pagebreak
+
+$\{ \frac{x_i - m_x}{\sigma_x} \}$
+\pagebreak
+
+$P : \Omega \rightarrow \{-1, 1}$
+\pagebreak
+
+$\left( \sum_{i=1}{n}{ P_i \frac{x_i - m_x}{\sigma_x} - \sum_{i=1}{n}{ P_i \frac{y_i - m_y}{\sigma_y} \right)$
+\pagebreak
+
+$2 (1 - cov(X,Y))$
+\pagebreak
+
+$cov(X,Y)$
+\pagebreak
+
+$X$
+\pagebreak
+
+$\frac{1}{n}\sum_{i=1}{n}{\frac{(x-m_x)(y-m_y)}{\sigma_x\sigma_y}}$
+\pagebreak
+
+$|f(x_k) - f(x_{k-1})| < \epsilon |f(x_k) - f(x_0)|$
+\pagebreak
+
+$\{(x_i, y_i)\}$
+\pagebreak
+
+$y = c_0 + c_1 x + ... + c_N x^N$
+\pagebreak
+
+$\theta^*$
+\pagebreak
+
+$\theta^* = arg\min_{\theta}{(y - X\theta)^tDiag(w)(y - X\theta)}$
+\pagebreak
+
+$[X]_{ij} = x_i^{j-1}$
+\pagebreak
+
+$2N-1$
+\pagebreak
+
+$X^tDiag(w)X$
+\pagebreak
+
+$X^tDiag(w)y$
+\pagebreak
+
+$3(N+1)$
+\pagebreak
+
+$12(N+1)$
+\pagebreak
+
+$x_i$
+\pagebreak
+
+$(x, y(x))$
+\pagebreak
+
+$x \mapsto x - b$
+\pagebreak
+
+$x$
+\pagebreak
+
+$y_i = \sum_{j=0}{N} c_j x_i^j + Y_i$
+\pagebreak
+
+$Y_i$
+\pagebreak
+
+$N(0, \sigma)$
+\pagebreak
+
+$C = (X^t X)^{-1}X^t E[YY^t] X (X^t X)^{-1}$
+\pagebreak
+
+$E[YY^t] = \sigma^2 I$
+\pagebreak
+
+$C = \sigma^2 (X^t X)^{-1}$
+\pagebreak
+
+$x^tC^{-1}x$
+\pagebreak
+
+$e^Y - u$
+\pagebreak
+
+$\displaystyle e^{m + 1/2p}$
+\pagebreak
+
+$\displaystyle (e^{1/p} - 1)e^{2m + 1/p}$
+\pagebreak
+
+$\displaystyle e^{m_i' + 1/2p_i'} = e^{m + 1/2p}$
+\pagebreak
+
+$\displaystyle (e^{1/p_i'} - 1)e^{2m_i' + 1/p_i'} = \gamma_i(e^{1/p} - 1)e^{2m + 1/p}$
+\pagebreak
+
+$m_i'$
+\pagebreak
+
+$p_i'$
+\pagebreak
+
+$\displaystyle m_i' = m + \frac{1/p - \log(1 + \gamma_i(e^{1/p} - 1))}{2}$
+\pagebreak
+
+$\displaystyle p_i' = \frac{1}{\log(1 + \gamma_i(e^{1/p} - 1))}$
+\pagebreak
+
+$\displaystyle f(x_i) = \sqrt{\frac{p_i'}{2\pi}}e^{-p_i'/2(\log(x_i) - m_i')^2}$
+\pagebreak
+
+$e ^{m + 1 / 2 p}$
+\pagebreak
+
+$\displaystyle \frac{e ^{-2m - 1 / p}}{e ^{1 / p} - 1}$
+\pagebreak
+
+$e^{m + 1 / 2 p}$
+\pagebreak
+
+$X = e^Y - u$
+\pagebreak
+
+$X = exp(s * Y + m)$
+\pagebreak
+
+$min_{a,b}\{P([a,m]) + P([m,b])\} = p / 100$
+\pagebreak
+
+$P_i = P(\{c : L(c) <= L(c_i)\})$
+\pagebreak
+
+$\displaystyle f(p_i) = \frac{\Gamma(a_0)}{\Gamma(a_0 - a_i)\Gamma(a_i)}(1 - p_i)^{a_0-a_i-1}p_i^{a_i-1}$
+\pagebreak
+
+$\displaystyle a_0 = \sum_i{a_i}$
+\pagebreak
+
+$int_{\theta}f(x|\theta, M)f(\theta|M)\d\theta$
+\pagebreak
+
+$(x,l)$
+\pagebreak
+
+$\displaystyle I=argmin{\sum_{(i,j)\in J}\sum_{k=i}^{k<j}{(x_k-\mu_{i,j})^2}}$
+\pagebreak
+
+$\mu_{i,j}=1/(j-i)\sum_{k\in[i,j)}{x_k}$
+\pagebreak
+
+$\displaystyle {(\sum_{k=i}^{k<j}{(x_k-\mu_{i,j})^2})^{1/p}}$
+\pagebreak
+
+$p\rightarrow\infty$
+\pagebreak
+
+$p = 2$
+\pagebreak
+
+$m \leq n$
+\pagebreak
+
+$O(N^2n)$
+\pagebreak
+
+$\displaystyle f(x_i) = \sqrt{\frac{p}{2\pi\gamma_i}} e^{-\frac{p}{2\gamma_i}(x_i - m)^2}$
+\pagebreak
+
+$2^{128}-1$
+\pagebreak
+
+$2^{1024}-1$
+\pagebreak
+
+$2^{512}$
+\pagebreak
+
+$[N] = {1,...,N}$
+\pagebreak
+
+$\displaystyle O(\frac{log(N)}{k})$
+\pagebreak
+
+$\displaystyle \epsilon = \frac{|r - qn|}{n}$
+\pagebreak
+
+$qn$
+\pagebreak
+
+$\displaystyle x \rightarrow \left \lfloor xn \right \rfloor$
+\pagebreak
+
+$\displaystyle q \rightarrow \frac{x}{n} + 0.5$
+\pagebreak
+
+$3k$
+\pagebreak
+
+$\sup_y{\{y:F(y)<f\}}$
+\pagebreak
+
+$[x]_i ~ N(0,1)$
+\pagebreak
+
+$\displaystyle P(x) \propto \mathbb{E}\left[ \|x - Y\|_2 \right]$
+\pagebreak
+
+$\chi^2$
+\pagebreak
+
+$\(\displaystyle f(\{n_i\}) = \frac{n!}{\prod_i{n_i}}\prod_i{p_i^{n_i}}\)$
+\pagebreak
+
+$\{n(i)\}$
+\pagebreak
+
+$\displaystyle n_i \in \{0,1,...,n\}\ \ \forall i$
+\pagebreak
+
+$\displaystyle \sum_i{n_i} = [n \sum_i{w(i)}]$
+\pagebreak
+
+$\displaystyle \sum_i{|n_i - n w(i)|}\ is\ minimized$
+\pagebreak
+
+$\frac{|A\cap B|}{|A\cup B|}$
+\pagebreak
+
+$\frac{|A\cap B|}{\min(|A|,|B|)}$
+\pagebreak
+
+$L^-_{fc}(f) = {x : f(x) <= fc}$
+\pagebreak
+
+$y_i(x) = a_i(x-x_i)^3 + b_i(x-x_i)^2 + c_i(x-x_i) + d_i$
+\pagebreak
+
+$Ax = y$
+\pagebreak
+
+$A$
+\pagebreak
+
+$c$
+\pagebreak
+
+$y$
+\pagebreak
+
+$\displaystyle \left(A + \begin{bmatrix} 1\\ 0\\ 0\\ \cdot\\u \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 & \cdot & v \end{bmatrix}\right)x=y$
+\pagebreak
+
+$\frac{1}{|b-a|}\int_{[a,b]}{\left|\frac{df(s)}{ds}\right|}ds$
+\pagebreak
+
+$\displaystyle T = n\omega^2 = \frac{1}{12n}+\sum_{i=1}^n{\frac{2i-1}{2n}-F(x_{(i)})}$
+\pagebreak
+
+$x_{(i)}$
+\pagebreak
+
+$\{y\ |\ y \leq x\}$
+\pagebreak
+
+$\{y\ |\ f(y) \leq f(x)\}$
+\pagebreak
+
+$f(.)$
+\pagebreak
+
+$\{y\ |\ y \geq x\}$
+\pagebreak
+
+$E[ X 1{[a,b]} ] / E[ 1{a,b]} ]$
+\pagebreak
+
+$P(R)$
+\pagebreak
+
+$ R = \{y\ |\ f(y) \leq f(x)\} $
+\pagebreak
+
+$P(R) \rightarrow 0$
+\pagebreak
+
+$ -E[\log(f(x))] $
+\pagebreak
+
+$x^2$
+\pagebreak
+
+$sigmoid\left(\frac{sign (x - x0)}{width}\right)$
+\pagebreak
+
+$[\sigma(z)]_i = \frac{exp(z_i)}{\sum_j exp(z_j)}$
+\pagebreak
+
+$(1 - x) ^ p$
+\pagebreak
+
+$1 - (1 - x) ^ p$
+\pagebreak
+
+$\log(1 - x)$
+\pagebreak
+
+$P(\{s : f(s) < f(x)\}) = \int{I(f(s) < f(x)) f(s)}ds$
+\pagebreak
+
+$\displaystyle I(f(s) < f(x)) \approx (1+e^{-k}) \frac{e^{-k(f(s)/f(x)-1)}}{1+e^{-k(f(s)/f(x)-1)}}$
+\pagebreak
+
+$k'(s) = k(s)/f(x)$
+\pagebreak
+
+$\{y : f(y) <= f(x)\}$
+\pagebreak
+
+$Y = m + \sqrt{\lambda}(X - m)$
+\pagebreak
+
+$P(\{(s_1, ..., s_n)\ |\ L(s_1, ..., s_n) \leq \prod_{i}\frac{P_i}{2}\})$
+\pagebreak
+
+$P(i)$
+\pagebreak
+
+$ p = P(\{s\ |\ L(s) \leq L(x)\}) $
+\pagebreak
+
+$s$
+\pagebreak
+
+$ L'(s) = \frac{N!}{1!(N - 1)!} (F(s) - F(-s)) ^{(N-1)} f(s) $
+\pagebreak
+
+$ R' = \{s\ |\ L'(s) \leq L'(x)\} $
+\pagebreak
+
+$ R = \{s\ |\ s > x\ or\ s < x\} $
+\pagebreak
+
+$(-\infty, x] \bigcup [x, \infty)$
+\pagebreak
+
+$ P(R) = \frac{2N}{2N} \left[(2t - 1) ^{N}\right]_{F(x)}^1 = 1 - (1 - p) ^{N} $
+\pagebreak
+
+$(1 - F(x)) = p / 2$
+\pagebreak
+
+$x_2$
+\pagebreak
+
+$x_1$
+\pagebreak
+
+$ p_2 = P(\{s\ |\ L(s) \leq L(x_2)\}) < p_1 = P(\{s\ |\ L(s) \leq L(x_1)\}) $
+\pagebreak
+
+$(s_1, s_2, ..., s_M)$
+\pagebreak
+
+$ L'(s_1, ..., s_M) = \frac{N!}{(N-M)!} (F(s_1) - F(-s_1)) ^{N-M} \prod_{i=1}^M f(s_i) $
+\pagebreak
+
+$p_1 > p_2 > ...> p_M$
+\pagebreak
+
+$ R'' = \{s\ |\ L'(s) \leq L'(x)\} $
+\pagebreak
+
+$ R' = \{s\ |\ s_i > x_i\ or\ s_i < x_i\} $
+\pagebreak
+
+$ P(R') = 2 ^{M} P(\{s\ |\ s_i > x_i\}) $
+\pagebreak
+
+$s_i$
+\pagebreak
+
+$s_i < s_{i+1}$
+\pagebreak
+
+$i < M$
+\pagebreak
+
+$s_M < \infty$
+\pagebreak
+
+$M^2$
+\pagebreak
+
+$\{p_1, ..., p_M\}$
+\pagebreak
+
+$(x_i, y_i)$
+\pagebreak
+
+$\{(x_i, y_i = y(x_i) + Y_i\}$
+\pagebreak
+
+$\displaystyle \max_i\left\{ \int_{[a_i,b_i]}{ \left| y(x) - \left<y\right>_{[a_i,b_i]} \right| }dx \right\} $
+\pagebreak
+
+$\left<y\right>_{[a_i,b_i]} = \frac{1}{b_i-a_i}\int_{[a_i,b_i]}{y(x)}dx$
+\pagebreak
+
+$\left<y\right>$
+\pagebreak
+
+$([a_i,b_i], m_i)$
+\pagebreak
+
+$m_i$
+\pagebreak
+
+$([a+(i-1)l,b+il])$
+\pagebreak
+
+$i\in[n]$
+\pagebreak
+
+$l=(b-a)/n$
+\pagebreak
+
+$(t, f(t))$
+\pagebreak
+
+$n_i + epsilon n$
+\pagebreak
+
+$n_i$
+\pagebreak
+
+$P(1-\delta)$
+\pagebreak
+
+$([a_i,b_i], S_i)$
+\pagebreak
+
+$S_i$
+\pagebreak
+
+$([a_i,b_i])$
+\pagebreak
+
+$\(\frac{1}{(n-k)\sigma^2}\sum_{k=1}^{n-k}{(f(k) - \mu)(f(k+p) - \mu)}\)$
+\pagebreak
+
+$ \sum_i 1\{t_i \leq t < t_{i+1}\} s_i f_p(t) $
+\pagebreak
+
+$\{s_i\}$
+\pagebreak
+
+$f_p(\cdot)$
+\pagebreak
+
+$f_q(s)$
+\pagebreak
+
+$a = \max\{x \le f_q(s)\}$
+\pagebreak
+
+$b = \min{x \ge f_q(s)}$
+\pagebreak
+
+$\displaystyle \bar{s} = \frac{(y(b) - y(a))(f_q(s) - a)}{b - a}$
+\pagebreak
+
+$y(.)$
+\pagebreak
+
+$ pid \leftarrow c$
+\pagebreak
+
+$pid$
+\pagebreak
+
+$|P(b) - P(a)| < threshold \times min(P(A), P(b))$
+\pagebreak
+
+$P_{A \ B} = 1.0 - F(g(A \ B))$
+\pagebreak
+
+$g(\cdot)$
+\pagebreak
+
+$F(\cdot)$
+\pagebreak
+
+$P_{A \ B} >> P_A$
+\pagebreak
+
+$\displaystyle \left(1.0 - \frac{\log(P_{A \ B})}{\log(P_A)}\right)_0^1$
+\pagebreak
+
+$(\cdot)_0^1$
+\pagebreak
+
+$[0,1]$
+\pagebreak
+
+$\displaystyle P_{A \cap B} = \min\left\{ F(g(A \cap B)), 1-F(g(A \cap B)) \right\}$
+\pagebreak
+
+$P_{A \cap B} \lte P_A$
+\pagebreak
+
+$\displaystyle \left(\frac{\log(P_{A \cap B})}{\log(P_A)}\right)_0^1$
+\pagebreak
+
+$arg\max_S \frac{1}{|S|} \sum_{f\in S}{MIC(f,t)} - \frac{1}{|S|^2} \sum_{f\in S, g\in S} {MIC(f,g)}$
+\pagebreak
+
+$(x_i, \gamma_i)$
+\pagebreak
+
+$i^{th}$
+\pagebreak
+
+$10^8$
+\pagebreak
+
+$10^{-8}$
+\pagebreak
+
+$\displaystyle \max_{a \in A, b \in B}{d[a,b]}$
+\pagebreak
+
+$\displaystyle \frac{1}{|A||B|}\sum_{a \in A, b \in B}{d[a,b]}$
+\pagebreak
+
+$\(\displaystyle e^{m+\frac{1}{p}\left(\frac{1}{t} + 1\right)} f(p)\)$
+\pagebreak
+
+$sum_i{(\log(x_i) - \frac{1}{n}sum_j{\log(x_j)})^2}$
+\pagebreak
+
+$\displaystyle \int{L(x_i\ |\ p)f(p)}dp = \Gamma(\sum_j{a_j})\int_{p\in S}{p_i\prod_j{\frac {p_j^{a_j-1}}{\Gamma(a_j)}}}dp_j $
+\pagebreak
+
+$\displaystyle R = \{p\ |\ \left\|p\right\|_1 = 1\}$
+\pagebreak
+
+$\displaystyle \frac{\Gamma(a_0)\Gamma(a_i + 1)}{\Gamma(a_0 + 1)\Gamma(a_i)} = \frac{a_i}{a_0}$
+\pagebreak
+
+$\displaystyle F(x) = \frac{1}{a_0}\sum_{\{i : x_i \leq x\}}{a_i}$
+\pagebreak
+
+$\displaystyle F^c(x) = \frac{1}{a_0}\sum_{\{i : x_i \geq x\}}{a_i}$
+\pagebreak
+
+$F^c(x) \neq 1 - F(x)$
+\pagebreak
+
+${x_i}$
+\pagebreak
+
+$\alpha$
+\pagebreak
+
+$\beta$
+\pagebreak
+
+$\displaystyle \frac{1}{B(\alpha,\beta)}x^{\alpha-1}(1-x)^{beta-1}$
+\pagebreak
+
+$P(D > observed) = Q_{KS}\left(\left(\sqrt{N_e}+0.12+\frac{0.11}{\sqrt{N_e}}\right) D\right)$
+\pagebreak
+
+$Q_{KS}(\lambda)=2\sum_{j=1}^{\infty}{(-1)^{j-1}e^{-2j^2\lambda^2}}$
+\pagebreak
+
+$\max(-2\log(L(\{x_i\}|M_1)) + 2\log(L(\{x_i\}|M_2)) + (n_1 - n_2) \log(n), 0)$
+\pagebreak
+
+$M_1$
+\pagebreak
+
+$M_2$
+\pagebreak
+
+$n_1$
+\pagebreak
+
+$n_2$
+\pagebreak
+
+$m_{a,b} = a F(a) + \int_a^b{x f(x)}dx + b (1 - F(b))$
+\pagebreak
+
+$m_{a,b} = (a-m_{a,b})^2 F(a) + \int_a^b{(x-m_{a,b})^2 f(x)}dx + (b-m_{a,b})^2 (1 - F(b))$
+\pagebreak
+
+$x(i)$
+\pagebreak
+
+$P(R(i))$
+\pagebreak
+
+$z(i)$
+\pagebreak
+
+$\displaystyle \frac{1 + erf(-z(i))}{2} = \frac{P(R(i))}{2}$
+\pagebreak
+
+$\displaystyle \{P_i\ :\ i = 1, ..., m \}$
+\pagebreak
+
+$\displaystyle P_m < P_{m-1} < ... < P_1$
+\pagebreak
+
+$\displaystyle \frac{N!}{(N-m)!}\int_{0}^{P_m}\int_{t_m}^{P_{m-1}}...\int_{t_2}^{P_1}(1-t_1)^{N-m}dt_1...dt_m$
+\pagebreak
+
+$t_i$
+\pagebreak
+
+\end{document}

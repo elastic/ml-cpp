@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::doPrintMarginalLikelihoodStatistics" name="ml::maths::common::CLogNormalMeanPrecConjugate::doPrintMarginalLikelihoodStatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,115,238,171"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#a62671217507eb150fd9b59ec8053fedc" title="Get the of the marginal likelihood." alt="" coords="286,41,538,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,112,285,91,312,84,313,89,286,96,215,117"/>
+<area shape="rect" id="Node000005" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="375,130,449,156"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="238,140,359,140,359,146,238,146"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a9f6a4501b11b285d20b91afd7f4473e4" title="Convert a double to a pretty string (single precision using g formatting)." alt="" coords="338,180,486,221"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="239,163,323,180,322,185,238,169"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="598,5,786,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="538,43,582,37,583,42,539,48"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="586,70,798,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="539,75,571,79,570,85,538,81"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="373,135,358,124,360,113,379,106,412,104,457,109,466,117,465,125,460,124,461,119,455,114,412,109,380,111,364,117,363,122,376,131"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::model::function_t::isAggressivePruningSupported" name="ml::model::function_t::isAggressivePruningSupported">
+<area shape="rect" id="Node000001" title="Is this function for use with aggressive pruning of dead split fields?" alt="" coords="251,5,469,46"/>
+<area shape="rect" id="Node000002" href="$da/de5/classml_1_1model_1_1_c_anomaly_detector.html#a963b920eb23d561d258792c2abfb513a" title=" " alt="" coords="5,5,203,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,28,203,28,203,23,235,23"/>
+</map>

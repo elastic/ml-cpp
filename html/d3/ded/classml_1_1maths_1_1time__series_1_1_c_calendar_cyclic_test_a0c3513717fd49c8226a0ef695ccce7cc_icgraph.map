@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CCalendarCyclicTest::winsorise" name="ml::maths::time_series::CCalendarCyclicTest::winsorise">
+<area shape="rect" id="Node000001" title="Winsorise error." alt="" coords="480,114,634,170"/>
+<area shape="rect" id="Node000002" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a04632c1ffdd5a8dd9ca3c784dc96a9a1" title="Add error at time." alt="" coords="250,122,432,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="465,145,432,145,432,140,465,140"/>
+<area shape="rect" id="Node000003" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a37eee8b832f4febaaebc1c9f05f187a9" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="304,114,256,77,201,45,172,34,174,29,203,40,259,73,307,109"/>
+<area shape="rect" id="Node000004" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#ad9e2cc94e80c8604915b68ddc3aa5752" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="272,118,201,94,163,84,164,78,202,89,274,113"/>
+<area shape="rect" id="Node000005" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="234,133,202,130,202,125,234,128"/>
+<area shape="rect" id="Node000006" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a720f1331ae3b8d86f7fcae16e96d541c" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="234,156,202,159,202,154,234,150"/>
+<area shape="rect" id="Node000007" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a366733c8c476fd204113d30efcbf97ec" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="272,171,202,194,164,205,162,200,201,189,270,166"/>
+<area shape="rect" id="Node000008" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a455a37ad76d620e12e26b4a5308fa4c2" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="306,175,259,211,203,243,174,254,172,249,201,238,256,206,303,171"/>
+</map>

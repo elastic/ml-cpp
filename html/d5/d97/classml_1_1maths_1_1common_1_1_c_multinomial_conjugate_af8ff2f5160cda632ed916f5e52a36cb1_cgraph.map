@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultinomialConjugate::print" name="ml::maths::common::CMultinomialConjugate::print">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,162,97"/>
+<area shape="rect" id="Node000002" href="$d5/d97/classml_1_1maths_1_1common_1_1_c_multinomial_conjugate.html#ac733c981cec582ec45d16dd5fe55f78a" title="Check if this is a non&#45;informative prior." alt="" coords="222,5,378,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,54,206,46,206,51,162,59"/>
+<area shape="rect" id="Node000003" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="210,85,390,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,80,195,85,194,90,162,85"/>
+</map>

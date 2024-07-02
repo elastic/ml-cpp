@@ -1,0 +1,30 @@
+<map id="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::guardRead" name="ml::core::compressed_lfu_cache_detail::CCompressedLfuCache::guardRead">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1056,176,1270,232"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a4c8fffc9b65b14bce327742bb24f23e6" title="Persist by passing information to inserter." alt="" coords="793,5,1008,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1122,167,1069,120,1006,75,984,64,986,59,1009,71,1073,116,1125,163"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ae5366a0e63bc6526118ef0f27782b9e7" title=" " alt="" coords="523,216,737,272"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1041,216,738,238,738,233,1040,210"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a590cb09f1ad2568b1e3d0ae0ac24b108" title=" " alt="" coords="247,276,462,332"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1040,187,928,176,795,171,725,173,654,180,584,190,516,206,480,220,446,238,390,278,387,273,444,233,478,215,514,201,583,185,653,174,724,168,795,166,928,170,1041,182"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aa21f5bc3a69e63579bcbe30683abf89b" title="Get the amount of memory the cache is consuming." alt="" coords="793,85,1008,141"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1065,173,983,144,984,139,1067,168"/>
+<area shape="rect" id="Node000009" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a154dc094fb14de1c1cd317464f00162b" title="Get the number of items currently stored in the cache." alt="" coords="793,267,1008,322"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1067,240,984,269,983,263,1065,235"/>
+<area shape="rect" id="Node000010" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a2426540285a32170285656b325c99e2a" title=" " alt="" coords="793,347,1008,402"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1125,244,1073,292,1009,337,986,349,984,344,1006,332,1069,287,1122,240"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache.html#a1342e839d333ad8ded7d709c9e6ff750" title=" " alt="" coords="5,284,194,324"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="232,307,194,307,194,301,232,301"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ae8fa90151254378202c3634ee56c1ba7" title=" " alt="" coords="523,85,737,141"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="778,116,738,116,738,111,778,111"/>
+<area shape="rect" id="Node000008" href="$d2/d0f/classml_1_1torch_1_1_c_command_parser_1_1_c_request_cache.html#a25bc17da8d5c095e3aa08c1c989b7949" title=" " alt="" coords="260,93,449,134"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="508,116,449,116,449,111,508,111"/>
+<area shape="poly" id="edge11_Node000010_Node000003" title=" " alt="" coords="799,341,792,337,777,324,767,311,758,298,744,286,723,275,726,270,747,282,762,295,772,307,781,320,795,332,802,337"/>
+<area shape="rect" id="Node000011" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ac3a5941ead340061066b84687333cde7" title=" " alt="" coords="242,381,467,437"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="778,385,468,405,467,399,778,380"/>
+<area shape="rect" id="Node000012" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a085b91e0915b1583369aa522b43e9b8c" title=" " alt="" coords="515,427,745,482"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="791,410,728,429,726,423,789,405"/>
+<area shape="rect" id="Node000013" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a301b74d8a1d051c4bae1dc8179a8d2e6" title=" " alt="" coords="523,296,737,352"/>
+<area shape="poly" id="edge14_Node000010_Node000013" title=" " alt="" coords="778,354,737,347,738,341,779,349"/>
+<area shape="poly" id="edge13_Node000012_Node000011" title=" " alt="" coords="499,436,467,430,468,425,500,430"/>
+<area shape="poly" id="edge15_Node000013_Node000004" title=" " alt="" coords="507,318,462,314,462,309,508,312"/>
+</map>

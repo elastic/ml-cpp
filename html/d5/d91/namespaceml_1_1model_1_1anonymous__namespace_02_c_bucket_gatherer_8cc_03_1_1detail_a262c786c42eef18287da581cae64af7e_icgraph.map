@@ -1,0 +1,6 @@
+<map id="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::insertPersonAttributeCounts" name="ml::model::anonymous_namespace{CBucketGatherer::cc}::detail::insertPersonAttributeCounts">
+<area shape="rect" id="Node000001" title="Persist a person, attribute and count tuple." alt="" coords="292,29,508,100"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="443,18,427,11,400,8,377,10,362,15,353,21,351,29,346,28,349,18,359,10,376,5,400,3,428,5,445,13"/>
+<area shape="rect" id="Node000002" href="$d9/dc0/structml_1_1model_1_1anonymous__namespace_02_c_bucket_gatherer_8cc_03_1_1detail_1_1_s_bucket_counts_persister.html#a52c230c2024223dde5edae1a7f605b0e" title=" " alt="" coords="5,29,244,100"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="276,67,244,67,244,62,276,62"/>
+</map>

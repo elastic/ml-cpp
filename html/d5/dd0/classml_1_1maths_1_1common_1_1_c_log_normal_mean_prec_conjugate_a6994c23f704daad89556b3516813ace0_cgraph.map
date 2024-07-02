@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::confidenceIntervalNormalMean" name="ml::maths::common::CLogNormalMeanPrecConjugate::confidenceIntervalNormalMean">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,218,61"/>
+<area shape="rect" id="Node000002" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="526,5,738,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,24,266,23,478,23,511,24,511,29,478,28,266,28,218,30"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#ad4b369ad6905097d7410a4be83e36a62" title=" " alt="" coords="266,37,478,93"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,44,250,48,250,53,218,49"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="478,49,510,45,511,51,479,55"/>
+</map>

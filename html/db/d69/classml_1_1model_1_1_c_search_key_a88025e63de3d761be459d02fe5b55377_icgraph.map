@@ -1,0 +1,7 @@
+<map id="ml::model::CSearchKey::excludeFrequent" name="ml::model::CSearchKey::excludeFrequent">
+<area shape="rect" id="Node000001" title="Get the ExcludeFrequent setting." alt="" coords="431,5,591,46"/>
+<area shape="rect" id="Node000002" href="$db/d69/classml_1_1model_1_1_c_search_key.html#ad657c61ca5f7f901196b40d6211d7009" title="Initialise by traversing a state document." alt="" coords="214,5,383,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="415,28,383,28,383,23,415,23"/>
+<area shape="rect" id="Node000003" href="$db/d69/classml_1_1model_1_1_c_search_key.html#a0f53b227fa342ea095e95c6b07f3fe70" title=" " alt="" coords="5,5,166,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="198,28,166,28,166,23,198,23"/>
+</map>

@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,150,202,176"/>
+<area shape="rect" id="Node000002" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#a47d2a8a553847d7724f0e9abf46bcbcf" title="Get an object representing a hard failure." alt="" coords="271,5,439,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,148,173,104,210,79,248,57,264,50,266,54,251,61,213,83,177,108,122,152"/>
+<area shape="rect" id="Node000003" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a2b52fe735b5cdbf771546430a767a551" title="Get an object representing a hard failure." alt="" coords="265,71,445,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,147,266,114,267,119,152,152"/>
+<area shape="rect" id="Node000004" href="$dd/de9/namespaceanonymous__namespace_02_c_per_partition_category_id_mapper_test_8cc_03.html#a1e29dd7cb55accc42ffc816d3933a5a1" title=" " alt="" coords="250,135,460,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,160,234,160,234,166,202,166"/>
+<area shape="rect" id="Node000012" href="$d5/dc8/classml_1_1api_1_1_c_global_category_id.html#add6b0f41a58feed55b4739f4fd47a7c1" title="Get an object representing a soft failure." alt="" coords="271,215,439,255"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="152,174,267,207,266,212,150,179"/>
+<area shape="rect" id="Node000013" href="$d6/d7a/classml_1_1model_1_1_c_local_category_id.html#a3c0715602003ea63a265a98b7001cf6a" title="Get an object representing a soft failure." alt="" coords="265,280,445,321"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="122,174,177,218,213,243,251,265,266,272,264,276,248,269,210,247,173,222,118,178"/>
+<area shape="rect" id="Node000005" href="$d1/d2f/classml_1_1api_1_1_c_per_partition_category_id_mapper.html#acc0abcb86f229910de4d008b8a0219ec" title="Persist the mapper passing information to inserter." alt="" coords="516,95,723,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="460,141,500,134,501,139,461,147"/>
+<area shape="rect" id="Node000007" href="$d1/d2f/classml_1_1api_1_1_c_per_partition_category_id_mapper.html#a42ec6b687fbf343a1bd84c3bcd0fc349" title="Restore the mapper reading state from traverser." alt="" coords="508,192,731,233"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="461,180,493,186,492,191,460,185"/>
+<area shape="rect" id="Node000006" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="787,61,990,102"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="724,99,771,93,772,99,724,105"/>
+<area shape="rect" id="Node000008" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="779,127,998,167"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="706,189,787,169,788,174,707,194"/>
+<area shape="rect" id="Node000009" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="779,192,998,233"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="732,210,764,210,764,215,732,215"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="815,257,962,298"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="707,231,800,254,799,259,706,236"/>
+<area shape="rect" id="Node000011" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="779,323,998,363"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="651,231,709,269,780,307,798,314,796,319,778,312,707,274,648,235"/>
+</map>

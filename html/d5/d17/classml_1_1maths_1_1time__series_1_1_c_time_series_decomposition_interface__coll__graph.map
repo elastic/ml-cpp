@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesDecompositionInterface" name="ml::maths::time_series::CTimeSeriesDecompositionInterface">
+<area shape="rect" id="Node000001" title="The interface for decomposing times series into seasonal, calendar cyclical and trend components." alt="" coords="5,94,249,135"/>
+<area shape="rect" id="Node000002" href="$d5/d9e/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_types.html" title="Type definitions shared by the CTimeSeriesDecompositionInterface hierarchy and CTimeSeriesDecompositi..." alt="" coords="13,5,241,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,62,130,94,124,94,124,62"/>
+</map>

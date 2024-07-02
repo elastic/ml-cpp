@@ -1,0 +1,31 @@
+<map id="ml::model::CIndividualModel::prune" name="ml::model::CIndividualModel::prune">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,235,192,275"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#acea33437fdc2fb56e45d93d41deffc87" title="Get the length of the bucketing time interval." alt="" coords="251,5,426,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,233,126,196,155,149,192,100,238,57,246,51,249,56,241,61,196,103,159,152,131,199,111,236"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ae34d8622ccf07c621a8027683ed2d275" title="Clear out large state objects for people that are pruned." alt="" coords="245,71,432,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,233,167,178,201,148,238,122,250,116,252,120,241,127,204,152,170,182,119,236"/>
+<area shape="rect" id="Node000005" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#a4a4c3b8c1b879528e4356799a5bca3b9" title="Get the start time of the current bucket." alt="" coords="245,136,432,177"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="140,232,239,187,258,180,260,185,241,192,143,237"/>
+<area shape="rect" id="Node000006" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a8156c7269ff8ea6a19dfeef12c5a1bb1" title="Get the time series data gatherer." alt="" coords="240,201,437,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="192,239,224,235,225,240,193,245"/>
+<area shape="rect" id="Node000007" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad433daea23da24cfde03e0c13ec15e99" title="Check that the person is no longer being modeled." alt="" coords="251,267,426,307"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="193,265,236,271,235,276,192,270"/>
+<area shape="rect" id="Node000009" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a2b41e9260ab8c78bf87a137679c500a9" title="Returns true if the the is an unset first bucket time." alt="" coords="240,332,437,373"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="143,273,241,317,260,324,258,329,239,321,141,278"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a3391c4680b77f33e420de8f1be5d99a9" title=" " alt="" coords="251,421,426,462"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="121,274,174,325,241,382,286,411,283,416,238,386,170,329,118,278"/>
+<area shape="rect" id="Node000011" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a3582fb4bf9861841033549ca61a43e40" title=" " alt="" coords="240,487,437,527"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="110,275,128,316,156,369,194,424,217,449,241,472,248,477,245,481,238,476,213,453,190,427,152,372,123,318,105,277"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a870e50638a0720baf58616db0ba12381" title=" " alt="" coords="485,71,682,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="432,88,469,88,469,94,432,94"/>
+<area shape="rect" id="Node000008" href="$d3/d3b/classml_1_1model_1_1_c_dynamic_string_id_registry.html#aadff4dfa8f362cca7a9f31d3eeea29da" title="Check whether an identifier is active." alt="" coords="493,267,675,307"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="426,284,477,284,477,290,426,290"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="293,421,291,411,298,402,314,397,338,395,364,397,380,403,378,408,363,402,338,400,315,402,301,407,296,413,298,420"/>
+<area shape="rect" id="Node000012" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#a7e062309a949de4c9d61ae904a16c65f" title=" " alt="" coords="485,457,682,498"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="437,493,469,489,470,494,438,498"/>
+<area shape="rect" id="Node000013" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="730,487,878,527"/>
+<area shape="poly" id="edge15_Node000011_Node000013" title=" " alt="" coords="437,506,485,507,682,507,715,507,715,512,682,512,485,512,437,512"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="683,488,716,493,715,498,682,493"/>
+<area shape="rect" id="Node000014" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="926,494,972,520"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="878,504,910,504,910,510,878,510"/>
+</map>

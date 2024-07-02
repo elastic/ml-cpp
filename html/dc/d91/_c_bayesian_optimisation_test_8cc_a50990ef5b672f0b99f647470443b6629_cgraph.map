@@ -1,0 +1,39 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,312,202,338"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="252,5,474,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,311,123,267,153,205,194,138,220,106,248,78,262,67,266,71,251,82,223,110,199,141,157,208,128,269,112,313"/>
+<area shape="rect" id="Node000003" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab632e8fd2b6bf043ed7726e3a6c48668" title="Get the constant factor of the ANOVA decomposition of the Gaussian process." alt="" coords="284,199,442,254"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,309,273,258,274,263,140,314"/>
+<area shape="rect" id="Node000009" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="993,112,1152,152"/>
+<area shape="poly" id="edge18_Node000001_Node000009" title=" " alt="" coords="109,311,129,278,159,236,200,194,223,175,248,160,342,123,442,98,543,84,644,79,741,81,831,88,978,109,977,114,830,93,740,86,644,84,544,89,443,103,344,128,251,165,226,180,203,198,164,240,133,281,114,313"/>
+<area shape="rect" id="Node000010" href="$d0/d57/namespaceanonymous__namespace_02_c_bayesian_optimisation_test_8cc_03.html#a97fcdb70a88de4f9ed0c6a6a54b20138" title=" " alt="" coords="263,329,463,385"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="203,335,248,340,247,346,202,340"/>
+<area shape="rect" id="Node000013" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="533,283,703,309"/>
+<area shape="poly" id="edge17_Node000001_Node000013" title=" " alt="" coords="202,317,517,299,517,304,202,322"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="535,398,701,423"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="126,336,181,367,215,383,250,395,319,408,390,415,519,415,519,421,390,420,319,413,249,400,213,388,178,372,124,341"/>
+<area shape="rect" id="Node000015" href="$d0/d57/namespaceanonymous__namespace_02_c_bayesian_optimisation_test_8cc_03.html#aef51cd62ddb2aaea0580429c73eaaac0" title=" " alt="" coords="524,448,711,504"/>
+<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="121,336,175,379,212,403,251,421,315,442,383,456,509,471,508,476,382,462,314,447,249,426,209,407,172,384,118,340"/>
+<area shape="rect" id="Node000016" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#af8e0be3f74ee47910215dda353dd810f" title=" " alt="" coords="250,510,476,551"/>
+<area shape="poly" id="edge20_Node000001_Node000016" title=" " alt="" coords="115,337,167,409,206,452,251,490,271,501,269,506,248,494,202,456,162,412,111,340"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="313,198,314,188,323,179,339,174,363,172,390,175,406,181,404,186,388,180,363,177,340,179,326,184,319,190,318,198"/>
+<area shape="rect" id="Node000004" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#aa56e37b0e1538d1963615b9e9189c3cd" title=" " alt="" coords="539,203,697,258"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="443,225,523,226,523,232,443,230"/>
+<area shape="rect" id="Node000005" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ab3a224d52c65ca93bacb53b1992ba873" title=" " alt="" coords="773,320,931,376"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="691,256,713,268,737,287,761,306,769,310,766,315,758,310,734,291,710,273,688,261"/>
+<area shape="rect" id="Node000006" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ac3af30f71d1bce0c35edd78cc2a0cf35" title=" " alt="" coords="773,240,931,296"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="698,241,758,250,757,255,697,246"/>
+<area shape="rect" id="Node000008" href="$d1/d92/classml_1_1maths_1_1common_1_1_c_bayesian_optimisation.html#ae8bd58620b57c40bf70bc798d3a17203" title=" " alt="" coords="773,136,931,192"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="697,205,757,188,759,193,698,210"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="809,239,809,230,817,221,831,215,852,213,875,216,889,223,887,228,874,221,852,219,833,221,820,225,814,232,814,240"/>
+<area shape="rect" id="Node000007" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1000,248,1145,288"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="931,265,984,265,984,271,931,271"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="931,150,977,143,977,148,932,155"/>
+<area shape="rect" id="Node000011" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="525,333,710,374"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="463,353,509,352,510,358,463,358"/>
+<area shape="poly" id="edge14_Node000010_Node000013" title=" " alt="" coords="462,331,546,310,547,315,464,336"/>
+<area shape="poly" id="edge15_Node000010_Node000014" title=" " alt="" coords="464,375,538,391,537,397,463,381"/>
+<area shape="poly" id="edge16_Node000010_Node000015" title=" " alt="" coords="421,383,525,433,537,439,535,444,523,438,419,388"/>
+<area shape="rect" id="Node000012" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="759,400,945,440"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="692,372,764,392,763,397,691,377"/>
+</map>

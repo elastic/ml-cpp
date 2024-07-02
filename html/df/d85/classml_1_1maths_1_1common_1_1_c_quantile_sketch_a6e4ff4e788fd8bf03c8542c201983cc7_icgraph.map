@@ -1,0 +1,45 @@
+<map id="ml::maths::common::CQuantileSketch::add" name="ml::maths::common::CQuantileSketch::add">
+<area shape="rect" id="Node000001" title="Add x to the sketch." alt="" coords="527,558,676,599"/>
+<area shape="rect" id="Node000002" href="$d3/ded/classml_1_1maths_1_1time__series_1_1_c_calendar_cyclic_test.html#a04632c1ffdd5a8dd9ca3c784dc96a9a1" title="Add error at time." alt="" coords="273,146,456,187"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="585,544,541,440,511,377,477,316,428,245,382,189,386,185,432,241,481,313,515,374,546,438,590,542"/>
+<area shape="rect" id="Node000009" href="$d7/d16/classml_1_1model_1_1_c_detector_equalizer.html#a3aac213e8d1073fc779c29672c4d13cd" title="Add probability to the detector&#39;s quantile sketch." alt="" coords="250,327,479,352"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="588,544,572,502,549,454,518,407,477,367,456,355,459,351,481,363,522,403,554,452,577,500,593,542"/>
+<area shape="rect" id="Node000013" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#a7ba5da9d0e0fef384a9bcbc681ccb34a" title="Add value to a median statistic." alt="" coords="274,377,455,417"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="579,546,537,487,509,457,478,431,453,419,456,414,480,427,513,453,541,483,584,543"/>
+<area shape="rect" id="Node000014" href="$df/d30/_c_quantile_sketch_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="266,441,463,467"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="569,549,528,513,478,481,450,470,452,465,480,476,531,508,573,545"/>
+<area shape="rect" id="Node000015" href="$de/de4/_c_data_frame_utils_test_8cc.html#a6ebd4965e765c6d346e0eb201be7e641" title=" " alt="" coords="266,491,463,516"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="541,554,478,530,438,519,439,514,480,525,543,549"/>
+<area shape="rect" id="Node000016" href="$df/d30/_c_quantile_sketch_test_8cc.html#aada4e9dfb65eb01bc3c888bc74504617" title=" " alt="" coords="266,540,463,566"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="511,571,463,566,463,561,512,566"/>
+<area shape="rect" id="Node000017" href="$df/d30/_c_quantile_sketch_test_8cc.html#aafa2449815f49c4ce1f8966fd508ff73" title=" " alt="" coords="266,589,463,615"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="512,590,463,595,463,590,511,585"/>
+<area shape="rect" id="Node000018" href="$df/d30/_c_quantile_sketch_test_8cc.html#a165a8a0a48420480575cf5167e473b5e" title=" " alt="" coords="266,639,463,664"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="542,607,480,630,439,641,438,635,478,625,540,602"/>
+<area shape="rect" id="Node000019" href="$df/d30/_c_quantile_sketch_test_8cc.html#a4456284527dfd2ad7edf94269b2a8a32" title=" " alt="" coords="266,688,463,714"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="572,611,531,647,480,679,452,690,450,685,478,674,528,643,569,607"/>
+<area shape="rect" id="Node000020" href="$df/d30/_c_quantile_sketch_test_8cc.html#ad08decf3a8c9ef2fa2e228c43283456d" title=" " alt="" coords="266,737,463,763"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="584,614,542,673,513,703,480,728,458,739,456,734,478,724,510,699,538,670,580,611"/>
+<area shape="rect" id="Node000021" href="$df/d30/_c_quantile_sketch_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="266,787,463,812"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="591,614,575,653,551,697,520,741,481,778,461,788,459,784,477,773,516,738,547,695,570,651,586,612"/>
+<area shape="rect" id="Node000022" href="$df/d30/_c_quantile_sketch_test_8cc.html#a3346855806fb3ba3e950966403fa2dfa" title=" " alt="" coords="266,836,463,862"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="596,615,582,663,560,721,526,778,505,804,481,827,463,838,460,833,477,823,501,801,522,775,555,718,577,661,591,613"/>
+<area shape="rect" id="Node000003" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a37eee8b832f4febaaebc1c9f05f187a9" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="329,137,272,89,237,65,201,45,173,34,175,29,203,40,240,61,275,85,333,133"/>
+<area shape="rect" id="Node000004" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#ad9e2cc94e80c8604915b68ddc3aa5752" title=" " alt="" coords="5,55,202,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="309,141,257,117,201,94,166,84,168,78,203,89,259,112,311,136"/>
+<area shape="rect" id="Node000005" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,104,202,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="257,149,175,133,176,128,258,143"/>
+<area shape="rect" id="Node000006" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a720f1331ae3b8d86f7fcae16e96d541c" title=" " alt="" coords="5,153,202,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="258,169,202,169,202,164,258,164"/>
+<area shape="rect" id="Node000007" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a366733c8c476fd204113d30efcbf97ec" title=" " alt="" coords="5,203,202,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="258,189,176,205,175,199,257,184"/>
+<area shape="rect" id="Node000008" href="$d2/d3a/_c_calendar_cyclic_test_test_8cc.html#a455a37ad76d620e12e26b4a5308fa4c2" title=" " alt="" coords="5,252,202,278"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="311,196,259,221,203,243,168,254,166,249,201,238,257,216,309,191"/>
+<area shape="rect" id="Node000010" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a363628554e093dfa91de613a8214f4d8" title=" " alt="" coords="5,301,202,327"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="234,329,202,326,202,321,234,324"/>
+<area shape="rect" id="Node000011" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a15a2aef056cea23154cfeb07b8b1a390" title=" " alt="" coords="5,351,202,376"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="234,354,202,357,202,352,234,349"/>
+<area shape="rect" id="Node000012" href="$dc/dd6/_c_detector_equalizer_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,400,202,426"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="276,359,251,367,227,379,203,391,168,402,167,397,201,386,224,374,249,362,275,354"/>
+</map>

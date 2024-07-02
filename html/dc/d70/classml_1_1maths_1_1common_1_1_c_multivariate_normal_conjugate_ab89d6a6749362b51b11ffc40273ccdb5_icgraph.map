@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CMultivariateNormalConjugate::randomSampleMeanPrior" name="ml::maths::common::CMultivariateNormalConjugate::randomSampleMeanPrior">
+<area shape="rect" id="Node000001" title="Randomly sample from the marginal over the mean." alt="" coords="250,5,449,61"/>
+<area shape="rect" id="Node000002" href="$d3/dcf/_c_multivariate_normal_conjugate_test_8cc.html#a52d38ad1a8f1b294f4b166e4c5b88fe9" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,36,202,36,202,31,234,31"/>
+</map>

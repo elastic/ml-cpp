@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CKMeansOnline::size" name="ml::maths::common::CKMeansOnline::size">
+<area shape="rect" id="Node000001" title="Get the total number of clusters." alt="" coords="446,74,594,115"/>
+<area shape="rect" id="Node000002" href="$d8/dd1/_c_k_means_online_test_8cc.html#aa95a6a0155244d4095e389b6ceef4c86" title=" " alt="" coords="5,5,202,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="469,69,434,53,397,41,348,31,298,24,202,19,202,13,298,19,349,25,399,36,436,48,471,64"/>
+<area shape="rect" id="Node000003" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#ae901e0099147c0cc81d4b3951148bd07" title=" " alt="" coords="250,74,398,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="431,97,398,97,398,92,431,92"/>
+<area shape="rect" id="Node000005" href="$d5/d5b/classml_1_1maths_1_1common_1_1_c_x_means_online_1_1_c_cluster.html#a810d7b339ac2d556dbad39f33378bd06" title=" " alt="" coords="15,156,192,211"/>
+<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="431,121,399,129,192,171,191,165,397,124,430,116"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="247,71,143,34,144,29,249,66"/>
+<area shape="poly" id="edge6_Node000003_Node000003" title=" " alt="" coords="356,61,344,55,324,52,305,54,294,59,290,65,292,73,286,74,285,64,291,55,304,49,324,47,345,50,358,56"/>
+<area shape="rect" id="Node000004" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_k_means_online.html#a33f2972a4984d4f567f6b13b31e063f5" title="Sanity check split." alt="" coords="11,67,196,108"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="234,103,197,102,197,97,235,98"/>
+<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="258,123,175,158,173,153,256,118"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="212,79,250,81,249,86,212,84"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="139,143,125,137,103,134,84,136,72,141,66,147,65,155,60,155,61,145,69,137,83,131,104,129,127,132,141,138"/>
+</map>

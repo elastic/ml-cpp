@@ -1,0 +1,13 @@
+<map id="ml::maths::time_series::CSeasonalTime::periodic" name="ml::maths::time_series::CSeasonalTime::periodic">
+<area shape="rect" id="Node000001" title="Extract the time of time in the current period." alt="" coords="5,102,181,143"/>
+<area shape="rect" id="Node000002" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a350bd63567cd3401d5c375d9e3bd728f" title="Get the start of the window containing time." alt="" coords="229,102,446,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,120,213,120,213,125,181,125"/>
+<area shape="rect" id="Node000003" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6068afe55b344946a9eb4a1eb91a832b" title="Get the start of the repeat containing time." alt="" coords="494,29,711,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,99,478,85,480,90,424,104"/>
+<area shape="rect" id="Node000004" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a0d1174c2ef0e69bba09af71e7d837fb4" title="Get the start of the window pattern." alt="" coords="759,70,1004,111"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="446,113,744,96,744,101,446,119"/>
+<area shape="rect" id="Node000005" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6584008b4716036277991ff9622c092a" title="Get the start of the window." alt="" coords="502,160,704,200"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="435,141,491,153,490,158,434,146"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="551,29,552,19,561,10,578,5,603,3,630,5,647,12,645,17,629,10,603,8,579,10,564,15,557,21,556,29"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="712,68,744,71,744,77,712,73"/>
+</map>

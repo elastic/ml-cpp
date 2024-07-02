@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CMultivariatePrior::acceptPersistInserter" name="ml::maths::common::CMultivariatePrior::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="199,5,344,61"/>
+<area shape="rect" id="Node000002" href="$de/df9/classml_1_1maths_1_1common_1_1_c_prior_state_serialiser.html#a8d3d67b683105c0cb5d1587bf653b77e" title="Persist state by passing information to the supplied inserter." alt="" coords="5,5,151,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,36,151,36,151,31,183,31"/>
+</map>

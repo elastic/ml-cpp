@@ -1,0 +1,20 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,202,125"/>
+<area shape="rect" id="Node000002" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a05aed0e09ebc58aaeac3c1db73ec37a3" title="Dump the document to string." alt="" coords="250,5,431,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,96,249,55,265,49,267,54,251,60,141,101"/>
+<area shape="rect" id="Node000003" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3aeabebeacfe1261741df6083720583f" title=" " alt="" coords="297,70,384,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,98,281,88,282,93,202,103"/>
+<area shape="rect" id="Node000004" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a46c7e571a9a2cbc6ee7f6e4a887aea55" title="Parse XML stored in a string." alt="" coords="250,120,431,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,121,235,125,234,130,202,127"/>
+<area shape="rect" id="Node000007" href="$d8/dd3/_c_rapid_xml_parser_test_8cc.html#a3efc29603d66ba90bd2ee29bb292f0a9" title=" " alt="" coords="283,189,398,215"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="136,123,251,170,283,181,281,186,249,175,134,128"/>
+<area shape="rect" id="Node000005" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#a9be932821b7abebbf64d4f039fa9f0da" title=" " alt="" coords="479,116,666,157"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="431,136,463,136,463,141,431,141"/>
+<area shape="rect" id="Node000006" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ab2c89e75e515a706b12ae70bfc7337f0" title=" " alt="" coords="714,116,896,157"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="667,134,699,134,699,139,667,139"/>
+<area shape="rect" id="Node000008" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#acdae3fb1fad228ee370274d600291860" title="Return the root element name (empty string if not parsed yet)" alt="" coords="482,181,663,222"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="398,199,466,199,466,204,398,204"/>
+<area shape="rect" id="Node000009" href="$d9/d56/classml_1_1core_1_1_c_rapid_xml_parser.html#ae00a5157623ddcab7acce9a3ea56ae54" title=" " alt="" coords="482,271,663,311"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="377,213,505,262,503,267,375,218"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="529,271,527,261,534,252,549,246,573,244,598,246,613,253,611,258,596,252,573,249,550,251,537,256,532,262,534,269"/>
+</map>

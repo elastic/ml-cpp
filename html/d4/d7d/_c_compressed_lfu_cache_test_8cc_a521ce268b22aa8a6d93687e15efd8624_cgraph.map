@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,202,72"/>
+<area shape="rect" id="Node000002" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,8,435,49"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,44,234,40,235,45,203,49"/>
+<area shape="rect" id="Node000004" href="$d7/d51/classml_1_1core_1_1_c_stop_watch.html#a65e39fed78d188860db1da8d6c29a642" title=" " alt="" coords="255,74,430,100"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="203,68,239,72,238,78,202,73"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,5,668,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="435,25,467,24,467,30,436,30"/>
+<area shape="rect" id="Node000005" href="$d7/d51/classml_1_1core_1_1_c_stop_watch.html#a0a4c7bb4ca488a75565ac936e6a68568" title=" " alt="" coords="501,71,651,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="430,86,485,87,485,92,430,91"/>
+<area shape="rect" id="Node000006" href="$d4/d5d/classml_1_1core_1_1_c_monotonic_time.html#af9bc6485a84eee2bfa186b2e54b0115c" title="Get the number of milliseconds since some fixed point in the past." alt="" coords="716,71,892,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="651,88,701,88,701,94,651,94"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CJointProbabilityOfLessLikelySamples::operator+=" name="ml::maths::common::CJointProbabilityOfLessLikelySamples::operator+=">
+<area shape="rect" id="Node000001" title="Combine two joint probability calculators." alt="" coords="237,5,433,61"/>
+<area shape="rect" id="Node000002" href="$d4/de6/classml_1_1maths_1_1common_1_1_c_log_joint_probability_of_less_likely_samples.html#a7ebb868d65105b12a04049b61fb83f70" title="Combine two log joint probability calculators." alt="" coords="5,5,189,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,36,189,36,189,31,221,31"/>
+</map>

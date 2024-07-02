@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CKdTree::SNode::SNode" name="ml::maths::common::CKdTree::SNode::SNode">
+<area shape="rect" id="Node000001" title="Copy point into place." alt="" coords="809,20,979,61"/>
+<area shape="rect" id="Node000002" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html#a4c16fa5db8d05689da22d5509f156a28" title="Estimate the amount of memory this node will use." alt="" coords="535,13,761,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="794,43,762,43,762,38,794,38"/>
+<area shape="rect" id="Node000003" href="$de/dc9/classml_1_1maths_1_1common_1_1_c_kd_tree.html#a989fa2e6ba47bfeda6f4ecf09f4fee5b" title=" " alt="" coords="271,20,487,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="519,43,487,43,487,38,519,38"/>
+<area shape="rect" id="Node000004" href="$d5/d40/classml_1_1maths_1_1analytics_1_1anonymous__namespace_02_c_outliers_8cc_03_1_1_c_ensemble_1_1_c_model.html#a8d106dbd9228459536e3627ba01267db" title=" " alt="" coords="5,5,223,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="255,43,223,43,223,38,255,38"/>
+</map>

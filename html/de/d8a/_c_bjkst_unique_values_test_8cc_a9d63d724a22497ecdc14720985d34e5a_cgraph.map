@@ -1,0 +1,22 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,202,154"/>
+<area shape="rect" id="Node000002" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ad4d959305c838e2c8955ea0e03b5ab44" title="Add a new value." alt="" coords="257,13,428,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,125,182,95,249,63,262,57,264,62,251,68,184,100,129,130"/>
+<area shape="rect" id="Node000004" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ac4840f48933d59dc70558cf4bcca3c5c" title="Get a checksum for the sketch." alt="" coords="268,77,417,133"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="193,125,252,116,252,121,194,130"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="250,157,435,198"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="194,152,235,158,234,164,193,157"/>
+<area shape="rect" id="Node000008" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#ae9c1327e43694c5cd7c53583e80edae9" title="Efficiently swap the contents of two sketches." alt="" coords="252,226,433,267"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="134,152,251,207,276,217,274,222,249,212,131,157"/>
+<area shape="rect" id="Node000003" href="$d8/dd6/classml_1_1maths_1_1common_1_1_c_bjkst_unique_values.html#a5731251716d0ace36ab40ea0d8d01959" title="Maybe switch to sketching the distinct value set." alt="" coords="501,5,650,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="428,39,485,39,485,45,428,45"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="500,27,443,27,443,22,500,22"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="416,80,485,58,487,63,418,85"/>
+<area shape="rect" id="Node000005" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="499,85,653,126"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="417,103,483,103,483,108,417,108"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="483,153,668,194"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="435,173,467,172,467,178,436,178"/>
+<area shape="rect" id="Node000009" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="537,242,615,267"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="433,247,521,250,521,255,433,252"/>
+<area shape="poly" id="edge11_Node000009_Node000009" title=" " alt="" coords="537,243,529,233,534,223,550,217,576,215,604,218,619,225,616,229,603,223,576,220,551,222,538,227,535,232,541,240"/>
+</map>

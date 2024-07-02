@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CLbfgs::minimumDecrease" name="ml::maths::common::CLbfgs::minimumDecrease">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,186,79"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a8570a3f43637808042bf5373431bb90b" title="Get the inner product of two of our internal vectors." alt="" coords="234,5,379,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,42,218,37,218,42,187,47"/>
+<area shape="rect" id="Node000003" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a70c700087df2fa0e52f38fb15da1f0da" title="Get the Euclidean norm of one of our internal vectors." alt="" coords="234,71,379,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,70,218,75,218,80,186,75"/>
+</map>

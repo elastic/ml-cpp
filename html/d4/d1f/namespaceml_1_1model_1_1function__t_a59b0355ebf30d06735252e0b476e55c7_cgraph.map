@@ -1,0 +1,15 @@
+<map id="ml::model::function_t::isPopulation" name="ml::model::function_t::isPopulation">
+<area shape="rect" id="Node000001" title="Is this function for use with the population models?" alt="" coords="5,71,138,111"/>
+<area shape="rect" id="Node000002" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#a1f7f2573b471fabd80efd3225eed55d8" title="The inverse mapping from features to function." alt="" coords="186,71,318,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,88,170,88,170,94,138,94"/>
+<area shape="rect" id="Node000003" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#abb2b62461ba7b3fcde91fc087dc7cbc6" title="Get the mapping from function to data features." alt="" coords="366,5,498,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="317,73,379,50,381,55,319,78"/>
+<area shape="rect" id="Node000004" href="$d4/d1f/namespaceml_1_1model_1_1function__t.html#aa88a7200c31df8bfe9ff9021e06f86f8" title="Get a string description of function." alt="" coords="366,71,498,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="318,97,351,97,351,103,318,102"/>
+<area shape="rect" id="Node000005" href="$df/d9c/namespaceml_1_1model__t.html#ada583ac75540d0fcaac3a90317bafd3e" title="Get a string description of a model type." alt="" coords="371,136,493,161"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="319,109,375,128,374,133,317,114"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="366,44,305,67,303,62,364,39"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="366,85,333,85,333,79,366,80"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="546,136,593,161"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="494,146,531,146,531,151,494,151"/>
+</map>

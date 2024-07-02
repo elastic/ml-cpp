@@ -1,0 +1,27 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,168,202,194"/>
+<area shape="rect" id="Node000002" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="291,24,451,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,166,173,121,210,96,249,75,275,64,277,69,251,80,212,101,176,126,121,170"/>
+<area shape="rect" id="Node000003" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="278,89,464,130"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,165,249,139,276,131,277,136,250,144,154,170"/>
+<area shape="rect" id="Node000011" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a45b74921f0f00f81037a3dbfc16c75eb" title=" " alt="" coords="250,153,492,209"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="202,179,234,179,234,184,202,184"/>
+<area shape="rect" id="Node000012" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="291,233,451,274"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="154,192,250,219,277,226,276,231,249,224,152,197"/>
+<area shape="rect" id="Node000013" href="$dd/d2b/namespaceanonymous__namespace_02_c_k_means_online_test_8cc_03.html#a4ee50d9dc848a96e827e995d783f4bfa" title=" " alt="" coords="290,297,452,353"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="122,192,177,236,251,283,277,294,274,299,248,288,173,240,118,196"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="540,61,725,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="464,97,524,90,525,95,464,102"/>
+<area shape="rect" id="Node000005" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="544,126,721,151"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="464,117,529,124,529,130,464,122"/>
+<area shape="rect" id="Node000006" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="773,126,951,151"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="722,136,758,136,758,141,722,141"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="999,5,1179,61"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="890,123,998,71,1009,66,1011,70,1000,76,892,127"/>
+<area shape="rect" id="Node000008" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="999,85,1179,126"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="951,123,983,118,984,123,952,128"/>
+<area shape="rect" id="Node000009" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1016,150,1162,191"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="952,148,1001,156,1001,161,951,154"/>
+<area shape="rect" id="Node000010" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1006,216,1172,256"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="891,149,1000,200,1017,207,1015,212,998,205,889,154"/>
+</map>

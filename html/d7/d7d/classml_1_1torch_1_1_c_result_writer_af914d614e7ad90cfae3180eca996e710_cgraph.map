@@ -1,0 +1,30 @@
+<map id="ml::torch::CResultWriter::writeTensor" name="ml::torch::CResultWriter::writeTensor">
+<area shape="rect" id="Node000001" title="Write an N dimensional tensor for N &gt; 1." alt="" coords="5,120,168,161"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a246c715fce171f5dec05d1215ca9acf6" title=" " alt="" coords="674,5,857,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,117,215,106,320,84,426,66,658,35,659,40,426,71,321,89,216,111,169,122"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a2824b45bbf5a6f03b0831b22a8c1d15b" title=" " alt="" coords="426,213,608,254"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="169,158,216,170,411,211,410,216,215,175,168,164"/>
+<area shape="rect" id="Node000007" href="$d7/d7d/classml_1_1torch_1_1_c_result_writer.html#aee5c1e777bf9bb0e14917e17d747780a" title="Write a one dimensional tensor." alt="" coords="216,120,378,161"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="168,138,200,138,200,143,168,143"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="923,96,1105,137"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="827,44,876,62,944,88,943,93,874,67,825,49"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="923,19,1105,59"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="857,28,907,31,907,36,857,33"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="599,252,662,262,733,265,805,258,840,249,873,235,890,223,898,208,906,190,921,172,959,143,962,147,925,176,911,193,903,210,894,226,876,240,842,254,806,263,733,271,661,267,598,257"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="923,272,1105,313"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="568,252,611,267,657,279,721,288,786,293,907,295,907,300,786,299,720,293,656,284,609,272,566,257"/>
+<area shape="poly" id="edge8_Node000007_Node000002" title=" " alt="" coords="378,118,425,106,662,48,664,53,427,111,379,123"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="348,159,454,204,452,209,346,164"/>
+<area shape="rect" id="Node000008" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1bdc20a46a6253d07785ae8678c00fb8" title=" " alt="" coords="426,120,608,161"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="379,138,410,138,410,143,379,143"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="594,117,656,106,721,101,786,99,907,104,907,109,786,105,721,106,657,111,595,122"/>
+<area shape="rect" id="Node000009" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="656,120,875,161"/>
+<area shape="poly" id="edge12_Node000008_Node000009" title=" " alt="" coords="609,138,641,138,641,143,609,143"/>
+<area shape="rect" id="Node000010" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="692,185,839,226"/>
+<area shape="poly" id="edge16_Node000008_Node000010" title=" " alt="" coords="598,159,677,180,676,185,597,164"/>
+<area shape="poly" id="edge13_Node000009_Node000003" title=" " alt="" coords="875,127,907,124,907,129,876,132"/>
+<area shape="poly" id="edge15_Node000009_Node000004" title=" " alt="" coords="817,117,947,63,949,68,819,122"/>
+<area shape="poly" id="edge14_Node000009_Node000006" title=" " alt="" coords="854,159,876,172,893,187,902,203,910,219,924,236,959,261,956,266,921,240,906,222,897,206,889,191,873,176,851,163"/>
+<area shape="rect" id="Node000011" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="945,185,1083,226"/>
+<area shape="poly" id="edge17_Node000010_Node000011" title=" " alt="" coords="839,203,929,203,929,208,839,208"/>
+</map>

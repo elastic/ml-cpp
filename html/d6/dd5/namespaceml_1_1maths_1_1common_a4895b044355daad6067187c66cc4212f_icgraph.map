@@ -1,0 +1,57 @@
+<map id="ml::maths::common::quantile" name="ml::maths::common::quantile">
+<area shape="rect" id="Node000001" title="Compute the q&#39;th quantile for distribution." alt="" coords="787,327,933,368"/>
+<area shape="rect" id="Node000002" href="$db/d32/_c_q_digest_test_8cc.html#a342185518fbfd6db4dcfb6bc323c0879" title=" " alt="" coords="519,5,715,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="853,312,843,252,823,179,808,142,789,106,766,73,738,44,714,30,716,26,741,40,770,69,794,103,813,140,828,178,848,251,858,311"/>
+<area shape="rect" id="Node000003" href="$de/de4/_c_data_frame_utils_test_8cc.html#af1d472a8beddac219eef733199c2cc37" title=" " alt="" coords="519,55,715,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="850,312,837,262,816,202,783,143,762,116,738,94,714,80,716,76,741,89,766,113,788,140,821,200,843,261,855,311"/>
+<area shape="rect" id="Node000004" href="$de/de4/_c_data_frame_utils_test_8cc.html#ac04f50b5356c12127872ae7f2156df61" title=" " alt="" coords="519,104,715,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="846,313,831,273,808,226,777,181,738,143,714,130,716,126,741,139,781,177,813,223,836,270,851,311"/>
+<area shape="rect" id="Node000005" href="$db/dcc/_c_anomaly_score_test_8cc.html#a99a610f377a192869df12de832f96767" title=" " alt="" coords="519,153,715,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="840,315,799,251,771,219,738,192,714,181,716,176,741,188,775,215,804,248,845,312"/>
+<area shape="rect" id="Node000006" href="$db/dcc/_c_anomaly_score_test_8cc.html#a3762211201633346d940bcce73429185" title=" " alt="" coords="519,203,715,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="830,317,789,277,765,258,738,242,711,231,713,226,741,237,768,253,793,273,834,314"/>
+<area shape="rect" id="Node000007" href="$d8/d5a/_c_log_t_distribution_test_8cc.html#aa780a7daebf57fb8ecf4ea8055217e7c" title=" " alt="" coords="519,252,715,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="808,322,738,291,700,281,702,276,740,286,811,317"/>
+<area shape="rect" id="Node000008" href="$d8/d5a/_c_log_t_distribution_test_8cc.html#a4afeda83b720e8029d1db70cd82e2ec6" title=" " alt="" coords="519,301,715,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="772,338,715,330,715,325,772,333"/>
+<area shape="rect" id="Node000009" href="$dd/d66/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_impl.html#acbc195fb61730ab3879bac6165a4e861" title="Get the candidate splits values for each feature." alt="" coords="516,352,718,407"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="772,362,719,369,718,364,772,356"/>
+<area shape="rect" id="Node000010" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a149c9aa91b8ebefa1a885258523607f7" title=" " alt="" coords="529,431,704,472"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="819,379,781,401,740,422,705,434,704,429,738,417,779,397,816,374"/>
+<area shape="rect" id="Node000011" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#ae3ef2decd4c12fca2c86d239e42d5457" title=" " alt="" coords="494,496,739,551"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="839,382,798,435,771,462,741,486,720,497,717,493,738,481,767,458,794,432,835,379"/>
+<area shape="rect" id="Node000014" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad77aec8a516fe210bf7e6e10297f04f2" title=" " alt="" coords="528,576,705,602"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="852,383,837,426,814,475,783,524,763,547,741,566,707,583,704,578,738,561,759,543,778,521,810,473,832,424,847,381"/>
+<area shape="rect" id="Node000015" href="$d4/d6b/classml_1_1model_1_1_c_anomaly_score_1_1_c_normalizer.html#ae130e54ae625378127bfb16d3ca047a9" title=" " alt="" coords="526,626,707,667"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="855,384,843,436,821,499,788,562,766,591,741,616,709,635,706,630,738,612,762,587,783,559,816,497,838,435,850,383"/>
+<area shape="rect" id="Node000027" href="$d0/d80/structml_1_1maths_1_1common_1_1anonymous__namespace_02_c_mixture_distribution_8cc_03_1_1_s_quantile.html#a40cb701085c415d924d646abc7479dd9" title=" " alt="" coords="529,691,704,762"/>
+<area shape="poly" id="edge26_Node000001_Node000027" title=" " alt="" coords="858,384,848,447,827,525,812,567,793,607,770,646,741,680,706,705,703,700,738,676,765,643,788,605,807,565,822,524,843,446,853,383"/>
+<area shape="rect" id="Node000028" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad68b0196d3b447bdea1c1e22e61e652b" title=" " alt="" coords="544,786,689,827"/>
+<area shape="poly" id="edge27_Node000001_Node000028" title=" " alt="" coords="862,383,859,463,843,568,828,624,807,679,778,730,741,775,718,791,691,802,689,797,715,787,738,771,774,727,802,676,823,622,838,567,854,463,857,383"/>
+<area shape="rect" id="Node000012" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a55bbf7636623fd2a7f99058f166e8005" title=" " alt="" coords="250,411,446,436"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="504,492,493,486,469,467,445,450,417,439,419,434,447,445,472,463,495,481,507,487"/>
+<area shape="rect" id="Node000013" href="$d7/dc7/_c_log_normal_mean_prec_conjugate_test_8cc.html#a8189fb6a14d4275d48dcc0dc1207fc17" title=" " alt="" coords="250,460,446,486"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="478,500,419,489,420,484,479,495"/>
+<area shape="rect" id="Node000016" href="$db/dcc/_c_anomaly_score_test_8cc.html#ae114264c7ba113ad53554ceb8c0d6160" title=" " alt="" coords="250,509,446,535"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="510,627,492,616,476,599,468,581,460,564,444,548,425,538,427,533,448,544,464,561,472,579,480,596,496,612,513,622"/>
+<area shape="rect" id="Node000017" href="$db/dcc/_c_anomaly_score_test_8cc.html#a481ea2d7a9a12b38aeb56d775fcc8439" title=" " alt="" coords="250,559,446,584"/>
+<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="515,624,493,617,445,598,408,587,409,582,447,593,495,612,517,618"/>
+<area shape="rect" id="Node000018" href="$db/dcc/_c_anomaly_score_test_8cc.html#ab858b89cfa840c047b0052e6fa11ae92" title=" " alt="" coords="250,608,446,634"/>
+<area shape="poly" id="edge17_Node000015_Node000018" title=" " alt="" coords="510,639,446,633,447,627,511,634"/>
+<area shape="rect" id="Node000019" href="$db/dcc/_c_anomaly_score_test_8cc.html#ac6f92dfdc2c7155262fbc1fa7a6f9c9b" title=" " alt="" coords="250,657,446,683"/>
+<area shape="poly" id="edge18_Node000015_Node000019" title=" " alt="" coords="511,658,447,664,446,659,510,653"/>
+<area shape="rect" id="Node000020" href="$db/dcc/_c_anomaly_score_test_8cc.html#a206765bd17937656a77564435f281407" title=" " alt="" coords="250,707,446,732"/>
+<area shape="poly" id="edge19_Node000015_Node000020" title=" " alt="" coords="518,674,495,681,447,698,409,709,407,703,445,693,493,676,517,669"/>
+<area shape="rect" id="Node000021" href="$db/dcc/_c_anomaly_score_test_8cc.html#aee390ef4c32d155058a3b39238cf5a3b" title=" " alt="" coords="250,756,446,782"/>
+<area shape="poly" id="edge20_Node000015_Node000021" title=" " alt="" coords="513,670,496,680,480,696,472,713,464,730,448,747,427,758,424,753,444,743,460,727,468,710,476,693,492,676,510,666"/>
+<area shape="rect" id="Node000022" href="$db/dcc/_c_anomaly_score_test_8cc.html#a7f4980c7ed547f1d9a03fcc64706f91e" title=" " alt="" coords="250,805,446,831"/>
+<area shape="poly" id="edge21_Node000015_Node000022" title=" " alt="" coords="514,668,496,680,484,694,477,707,473,737,468,767,461,782,448,796,431,807,428,802,444,792,456,779,463,765,467,736,472,706,479,691,492,676,510,664"/>
+<area shape="rect" id="Node000023" href="$d0/d02/classml_1_1api_1_1_c_result_normalizer.html#a29f8ba360b99d9cb76efcfc345e8c0ea" title="Handle a record to be normalized." alt="" coords="258,855,438,896"/>
+<area shape="poly" id="edge22_Node000015_Node000023" title=" " alt="" coords="513,667,496,680,481,700,473,719,472,760,471,802,463,824,448,845,434,857,431,852,444,842,459,822,466,801,467,760,468,718,476,697,492,676,510,663"/>
+<area shape="rect" id="Node000024" href="$d6/dbc/_c_result_normalizer_test_8cc.html#a12d34b0229b9e8638d007b7c863d3e03" title=" " alt="" coords="5,813,202,839"/>
+<area shape="poly" id="edge23_Node000023_Node000024" title=" " alt="" coords="242,857,170,842,171,837,243,852"/>
+<area shape="rect" id="Node000025" href="$d6/dbc/_c_result_normalizer_test_8cc.html#aeef8465b7684a4e2f933f8f6490067f6" title=" " alt="" coords="5,863,202,888"/>
+<area shape="poly" id="edge24_Node000023_Node000025" title=" " alt="" coords="243,878,202,878,202,873,243,873"/>
+<area shape="rect" id="Node000026" href="$da/d21/bin_2normalize_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Normalise anomaly scores and/or probabilties in results." alt="" coords="79,912,128,938"/>
+<area shape="poly" id="edge25_Node000023_Node000026" title=" " alt="" coords="243,899,129,923,128,917,242,894"/>
+</map>

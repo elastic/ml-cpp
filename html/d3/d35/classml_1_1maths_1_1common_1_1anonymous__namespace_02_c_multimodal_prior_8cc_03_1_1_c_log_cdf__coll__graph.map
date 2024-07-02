@@ -1,0 +1,13 @@
+<map id="ml::maths::common::anonymous_namespace{CMultimodalPrior.cc}::CLogCdf" name="ml::maths::common::anonymous_namespace{CMultimodalPrior.cc}::CLogCdf">
+<area shape="rect" id="Node000001" title="Wrapper of CMultimodalPrior::minusLogJointCdf function for use with our solver." alt="" coords="92,303,255,373"/>
+<area shape="rect" id="Node000002" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html" title="Implementation for a multimodal prior distribution." alt="" coords="13,199,158,240"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,250,149,300,145,304,107,254"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html" title="Interface for a prior distribution function." alt="" coords="13,109,158,150"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="88,165,88,199,83,199,83,165"/>
+<area shape="rect" id="Node000004" href="$d5/d2c/classml_1_1core_1_1_c_float_storage.html" title="This class should be used in place of float whenever that class is required." alt="" coords="5,5,166,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="88,47,88,109,83,109,83,47"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="183,199,340,240"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="240,254,202,304,198,300,236,250"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="185,109,338,150"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="264,165,264,199,259,199,259,165"/>
+</map>

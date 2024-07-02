@@ -1,0 +1,14 @@
+<map id="ml::maths::common::CKMeansOnline1d::add" name="ml::maths::common::CKMeansOnline1d::add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,165,103"/>
+<area shape="rect" id="Node000002" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#a50506d8b4237c138dcb37d41d2ec71b4" title=" " alt="" coords="213,5,390,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,60,206,48,208,53,165,65"/>
+<area shape="rect" id="Node000003" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#ac182665ede711777946c74c2847cdb98" title=" " alt="" coords="438,27,618,67"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="165,74,422,53,423,58,165,79"/>
+<area shape="rect" id="Node000005" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="216,121,387,147"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="166,99,230,114,228,119,165,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="391,31,423,34,422,40,390,37"/>
+<area shape="rect" id="Node000004" href="$dc/ddd/classml_1_1maths_1_1common_1_1_c_k_means_online1d.html#ad26de20c50dddbd59faf76329fb1342b" title="Check if the cluster identified by index exists." alt="" coords="666,27,868,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="619,44,651,44,651,50,619,50"/>
+<area shape="rect" id="Node000006" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="439,113,618,154"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="387,131,423,131,423,136,387,136"/>
+</map>

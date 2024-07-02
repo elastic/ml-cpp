@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CKMeansPlusPlusInitialization&lt; POINT, RNG &gt;" name="ml::maths::common::CKMeansPlusPlusInitialization&lt; POINT, RNG &gt;">
+<area shape="rect" id="Node000001" title="Implements &quot;Arthur and Vassilvitskii&quot;&#39;s seed scheme for initializing the centres for k&#45;means." alt="" coords="5,79,206,135"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="23,5,188,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,47,108,78,103,78,103,47"/>
+</map>

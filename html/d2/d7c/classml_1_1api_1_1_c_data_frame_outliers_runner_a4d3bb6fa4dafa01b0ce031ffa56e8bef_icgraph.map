@@ -1,0 +1,7 @@
+<map id="ml::api::CDataFrameOutliersRunner::numberExtraColumns" name="ml::api::CDataFrameOutliersRunner::numberExtraColumns">
+<area shape="rect" id="Node000001" title=" " alt="" coords="268,39,465,79"/>
+<area shape="rect" id="Node000002" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a587a9336d60f97cbc10aa66a6c455c82" title=" " alt="" coords="5,5,220,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,47,220,42,220,37,253,41"/>
+<area shape="rect" id="Node000003" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a834cbb4f8160296bad2c05f142abac91" title="Write the extra columns of row added by outlier analysis to writer." alt="" coords="18,71,207,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="253,76,208,82,207,76,252,71"/>
+</map>

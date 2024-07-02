@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTrendComponent::weightOfPrediction" name="ml::maths::time_series::CTrendComponent::weightOfPrediction">
+<area shape="rect" id="Node000001" title="Get the weight to assign to the prediction verses the long term mean." alt="" coords="5,39,263,79"/>
+<area shape="rect" id="Node000002" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="311,5,472,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="263,40,295,35,295,41,263,45"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0a0e9c67bd96f53dfc7cadaad150b12f" title="Compute the maximum of first, second and third." alt="" coords="315,71,468,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="263,72,300,77,299,82,263,78"/>
+</map>

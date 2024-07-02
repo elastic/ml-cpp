@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CModel::cloneForPersistence" name="ml::maths::common::CModel::cloneForPersistence">
+<area shape="rect" id="Node000001" title="Create a copy of the state we need to persist passing ownership to the caller." alt="" coords="286,71,479,111"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a459968f90f5bcd182e03c1b832eb906d" title=" " alt="" coords="5,5,238,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="283,69,205,49,206,44,284,64"/>
+<area shape="rect" id="Node000003" href="$d1/d04/classml_1_1model_1_1_c_individual_model.html#ab61f4da91a037df1d528610a23128486" title=" " alt="" coords="28,71,215,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="270,94,215,94,215,88,270,88"/>
+<area shape="rect" id="Node000004" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a1a2e74445fca492090e7d8b34da78123" title=" " alt="" coords="18,136,225,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="284,118,206,138,205,133,283,113"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="anonymous_namespace{CProbabilityAggregatorsTest.cc}::CExpectedLogProbabilityOfMFromNExtremeSamples" name="anonymous_namespace{CProbabilityAggregatorsTest.cc}::CExpectedLogProbabilityOfMFromNExtremeSamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="604,34,895,105"/>
+<area shape="rect" id="Node000002" href="$d2/d5b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_heap.html" title=" " alt="" coords="301,41,525,97"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="540,67,604,67,604,72,540,72"/>
+<area shape="rect" id="Node000003" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title="Implementation of an accumulator class for order statistics." alt="" coords="16,5,241,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="256,47,301,52,300,58,256,52"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,85,252,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="267,85,300,81,301,86,268,90"/>
+</map>

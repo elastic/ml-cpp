@@ -1,0 +1,5 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeRunner::rowsToWriteMask" name="ml::api::CDataFrameTrainBoostedTreeRunner::rowsToWriteMask">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,255,46"/>
+<area shape="rect" id="Node000002" href="$df/d4a/classml_1_1core_1_1_c_data_frame.html#a13f738efd26d63a32d55ed062c067000" title="Get the number of rows in the data frame." alt="" coords="303,5,454,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,23,287,23,287,28,255,28"/>
+</map>

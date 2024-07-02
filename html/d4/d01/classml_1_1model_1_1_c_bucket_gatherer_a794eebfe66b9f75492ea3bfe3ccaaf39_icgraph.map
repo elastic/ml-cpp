@@ -1,0 +1,12 @@
+<map id="ml::model::CBucketGatherer::hiddenTimeNow" name="ml::model::CBucketGatherer::hiddenTimeNow">
+<area shape="rect" id="Node000001" title="Roll time forwards to time and update depending on skipUpdates." alt="" coords="476,39,663,79"/>
+<area shape="rect" id="Node000002" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a1ebd713642b3d06181ef9e3918d58d23" title=" " alt="" coords="5,5,193,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,54,193,35,193,30,461,49"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#abe46e29f02e5375f64140e341c69c954" title="Roll time forwards to time." alt="" coords="241,67,428,107"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="461,75,429,78,428,73,460,69"/>
+<area shape="poly" id="edge5_Node000003_Node000002" title=" " alt="" coords="238,65,179,49,180,44,239,60"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a896551d23ca47a230a0baaa92e62debd" title="Record the arrival of data at time." alt="" coords="5,71,193,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="225,92,193,92,193,87,225,86"/>
+<area shape="rect" id="Node000005" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a97be85d4969fb5b279c5b82a90162d3a" title="Roll time to the end of the bucket that is latency after the sampled bucket." alt="" coords="5,136,193,177"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="249,115,171,138,170,133,247,110"/>
+</map>

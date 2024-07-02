@@ -1,0 +1,16 @@
+<map id="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::addRowDerivatives" name="ml::maths::analytics::CBoostedTreeLeafNodeStatistics::addRowDerivatives">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,125,230,181"/>
+<area shape="rect" id="Node000002" href="$d3/d80/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_splits_derivatives.html#a34e7cdbb255f546e6da35a722efef30e" title=" " alt="" coords="278,5,511,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,122,277,71,292,64,294,69,279,76,172,127"/>
+<area shape="rect" id="Node000003" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a6705414e150d4a2f8d67c5dcbdda6aba" title="Get a writable pointer to the start of the row split indices." alt="" coords="323,85,466,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,134,307,123,308,128,230,140"/>
+<area shape="rect" id="Node000005" href="$dc/d04/classml_1_1maths_1_1analytics_1_1_c_packed_u_int8_decorator.html#a2ee31eb372d5fb8784b810b94fb67415" title=" " alt="" coords="308,165,481,221"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="230,167,294,176,293,181,230,172"/>
+<area shape="rect" id="Node000006" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a04631b8c8e05b4bf4556073adfbe4cc8" title="Read all the loss derivatives from row into an aligned vector." alt="" coords="320,245,469,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="172,179,279,231,306,242,305,247,277,236,170,184"/>
+<area shape="rect" id="Node000004" href="$d1/d14/classml_1_1core_1_1data__frame__detail_1_1_c_row_ref.html#ad63cad75c646def99c9f7f75937121a9" title="Get the data backing the row." alt="" coords="584,137,742,178"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="466,122,569,139,568,144,466,127"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="468,247,510,231,609,183,612,188,512,236,470,252"/>
+<area shape="rect" id="Node000007" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#aa1634782613c2cf419bab42c6df47e33" title="Get the size of upper triangle of the loss Hessain." alt="" coords="559,245,767,301"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="469,271,544,271,544,276,469,276"/>
+</map>

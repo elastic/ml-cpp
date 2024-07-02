@@ -1,0 +1,6 @@
+<map id="ml::maths::time_series::CSeasonalTime::startOfWindowRepeat" name="ml::maths::time_series::CSeasonalTime::startOfWindowRepeat">
+<area shape="rect" id="Node000001" title="Get the start of the repeat containing time." alt="" coords="5,29,223,85"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="60,29,61,19,70,10,88,5,114,3,144,5,162,12,160,17,142,11,114,8,89,10,73,15,65,21,65,29"/>
+<area shape="rect" id="Node000002" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a0d1174c2ef0e69bba09af71e7d837fb4" title="Get the start of the window pattern." alt="" coords="271,37,515,78"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="223,55,255,55,255,60,223,60"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::api::CPersistenceManager" name="ml::api::CPersistenceManager">
+<area shape="rect" id="Node000001" title="Manages the details of persisting data where the data adder may optionally run in a different thread." alt="" coords="5,79,203,105"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="21,5,187,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,46,107,79,101,79,101,46"/>
+</map>

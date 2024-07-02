@@ -1,0 +1,8 @@
+<map id="ml::model::CAnomalyDetectorModelConfig::detectionRules" name="ml::model::CAnomalyDetectorModelConfig::detectionRules">
+<area shape="rect" id="Node000001" title="Sets the reference to the detection rules map." alt="" coords="391,29,588,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="534,16,517,10,490,8,464,10,448,15,443,21,445,28,440,29,437,19,446,10,463,5,490,3,518,5,535,11"/>
+<area shape="rect" id="Node000002" href="$d9/da7/classml_1_1api_1_1_c_anomaly_job_config_1_1_c_analysis_config.html#a1e673ac1f4a8db21551ec600e9dc8945" title=" " alt="" coords="103,29,343,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="375,52,343,52,343,47,375,47"/>
+<area shape="rect" id="Node000003" href="$d2/dab/bin_2autodetect_2_main_8cc.html#a3c04138a5bfe5d72780bb7e82a18e627" title="Analyse event rates and metric time series for anomalies." alt="" coords="5,37,55,63"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="87,52,55,52,55,47,87,47"/>
+</map>

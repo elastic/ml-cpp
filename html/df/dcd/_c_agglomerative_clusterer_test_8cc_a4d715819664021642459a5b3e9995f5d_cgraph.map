@@ -1,0 +1,22 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,300,202,326"/>
+<area shape="rect" id="Node000002" href="$d5/df1/namespaceanonymous__namespace_02_c_agglomerative_clusterer_test_8cc_03.html#ab8d1555f71c0183b016a17e25fdfd1f9" title=" " alt="" coords="250,104,446,160"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,298,295,167,298,171,124,302"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="255,221,441,262"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="149,297,261,264,262,269,150,302"/>
+<area shape="rect" id="Node000008" href="$d7/d20/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer.html#ae48b940b4c763bf26c36b91f60a31a76" title=" " alt="" coords="264,285,432,341"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="202,311,249,311,249,316,202,316"/>
+<area shape="rect" id="Node000009" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="258,365,438,406"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="150,324,262,357,261,362,149,329"/>
+<area shape="rect" id="Node000010" href="$d7/d20/classml_1_1maths_1_1common_1_1_c_agglomerative_clusterer.html#af2dccff384cd685088f8d56497e3bf27" title=" " alt="" coords="251,430,445,471"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="122,325,177,368,251,415,265,422,263,426,248,420,174,372,119,329"/>
+<area shape="rect" id="Node000003" href="$de/da2/classanonymous__namespace_02_c_agglomerative_clusterer_test_8cc_03_1_1_c_cluster.html#afb02a9ad7f24af230c5fed28ca84f7b7" title=" " alt="" coords="494,5,690,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,101,506,65,508,70,419,106"/>
+<area shape="rect" id="Node000004" href="$de/da2/classanonymous__namespace_02_c_agglomerative_clusterer_test_8cc_03_1_1_c_cluster.html#ad41e35531d05dd1035f2ef3f84af4c06" title=" " alt="" coords="494,85,690,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="446,122,478,119,479,125,447,127"/>
+<area shape="rect" id="Node000005" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="553,190,631,215"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="447,158,539,184,537,190,446,163"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="552,191,544,181,549,171,565,165,592,163,623,166,638,173,635,178,621,171,592,168,566,170,552,175,549,180,556,188"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="500,240,685,280"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="441,246,484,249,484,254,441,251"/>
+</map>

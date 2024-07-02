@@ -1,0 +1,10 @@
+<map id="ml::maths::common::CBasicStatistics::covariances" name="ml::maths::common::CBasicStatistics::covariances">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,203,79"/>
+<area shape="rect" id="Node000002" href="$db/d5d/namespaceml_1_1maths_1_1common_1_1las.html#a92aae861f23cd3021cc276aeb9dbf89d" title="Get the dimension of one of our internal vectors." alt="" coords="251,5,396,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,41,235,36,236,42,203,47"/>
+<area shape="rect" id="Node000003" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a8d5dbb77e3307e72f667c8c5ad4a53e1" title="Scale the i&#39;th row and column by scale." alt="" coords="251,71,396,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,71,236,76,235,81,203,76"/>
+<area shape="rect" id="Node000004" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="444,78,518,104"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="396,88,429,88,429,94,396,94"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="454,79,449,70,452,60,463,54,481,52,500,54,511,61,508,65,499,59,481,57,465,59,456,63,454,69,459,76"/>
+</map>

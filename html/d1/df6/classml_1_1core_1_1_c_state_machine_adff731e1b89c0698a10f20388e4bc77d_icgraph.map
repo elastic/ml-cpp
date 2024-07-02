@@ -1,0 +1,16 @@
+<map id="ml::core::CStateMachine::state" name="ml::core::CStateMachine::state">
+<area shape="rect" id="Node000001" title="Get the current state of the machine." alt="" coords="464,60,630,100"/>
+<area shape="rect" id="Node000002" href="$d4/d99/_c_state_machine_test_8cc.html#a6131ef48578579de807e302fa76d331f" title=" " alt="" coords="5,34,202,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="501,54,460,33,415,17,380,11,343,9,270,12,203,23,149,36,148,31,202,18,269,7,343,3,380,6,417,12,462,28,503,49"/>
+<area shape="rect" id="Node000003" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#adfe89e292e16d0b2fb00e6dcb178999d" title=" " alt="" coords="250,92,416,132"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="449,98,417,102,416,97,448,92"/>
+<area shape="rect" id="Node000005" href="$d2/d37/classanonymous__namespace_02_c_state_machine_test_8cc_03_1_1_c_test_thread.html#a1698b48b5dd6802edc079db5fe82becf" title=" " alt="" coords="22,142,185,197"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="500,111,461,131,417,147,357,160,296,168,185,174,185,168,295,163,356,155,415,142,458,126,498,106"/>
+<area shape="rect" id="Node000006" href="$d1/df6/classml_1_1core_1_1_c_state_machine.html#a4abbb8417be16b60282f9dbfa22848cc" title="Print state." alt="" coords="250,26,416,67"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="448,67,416,62,417,57,449,62"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="244,90,151,63,152,58,246,85"/>
+<area shape="rect" id="Node000004" href="$d4/d99/_c_state_machine_test_8cc.html#a1d68c9c9ad2692e9d6ddacc5a88211ac" title=" " alt="" coords="5,91,202,117"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="234,111,202,110,202,105,234,106"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="235,139,186,152,184,147,234,134"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="234,49,202,49,202,44,234,44"/>
+</map>

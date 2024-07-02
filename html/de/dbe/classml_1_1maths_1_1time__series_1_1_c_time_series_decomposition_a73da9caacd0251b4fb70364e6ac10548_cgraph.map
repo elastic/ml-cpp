@@ -1,0 +1,8 @@
+<map id="ml::maths::time_series::CTimeSeriesDecomposition::decayRate" name="ml::maths::time_series::CTimeSeriesDecomposition::decayRate">
+<area shape="rect" id="Node000001" title="Set the decay rate." alt="" coords="5,39,198,94"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a5881e96ad769ff712162854e06e266ed" title="Get the decay rate." alt="" coords="246,5,438,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,50,230,46,231,51,199,56"/>
+<area shape="rect" id="Node000003" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a1d06b557f487ccc502cc0dd762bce0b8" title="Set the decay rate." alt="" coords="486,39,712,94"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="198,69,246,71,438,71,471,70,471,75,438,76,246,76,198,74"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,43,471,47,470,52,438,48"/>
+</map>

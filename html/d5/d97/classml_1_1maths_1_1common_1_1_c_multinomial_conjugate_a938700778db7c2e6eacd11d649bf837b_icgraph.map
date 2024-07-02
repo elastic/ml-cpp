@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultinomialConjugate::concentrations" name="ml::maths::common::CMultinomialConjugate::concentrations">
+<area shape="rect" id="Node000001" title="Get the concentrations." alt="" coords="273,31,429,87"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#ab67106c4d3aad8198aaa5a855adc4381" title=" " alt="" coords="18,5,212,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,49,212,42,212,37,258,43"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af69c2e5f1982375ccfe0bd8dea2f37ee" title=" " alt="" coords="5,71,225,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,74,226,79,225,73,257,69"/>
+</map>

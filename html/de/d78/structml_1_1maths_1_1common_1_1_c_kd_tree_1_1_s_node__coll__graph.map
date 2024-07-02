@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CKdTree&lt; POINT, NODE_DATA &gt;::SNode" name="ml::maths::common::CKdTree&lt; POINT, NODE_DATA &gt;::SNode">
+<area shape="rect" id="Node000001" title="A node of the k&#45;d tree." alt="" coords="5,229,177,285"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="36,5,136,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,46,93,228,88,229,84,47"/>
+<area shape="rect" id="Node000003" href="$db/d02/structml_1_1maths_1_1common_1_1_c_kd_tree_1_1_s_node.html" title="A node of the k&#45;d tree." alt="" coords="107,80,278,136"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="114,39,161,78,158,82,110,43"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,151,112,230,108,227,163,148"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="295,100,305,108,297,116,279,120,278,115,294,112,299,108,292,104"/>
+</map>

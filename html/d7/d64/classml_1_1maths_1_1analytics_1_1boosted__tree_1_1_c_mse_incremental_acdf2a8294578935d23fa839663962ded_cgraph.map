@@ -1,0 +1,11 @@
+<map id="ml::maths::analytics::boosted_tree::CMseIncremental::gradient" name="ml::maths::analytics::boosted_tree::CMseIncremental::gradient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,77,221,133"/>
+<area shape="rect" id="Node000002" href="$d7/dc0/classml_1_1maths_1_1analytics_1_1boosted__tree_1_1_c_mse.html#a59081b996fd5f1044694e657baf0b151" title=" " alt="" coords="287,5,434,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,74,271,56,272,62,212,79"/>
+<area shape="rect" id="Node000003" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a28dd812434f4a84942591c0ec8c04998" title="Get the root node of tree." alt="" coords="274,85,447,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,103,258,103,258,108,221,108"/>
+<area shape="rect" id="Node000005" href="$d1/d51/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_node.html#a5facc329dd077dc73d2a34f7ba1b64f9" title="Get the value predicted by tree for the feature vector row." alt="" coords="269,150,452,191"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="222,131,267,143,265,148,220,136"/>
+<area shape="rect" id="Node000004" href="$d3/df5/namespaceml_1_1maths_1_1analytics_1_1boosted__tree__detail.html#a16bfd25e0568da0e227b67ff19eafc0d" title="Get the index of the root node in a canonical tree node vector." alt="" coords="500,77,642,133"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="447,103,485,103,485,108,447,108"/>
+</map>

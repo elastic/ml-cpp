@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMultimodalPrior::CMultimodalPrior" name="ml::maths::common::CMultimodalPrior::CMultimodalPrior">
+<area shape="rect" id="Node000001" title="Create a mixture of normals." alt="" coords="5,31,208,87"/>
+<area shape="rect" id="Node000002" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a161f0add8f84726413d6686f6515fe26" title="Get the data type." alt="" coords="261,5,443,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,43,245,37,246,43,209,48"/>
+<area shape="rect" id="Node000003" href="$dc/d23/classml_1_1maths_1_1common_1_1_c_multimodal_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="256,71,448,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,70,241,74,240,79,208,75"/>
+</map>

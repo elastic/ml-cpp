@@ -1,0 +1,7 @@
+<map id="ml::model::CDataGatherer::currentBucketStartTime" name="ml::model::CDataGatherer::currentBucketStartTime">
+<area shape="rect" id="Node000001" title="Get the start of the current bucketing time interval." alt="" coords="519,13,693,54"/>
+<area shape="rect" id="Node000002" href="$dd/de0/namespaceanonymous__namespace_02_c_event_rate_data_gatherer_test_8cc_03.html#ab775aa183ae52bc123e0eb51a205150b" title=" " alt="" coords="271,5,471,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="504,36,472,36,472,31,504,31"/>
+<area shape="rect" id="Node000003" href="$d5/da2/_c_event_rate_data_gatherer_test_8cc.html#aa0270f638cf60477971b5412c5017bea" title=" " alt="" coords="5,20,223,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="255,36,223,36,223,31,255,31"/>
+</map>

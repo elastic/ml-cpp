@@ -1,0 +1,6 @@
+<map id="ml::api::CDataFrameOutliersInstrumentation::featureInfluenceThreshold" name="ml::api::CDataFrameOutliersInstrumentation::featureInfluenceThreshold">
+<area shape="rect" id="Node000001" title=" " alt="" coords="287,29,499,85"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="437,17,420,11,393,8,369,10,353,15,346,21,346,29,340,29,341,19,350,10,368,5,393,3,422,5,439,13"/>
+<area shape="rect" id="Node000002" href="$d2/d7c/classml_1_1api_1_1_c_data_frame_outliers_runner.html#a4737af76bd12b1a450b877c4d770c1cd" title="This is not intended to be called directly: use CDataFrameOutliersRunnerFactory." alt="" coords="5,37,239,78"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="271,60,239,60,239,55,271,55"/>
+</map>

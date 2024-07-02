@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesAnomalyModel::CAnomaly" name="ml::maths::time_series::CTimeSeriesAnomalyModel::CAnomaly">
+<area shape="rect" id="Node000001" title="Extracts features related to anomalous time periods." alt="" coords="21,124,212,180"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html" title="An accumulator class for sample central moments." alt="" coords="5,5,228,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,76,119,123,114,123,114,76"/>
+</map>

@@ -1,0 +1,30 @@
+<map id="ml::api::CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue" name="ml::api::CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,203,199"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a419c88edb8101da31ce043ca152e9acf" title=" " alt="" coords="251,117,433,158"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,155,235,150,236,155,203,160"/>
+<area shape="rect" id="Node000007" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aeabcaccf40a53fad01e6023fe94b49b9" title=" " alt="" coords="251,183,433,223"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="203,182,236,186,235,191,203,187"/>
+<area shape="rect" id="Node000010" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abc2850b89685437da0d9d93504ff6aa9" title=" " alt="" coords="251,52,433,93"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="165,140,250,103,267,96,269,101,252,108,167,145"/>
+<area shape="rect" id="Node000012" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a932b52350cb193f474a02ee4758edc22" title="Convert a string to a type." alt="" coords="268,248,416,289"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="169,197,252,233,270,240,268,245,250,237,167,202"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="747,136,930,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,138,732,150,732,155,433,144"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="481,75,699,115"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="433,119,465,114,466,119,434,125"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="676,113,740,129,738,134,675,119"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="747,71,930,111"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="700,91,732,90,732,95,700,96"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="747,5,930,46"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="665,71,748,48,749,53,667,77"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="433,192,732,164,732,169,433,197"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="401,180,432,167,534,120,536,125,434,172,403,185"/>
+<area shape="rect" id="Node000008" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="517,240,664,281"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="434,221,502,237,501,243,432,227"/>
+<area shape="rect" id="Node000009" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="815,248,862,273"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="664,258,800,258,800,263,664,263"/>
+<area shape="poly" id="edge13_Node000010_Node000004" title=" " alt="" coords="434,78,466,81,465,86,433,83"/>
+<area shape="rect" id="Node000011" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ae029dde1ff7d8a57f38b908b7bed47ae" title=" " alt="" coords="499,9,681,50"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="433,54,483,45,484,51,434,59"/>
+<area shape="poly" id="edge15_Node000011_Node000003" title=" " alt="" coords="678,48,701,61,717,76,726,91,734,106,749,121,757,126,754,131,746,125,730,110,721,94,713,79,698,65,675,53"/>
+</map>

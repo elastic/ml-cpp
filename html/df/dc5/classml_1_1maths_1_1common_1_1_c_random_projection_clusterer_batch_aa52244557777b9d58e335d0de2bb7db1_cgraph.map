@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CRandomProjectionClustererBatch::add" name="ml::maths::common::CRandomProjectionClustererBatch::add">
+<area shape="rect" id="Node000001" title="Add projected data for x." alt="" coords="5,84,197,140"/>
+<area shape="rect" id="Node000002" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#abcca910e9026ef13d4087e30ee3bcc03" title="Inner product." alt="" coords="268,56,413,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,95,252,86,253,92,198,100"/>
+<area shape="rect" id="Node000005" href="$d6/dfd/classml_1_1maths_1_1common_1_1_c_random_projection_clusterer.html#af5538280003a91ad8511ade32675de55" title="Get the projections." alt="" coords="245,120,436,176"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="198,124,230,128,229,134,197,129"/>
+<area shape="rect" id="Node000003" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a20d1bb135682b5741deae937d92e6dc2" title="Get read only reference." alt="" coords="484,5,629,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,59,468,48,469,53,414,64"/>
+<area shape="rect" id="Node000004" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#a58169b3ce034b25724b509f49069311f" title=" " alt="" coords="484,85,629,155"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="414,88,469,99,468,105,413,93"/>
+</map>

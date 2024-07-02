@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$df/d82/classml_1_1maths_1_1time__series_1_1_c_time_series_correlate_model_allocator.html" title="Manages the creation correlate models." alt="" coords="5,53,250,94"/>
+<area shape="rect" id="Node000001" href="$d9/dcd/classanonymous__namespace_02_c_time_series_model_test_8cc_03_1_1_c_time_series_correlate_model_allocator.html" title="Implements the allocator for new correlate priors." alt="" coords="298,5,542,61"/>
+<area shape="poly" id="edge488_Node000000_Node000001" title=" " alt="" coords="265,52,297,47,298,53,266,57"/>
+<area shape="rect" id="Node000002" href="$d6/d5b/classml_1_1model_1_1_c_anomaly_detector_model_1_1_c_time_series_correlate_model_allocator.html" title="Implements the allocator for new correlate priors." alt="" coords="306,85,534,141"/>
+<area shape="poly" id="edge489_Node000000_Node000002" title=" " alt="" coords="265,89,306,95,305,100,265,95"/>
+</map>

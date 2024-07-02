@@ -1,0 +1,6 @@
+<map id="ml::maths::analytics::CBoostedTreeImpl::nodeFeatureBag" name="ml::maths::analytics::CBoostedTreeImpl::nodeFeatureBag">
+<area shape="rect" id="Node000001" title="Sample the features according to their categorical distribution." alt="" coords="228,29,469,70"/>
+<area shape="rect" id="Node000002" href="$d2/d6c/class_c_boosted_tree_impl_for_test.html#a8d49ecc77f0c8867d435836d3286d864" title=" " alt="" coords="5,29,180,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,52,180,52,180,47,212,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="134,16,119,10,92,8,68,10,53,15,47,21,50,28,45,29,42,19,50,10,67,5,93,3,120,5,136,11"/>
+</map>

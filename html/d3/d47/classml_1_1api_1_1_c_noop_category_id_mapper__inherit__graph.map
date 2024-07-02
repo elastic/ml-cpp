@@ -1,0 +1,5 @@
+<map id="ml::api::CNoopCategoryIdMapper" name="ml::api::CNoopCategoryIdMapper">
+<area shape="rect" id="Node000001" title="Category ID mapper for use when local and global category IDs are the same." alt="" coords="11,79,185,120"/>
+<area shape="rect" id="Node000002" href="$d4/d9e/classml_1_1api_1_1_c_category_id_mapper.html" title="Interface for mappers between local and global category IDs." alt="" coords="5,5,191,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,46,101,79,95,79,95,46"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CMathsFuncs::isInf" name="ml::maths::common::CMathsFuncs::isInf">
+<area shape="rect" id="Node000001" title="Check if any of the components are infinite." alt="" coords="5,39,151,79"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a13ae7967990d08580ea5f99c3c46b1ca" title="Check if any of the components return true for f." alt="" coords="199,5,384,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,45,183,40,184,45,152,50"/>
+<area shape="rect" id="Node000003" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a8dcb5b9530155c739d53e301851003cc" title="Check if value is infinite." alt="" coords="219,71,364,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,67,204,75,203,80,151,73"/>
+</map>

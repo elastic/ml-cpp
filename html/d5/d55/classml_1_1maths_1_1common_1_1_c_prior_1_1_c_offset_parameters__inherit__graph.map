@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CPrior::COffsetParameters" name="ml::maths::common::CPrior::COffsetParameters">
+<area shape="rect" id="Node000001" title="Defines a set of operations to adjust the offset parameter of those priors with non&#45;negative support." alt="" coords="72,5,252,46"/>
+<area shape="rect" id="Node000002" href="$da/dab/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_apply_offset.html" title="Apply a specified offset to a prior." alt="" coords="5,94,151,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,59,99,95,95,92,130,56"/>
+<area shape="rect" id="Node000003" href="$d7/d56/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_offset_cost.html" title="Computes the likelihood of a collection of samples and resamples at different offsets." alt="" coords="175,94,320,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,55,230,92,226,95,190,59"/>
+</map>

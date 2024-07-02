@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CAdaptiveBucketing" name="ml::maths::time_series::CAdaptiveBucketing">
+<area shape="rect" id="Node000001" title="Common functionality used by our adaptive bucketing classes." alt="" coords="468,53,622,94"/>
+<area shape="rect" id="Node000002" href="$da/d52/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_min.html" title=" " alt="" coords="33,5,190,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,38,444,60,467,62,467,68,443,65,206,44"/>
+<area shape="rect" id="Node000003" href="$d5/d01/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_mean.html" title=" " alt="" coords="5,85,218,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,121,336,122,390,118,443,110,500,91,502,97,444,115,391,123,337,127,233,127"/>
+</map>

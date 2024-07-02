@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CScale" name="ml::maths::time_series::CScale">
+<area shape="rect" id="Node000001" title="Represents a linear scale of a time series." alt="" coords="5,94,160,135"/>
+<area shape="rect" id="Node000002" href="$de/ddc/classml_1_1maths_1_1time__series_1_1_c_change_point.html" title="Represents a sudden change to a time series model." alt="" coords="5,5,160,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,62,85,94,80,94,80,62"/>
+</map>

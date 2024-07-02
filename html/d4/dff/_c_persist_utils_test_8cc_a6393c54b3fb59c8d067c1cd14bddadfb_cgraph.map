@@ -1,0 +1,11 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,202,126"/>
+<area shape="rect" id="Node000002" href="$dc/d31/namespaceanonymous__namespace_02_c_persist_utils_test_8cc_03.html#a21b9c74ea22419bccad7c83911f58970" title="Convenience function to select implementation." alt="" coords="250,13,412,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,97,234,68,236,74,147,102"/>
+<area shape="rect" id="Node000004" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a1a45fab9335b48890df8ebad03751286" title="Wrapper for arrays of built in types." alt="" coords="254,92,408,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="202,110,238,110,238,115,202,115"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="254,158,408,198"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="152,123,244,150,242,155,150,129"/>
+<area shape="rect" id="Node000003" href="$dc/d98/classanonymous__namespace_02_c_persist_utils_test_8cc_03_1_1_c_compare_impl_3_01_basic_compare_01_4.html#aa492bae48a44d799461b9dabb6b18697" title=" " alt="" coords="460,5,675,76"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="412,38,444,38,444,43,412,43"/>
+</map>

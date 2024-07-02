@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CDenseVector::acceptRestoreTraverser" name="ml::maths::common::CDenseVector::acceptRestoreTraverser">
+<area shape="rect" id="Node000001" title="Populate the object from serialized data." alt="" coords="5,63,206,119"/>
+<area shape="rect" id="Node000002" href="$da/d89/classml_1_1maths_1_1common_1_1_c_dense_vector.html#aaa9f2684827490b05cf34dd6c85770d8" title="Convert from a std::vector." alt="" coords="263,5,463,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,63,265,48,266,53,207,68"/>
+<area shape="rect" id="Node000003" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a072afe5547a4892cfb84eafcda2619c2" title="Restore collection reading state from traverser expecting tag for elements." alt="" coords="286,71,440,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,88,270,88,270,94,206,94"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a296f348a615834e66071cdd4b2802ea7" title=" " alt="" coords="254,136,472,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="207,114,266,129,265,134,205,119"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="ml::maths::common::anonymous_namespace{CConstantPrior::cc}::setConstant" name="ml::maths::common::anonymous_namespace{CConstantPrior::cc}::setConstant">
+<area shape="rect" id="Node000001" title="Set the constant, validating the input." alt="" coords="5,29,168,100"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="46,28,48,18,56,10,69,5,87,3,107,5,120,12,117,17,105,10,86,8,70,10,59,14,53,21,51,29"/>
+<area shape="rect" id="Node000002" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="216,44,361,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,62,200,62,200,67,168,67"/>
+</map>

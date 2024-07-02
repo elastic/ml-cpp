@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultivariateOneOfNPrior::marginalLikelihoodSupport" name="ml::maths::common::CMultivariateOneOfNPrior::marginalLikelihoodSupport">
+<area shape="rect" id="Node000001" title="Get the support for the marginal likelihood function." alt="" coords="476,45,657,101"/>
+<area shape="rect" id="Node000002" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#ad4958f7095b51845771b0822f6b319cf" title="Get the mode of the marginal likelihood function." alt="" coords="252,5,426,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,57,425,51,426,46,461,52"/>
+<area shape="rect" id="Node000004" href="$d9/dae/classml_1_1maths_1_1common_1_1_c_multivariate_one_of_n_prior.html#a936f6f55f91ba588e95f1fb40aca0417" title=" " alt="" coords="250,85,428,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="461,94,429,100,428,95,460,89"/>
+<area shape="rect" id="Node000003" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a0593b6d97cde3e59af064db548633ca0" title=" " alt="" coords="5,20,202,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="236,36,202,36,202,31,236,31"/>
+<area shape="rect" id="Node000005" href="$d2/d51/_c_multivariate_one_of_n_prior_test_8cc.html#a7f012ec2e54e33b2d083a82f4e481d86" title=" " alt="" coords="5,100,202,126"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="235,116,202,116,202,111,235,111"/>
+</map>

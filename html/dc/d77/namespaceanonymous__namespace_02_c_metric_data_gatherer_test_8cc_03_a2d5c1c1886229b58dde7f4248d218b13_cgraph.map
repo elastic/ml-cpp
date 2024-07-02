@@ -1,0 +1,18 @@
+<map id="anonymous_namespace{CMetricDataGathererTest::cc}::addArrivals" name="anonymous_namespace{CMetricDataGathererTest::cc}::addArrivals">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,66,180,122"/>
+<area shape="rect" id="Node000002" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a1af7d8c6235516fb298f41a61883ecc8" title=" " alt="" coords="228,66,402,122"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,91,212,91,212,96,180,96"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="450,16,624,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,69,440,59,441,64,403,74"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="680,71,839,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="402,90,665,89,665,94,402,96"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="464,132,611,173"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="403,114,449,126,448,132,402,119"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="672,5,847,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="625,29,657,28,657,33,625,35"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="623,55,666,65,665,70,622,60"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="895,71,1053,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="839,88,879,88,879,94,839,94"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="690,136,829,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="611,151,675,152,675,157,611,156"/>
+</map>

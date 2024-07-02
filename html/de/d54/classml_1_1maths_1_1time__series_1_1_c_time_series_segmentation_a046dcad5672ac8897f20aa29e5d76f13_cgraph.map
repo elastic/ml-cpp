@@ -1,0 +1,9 @@
+<map id="ml::maths::time_series::CTimeSeriesSegmentation::fitLinearModel" name="ml::maths::time_series::CTimeSeriesSegmentation::fitLinearModel">
+<area shape="rect" id="Node000001" title="Fit a linear model to the values in [begin, end)." alt="" coords="5,63,191,119"/>
+<area shape="rect" id="Node000002" href="$d6/db6/classml_1_1maths_1_1common_1_1_c_least_squares_online_regression.html#afc80e7cf91ba8533fc744f369404bb6f" title=" " alt="" coords="239,5,482,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,65,260,48,262,53,192,70"/>
+<area shape="rect" id="Node000003" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="281,71,440,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,88,265,88,265,94,191,94"/>
+<area shape="rect" id="Node000004" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="281,136,440,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,112,266,130,265,135,191,117"/>
+</map>

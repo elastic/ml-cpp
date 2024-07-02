@@ -1,0 +1,6 @@
+<map id="ml::api::CForecastRunner::tryGetJob" name="ml::api::CForecastRunner::tryGetJob">
+<area shape="rect" id="Node000001" title="Check for new jobs, blocks while waiting." alt="" coords="5,22,177,63"/>
+<area shape="rect" id="Node000002" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="225,29,303,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,40,209,40,209,45,177,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="235,30,229,21,232,11,244,5,264,3,285,5,296,12,293,16,283,10,264,8,246,10,236,15,234,20,239,28"/>
+</map>

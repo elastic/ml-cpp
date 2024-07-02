@@ -1,0 +1,32 @@
+<map id="ml::torch::CCommandParser::CRequestCache::resize" name="ml::torch::CCommandParser::CRequestCache::resize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,193,194,234"/>
+<area shape="rect" id="Node000002" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#ae8fa90151254378202c3634ee56c1ba7" title=" " alt="" coords="242,186,456,242"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,211,226,211,226,216,194,216"/>
+<area shape="rect" id="Node000003" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a8183ee3ea3879bcb1b6a85dbc1ef26c4" title=" " alt="" coords="504,26,753,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="378,183,434,137,503,91,514,86,516,91,505,96,437,141,381,187"/>
+<area shape="rect" id="Node000006" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a3ccb24c1a4a89a116126c5f66dc5cabe" title=" " alt="" coords="522,106,736,162"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="448,183,514,164,515,169,449,188"/>
+<area shape="rect" id="Node000007" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a48d3cb801f57063d20d305272c297ebf" title=" " alt="" coords="517,186,741,242"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="457,211,501,211,501,216,457,216"/>
+<area shape="rect" id="Node000008" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aa21f5bc3a69e63579bcbe30683abf89b" title="Get the amount of memory the cache is consuming." alt="" coords="522,266,736,322"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="449,240,515,259,514,264,448,245"/>
+<area shape="rect" id="Node000015" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a3176234c87513026d34553c32690e7bf" title=" " alt="" coords="522,346,736,402"/>
+<area shape="poly" id="edge15_Node000002_Node000015" title=" " alt="" coords="381,240,437,286,505,331,516,337,514,342,503,336,434,291,378,244"/>
+<area shape="rect" id="Node000004" href="$dd/d75/classml_1_1core_1_1_c_compressed_dictionary.html#a13928a12bd86baccea13712035961802" title="Get a translator for the dictionary." alt="" coords="807,5,1026,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="754,39,791,35,791,40,754,44"/>
+<area shape="rect" id="Node000005" href="$dd/da5/_c_resource_limit_test_8cc.html#adfff002e956fa0ecb7a8a4d4ce39f79f" title=" " alt="" coords="885,70,948,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="754,64,869,76,869,81,754,69"/>
+<area shape="rect" id="Node000009" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#aabbe813ad8ae2be858782aa73b1174cc" title=" " alt="" coords="809,226,1024,282"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="736,276,793,268,794,273,737,281"/>
+<area shape="rect" id="Node000010" href="$d3/d2e/classml_1_1core_1_1compressed__lfu__cache__detail_1_1_c_compressed_lfu_cache.html#a680d5ef01b7087952e789e827fa58685" title=" " alt="" coords="801,306,1032,362"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="737,306,786,313,785,318,736,311"/>
+<area shape="rect" id="Node000011" href="$d0/d74/namespaceml_1_1core_1_1memory.html#a50fe883268170c17625e18a0c5fea04b" title="Default implementation for non&#45;pointer types." alt="" coords="1080,321,1286,347"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1032,331,1064,331,1064,336,1032,336"/>
+<area shape="rect" id="Node000012" href="$d9/d0b/structml_1_1core_1_1memory__detail_1_1_s_memory_dynamic_size.html#a49a680749a1d1861b69990d788154833" title=" " alt="" coords="1334,234,1505,290"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="1227,318,1318,290,1320,295,1228,323"/>
+<area shape="rect" id="Node000013" href="$db/df7/namespaceml_1_1core_1_1memory__detail.html#ac2d4d02cd0f6d8d7d1355958a49fce43" title="Check if we expect an overloaded dynamicSize function." alt="" coords="1336,313,1503,354"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="1287,331,1320,331,1320,336,1287,336"/>
+<area shape="rect" id="Node000014" href="$d2/d21/structml_1_1core_1_1memory__detail_1_1_s_dynamic_size_always_zero.html#a710ac6fc2d5760a396bb2d46a66a73b2" title=" " alt="" coords="1553,335,1739,391"/>
+<area shape="poly" id="edge14_Node000011_Node000014" title=" " alt="" coords="1235,345,1334,363,1420,366,1505,363,1537,363,1538,368,1505,368,1420,372,1334,368,1234,350"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="1504,342,1538,346,1538,352,1503,347"/>
+</map>

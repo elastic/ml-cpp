@@ -1,0 +1,12 @@
+<map id="ml::CMeanKernel&lt; N &gt;" name="ml::CMeanKernel&lt; N &gt;">
+<area shape="rect" id="Node000001" title="The kernel for computing the mean of a multivariate prior." alt="" coords="505,78,662,104"/>
+<area shape="rect" id="Node000002" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title="This inherits from boost::container::small_vector." alt="" coords="208,5,365,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="381,44,522,75,521,80,380,49"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,39,159,79"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,41,207,36,208,41,175,47"/>
+<area shape="rect" id="Node000005" href="$d6/de8/classml_1_1core_1_1_c_small_vector.html" title=" " alt="" coords="208,71,365,111"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="175,71,208,76,207,81,174,76"/>
+<area shape="rect" id="Node000004" href="$d9/d0b/classml_1_1maths_1_1common_1_1_c_multivariate_prior.html" title="Interface for a multivariate prior distribution function." alt="" coords="214,136,359,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="374,134,521,102,522,107,376,140"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="381,88,505,88,505,94,381,94"/>
+</map>

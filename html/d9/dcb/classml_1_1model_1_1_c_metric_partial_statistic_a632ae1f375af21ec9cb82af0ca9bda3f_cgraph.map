@@ -1,0 +1,18 @@
+<map id="ml::model::CMetricPartialStatistic::persist" name="ml::model::CMetricPartialStatistic::persist">
+<area shape="rect" id="Node000001" title="Persist to a state document." alt="" coords="5,73,175,114"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="504,5,706,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,70,222,59,360,41,488,30,488,35,360,46,223,64,170,75"/>
+<area shape="rect" id="Node000003" href="$da/d50/structml_1_1model_1_1_c_metric_statistic_wrappers.html#acdd2eb762845cbbe86d18fcd6ce357f0" title="Persist an order statistic." alt="" coords="244,73,424,114"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,91,228,91,228,96,175,96"/>
+<area shape="rect" id="Node000005" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#aaef61f5660b9649997b6fc2879e4bec7" title="Convert to a delimited string." alt="" coords="223,142,445,198"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="159,112,228,134,227,139,157,117"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="417,70,506,48,507,53,419,75"/>
+<area shape="rect" id="Node000004" href="$d0/d3b/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_stack.html#a6e4d055c5561dd719ef8b826c6ac1dc1" title="Create a member function template so this class works with CPersistUtils::persist." alt="" coords="493,70,717,126"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="425,92,478,93,478,98,425,98"/>
+<area shape="rect" id="Node000006" href="$d4/dba/namespaceml_1_1maths_1_1common_1_1basic__statistics__detail.html#a89ea1ef7f82c3dba1c2cd58ab2ff09f8" title="Function to do conversion to a string." alt="" coords="530,150,680,206"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="446,170,515,172,514,178,446,176"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="765,157,913,198"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="681,175,750,175,750,180,681,180"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="961,157,1099,198"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="913,175,945,175,945,180,913,180"/>
+</map>

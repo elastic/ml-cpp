@@ -1,0 +1,16 @@
+<map id="ml::maths::common::CSampling::multinomialSampleStable" name="ml::maths::common::CSampling::multinomialSampleStable">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,209,119"/>
+<area shape="rect" id="Node000002" href="$d3/d93/classml_1_1maths_1_1common_1_1_c_sampling.html#a10d4fa1e2663c4d177f83e73881d418c" title=" " alt="" coords="257,5,486,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,63,271,48,272,53,210,68"/>
+<area shape="rect" id="Node000003" href="$dc/d5c/classml_1_1maths_1_1common_1_1_c_orderings.html#aaf1103e5c428d67f245c11be5ee75024" title=" " alt="" coords="260,71,483,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,88,244,88,244,94,209,94"/>
+<area shape="rect" id="Node000006" href="$d8/dcc/namespacestd.html#a434882411757f6c0833c939d997bc4e3" title=" " alt="" coords="976,85,1054,111"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="210,113,257,120,357,128,460,131,660,127,834,115,960,102,960,107,835,120,660,133,460,137,357,134,256,126,209,118"/>
+<area shape="rect" id="Node000004" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a89623dbfeec6e6b6599645ef8fd3f4d1" title="Free swap picked up by std:: algorithms etc." alt="" coords="534,32,710,57"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="483,68,534,58,535,63,484,73"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="484,89,960,94,960,100,484,95"/>
+<area shape="rect" id="Node000005" href="$de/d86/classml_1_1maths_1_1common_1_1_c_symmetric_matrix.html#aa75a541cfcefc1486352316761c24ed0" title="Efficiently swap the contents of two matrices." alt="" coords="758,20,928,61"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="711,40,742,39,743,45,711,45"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="907,59,962,77,960,82,905,64"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="986,86,980,76,983,67,995,60,1015,58,1036,61,1047,67,1044,72,1034,66,1015,63,997,65,987,70,985,76,990,83"/>
+</map>

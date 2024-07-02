@@ -1,0 +1,23 @@
+<map id="anonymous_namespace{CBoostedTreeLeafNodeStatisticsTest::cc}::testDerivativesFor" name="anonymous_namespace{CBoostedTreeLeafNodeStatisticsTest::cc}::testDerivativesFor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,309,226,365"/>
+<area shape="rect" id="Node000002" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a6d024bd28a9d1d5b66a9d4164213e707" title="Add count and derivatives." alt="" coords="274,5,498,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,308,144,258,175,194,218,129,243,98,272,71,277,68,280,72,275,75,247,102,222,132,180,197,149,260,129,310"/>
+<area shape="rect" id="Node000003" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#aa350812786ff86e7042ff24282c6af4e" title="Set the accumulated count." alt="" coords="274,85,498,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,307,188,230,228,188,272,151,279,147,282,151,275,155,231,192,192,234,136,310"/>
+<area shape="rect" id="Node000004" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a061d2692a8ee1f331423d1b3d24d8a07" title="Get the accumulated curvature." alt="" coords="274,165,498,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="152,307,208,268,272,231,284,225,287,230,275,236,211,273,155,311"/>
+<area shape="rect" id="Node000005" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="293,245,479,286"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="222,306,292,287,293,293,223,311"/>
+<area shape="rect" id="Node000007" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a02360e69e15ba568928a3dd6dc429cca" title="Get the accumulated gradient." alt="" coords="274,309,498,365"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="226,335,258,335,258,340,226,340"/>
+<area shape="rect" id="Node000008" href="$d2/dba/namespaceanonymous__namespace_02_c_boosted_tree_leaf_node_statistics_test_8cc_03.html#a149e1b5c68e7be5b444428b61d29e296" title=" " alt="" coords="276,389,496,445"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="213,363,276,382,274,387,211,368"/>
+<area shape="rect" id="Node000009" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a9134e2245da3aeaf4cfe42227de3c6b8" title="Remap the accumulated curvature to lower triangle row major format." alt="" coords="274,469,498,525"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="150,363,206,409,275,455,285,460,283,465,272,459,203,414,146,368"/>
+<area shape="rect" id="Node000010" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#a2fb7854074e15d768c1f087a6340a8ad" title="Round up n items of T so they use a multiple of alignment size memory." alt="" coords="314,549,458,590"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="134,364,157,403,189,449,228,496,275,535,300,548,298,553,272,539,225,499,184,452,152,406,129,367"/>
+<area shape="rect" id="Node000011" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a37f23b7a77a1693f3d9520c26a9c48ea" title="Set to the difference of lhs and rhs." alt="" coords="274,613,498,669"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="129,364,149,414,180,477,222,543,247,573,275,599,280,603,277,607,272,603,243,576,218,546,175,480,144,417,124,366"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="546,245,731,286"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="479,263,531,263,531,268,479,268"/>
+</map>

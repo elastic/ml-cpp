@@ -1,0 +1,9 @@
+<map id="ml::maths_t::addCount" name="ml::maths_t::addCount">
+<area shape="rect" id="Node000001" title="Add weight to the count weight of weights." alt="" coords="271,100,425,126"/>
+<area shape="rect" id="Node000002" href="$de/d8b/classml_1_1maths_1_1time__series_1_1_c_multivariate_time_series_model.html#a8ce328de4c454f169473c6c185a05e74" title="Add to trendWeights and residualWeights." alt="" coords="10,5,218,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="293,97,196,64,198,59,295,92"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#adcf1b5ba169f6ce62018897277d505b4" title="Add to trendWeights and residualWeights." alt="" coords="14,85,214,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,116,214,116,214,111,255,111"/>
+<area shape="rect" id="Node000004" href="$d9/d0f/_c_event_rate_population_model_test_8cc.html#a643715f989121577e525d568ff1f20db" title=" " alt="" coords="5,166,223,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="294,134,223,156,177,168,176,162,222,151,293,129"/>
+</map>

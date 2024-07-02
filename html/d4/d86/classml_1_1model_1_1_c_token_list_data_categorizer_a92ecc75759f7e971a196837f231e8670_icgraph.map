@@ -1,0 +1,35 @@
+<map id="ml::model::CTokenListDataCategorizer::memoryUsage" name="ml::model::CTokenListDataCategorizer::memoryUsage">
+<area shape="rect" id="Node000001" title="Get the memory used by this categorizer." alt="" coords="609,343,790,384"/>
+<area shape="rect" id="Node000002" href="$dd/d1e/namespaceanonymous__namespace_02_c_token_list_data_categorizer_test_8cc_03.html#ae407ab06e7493c7579f3ede52030966c" title=" " alt="" coords="271,336,561,391"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="593,366,561,366,561,361,593,361"/>
+<area shape="rect" id="Node000003" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a3b8e6355a7c5971c9fe7f3ca31ee1194" title=" " alt="" coords="5,5,223,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,322,375,259,338,183,314,145,287,108,256,74,221,44,202,34,205,29,224,40,259,70,291,104,318,142,342,181,380,257,404,320"/>
+<area shape="rect" id="Node000004" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a9401ad30246876bb2a0be4281fbf05b3" title=" " alt="" coords="5,55,223,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="394,322,368,269,330,207,281,145,252,117,221,94,201,83,203,79,224,89,256,113,284,141,334,204,372,267,399,320"/>
+<area shape="rect" id="Node000005" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#ac58d94efe4e128d29bc6eb4ec23adf74" title=" " alt="" coords="5,104,223,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="389,324,360,280,321,231,275,183,221,143,199,133,201,128,224,139,278,179,325,228,364,277,393,321"/>
+<area shape="rect" id="Node000006" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#ad0e35d0c55b5a61c1fc34e9561069b65" title=" " alt="" coords="5,153,223,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="380,326,312,257,268,222,221,193,196,182,198,177,224,188,271,217,315,253,384,322"/>
+<area shape="rect" id="Node000007" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#abc3c0c66ba2eea179d3e1c553c4cd282" title=" " alt="" coords="5,203,223,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="366,328,299,283,222,242,191,232,192,226,224,237,302,278,369,324"/>
+<area shape="rect" id="Node000008" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a22994ad1659c830fa927c58c94d27a0f" title=" " alt="" coords="5,252,223,278"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="334,332,222,291,182,281,183,276,223,286,336,327"/>
+<area shape="rect" id="Node000009" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a5f3a88af0df17289989a75c45de5e517" title=" " alt="" coords="5,301,223,327"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="255,340,197,330,198,325,256,335"/>
+<area shape="rect" id="Node000010" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#acb0d1693fbec69f835e9b51d9ec52fdb" title=" " alt="" coords="5,351,223,376"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="255,366,223,366,223,361,255,361"/>
+<area shape="rect" id="Node000011" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#ab0a31e21f435b37dcee576008dcc5d43" title=" " alt="" coords="5,400,223,426"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="256,392,198,402,197,397,255,387"/>
+<area shape="rect" id="Node000012" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#addebb26caa5f7a714490fd6b369547c1" title=" " alt="" coords="5,449,223,475"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="336,400,223,441,183,451,182,446,222,436,334,395"/>
+<area shape="rect" id="Node000013" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#ad195502cb2d8bcfd077f67290c62816d" title=" " alt="" coords="5,499,223,524"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="369,403,302,449,224,490,192,501,191,495,222,485,299,444,366,399"/>
+<area shape="rect" id="Node000014" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#ab583e21a9acbf408f651d46034529772" title=" " alt="" coords="5,548,223,574"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="384,405,315,474,271,510,224,539,198,550,196,545,221,534,268,505,312,470,380,401"/>
+<area shape="rect" id="Node000015" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a81c16eecee55e3edb80023c7c2c3649d" title=" " alt="" coords="5,597,223,623"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="393,406,364,450,325,499,278,548,224,588,201,599,199,594,221,584,275,544,321,496,360,447,389,403"/>
+<area shape="rect" id="Node000016" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a680a1dc5d8cdcaab5b9bab1026134d6e" title=" " alt="" coords="5,647,223,672"/>
+<area shape="poly" id="edge15_Node000002_Node000016" title=" " alt="" coords="399,407,372,460,334,523,284,586,256,614,224,638,203,648,201,644,221,633,252,610,281,582,330,520,368,458,394,405"/>
+<area shape="rect" id="Node000017" href="$db/d4f/_c_token_list_data_categorizer_test_8cc.html#a7ad0ec99a3e2f4df9709525e99b7e852" title=" " alt="" coords="5,696,223,722"/>
+<area shape="poly" id="edge16_Node000002_Node000017" title=" " alt="" coords="404,407,380,470,342,546,318,585,291,623,259,657,224,687,205,698,202,693,221,683,256,653,287,619,314,582,338,544,375,468,399,405"/>
+</map>

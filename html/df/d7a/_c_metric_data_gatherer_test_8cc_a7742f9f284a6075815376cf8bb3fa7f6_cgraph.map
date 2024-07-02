@@ -1,0 +1,28 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,238,223,264"/>
+<area shape="rect" id="Node000002" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a1af7d8c6235516fb298f41a61883ecc8" title=" " alt="" coords="274,97,448,152"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,235,291,157,293,162,142,240"/>
+<area shape="rect" id="Node000009" href="$dc/d77/namespaceanonymous__namespace_02_c_metric_data_gatherer_test_8cc_03.html#a4cd48ff34bb6af0d1f6cc1ac85b467f0" title=" " alt="" coords="274,223,448,279"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="223,248,258,248,258,254,223,254"/>
+<area shape="rect" id="Node000013" href="$d2/d5e/classml_1_1core_1_1_c_container_printer.html#aff22734ba0c60a2f359a27b5d004622a" title="Fallback print." alt="" coords="271,303,451,343"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="161,262,275,295,273,300,160,267"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="499,17,673,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,93,516,62,518,66,436,98"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="729,71,888,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="448,115,714,95,714,101,449,121"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="513,132,660,173"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="449,133,497,139,497,144,448,138"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="721,5,896,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="674,30,706,29,706,34,674,36"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="674,56,714,66,713,71,673,61"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="944,71,1102,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="888,88,928,88,928,94,888,94"/>
+<area shape="rect" id="Node000008" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="739,136,878,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="660,151,724,152,724,157,660,156"/>
+<area shape="rect" id="Node000010" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a4234f219d2f791a607a53f98c51f3bdf" title=" " alt="" coords="499,197,673,238"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="448,235,483,230,484,235,449,241"/>
+<area shape="rect" id="Node000011" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#adfe0a09c8df37ba22cf5c2cedc08738b" title="Get the event person identifier." alt="" coords="507,263,665,303"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="449,261,492,267,491,272,448,266"/>
+<area shape="rect" id="Node000012" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad3019c240ddc4fb25c7945282a0e8496" title=" " alt="" coords="499,328,673,369"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="427,277,452,289,500,313,516,319,514,324,498,317,450,293,425,282"/>
+</map>

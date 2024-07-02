@@ -1,0 +1,5 @@
+<map id="ml::core::CReadWriteLock" name="ml::core::CReadWriteLock">
+<area shape="rect" id="Node000001" title="Wrapper class around pthread rw lock." alt="" coords="5,79,181,105"/>
+<area shape="rect" id="Node000002" href="$d0/d45/classml_1_1core_1_1_c_non_copyable.html" title="Equivalent to boost::noncopyable." alt="" coords="10,5,176,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,46,96,79,90,79,90,46"/>
+</map>

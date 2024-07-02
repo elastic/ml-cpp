@@ -1,0 +1,17 @@
+<map id="CDataFrameMockAnalysisRunner" name="CDataFrameMockAnalysisRunner">
+<area shape="rect" id="Node000001" title=" " alt="" coords="989,78,1209,104"/>
+<area shape="rect" id="Node000002" href="$d1/da2/classml_1_1api_1_1_c_data_frame_analysis_runner.html" title="Hierarchy for running a specific core::CDataFrame analyses." alt="" coords="627,9,821,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="836,45,1016,75,1015,80,836,51"/>
+<area shape="rect" id="Node000003" href="$db/d6b/classml_1_1api_1_1_c_data_frame_analysis_specification.html" title="Parses a complete specification for running a core::CDataFrame analysis and supports launching that a..." alt="" coords="299,5,492,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="508,24,627,26,627,31,508,30"/>
+<area shape="rect" id="Node000004" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html" title="Creates random numbers from a variety of distributions." alt="" coords="631,78,817,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="832,88,988,88,988,94,832,94"/>
+<area shape="rect" id="Node000005" href="$d7/d2f/classml_1_1maths_1_1common_1_1_c_p_r_n_g_1_1_c_xor_shift1024_mult.html" title="The xorshift1024* pseudo&#45;random number generator." alt="" coords="302,71,490,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="506,88,631,88,631,94,506,94"/>
+<area shape="rect" id="Node000006" href="$df/d33/class_c_data_frame_mock_analysis_state.html" title=" " alt="" coords="619,132,829,157"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="840,126,964,109,1010,102,1011,107,965,114,841,131"/>
+<area shape="rect" id="Node000007" href="$dd/df4/classml_1_1api_1_1_c_data_frame_analysis_instrumentation.html" title="Instrumentation class for collecting data frame analysis job statistics." alt="" coords="299,136,492,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="508,150,619,145,619,151,508,155"/>
+<area shape="rect" id="Node000008" href="$d8/dc4/classml_1_1maths_1_1analytics_1_1_c_data_frame_analysis_instrumentation_interface.html" title="Interface class for collecting data frame analysis job statistics owned by the maths module." alt="" coords="5,129,250,184"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="265,154,298,154,298,159,265,159"/>
+</map>

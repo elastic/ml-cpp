@@ -1,0 +1,7 @@
+<map id="ml::maths::time_series::CTimeSeriesTestForSeasonality::SModel::numberParameters" name="ml::maths::time_series::CTimeSeriesTestForSeasonality::SModel::numberParameters">
+<area shape="rect" id="Node000001" title="The number of parameters in model." alt="" coords="271,45,488,101"/>
+<area shape="rect" id="Node000002" href="$d4/dcc/structml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality_1_1_s_model.html#a88fd98b98ffefd7942205a6219742cc8" title="A proxy for p&#45;value of this model vs H0 which doesn&#39;t underflow." alt="" coords="5,5,223,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,57,223,52,224,47,255,52"/>
+<area shape="rect" id="Node000003" href="$d4/dcc/structml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality_1_1_s_model.html#a8070040bb5b822a59e297d7b1791d165" title="The p&#45;value of this model vs H0." alt="" coords="5,85,223,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,95,224,99,223,94,255,89"/>
+</map>

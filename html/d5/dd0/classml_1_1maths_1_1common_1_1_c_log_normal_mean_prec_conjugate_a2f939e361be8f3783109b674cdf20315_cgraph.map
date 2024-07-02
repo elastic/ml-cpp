@@ -1,0 +1,9 @@
+<map id="ml::maths::common::CLogNormalMeanPrecConjugate::probabilityOfLessLikelySamples" name="ml::maths::common::CLogNormalMeanPrecConjugate::probabilityOfLessLikelySamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,221,119"/>
+<area shape="rect" id="Node000002" href="$d1/d04/classml_1_1maths_1_1common_1_1_c_integration.html#ac9c39095b859fefb3bb5e868eb798101" title=" " alt="" coords="281,5,469,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,61,275,48,276,53,222,67"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a48940ec1318df63ac10c02a11928533a" title="Check if the prior is being used to model integer data." alt="" coords="302,71,448,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,88,287,88,287,94,221,94"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/classml_1_1maths_1_1common_1_1_c_log_normal_mean_prec_conjugate.html#af33f59276ed9871bc2a6ed69f2a2c247" title="Check if this is a non&#45;informative prior." alt="" coords="269,135,481,191"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="217,117,257,128,255,133,216,122"/>
+</map>

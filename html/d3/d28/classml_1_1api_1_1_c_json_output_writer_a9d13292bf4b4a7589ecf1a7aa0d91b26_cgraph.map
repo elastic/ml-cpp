@@ -1,0 +1,15 @@
+<map id="ml::api::CJsonOutputWriter::addPopulationFields" name="ml::api::CJsonOutputWriter::addPopulationFields">
+<area shape="rect" id="Node000001" title="Write the fields for a population detector." alt="" coords="5,120,185,161"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa83f6b8bf6f7cbeecdd920880a43afab" title=" " alt="" coords="245,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,117,232,62,260,50,262,54,234,67,132,122"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#afe6d17598dcff2539e025599f8e092e3" title=" " alt="" coords="488,63,670,103"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="176,117,232,106,357,91,472,84,473,89,357,97,233,111,177,122"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#ac40688d77c7e2cb06f91410e15377644" title=" " alt="" coords="233,120,440,161"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="185,138,217,138,217,143,185,143"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a1be4161314de57fc4dfd54336d37329b" title="Return a new boost::json array." alt="" coords="245,185,428,226"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="173,159,244,178,243,183,172,164"/>
+<area shape="rect" id="Node000006" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#abf4d06b98db199c538b352f260909019" title=" " alt="" coords="245,251,428,291"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="122,159,172,197,234,235,249,242,247,247,231,240,169,202,119,163"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="426,44,476,56,475,61,425,49"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="425,117,475,105,476,110,426,122"/>
+</map>

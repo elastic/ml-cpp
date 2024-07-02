@@ -1,0 +1,13 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,202,56"/>
+<area shape="rect" id="Node000002" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a01594c0e7e71f5bc359129dbfda8c6b8" title=" " alt="" coords="266,5,415,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,30,250,25,251,30,202,36"/>
+<area shape="rect" id="Node000003" href="$dd/dea/classml_1_1core_1_1_c_regex.html#accf2085b2c74e7d8b0c771c5677f50c5" title=" " alt="" coords="250,55,431,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,51,234,54,234,59,202,56"/>
+<area shape="rect" id="Node000004" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a7e4833803d42770d9effe93c1cc1c368" title="Simple match test for a string." alt="" coords="479,29,661,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="431,55,463,51,464,57,432,60"/>
+<area shape="rect" id="Node000005" href="$dd/dea/classml_1_1core_1_1_c_regex.html#a63fb8c58c14c3319f3f0308306f7adcb" title="Get the pattern string (not a reference due to boost API)" alt="" coords="709,55,857,80"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="431,65,694,65,694,70,431,70"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="535,31,528,21,532,11,546,5,570,3,596,5,610,12,607,17,595,10,570,8,548,10,536,15,533,20,539,27"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="662,50,695,54,694,60,662,56"/>
+</map>

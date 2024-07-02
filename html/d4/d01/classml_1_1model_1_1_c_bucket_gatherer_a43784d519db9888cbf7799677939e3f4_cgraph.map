@@ -1,0 +1,32 @@
+<map id="ml::model::CBucketGatherer::resetBucket" name="ml::model::CBucketGatherer::resetBucket">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,215,193,255"/>
+<area shape="rect" id="Node000002" href="$d2/d3e/classml_1_1maths_1_1common_1_1_c_integer_tools.html#a544d27df5bab795c464ae8ec0a42ce2d" title="Check if value is alignment aligned." alt="" coords="266,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,213,159,137,196,94,239,57,250,50,253,55,242,61,200,98,163,141,114,216"/>
+<area shape="rect" id="Node000003" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a2c7e791c52bd0462e846a1c00293758e" title="Get an iterator at the beginning the influencing field names." alt="" coords="248,71,435,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="122,212,174,170,239,127,263,115,266,120,242,132,177,175,125,216"/>
+<area shape="rect" id="Node000004" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#abdb61d2ba82e5d05fa4133ef95d1521d" title="Get the length of the bucketing time interval." alt="" coords="725,243,913,283"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,236,710,256,710,261,193,241"/>
+<area shape="rect" id="Node000006" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a8e7d4c860df9ac287703bc9d3260549c" title="Get the start of the current bucketing time interval." alt="" coords="725,128,913,169"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="137,212,185,189,240,171,365,150,491,139,609,137,710,139,709,144,609,142,491,144,365,155,241,176,187,194,139,217"/>
+<area shape="rect" id="Node000007" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a43989a5e695ec681148be575458e3ee3" title="Check if data is available at time." alt="" coords="248,185,435,226"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="193,221,232,216,232,222,193,226"/>
+<area shape="rect" id="Node000009" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#ac54d017c129c4452424eaede2a5b7949" title="Get an iterator at the end of the influencing field names." alt="" coords="248,300,435,341"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="160,253,268,292,266,297,158,258"/>
+<area shape="rect" id="Node000010" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a8dfde94df2220a17e8f3770b069cca6d" title=" " alt="" coords="241,416,442,441"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="115,254,165,323,201,361,242,394,267,407,265,412,239,399,197,365,161,326,111,257"/>
+<area shape="rect" id="Node000013" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a4e27857d129a6ac4261c2f72d81a3933" title="Print the current bucket." alt="" coords="490,309,677,350"/>
+<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="119,254,169,305,204,331,242,350,306,365,373,368,438,362,497,351,497,357,439,367,374,373,306,370,240,355,201,335,166,309,115,258"/>
+<area shape="rect" id="Node000005" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a21b1d9e3d2afadf78e163e835d969d26" title="Get the global configuration parameters." alt="" coords="961,215,1135,255"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="913,249,945,245,945,250,913,254"/>
+<area shape="rect" id="Node000008" href="$d4/d01/classml_1_1model_1_1_c_bucket_gatherer.html#a29ecbfa8bd97b9689233e3ea918111d5" title="The earliest time for which data can still arrive." alt="" coords="490,185,677,226"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="435,203,474,203,474,208,435,208"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="670,224,719,236,717,241,669,229"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="678,209,945,226,945,231,678,214"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="669,182,717,170,719,175,670,187"/>
+<area shape="rect" id="Node000011" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#ac2375c571d8c64d3b70899ffd4603cab" title="Get the index of the bucket containing time." alt="" coords="496,408,671,449"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="443,426,480,426,480,431,443,431"/>
+<area shape="poly" id="edge14_Node000011_Node000011" title=" " alt="" coords="539,408,537,398,544,389,560,383,584,381,609,384,624,390,622,395,608,389,584,387,561,389,548,393,542,399,545,407"/>
+<area shape="rect" id="Node000012" href="$d0/de2/classml_1_1model_1_1_c_bucket_queue.html#a419b759a87b64a8194fe198fd0909204" title="Returns the size of the queue." alt="" coords="731,408,907,449"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="672,426,716,426,716,431,672,431"/>
+<area shape="poly" id="edge17_Node000013_Node000004" title=" " alt="" coords="657,306,729,286,731,291,659,311"/>
+</map>

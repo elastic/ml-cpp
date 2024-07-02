@@ -1,0 +1,7 @@
+<map id="ml::maths::common::CBasicStatistics::COrderStatisticsHeap&lt; T, LESS &gt;" name="ml::maths::common::CBasicStatistics::COrderStatisticsHeap&lt; T, LESS &gt;">
+<area shape="rect" id="Node000001" title="A heap based accumulator class for order statistics." alt="" coords="278,41,502,97"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/classml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_c_order_statistics_impl.html" title="Implementation of an accumulator class for order statistics." alt="" coords="5,5,230,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,47,277,52,277,57,245,53"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="10,85,225,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,86,277,81,278,87,241,92"/>
+</map>

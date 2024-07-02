@@ -1,0 +1,5 @@
+<map id="ml::model::CResourceMonitor::updateMemoryLimitsAndPruneThreshold" name="ml::model::CResourceMonitor::updateMemoryLimitsAndPruneThreshold">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,270,46"/>
+<area shape="rect" id="Node000002" href="$d4/d25/classml_1_1model_1_1_c_resource_monitor.html#a5282f2aeaff74272552051064aa92bcd" title="Returns the amount by which reported memory usage is scaled depending on the type of persistence in u..." alt="" coords="318,5,548,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="270,23,302,23,302,28,270,28"/>
+</map>

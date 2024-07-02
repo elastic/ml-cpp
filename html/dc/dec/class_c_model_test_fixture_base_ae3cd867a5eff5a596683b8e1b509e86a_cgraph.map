@@ -1,0 +1,14 @@
+<map id="CModelTestFixtureBase::addArrival" name="CModelTestFixtureBase::addArrival">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,167,103"/>
+<area shape="rect" id="Node000002" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="216,5,375,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,60,203,48,204,53,163,65"/>
+<area shape="rect" id="Node000004" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a17d4f57243425912a8b30e144a698df1" title="Convert a double to a string with the specified precision." alt="" coords="430,95,577,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,87,414,106,414,111,167,92"/>
+<area shape="rect" id="Node000006" href="$dc/dec/class_c_model_test_fixture_base.html#a17713a8059f8b48c2fc9d2ecc33a2be8" title=" " alt="" coords="215,120,376,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="163,101,204,113,203,118,162,106"/>
+<area shape="rect" id="Node000003" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="424,5,582,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,23,408,23,408,28,375,28"/>
+<area shape="rect" id="Node000005" href="$d2/d08/classml_1_1core_1_1_c_i_e_e_e754.html#a1a14ca6caea95a6f76caf65b824b9e2c" title=" " alt="" coords="630,95,769,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="577,112,615,112,615,118,577,118"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="376,128,414,123,414,128,377,133"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CMemoryMappedDenseMatrix&lt; SCALAR, ALIGNMENT &gt;" name="ml::maths::common::CMemoryMappedDenseMatrix&lt; SCALAR, ALIGNMENT &gt;">
+<area shape="rect" id="Node000001" title="Decorates an Eigen::Map of a dense matrix with some useful methods and changes default copy semantics..." alt="" coords="27,94,226,150"/>
+<area shape="rect" id="Node000002" href="$db/d69/class_eigen_1_1_map.html" title=" " alt="" coords="5,5,248,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,61,129,93,124,93,124,61"/>
+</map>

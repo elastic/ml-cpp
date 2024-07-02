@@ -1,0 +1,5 @@
+<map id="ml::model::CPopulationModel::extractValue" name="ml::model::CPopulationModel::extractValue">
+<area shape="rect" id="Node000001" title="Extract the bucket value for count feature data." alt="" coords="5,5,198,46"/>
+<area shape="rect" id="Node000002" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a092d56a944c5207b431c343719e5079b" title="Extract the data from a tuple." alt="" coords="246,5,420,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,23,230,23,230,28,198,28"/>
+</map>

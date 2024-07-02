@@ -1,0 +1,13 @@
+<map id="ml::model::CResourceMonitor::memoryStatus" name="ml::model::CResourceMonitor::memoryStatus">
+<area shape="rect" id="Node000001" title="Get the memory status." alt="" coords="852,39,1047,79"/>
+<area shape="rect" id="Node000002" href="$da/d11/classml_1_1model_1_1_c_data_categorizer.html#ae07fd8b8ff71ef1e0b691f75cf706649" title=" " alt="" coords="612,5,804,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="836,46,804,42,805,36,837,41"/>
+<area shape="rect" id="Node000003" href="$d4/d49/classml_1_1api_1_1_c_forecast_runner.html#ad8607aeb873f1214a5abd71746d22211" title=" " alt="" coords="622,71,794,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="836,77,795,82,794,77,836,71"/>
+<area shape="rect" id="Node000004" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#aa7cbbc4df294ffac26166f761afb236f" title="Update configuration." alt="" coords="414,71,564,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="607,94,565,94,565,88,607,88"/>
+<area shape="rect" id="Node000005" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a176e0e5e3eaa3e802ff4da6773e33c35" title=" " alt="" coords="204,71,366,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="399,94,367,94,367,88,399,88"/>
+<area shape="rect" id="Node000006" href="$d9/dee/classml_1_1api_1_1_c_anomaly_job.html#a7b4418f8987b9618eb3534c80d8d1617" title=" " alt="" coords="5,71,156,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="188,94,156,94,156,88,188,88"/>
+</map>

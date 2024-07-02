@@ -1,0 +1,23 @@
+<map id="ml::core::CJsonStateRestoreTraverser::start" name="ml::core::CJsonStateRestoreTraverser::start">
+<area shape="rect" id="Node000001" title="Start off the parsing process." alt="" coords="5,139,197,179"/>
+<area shape="rect" id="Node000002" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a0e33574d6bf43993bc045fe1bf59a72d" title="Get the next token." alt="" coords="245,139,436,179"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,156,229,156,229,162,197,162"/>
+<area shape="rect" id="Node000005" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ae8f1d09343a533cc2a3cba46e85bfb6c" title="Log an error that the JSON parser has detected." alt="" coords="990,208,1181,249"/>
+<area shape="poly" id="edge12_Node000001_Node000005" title=" " alt="" coords="148,178,296,236,389,266,484,287,941,286,988,272,1031,253,1034,258,990,277,942,291,484,292,387,271,294,241,146,182"/>
+<area shape="rect" id="Node000007" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a91e307b74b7d1a0328b29353bb8b16a6" title="Continue parsing the JSON structure." alt="" coords="750,151,942,191"/>
+<area shape="poly" id="edge13_Node000001_Node000007" title=" " alt="" coords="136,136,235,85,302,57,377,31,458,12,541,4,623,8,664,17,703,30,741,51,775,79,803,109,825,136,821,140,799,112,771,82,738,55,701,35,663,22,623,13,541,9,459,18,379,36,304,62,237,90,138,141"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a5edc44a999e2965a2cb2bc3312963f67" title="Is the state document unintelligible?" alt="" coords="484,73,702,114"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="421,136,496,116,498,121,423,141"/>
+<area shape="rect" id="Node000004" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a559b4975a9c0c0accddfaf2c2f37126b" title="Is the traverser at the end of the inputstream?" alt="" coords="498,139,689,179"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="437,156,482,156,482,162,437,162"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="365,178,417,219,450,239,485,254,550,270,618,279,687,283,755,281,882,269,987,250,988,255,883,274,755,287,687,288,618,284,549,275,483,259,447,244,414,224,361,182"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="361,136,414,94,447,74,483,59,544,43,593,37,643,42,703,59,737,74,768,94,818,138,814,142,765,99,734,79,701,64,642,47,593,42,545,48,485,64,450,79,417,99,365,140"/>
+<area shape="rect" id="Node000008" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a48c44137828bad85049a2eaade8ba64f" title="Skip the (JSON) array until it ends." alt="" coords="498,204,689,245"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="423,177,498,197,496,202,421,183"/>
+<area shape="rect" id="Node000006" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="1229,180,1447,221"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1181,215,1213,212,1214,217,1182,220"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="934,189,983,201,982,206,933,195"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="942,174,1214,190,1213,196,942,179"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="689,223,974,225,974,230,689,228"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="689,202,734,192,735,197,690,207"/>
+</map>

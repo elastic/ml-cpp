@@ -1,0 +1,10 @@
+<map id="ml::model::CEventRatePopulationModel::CEventRatePopulationModel" name="ml::model::CEventRatePopulationModel::CEventRatePopulationModel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,238,103"/>
+<area shape="rect" id="Node000002" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#aa984f269458c6162aea9346f10955136" title="Initialize the feature models." alt="" coords="286,63,505,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,80,270,80,270,86,238,86"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#af92625c71c433efde0537885486e294d" title=" " alt="" coords="553,29,772,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="505,67,537,63,538,68,506,72"/>
+<area shape="rect" id="Node000004" href="$da/d88/classml_1_1model_1_1_c_anomaly_detector_model.html#ac686c4aa0380892a80c605adbdf36842" title="Get the global configuration parameters." alt="" coords="564,95,761,135"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="506,94,549,99,548,104,505,99"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="613,29,610,19,618,10,636,5,663,3,691,5,708,11,707,16,690,10,663,8,637,10,621,15,615,21,618,28"/>
+</map>

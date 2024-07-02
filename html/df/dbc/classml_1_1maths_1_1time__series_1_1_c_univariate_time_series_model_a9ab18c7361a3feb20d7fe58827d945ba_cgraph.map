@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::persistModelsState" name="ml::maths::time_series::CUnivariateTimeSeriesModel::persistModelsState">
+<area shape="rect" id="Node000001" title="Persist the state of the residual models only." alt="" coords="5,5,205,61"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="253,13,455,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,31,237,31,237,36,205,36"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::count" name="ml::maths::time_series::CSeasonalComponentAdaptiveBucketing::count">
+<area shape="rect" id="Node000001" title="Get the count in the bucket containing time." alt="" coords="788,107,1000,163"/>
+<area shape="rect" id="Node000002" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a57d3ec5369f2c114c2fb6aba9f16ea77" title=" " alt="" coords="543,44,739,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="803,104,740,83,701,72,702,67,741,78,805,99"/>
+<area shape="rect" id="Node000003" href="$d0/de7/_c_seasonal_component_adaptive_bucketing_test_8cc.html#a77d4b9767e6bf93ec4b49bbd2130e590" title=" " alt="" coords="543,93,739,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="772,124,739,120,740,114,773,118"/>
+<area shape="rect" id="Node000004" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#af91bf6c8db20eed8e0e918aecd33429d" title=" " alt="" coords="541,143,740,183"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="773,151,741,155,741,149,772,146"/>
+<area shape="rect" id="Node000010" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#ae7962814f01dd61874300bf7ef0bfc1d" title=" " alt="" coords="557,251,725,307"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="832,173,693,253,690,248,829,169"/>
+<area shape="rect" id="Node000005" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a954c2f848dce54b210cb10453008d50a" title=" " alt="" coords="300,5,490,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="545,137,539,133,523,115,514,96,507,78,491,61,471,49,474,44,495,57,511,75,519,94,527,112,543,129,548,133"/>
+<area shape="rect" id="Node000006" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#afa5a4a5743f70ec7b4560b16cd14f2c3" title=" " alt="" coords="297,71,493,111"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="554,140,466,114,468,109,555,135"/>
+<area shape="rect" id="Node000007" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#aba0b2f1de40ae81b63d2916ced7c15e3" title="Initialize the adaptive bucketing." alt="" coords="311,135,479,191"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="525,166,479,166,479,160,525,160"/>
+<area shape="rect" id="Node000009" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#a9385f3bf7a005668d1ba4b19637ed8b9" title=" " alt="" coords="311,215,479,271"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="563,191,480,218,478,213,561,186"/>
+<area shape="rect" id="Node000008" href="$de/da5/classml_1_1maths_1_1time__series_1_1_c_new_seasonal_component_summary.html#a4f24706e33caadc86c16b5ad00d7d6c1" title="Create a seasonal component from the initial values." alt="" coords="5,135,249,191"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="295,166,249,166,249,160,295,160"/>
+<area shape="rect" id="Node000011" href="$d1/d1d/classml_1_1maths_1_1time__series_1_1_c_seasonal_component.html#af62d3ae87e1071e261473d27958fc9ca" title=" " alt="" coords="311,295,479,351"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="542,299,480,311,479,305,541,294"/>
+</map>

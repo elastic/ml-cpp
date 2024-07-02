@@ -1,0 +1,5 @@
+<map id="ml::maths::time_series::CTimeSeriesMultibucketFeatureSerialiser::operator()" name="ml::maths::time_series::CTimeSeriesMultibucketFeatureSerialiser::operator()">
+<area shape="rect" id="Node000001" title="Persist feature by passing information to the supplied inserter." alt="" coords="5,5,222,61"/>
+<area shape="rect" id="Node000002" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a599589fbf44e55664572fd485a2ac497" title=" " alt="" coords="270,13,472,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,31,254,31,254,36,222,36"/>
+</map>

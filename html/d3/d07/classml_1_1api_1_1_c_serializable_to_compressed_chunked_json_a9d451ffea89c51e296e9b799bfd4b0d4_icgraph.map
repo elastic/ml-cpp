@@ -1,0 +1,7 @@
+<map id="ml::api::CSerializableToCompressedChunkedJson::addCompressedToJsonStream" name="ml::api::CSerializableToCompressedChunkedJson::addCompressedToJsonStream">
+<area shape="rect" id="Node000001" title=" " alt="" coords="282,45,490,101"/>
+<area shape="rect" id="Node000002" href="$d7/d1e/classml_1_1api_1_1_c_data_summarization_json_writer.html#aaa5e377c2d9c58b9e5fe7fda6d60b2bc" title="Write a compressed and chunked JSON data summarisation." alt="" coords="5,5,234,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,58,234,53,234,48,266,53"/>
+<area shape="rect" id="Node000003" href="$d3/dc0/classml_1_1api_1_1_c_inference_model_definition.html#afa0c8d0ec31c9a38baa6b6bee2913cab" title=" " alt="" coords="9,85,230,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="267,94,231,99,230,94,266,88"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CMultinomialConjugate::acceptPersistInserter" name="ml::maths::common::CMultinomialConjugate::acceptPersistInserter">
+<area shape="rect" id="Node000001" title="Persist state by passing information to the supplied inserter." alt="" coords="5,97,162,152"/>
+<area shape="rect" id="Node000002" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a1ca970f775765a617f276528656c7351" title="Get the rate at which the prior returns to non&#45;informative." alt="" coords="238,5,384,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,94,209,57,227,49,229,54,211,61,136,98"/>
+<area shape="rect" id="Node000003" href="$d6/d96/classml_1_1core_1_1_c_state_persist_inserter.html#a21319d2ecfcb0ab1aceecf2a5a463d3a" title="Store a name/value." alt="" coords="210,71,412,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,110,193,106,194,111,163,115"/>
+<area shape="rect" id="Node000004" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="231,136,391,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="163,133,216,140,215,146,162,138"/>
+<area shape="rect" id="Node000005" href="$de/df5/classml_1_1core_1_1_c_persist_utils.html#a518f0e6de0314125f712f6daec7ba0dd" title="Wrapper for containers of built in types." alt="" coords="234,201,388,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="137,150,211,186,229,193,227,198,209,191,134,155"/>
+</map>

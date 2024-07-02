@@ -1,0 +1,7 @@
+<map id="ml::maths::common::linear_algebra_detail::SVector::negative" name="ml::maths::common::linear_algebra_detail::SVector::negative">
+<area shape="rect" id="Node000001" title="Componentwise negative." alt="" coords="206,31,351,87"/>
+<area shape="rect" id="Node000002" href="$df/d08/classml_1_1maths_1_1common_1_1_c_vector.html#aaa65eef55930864e89fded906b8af618" title="Componentwise negation." alt="" coords="9,5,154,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,47,154,41,155,35,191,41"/>
+<area shape="rect" id="Node000003" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a725065cb3b6d528c988d405b6288af00" title="Componentwise negation." alt="" coords="5,71,158,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,76,159,81,158,76,190,71"/>
+</map>

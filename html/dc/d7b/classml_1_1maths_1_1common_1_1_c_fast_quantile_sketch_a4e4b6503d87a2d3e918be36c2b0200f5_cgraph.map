@@ -1,0 +1,8 @@
+<map id="ml::maths::common::CFastQuantileSketch::checksum" name="ml::maths::common::CFastQuantileSketch::checksum">
+<area shape="rect" id="Node000001" title="Get a checksum of this object." alt="" coords="5,5,152,61"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1common_1_1_c_checksum.html#aa804e3772700b00633dd3e0a996aa3ad" title="The basic checksum implementation." alt="" coords="436,13,590,54"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,28,200,27,388,27,421,27,421,33,388,32,200,32,152,33"/>
+<area shape="rect" id="Node000003" href="$df/d85/classml_1_1maths_1_1common_1_1_c_quantile_sketch.html#a7e9f534e4834433046a7d76c40221e82" title="Get a checksum of this object." alt="" coords="200,41,388,82"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,40,185,44,184,50,151,45"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="388,46,420,42,421,48,389,52"/>
+</map>

@@ -1,0 +1,22 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,152,223,177"/>
+<area shape="rect" id="Node000002" href="$dd/de0/namespaceanonymous__namespace_02_c_event_rate_data_gatherer_test_8cc_03.html#af584d1cb0837839c6d307e885f8cfc3b" title=" " alt="" coords="271,57,471,112"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,148,264,115,266,120,159,153"/>
+<area shape="rect" id="Node000007" href="$dd/de0/namespaceanonymous__namespace_02_c_event_rate_data_gatherer_test_8cc_03.html#a2483a40125eb4827afd508dd648a6950" title=" " alt="" coords="271,137,471,192"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="223,162,255,162,255,167,223,167"/>
+<area shape="rect" id="Node000010" href="$dd/de0/namespaceanonymous__namespace_02_c_event_rate_data_gatherer_test_8cc_03.html#af4c91491709b1f0e64a30013264aa699" title=" " alt="" coords="271,217,471,272"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="159,175,266,209,264,214,157,180"/>
+<area shape="rect" id="Node000003" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#a14f1839becb2ebdcc56ab497be97676b" title="Record the arrival of data at time." alt="" coords="519,13,693,54"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="471,60,503,53,504,58,472,65"/>
+<area shape="rect" id="Node000005" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a562649afce9753aaaef98cb18259de6c" title="Set the time." alt="" coords="749,71,908,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="471,83,734,87,733,92,471,88"/>
+<area shape="rect" id="Node000004" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#afb2cb2c5af5d318e62445d82e75106b9" title=" " alt="" coords="741,5,916,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="694,28,726,27,726,32,694,33"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="688,52,735,64,733,69,687,57"/>
+<area shape="rect" id="Node000006" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#a0e8637e07df976815151e4df6a04a53a" title="Get the event time." alt="" coords="964,71,1122,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="908,88,948,88,948,94,908,94"/>
+<area shape="rect" id="Node000008" href="$dd/df0/classml_1_1model_1_1_c_event_data.html#adfe0a09c8df37ba22cf5c2cedc08738b" title="Get the event person identifier." alt="" coords="527,139,685,179"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="471,159,511,158,511,164,472,165"/>
+<area shape="rect" id="Node000009" href="$d0/d91/classml_1_1model_1_1_c_data_gatherer.html#ad3019c240ddc4fb25c7945282a0e8496" title=" " alt="" coords="519,204,693,245"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="472,187,510,197,508,202,471,193"/>
+</map>

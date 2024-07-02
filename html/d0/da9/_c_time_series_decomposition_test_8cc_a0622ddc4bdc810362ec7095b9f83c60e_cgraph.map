@@ -1,0 +1,201 @@
+<map id="BOOST_FIXTURE_TEST_CASE" name="BOOST_FIXTURE_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,1826,223,1851"/>
+<area shape="rect" id="Node000002" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a6daf256e94cbea53b7c8da427e69d5fd" title=" " alt="" coords="311,675,504,730"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,1825,392,745,398,746,121,1826"/>
+<area shape="rect" id="Node000052" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#ad9c482d83e793ddaa2742f058c8196a3" title="Check if the decomposition has any initialized components." alt="" coords="940,1085,1133,1141"/>
+<area shape="poly" id="edge110_Node000001_Node000052" title=" " alt="" coords="134,1823,193,1788,230,1770,270,1756,328,1747,402,1746,576,1751,664,1752,744,1747,810,1732,835,1721,855,1706,868,1689,877,1667,888,1609,890,1539,887,1463,882,1312,888,1250,894,1224,903,1202,928,1172,959,1147,962,1151,932,1175,908,1205,899,1225,893,1251,888,1313,893,1462,895,1539,893,1610,883,1668,873,1692,859,1710,838,1725,811,1738,745,1752,664,1757,576,1757,402,1751,328,1752,271,1761,232,1775,195,1793,136,1828"/>
+<area shape="rect" id="Node000072" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#afdcd8ff75da6b504042205027b9790b8" title=" " alt="" coords="629,1640,821,1696"/>
+<area shape="poly" id="edge113_Node000001_Node000072" title=" " alt="" coords="125,1823,183,1767,224,1737,270,1712,357,1685,447,1668,535,1661,613,1659,613,1665,535,1666,448,1674,358,1690,272,1717,227,1741,186,1771,129,1827"/>
+<area shape="rect" id="Node000073" href="$dc/d57/classanonymous__namespace_02_c_time_series_decomposition_test_8cc_03_1_1_c_debug_generator.html#aaf124c8b007fee933b6f2cb550f7bce5" title=" " alt="" coords="271,1771,544,1826"/>
+<area shape="poly" id="edge97_Node000001_Node000073" title=" " alt="" coords="213,1822,255,1817,256,1822,214,1828"/>
+<area shape="rect" id="Node000074" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a0a597ff438cb525e58d2a904668676e0" title="Get the count weight to apply at time." alt="" coords="311,1851,504,1906"/>
+<area shape="poly" id="edge98_Node000001_Node000074" title=" " alt="" coords="214,1849,296,1861,296,1866,213,1855"/>
+<area shape="rect" id="Node000076" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="322,1931,493,1957"/>
+<area shape="poly" id="edge100_Node000001_Node000076" title=" " alt="" coords="138,1850,197,1883,272,1916,307,1926,306,1931,270,1921,194,1888,135,1854"/>
+<area shape="rect" id="Node000078" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ac168f6b0895b90b10c07de26aa85d367" title=" " alt="" coords="315,1985,500,2026"/>
+<area shape="poly" id="edge102_Node000001_Node000078" title=" " alt="" coords="129,1850,187,1907,227,1939,272,1967,301,1979,299,1984,269,1972,224,1943,183,1911,125,1854"/>
+<area shape="rect" id="Node000086" href="$d0/d8c/classml_1_1core_1_1_c_memory_circuit_breaker_stub.html#a0a922ecca96b58accd9b4528bb4166c6" title=" " alt="" coords="322,2074,493,2115"/>
+<area shape="poly" id="edge111_Node000001_Node000086" title=" " alt="" coords="125,1851,146,1887,179,1936,222,1988,272,2035,298,2052,325,2065,323,2070,295,2056,269,2039,218,1992,175,1939,142,1889,120,1853"/>
+<area shape="rect" id="Node000003" href="$dc/d66/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_calendar_test.html#a2288ce2ceca5976f12861d5bf40e0e55" title="Update the test with a new value." alt="" coords="612,5,838,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,674,410,563,418,487,432,402,455,313,488,226,532,144,559,106,590,71,597,65,601,69,594,75,564,109,537,147,493,228,460,315,438,403,423,487,415,564,411,674"/>
+<area shape="rect" id="Node000006" href="$df/d6c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_change_point_test.html#a164d3cc0c47ad65f9eed860528771224" title="Update the test with a new value." alt="" coords="612,165,838,221"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="409,674,422,589,434,532,452,470,475,405,506,342,544,283,590,231,597,225,600,229,594,235,548,286,510,345,480,407,457,471,439,533,427,590,414,675"/>
+<area shape="rect" id="Node000008" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a6877e6d1b4f53e7181a9bea7f1fd17a1" title="Update the components with a new value." alt="" coords="612,245,838,301"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="427,673,691,312,696,315,431,676"/>
+<area shape="rect" id="Node000010" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_seasonality_test.html#a6a5899d29bc63c7e0cd594957fa4d71e" title="Update the test with a new value." alt="" coords="612,85,838,141"/>
+<area shape="poly" id="edge13_Node000002_Node000010" title=" " alt="" coords="407,674,415,576,426,509,442,436,465,359,497,284,538,213,563,181,590,151,597,145,601,149,594,155,567,184,542,216,502,286,470,361,447,437,431,510,421,577,412,675"/>
+<area shape="rect" id="Node000011" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="648,528,801,568"/>
+<area shape="poly" id="edge16_Node000002_Node000011" title=" " alt="" coords="441,672,508,624,549,599,591,577,632,563,634,568,593,582,551,603,511,628,445,676"/>
+<area shape="rect" id="Node000012" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a22e0b8eb4527f40668c6e086eb8145ba" title="Get a factory for the seasonal components test." alt="" coords="592,592,857,648"/>
+<area shape="poly" id="edge17_Node000002_Node000012" title=" " alt="" coords="503,675,600,650,601,655,505,680"/>
+<area shape="rect" id="Node000048" href="$d7/d11/classml_1_1maths_1_1common_1_1_c_vector_nx1.html#a6fac916c38208a962dafb549def6bf47" title="Get the mean of the vector components." alt="" coords="652,845,797,886"/>
+<area shape="poly" id="edge64_Node000002_Node000048" title=" " alt="" coords="465,728,671,835,668,840,462,733"/>
+<area shape="rect" id="Node000050" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a44ec8dc4d22b5d4c7e671f9fb9607ea7" title=" " alt="" coords="629,1151,821,1206"/>
+<area shape="poly" id="edge66_Node000002_Node000050" title=" " alt="" coords="430,729,699,1136,694,1139,425,732"/>
+<area shape="rect" id="Node000064" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#acf101a27c7354538d941f33f8b74bee2" title="Propagate the decomposition forwards to time." alt="" coords="629,1456,821,1512"/>
+<area shape="poly" id="edge82_Node000002_Node000064" title=" " alt="" coords="420,730,488,935,538,1076,594,1217,651,1340,703,1441,698,1443,647,1342,590,1220,533,1077,483,937,415,732"/>
+<area shape="rect" id="Node000069" href="$de/dbe/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition.html#a9f807c8e1cfe361465aac58ebe54f2cc" title=" " alt="" coords="629,1536,821,1592"/>
+<area shape="poly" id="edge87_Node000002_Node000069" title=" " alt="" coords="414,731,432,893,467,1131,492,1254,521,1367,555,1459,574,1495,594,1522,616,1539,613,1544,590,1526,569,1498,550,1462,516,1368,486,1255,462,1132,426,893,409,731"/>
+<area shape="poly" id="edge94_Node000002_Node000072" title=" " alt="" coords="414,731,432,905,467,1165,492,1301,521,1426,555,1530,574,1571,594,1602,625,1630,621,1634,590,1606,570,1573,551,1532,516,1427,487,1302,462,1166,426,905,408,731"/>
+<area shape="rect" id="Node000004" href="$d9/db8/classml_1_1core_1_1_c_memory_circuit_breaker.html#a9e950ac41d6a6316050c7f90dea16c3b" title="Check if we can still allocate any components." alt="" coords="935,13,1138,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="838,31,920,31,920,36,838,36"/>
+<area shape="rect" id="Node000005" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="941,78,1132,103"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="839,51,948,72,948,77,838,57"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="831,162,856,151,870,141,879,131,889,121,904,112,925,104,927,109,907,117,892,126,883,135,873,145,859,155,833,167"/>
+<area shape="rect" id="Node000007" href="$d6/d52/namespaceml_1_1maths__t.html#a97443791d51e7e2ac90ce6ad0590bc59" title="Extract the effective sample count from a collection of weights." alt="" coords="971,127,1102,153"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="838,171,956,151,956,156,839,176"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="837,245,856,231,867,217,874,203,878,173,883,142,890,127,904,112,925,99,928,104,907,117,895,130,888,144,883,173,879,204,872,220,859,235,840,249"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="837,243,856,231,871,214,878,197,887,179,904,162,929,149,955,142,957,147,931,154,907,166,891,182,883,199,875,217,859,235,840,247"/>
+<area shape="rect" id="Node000009" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="999,200,1074,226"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="838,249,983,220,985,226,839,254"/>
+<area shape="poly" id="edge12_Node000009_Node000009" title=" " alt="" coords="998,206,981,196,979,189,983,183,1001,176,1036,174,1066,175,1085,180,1094,189,1090,198,1085,195,1089,190,1083,185,1065,181,1037,179,1003,181,986,187,984,190,985,193,1000,201"/>
+<area shape="poly" id="edge14_Node000010_Node000004" title=" " alt="" coords="830,82,905,63,934,55,935,60,906,68,831,87"/>
+<area shape="poly" id="edge15_Node000010_Node000007" title=" " alt="" coords="839,120,956,130,956,136,838,126"/>
+<area shape="rect" id="Node000013" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#aee776158c309bbd12d8bb5595b73b76e" title="Register a seasonal component which is already being modelled." alt="" coords="928,301,1145,357"/>
+<area shape="poly" id="edge18_Node000012_Node000013" title=" " alt="" coords="842,590,855,578,873,553,880,529,882,504,879,479,877,453,878,427,886,401,903,374,914,364,917,368,907,378,891,403,883,428,882,453,885,478,887,504,886,530,878,556,859,582,846,594"/>
+<area shape="rect" id="Node000014" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a1e3e0f20be23c43af30851e536c110f5" title="Check if it is possible to test for component given the window values." alt="" coords="1220,236,1438,292"/>
+<area shape="poly" id="edge38_Node000012_Node000014" title=" " alt="" coords="843,589,855,578,869,560,878,542,885,505,882,468,875,431,868,394,866,357,876,322,888,304,904,287,925,274,954,264,1030,253,1118,250,1205,252,1205,258,1118,255,1031,258,955,269,927,279,907,291,892,307,881,324,872,358,873,393,880,430,887,467,890,505,883,544,873,563,859,582,847,593"/>
+<area shape="rect" id="Node000017" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a0a0d6da5d79a5503b5dc3ab9f2a14cb9" title=" " alt="" coords="1510,456,1727,512"/>
+<area shape="poly" id="edge42_Node000012_Node000017" title=" " alt="" coords="841,590,855,578,870,558,876,538,876,497,875,476,877,455,886,436,904,418,924,406,949,398,1010,388,1085,388,1167,394,1341,419,1495,451,1494,456,1340,424,1167,399,1084,393,1011,394,950,403,926,411,907,422,891,439,883,457,880,476,881,497,881,539,874,561,859,582,845,594"/>
+<area shape="rect" id="Node000027" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a0978916b3af9bab63ac1ea3d4c28416c" title=" " alt="" coords="928,432,1145,488"/>
+<area shape="poly" id="edge39_Node000012_Node000027" title=" " alt="" coords="838,589,856,578,872,559,879,539,886,518,904,498,913,491,916,495,907,502,891,521,884,541,876,561,859,582,841,594"/>
+<area shape="rect" id="Node000028" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a71b6907331edf63a20ebf4578a44bbb5" title=" " alt="" coords="926,512,1147,568"/>
+<area shape="poly" id="edge40_Node000012_Node000028" title=" " alt="" coords="835,589,911,569,912,574,837,594"/>
+<area shape="rect" id="Node000029" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a203ef90bf976d5632c61ce4f10e87f0a" title=" " alt="" coords="928,592,1145,648"/>
+<area shape="poly" id="edge41_Node000012_Node000029" title=" " alt="" coords="858,617,913,617,913,623,858,623"/>
+<area shape="rect" id="Node000030" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a1004df1e81fab1d4f95f5c49a07580aa" title="Add a predictor for the currently modelled seasonal conponents." alt="" coords="928,672,1145,728"/>
+<area shape="poly" id="edge43_Node000012_Node000030" title=" " alt="" coords="837,646,913,666,912,671,835,651"/>
+<area shape="rect" id="Node000031" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#aa9078e1b87cd97d0604d141ffa1ed630" title="Fit and remove any seasonality we&#39;re modelling and can&#39;t test." alt="" coords="928,752,1145,808"/>
+<area shape="poly" id="edge44_Node000012_Node000031" title=" " alt="" coords="763,646,828,692,907,737,920,743,918,748,904,742,825,697,760,650"/>
+<area shape="rect" id="Node000047" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a2fac0cd032e13e2996b5a60a12ed5dc4" title=" " alt="" coords="928,832,1145,888"/>
+<area shape="poly" id="edge63_Node000012_Node000047" title=" " alt="" coords="746,647,773,685,810,731,856,778,907,818,915,823,913,827,904,822,852,782,806,735,769,688,742,650"/>
+<area shape="poly" id="edge19_Node000013_Node000014" title=" " alt="" coords="1145,302,1204,289,1205,294,1146,307"/>
+<area shape="rect" id="Node000019" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a72538cd860b715d43d28812a4305b2ad" title=" " alt="" coords="1510,245,1727,301"/>
+<area shape="poly" id="edge36_Node000013_Node000019" title=" " alt="" coords="1146,323,1287,315,1442,301,1494,294,1495,299,1442,306,1287,321,1146,328"/>
+<area shape="rect" id="Node000026" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a0d1174c2ef0e69bba09af71e7d837fb4" title="Get the start of the window pattern." alt="" coords="1795,428,2040,468"/>
+<area shape="poly" id="edge37_Node000013_Node000026" title=" " alt="" coords="1146,342,1490,391,1780,428,1780,433,1490,396,1145,347"/>
+<area shape="rect" id="Node000015" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#a3f257bae0c9d334c241d2f5397ccab92" title=" " alt="" coords="1510,325,1727,381"/>
+<area shape="poly" id="edge20_Node000014_Node000015" title=" " alt="" coords="1422,290,1512,318,1511,323,1421,295"/>
+<area shape="rect" id="Node000016" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#ae8b49481986580ead65cb6e05edf355f" title=" " alt="" coords="1510,115,1727,170"/>
+<area shape="poly" id="edge21_Node000014_Node000016" title=" " alt="" coords="1387,233,1489,187,1521,174,1523,179,1491,192,1389,238"/>
+<area shape="poly" id="edge22_Node000014_Node000017" title=" " alt="" coords="1366,290,1492,391,1565,445,1562,449,1488,395,1362,294"/>
+<area shape="rect" id="Node000018" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a555ae559c855e6ba4728fe9f3d5fc8b9" title="Get the period." alt="" coords="1835,190,2000,231"/>
+<area shape="poly" id="edge23_Node000014_Node000018" title=" " alt="" coords="1437,238,1490,231,1664,216,1819,209,1819,215,1664,221,1490,236,1438,244"/>
+<area shape="poly" id="edge24_Node000014_Node000019" title=" " alt="" coords="1438,265,1495,267,1494,272,1438,270"/>
+<area shape="poly" id="edge25_Node000019_Node000018" title=" " alt="" coords="1727,248,1819,228,1820,233,1728,253"/>
+<area shape="rect" id="Node000020" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a68a9faf3953009eb734e852100246e55" title="Get the window." alt="" coords="2109,250,2283,291"/>
+<area shape="poly" id="edge26_Node000019_Node000020" title=" " alt="" coords="1728,270,2093,268,2093,274,1728,275"/>
+<area shape="rect" id="Node000023" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a9ed0ba68c828a9847b3c335db34cfce1" title="Check if this applies to a time window." alt="" coords="1823,313,2012,354"/>
+<area shape="poly" id="edge29_Node000019_Node000023" title=" " alt="" coords="1728,292,1808,309,1807,314,1727,298"/>
+<area shape="rect" id="Node000025" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a112c55e9251ae108f9fda1670452cbd5" title="Get the repeat interval for the window pattern." alt="" coords="2088,381,2304,422"/>
+<area shape="poly" id="edge34_Node000019_Node000025" title=" " alt="" coords="1727,299,1749,311,1764,325,1773,339,1782,352,1797,363,1864,388,1935,403,2006,409,2072,410,2072,415,2006,415,1935,408,1862,393,1794,368,1778,355,1768,342,1760,328,1746,315,1724,304"/>
+<area shape="poly" id="edge35_Node000019_Node000026" title=" " alt="" coords="1729,298,1749,311,1767,336,1774,360,1780,384,1797,407,1812,418,1809,422,1793,411,1775,387,1769,362,1763,338,1745,315,1726,302"/>
+<area shape="rect" id="Node000021" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#aa80f9d59a04ae6faff00d0282f51d8e7" title="Get the end of the window." alt="" coords="2355,284,2552,324"/>
+<area shape="poly" id="edge27_Node000020_Node000021" title=" " alt="" coords="2284,279,2339,286,2339,292,2283,284"/>
+<area shape="rect" id="Node000022" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6584008b4716036277991ff9622c092a" title="Get the start of the window." alt="" coords="2352,349,2554,390"/>
+<area shape="poly" id="edge28_Node000020_Node000022" title=" " alt="" coords="2274,289,2305,301,2330,318,2353,334,2369,340,2366,345,2351,338,2327,322,2303,306,2272,294"/>
+<area shape="rect" id="Node000024" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a55b7710264b38c1ae35d611dce275055" title="Get the window length." alt="" coords="2089,316,2303,356"/>
+<area shape="poly" id="edge30_Node000023_Node000024" title=" " alt="" coords="2012,331,2074,332,2074,337,2012,337"/>
+<area shape="poly" id="edge33_Node000023_Node000025" title=" " alt="" coords="2004,352,2096,374,2094,379,2003,357"/>
+<area shape="poly" id="edge31_Node000024_Node000021" title=" " alt="" coords="2303,320,2339,315,2339,321,2303,325"/>
+<area shape="poly" id="edge32_Node000024_Node000022" title=" " alt="" coords="2303,347,2337,351,2336,357,2303,352"/>
+<area shape="poly" id="edge45_Node000031_Node000015" title=" " alt="" coords="1144,754,1166,738,1182,717,1189,695,1191,652,1192,607,1199,584,1214,560,1243,528,1275,499,1348,450,1424,412,1496,384,1498,389,1426,417,1351,454,1279,503,1246,531,1218,563,1204,586,1197,608,1196,652,1195,696,1186,719,1170,742,1147,759"/>
+<area shape="poly" id="edge51_Node000031_Node000017" title=" " alt="" coords="1144,753,1166,738,1178,724,1184,711,1189,682,1194,653,1201,638,1214,623,1234,608,1261,593,1332,564,1413,536,1494,512,1496,518,1415,541,1333,569,1263,598,1237,613,1218,627,1206,641,1200,655,1195,683,1189,712,1182,727,1169,742,1147,758"/>
+<area shape="rect" id="Node000032" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a366572b98bf8b6aa994a003539d24684" title=" " alt="" coords="1218,637,1440,693"/>
+<area shape="poly" id="edge46_Node000031_Node000032" title=" " alt="" coords="1135,749,1167,737,1257,698,1259,703,1169,742,1136,754"/>
+<area shape="rect" id="Node000036" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#ad2feaacd26bd1674b6e54c29154a966f" title=" " alt="" coords="1220,752,1438,808"/>
+<area shape="poly" id="edge52_Node000031_Node000036" title=" " alt="" coords="1146,777,1205,777,1205,783,1146,783"/>
+<area shape="rect" id="Node000037" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a37ce32c1f0eaed11a846fa1a6bf80f74" title=" " alt="" coords="1219,862,1439,903"/>
+<area shape="poly" id="edge53_Node000031_Node000037" title=" " alt="" coords="1134,806,1169,817,1264,853,1262,858,1167,822,1132,811"/>
+<area shape="rect" id="Node000045" href="$d2/dc7/classml_1_1maths_1_1time__series_1_1_c_time_series_test_for_seasonality.html#ab2bd99d7b10dc08827ca8172a4b932fa" title=" " alt="" coords="1220,965,1438,1021"/>
+<area shape="poly" id="edge61_Node000031_Node000045" title=" " alt="" coords="1147,803,1169,818,1188,841,1196,864,1203,888,1218,913,1240,935,1266,954,1263,959,1237,939,1214,916,1198,890,1191,866,1184,844,1166,822,1144,807"/>
+<area shape="rect" id="Node000033" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a36a516ff678660fad1b7ea2a59bbf235" title=" " alt="" coords="1508,556,1730,596"/>
+<area shape="poly" id="edge47_Node000032_Node000033" title=" " alt="" coords="1407,634,1489,607,1518,598,1519,603,1491,612,1408,639"/>
+<area shape="rect" id="Node000035" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a0f4174befdbb15759143f5adbfa7d0a2" title=" " alt="" coords="1530,645,1707,686"/>
+<area shape="poly" id="edge49_Node000032_Node000035" title=" " alt="" coords="1440,663,1515,663,1515,668,1440,668"/>
+<area shape="rect" id="Node000034" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#af4cf4570e39f7f7129edd0e65d30a8e2" title=" " alt="" coords="1797,556,2038,596"/>
+<area shape="poly" id="edge48_Node000033_Node000034" title=" " alt="" coords="1730,573,1782,573,1782,579,1730,579"/>
+<area shape="poly" id="edge50_Node000035_Node000035" title=" " alt="" coords="1565,645,1562,635,1571,626,1590,620,1619,618,1650,621,1668,627,1666,632,1649,626,1619,623,1591,625,1574,630,1567,636,1570,643"/>
+<area shape="rect" id="Node000038" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="1508,1005,1730,1061"/>
+<area shape="poly" id="edge54_Node000037_Node000038" title=" " alt="" coords="1367,901,1444,951,1467,972,1491,991,1502,996,1499,1001,1489,995,1464,976,1440,955,1364,906"/>
+<area shape="rect" id="Node000039" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="1539,710,1698,751"/>
+<area shape="poly" id="edge55_Node000037_Node000039" title=" " alt="" coords="1374,859,1408,841,1440,818,1454,803,1463,789,1472,775,1489,762,1523,745,1525,750,1491,766,1476,779,1467,792,1458,806,1444,822,1411,845,1377,864"/>
+<area shape="rect" id="Node000040" href="$dc/deb/classml_1_1maths_1_1time__series_1_1_c_signal.html#a03e3a73fd170657c2ced1d6bb79c4bfc" title="Count the number of values which have non&#45;zero count." alt="" coords="1528,776,1709,816"/>
+<area shape="poly" id="edge56_Node000037_Node000040" title=" " alt="" coords="1387,859,1489,825,1515,818,1516,823,1491,830,1388,864"/>
+<area shape="rect" id="Node000041" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa45d10b6e40c1949cbc383c2ec4980c2" title="Overload maximum for CVectorNx1." alt="" coords="1534,955,1704,981"/>
+<area shape="poly" id="edge57_Node000037_Node000041" title=" " alt="" coords="1380,901,1491,940,1525,949,1524,954,1489,945,1379,906"/>
+<area shape="rect" id="Node000042" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="1539,1085,1698,1126"/>
+<area shape="poly" id="edge58_Node000037_Node000042" title=" " alt="" coords="1378,901,1413,923,1444,951,1455,968,1461,985,1466,1015,1472,1044,1479,1057,1492,1071,1525,1091,1523,1095,1488,1075,1475,1061,1467,1046,1461,1016,1456,986,1450,971,1440,955,1409,927,1375,905"/>
+<area shape="rect" id="Node000043" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#ad2c1dddb40aa1fe32aab4fb6c320b595" title="Overload minimum for CVectorNx1." alt="" coords="1536,840,1702,866"/>
+<area shape="poly" id="edge59_Node000037_Node000043" title=" " alt="" coords="1439,869,1520,860,1520,866,1440,874"/>
+<area shape="rect" id="Node000044" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="1546,890,1691,931"/>
+<area shape="poly" id="edge60_Node000037_Node000044" title=" " alt="" coords="1440,891,1531,899,1530,905,1439,896"/>
+<area shape="rect" id="Node000046" href="$d6/db2/classml_1_1core_1_1_c_vector_range.html#a024ada4a13ec2b5173eca2f0f4c77870" title="Size of range." alt="" coords="1538,1150,1700,1191"/>
+<area shape="poly" id="edge62_Node000045_Node000046" title=" " alt="" coords="1378,1019,1411,1043,1444,1071,1458,1089,1467,1106,1476,1121,1492,1135,1524,1151,1522,1156,1488,1139,1472,1124,1462,1108,1454,1092,1440,1075,1408,1047,1375,1024"/>
+<area shape="rect" id="Node000049" href="$d8/d97/structml_1_1maths_1_1common_1_1linear__algebra__detail_1_1_s_vector.html#ada04f2e25f36a218828e4742dd9cfafa" title=" " alt="" coords="964,911,1109,982"/>
+<area shape="poly" id="edge65_Node000048_Node000049" title=" " alt="" coords="798,881,950,921,948,926,797,887"/>
+<area shape="rect" id="Node000051" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a046055e804a4bacdae97d2ae4d78707c" title="Get the calendar components." alt="" coords="923,1005,1150,1061"/>
+<area shape="poly" id="edge67_Node000050_Node000051" title=" " alt="" coords="767,1148,830,1109,904,1071,920,1064,922,1069,906,1076,833,1113,769,1152"/>
+<area shape="poly" id="edge68_Node000050_Node000052" title=" " alt="" coords="821,1156,925,1134,926,1139,822,1161"/>
+<area shape="rect" id="Node000054" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#aa3bce85474093c766420e42ee0f24616" title=" " alt="" coords="1230,1317,1428,1358"/>
+<area shape="poly" id="edge70_Node000050_Node000054" title=" " alt="" coords="821,1164,898,1161,987,1163,1079,1176,1125,1187,1169,1201,1209,1222,1245,1248,1302,1303,1299,1307,1242,1252,1206,1226,1167,1206,1123,1192,1078,1181,987,1169,899,1166,822,1170"/>
+<area shape="rect" id="Node000061" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a83341ad47c1ef12b0e0dc64c0d6062c7" title="Get the seasonal components." alt="" coords="923,1216,1150,1272"/>
+<area shape="poly" id="edge79_Node000050_Node000061" title=" " alt="" coords="822,1196,908,1214,907,1220,821,1201"/>
+<area shape="rect" id="Node000062" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#acb53ce5387b70328fc2277ba5ffa71e5" title="Get the long term trend." alt="" coords="923,1296,1150,1352"/>
+<area shape="poly" id="edge80_Node000050_Node000062" title=" " alt="" coords="769,1205,833,1244,906,1281,922,1288,920,1293,904,1286,830,1248,767,1209"/>
+<area shape="rect" id="Node000063" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#aa1bb482afcc818202a277da08e25f5f7" title="Return true if we&#39;re using the trend for prediction." alt="" coords="905,1376,1168,1432"/>
+<area shape="poly" id="edge81_Node000050_Node000063" title=" " alt="" coords="748,1205,813,1283,858,1325,907,1362,915,1367,913,1371,904,1366,854,1329,809,1287,744,1209"/>
+<area shape="rect" id="Node000053" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a484f8f20b8acc0e40b845689835786f1" title="Check if the decomposition has any initialized components." alt="" coords="1216,1085,1442,1141"/>
+<area shape="poly" id="edge69_Node000052_Node000053" title=" " alt="" coords="1133,1111,1200,1111,1200,1116,1133,1116"/>
+<area shape="poly" id="edge71_Node000054_Node000038" title=" " alt="" coords="1418,1314,1440,1297,1458,1269,1466,1241,1466,1214,1463,1186,1460,1158,1460,1129,1469,1100,1488,1071,1493,1066,1497,1070,1492,1075,1473,1103,1466,1130,1465,1157,1468,1185,1471,1213,1471,1242,1463,1271,1444,1300,1421,1318"/>
+<area shape="poly" id="edge73_Node000054_Node000042" title=" " alt="" coords="1416,1314,1440,1297,1454,1277,1461,1258,1463,1218,1465,1177,1472,1157,1488,1137,1505,1124,1523,1115,1525,1120,1507,1129,1492,1140,1477,1159,1470,1178,1468,1218,1466,1259,1459,1280,1444,1300,1419,1319"/>
+<area shape="rect" id="Node000055" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a6e49f58e9388dfb77ecfb0ec83117dcc" title="Check if the trend has been estimated." alt="" coords="1518,1216,1719,1256"/>
+<area shape="poly" id="edge72_Node000054_Node000055" title=" " alt="" coords="1397,1314,1441,1296,1464,1281,1489,1267,1509,1259,1511,1264,1491,1272,1467,1286,1443,1301,1399,1319"/>
+<area shape="rect" id="Node000056" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#a19058f2c4666633d4bba9efbdc593979" title="Get the number of parameters used to describe the trend." alt="" coords="1513,1281,1725,1322"/>
+<area shape="poly" id="edge74_Node000054_Node000056" title=" " alt="" coords="1427,1322,1497,1314,1497,1319,1428,1328"/>
+<area shape="rect" id="Node000057" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#ab2827efd37dd5007c26d31958701bc4c" title="Get the smoothing factors for the different regression models." alt="" coords="1515,1345,1722,1401"/>
+<area shape="poly" id="edge75_Node000054_Node000057" title=" " alt="" coords="1428,1347,1500,1356,1499,1361,1427,1352"/>
+<area shape="rect" id="Node000058" href="$d1/d32/classml_1_1maths_1_1time__series_1_1_c_trend_component.html#aea4d24b89e6efe94dc917bcfb2743479" title="Get the weight to assign to the prediction verses the long term mean." alt="" coords="1490,1529,1747,1570"/>
+<area shape="poly" id="edge76_Node000054_Node000058" title=" " alt="" coords="1345,1357,1368,1392,1402,1435,1443,1478,1491,1515,1500,1520,1497,1524,1489,1519,1440,1482,1398,1438,1364,1395,1340,1360"/>
+<area shape="rect" id="Node000059" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aba4d43c18f2df7d974bb32388af58951" title=" " alt="" coords="1837,1464,1998,1504"/>
+<area shape="poly" id="edge77_Node000058_Node000059" title=" " alt="" coords="1714,1526,1821,1502,1822,1507,1716,1531"/>
+<area shape="rect" id="Node000060" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a0a0e9c67bd96f53dfc7cadaad150b12f" title="Compute the maximum of first, second and third." alt="" coords="1841,1529,1994,1570"/>
+<area shape="poly" id="edge78_Node000058_Node000060" title=" " alt="" coords="1748,1547,1826,1547,1826,1552,1748,1552"/>
+<area shape="rect" id="Node000065" href="$dc/d66/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_calendar_test.html#aab999424d3006cfb5fc11ad6822437a5" title=" " alt="" coords="919,1456,1154,1512"/>
+<area shape="poly" id="edge83_Node000064_Node000065" title=" " alt="" coords="821,1481,903,1481,903,1487,821,1487"/>
+<area shape="rect" id="Node000066" href="$df/d6c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_change_point_test.html#ace61c9765cd19fb3082f239050e3ec0e" title="Age the test to account for the interval end &#45; start elapsed time." alt="" coords="907,1536,1166,1592"/>
+<area shape="poly" id="edge84_Node000064_Node000066" title=" " alt="" coords="822,1506,911,1529,910,1534,821,1511"/>
+<area shape="rect" id="Node000067" href="$de/d9a/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_components.html#a111c5bf35e43004ae647cefd007ffaec" title=" " alt="" coords="920,1616,1153,1672"/>
+<area shape="poly" id="edge85_Node000064_Node000067" title=" " alt="" coords="823,1501,859,1522,876,1542,884,1563,891,1583,907,1602,912,1606,909,1610,904,1606,886,1585,879,1565,872,1545,856,1526,820,1506"/>
+<area shape="rect" id="Node000068" href="$db/d84/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_seasonality_test.html#af2725debcb1793a06e89676c46bcdc07" title=" " alt="" coords="911,1696,1162,1752"/>
+<area shape="poly" id="edge86_Node000064_Node000068" title=" " alt="" coords="823,1498,842,1508,859,1522,875,1542,882,1563,884,1604,886,1643,893,1663,907,1682,910,1684,906,1688,903,1686,888,1665,881,1645,879,1604,877,1564,870,1545,855,1526,839,1513,820,1503"/>
+<area shape="rect" id="Node000070" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#afd6c4dcc478f22efebf90a0cfc9a8667" title="Check if time is in the window." alt="" coords="1235,1612,1423,1652"/>
+<area shape="poly" id="edge88_Node000069_Node000070" title=" " alt="" coords="823,1578,842,1588,859,1602,874,1623,881,1644,881,1687,880,1708,883,1727,891,1745,907,1762,940,1783,971,1796,1001,1802,1030,1802,1093,1788,1167,1761,1206,1742,1242,1717,1299,1662,1303,1666,1246,1721,1209,1747,1169,1766,1094,1793,1031,1807,1000,1807,970,1801,938,1788,904,1766,886,1748,877,1728,875,1708,876,1687,876,1645,870,1625,855,1606,839,1593,820,1583"/>
+<area shape="poly" id="edge92_Node000070_Node000021" title=" " alt="" coords="1409,1650,1542,1674,1623,1682,1710,1684,1798,1677,1884,1659,1925,1645,1965,1627,2003,1605,2038,1579,2058,1552,2078,1505,2098,1441,2118,1362,2158,1174,2198,964,2237,752,2275,562,2313,416,2331,366,2350,336,2354,332,2357,336,2354,339,2336,369,2318,418,2280,563,2242,753,2203,965,2164,1175,2124,1363,2103,1442,2083,1507,2062,1555,2042,1583,2006,1610,1968,1632,1927,1650,1885,1664,1798,1682,1710,1689,1623,1687,1541,1680,1408,1655"/>
+<area shape="poly" id="edge93_Node000070_Node000022" title=" " alt="" coords="1384,1650,1459,1676,1559,1705,1676,1731,1805,1748,1871,1752,1938,1752,2005,1747,2070,1736,2133,1719,2193,1695,2250,1663,2302,1623,2319,1599,2334,1556,2349,1498,2363,1426,2387,1254,2407,1057,2435,667,2448,405,2453,405,2440,667,2412,1058,2392,1254,2368,1427,2354,1499,2339,1558,2323,1601,2306,1627,2253,1668,2196,1700,2135,1724,2071,1741,2005,1752,1938,1757,1871,1757,1804,1753,1675,1736,1558,1710,1458,1681,1383,1655"/>
+<area shape="rect" id="Node000071" href="$d4/df1/classml_1_1maths_1_1time__series_1_1_c_seasonal_time.html#a6068afe55b344946a9eb4a1eb91a832b" title="Get the start of the repeat containing time." alt="" coords="1510,1449,1727,1505"/>
+<area shape="poly" id="edge89_Node000070_Node000071" title=" " alt="" coords="1352,1609,1412,1562,1489,1515,1501,1509,1504,1514,1491,1520,1415,1567,1356,1613"/>
+<area shape="poly" id="edge91_Node000071_Node000026" title=" " alt="" coords="1705,1447,1728,1431,1745,1412,1762,1378,1774,1336,1781,1287,1784,1233,1783,1112,1775,982,1766,852,1763,729,1769,624,1779,579,1793,543,1806,522,1823,504,1860,474,1864,479,1827,508,1811,525,1798,545,1784,581,1775,624,1768,729,1772,852,1780,982,1788,1112,1790,1233,1786,1288,1779,1337,1767,1380,1750,1415,1731,1435,1709,1451"/>
+<area shape="poly" id="edge90_Node000071_Node000071" title=" " alt="" coords="1563,1449,1563,1439,1573,1430,1592,1425,1619,1423,1650,1425,1668,1432,1666,1437,1648,1431,1619,1428,1593,1430,1576,1435,1568,1441,1568,1449"/>
+<area shape="poly" id="edge95_Node000072_Node000041" title=" " alt="" coords="767,1694,849,1743,900,1768,956,1788,1012,1801,1068,1803,1094,1799,1120,1791,1144,1779,1166,1762,1178,1747,1187,1727,1197,1675,1200,1612,1198,1542,1194,1404,1199,1347,1205,1323,1213,1304,1238,1271,1266,1249,1295,1235,1324,1224,1354,1214,1384,1201,1412,1181,1440,1152,1452,1130,1458,1110,1459,1069,1463,1030,1472,1011,1488,991,1517,974,1520,978,1492,995,1476,1013,1468,1032,1465,1070,1463,1110,1457,1132,1444,1155,1416,1185,1386,1206,1356,1219,1326,1229,1297,1240,1269,1254,1242,1275,1218,1307,1210,1325,1204,1348,1199,1404,1203,1542,1205,1612,1203,1676,1192,1729,1182,1750,1170,1766,1146,1783,1122,1796,1095,1804,1068,1808,1012,1806,954,1793,898,1772,846,1748,764,1698"/>
+<area shape="poly" id="edge96_Node000072_Node000072" title=" " alt="" coords="664,1639,665,1629,676,1621,696,1615,725,1613,757,1616,777,1623,775,1628,756,1621,725,1619,697,1621,679,1625,670,1632,670,1640"/>
+<area shape="rect" id="Node000075" href="$df/d6c/classml_1_1maths_1_1time__series_1_1_c_time_series_decomposition_detail_1_1_c_change_point_test.html#a908561a973ed4d21f8976c523198db0a" title="Get the count weight to apply to samples." alt="" coords="612,1841,838,1897"/>
+<area shape="poly" id="edge99_Node000074_Node000075" title=" " alt="" coords="504,1873,596,1870,596,1876,504,1878"/>
+<area shape="rect" id="Node000077" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="635,1921,814,1962"/>
+<area shape="poly" id="edge101_Node000076_Node000077" title=" " alt="" coords="493,1940,619,1939,620,1945,493,1946"/>
+<area shape="rect" id="Node000079" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="632,1986,817,2027"/>
+<area shape="poly" id="edge103_Node000078_Node000079" title=" " alt="" coords="501,2003,616,2003,616,2009,501,2008"/>
+<area shape="rect" id="Node000080" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a37f8b7909e617ad623600aead4cfc868" title="Compute the distribution mean." alt="" coords="636,2051,813,2077"/>
+<area shape="poly" id="edge104_Node000078_Node000080" title=" " alt="" coords="501,2020,637,2045,636,2050,500,2025"/>
+<area shape="rect" id="Node000081" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#aa139fb07823365e51bd2f01178d7a61a" title="Compute the mode for distribution." alt="" coords="948,2051,1125,2077"/>
+<area shape="poly" id="edge105_Node000080_Node000081" title=" " alt="" coords="814,2061,932,2061,932,2067,814,2067"/>
+<area shape="rect" id="Node000082" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="1239,1931,1419,1986"/>
+<area shape="poly" id="edge106_Node000081_Node000082" title=" " alt="" coords="1073,2048,1215,1996,1233,1989,1235,1994,1217,2001,1075,2053"/>
+<area shape="rect" id="Node000083" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="1239,2010,1419,2051"/>
+<area shape="poly" id="edge107_Node000081_Node000083" title=" " alt="" coords="1125,2051,1223,2040,1224,2045,1126,2056"/>
+<area shape="rect" id="Node000084" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#aa0600053da91719428498ec9968916c3" title="Compute ." alt="" coords="1256,2076,1402,2116"/>
+<area shape="poly" id="edge108_Node000081_Node000084" title=" " alt="" coords="1126,2071,1241,2084,1240,2089,1125,2076"/>
+<area shape="rect" id="Node000085" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="1246,2141,1412,2182"/>
+<area shape="poly" id="edge109_Node000081_Node000085" title=" " alt="" coords="1074,2075,1217,2125,1242,2133,1240,2138,1215,2130,1073,2080"/>
+<area shape="poly" id="edge112_Node000086_Node000086" title=" " alt="" coords="353,2074,350,2064,359,2055,378,2049,407,2048,439,2050,457,2056,456,2061,438,2055,407,2053,379,2055,362,2060,355,2065,358,2073"/>
+</map>

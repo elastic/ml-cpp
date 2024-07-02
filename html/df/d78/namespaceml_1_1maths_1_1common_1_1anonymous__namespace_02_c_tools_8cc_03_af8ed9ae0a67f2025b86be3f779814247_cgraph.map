@@ -1,0 +1,19 @@
+<map id="ml::maths::common::anonymous_namespace{CTools::cc}::safeMinusLogCdf" name="ml::maths::common::anonymous_namespace{CTools::cc}::safeMinusLogCdf">
+<area shape="rect" id="Node000001" title="Computes &#45;log(cdf) enforces limits and avoids underflow." alt="" coords="5,176,208,232"/>
+<area shape="poly" id="edge9_Node000001_Node000001" title=" " alt="" coords="61,175,62,166,70,157,85,151,107,149,131,152,146,159,143,164,129,157,106,155,86,157,73,161,67,168,67,176"/>
+<area shape="rect" id="Node000002" href="$d6/dd5/namespaceml_1_1maths_1_1common.html#a60cfac60a7086ae3449408c2a79beee5" title="Compute the c.d.f. at x for distribution." alt="" coords="256,191,419,217"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,201,240,201,240,207,208,207"/>
+<area shape="rect" id="Node000003" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a128ce0a627956e7931be0358fe995d2d" title=" " alt="" coords="467,5,647,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="347,189,395,133,428,101,465,71,472,67,475,71,469,75,432,105,399,137,351,192"/>
+<area shape="rect" id="Node000004" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#a55029f09f9f7e9eb786219fefbb8ff72" title="Check if value is NaN." alt="" coords="485,85,630,126"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="362,188,466,136,482,129,484,134,468,141,364,193"/>
+<area shape="rect" id="Node000005" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a4267908e2f6c547fd21f75a77f6bee78" title=" " alt="" coords="468,150,647,191"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="419,189,452,184,452,189,420,194"/>
+<area shape="rect" id="Node000006" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3b1d398255cd218c09ddfe9f75cfa829" title=" " alt="" coords="485,216,630,256"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="420,213,469,220,469,226,419,218"/>
+<area shape="rect" id="Node000007" href="$d0/d1c/classml_1_1maths_1_1common_1_1_c_log_t_distribution.html#a8f03f27080a2f59d3da535b4b4f228ef" title=" " alt="" coords="475,281,640,322"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="365,215,468,265,485,272,483,277,466,270,362,220"/>
+<area shape="rect" id="Node000008" href="$d4/da6/namespaceml.html#ad281564c6956f9a94ad02cfd663d150d" title="Scales time input to generator." alt="" coords="520,370,594,395"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="352,215,400,269,469,331,515,360,512,364,465,335,396,273,348,219"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="521,371,513,361,518,351,533,345,557,343,584,346,598,353,595,357,583,351,557,348,534,350,521,355,519,360,525,368"/>
+</map>

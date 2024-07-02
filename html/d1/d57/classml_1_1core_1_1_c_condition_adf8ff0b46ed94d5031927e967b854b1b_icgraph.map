@@ -1,0 +1,32 @@
+<map id="ml::core::CCondition::signal" name="ml::core::CCondition::signal">
+<area shape="rect" id="Node000001" title="Wake up a single thread that is blocked in wait." alt="" coords="743,231,885,271"/>
+<area shape="rect" id="Node000002" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#adfb21de7d0a02ae6e0b67cf8bfabfb19" title="Add a PID to track." alt="" coords="513,5,682,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="798,218,781,181,759,139,729,97,694,61,674,49,677,44,697,57,733,94,763,136,786,179,803,216"/>
+<area shape="rect" id="Node000003" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#a0062687851cbb17efdd68cea913729bb" title="Add a PID to track, together with its corresponding process handle." alt="" coords="513,71,682,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="787,220,747,172,721,148,694,127,671,114,673,109,697,122,725,143,751,168,791,216"/>
+<area shape="rect" id="Node000004" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#a3944ae5c4be0076ce9969ba5b5b1b783" title=" " alt="" coords="513,136,682,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="762,226,694,192,663,180,665,175,696,187,765,221"/>
+<area shape="rect" id="Node000005" href="$d9/ded/classml_1_1core_1_1detail_1_1_c_tracker_thread.html#a474588cf86007e5a88df1021abb62ec0" title=" " alt="" coords="513,201,682,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="727,242,683,236,683,231,728,237"/>
+<area shape="rect" id="Node000006" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#af51bad50ae560a7d50cb67043ac48c4f" title="Set the end&#45;of&#45;file flag." alt="" coords="257,320,452,361"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="728,266,501,307,436,322,435,317,499,302,727,261"/>
+<area shape="rect" id="Node000012" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a33de8e05f4ea43b0c9e1c12084b12d99" title="Set the fatal error flag." alt="" coords="500,316,695,357"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="747,280,652,318,650,313,745,275"/>
+<area shape="rect" id="Node000013" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a6764bea6fc641f4b83772b6b4529a018" title=" " alt="" coords="500,381,695,422"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="789,285,749,329,697,371,672,383,670,378,694,366,745,325,786,281"/>
+<area shape="rect" id="Node000014" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a273914e46f885d6b1a42214b86311ac5" title=" " alt="" coords="500,447,695,487"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="801,287,762,361,732,401,697,436,677,448,674,444,694,432,728,398,757,359,797,284"/>
+<area shape="rect" id="Node000007" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a43c67f9d7a9bb5e3525ef9d25213c0fa" title=" " alt="" coords="9,229,205,255"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="304,314,258,290,208,268,174,258,175,252,210,263,260,285,307,310"/>
+<area shape="rect" id="Node000008" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a8f1c7553cd10918ce4c30da5a1806cbb" title=" " alt="" coords="9,278,205,304"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="241,320,174,307,175,302,242,315"/>
+<area shape="rect" id="Node000009" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a81f4a96bc254bfee7f76cded942511ec" title=" " alt="" coords="9,328,205,353"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="241,343,206,343,206,338,241,338"/>
+<area shape="rect" id="Node000010" href="$d1/d9c/_c_dual_thread_stream_buf_test_8cc.html#a53b5ec34d27fa4199633ea75b7549158" title=" " alt="" coords="9,377,205,403"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="242,365,175,379,174,374,241,360"/>
+<area shape="rect" id="Node000011" href="$df/db9/classml_1_1core_1_1_c_compress_o_stream_1_1_c_compress_thread.html#ab750e1c6f2841103e47e9265f8ab8874" title=" " alt="" coords="5,427,209,467"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="305,371,210,417,180,429,178,424,208,413,303,366"/>
+<area shape="poly" id="edge14_Node000014_Node000006" title=" " alt="" coords="514,443,499,436,435,399,382,363,385,359,438,395,501,431,516,438"/>
+<area shape="rect" id="Node000015" href="$d1/d43/classml_1_1core_1_1_c_dual_thread_stream_buf.html#a1f0f227dfff69eee020af75f12941cdb" title=" " alt="" coords="257,447,452,487"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="484,470,452,470,452,464,484,464"/>
+</map>

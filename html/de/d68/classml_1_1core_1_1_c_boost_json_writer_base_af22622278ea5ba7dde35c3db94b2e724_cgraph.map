@@ -1,0 +1,18 @@
+<map id="ml::core::CBoostJsonWriterBase::onTime" name="ml::core::CBoostJsonWriterBase::onTime">
+<area shape="rect" id="Node000001" title="Writes an epoch second timestamp as an epoch millis timestamp." alt="" coords="5,100,188,141"/>
+<area shape="rect" id="Node000002" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#adb061fcc70caf7532a29e853ae1a3aa5" title=" " alt="" coords="502,5,684,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,97,179,73,235,52,299,38,365,29,486,22,487,27,365,35,300,44,236,58,182,78,134,102"/>
+<area shape="rect" id="Node000003" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a7919b15a679221e5db944cde94fa090a" title=" " alt="" coords="236,67,454,107"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,105,220,101,221,106,189,111"/>
+<area shape="rect" id="Node000006" href="$dd/df4/classml_1_1core_1_1_c_time_utils.html#a628750eca37e99b7ee659670f7b5752d" title="Converts an epoch seconds timestamp to epoch millis." alt="" coords="274,132,416,173"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="189,129,259,139,258,144,188,135"/>
+<area shape="rect" id="Node000007" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="271,197,419,238"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="140,139,237,182,258,190,256,195,235,187,138,144"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="429,63,493,48,494,53,431,69"/>
+<area shape="rect" id="Node000004" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#a9a5d865616f6cc71fc27a44990038359" title=" " alt="" coords="502,71,684,111"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="455,86,486,87,486,92,455,91"/>
+<area shape="rect" id="Node000005" href="$de/d68/classml_1_1core_1_1_c_boost_json_writer_base.html#aa6cd752efab09073962c43c2bd3a8317" title=" " alt="" coords="502,136,684,177"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="421,105,504,129,502,134,420,111"/>
+<area shape="rect" id="Node000008" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="570,205,616,231"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="419,215,555,215,555,220,419,220"/>
+</map>

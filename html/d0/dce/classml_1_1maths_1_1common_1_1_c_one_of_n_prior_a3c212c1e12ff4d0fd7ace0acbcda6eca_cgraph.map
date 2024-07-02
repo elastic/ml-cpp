@@ -1,0 +1,49 @@
+<map id="ml::maths::common::COneOfNPrior::addSamples" name="ml::maths::common::COneOfNPrior::addSamples">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,453,192,494"/>
+<area shape="rect" id="Node000002" href="$dc/dbb/structml_1_1maths_1_1common_1_1_c_basic_statistics_1_1_s_sample_central_moments.html#acc61d392a0de1c035fe149a84fd252ca" title="Update the moments with the collection x." alt="" coords="523,5,745,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,452,102,378,110,328,121,273,139,217,164,163,196,113,238,71,268,51,300,36,370,16,441,9,508,11,508,16,441,15,371,22,302,41,270,56,241,75,200,116,168,165,144,219,127,275,115,329,108,379,103,452"/>
+<area shape="rect" id="Node000003" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#ab2a88a76569ab190bb4c1031a15e1f20" title=" " alt="" coords="285,338,430,379"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,450,182,422,239,395,271,382,273,387,241,400,185,427,135,455"/>
+<area shape="rect" id="Node000004" href="$d6/d52/namespaceml_1_1maths__t.html#a02a41a54474fbd8c36bdc5358e5427d9" title=" " alt="" coords="539,375,730,401"/>
+<area shape="poly" id="edge14_Node000001_Node000004" title=" " alt="" coords="185,450,239,439,387,415,523,397,523,403,388,420,240,444,186,455"/>
+<area shape="rect" id="Node000005" href="$dd/dc8/classml_1_1maths_1_1common_1_1_c_maths_funcs.html#ab52348364d83f5ba2b81c8caa25544c5" title="Neither infinite nor NaN." alt="" coords="558,237,711,278"/>
+<area shape="poly" id="edge18_Node000001_Node000005" title=" " alt="" coords="108,451,127,417,156,375,193,334,238,300,294,282,372,270,542,257,542,262,373,275,295,287,241,305,197,337,160,378,132,420,112,454"/>
+<area shape="rect" id="Node000006" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#abe06843b545ae359ae46843a14a11116" title=" " alt="" coords="265,85,450,126"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="100,452,112,392,136,309,154,264,177,220,205,178,238,142,252,131,255,136,241,146,209,182,182,222,159,266,141,310,117,393,105,453"/>
+<area shape="rect" id="Node000008" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0f2fb0806edf2911a2074e6c0162857b" title="Get the current values for the model weights." alt="" coords="555,150,714,191"/>
+<area shape="poly" id="edge28_Node000001_Node000008" title=" " alt="" coords="100,452,112,396,136,322,155,283,177,246,205,213,238,186,273,167,311,153,351,144,391,139,469,139,540,147,539,152,469,144,391,144,351,149,313,158,276,171,241,190,209,217,182,249,159,286,141,324,117,397,105,453"/>
+<area shape="rect" id="Node000010" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a71210ca753f91a9dab7cd27a98d1fd42" title="Check that the model weights are valid." alt="" coords="266,200,449,240"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="105,452,123,411,152,358,190,304,213,279,238,256,255,245,258,250,241,261,217,282,194,307,156,361,128,413,110,454"/>
+<area shape="rect" id="Node000011" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0e86f4a3d223f85d44725fddb3832359" title="Full debug dump of the model weights." alt="" coords="259,453,456,494"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="192,471,244,471,244,476,192,476"/>
+<area shape="rect" id="Node000012" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1ca970f775765a617f276528656c7351" title="Lift all overloads of the decayRate into scope." alt="" coords="546,478,723,519"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="178,492,240,503,315,508,392,510,530,505,530,510,392,515,315,514,239,508,177,497"/>
+<area shape="rect" id="Node000013" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a3a938cfbf2281b033d36a1d7a54b38de" title=" " alt="" coords="285,682,430,723"/>
+<area shape="poly" id="edge17_Node000001_Node000013" title=" " alt="" coords="112,492,131,529,160,574,197,621,241,662,271,678,269,683,238,666,193,625,156,577,127,531,107,495"/>
+<area shape="rect" id="Node000014" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a6ebf8a8f265d7d778b384b44b524f543" title="Check if this is a non&#45;informative prior." alt="" coords="251,748,464,788"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="108,493,123,542,149,607,188,675,213,706,241,732,248,738,245,742,238,737,209,709,184,678,145,609,118,544,102,495"/>
+<area shape="rect" id="Node000015" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a0df265355cd8ccdeeea29ed14037d89d" title="Get the number of samples received to date." alt="" coords="554,633,714,674"/>
+<area shape="poly" id="edge20_Node000001_Node000015" title=" " alt="" coords="114,492,135,522,164,557,200,591,241,617,277,632,315,644,394,658,470,662,539,661,539,666,470,668,393,663,314,649,275,637,238,622,196,595,160,560,131,525,110,495"/>
+<area shape="rect" id="Node000016" href="$d6/d99/classml_1_1maths_1_1common_1_1_c_prior.html#a80deb8a1b42f66dd185d657eec72d1e1" title=" " alt="" coords="285,813,430,854"/>
+<area shape="poly" id="edge21_Node000001_Node000016" title=" " alt="" coords="105,493,117,553,141,636,159,680,181,723,209,763,241,798,272,816,269,821,238,802,204,766,176,726,154,682,136,637,111,555,100,494"/>
+<area shape="rect" id="Node000017" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a107dc6fc6c4d51e1c1ca832957076696" title="Reset the prior to non&#45;informative." alt="" coords="240,568,475,608"/>
+<area shape="poly" id="edge22_Node000001_Node000017" title=" " alt="" coords="135,492,185,519,241,547,273,559,271,564,239,552,182,524,133,496"/>
+<area shape="rect" id="Node000019" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a53b366eca7a0bae43e1c6d54573f3dcb" title=" " alt="" coords="269,878,446,919"/>
+<area shape="poly" id="edge27_Node000001_Node000019" title=" " alt="" coords="103,493,111,564,132,664,150,717,174,771,204,820,241,863,257,875,254,879,238,867,200,823,169,773,145,719,127,665,106,565,98,494"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="309,338,306,328,314,319,331,313,357,312,385,314,402,320,400,325,384,319,357,317,333,319,317,324,312,329,314,337"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="431,364,523,373,522,379,430,369"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="415,335,561,281,563,286,416,340"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="438,82,509,63,510,68,439,87"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="394,124,524,200,577,227,575,232,522,205,391,128"/>
+<area shape="rect" id="Node000007" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="555,85,714,126"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="450,103,539,103,539,108,450,108"/>
+<area shape="poly" id="edge10_Node000006_Node000008" title=" " alt="" coords="447,124,540,146,539,151,446,129"/>
+<area shape="rect" id="Node000009" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a0cc7c3770a53ee829b03121814ed45f8" title="Get the current values for the log model weights." alt="" coords="793,150,972,191"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="714,168,778,168,778,173,714,173"/>
+<area shape="poly" id="edge13_Node000010_Node000005" title=" " alt="" coords="449,229,542,242,542,247,448,235"/>
+<area shape="poly" id="edge23_Node000017_Node000012" title=" " alt="" coords="422,564,474,547,522,529,547,521,549,526,524,534,476,552,424,569"/>
+<area shape="poly" id="edge24_Node000017_Node000015" title=" " alt="" coords="447,606,539,628,538,633,446,611"/>
+<area shape="rect" id="Node000018" href="$d0/dce/classml_1_1maths_1_1common_1_1_c_one_of_n_prior.html#a1ecba4e7d787e7831e2f5b44dc4cc815" title="Get the maximum model offset." alt="" coords="561,568,708,608"/>
+<area shape="poly" id="edge25_Node000017_Node000018" title=" " alt="" coords="475,585,545,585,545,591,475,591"/>
+<area shape="poly" id="edge26_Node000018_Node000018" title=" " alt="" coords="588,568,585,557,593,548,609,543,634,541,661,543,677,549,675,554,660,548,634,546,610,548,596,553,590,559,593,566"/>
+</map>

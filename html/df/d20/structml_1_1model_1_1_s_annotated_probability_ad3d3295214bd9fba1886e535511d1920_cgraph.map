@@ -1,0 +1,5 @@
+<map id="ml::model::SAnnotatedProbability::isInterim" name="ml::model::SAnnotatedProbability::isInterim">
+<area shape="rect" id="Node000001" title="Is the result type interim?" alt="" coords="5,5,221,46"/>
+<area shape="rect" id="Node000002" href="$d6/d9a/classml_1_1model__t_1_1_c_result_type.html#ae05a6d9ec986de079bbcedc24b4b1ee3" title="Check if this is interim." alt="" coords="269,5,442,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,23,253,23,253,28,221,28"/>
+</map>

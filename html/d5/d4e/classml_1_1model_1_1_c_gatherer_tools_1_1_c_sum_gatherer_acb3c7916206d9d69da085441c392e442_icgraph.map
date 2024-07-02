@@ -1,0 +1,5 @@
+<map id="ml::model::CGathererTools::CSumGatherer::featureData" name="ml::model::CGathererTools::CSumGatherer::featureData">
+<area shape="rect" id="Node000001" title="Get the feature data for the current bucketing interval." alt="" coords="290,20,482,61"/>
+<area shape="rect" id="Node000002" href="$dc/d7f/structml_1_1model_1_1anonymous__namespace_02_c_metric_bucket_gatherer_8cc_03_1_1_s_extract_feature_data.html#a56ebdf7e5522b86c982ad1e973057c18" title=" " alt="" coords="5,5,242,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="274,43,242,43,242,38,274,38"/>
+</map>

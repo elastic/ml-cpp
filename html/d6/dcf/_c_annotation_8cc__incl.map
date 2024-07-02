@@ -1,0 +1,13 @@
+<map id="lib/model/CAnnotation.cc" name="lib/model/CAnnotation.cc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="144,5,311,31"/>
+<area shape="rect" id="Node000002" href="$d5/dc3/_c_annotation_8h.html" title=" " alt="" coords="156,79,299,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,31,230,63,225,63,225,31"/>
+<area shape="rect" id="Node000003" href="$db/d04/_core_types_8h.html" title=" " alt="" coords="5,153,130,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="201,108,110,148,107,144,199,103"/>
+<area shape="rect" id="Node000005" href="$de/d8d/model_2_import_export_8h.html" title=" " alt="" coords="154,153,301,178"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="230,105,230,137,225,137,225,105"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="325,153,378,178"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="250,103,319,142,316,147,247,108"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="39,226,96,252"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="70,179,70,211,65,211,65,179"/>
+</map>

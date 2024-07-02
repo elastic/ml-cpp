@@ -1,0 +1,15 @@
+<map id="ml::core::CFlatPrefixTree::build" name="ml::core::CFlatPrefixTree::build">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,174,103"/>
+<area shape="rect" id="Node000002" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#a3c93c774f1385bee9d579c358ea7462b" title="The recursive building helper." alt="" coords="222,29,390,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,67,206,62,207,68,174,73"/>
+<area shape="rect" id="Node000005" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad06d73c85fb99d9a9888376159c88fd4" title="Pretty&#45;prints the tree." alt="" coords="222,95,390,135"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="174,93,207,98,206,103,174,98"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="265,29,263,19,270,10,284,5,306,3,329,5,343,11,341,16,328,10,306,8,285,10,273,15,268,21,270,28"/>
+<area shape="rect" id="Node000003" href="$d5/d9a/classml_1_1core_1_1_c_flat_prefix_tree.html#ad118d5a20419d6b6f4739b353fe9ba34" title=" " alt="" coords="438,29,616,70"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="390,47,423,47,423,52,390,52"/>
+<area shape="rect" id="Node000004" href="$d3/d2e/private_8h.html#a1c6de65cc31c36fe2ede0d438531d327" title=" " alt="" coords="664,70,711,96"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="617,66,649,73,648,78,616,71"/>
+<area shape="rect" id="Node000006" href="$d1/dfa/classml_1_1core_1_1_c_string_utils.html#a0309dd25326b7d77c70fe5e6949b9e71" title="Convert a type to a string." alt="" coords="454,95,601,135"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="390,112,438,112,438,118,390,118"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="601,98,649,88,650,93,602,103"/>
+</map>

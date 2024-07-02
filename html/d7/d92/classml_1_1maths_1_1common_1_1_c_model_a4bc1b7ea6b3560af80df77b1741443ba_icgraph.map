@@ -1,0 +1,11 @@
+<map id="ml::maths::common::CModel::predict" name="ml::maths::common::CModel::predict">
+<area shape="rect" id="Node000001" title="Get the best (least MSE) predicted value at time." alt="" coords="273,104,418,145"/>
+<area shape="rect" id="Node000002" href="$dc/d14/classml_1_1model_1_1_c_event_rate_model.html#af2bc7b92e10c479ae661af0b5c51ebae" title=" " alt="" coords="18,5,212,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="296,98,224,61,190,49,192,44,226,57,299,94"/>
+<area shape="rect" id="Node000003" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a0a00f27876d274e092ad6f760bd251ff" title=" " alt="" coords="5,71,225,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,114,225,110,225,104,258,109"/>
+<area shape="rect" id="Node000004" href="$da/dfb/classml_1_1model_1_1_c_metric_model.html#a6b39bc0ee189dd174aad1b817e6af128" title=" " alt="" coords="31,136,199,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,139,199,147,199,142,257,134"/>
+<area shape="rect" id="Node000005" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a62671b447ad01f481dfbaecf30570106" title=" " alt="" coords="18,201,212,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="298,155,226,191,192,203,190,198,224,186,295,150"/>
+</map>

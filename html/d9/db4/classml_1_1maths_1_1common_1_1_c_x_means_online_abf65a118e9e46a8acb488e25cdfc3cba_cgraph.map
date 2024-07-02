@@ -1,0 +1,12 @@
+<map id="ml::maths::common::CXMeansOnline::maybeSplit" name="ml::maths::common::CXMeansOnline::maybeSplit">
+<area shape="rect" id="Node000001" title="Split cluster if we find a good split." alt="" coords="5,65,195,106"/>
+<area shape="rect" id="Node000002" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a064fa6dd7a75362d732046a98332c4d6" title=" " alt="" coords="245,29,409,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,68,229,62,230,68,196,73"/>
+<area shape="rect" id="Node000004" href="$d5/d42/classml_1_1maths_1_1common_1_1_c_clusterer.html#ab45fb80d5020067beaa42956b2359fdb" title=" " alt="" coords="243,94,411,150"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="196,98,228,103,227,109,195,103"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="287,29,285,19,292,10,306,5,327,3,350,5,363,11,361,16,348,10,327,8,307,10,295,15,290,20,292,28"/>
+<area shape="rect" id="Node000003" href="$d9/db4/classml_1_1maths_1_1common_1_1_c_x_means_online.html#a3596fdd65798421a6755966082b8d22f" title="The total count of points." alt="" coords="459,29,615,70"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="409,56,444,56,444,61,409,61"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="459,44,424,43,424,38,459,38"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="497,29,495,19,502,10,516,5,537,3,560,5,574,11,571,16,559,10,537,8,517,10,505,15,501,20,502,28"/>
+</map>

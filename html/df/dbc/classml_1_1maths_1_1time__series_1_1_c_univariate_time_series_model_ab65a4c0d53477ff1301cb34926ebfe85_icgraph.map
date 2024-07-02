@@ -1,0 +1,17 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::cloneForForecast" name="ml::maths::time_series::CUnivariateTimeSeriesModel::cloneForForecast">
+<area shape="rect" id="Node000001" title="Create a copy of the state we need to run forecasting." alt="" coords="494,40,693,95"/>
+<area shape="rect" id="Node000002" href="$d1/dde/_c_forecast_test_8cc.html#ad42e086bd0f9327a48da0ca36b1f8a92" title=" " alt="" coords="250,5,446,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="478,47,415,34,416,29,479,42"/>
+<area shape="rect" id="Node000003" href="$d1/dde/_c_forecast_test_8cc.html#a70cc70fe7d81a6f242ec06a81071f5bd" title=" " alt="" coords="250,55,446,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="478,70,446,70,446,65,478,65"/>
+<area shape="rect" id="Node000004" href="$db/dde/classanonymous__namespace_02_c_forecast_test_8cc_03_1_1_c_test.html#a6ede2ad9f3a7a40577da81f22f10d7bf" title=" " alt="" coords="267,105,429,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="480,101,430,114,429,109,478,95"/>
+<area shape="rect" id="Node000005" href="$d1/dde/_c_forecast_test_8cc.html#a28992938b93647afb83a53246e509905" title=" " alt="" coords="5,45,202,71"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="255,102,201,85,162,74,164,69,202,80,256,97"/>
+<area shape="rect" id="Node000006" href="$d1/dde/_c_forecast_test_8cc.html#a19e2174c93ee23be6129488081463518" title=" " alt="" coords="5,95,202,120"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="251,125,202,120,202,115,251,120"/>
+<area shape="rect" id="Node000007" href="$d1/dde/_c_forecast_test_8cc.html#a6f0a097737936cba7ec32a5bce60ca3d" title=" " alt="" coords="5,144,202,170"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="251,145,202,150,202,145,251,140"/>
+<area shape="rect" id="Node000008" href="$d1/dde/_c_forecast_test_8cc.html#a3bf9a5986a59219078bac60c69302d4b" title=" " alt="" coords="5,193,202,219"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="254,169,202,185,163,195,162,190,201,180,252,164"/>
+</map>

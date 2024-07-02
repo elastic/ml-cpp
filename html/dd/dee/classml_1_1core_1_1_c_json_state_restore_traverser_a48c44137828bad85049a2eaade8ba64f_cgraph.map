@@ -1,0 +1,11 @@
+<map id="ml::core::CJsonStateRestoreTraverser::skipArray" name="ml::core::CJsonStateRestoreTraverser::skipArray">
+<area shape="rect" id="Node000001" title="Skip the (JSON) array until it ends." alt="" coords="5,35,197,75"/>
+<area shape="rect" id="Node000002" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#ae8f1d09343a533cc2a3cba46e85bfb6c" title="Log an error that the JSON parser has detected." alt="" coords="484,5,675,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,47,468,30,469,35,197,52"/>
+<area shape="rect" id="Node000004" href="$dd/dee/classml_1_1core_1_1_c_json_state_restore_traverser.html#a91e307b74b7d1a0328b29353bb8b16a6" title="Continue parsing the JSON structure." alt="" coords="245,63,436,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,64,229,67,229,73,197,69"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#aca803b26910f74a487f9dfd94ab7d305" title=" " alt="" coords="723,35,942,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="676,34,708,38,707,43,676,39"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="427,59,476,48,478,53,429,65"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="436,75,708,59,708,65,437,80"/>
+</map>

@@ -1,0 +1,27 @@
+<map id="ml::maths::time_series::CCalendarComponent::initialize" name="ml::maths::time_series::CCalendarComponent::initialize">
+<area shape="rect" id="Node000001" title="Initialize the adaptive bucketing." alt="" coords="5,281,172,337"/>
+<area shape="rect" id="Node000002" href="$d2/da4/classml_1_1maths_1_1time__series_1_1_c_calendar_component.html#a7d16389504c7ed3db6507202d65ef575" title="Clear all data." alt="" coords="227,133,422,174"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,279,278,180,281,184,134,283"/>
+<area shape="rect" id="Node000009" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#acdfe6bc38f68ac9feb1533852df71517" title=" " alt="" coords="220,281,429,337"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="172,307,204,307,204,312,172,312"/>
+<area shape="rect" id="Node000013" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#ae5fdbab311799e4ff5fa5c6142020635" title="Get the maximum size to use for the bucketing." alt="" coords="228,361,421,417"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="173,335,227,353,225,358,171,340"/>
+<area shape="rect" id="Node000003" href="$de/d1f/classml_1_1maths_1_1time__series_1_1_c_calendar_component_adaptive_bucketing.html#a22d3f8880e91a70d54cb0fa07a967589" title=" " alt="" coords="477,5,686,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="361,130,476,71,489,65,491,70,478,76,364,135"/>
+<area shape="rect" id="Node000005" href="$d3/dc9/classml_1_1maths_1_1time__series_1_1_c_decomposition_component.html#a0962ce7ea8a1498c1c48b43a7f39db3d" title="Clear all data." alt="" coords="485,85,678,141"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="422,135,469,128,470,133,422,141"/>
+<area shape="rect" id="Node000008" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a94e6921385917f4f4e412d167ccbaf63" title="Check if the bucketing has been initialized." alt="" coords="504,165,660,221"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="422,166,489,176,488,181,422,171"/>
+<area shape="rect" id="Node000004" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#ab0af8e4d8ac3614dac357876ee23e91f" title=" " alt="" coords="739,13,923,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="687,31,723,31,723,36,687,36"/>
+<area shape="rect" id="Node000006" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a56aeb88c79e113285c10d6c541b80ffd" title="Clear the splines." alt="" coords="734,81,928,137"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="679,109,719,108,719,114,679,114"/>
+<area shape="rect" id="Node000007" href="$d1/d87/classml_1_1maths_1_1time__series_1_1_c_decomposition_component_1_1_c_packed_splines.html#a638a84f6600ed79cb6063c02dd83b38b" title="Check if the splines have been initialized." alt="" coords="734,161,928,217"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="676,139,724,154,722,159,674,144"/>
+<area shape="rect" id="Node000010" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#aee4b961577250cd3b17e0cc93e50d922" title=" " alt="" coords="504,245,660,301"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="429,292,488,284,488,289,430,297"/>
+<area shape="rect" id="Node000011" href="$d7/d17/classml_1_1maths_1_1time__series_1_1_c_adaptive_bucketing.html#a83bf2ff948fc0a5e9dbd5079a9ad3918" title="Get the number of buckets." alt="" coords="492,325,672,366"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="430,321,476,328,476,333,429,327"/>
+<area shape="rect" id="Node000012" href="$d9/d43/classml_1_1maths_1_1time__series_1_1_c_calendar_feature.html#a383db66bf90ea9dd68ac211166aad5af" title="Get this feature&#39;s window." alt="" coords="488,390,675,431"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="404,335,430,347,478,375,495,382,493,387,476,380,428,352,402,340"/>
+</map>

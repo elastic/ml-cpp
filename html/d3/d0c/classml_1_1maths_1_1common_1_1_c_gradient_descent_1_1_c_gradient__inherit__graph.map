@@ -1,0 +1,5 @@
+<map id="ml::maths::common::CGradientDescent::CGradient" name="ml::maths::common::CGradientDescent::CGradient">
+<area shape="rect" id="Node000001" title="The interface for the gradient calculation." alt="" coords="8,5,204,46"/>
+<area shape="rect" id="Node000002" href="$d7/d28/classml_1_1maths_1_1common_1_1_c_gradient_descent_1_1_c_empirical_central_gradient.html" title="Computes the gradient using the central difference method." alt="" coords="5,94,207,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,61,109,93,103,93,103,61"/>
+</map>

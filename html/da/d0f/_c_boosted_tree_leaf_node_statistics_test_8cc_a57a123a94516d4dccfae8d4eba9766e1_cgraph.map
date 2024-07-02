@@ -1,0 +1,25 @@
+<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,324,202,350"/>
+<area shape="rect" id="Node000002" href="$d2/dba/namespaceanonymous__namespace_02_c_boosted_tree_leaf_node_statistics_test_8cc_03.html#a75e700c7e3db86ac783de45bda1648c5" title=" " alt="" coords="250,309,470,365"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,335,234,335,234,340,202,340"/>
+<area shape="rect" id="Node000003" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a6d024bd28a9d1d5b66a9d4164213e707" title="Add count and derivatives." alt="" coords="518,5,742,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="368,308,388,258,419,194,462,129,488,98,516,71,521,68,524,72,520,75,492,102,466,132,424,197,393,260,373,310"/>
+<area shape="rect" id="Node000004" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#aa350812786ff86e7042ff24282c6af4e" title="Set the accumulated count." alt="" coords="518,85,742,141"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="376,307,433,230,472,188,516,151,523,147,526,151,520,155,476,192,437,234,381,310"/>
+<area shape="rect" id="Node000005" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a061d2692a8ee1f331423d1b3d24d8a07" title="Get the accumulated curvature." alt="" coords="518,165,742,221"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="397,307,452,268,517,231,529,225,531,230,519,236,455,273,400,311"/>
+<area shape="rect" id="Node000006" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#a606c79ca4207c239644733566d57e084" title=" " alt="" coords="538,245,723,286"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="466,306,536,287,537,293,468,311"/>
+<area shape="rect" id="Node000008" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a02360e69e15ba568928a3dd6dc429cca" title="Get the accumulated gradient." alt="" coords="518,309,742,365"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="470,335,503,335,503,340,470,340"/>
+<area shape="rect" id="Node000009" href="$d2/dba/namespaceanonymous__namespace_02_c_boosted_tree_leaf_node_statistics_test_8cc_03.html#a149e1b5c68e7be5b444428b61d29e296" title=" " alt="" coords="520,389,740,445"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="457,363,520,382,519,387,456,368"/>
+<area shape="rect" id="Node000010" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a9134e2245da3aeaf4cfe42227de3c6b8" title="Remap the accumulated curvature to lower triangle row major format." alt="" coords="518,469,742,525"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="394,363,450,409,519,455,529,460,527,465,517,459,447,414,391,368"/>
+<area shape="rect" id="Node000011" href="$d8/df3/classml_1_1core_1_1_c_alignment.html#a2fb7854074e15d768c1f087a6340a8ad" title="Round up n items of T so they use a multiple of alignment size memory." alt="" coords="558,549,702,590"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="378,364,401,403,433,449,473,496,519,535,545,548,542,553,517,539,469,499,429,452,396,406,374,367"/>
+<area shape="rect" id="Node000012" href="$d5/d8d/classml_1_1maths_1_1analytics_1_1_c_boosted_tree_leaf_node_statistics_1_1_c_derivatives.html#a37f23b7a77a1693f3d9520c26a9c48ea" title="Set to the difference of lhs and rhs." alt="" coords="518,613,742,669"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="373,364,393,414,424,477,466,543,492,573,520,599,524,603,521,607,516,603,488,576,462,546,419,480,388,417,368,366"/>
+<area shape="rect" id="Node000007" href="$d5/d63/classml_1_1test_1_1_c_random_numbers.html#ab3710e6568aaf279f2a795475c71d547" title="Generate random samples from the specified distribution using a custom random number generator." alt="" coords="790,245,976,286"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="723,263,775,263,775,268,723,268"/>
+</map>

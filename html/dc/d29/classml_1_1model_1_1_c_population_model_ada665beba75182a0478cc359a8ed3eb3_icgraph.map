@@ -1,0 +1,20 @@
+<map id="ml::model::CPopulationModel::attributeFirstBucketTimes" name="ml::model::CPopulationModel::attributeFirstBucketTimes">
+<area shape="rect" id="Node000001" title="Get the first time each attribute was seen." alt="" coords="552,169,744,210"/>
+<area shape="rect" id="Node000002" href="$d1/db3/classml_1_1model_1_1_c_event_rate_population_model_details_view.html#a9184b0710b683f5dd45e62d4a7995029" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="273,5,504,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="618,159,567,109,536,83,503,61,476,49,478,44,505,57,539,79,571,105,622,156"/>
+<area shape="rect" id="Node000003" href="$df/dd1/classml_1_1model_1_1_c_metric_population_model_details_view.html#a989169ca9259355496c96ad8f58acdcf" title="Get the time interval from the first to last data point of byFieldId." alt="" coords="273,71,504,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="591,165,503,127,466,114,468,109,505,122,593,160"/>
+<area shape="rect" id="Node000004" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a3df1f489824a7a890c2c3a5742d444af" title=" " alt="" coords="279,136,498,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="536,178,498,173,499,168,537,173"/>
+<area shape="rect" id="Node000006" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#ad1b7111685b6d39fa4be3325acbde9e8" title=" " alt="" coords="292,201,485,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="537,206,486,212,485,207,536,201"/>
+<area shape="rect" id="Node000008" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a50dbd54cdd38c81eb0cef9cd44458c85" title=" " alt="" coords="279,267,498,307"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="592,220,505,256,468,269,466,263,503,251,589,215"/>
+<area shape="rect" id="Node000009" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#aee59e116a3bb9c8d76bc359b9d7ab554" title=" " alt="" coords="292,356,485,397"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="619,223,568,272,505,321,440,358,437,353,503,317,564,268,615,219"/>
+<area shape="rect" id="Node000005" href="$d0/d77/classml_1_1model_1_1_c_event_rate_population_model.html#a1f6bcc812dfb5fd684f4a6ad6fb51947" title=" " alt="" coords="5,136,225,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="263,159,225,159,225,154,263,154"/>
+<area shape="rect" id="Node000007" href="$d2/d49/classml_1_1model_1_1_c_metric_population_model.html#a29261a9ee0d70391b539f75c8320d008" title=" " alt="" coords="18,201,212,242"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="276,224,212,224,212,219,276,219"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="431,343,415,337,388,335,363,337,348,341,342,347,345,355,340,356,337,346,345,337,362,331,388,329,416,332,433,338"/>
+</map>

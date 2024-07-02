@@ -1,0 +1,7 @@
+<map id="ml::api::CSimpleOutputWriter" name="ml::api::CSimpleOutputWriter">
+<area shape="rect" id="Node000001" title="Interface for simple output of homogenous key/value pairs." alt="" coords="101,5,293,31"/>
+<area shape="rect" id="Node000002" href="$d9/dfe/classml_1_1api_1_1_c_csv_output_writer.html" title="Write output data in CSV format." alt="" coords="5,79,181,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,42,112,81,109,76,166,38"/>
+<area shape="rect" id="Node000003" href="$d6/d83/classml_1_1api_1_1_c_nd_json_output_writer.html" title="Write output data in JSON format, one document per line." alt="" coords="204,79,401,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,38,286,76,283,81,226,42"/>
+</map>

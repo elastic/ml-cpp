@@ -1,0 +1,23 @@
+<map id="include/core/CStateMachine.h" name="include/core/CStateMachine.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="493,5,690,31"/>
+<area shape="rect" id="Node000002" href="$db/d04/_core_types_8h.html" title=" " alt="" coords="5,79,130,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="496,34,145,81,145,76,495,29"/>
+<area shape="rect" id="Node000004" href="$dd/d0e/core_2_import_export_8h.html" title=" " alt="" coords="154,79,290,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="529,34,300,78,299,73,528,29"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="314,79,450,105"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="557,34,433,76,431,71,555,29"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="475,79,535,105"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="578,34,533,71,529,67,575,29"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="559,79,624,105"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="594,31,594,63,589,63,589,31"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="648,79,687,105"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="606,30,646,66,642,70,603,33"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="711,79,757,105"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="617,29,698,70,696,74,615,34"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="781,79,834,105"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="629,29,767,74,765,79,627,34"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="859,79,916,105"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="647,29,844,76,843,81,646,34"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="39,153,96,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="70,105,70,137,65,137,65,105"/>
+</map>

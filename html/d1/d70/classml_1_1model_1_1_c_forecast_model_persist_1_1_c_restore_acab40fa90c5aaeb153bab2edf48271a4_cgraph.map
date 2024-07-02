@@ -1,0 +1,9 @@
+<map id="ml::model::CForecastModelPersist::CRestore::nextModel" name="ml::model::CForecastModelPersist::CRestore::nextModel">
+<area shape="rect" id="Node000001" title="restore a single model" alt="" coords="5,71,200,111"/>
+<area shape="rect" id="Node000002" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#af68782b2ed0c98177d130d9196f97889" title=" " alt="" coords="248,5,466,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,67,259,48,261,53,185,73"/>
+<area shape="rect" id="Node000003" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a733d8051e128c5d7421707afadb31ab7" title=" " alt="" coords="248,71,466,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,88,232,88,232,94,200,94"/>
+<area shape="rect" id="Node000004" href="$d2/d3f/classml_1_1core_1_1_c_state_restore_traverser.html#a210456e80c83786dec276d39556fd9e4" title=" " alt="" coords="248,136,466,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,109,261,129,259,134,184,115"/>
+</map>

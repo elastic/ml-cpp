@@ -1,0 +1,35 @@
+<map id="ml::maths::time_series::CUnivariateTimeSeriesModel::updateTrend" name="ml::maths::time_series::CUnivariateTimeSeriesModel::updateTrend">
+<area shape="rect" id="Node000001" title="Update the trend with samples." alt="" coords="5,247,205,302"/>
+<area shape="rect" id="Node000002" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#a06ba2b1b27ee84d4ad891c82f52ec560" title="Get read only model parameters." alt="" coords="570,53,715,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,244,546,103,563,97,565,102,548,108,179,249"/>
+<area shape="rect" id="Node000003" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#af70ae3b7e35842307abe81d11676369e" title=" " alt="" coords="253,247,499,302"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,272,237,272,237,277,205,277"/>
+<area shape="rect" id="Node000016" href="$df/dbc/classml_1_1maths_1_1time__series_1_1_c_univariate_time_series_model.html#a96633e60ecb7e7ce9016d9404b1577d4" title="Unpack the weights in weights." alt="" coords="276,327,476,382"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="202,300,265,319,264,324,201,305"/>
+<area shape="poly" id="edge15_Node000003_Node000002" title=" " alt="" coords="407,244,497,158,519,129,529,116,545,103,554,98,557,102,549,107,533,120,523,132,501,162,411,248"/>
+<area shape="rect" id="Node000004" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a6e2bb65f71bc88dde8ff1805da317537" title="Clear all correlation information for time series identified id." alt="" coords="555,117,730,173"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="427,244,546,183,558,177,560,182,548,188,429,249"/>
+<area shape="rect" id="Node000008" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a6a8651e3b13d0aaa6577af10dfdd97f7" title="Extract the count from an accumulator object." alt="" coords="563,197,722,238"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="499,245,547,235,549,240,500,251"/>
+<area shape="rect" id="Node000009" href="$d6/d52/namespaceml_1_1maths__t.html#ae77f71115a9c46136580ec0072ccc53c" title="Get a weights array with count weight weight." alt="" coords="558,262,728,287"/>
+<area shape="poly" id="edge9_Node000003_Node000009" title=" " alt="" coords="500,272,542,272,542,277,500,277"/>
+<area shape="rect" id="Node000011" href="$d7/d92/classml_1_1maths_1_1common_1_1_c_model.html#aaf6ef5243e0533d64e9a30fe7c6b086f" title=" " alt="" coords="547,312,738,352"/>
+<area shape="poly" id="edge11_Node000003_Node000011" title=" " alt="" coords="500,298,532,305,531,311,499,304"/>
+<area shape="rect" id="Node000013" href="$dc/dfe/classml_1_1maths_1_1common_1_1_c_model_params.html#af075461933550e88a2fe27fca3da944c" title="Get the model learn rate." alt="" coords="555,377,730,418"/>
+<area shape="poly" id="edge13_Node000003_Node000013" title=" " alt="" coords="479,301,500,312,516,325,525,337,534,350,549,362,558,367,556,372,545,366,530,353,521,341,512,329,498,317,476,305"/>
+<area shape="rect" id="Node000014" href="$d4/d55/classml_1_1maths_1_1common_1_1_c_basic_statistics.html#a9a136b1823e9938247cd29bb0ffea440" title="Compute the mean of a pair." alt="" coords="563,442,722,483"/>
+<area shape="poly" id="edge14_Node000003_Node000014" title=" " alt="" coords="485,301,501,313,513,327,521,342,526,371,531,400,537,413,549,427,553,431,550,435,545,431,533,416,526,401,521,372,515,344,509,330,497,316,482,305"/>
+<area shape="rect" id="Node000015" href="$d7/d8e/classml_1_1maths_1_1common_1_1_c_prior_1_1_c_model_filter.html#aa8c6229b93fc3c93dbc56bf55d3e5ff5" title="Mark a model to be removed." alt="" coords="570,507,715,562"/>
+<area shape="poly" id="edge16_Node000003_Node000015" title=" " alt="" coords="487,301,501,313,518,336,525,359,527,404,527,448,534,470,549,493,559,502,555,506,545,496,529,472,522,449,521,404,520,360,513,338,497,316,484,305"/>
+<area shape="rect" id="Node000005" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a230bd35b8e13a152626a408d4b8a947c" title="Get the ids of the time series correlated with id." alt="" coords="815,29,991,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="726,114,803,88,805,93,728,119"/>
+<area shape="rect" id="Node000006" href="$d3/d09/classml_1_1maths_1_1time__series_1_1_c_time_series_correlations.html#a4f3de1745d118b3a48dd2e0e49deb08a" title=" " alt="" coords="815,109,991,165"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="731,140,800,138,800,143,731,145"/>
+<area shape="rect" id="Node000007" href="$d0/ddc/classml_1_1maths_1_1common_1_1_c_k_most_correlated.html#a906adfbb27cb7dc20b2c4702eca645fb" title="Remove the variables remove." alt="" coords="786,189,1020,230"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="732,164,803,182,802,187,730,169"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="852,29,853,19,862,10,879,5,903,3,930,5,947,12,945,17,929,10,903,8,880,10,865,15,858,21,858,29"/>
+<area shape="rect" id="Node000010" href="$d4/d0a/classml_1_1maths__t_1_1_c_unit_weights.html#ab810619bd835e01fc3f4e1fbd1706487" title="Get a conformable unit weight for weight." alt="" coords="813,254,993,295"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="728,272,798,272,798,277,728,277"/>
+<area shape="rect" id="Node000012" href="$dd/d55/classml_1_1maths_1_1common_1_1_c_tools.html#a0ee3c8a8c133d36faa270f96ff48ae21" title=" " alt="" coords="830,320,976,360"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="739,332,815,334,815,340,739,337"/>
+</map>
