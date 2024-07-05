@@ -23,7 +23,6 @@
 
 #include <cstddef>
 #include <string>
-#include <vector>
 
 namespace ml {
 namespace model {
@@ -96,7 +95,7 @@ public:
     TDouble1Vec value() const {
         TDouble1Vec result(this->dimension());
         for (std::size_t i = 0; i < this->dimension(); ++i) {
-            TDouble1Vec vi{metric_stat_shims::value(m_Values[i])};
+            const auto& vi = metric_stat_shims::value(m_Values[i]);
             if (vi.size() > 1) {
                 result.resize(vi.size() * this->dimension());
             }
@@ -112,7 +111,7 @@ public:
     TDouble1Vec influencerValue() const {
         TDouble1Vec result(this->dimension());
         for (std::size_t i = 0; i < this->dimension(); ++i) {
-            TDouble1Vec vi{metric_stat_shims::influencerValue(m_Values[i])};
+            const auto& vi =metric_stat_shims::influencerValue(m_Values[i]);
             if (vi.size() > 1) {
                 result.resize(vi.size() * this->dimension());
             }
