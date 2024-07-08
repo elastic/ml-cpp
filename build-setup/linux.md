@@ -51,7 +51,7 @@ These environment variables only need to be set when building tools on Linux. Th
 
 ### gcc
 
-We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have
+We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have. However, this means the default compiler on our Linux build servers is also very old. To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
 Download `gcc-10.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz>.
 
