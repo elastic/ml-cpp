@@ -395,6 +395,22 @@ function(ml_add_test_executable _target)
   endif()
 endfunction()
 
+function(ml_codesign _target)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    add_custom_target(codesign_${_target}
+      DEPENDS ${_target}
+      COMMAND codesign -s - -v -f --entitlements=${CMAKE_SOURCE_DIR}/.entitlements.xml ${CMAKE_INSTALL_PREFIX}${EXE_DIR}/${_target}
+      COMMENT "Running codesign -s - -v -f --entitlements=${CMAKE_SOURCE_DIR}/.entitlements.xml ${CMAKE_INSTALL_PREFIX}${EXE_DIR}/${_target}"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  else()
+    add_custom_target(codesign_${_target}
+      COMMAND false
+      COMMENT "Running codesign not supported on ${CMAKE_SYSTEM_NAME}"
+    )
+  endif()
+endfunction()
+
 #
 # Add a target to the list of unittests to be built and run
 # _directory: Relative path to unittest binary directory, e.g. lib/maths/common/unittest
