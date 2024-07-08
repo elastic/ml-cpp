@@ -69,6 +69,11 @@ private:
     double m_Sum{0.0};
 };
 
+inline std::ostream& operator<<(std::ostream& os, const CSumAccumulator& acc) {
+    os << "CSumAccumulator(" << acc.toDelimited() << ")";
+    return os;
+}
+
 namespace metric_stat_shims {
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;

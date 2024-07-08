@@ -242,6 +242,14 @@ using TMinGatherer = CStatGatherer<TMinAccumulator, CLastTime>;
 using TMaxGatherer = CStatGatherer<TMaxAccumulator, CLastTime>;
 using TVarianceGatherer = CStatGatherer<TVarianceAccumulator, CMeanTime>;
 
+template<typename STAT, typename TIME>
+std::ostream& operator<<(std::ostream& os, const CStatGatherer<STAT, TIME>& statGatherer) {
+    os << "CStatGatherer(dim=" << statGatherer.dimension() << ", value="
+       << maths::common::basic_statistics_detail::typeToString(statGatherer.value())
+       << ", count=" << statGatherer.count()
+       << ", varianceScale=" << statGatherer.varianceScale() << ")";
+    return os;
+}
 } // metric_stat_gatherer_detail::
 
 //! \brief Bucket metric statistic gatherer.

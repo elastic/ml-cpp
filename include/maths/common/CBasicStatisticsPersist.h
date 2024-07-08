@@ -14,6 +14,7 @@
 
 #include <core/CHashing.h>
 #include <core/CLogger.h>
+#include <core/CSmallVector.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -97,6 +98,11 @@ inline std::string typeToString(const CVector<T>& value) {
 //! Function to do conversion to a string from a symmetric matrix.
 template<typename T>
 inline std::string typeToString(const CSymmetricMatrix<T>& value) {
+    return value.toDelimited();
+}
+
+template<typename T, std::size_t N>
+inline std::string typeToString(const core::CSmallVector<T, N>& value) {
     return value.toDelimited();
 }
 }
