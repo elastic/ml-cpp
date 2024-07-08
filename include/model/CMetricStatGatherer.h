@@ -60,12 +60,6 @@ using TMedianAccumulator = maths::common::CFixedQuantileSketch<30>;
 using TMultivariateMeanAccumulator = CMetricMultivariateStatistic<TMeanAccumulator>;
 using TSampleVec = std::vector<CSample>;
 
-extern const std::string COUNT_TAG;
-extern const std::string STAT_TAG;
-extern const std::string TIME_TAG;
-extern const std::string MAP_KEY_TAG;
-extern const std::string MAP_VALUE_TAG;
-
 //! \brief Manages persistence of influence bucket statistics.
 template<typename STAT>
 class CStrStatUMapSerializer {
@@ -73,6 +67,8 @@ public:
     using TStrStatUMap = boost::unordered_map<std::string, STAT>;
 
 public:
+    static const std::string MAP_KEY_TAG;
+    static const std::string MAP_VALUE_TAG;
     explicit CStrStatUMapSerializer(const STAT& initial) : m_Initial(initial) {}
 
     void operator()(const TStrStatUMap& map, core::CStatePersistInserter& inserter) const {
@@ -188,6 +184,9 @@ public:
     using TStat = STAT;
 
 public:
+    static const std::string COUNT_TAG;
+    static const std::string STAT_TAG;
+    static const std::string TIME_TAG;
     explicit CStatGatherer(core_t::TTime bucketLength, const STAT& initial)
         : m_Time{bucketLength}, m_Stat{initial} {}
 
@@ -250,6 +249,17 @@ std::ostream& operator<<(std::ostream& os, const CStatGatherer<STAT, TIME>& stat
        << ", varianceScale=" << statGatherer.varianceScale() << ")";
     return os;
 }
+
+template<typename STAT, typename TIME>
+const std::string CStatGatherer<STAT, TIME>::COUNT_TAG{"a"};
+template<typename STAT, typename TIME>
+const std::string CStatGatherer<STAT, TIME>::STAT_TAG{"b"};
+template<typename STAT, typename TIME>
+const std::string CStatGatherer<STAT, TIME>::TIME_TAG{"c"};
+template<typename STAT>
+const std::string CStrStatUMapSerializer<STAT>::MAP_KEY_TAG{"d"};
+template<typename STAT>
+const std::string CStrStatUMapSerializer<STAT>::MAP_VALUE_TAG{"e"};
 } // metric_stat_gatherer_detail::
 
 //! \brief Bucket metric statistic gatherer.

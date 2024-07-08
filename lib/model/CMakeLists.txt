@@ -58,7 +58,6 @@ ml_add_library(MlModel SHARED
   CMetricModelFactory.cc
   CMetricPopulationModel.cc
   CMetricPopulationModelFactory.cc
-  CMetricStatGatherer.cc
   CAnnotation.cc
   CModelDetailsView.cc
   CModelFactory.cc
