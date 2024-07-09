@@ -65,14 +65,6 @@ BOOST_AUTO_TEST_CASE(testNormal) {
             2.0, config.factory(1, POPULATION_COUNT)->modelParams().s_InitialDecayRateMultiplier);
         BOOST_REQUIRE_EQUAL(
             2.0, config.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
         BOOST_REQUIRE_EQUAL(0.1, config.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(0.1, config.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(0.01, config.factory(1, POPULATION_COUNT)->minimumModeFraction());
@@ -81,14 +73,6 @@ BOOST_AUTO_TEST_CASE(testNormal) {
         BOOST_REQUIRE_EQUAL(10, config.factory(1, INDIVIDUAL_METRIC)->componentSize());
         BOOST_REQUIRE_EQUAL(10, config.factory(1, POPULATION_COUNT)->componentSize());
         BOOST_REQUIRE_EQUAL(10, config.factory(1, POPULATION_METRIC)->componentSize());
-        BOOST_REQUIRE_EQUAL(
-            20, config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(
-            20, config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(
-            20, config.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(
-            20, config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         TDoubleVec params;
         for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
             for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
@@ -184,18 +168,6 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             config2.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier,
             config1.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
         BOOST_REQUIRE_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction(),
                             config1.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction(),
@@ -212,18 +184,6 @@ BOOST_AUTO_TEST_CASE(testErrors) {
                             config1.factory(1, POPULATION_COUNT)->componentSize());
         BOOST_REQUIRE_EQUAL(config2.factory(1, POPULATION_METRIC)->componentSize(),
                             config1.factory(1, POPULATION_METRIC)->componentSize());
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
             for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 BOOST_REQUIRE_EQUAL(config2.aggregationStyleParam(

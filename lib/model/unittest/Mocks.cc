@@ -227,9 +227,7 @@ const CAnomalyDetectorModel& CMockModelDetailsView::base() const {
     return *m_Model;
 }
 
-double CMockModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
-                                                 std::size_t /*byFieldId*/,
-                                                 core_t::TTime /*time*/) const {
+double CMockModelDetailsView::countVarianceScale() const {
     return 1.0;
 }
 }

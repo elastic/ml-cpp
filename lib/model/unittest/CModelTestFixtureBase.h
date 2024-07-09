@@ -226,7 +226,6 @@ protected:
                     ml::model_t::EModelType modelType,
                     ml::model::CModelFactory::TDataGathererPtr& gatherer,
                     ml::model::CModelFactory::TModelPtr& model,
-                    TOptionalUInt sampleCount = TOptionalUInt(),
                     const std::string& summaryCountField = EMPTY_STRING) {
         if (m_InterimBucketCorrector == nullptr) {
             m_InterimBucketCorrector =
@@ -240,9 +239,6 @@ protected:
             m_Factory->features(features);
         }
         ml::model::CModelFactory::SGathererInitializationData initData(startTime);
-        if (sampleCount) {
-            initData.s_SampleOverrideCount = *sampleCount;
-        }
         gatherer.reset(m_Factory->makeDataGatherer(initData));
         model.reset(m_Factory->makeModel({gatherer}));
 

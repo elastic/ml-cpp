@@ -126,15 +126,13 @@ public:
     //! time we need extra data to initialize a data gatherer.
     struct MODEL_EXPORT SGathererInitializationData {
         SGathererInitializationData(core_t::TTime startTime,
-                                    const std::string& partitionFieldValue,
-                                    unsigned int sampleOverrideCount = 0u);
+                                    const std::string& partitionFieldValue);
 
         //! This constructor is to simplify unit testing.
         SGathererInitializationData(const core_t::TTime startTime);
 
         core_t::TTime s_StartTime;
         const std::string& s_PartitionFieldValue;
-        unsigned int s_SampleOverrideCount;
     };
 
 public:
@@ -287,10 +285,6 @@ public:
     //! Set the features which will be modeled.
     virtual void features(const TFeatureVec& features) = 0;
 
-    //! Set the amount by which metric sample count is reduced for
-    //! fine-grained sampling when there is latency.
-    void sampleCountFactor(std::size_t sampleCountFactor);
-
     //! Set whether the model should exclude frequent hitters from the
     //! calculations.
     void excludeFrequent(model_t::EExcludeFrequent excludeFrequent);
@@ -320,10 +314,6 @@ public:
     //! Set the initial decay rate multiplier used for initializing
     //! models.
     void initialDecayRateMultiplier(double multiplier);
-
-    //! Set the maximum number of times we'll update a person's model
-    //! in a bucketing interval.
-    void maximumUpdatesPerBucket(double maximumUpdatesPerBucket);
 
     //! Set the prune window scale factor minimum
     void pruneWindowScaleMinimum(double factor);

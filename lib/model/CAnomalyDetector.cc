@@ -615,8 +615,8 @@ void CAnomalyDetector::resetBucket(core_t::TTime bucketStart) {
     m_DataGatherer->resetBucket(bucketStart);
 }
 
-void CAnomalyDetector::releaseMemory(core_t::TTime samplingCutoffTime) {
-    m_DataGatherer->releaseMemory(samplingCutoffTime);
+void CAnomalyDetector::releaseMemory() {
+    m_DataGatherer->releaseMemory();
 }
 
 void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {

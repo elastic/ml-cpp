@@ -334,7 +334,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime,
         this->applyFilter(model_t::E_XF_Over, false, this->personFilter(), personCounts);
 
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(time, bucketLength, featureData);
+        gatherer.featureData(time, featureData);
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
@@ -363,7 +363,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
         gatherer.sampleNow(time);
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(time, bucketLength, featureData);
+        gatherer.featureData(time, featureData);
 
         this->CPopulationModel::sample(time, time + bucketLength, resourceMonitor);
         const TTimeVec& preSampleAttributeLastBucketTimes = this->attributeLastBucketTimes();
@@ -528,10 +528,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     LOG_TRACE(<< "Model unexpectedly null");
                     continue;
                 }
-                if (model->addSamples(params, attribute.second.s_Values) ==
-                    maths::common::CModel::E_Reset) {
-                    gatherer.resetSampleCount(cid);
-                }
+                model->addSamples(params, attribute.second.s_Values);
             }
         }
 
@@ -569,8 +566,7 @@ void CEventRatePopulationModel::prune(std::size_t maximumAge) {
 
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(m_CurrentBucketStats.s_StartTime,
-                             gatherer.bucketLength(), featureData);
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime, featureData);
         for (auto& feature : featureData) {
             m_CurrentBucketStats.s_FeatureData[feature.first].swap(feature.second);
         }

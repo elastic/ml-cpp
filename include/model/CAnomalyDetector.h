@@ -259,7 +259,7 @@ public:
     void resetBucket(core_t::TTime bucketStart);
 
     //! Release memory that is no longer needed
-    void releaseMemory(core_t::TTime samplingCutoffTime);
+    void releaseMemory();
 
     //! Print the detector memory usage to the given stream
     void showMemoryUsage(std::ostream& stream) const;
