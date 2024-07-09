@@ -22,6 +22,7 @@ from itertools import product
 
 archs = [
   "aarch64",
+  "x86_64",
 ]
 build_types = [
   "RelWithDebInfo",
@@ -30,6 +31,37 @@ actions = [
   "build",
   "debug"
 ]
+agents = {
+   "x86_64": {
+      "provider": "orka",
+      "image": "ml-macos-12-x86_64-001.img"
+   },
+   "aarch64": {
+      "provider": "orka",
+      "image": "ml-macos-12-arm-001.orkasi"
+   }
+}
+envs = {
+    "aarch64": {
+      "TMPDIR": "/tmp",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "PATH": "/opt/homebrew/bin:$PATH",
+      "ML_DEBUG": "0",
+      "CPP_CROSS_COMPILE": "",
+      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
+      "RUN_TESTS": "true",
+      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+    },
+    "x86_64": {
+      "TMPDIR": "/tmp",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "PATH": "/opt/homebrew/bin:$PATH",
+      "ML_DEBUG": "0",
+      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
+      "RUN_TESTS": "true",
+      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+    }
+}
 
 def main(args):
     pipeline_steps = []
@@ -41,26 +73,14 @@ def main(args):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
             "timeout_in_minutes": "240",
-            "agents": {
-              "provider": "orka",
-              "image": "ml-macos-12-arm-001.orkasi"
-            },
+            "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
-            "env": {
-              "TMPDIR": "/tmp",
-              "HOMEBREW_PREFIX": "/opt/homebrew",
-              "PATH": "/opt/homebrew/bin:$PATH",
-              "ML_DEBUG": "0",
-              "CPP_CROSS_COMPILE": "",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
-              "RUN_TESTS": "true",
-              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-            },
+            "env": envs[arch],
             "artifact_paths": "*/**/unittest/boost_test_results.junit;*/**/unittest/ml_test_*",
             "plugins": {
               "test-collector#v1.2.0": {                                                              
@@ -76,36 +96,6 @@ def main(args):
               },
             ],
         })
-
-    pipeline_steps.append({
-        "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
-        "timeout_in_minutes": "240",
-        "agents": {
-          "cpu": "6",
-          "ephemeralStorage": "20G",
-          "memory": "64G",
-          "image": "docker.elastic.co/ml-dev/ml-macosx-build:19"
-        },
-        "commands": [
-          f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-          ".buildkite/scripts/steps/build_and_test.sh"
-        ],
-        "depends_on": "check_style",
-        "key": "build_macos_x86_64_cross-RelWithDebInfo",
-        "env": {
-          "ML_DEBUG": "0",
-          "CPP_CROSS_COMPILE": "macosx",
-          "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
-          "RUN_TESTS": "false"
-        },
-        "notify": [
-          {
-            "github_commit_status": {
-              "context": "Cross compile for MacOS x86_64 RelWithDebInfo",
-            },
-          },
-        ],
-    })
 
     pipeline = {
         "steps": pipeline_steps,
