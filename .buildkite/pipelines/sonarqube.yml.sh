@@ -10,9 +10,21 @@
 
 cat <<EOL
 steps:
+  - label: "Generate compile_commands.json"
+    key: "export_compile_commands"
+    depends_on: "check_style"
+    agents:
+      image: "docker.elastic.co/ml-dev/ml-linux-build:29"
+    command:
+      - "cmake CMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
+    artifact_paths:
+      - "cmake-build-docker/compile_commands.json"
+    notify:
+      - github_commit_status:
+          context: "Generate compile_commands.json"
   - label: "Static code analysis with SonarQube :sonarqube:"
     key: "sonarqube"
-    depends_on: "build_test_macos-aarch64-RelWithDebInfo"
+    depends_on: "export_compile_commands"
     env:
       VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
     command: 
