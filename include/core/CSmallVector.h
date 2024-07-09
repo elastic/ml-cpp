@@ -146,9 +146,13 @@ public:
         std::string result;
         for (size_type i = 0; i < this->size(); ++i) {
             result += std::to_string((*this)[i]);
-            if (i < this->size() - 1) {
-                result += delimiter;
-            }
+            if (i < this->size() - 1) {  
+                result += delimiter;  
+            }  
+            // Reserve space to minimize concatenation overhead.
+            if (i == 0) {  
+                result.reserve(result.size() * this->size());  
+            }  
         }
         return result;
     }
