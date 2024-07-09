@@ -57,6 +57,7 @@ envs = {
       "HOMEBREW_PREFIX": "/opt/homebrew",
       "PATH": "/opt/homebrew/bin:$PATH",
       "ML_DEBUG": "0",
+      "CPP_CROSS_COMPILE": "",
       "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
       "RUN_TESTS": "true",
       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
