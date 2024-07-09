@@ -60,8 +60,12 @@ def main(args):
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+              "CMAKE_EXPORT_COMPILE_COMMANDS": "1" if arch == "aarch64" and build_type == "RelWithDebInfo" else "0",
             },
-            "artifact_paths": "*/**/unittest/boost_test_results.junit;*/**/unittest/ml_test_*",
+            "artifact_paths": [
+              "*/**/unittest/boost_test_results.junit;*/**/unittest/ml_test_*",
+              "cmake-build-docker/compile_commands.json" if arch == "aarch64" and build_type == "RelWithDebInfo" else "",
+            ],
             "plugins": {
               "test-collector#v1.2.0": {                                                              
                 "files": "*/*/unittest/boost_test_results.junit",
