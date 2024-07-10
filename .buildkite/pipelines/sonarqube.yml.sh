@@ -17,9 +17,7 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-linux-build:29"
     env:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    command:
-      - "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
-      - "cat cmake-build-docker/compile_commands.json | sed 's|$(pwd)|.|g' > compile_commands.json.tmp && mv compile_commands.json.tmp cmake-build-docker/compile_commands.json"
+    command: ".buildkite/scripts/steps/export_compile_commands.sh"
     artifact_paths:
       - "cmake-build-docker/compile_commands.json"
     notify:
