@@ -19,7 +19,7 @@ steps:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     command:
       - "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
-      - "cat cmake-build-docker/compile_commands.json | sed \"s|\\$(pwd)|.|g\" > compile_commands.json.tmp && mv compile_commands.json.tmp cmake-build-docker/compile_commands.json"
+      - "cat cmake-build-docker/compile_commands.json | sed 's|$(pwd)|.|g' > compile_commands.json.tmp && mv compile_commands.json.tmp cmake-build-docker/compile_commands.json"
     artifact_paths:
       - "cmake-build-docker/compile_commands.json"
     notify:
