@@ -23,35 +23,35 @@ def main():
     pipeline = {}
 
     pipeline_steps = step.PipelineStep([])
-    pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
-                                                       ".buildkite/pipelines/send_slack_notification.sh"))
-    pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
-                                                       ".buildkite/pipelines/send_email_notification.sh"))
-    pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
-                                                       ".buildkite/pipelines/format_and_validation.yml.sh"))
+    # pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
+    #                                                    ".buildkite/pipelines/send_slack_notification.sh"))
+    # pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
+    #                                                    ".buildkite/pipelines/send_email_notification.sh"))
+    # pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
+    #                                                    ".buildkite/pipelines/format_and_validation.yml.sh"))
     # Only create the SonarQube step for the snapshot builds
     if  os.environ.get("BUILD_SNAPSHOT", "") == "true":
         pipeline_steps.append(pipeline_steps.generate_step("Scan and upload SonarQube report", 
                                                         ".buildkite/pipelines/sonarqube.yml.sh"))
-    config = buildConfig.Config()
-    config.parse()
-    if config.build_windows:
-        build_windows = pipeline_steps.generate_step_template("Windows", "build")
-        pipeline_steps.append(build_windows)
-    if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", "build")
-        pipeline_steps.append(build_macos)
-    if config.build_linux:
-        build_linux = pipeline_steps.generate_step_template("Linux", "build")
-        pipeline_steps.append(build_linux)
+    # config = buildConfig.Config()
+    # config.parse()
+    # if config.build_windows:
+    #     build_windows = pipeline_steps.generate_step_template("Windows", "build")
+    #     pipeline_steps.append(build_windows)
+    # if config.build_macos:
+    #     build_macos = pipeline_steps.generate_step_template("MacOS", "build")
+    #     pipeline_steps.append(build_macos)
+    # if config.build_linux:
+    #     build_linux = pipeline_steps.generate_step_template("Linux", "build")
+    #     pipeline_steps.append(build_linux)
 
-    # Build the DRA artifacts and upload to S3 and GCS
-    pipeline_steps.append(pipeline_steps.generate_step("Create daily releasable artifacts",
-                                                       ".buildkite/pipelines/create_dra.yml.sh"))
-    pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to S3",
-                                                       ".buildkite/pipelines/upload_dra_to_s3.yml.sh"))
-    pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to GCS",
-                                                       ".buildkite/pipelines/upload_dra_to_gcs.yml.sh"))
+    # # Build the DRA artifacts and upload to S3 and GCS
+    # pipeline_steps.append(pipeline_steps.generate_step("Create daily releasable artifacts",
+    #                                                    ".buildkite/pipelines/create_dra.yml.sh"))
+    # pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to S3",
+    #                                                    ".buildkite/pipelines/upload_dra_to_s3.yml.sh"))
+    # pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to GCS",
+    #                                                    ".buildkite/pipelines/upload_dra_to_gcs.yml.sh"))
 
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
