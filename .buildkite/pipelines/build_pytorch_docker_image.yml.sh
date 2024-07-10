@@ -14,9 +14,9 @@ steps:
     key: "build_pytorch_docker_image"
     command: "./dev-tools/docker/build_pytorch_linux_build_image.sh"
     agents:
-      "cpu": "6",
-      "ephemeralStorage": "20G",
-      "memory": "64G",
+      "cpu": "6"
+      "ephemeralStorage": "20G"
+      "memory": "64G"
       "image": "docker.elastic.co/ml-dev/ml-linux-build:29"
     notify:
       - github_commit_status:
