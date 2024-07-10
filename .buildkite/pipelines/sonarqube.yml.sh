@@ -19,7 +19,8 @@ steps:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       CPP_SRC_HOME: "/ml-cpp"
     command:
-      - "cmake CMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
+      - "cd $CPP_SRC_HOME"
+      - "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
     artifact_paths:
       - "cmake-build-docker/compile_commands.json"
     notify:
