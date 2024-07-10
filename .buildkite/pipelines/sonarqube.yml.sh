@@ -17,12 +17,10 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-linux-build:29"
     env:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      CPP_SRC_HOME: "/root/ml-cpp"
     command:
-      - "cd /root/ml-cpp"
       - "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
     artifact_paths:
-      - "/root/ml-cpp/cmake-build-docker/compile_commands.json"
+      - "cmake-build-docker/compile_commands.json"
     notify:
       - github_commit_status:
           context: "Generate compile_commands.json"
@@ -32,8 +30,7 @@ steps:
     env:
       VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
     command: 
-      - "buildkite-agent artifact download cmake-build-docker/compile_commands.json /root/ml-cpp/compile_commands.json"
-      - "cd /root/ml-cpp"
+      - "buildkite-agent artifact download cmake-build-docker/compile_commands.json ."
       - "/scan-source-code.sh"
     agents:
       image: "docker.elastic.co/cloud-ci/sonarqube/buildkite-scanner:latest"
