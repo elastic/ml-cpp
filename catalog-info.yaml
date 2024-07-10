@@ -104,7 +104,7 @@ spec:
     kind: "Pipeline"
     metadata:
       description: "ml-cpp CI nightly pytorch build :pipeline:"
-      name: "ml-cpp pytorch build"
+      name: "ml-cpp - PyTorch Builds"
     spec:
       clone_method: https
       pipeline_file: .buildkite/job-build-pytorch.json.py
