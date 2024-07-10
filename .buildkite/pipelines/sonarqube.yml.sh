@@ -17,9 +17,9 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-linux-build:29"
     env:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      CPP_SRC_HOME: "/ml-cpp"
+      CPP_SRC_HOME: "/root/ml-cpp"
     command:
-      - "cd $CPP_SRC_HOME"
+      - "cd $(CPP_SRC_HOME)"
       - "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker"
     artifact_paths:
       - "cmake-build-docker/compile_commands.json"
