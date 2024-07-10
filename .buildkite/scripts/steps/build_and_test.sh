@@ -80,7 +80,7 @@ if [[ `uname` = "Linux" ]]; then
     fi
   fi
 else
-  #sudo -E ${REPO_ROOT}/dev-tools/download_macos_deps.sh
+  sudo -E ${REPO_ROOT}/dev-tools/download_macos_deps.sh
   if [[ "$HARDWARE_ARCH" = aarch64 ]] ; then
     # For macOS aarch64, build directly on the machine using gradle
     if [ "$RUN_TESTS" = false ] ; then
