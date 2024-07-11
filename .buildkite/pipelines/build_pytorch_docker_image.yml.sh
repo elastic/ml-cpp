@@ -10,15 +10,22 @@
 
 cat <<EOL
 steps:
-  - label: "Build PyTorch Docker image"
+  - label: "Build PyTorch Docker Image"
     key: "build_pytorch_docker_image"
     command: "./dev-tools/docker/build_pytorch_linux_build_image.sh"
     agents:
-      "cpu": "6"
-      "ephemeralStorage": "20G"
-      "memory": "64G"
-      "image": "docker.elastic.co/ml-dev/ml-linux-build:29"
+      "provider": "gcp"
     notify:
       - github_commit_status:
           context: "Build PyTorch Docker image"
+  - wait
+  - trigger: ml-cpp-debug-build
+    async: false
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        DOCKER_IMAGE: "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_231"
+        GITHUB_PR_COMMENT_VAR_PLATFORM: "linux"
+        GITHUB_PR_COMMENT_VAR_ARCH: "x86_64"
+        GITHUB_PR_TRIGGER_COMMENT=""
 EOL
