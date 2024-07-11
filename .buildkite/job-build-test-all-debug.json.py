@@ -50,6 +50,9 @@ def main():
         debug_linux = pipeline_steps.generate_step_template("Linux", "debug", config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(debug_linux)
 
+    if config.run_pytorch_tests:
+        pipeline_steps.append(pipeline_steps.generate_step("Upload PyTorch tests runner pipeline",
+                                                           ".buildkite/pipelines/run_pytorch_tests.yml.sh"))
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))

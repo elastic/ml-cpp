@@ -18,13 +18,15 @@ class Config:
     build_aarch64: str = ""
     build_x86_64: str = ""
     run_qa_tests: bool = False
+    run_pytorch_tests: bool = False
     action: str = "build"
 
     def parse_comment(self):
         if "GITHUB_PR_COMMENT_VAR_ACTION" in os.environ:
             self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
             self.run_qa_tests = self.action == "run_qa_tests"
-            if self.run_qa_tests:
+            self.run_pytorch_tests = self.action == "run_pytorch_tests"
+            if self.run_pytorch_tests or self.run_qa_tests:
                 self.action = "build"
 
         if "GITHUB_PR_COMMENT_VAR_ARCH" in os.environ and os.environ["GITHUB_PR_COMMENT_VAR_ARCH"] != "":
@@ -53,7 +55,7 @@ class Config:
             self.build_linux = True
 
     def parse_label(self):
-        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests','ci:build-aarch64','ci:build-x86_64']
+        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests','ci:run-pytorch-tests','ci:build-aarch64','ci:build-x86_64']
         all_labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
         ci_labels = [label for label in all_labels if re.search("|".join(build_labels), label)]
         if not ci_labels:
