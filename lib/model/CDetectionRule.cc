@@ -30,6 +30,10 @@ void CDetectionRule::addCondition(const CRuleCondition& condition) {
     m_Conditions.push_back(condition);
 }
 
+void CDetectionRule::setCallback(TCallback cb) {
+    m_Callback = std::move(cb);
+}
+
 bool CDetectionRule::apply(ERuleAction action,
                            const CAnomalyDetectorModel& model,
                            model_t::EFeature feature,
@@ -52,6 +56,20 @@ bool CDetectionRule::apply(ERuleAction action,
     }
 
     return true;
+}
+
+void CDetectionRule::executeCallback(CAnomalyDetectorModel& model,
+                              core_t::TTime time) const {
+
+    if (m_Callback) {
+        bool executeCallback{true};
+        for (const auto& condition : m_Conditions) {
+            executeCallback &= condition.test(time);
+        }
+        if (executeCallback) {
+            m_Callback(model);
+        }
+    }
 }
 
 std::string CDetectionRule::print() const {
@@ -81,6 +99,12 @@ std::string CDetectionRule::printAction() const {
             result += " AND ";
         }
         result += "SKIP_MODEL_UPDATE";
+    }
+    if (E_Callback & m_Action) {
+        if (result.empty() == false) {
+            result += " AND ";
+        }
+        result += "CALLBACK";
     }
     return result;
 }

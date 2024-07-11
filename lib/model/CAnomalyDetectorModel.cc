@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include "model/ModelTypes.h"
+#include "model/SModelParams.h"
 #include <model/CAnomalyDetectorModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -79,6 +81,22 @@ bool checkScheduledEvents(const SModelParams::TStrDetectionRulePrVec& scheduledE
                                                     resultType, pid, cid, time);
     }
     return isIgnored;
+}
+
+void callbackRules(const SModelParams::TDetectionRuleVec& detectionRules,
+                   CAnomalyDetectorModel& model,
+                   core_t::TTime time) {
+    for (const auto& rule : detectionRules) {
+        rule.executeCallback(model, time);
+    }
+}
+
+void callbackScheduledEvents(const SModelParams::TStrDetectionRulePrVec& scheduledEvents,
+                             CAnomalyDetectorModel& model,
+                             core_t::TTime time) {
+    for (const auto& scheduledEvent : scheduledEvents) {
+        scheduledEvent.second.executeCallback(model, time);
+    }
 }
 }
 
@@ -183,6 +201,9 @@ void CAnomalyDetectorModel::sample(core_t::TTime startTime,
                                    core_t::TTime endTime,
                                    CResourceMonitor& /*resourceMonitor*/) {
     using TSizeUSet = boost::unordered_set<std::size_t>;
+
+    callbackScheduledEvents(this->params().s_ScheduledEvents.get(), std::ref(*this), startTime);
+    callbackRules(this->params().s_DetectionRules.get(), std::ref(*this), startTime);
 
     const CDataGatherer& gatherer{this->dataGatherer()};
 

@@ -36,10 +36,12 @@ class MODEL_EXPORT CDetectionRule {
 
 public:
     using TRuleConditionVec = std::vector<CRuleCondition>;
+    using TCallback = std::function<void(CAnomalyDetectorModel&)>;
 
-    //! Rule actions can apply to skip results, skip model updates, or both.
+    //! Rule actions can apply to skip results, skip model updates, evaluate callback 
+    //! function or several of the actions.
     //! This is meant to work as a bit mask so added values should be powers of 2.
-    enum ERuleAction { E_SkipResult = 1, E_SkipModelUpdate = 2 };
+    enum ERuleAction { E_SkipResult = 1, E_SkipModelUpdate = 2, E_Callback = 4 };
 
 public:
     //! Set the rule's action.
@@ -54,6 +56,8 @@ public:
     //! Add a condition.
     void addCondition(const CRuleCondition& condition);
 
+    void setCallback(TCallback cb);
+
     //! Check whether the rule applies on a series.
     //! \p action is bitwise and'ed with the m_Action member
     bool apply(ERuleAction action,
@@ -63,6 +67,12 @@ public:
                std::size_t pid,
                std::size_t cid,
                core_t::TTime time) const;
+
+
+    //! Executes the callback function for anomaly detection on the \p model if all 
+    //! conditions are satisfied.
+    void executeCallback(CAnomalyDetectorModel& model,
+                  core_t::TTime time) const;
 
     //! Pretty-print the rule.
     std::string print() const;
@@ -81,6 +91,9 @@ private:
 
     //! The conditions that trigger the rule.
     TRuleConditionVec m_Conditions;
+
+    //! Callback function 
+    TCallback m_Callback;
 };
 }
 }

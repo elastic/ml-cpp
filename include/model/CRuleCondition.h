@@ -62,6 +62,8 @@ public:
     //! Pretty-print the condition.
     std::string print() const;
 
+    bool test(core_t::TTime time) const;
+
     //! Test the condition against a series.
     bool test(const CAnomalyDetectorModel& model,
               model_t::EFeature feature,
