@@ -30,6 +30,10 @@
 
 == {es} version 8.15.0
 
+=== Enhancements
+
+* Log 'No statistics at.. ' message as a warning. (See {ml-pull}2684[#2684].)
+
 === Bug Fixes
 
 * Fix "stack use after scope" memory error. (See {ml-pull}2673[#2673].)
