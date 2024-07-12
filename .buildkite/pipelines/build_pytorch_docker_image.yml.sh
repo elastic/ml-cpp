@@ -19,7 +19,7 @@ steps:
       - github_commit_status:
           context: "Build PyTorch Docker image"
   - wait
-  - trigger: ml-cpp-debug-build
+  - trigger: ml-cpp-pr-builds
     async: false
     build:
       message: "${BUILDKITE_MESSAGE}"
