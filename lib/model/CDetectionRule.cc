@@ -58,8 +58,7 @@ bool CDetectionRule::apply(ERuleAction action,
     return true;
 }
 
-void CDetectionRule::executeCallback(CAnomalyDetectorModel& model,
-                              core_t::TTime time) const {
+void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime time) const {
 
     if (m_Callback) {
         bool executeCallback{true};

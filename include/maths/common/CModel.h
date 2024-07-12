@@ -539,6 +539,8 @@ public:
     //! Returns true
     virtual bool shouldPersist() const;
 
+    virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
+
 protected:
     CModel(const CModel&) = default;
 
@@ -683,6 +685,8 @@ public:
 
     //! Returns false
     bool shouldPersist() const override;
+
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 };
 }
 }

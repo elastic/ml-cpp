@@ -1124,6 +1124,16 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
     return true;
 }
 
+void CEventRatePopulationModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+    // TODO: do time series correlations need to be shifted as well
+    // this->m_FeatureCorrelatesModels->shiftTime(amount);
+}
+
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
 
 CEventRatePopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime)

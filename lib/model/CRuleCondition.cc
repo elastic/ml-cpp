@@ -43,17 +43,17 @@ void CRuleCondition::value(double value) {
 bool CRuleCondition::test(core_t::TTime time) const {
     TDouble1Vec value;
     switch (m_AppliesTo) {
-        case E_Time: {
-            value.push_back(static_cast<double>(time));
-            break;
-        }
-        case E_Actual:
-        case E_Typical:
-        case E_DiffFromTypical:{
-            LOG_WARN(<< "Cannot apply rule condition: time condition must be applied to time. "
-                    << "The rule will be ignored.");
-            return false;
-        }
+    case E_Time: {
+        value.push_back(static_cast<double>(time));
+        break;
+    }
+    case E_Actual:
+    case E_Typical:
+    case E_DiffFromTypical: {
+        LOG_WARN(<< "Cannot apply rule condition: time condition must be applied to time. "
+                 << "The rule will be ignored.");
+        return false;
+    }
     }
 
     return this->testValue(value[0]);

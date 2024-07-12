@@ -368,6 +368,10 @@ const CCountingModel::TAnnotationVec& CCountingModel::annotations() const {
     return m_Annotations;
 }
 
+void CCountingModel::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {
+    // Do nothing. There are not time-based model in the counting model.
+}
+
 double CCountingModel::attributeFrequency(std::size_t /*cid*/) const {
     return 1.0;
 }

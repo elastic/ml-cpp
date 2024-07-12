@@ -1025,6 +1025,16 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     return true;
 }
 
+void CMetricPopulationModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+    // TODO: do correlation models need to be shifted?
+    // m_FeatureCorrelatesModels->shiftTime(amount);
+}
+
 ////////// CMetricPopulationModel::SBucketStats Implementation //////////
 
 CMetricPopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime)

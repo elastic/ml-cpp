@@ -489,6 +489,8 @@ public:
     //! Get the annotations produced by this model.
     virtual const TAnnotationVec& annotations() const = 0;
 
+    virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
+
 protected:
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;

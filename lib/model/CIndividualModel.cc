@@ -643,5 +643,13 @@ void CIndividualModel::doSkipSampling(core_t::TTime startTime, core_t::TTime end
         }
     }
 }
+
+void CIndividualModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& fm : m_FeatureModels) {
+        for (auto& model : fm.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+}
 }
 }

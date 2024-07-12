@@ -195,6 +195,8 @@ public:
     //! Unpack the weights in \p weights.
     static TDoubleWeightsAry unpack(const TDouble2VecWeightsAry& weights);
 
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
+
     //! \name Test Functions
     //@{
     //! Get the trend.
@@ -677,6 +679,8 @@ public:
 
     //! Unpack the weights in \p weights.
     static TDouble10VecWeightsAry unpack(const TDouble2VecWeightsAry& weights);
+
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 
     //! \name Test Functions
     //@{

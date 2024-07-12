@@ -3124,6 +3124,16 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
 std::size_t CMultivariateTimeSeriesModel::dimension() const {
     return m_ResidualModel->dimension();
 }
+
+void CMultivariateTimeSeriesModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& trend : m_TrendModel) {
+        trend->shiftTime(time, shift);
+    }
+}
+
+void CUnivariateTimeSeriesModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    m_TrendModel->shiftTime(time, shift);
+}
 }
 }
 }

@@ -451,6 +451,9 @@ maths_t::EDataType CModelStub::dataType() const {
 bool CModelStub::shouldPersist() const {
     return false;
 }
+
+void CModelStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {
+}
 }
 }
 }
