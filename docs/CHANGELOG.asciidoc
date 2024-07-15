@@ -30,7 +30,7 @@
 
 == {es} version 8.16.0
 
-* Upgrade Pytorch to version 2.3.1. (See {ml-pull}2688[#2688].)
+* Update the Pytorch library to version 2.3.1. (See {ml-pull}2688[#2688].)
 
 == {es} version 8.15.0
 
