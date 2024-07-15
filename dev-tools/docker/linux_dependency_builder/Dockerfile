@@ -9,7 +9,7 @@
 # limitation.
 #
 
-FROM docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_231
+FROM docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_viable_strict
 
 MAINTAINER Ed Savage <ed.savages@elastic.co>
 

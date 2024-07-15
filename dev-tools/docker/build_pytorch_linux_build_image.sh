@@ -33,7 +33,7 @@ sleep 5
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-dependency-build
-VERSION=pytorch_231
+VERSION=pytorch_viable_strict
 
 set -e
 
@@ -45,7 +45,7 @@ prefetch_docker_base_image $CONTEXT/Dockerfile
 if [ $# -gt 0 ]; then
   VERSION=pytorch_latest
   echo "VERSION = $VERSION"
-  docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=v2.3.1 $CONTEXT
+  docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=viable/strict $CONTEXT
 else
   echo "VERSION = $VERSION"
   docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT

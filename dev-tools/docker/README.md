@@ -2,7 +2,7 @@
 
 ## Repository: ml-linux-dependency-build
 
-### Latest version: pytorch_231
+### Latest version: pytorch_viable_strict
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -11,7 +11,7 @@ C++ code for Linux with the latest build of the PyTorch release branch.
 This image is intended to be built regularly in order to flush out any
 issues we may have with the latest PyTorch release as early as possible.
 To avoid swamping the Docker registry with numerous images we re-use the
-same tag - pytorch_231 - for the image.
+same tag - pytorch_viable_strict - for the image.
 
 ### Depends on: ml-linux-dependency-builder:1
 

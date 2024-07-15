@@ -37,7 +37,7 @@ ENV CXX "g++ -std=gnu++17"
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
-ARG pytorch_branch=v2.3.1
+ARG pytorch_branch=viable/strict
 
 ENV PYTORCH_BRANCH=${pytorch_branch}
 ENV PYTORCH_BUILD_VERSION=""
@@ -49,7 +49,7 @@ RUN \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
-  if [ "$PYTORCH_BRANCH" != "main" ]; then PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
+  if [[ "$PYTORCH_BRANCH" != "main" && "$PYTORCH_BRANCH" != "viable/strict" ]]; then PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
