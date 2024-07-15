@@ -49,6 +49,7 @@ RUN \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
+  sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.10")' ./third_party/onnx/CMakeLists.txt && \
   if [[ "$PYTORCH_BRANCH" != "main" && "$PYTORCH_BRANCH" != "viable/strict" ]]; then PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \

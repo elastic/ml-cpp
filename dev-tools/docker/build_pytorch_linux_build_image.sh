@@ -33,7 +33,7 @@ sleep 5
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-dependency-build
-VERSION=pytorch_viable_strict
+VERSION=pytorch_latest
 
 set -e
 
