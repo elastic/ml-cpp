@@ -9,7 +9,7 @@
 # limitation.
 #
 
-FROM docker.elastic.co/ml-dev/ml-linux-dependency-builder:1 AS builder
+FROM docker.elastic.co/ml-dev/ml-linux-dependency-builder:2 AS builder
 
 MAINTAINER Ed Savage <ed.savage@elastic.co>
 
