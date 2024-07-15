@@ -127,7 +127,7 @@ Download the graphical installer for Python 3.10.9 from <https://www.python.org/
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 2.1.2
+### PyTorch 2.3.1
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
@@ -138,7 +138,7 @@ sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install inst
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -155,6 +155,9 @@ external processes.
 Edit `tools/setup_helpers/cmake.py` and add `"DNNL_TARGET_ARCH"` to the list
 of environment variables that get passed through to CMake (around line 215).
 
+Edit `CMakeLists.txt` and change `set(CMAKE_LINK_WHAT_YOU_USE TRUE)` to
+`set(CMAKE_LINK_WHAT_YOU_USE FALSE)`
+
 For compilation on Apple silicon Macs edit `third_party/ideep/include/ideep/utils.hpp`
 and add:
 
@@ -166,6 +169,44 @@ inline void to_bytes(bytestring& bytes, const unsigned long arg) {
 ```
 
 at around line 189. This is necessary to resolve a template specialization issue.
+
+For compilation on `macOS Mojave (10.14)`
+
+* Edit `torch/csrc/jit/api/module.h` and change
+  ```
+  Module(Module&&) noexcept = default;`
+  Module& operator=(Module&&) noexcept = default;
+  ``` 
+  to
+  ```
+  Module(Module&&) = default;
+  Module& operator=(Module&&) noexcept = default;
+  ```
+* Edit `third_party/onnx/CMakeLists.txt` and
+    * add `find_package(Boost 1.83.0 EXACT REQUIRED COMPONENTS filesystem)`
+      before `target_include_directories(onnx PUBLIC` (around line 531)
+    * add `$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>` after `$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>` (around line
+      536)
+* Edit `third_party/onnx/onnx/common/file_utils.h` and change the lines
+  ```
+  #include <filesystem>
+  #include <fstream>
+  ```
+  to
+  ```
+  #include <boost/filesystem/operations.hpp>
+  #include <boost/filesystem/fstream.hpp>
+  ```
+  and change
+  ```
+  std::filesystem::path proto_u8_path = std::filesystem::u8path(proto_path);
+  std::fstream proto_stream(proto_u8_path, std::ios::in | std::ios::binary);
+  ```
+  to
+  ```
+  boost::filesystem::path proto_u8_path = boost::filesystem::u8path(proto_path);
+  boost::filesystem::fstream proto_stream(proto_u8_path, std::ios::in | std::ios::binary);
+  ```
 
 Build as follows:
 
@@ -180,7 +221,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.1.2
+export PYTORCH_BUILD_VERSION=2.3.1
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 setup.py install
 ```
