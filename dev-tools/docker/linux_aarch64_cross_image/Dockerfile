@@ -17,6 +17,9 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Make sure OS packages are up to date and required packages are installed
 RUN \
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+  yum repolist enabled && \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel
 
@@ -24,7 +27,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-aarch64-linux-gnu/usr && \
   cd /usr/local/sysroot-aarch64-linux-gnu/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-12.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-13.tar.bz2 | tar jxf - && \
   cd .. && \
   ln -s usr/lib lib && \
   ln -s usr/lib64 lib64
