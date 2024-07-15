@@ -141,7 +141,7 @@ RUN \
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -154,7 +154,7 @@ RUN \
   export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=2.1.2 && \
+  export PYTORCH_BUILD_VERSION=2.3.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.10 setup.py install && \
   mkdir /usr/local/gcc103/include/pytorch && \
