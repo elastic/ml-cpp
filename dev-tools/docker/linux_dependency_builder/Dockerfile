@@ -11,7 +11,7 @@
 
 FROM docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_231
 
-MAINTAINER David Roberts <dave.roberts@elastic.co>
+MAINTAINER Ed Savage <ed.savages@elastic.co>
 
 # Copy the current Git repository into the container
 COPY . /ml-cpp/
