@@ -9,6 +9,9 @@
  * limitation.
  */
 
+#include "model/CAnomalyDetectorModel.h"
+#include <core/CTimeUtils.h>
+
 #include <model/CDetectionRule.h>
 
 namespace ml {
@@ -16,6 +19,10 @@ namespace model {
 
 void CDetectionRule::action(int action) {
     m_Action = action;
+}
+
+int CDetectionRule::action() const {
+    return m_Action;
 }
 
 void CDetectionRule::includeScope(const std::string& field, const core::CPatternSet& filter) {
@@ -69,6 +76,13 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
             m_Callback(model);
         }
     }
+}
+
+void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
+    this->setCallback([timeShift](CAnomalyDetectorModel& model) {
+        core_t::TTime now = core::CTimeUtils::now();
+        model.shiftTime(now, timeShift);
+    });
 }
 
 std::string CDetectionRule::print() const {

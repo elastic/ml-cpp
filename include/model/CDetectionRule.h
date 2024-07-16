@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_model_CDetectionRule_h
 #define INCLUDED_ml_model_CDetectionRule_h
 
+#include <memory>
 #include <model/CRuleCondition.h>
 #include <model/CRuleScope.h>
 #include <model/ImportExport.h>
@@ -44,12 +45,16 @@ public:
     enum ERuleAction {
         E_SkipResult = 1,
         E_SkipModelUpdate = 2,
-        E_Callback = 4
+        E_Callback = 4,
+        E_TimeShift = 8
     };
 
 public:
     //! Set the rule's action.
     void action(int ruleAction);
+
+    //! Get the rule's action.
+    int action() const;
 
     //! Adds a requirement for \p field not to be in \p filter for the rule to apply
     void includeScope(const std::string& field, const core::CPatternSet& filter);
@@ -75,6 +80,8 @@ public:
     //! Executes the callback function for anomaly detection on the \p model if all
     //! conditions are satisfied.
     void executeCallback(CAnomalyDetectorModel& model, core_t::TTime time) const;
+
+    void addTimeShift(core_t::TTime timeShift);
 
     //! Pretty-print the rule.
     std::string print() const;

@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <boost/test/tools/interface.hpp>
+#include <boost/test/unit_test_suite.hpp>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
 
@@ -22,6 +24,12 @@
 #include <model/SModelParams.h>
 
 #include "Mocks.h"
+#include "core/Constants.h"
+#include "core/CoreTypes.h"
+#include "maths/common/CNormalMeanPrecConjugate.h"
+#include "maths/common/MathsTypes.h"
+#include "maths/time_series/CTimeSeriesDecomposition.h"
+#include "maths/time_series/CTimeSeriesModel.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -938,6 +946,60 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
     BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipModelUpdate, model,
                                   model_t::E_IndividualMeanByPerson, resultType,
                                   0, 0, 100));
+}
+
+BOOST_FIXTURE_TEST_CASE(testRuleTimeShift, CTestFixture) {
+    using TMockModelPtr = std::unique_ptr<model::CMockModel>;
+    core_t::TTime timeShiftInSecs{3600};
+    core_t::TTime bucketLength{600};
+    model::CSearchKey key;
+    model::SModelParams params{bucketLength};
+    model_t::TFeatureVec features;
+
+    model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
+    
+
+    features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
+    
+    gatherer = std::make_shared<model::CDataGatherer>(
+        model_t::analysisCategory(features[0]), model_t::E_None, params,
+        EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING,
+        TStrVec{}, key, features, 0, 0);
+
+    std::string person("p1");
+    bool addedPerson{false};
+    gatherer->addPerson(person, m_ResourceMonitor, addedPerson);
+
+    TMockModelPtr model{new model::CMockModel(params, gatherer,
+                                        {/* we don't care about influence */})};
+
+    maths::time_series::CTimeSeriesDecomposition trend;
+    maths::common::CNormalMeanPrecConjugate prior{
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)
+    };
+    maths::common::CModelParams timeSeriesModelParams{
+        bucketLength, 1.0, 0.001, 0.2, 6*core::constants::HOUR, 24*core::constants::HOUR
+    };
+    maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
+        timeSeriesModelParams, 0, trend, prior
+    };
+    model::CMockModel::TMathsModelUPtrVec models;
+    models.emplace_back(&timeSeriesModel);
+    model->mockTimeSeriesModels(std::move(models));
+
+    CRuleCondition conditionGte;
+    conditionGte.appliesTo(CRuleCondition::E_Time);
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(100);
+    
+    CDetectionRule rule;
+    rule.addCondition(conditionGte);
+    rule.addTimeShift(timeShiftInSecs);
+    const auto* trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition*>(&timeSeriesModel.trendModel());
+    core_t::TTime lastValueTime = trendModel->lastValueTime();
+    rule.executeCallback(*model, timeShiftInSecs);
+    BOOST_TEST_REQUIRE(trendModel->lastValueTime() == lastValueTime + timeShiftInSecs);
+    BOOST_TEST_REQUIRE(trendModel->timeShift() == timeShiftInSecs);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
