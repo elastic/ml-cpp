@@ -168,4 +168,3 @@ The executable is created under the `cmake-build-relwithdebinfo` hierarchy, so t
 ./cmake-build-relwithdebinfo/devbin/model_extractor/model_extractor --help
 ```
 
-
