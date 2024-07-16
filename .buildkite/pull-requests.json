@@ -9,7 +9,7 @@
       "commit_status_context": "ml-cpp-ci",
       "build_on_commit": true,
       "build_on_comment": true,
-      "trigger_comment_regex": "/^(?:(?:buildkite +)(?<action>build|debug|run_qa_tests|run_pytorch_tests) *(?: *on *(?<platform>(?:[ ,]*(?:windows|linux|mac(os)?))+))?) *(?<arch>(?:[ ,]*aarch64|x86_64)+)?$/gm",
+      "trigger_comment_regex": "^(?:(?:buildkite +)(?<action>build|debug|run_qa_tests|run_pytorch_tests) *(?: *on *(?<platform>(?:[ ,]*(?:windows|linux|mac(os)?))+))?) *(?<arch>(?:[ ,]*aarch64|x86_64)+)?$",
       "always_trigger_comment_regex": "^(?:(?:buildkite\\W+)?(?:build|test)\\W+(?:this|it))",
       "skip_ci_labels": ["skip-ci", "jenkins-ci", ">test-mute", ">docs"],
       "skip_target_branches": ["6.8", "7.11", "7.12"],
