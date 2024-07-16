@@ -31,13 +31,13 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        build_windows = pipeline_steps.generate_step_template("Windows", "build")
+        build_windows = pipeline_steps.generate_step_template("Windows", "build", "", config.build_x86_64)
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", "build")
+        build_macos = pipeline_steps.generate_step_template("MacOS", "build", config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step_template("Linux", "build")
+        build_linux = pipeline_steps.generate_step_template("Linux", "build", config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(build_linux)
 
     # Build the DRA artifacts and upload to S3 and GCS
