@@ -83,9 +83,10 @@ class Config:
             self.build_windows = True
             self.build_macos = True
             self.build_linux = True
-            self.build_aarch64 = ""
-            self.build_x86_64 = ""
+            self.build_aarch64 = "--build-aarch64"
+            self.build_x86_64 = "--build-x86_64"
             self.run_qa_tests = False
+            self.run_pytorch_tests = False
         else:
             for label in ci_labels:
                 if "ci:build-aarch64" == label:
@@ -103,6 +104,14 @@ class Config:
                     self.build_macos = True
                     self.build_linux = True
                     self.run_qa_tests = True
+                if "ci:run-pytorch-tests" == label:
+                    self.build_windows = True
+                    self.build_macos = True
+                    self.build_linux = True
+                    self.run_pytorch_tests = True
+            if self.build_aarch64 == "" and self.build_x86_64 == "":
+                self.build_aarch64 = "--build-aarch64"
+                self.build_x86_64 = "--build-x86_64"
 
     def parse(self):
         """Parse Github label or Github comment passed through buildkite-pr-bot."""
