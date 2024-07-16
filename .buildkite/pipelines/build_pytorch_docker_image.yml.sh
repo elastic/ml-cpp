@@ -28,5 +28,5 @@ steps:
         GITHUB_PR_COMMENT_VAR_PLATFORM: "linux"
         GITHUB_PR_COMMENT_VAR_ARCH: "x86_64"
         GITHUB_PR_COMMENT_VAR_ACTION: "run_pytorch_tests"
-        GITHUB_PR_TRIGGER_COMMENT=""
+        GITHUB_PR_TRIGGER_COMMENT: ""
 EOL
