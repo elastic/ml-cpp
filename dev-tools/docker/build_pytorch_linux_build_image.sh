@@ -45,10 +45,10 @@ prefetch_docker_base_image $CONTEXT/Dockerfile
 if [ $# -gt 0 ]; then
   VERSION=pytorch_latest
   echo "VERSION = $VERSION"
-  docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=viable/strict $CONTEXT
+  docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=viable/strict $CONTEXT
 else
   echo "VERSION = $VERSION"
-  docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
+  docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
 fi
 # Get a username and password for this by visiting
 # https://docker-auth.elastic.co and allowing it to authenticate against your
