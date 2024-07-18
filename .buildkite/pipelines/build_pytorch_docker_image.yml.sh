@@ -13,8 +13,7 @@ cat <<EOL
 steps:
   - label: "Build PyTorch Docker Image"
     key: "build_pytorch_docker_image"
-    # command: "./dev-tools/docker/build_pytorch_linux_build_image.sh"
-    command: true
+    command: "./dev-tools/docker/build_pytorch_linux_build_image.sh"
     agents:
       "provider": "gcp"
       "machineType": "c2-standard-16"
