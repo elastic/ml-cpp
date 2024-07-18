@@ -25,7 +25,7 @@ steps:
     build:
       message: "${BUILDKITE_MESSAGE}"
       env:
-        DOCKER_IMAGE: "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_viable_strict"
+        DOCKER_IMAGE: "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest"
         GITHUB_PR_COMMENT_VAR_PLATFORM: "linux"
         GITHUB_PR_COMMENT_VAR_ARCH: "x86_64"
         GITHUB_PR_COMMENT_VAR_ACTION: "run_pytorch_tests"
