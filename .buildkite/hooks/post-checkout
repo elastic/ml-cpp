@@ -24,6 +24,10 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   else [[ "$BUILDKITE_STEP_KEY" == "build_test_Windows-x86_64-RelWithDebInfo" ]]
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
   fi
-  export DOCKER_REGISTRY_USERNAME="$(vault read -field=username secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)"
-  export DOCKER_REGISTRY_PASSWORD="$(vault read -field=password secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)"
+
+  if [[ "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then
+    DOCKER_CREDS="$(vault read secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)"
+    export DOCKER_REGISTRY_USERNAME=$(echo $DOCKER_CREDS | awk '/^username/ {print $2}')
+    export DOCKER_REGISTRY_PASSWORD=$(echo $DOCKER_CREDS | awk '/^password/ {print $2}')
+  fi
 fi
