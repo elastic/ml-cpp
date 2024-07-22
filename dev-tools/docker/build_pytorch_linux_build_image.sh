@@ -42,16 +42,16 @@ cd `dirname $0`
 . ./prefetch_docker_image.sh
 CONTEXT=pytorch_linux_image
 prefetch_docker_base_image $CONTEXT/Dockerfile
-#if [ $# -gt 0 ]; then
-#  VERSION=pytorch_latest
-#  echo "VERSION = $VERSION"
-#  docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=viable/strict $CONTEXT
-#else
-#  echo "VERSION = $VERSION"
-#  docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
-#fi
+if [ $# -gt 0 ]; then
+  VERSION=pytorch_latest
+  echo "VERSION = $VERSION"
+  docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=viable/strict $CONTEXT
+else
+  echo "VERSION = $VERSION"
+  docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
+fi
 
 # We use a special machine user account to authenticate to docker.elastic.co from within our Buildkite pipelines
 echo "Pushing $HOST/$ACCOUNT/$REPOSITORY:$VERSION"
 echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.elastic.co
-#docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION
+docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION
