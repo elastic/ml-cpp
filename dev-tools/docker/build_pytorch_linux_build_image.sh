@@ -50,11 +50,8 @@ else
   echo "VERSION = $VERSION"
   docker build --progress=plain --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
 fi
-# Get a username and password for this by visiting
-# https://docker-auth.elastic.co and allowing it to authenticate against your
-# GitHub account
 
-echo "Disabling docker push until service account has been enabled"
-#docker login $HOST
-#docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION
-
+# We use a special machine user account to authenticate to docker.elastic.co from within our Buildkite pipelines
+echo "Pushing $HOST/$ACCOUNT/$REPOSITORY:$VERSION"
+echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.elastic.co
+docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION
