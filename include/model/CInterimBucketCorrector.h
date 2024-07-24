@@ -13,6 +13,7 @@
 #define INCLUDED_ml_model_CInterimBucketCorrector_h
 
 #include <core/CMemoryUsage.h>
+#include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
 
@@ -92,6 +93,8 @@ public:
 
     //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    void shiftTime(core_t::TTime time, core_t::TTime shift);
 
 private:
     //! Returns the mid point in the bucket that contains \p time.

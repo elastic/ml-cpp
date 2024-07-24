@@ -126,9 +126,8 @@ bool CDetectionRulesJsonParser::hasStringMember(const json::object& object,
     return object.contains(nameAsCStr) && object.at(nameAsCStr).is_string();
 }
 
-
 bool CDetectionRulesJsonParser::hasObjectMember(const json::object& object,
-                                               const std::string& name) {
+                                                const std::string& name) {
     const char* nameAsCStr = name.c_str();
     return object.contains(nameAsCStr) && object.at(nameAsCStr).is_object();
 }
@@ -146,7 +145,7 @@ bool CDetectionRulesJsonParser::hasDoubleMember(const json::object& object,
 }
 
 bool CDetectionRulesJsonParser::hasIntegerMember(const json::object& object,
-                                               const std::string& name) {
+                                                 const std::string& name) {
     const char* nameAsCStr = name.c_str();
     return object.contains(nameAsCStr) && object.at(nameAsCStr).is_number();
 }
@@ -171,10 +170,9 @@ bool CDetectionRulesJsonParser::parseRuleActions(const json::object& ruleObject,
             action |= model::CDetectionRule::E_SkipResult;
         } else if (parsedAction == SKIP_MODEL_UPDATE) {
             action |= model::CDetectionRule::E_SkipModelUpdate;
-        } else if (parsedAction == FORCE_TIME_SHIFT ) {
+        } else if (parsedAction == FORCE_TIME_SHIFT) {
             action |= model::CDetectionRule::E_TimeShift;
-        }
-         else {
+        } else {
             LOG_ERROR(<< "Invalid rule action: " << parsedAction);
             return false;
         }
@@ -184,16 +182,17 @@ bool CDetectionRulesJsonParser::parseRuleActions(const json::object& ruleObject,
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseParameters(const json::object& ruleObject, 
-        model::CDetectionRule& rule, int action) {
+bool CDetectionRulesJsonParser::parseParameters(const json::object& ruleObject,
+                                                model::CDetectionRule& rule,
+                                                int action) {
     if (ruleObject.contains(PARAMETERS.c_str()) == false) {
         // Parameters are only required if "force_time_shift action is specified"
         if ((action & model::CDetectionRule::E_TimeShift) == 0) {
             return true;
         } else {
-            LOG_ERROR(<< "Missing rule field: " << PARAMETERS << " for the force_time_shift action");
+            LOG_ERROR(<< "Missing rule field: " << PARAMETERS
+                      << " for the force_time_shift action");
             return false;
-        
         }
     }
     const json::object& parametersObject = ruleObject.at(PARAMETERS).as_object();
@@ -207,7 +206,8 @@ bool CDetectionRulesJsonParser::parseParameters(const json::object& ruleObject,
             LOG_ERROR(<< "Missing parameter field: " << FORCE_TIME_SHIFT);
             return false;
         }
-        const json::object& forceTimeShiftObject = parametersObject.at(FORCE_TIME_SHIFT).as_object();
+        const json::object& forceTimeShiftObject =
+            parametersObject.at(FORCE_TIME_SHIFT).as_object();
         if (forceTimeShiftObject.empty()) {
             LOG_ERROR(<< "Force time shift parameters must not be empty");
             return false;
@@ -219,7 +219,6 @@ bool CDetectionRulesJsonParser::parseParameters(const json::object& ruleObject,
         rule.addTimeShift(forceTimeShiftObject.at(TIME_SHIFT_AMOUNT).to_number<long>());
     }
     return true;
-    
 }
 
 bool CDetectionRulesJsonParser::parseRuleScope(const json::object& ruleObject,

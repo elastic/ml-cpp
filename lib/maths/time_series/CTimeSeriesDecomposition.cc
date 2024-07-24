@@ -614,6 +614,10 @@ core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
     return m_LastValueTime;
 }
 
+void CTimeSeriesDecomposition::resetChangePointTest(core_t::TTime time) {
+    m_ChangePointTest.reset(time);
+}
+
 void CTimeSeriesDecomposition::initializeMediator() {
     m_Mediator = std::make_unique<CMediator>();
     m_Mediator->registerHandler(m_ChangePointTest);

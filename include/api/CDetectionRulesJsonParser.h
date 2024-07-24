@@ -67,7 +67,8 @@ private:
                                        model::CRuleCondition& condition);
     static bool parseConditionValue(const json::object& conditionObject,
                                     model::CRuleCondition& condition);
-    static bool parseParameters(const json::object& ruleObject, model::CDetectionRule& rule, 
+    static bool parseParameters(const json::object& ruleObject,
+                                model::CDetectionRule& rule,
                                 int action);
 
 private:

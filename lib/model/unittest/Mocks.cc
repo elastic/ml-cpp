@@ -211,7 +211,6 @@ void CMockModel::shiftTime(core_t::TTime time, core_t::TTime timeShift) {
     }
 }
 
-
 CMemoryUsageEstimator* CMockModel::memoryUsageEstimator() const {
     return nullptr;
 }

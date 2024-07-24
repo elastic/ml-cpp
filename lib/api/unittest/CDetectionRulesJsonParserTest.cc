@@ -509,7 +509,7 @@ BOOST_AUTO_TEST_CASE(testParseForceTimeShiftWithValidParamsShouldSucceed) {
     rulesJson += "]";
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
-    BOOST_TEST_REQUIRE(rules.empty()==false);
+    BOOST_TEST_REQUIRE(rules.empty() == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

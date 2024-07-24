@@ -957,32 +957,27 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShift, CTestFixture) {
     model_t::TFeatureVec features;
 
     model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
-    
 
     features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
-    
+
     gatherer = std::make_shared<model::CDataGatherer>(
-        model_t::analysisCategory(features[0]), model_t::E_None, params,
-        EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING,
-        TStrVec{}, key, features, 0, 0);
+        model_t::analysisCategory(features[0]), model_t::E_None, params, EMPTY_STRING,
+        EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, 0, 0);
 
     std::string person("p1");
     bool addedPerson{false};
     gatherer->addPerson(person, m_ResourceMonitor, addedPerson);
 
-    TMockModelPtr model{new model::CMockModel(params, gatherer,
-                                        {/* we don't care about influence */})};
+    TMockModelPtr model{new model::CMockModel(
+        params, gatherer, {/* we don't care about influence */})};
 
     maths::time_series::CTimeSeriesDecomposition trend;
     maths::common::CNormalMeanPrecConjugate prior{
-        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)
-    };
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
     maths::common::CModelParams timeSeriesModelParams{
-        bucketLength, 1.0, 0.001, 0.2, 6*core::constants::HOUR, 24*core::constants::HOUR
-    };
+        bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
     maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
-        timeSeriesModelParams, 0, trend, prior
-    };
+        timeSeriesModelParams, 0, trend, prior};
     model::CMockModel::TMathsModelUPtrVec models;
     models.emplace_back(&timeSeriesModel);
     model->mockTimeSeriesModels(std::move(models));
@@ -991,11 +986,12 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShift, CTestFixture) {
     conditionGte.appliesTo(CRuleCondition::E_Time);
     conditionGte.op(CRuleCondition::E_GTE);
     conditionGte.value(100);
-    
+
     CDetectionRule rule;
     rule.addCondition(conditionGte);
     rule.addTimeShift(timeShiftInSecs);
-    const auto* trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition*>(&timeSeriesModel.trendModel());
+    const auto* trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition*>(
+        &timeSeriesModel.trendModel());
     core_t::TTime lastValueTime = trendModel->lastValueTime();
     rule.executeCallback(*model, timeShiftInSecs);
     BOOST_TEST_REQUIRE(trendModel->lastValueTime() == lastValueTime + timeShiftInSecs);

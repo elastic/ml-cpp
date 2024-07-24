@@ -288,6 +288,9 @@ public:
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
 
+        //! Reset the test at \p time.
+        void reset(core_t::TTime time);
+
     private:
         using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
         using TFloatMeanAccumulatorCBuf = boost::circular_buffer<TFloatMeanAccumulator>;
