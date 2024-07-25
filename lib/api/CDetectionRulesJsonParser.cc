@@ -10,10 +10,10 @@
  */
 #include <api/CDetectionRulesJsonParser.h>
 
-#include <boost/json/object.hpp>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
+#include <boost/json/object.hpp>
 namespace ml {
 namespace api {
 

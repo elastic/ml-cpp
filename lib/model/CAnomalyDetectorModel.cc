@@ -9,8 +9,6 @@
  * limitation.
  */
 
-#include "model/ModelTypes.h"
-#include "model/SModelParams.h"
 #include <model/CAnomalyDetectorModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -35,6 +33,8 @@
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
+#include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/unordered_set.hpp>
 

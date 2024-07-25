@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_model_CDetectionRule_h
 #define INCLUDED_ml_model_CDetectionRule_h
 
-#include <memory>
 #include <model/CRuleCondition.h>
 #include <model/CRuleScope.h>
 #include <model/ImportExport.h>
@@ -65,6 +64,7 @@ public:
     //! Add a condition.
     void addCondition(const CRuleCondition& condition);
 
+    //! Set callback function.
     void setCallback(TCallback cb);
 
     //! Check whether the rule applies on a series.
@@ -81,6 +81,7 @@ public:
     //! conditions are satisfied.
     void executeCallback(CAnomalyDetectorModel& model, core_t::TTime time) const;
 
+    //! Add a time shift callback function with the specified \p timeShift amount.
     void addTimeShift(core_t::TTime timeShift);
 
     //! Pretty-print the rule.
@@ -103,6 +104,9 @@ private:
 
     //! Callback function
     TCallback m_Callback;
+
+    //! This flags ensures that the time shift is applied only once.
+    bool m_TimeShiftApplied{false};
 };
 }
 }

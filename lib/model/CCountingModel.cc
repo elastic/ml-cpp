@@ -369,6 +369,8 @@ const CCountingModel::TAnnotationVec& CCountingModel::annotations() const {
 }
 
 void CCountingModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    // Since counting model does not have a trend mode, only the interim
+    // bucket corrector needs to be shifted.
     m_InterimBucketCorrector->shiftTime(time, shift);
 }
 

@@ -62,6 +62,7 @@ public:
     //! Pretty-print the condition.
     std::string print() const;
 
+    //! Test the conditions for the specified \p time .
     bool test(core_t::TTime time) const;
 
     //! Test the condition against a series.

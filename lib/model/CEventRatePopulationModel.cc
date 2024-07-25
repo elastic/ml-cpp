@@ -1130,8 +1130,6 @@ void CEventRatePopulationModel::shiftTime(core_t::TTime time, core_t::TTime shif
             model->shiftTime(time, shift);
         }
     }
-    // TODO: do time series correlations need to be shifted as well
-    // this->m_FeatureCorrelatesModels->shiftTime(amount);
 }
 
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
