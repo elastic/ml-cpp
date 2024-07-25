@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 8.16.0
+
+=== Enhancements
+
+* Allow the user to force a detector to shift time series state by a specific amount.
+  (See {ml-pull}2695[#2695].)
+
 == {es} version 8.15.0
 
 === Enhancements
