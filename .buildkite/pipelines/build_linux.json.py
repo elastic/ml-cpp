@@ -36,7 +36,7 @@ agents = {
       "cpu": "6",
       "ephemeralStorage": "20G",
       "memory": "64G",
-      "image": "docker.elastic.co/ml-dev/ml-linux-build:29"
+      "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:30")
    },
    "aarch64": {
       "provider": "aws",
@@ -54,38 +54,39 @@ def main(args):
         cur_build_types = [args.build_type]
 
     for arch, build_type in product(archs, cur_build_types):
-        pipeline_steps.append({
-            "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
-            "timeout_in_minutes": "240",
-            "agents": agents[arch],
-            "commands": [
-              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              ".buildkite/scripts/steps/build_and_test.sh"
-            ],
-            "depends_on": "check_style",
-            "key": f"build_test_linux-{arch}-{build_type}",
-            "env": {
-              "ML_DEBUG": "0",
-              "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-              "CPP_CROSS_COMPILE": "",
-              "RUN_TESTS": "true",
-              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-            },
-            "artifact_paths": "*/**/unittest/boost_test_results.junit",
-            "plugins": {
-              "test-collector#v1.2.0": {                                                              
-                "files": "*/*/unittest/boost_test_results.junit",
-                "format": "junit"
-              }
-            },
-            "notify": [
-              {
-                "github_commit_status": {
-                  "context": f"Build and test on Linux {arch} {build_type}",
+        if args.build_x86_64 and arch == "x86_64" or args.build_aarch64 and arch == "aarch64":
+            pipeline_steps.append({
+                "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
+                "timeout_in_minutes": "240",
+                "agents": agents[arch],
+                "commands": [
+                  f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+                  ".buildkite/scripts/steps/build_and_test.sh"
+                ],
+                "depends_on": "check_style",
+                "key": f"build_test_linux-{arch}-{build_type}",
+                "env": {
+                  "ML_DEBUG": "0",
+                  "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                  "CPP_CROSS_COMPILE": "",
+                  "RUN_TESTS": "true",
+                  "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
                 },
-              },
-            ],
-        })
+                "artifact_paths": "*/**/unittest/boost_test_results.junit",
+                "plugins": {
+                  "test-collector#v1.2.0": {                                                              
+                    "files": "*/*/unittest/boost_test_results.junit",
+                    "format": "junit"
+                  }
+                },
+                "notify": [
+                  {
+                    "github_commit_status": {
+                      "context": f"Build and test on Linux {arch} {build_type}",
+                    },
+                  },
+                ],
+            })
 
     # Never cross-compile for linux-aarch64 in the nightly debug build.
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
@@ -100,7 +101,7 @@ def main(args):
               "cpu": "6",
               "ephemeralStorage": "20G",
               "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:12"
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:13"
             },
             "commands": [
               ".buildkite/scripts/steps/build_and_test.sh"
@@ -140,7 +141,16 @@ if __name__ == "__main__":
                         choices=actions,
                         default="build",
                         help="Specify a build action.")
-
+    parser.add_argument("--build-aarch64",
+                        required=False,
+                        action='store_true',
+                        default=False,
+                        help="Build for aarch64?.")
+    parser.add_argument("--build-x86_64",
+                        required=False,
+                        action='store_true',
+                        default=False,
+                        help="Build for x86_64?")
     args = parser.parse_args()
 
     main(args)

@@ -95,6 +95,16 @@ if __name__ == "__main__":
                         choices=actions,
                         default="build",
                         help="Specify a build action.")
+    parser.add_argument("--build-aarch64",
+                        required=False,
+                        action='store_true',
+                        default=False,
+                        help="Build for aarch64?.")
+    parser.add_argument("--build-x86_64",
+                        required=False,
+                        action='store_true',
+                        default=False,
+                        help="Build for x86_64?")
 
     args = parser.parse_args()
 
