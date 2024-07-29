@@ -1125,8 +1125,8 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
 }
 
 void CEventRatePopulationModel::addAnnotation(core_t::TTime time,
-                                 CAnnotation::EEvent type,
-                                 const std::string& annotation) {
+                                              CAnnotation::EEvent type,
+                                              const std::string& annotation) {
     m_CurrentBucketStats.s_Annotations.emplace_back(
         time, type, annotation, this->dataGatherer().searchKey().detectorIndex(), EMPTY_STRING,
         EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
