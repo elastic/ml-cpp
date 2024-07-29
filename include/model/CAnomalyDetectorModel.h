@@ -702,6 +702,10 @@ protected:
     //! or attributes to free memory resource.
     static maths::common::CModel* tinyModel();
 
+    virtual void addAnnotation(core_t::TTime,
+                               CAnnotation::EEvent type,
+                               const std::string& annotation) = 0;
+
 private:
     using TModelParamsCRef = std::reference_wrapper<const SModelParams>;
 

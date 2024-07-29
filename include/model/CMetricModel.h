@@ -273,6 +273,11 @@ public:
     //! Get the annotations produced by this model.
     const TAnnotationVec& annotations() const override;
 
+protected:
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
+
 private:
     using TOptionalSample = std::optional<CSample>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;

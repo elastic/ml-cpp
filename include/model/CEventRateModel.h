@@ -279,6 +279,11 @@ public:
     //! Get the annotations produced by this model.
     const TAnnotationVec& annotations() const override;
 
+protected:
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
+
 private:
     //! Get the start time of the current bucket.
     core_t::TTime currentBucketStartTime() const override;

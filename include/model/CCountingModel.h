@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_model_CCountingModel_h
 #define INCLUDED_ml_model_CCountingModel_h
 
+#include <core/CoreTypes.h>
+
 #include <model/CAnomalyDetectorModel.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -239,6 +241,10 @@ protected:
 
     //! Get the non-estimated value of the the memory used by this model.
     std::size_t computeMemoryUsage() const override;
+
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
 
 private:
     //! Get the scheduled events that match at sampleTime.
