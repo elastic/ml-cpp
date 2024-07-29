@@ -539,6 +539,7 @@ public:
     //! Returns true
     virtual bool shouldPersist() const;
 
+    //! Apply a time shift at the time \p time by \p shift amount of seconds.
     virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
 
 protected:

@@ -67,25 +67,24 @@ bool CDetectionRule::apply(ERuleAction action,
 
 void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime time) const {
 
-    if (m_Callback) {
-        bool executeCallback{true};
+    if (m_Callback != nullptr) {
         for (const auto& condition : m_Conditions) {
-            executeCallback &= condition.test(time);
+            if (condition.test(time) == false) { // Disjunction
+                return;
+            }
         }
-        if (executeCallback) {
-            m_Callback(model);
-        }
+        m_Callback(model);
     }
 }
 
 void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
-    this->setCallback([timeShift, this](CAnomalyDetectorModel& model) {
-        if (this->m_TimeShiftApplied == false) {
+    this->setCallback([timeShift, timeShiftApplied = false](CAnomalyDetectorModel& model) mutable {
+        if (timeShiftApplied == false) {
             // When the callback is executed, the model is already in the correct time
             // interval. Hence, we need to shift the time right away.
             core_t::TTime now = core::CTimeUtils::now();
             model.shiftTime(now, timeShift);
-            this->m_TimeShiftApplied = true;
+            timeShiftApplied = true;
         }
     });
 }
@@ -118,11 +117,11 @@ std::string CDetectionRule::printAction() const {
         }
         result += "SKIP_MODEL_UPDATE";
     }
-    if (E_Callback & m_Action) {
+    if (E_TimeShift & m_Action) {
         if (result.empty() == false) {
             result += " AND ";
         }
-        result += "CALLBACK";
+        result += "FORCE_TIME_SHIFT";
     }
     return result;
 }

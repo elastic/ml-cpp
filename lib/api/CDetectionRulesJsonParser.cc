@@ -185,7 +185,7 @@ bool CDetectionRulesJsonParser::parseRuleActions(const json::object& ruleObject,
 bool CDetectionRulesJsonParser::parseParameters(const json::object& ruleObject,
                                                 model::CDetectionRule& rule,
                                                 int action) {
-    if (ruleObject.contains(PARAMETERS.c_str()) == false) {
+    if (hasObjectMember(ruleObject, PARAMETERS) == false) {
         // Parameters are only required if "force_time_shift action is specified"
         if ((action & model::CDetectionRule::E_TimeShift) == 0) {
             return true;
@@ -197,7 +197,7 @@ bool CDetectionRulesJsonParser::parseParameters(const json::object& ruleObject,
     }
     const json::object& parametersObject = ruleObject.at(PARAMETERS).as_object();
     if (parametersObject.empty()) {
-        LOG_ERROR(<< "Parameters must not be empty");
+        LOG_ERROR(<< "Parameters for rule (action " << action << ") must not be empty");
         return false;
     }
     // if force_time_shift action is specified, then parameters must contain force_time_shift key

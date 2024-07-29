@@ -44,8 +44,7 @@ public:
     enum ERuleAction {
         E_SkipResult = 1,
         E_SkipModelUpdate = 2,
-        E_Callback = 4,
-        E_TimeShift = 8
+        E_TimeShift = 4
     };
 
 public:
@@ -64,7 +63,7 @@ public:
     //! Add a condition.
     void addCondition(const CRuleCondition& condition);
 
-    //! Set callback function.
+    //! Set callback function to apply some action to a supplied time series model.
     void setCallback(TCallback cb);
 
     //! Check whether the rule applies on a series.
@@ -102,11 +101,8 @@ private:
     //! The conditions that trigger the rule.
     TRuleConditionVec m_Conditions;
 
-    //! Callback function
+    //! Callback function to apply a change to a model based on the rule action.
     TCallback m_Callback;
-
-    //! This flags ensures that the time shift is applied only once.
-    bool m_TimeShiftApplied{false};
 };
 }
 }
