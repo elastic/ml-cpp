@@ -14,8 +14,8 @@
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CoreTypes.h>
 #include <core/CPersistUtils.h>
+#include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
