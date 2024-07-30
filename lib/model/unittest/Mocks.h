@@ -143,6 +143,7 @@ private:
     const model::CInterimBucketCorrector& interimValueCorrector() const override;
     void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) override;
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
+    void addAnnotation(core_t::TTime, CAnnotation::EEvent type, const std::string& annotation) override;
 
 private:
     bool m_IsPopulation;
