@@ -1039,8 +1039,8 @@ void CMetricPopulationModel::shiftTime(core_t::TTime time, core_t::TTime shift) 
             model->shiftTime(time, shift);
         }
     }
-    // TODO: do correlation models need to be shifted?
-    // m_FeatureCorrelatesModels->shiftTime(amount);
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Shifted time by " + std::to_string(shift) + " seconds");
 }
 
 ////////// CMetricPopulationModel::SBucketStats Implementation //////////

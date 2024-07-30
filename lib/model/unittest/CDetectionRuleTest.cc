@@ -1004,6 +1004,8 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestF
                     model->model(0))
                     ->trendModel());
         core_t::TTime lastValueTime = trendModel.lastValueTime();
+        const auto& annotations = model->annotations();
+        std::size_t numAnnotationsBeforeShift = annotations.size();
 
         core_t::TTime timestamp{100};
         CRuleCondition conditionGte;
@@ -1020,6 +1022,9 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestF
         // the time series model should have been shifted by specified amount.
         BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTime + timeShiftInSecs);
         BOOST_TEST_REQUIRE(trendModel.timeShift() == timeShiftInSecs);
+
+        // and an annotation should have been added to the model
+        BOOST_TEST_REQUIRE(annotations.size() == numAnnotationsBeforeShift + 1);
     }
 }
 

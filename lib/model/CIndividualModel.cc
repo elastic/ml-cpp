@@ -650,6 +650,8 @@ void CIndividualModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
             model->shiftTime(time, shift);
         }
     }
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Shifted time by " + std::to_string(shift) + " seconds");
 }
 }
 }

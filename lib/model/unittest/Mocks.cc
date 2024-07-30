@@ -205,14 +205,17 @@ void CMockModel::mockTimeSeriesModels(TMathsModelUPtrVec&& models) {
     m_Models = std::move(models);
 }
 
-void CMockModel::addAnnotation(core_t::TTime, CAnnotation::EEvent, const std::string&) {
-    // do nothing
+void CMockModel::addAnnotation(core_t::TTime time, CAnnotation::EEvent type, const std::string& annotation) {
+    m_Annotations.emplace_back(time, type, annotation, 0, EMPTY_STRING,
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
 }
 
-void CMockModel::shiftTime(core_t::TTime time, core_t::TTime timeShift) {
+void CMockModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
     for (auto& model : m_Models) {
-        model->shiftTime(time, timeShift);
+        model->shiftTime(time, shift);
     }
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Shifted time by " + std::to_string(shift) + " seconds");
 }
 
 CMemoryUsageEstimator* CMockModel::memoryUsageEstimator() const {
