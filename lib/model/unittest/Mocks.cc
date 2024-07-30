@@ -205,9 +205,11 @@ void CMockModel::mockTimeSeriesModels(TMathsModelUPtrVec&& models) {
     m_Models = std::move(models);
 }
 
-void CMockModel::addAnnotation(core_t::TTime time, CAnnotation::EEvent type, const std::string& annotation) {
-    m_Annotations.emplace_back(time, type, annotation, 0, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
+void CMockModel::addAnnotation(core_t::TTime time,
+                               CAnnotation::EEvent type,
+                               const std::string& annotation) {
+    m_Annotations.emplace_back(time, type, annotation, 0, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
 }
 
 void CMockModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
