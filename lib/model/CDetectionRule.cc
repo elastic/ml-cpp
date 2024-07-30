@@ -9,6 +9,9 @@
  * limitation.
  */
 
+#include <core/CTimeUtils.h>
+
+#include <model/CAnomalyDetectorModel.h>
 #include <model/CDetectionRule.h>
 
 namespace ml {
@@ -16,6 +19,10 @@ namespace model {
 
 void CDetectionRule::action(int action) {
     m_Action = action;
+}
+
+int CDetectionRule::action() const {
+    return m_Action;
 }
 
 void CDetectionRule::includeScope(const std::string& field, const core::CPatternSet& filter) {
@@ -28,6 +35,10 @@ void CDetectionRule::excludeScope(const std::string& field, const core::CPattern
 
 void CDetectionRule::addCondition(const CRuleCondition& condition) {
     m_Conditions.push_back(condition);
+}
+
+void CDetectionRule::setCallback(TCallback cb) {
+    m_Callback = std::move(cb);
 }
 
 bool CDetectionRule::apply(ERuleAction action,
@@ -52,6 +63,30 @@ bool CDetectionRule::apply(ERuleAction action,
     }
 
     return true;
+}
+
+void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime time) const {
+
+    if (m_Callback != nullptr) {
+        for (const auto& condition : m_Conditions) {
+            if (condition.test(time) == false) { // Disjunction
+                return;
+            }
+        }
+        m_Callback(model);
+    }
+}
+
+void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
+    this->setCallback([ timeShift, timeShiftApplied = false ](CAnomalyDetectorModel & model) mutable {
+        if (timeShiftApplied == false) {
+            // When the callback is executed, the model is already in the correct time
+            // interval. Hence, we need to shift the time right away.
+            core_t::TTime now = core::CTimeUtils::now();
+            model.shiftTime(now, timeShift);
+            timeShiftApplied = true;
+        }
+    });
 }
 
 std::string CDetectionRule::print() const {
@@ -81,6 +116,12 @@ std::string CDetectionRule::printAction() const {
             result += " AND ";
         }
         result += "SKIP_MODEL_UPDATE";
+    }
+    if (E_TimeShift & m_Action) {
+        if (result.empty() == false) {
+            result += " AND ";
+        }
+        result += "FORCE_TIME_SHIFT";
     }
     return result;
 }

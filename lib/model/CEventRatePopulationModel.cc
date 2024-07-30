@@ -1132,6 +1132,14 @@ void CEventRatePopulationModel::addAnnotation(core_t::TTime time,
         EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
 }
 
+void CEventRatePopulationModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+}
+
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
 
 CEventRatePopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime)

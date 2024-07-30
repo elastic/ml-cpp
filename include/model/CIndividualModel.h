@@ -165,6 +165,9 @@ public:
     //! Get the last time each persion was seen.
     const TTimeVec& lastBucketTimes() const;
 
+    //! Apply time shift at the time \p time by \p shift amount of seconds.
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
+
 protected:
     using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;

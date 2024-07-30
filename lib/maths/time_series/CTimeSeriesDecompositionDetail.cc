@@ -649,6 +649,10 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& m
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSeasonal& message) {
+    this->reset(message.s_Time);
+}
+
+void CTimeSeriesDecompositionDetail::CChangePointTest::reset(core_t::TTime time) {
     if (m_Window.empty() == false) {
         m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
     }
@@ -656,8 +660,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSea
     m_LargeErrorFraction = 0.0;
     m_TotalCountWeightAdjustment = 0.0;
     m_MinimumTotalCountWeightAdjustment = 0.0;
-    m_LastCandidateChangePointTime = message.s_Time -
-                                     4 * this->maximumIntervalToDetectChange(1.0);
+    m_LastCandidateChangePointTime = time - 4 * this->maximumIntervalToDetectChange(1.0);
 }
 
 double CTimeSeriesDecompositionDetail::CChangePointTest::countWeight(core_t::TTime) const {

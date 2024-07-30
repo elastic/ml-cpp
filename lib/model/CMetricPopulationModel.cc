@@ -1033,6 +1033,16 @@ void CMetricPopulationModel::addAnnotation(core_t::TTime time,
         EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
 }
 
+void CMetricPopulationModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Shifted time by " + std::to_string(shift) + " seconds");
+}
+
 ////////// CMetricPopulationModel::SBucketStats Implementation //////////
 
 CMetricPopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime)
