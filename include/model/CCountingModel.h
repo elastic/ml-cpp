@@ -230,7 +230,7 @@ public:
     //! Get the annotations produced by this model.
     const TAnnotationVec& annotations() const override;
 
-    //! Apply time shift at the time port \p time by \p shift amount of seconds.
+    //! Apply time shift at the time \p time by \p shift amount of seconds.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 
 protected:

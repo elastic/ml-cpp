@@ -94,7 +94,7 @@ public:
     //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    //! Apply time shift at the time port \p time by \p shift amount of secons.
+    //! Apply time shift at the time \p time by \p shift amount of secons.
     void shiftTime(core_t::TTime time, core_t::TTime shift);
 
 private:

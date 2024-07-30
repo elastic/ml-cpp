@@ -165,7 +165,7 @@ public:
     //! Get the last time each persion was seen.
     const TTimeVec& lastBucketTimes() const;
 
-    //! Apply time shift at the time port \p time by \p shift amount of seconds.
+    //! Apply time shift at the time \p time by \p shift amount of seconds.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 
 protected:
