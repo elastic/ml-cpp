@@ -242,10 +242,6 @@ protected:
     //! Get the non-estimated value of the the memory used by this model.
     std::size_t computeMemoryUsage() const override;
 
-    void addAnnotation(core_t::TTime time,
-                       CAnnotation::EEvent type,
-                       const std::string& annotation) override;
-
 private:
     //! Get the scheduled events that match at sampleTime.
     SModelParams::TStrDetectionRulePrVec checkScheduledEvents(core_t::TTime sampleTime) const;
@@ -286,6 +282,11 @@ private:
 
     //! Get the model memory usage estimator
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
+
+    //! Add an annotation to the model.
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
 
 private:
     using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;

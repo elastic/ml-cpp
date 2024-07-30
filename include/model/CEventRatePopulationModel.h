@@ -384,7 +384,8 @@ private:
     //! Get the model memory usage estimator
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
 
-protected:
+private:
+    //! Add an annotation to the model.
     void addAnnotation(core_t::TTime time,
                        CAnnotation::EEvent type,
                        const std::string& annotation) override;
