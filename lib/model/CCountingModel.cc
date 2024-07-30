@@ -15,15 +15,18 @@
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
+#include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 
 #include <model/CAnnotatedProbability.h>
+#include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CSearchKey.h>
 
 #include <boost/unordered_set.hpp>
 
@@ -443,6 +446,15 @@ std::string CCountingModel::printCurrentBucket() const {
 
 CMemoryUsageEstimator* CCountingModel::memoryUsageEstimator() const {
     return nullptr;
+}
+
+void CCountingModel::addAnnotation(core_t::TTime time,
+                                   CAnnotation::EEvent event,
+                                   const std::string& annotation) {
+    m_Annotations.emplace_back(time, event, annotation,
+                               this->dataGatherer().searchKey().detectorIndex(),
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
 }
 }
 }

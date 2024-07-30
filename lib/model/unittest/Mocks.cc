@@ -205,6 +205,10 @@ void CMockModel::mockTimeSeriesModels(TMathsModelUPtrVec&& models) {
     m_Models = std::move(models);
 }
 
+void CMockModel::addAnnotation(core_t::TTime, CAnnotation::EEvent, const std::string&) {
+    // do nothing
+}
+
 void CMockModel::shiftTime(core_t::TTime time, core_t::TTime timeShift) {
     for (auto& model : m_Models) {
         model->shiftTime(time, timeShift);

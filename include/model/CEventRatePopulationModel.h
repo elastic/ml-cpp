@@ -388,6 +388,12 @@ private:
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
 
 private:
+    //! Add an annotation to the model.
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
+
+private:
     //! The statistics we maintain about the bucket.
     SBucketStats m_CurrentBucketStats;
 

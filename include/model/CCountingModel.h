@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_model_CCountingModel_h
 #define INCLUDED_ml_model_CCountingModel_h
 
+#include <core/CoreTypes.h>
+
 #include <model/CAnomalyDetectorModel.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -283,6 +285,11 @@ private:
 
     //! Get the model memory usage estimator
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
+
+    //! Add an annotation to the model.
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
 
 private:
     using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
