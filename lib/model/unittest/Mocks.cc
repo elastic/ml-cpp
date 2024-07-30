@@ -205,9 +205,7 @@ void CMockModel::mockTimeSeriesModels(TMathsModelUPtrVec&& models) {
     m_Models = std::move(models);
 }
 
-void CMockModel::addAnnotation(core_t::TTime,
-                               CAnnotation::EEvent ,
-                               const std::string& ) {
+void CMockModel::addAnnotation(core_t::TTime, CAnnotation::EEvent, const std::string&) {
     // do nothing
 }
 
