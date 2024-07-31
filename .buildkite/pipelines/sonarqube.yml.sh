@@ -30,6 +30,7 @@ steps:
       VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
     command: 
       - "buildkite-agent artifact download cmake-build-docker/compile_commands.json ."
+      - "cp cmake-build-docker/compile_commands.json ."
       - "/scan-source-code.sh"
     agents:
       image: "docker.elastic.co/cloud-ci/sonarqube/buildkite-scanner:latest"
