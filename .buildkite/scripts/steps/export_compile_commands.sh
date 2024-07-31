@@ -14,4 +14,4 @@ set -euo pipefail
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker
 
 cat cmake-build-docker/compile_commands.json | sed "s|$(pwd)|.|g" > compile_commands.json.tmp && mv compile_commands.json.tmp cmake-build-docker/compile_commands.json
-sed -i '' 's|/usr/local/gcc103/bin/g++|g++|g' cmake-build-docker/compile_commands.json
+sed -i "s|/usr/local/gcc103/bin/g++|g++|g" cmake-build-docker/compile_commands.json
