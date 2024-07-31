@@ -31,7 +31,6 @@ steps:
     command: 
       - "buildkite-agent artifact download cmake-build-docker/compile_commands.json ."
       - "cp cmake-build-docker/compile_commands.json ."
-      - "sed -i '' 's|/usr/local/gcc103/bin/g++|g++|g' compile_commands.json"
       - "/scan-source-code.sh"
     agents:
       image: "docker.elastic.co/cloud-ci/sonarqube/buildkite-scanner:latest"
