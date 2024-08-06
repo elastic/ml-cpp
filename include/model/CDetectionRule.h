@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_model_CDetectionRule_h
 #define INCLUDED_ml_model_CDetectionRule_h
 
+#include <core/CoreTypes.h>
+
 #include <model/CRuleCondition.h>
 #include <model/CRuleScope.h>
 #include <model/ImportExport.h>
@@ -36,7 +38,7 @@ class MODEL_EXPORT CDetectionRule {
 
 public:
     using TRuleConditionVec = std::vector<CRuleCondition>;
-    using TCallback = std::function<void(CAnomalyDetectorModel&)>;
+    using TCallback = std::function<void(CAnomalyDetectorModel&, core_t::TTime)>;
 
     //! Rule actions can apply to skip results, skip model updates, evaluate callback
     //! function or several of the actions.

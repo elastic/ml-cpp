@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CTimeUtils.h>
+#include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDetectionRule.h>
@@ -73,17 +73,16 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
                 return;
             }
         }
-        m_Callback(model);
+        m_Callback(model, time);
     }
 }
 
 void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
-    this->setCallback([ timeShift, timeShiftApplied = false ](CAnomalyDetectorModel & model) mutable {
+    this->setCallback([ timeShift, timeShiftApplied = false ](CAnomalyDetectorModel & model, core_t::TTime time) mutable {
         if (timeShiftApplied == false) {
             // When the callback is executed, the model is already in the correct time
             // interval. Hence, we need to shift the time right away.
-            core_t::TTime now = core::CTimeUtils::now();
-            model.shiftTime(now, timeShift);
+            model.shiftTime(time, timeShift);
             timeShiftApplied = true;
         }
     });
