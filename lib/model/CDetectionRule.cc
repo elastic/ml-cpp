@@ -10,6 +10,7 @@
  */
 
 #include <core/CoreTypes.h>
+#include <core/CSmallVector.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDetectionRule.h>
@@ -78,13 +79,16 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
 }
 
 void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
-    this->setCallback([ timeShift, timeShiftApplied = false ](
-        CAnomalyDetectorModel & model, core_t::TTime time) mutable {
-        if (timeShiftApplied == false) {
+    using TAnomalyDetectorPtrVec = core::CSmallVector<CAnomalyDetectorModel*, 2>;
+    this->setCallback([
+        timeShift, timeShiftApplied = TAnomalyDetectorPtrVec()
+    ](CAnomalyDetectorModel & model, core_t::TTime time) mutable {
+        if (std::find(timeShiftApplied.begin(), timeShiftApplied.end(), &model) ==
+            timeShiftApplied.end()) {
             // When the callback is executed, the model is already in the correct time
             // interval. Hence, we need to shift the time right away.
             model.shiftTime(time, timeShift);
-            timeShiftApplied = true;
+            timeShiftApplied.emplace_back(&model);
         }
     });
 }
