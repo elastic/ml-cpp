@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#include <core/CoreTypes.h>
 #include <core/CSmallVector.h>
+#include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDetectionRule.h>
