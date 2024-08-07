@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_api_CDetectionRulesJsonParser_h
 #define INCLUDED_ml_api_CDetectionRulesJsonParser_h
 
-#include <boost/json/object.hpp>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
 

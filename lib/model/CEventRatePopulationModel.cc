@@ -1138,6 +1138,9 @@ void CEventRatePopulationModel::shiftTime(core_t::TTime time, core_t::TTime shif
             model->shiftTime(time, shift);
         }
     }
+
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Model shifted time by " + std::to_string(shift) + " seconds");
 }
 
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
