@@ -26,11 +26,9 @@ case `uname -m` in
 
     x86_64)
         ARCHIVE=local-x86_64-apple-macosx12.0-1.tar.bz2
-        URL="https://ml-cpp-artifacts.s3.eu-west-2.amazonaws.com/dependencies/$ARCHIVE"
         ;;
     arm64)
         ARCHIVE=local-arm64-apple-macosx11.1-10.tar.bz2
-        URL="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$ARCHIVE"
         ;;
 
     *)
@@ -39,6 +37,8 @@ case `uname -m` in
         ;;
 
 esac
+
+URL="https://s3-eu-west-2.amazonaws.com/ml-cpp-artifacts/dependencies/$ARCHIVE"
 
 echo "Downloading dependencies from $URL"
 cd "$TMPDIR" && curl -s -S --retry 5 -O "$URL"
