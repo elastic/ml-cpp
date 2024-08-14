@@ -1120,6 +1120,25 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
     return true;
 }
 
+void CEventRatePopulationModel::addAnnotation(core_t::TTime time,
+                                              CAnnotation::EEvent type,
+                                              const std::string& annotation) {
+    m_CurrentBucketStats.s_Annotations.emplace_back(
+        time, type, annotation, this->dataGatherer().searchKey().detectorIndex(), EMPTY_STRING,
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
+}
+
+void CEventRatePopulationModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Model shifted time by " + std::to_string(shift) + " seconds");
+}
+
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
 
 CEventRatePopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime)

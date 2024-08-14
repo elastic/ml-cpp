@@ -299,6 +299,9 @@ public:
     //! Get the annotations produced by this model.
     const TAnnotationVec& annotations() const override;
 
+    //! Apply time shift at the time \p time by \p shift amount of seconds.
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
+
 private:
     //! Initialize the feature models.
     void initialize(const TFeatureMathsModelSPtrPrVec& newFeatureModels,
@@ -360,6 +363,11 @@ private:
 
     //! Get the model memory usage estimator
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
+
+    //! Add an annotation to the model.
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
 
 private:
     //! The statistics we maintain about the bucket.

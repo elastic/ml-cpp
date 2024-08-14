@@ -438,4 +438,78 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testParseForceTimeShiftWithoutParamsShouldFail) {
+    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"force_time_shift\"],";
+    rulesJson += "  \"conditions\": [";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
+    rulesJson += "  ]";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testParseForceTimeShiftWithInvalidParamsShouldFail) {
+    {
+        CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+        CDetectionRulesJsonParser::TDetectionRuleVec rules;
+        std::string rulesJson = "[";
+        rulesJson += "{";
+        rulesJson += "  \"actions\":[\"force_time_shift\"],";
+        rulesJson += "  \"conditions\": [";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
+        rulesJson += "  ],";
+        rulesJson += "  \"params\": {\"force_time_shift\": {";
+        rulesJson += "  \"time_shift_amount\": \"invalid\"";
+        rulesJson += "  }}";
+        rulesJson += "}";
+        rulesJson += "]";
+
+        BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+        BOOST_TEST_REQUIRE(rules.empty());
+    }
+    {
+        CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+        CDetectionRulesJsonParser::TDetectionRuleVec rules;
+        std::string rulesJson = "[";
+        rulesJson += "{";
+        rulesJson += "  \"actions\":[\"force_time_shift\"],";
+        rulesJson += "  \"conditions\": [";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
+        rulesJson += "  ],";
+        rulesJson += "  \"params\": {\"force_time_shift\": {";
+        rulesJson += "  \"wrong_key\": 3600";
+        rulesJson += "  }}";
+        rulesJson += "}";
+        rulesJson += "]";
+
+        BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+        BOOST_TEST_REQUIRE(rules.empty());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testParseForceTimeShiftWithValidParamsShouldSucceed) {
+    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"force_time_shift\"],";
+    rulesJson += "  \"conditions\": [";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
+    rulesJson += "  ],";
+    rulesJson += "  \"params\": {\"force_time_shift\": {";
+    rulesJson += "  \"time_shift_amount\":-3600";
+    rulesJson += "  }}";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(rules.empty() == false);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

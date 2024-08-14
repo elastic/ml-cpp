@@ -15,15 +15,18 @@
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
+#include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 
 #include <model/CAnnotatedProbability.h>
+#include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CSearchKey.h>
 
 #include <boost/unordered_set.hpp>
 
@@ -368,6 +371,14 @@ const CCountingModel::TAnnotationVec& CCountingModel::annotations() const {
     return m_Annotations;
 }
 
+void CCountingModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    // Since counting model does not have a trend mode, only the interim
+    // bucket corrector needs to be shifted.
+    m_InterimBucketCorrector->shiftTime(time, shift);
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Counting model shifted time by " + std::to_string(shift) + " seconds");
+}
+
 double CCountingModel::attributeFrequency(std::size_t /*cid*/) const {
     return 1.0;
 }
@@ -437,6 +448,15 @@ std::string CCountingModel::printCurrentBucket() const {
 
 CMemoryUsageEstimator* CCountingModel::memoryUsageEstimator() const {
     return nullptr;
+}
+
+void CCountingModel::addAnnotation(core_t::TTime time,
+                                   CAnnotation::EEvent event,
+                                   const std::string& annotation) {
+    m_Annotations.emplace_back(time, event, annotation,
+                               this->dataGatherer().searchKey().detectorIndex(),
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
 }
 }
 }

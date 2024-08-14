@@ -489,6 +489,9 @@ public:
     //! Get the annotations produced by this model.
     virtual const TAnnotationVec& annotations() const = 0;
 
+    //! Apply time shift at the time \p time by \p shift amount of seconds.
+    virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
+
 protected:
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;
@@ -701,6 +704,11 @@ protected:
     //! Create a stub version of maths::common::CModel for use when pruning people
     //! or attributes to free memory resource.
     static maths::common::CModel* tinyModel();
+
+    //! Add an annotation to the model.
+    virtual void addAnnotation(core_t::TTime,
+                               CAnnotation::EEvent type,
+                               const std::string& annotation) = 0;
 
 private:
     using TModelParamsCRef = std::reference_wrapper<const SModelParams>;

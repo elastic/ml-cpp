@@ -32,7 +32,6 @@
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <limits>
 #include <memory>
 #include <vector>
 
@@ -287,6 +286,9 @@ public:
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
+
+        //! Reset the test at \p time.
+        void reset(core_t::TTime time);
 
     private:
         using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;

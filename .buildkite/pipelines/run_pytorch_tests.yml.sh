@@ -10,22 +10,18 @@
 
 cat <<EOL
 steps:
-  - label: "Create DRA artifacts"
-    key: "create_dra_artifacts"
+  - label: "Trigger Appex PyTorch Tests :test_tube:"
     command:
-        - "./.buildkite/scripts/steps/create_dra.sh"
-    depends_on:
-        - "build_test_linux-aarch64-RelWithDebInfo"
-        - "build_test_linux-x86_64-RelWithDebInfo"
-        - "build_test_macos-x86_64-RelWithDebInfo"
-        - "build_test_macos-aarch64-RelWithDebInfo"
-        - "build_test_Windows-x86_64-RelWithDebInfo"
-
-    agents:
-      cpu: "2"
-      ephemeralStorage: "20G"
-      memory: "4G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:3"
-      # Run as a non-root user
-      imageUID: "1000"
+      - echo 'Trigger PyTorch Tests'
+      - echo 'Using appex-qa-stateful-custom-ml-cpp-build-testing as a placeholder pipeline'
+      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
+    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    notify:
+      -  github_commit_status:
+           context: "Trigger Appex QA PyTorch Tests"
+  - wait
+  - trigger: appex-qa-stateful-custom-ml-cpp-build-testing
+    async: false
+    build:
+      message: "${BUILDKITE_MESSAGE}"
 EOL

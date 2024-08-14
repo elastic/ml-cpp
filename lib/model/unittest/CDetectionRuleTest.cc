@@ -11,6 +11,8 @@
 
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
+#include <core/Constants.h>
+#include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
@@ -21,10 +23,20 @@
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
+#include <maths/common/CNormalMeanPrecConjugate.h>
+#include <maths/common/MathsTypes.h>
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesModel.h>
+
+#include <test/CRandomNumbers.h>
+
 #include "Mocks.h"
 
+#include <boost/test/tools/interface.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/test/unit_test_suite.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -37,6 +49,7 @@ namespace {
 
 using TFeatureVec = std::vector<model_t::EFeature>;
 using TStrVec = std::vector<std::string>;
+using TMockModelPtr = std::unique_ptr<model::CMockModel>;
 
 const std::string EMPTY_STRING;
 }
@@ -938,6 +951,148 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
     BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipModelUpdate, model,
                                   model_t::E_IndividualMeanByPerson, resultType,
                                   0, 0, 100));
+}
+
+TMockModelPtr initializeModel(ml::model::CResourceMonitor& resourceMonitor) {
+    core_t::TTime bucketLength{600};
+    model::SModelParams params{bucketLength};
+    model::CSearchKey key;
+    model_t::TFeatureVec features;
+    // Initialize mock model
+    model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
+
+    features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
+
+    gatherer = std::make_shared<model::CDataGatherer>(
+        model_t::analysisCategory(features[0]), model_t::E_None, params, EMPTY_STRING,
+        EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, 0, 0);
+
+    std::string person("p1");
+    bool addedPerson{false};
+    gatherer->addPerson(person, resourceMonitor, addedPerson);
+
+    TMockModelPtr model{new model::CMockModel(
+        params, gatherer, {/* we don't care about influence */})};
+
+    maths::time_series::CTimeSeriesDecomposition trend;
+    maths::common::CNormalMeanPrecConjugate prior{
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+    maths::common::CModelParams timeSeriesModelParams{
+        bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
+    std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> timeSeriesModel =
+        std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
+            timeSeriesModelParams, 0, trend, prior);
+    model::CMockModel::TMathsModelUPtrVec models;
+    models.emplace_back(std::move(timeSeriesModel));
+    model->mockTimeSeriesModels(std::move(models));
+    return model;
+}
+
+BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestFixture) {
+
+    test::CRandomNumbers rng;
+    test::CRandomNumbers::TDoubleVec timeShifts;
+    rng.generateUniformSamples(-3600, 3600, 10, timeShifts);
+
+    for (auto timeShift : timeShifts) {
+        core_t::TTime timeShiftInSecs{static_cast<core_t::TTime>(timeShift)};
+        TMockModelPtr model{initializeModel(m_ResourceMonitor)};
+        // Capture state before the rule is applied
+        const auto& trendModel =
+            static_cast<const maths::time_series::CTimeSeriesDecomposition&>(
+                static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+                    model->model(0))
+                    ->trendModel());
+        core_t::TTime lastValueTime = trendModel.lastValueTime();
+        const auto& annotations = model->annotations();
+        std::size_t numAnnotationsBeforeShift = annotations.size();
+
+        core_t::TTime timestamp{100};
+        CRuleCondition conditionGte;
+        conditionGte.appliesTo(CRuleCondition::E_Time);
+        conditionGte.op(CRuleCondition::E_GTE);
+        conditionGte.value(static_cast<double>(timestamp));
+
+        // When time shift rule is applied
+        CDetectionRule rule;
+        rule.addCondition(conditionGte);
+        rule.addTimeShift(timeShiftInSecs);
+        rule.executeCallback(*model, timestamp);
+
+        // the time series model should have been shifted by specified amount.
+        BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTime + timeShiftInSecs);
+        BOOST_TEST_REQUIRE(trendModel.timeShift() == timeShiftInSecs);
+
+        // and an annotation should have been added to the model
+        BOOST_TEST_REQUIRE(annotations.size() == numAnnotationsBeforeShift + 1);
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldNotApplyTwice, CTestFixture) {
+    // Test that if a rule has already been applied, it should not be applied again.
+    core_t::TTime timeShift{3600};
+
+    TMockModelPtr model{initializeModel(m_ResourceMonitor)};
+    const auto& trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition&>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(model->model(0))
+            ->trendModel());
+
+    core_t::TTime timestamp{100};
+    CRuleCondition conditionGte;
+    conditionGte.appliesTo(CRuleCondition::E_Time);
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(static_cast<double>(timestamp));
+
+    // When time shift rule is applied twice
+    CDetectionRule rule;
+    rule.addCondition(conditionGte);
+    rule.addTimeShift(timeShift);
+    rule.executeCallback(*model, timestamp);
+
+    core_t::TTime lastValueTimeAfterFirstShift = trendModel.lastValueTime();
+    core_t::TTime timeShiftAfterFirstShift = trendModel.timeShift();
+
+    // the values after the second time should be the same as the values after the first time shift.
+    timestamp += timeShift; // simulate the time has moved forward by the time shift
+    rule.executeCallback(*model, timestamp);
+    BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTimeAfterFirstShift);
+    BOOST_TEST_REQUIRE(trendModel.timeShift() == timeShiftAfterFirstShift);
+}
+
+BOOST_FIXTURE_TEST_CASE(testTwoTimeShiftRuleShouldShiftTwice, CTestFixture) {
+    // Test that if two rules are applied, the time series model should be shifted twice.
+    core_t::TTime timeShift1{3600};
+    core_t::TTime timeShift2{7200};
+
+    TMockModelPtr model{initializeModel(m_ResourceMonitor)};
+    const auto& trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition&>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(model->model(0))
+            ->trendModel());
+
+    core_t::TTime timestamp{100};
+    CRuleCondition conditionGte;
+    conditionGte.appliesTo(CRuleCondition::E_Time);
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(static_cast<double>(timestamp));
+
+    // When time shift rule is applied twice
+    CDetectionRule rule1;
+    rule1.addCondition(conditionGte);
+    rule1.addTimeShift(timeShift1);
+    rule1.executeCallback(*model, timestamp);
+
+    core_t::TTime lastValueTimeAfterFirstShift = trendModel.lastValueTime();
+
+    CDetectionRule rule2;
+    rule2.addCondition(conditionGte);
+    rule2.addTimeShift(timeShift2);
+    rule2.executeCallback(*model, timestamp);
+
+    // the values after the second time should be the sum of two rules.
+    timestamp += timeShift1; // simulate the time has moved forward by the time shift
+    rule2.executeCallback(*model, timestamp);
+    BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTimeAfterFirstShift + timeShift2);
+    BOOST_TEST_REQUIRE(trendModel.timeShift() == timeShift1 + timeShift2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

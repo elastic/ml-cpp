@@ -21,9 +21,9 @@ class PipelineStep(list):
     }
     return step
 
-  def generate_step_template(self, platform, action):
+  def generate_step_template(self, platform, action, build_aarch64, build_x86_64):
     platform_lower = platform.lower()
     platform_emoji = ":"+platform_lower+":"
     label = f"Upload {action} pipeline for {platform} {platform_emoji}"
-    command = f"python3 .buildkite/pipelines/build_{platform_lower}.json.py --action={action}"
+    command = f"python3 .buildkite/pipelines/build_{platform_lower}.json.py --action={action} {build_aarch64} {build_x86_64}"
     return self.generate_step(label, command)
