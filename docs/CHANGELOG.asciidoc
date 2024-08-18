@@ -32,9 +32,14 @@
 
 === Enhancements
 
-* Update the Pytorch library to version 2.3.1. (See {ml-pull}2688[#2688].)
 * Allow the user to force a detector to shift time series state by a specific amount.
   (See {ml-pull}2695[#2695].)
+
+== {es} version 8.15.1
+
+=== Enhancements
+
+* Update the Pytorch library to version 2.3.1. (See {ml-pull}2688[#2688].)
 
 == {es} version 8.15.0
 
