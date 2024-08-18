@@ -51,7 +51,7 @@ These environment variables only need to be set when building tools on Linux. Th
 
 ### gcc
 
-We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have.  However, this means the default compiler on our Linux build servers is also very old.  To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
+We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have. However, this means the default compiler on our Linux build servers is also very old. To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
 Download `gcc-10.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz>.
 
@@ -332,7 +332,7 @@ Then copy the shared libraries to the system directory:
 (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc103 && sudo tar xvf -)
 ```
 
-### PyTorch 2.1.2
+### PyTorch 2.3.1
 
 (This step requires a reasonable amount of memory. It failed on a machine with 8GB of RAM. It succeeded on a 16GB machine. You can specify the number of parallel jobs using environment variable MAX_JOBS. Lower number of jobs will reduce memory usage.)
 
@@ -351,7 +351,7 @@ sudo /usr/local/gcc103/bin/python3.10 -m pip install install numpy pyyaml setupt
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.1.2 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v2.3.1 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -379,7 +379,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.1.2
+export PYTORCH_BUILD_VERSION=2.3.1
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc103/bin/python3.10 setup.py install
 ```
