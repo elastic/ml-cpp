@@ -35,7 +35,7 @@ case `uname -m` in
 
 esac
 
-URL="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$ARCHIVE"
+URL="https://s3-eu-west-2.amazonaws.com/ml-cpp-artifacts/dependencies/$ARCHIVE"
 
 echo "Downloading dependencies from $URL"
 cd "$TMPDIR" && curl -s -S --retry 5 -O "$URL"
