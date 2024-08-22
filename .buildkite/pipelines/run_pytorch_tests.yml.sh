@@ -13,7 +13,6 @@ steps:
   - label: "Trigger Appex PyTorch Tests :test_tube:"
     command:
       - echo 'Trigger PyTorch Tests'
-      - echo 'Using appex-qa-stateful-custom-ml-cpp-build-testing as a placeholder pipeline'
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     notify:
@@ -24,4 +23,6 @@ steps:
     async: false
     build:
       message: "${BUILDKITE_MESSAGE}"
+      env:
+        QAF_TESTS_TO_RUN: "pytorch_tests"
 EOL
