@@ -32,6 +32,7 @@
 
 #include <ATen/Parallel.h>
 #include <ATen/ops/cat.h>
+#include <mkl.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
@@ -135,6 +136,11 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
                                        ml::core::CProcessStats::residentSetSize(),
                                        ml::core::CProcessStats::maxResidentSetSize());
         break;
+    case ml::torch::CCommandParser::E_FreeMklBuffers:
+        LOG_INFO(<< "Freeing MKL buffers on request.");
+	mkl_free_buffers();
+        resultWriter.writeSimpleAck(controlMessage.s_RequestId);
+	break;
     case ml::torch::CCommandParser::E_Unknown:
         std::string message{"Attempt to handle unknown control message"};
         LOG_ERROR(<< message);
@@ -305,6 +311,18 @@ int main(int argc, char** argv) {
         // Make sure we're using immediate execution.
         ml::core::stopDefaultAsyncExecutor();
         LOG_DEBUG(<< "Using a single allocation");
+    }
+
+    MKLVersion mkl_version;
+    mkl_get_version(&mkl_version);
+
+    LOG_INFO(<< "Using oneMKL " << mkl_version.MajorVersion << "." << mkl_version.UpdateVersion);
+
+    int fastMmDisabled = mkl_disable_fast_mm();
+    if (fastMmDisabled != 1) {
+          LOG_ERROR(<< "Disabling MKL fast MM failed.");
+    } else {
+          LOG_INFO(<< "Disabled MKL fast MM.");
     }
 
     commandParser.ioLoop(
