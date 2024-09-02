@@ -9,7 +9,7 @@
 # limitation.
 #
 
-set -euo pipefail
+set -eo pipefail
 
 export CWD="$(pwd)"
 
