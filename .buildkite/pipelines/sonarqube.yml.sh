@@ -14,27 +14,28 @@ steps:
     key: "export_compile_commands"
     # depends_on: "check_style"
     agents:
-      image: "docker.elastic.co/ml-dev/ml-linux-build:29"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:30"
     env:
-      PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    command: ".buildkite/scripts/steps/export_compile_commands.sh"
-    artifact_paths:
-      - "cmake-build-docker/compile_commands.json"
+      - PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
+    command: ".buildkite/scripts/steps/run_sonar-scanner.sh"
+    # artifact_paths:
+    #   - "cmake-build-docker/compile_commands.json"
     notify:
       - github_commit_status:
           context: "Generate compile_commands.json"
-  - label: "Static code analysis with SonarQube :sonarqube:"
-    key: "sonarqube"
-    depends_on: "export_compile_commands"
-    env:
-      VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
-    command: 
-      - "buildkite-agent artifact download cmake-build-docker/compile_commands.json ."
-      - ".buildkite/scripts/steps/update_compile_commands.sh"
-      - "/scan-source-code.sh"
-    agents:
-      image: "docker.elastic.co/cloud-ci/sonarqube/buildkite-scanner:latest"
-    notify:
-      - github_commit_status:
-          context: "Static code analysis with SonarQube"
+  # - label: "Static code analysis with SonarQube :sonarqube:"
+  #   key: "sonarqube"
+  #   depends_on: "export_compile_commands"
+  #   env:
+  #     VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
+  #   command: 
+  #     - "buildkite-agent artifact download cmake-build-docker/compile_commands.json ."
+  #     - ".buildkite/scripts/steps/update_compile_commands.sh"
+  #     - "/scan-source-code.sh"
+  #   agents:
+  #     image: "docker.elastic.co/cloud-ci/sonarqube/buildkite-scanner:latest"
+  #   notify:
+  #     - github_commit_status:
+  #         context: "Static code analysis with SonarQube"
 EOL
