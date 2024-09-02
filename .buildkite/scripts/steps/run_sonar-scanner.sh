@@ -27,6 +27,8 @@ cd "${CWD}"
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker
 
 # Analyze the source code with SonarQube
+# The following script was adapted from the Elastic CI team's script:
+# https://github.com/elastic/sonarqube/blob/main/buildkite-scanner/scan-source-code.sh
 
 trap 'error_handler $?' EXIT
 
