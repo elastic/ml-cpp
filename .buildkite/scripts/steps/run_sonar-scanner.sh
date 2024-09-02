@@ -18,7 +18,7 @@ cd /usr/local
 curl -O https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
 unzip sonar-scanner-cli-6.1.0.4477-linux-x64.zip
 mv sonar-scanner-6.1.0.4477-linux-x64/ sonar-scanner
-export PATH=$(pwd):$PATH
+export PATH=$(pwd)/sonar-scanner/bin:$PATH
 
 # Generate the compile_commands.json file
 
@@ -32,30 +32,6 @@ trap 'error_handler $?' EXIT
 
 retries=0
 
-slack_notification() {
-  local err
-  err=$1
-
-  if [[ "${BUILDKITE}" == "true" ]]; then
-    echo "Sending Slack notification that Sonar Scanner step failed with exit code ${err}. Please retry the other step and not this one."
-    cat <<-HEREDOC | buildkite-agent pipeline upload
-    steps:
-      - label: ":slack: Slack Notification - Sonar Scanner Failed"
-        command: "echo 'Sonar Scanner failed with exit code ${err}'"
-        soft_fail: false
-        agents:
-          image: "docker.elastic.co/ci-agent-images/basic-buildkite-agent"
-        notify:
-          - slack:
-              channels:
-                - "#sonar"
-              message: "Sonar Scanner failed with exit code ${err} for attempt ${retries} on ${BUILDKITE_PIPELINE_SLUG}"
-HEREDOC
-  else
-    echo "Sonar Scanner failed with exit code ${err}"
-  fi
-}
-
 error_handler() {
   local err
   err=$1
@@ -64,8 +40,6 @@ error_handler() {
   if [[ $err -eq 0 ]]; then
     exit "$err"
   fi
-  
-  slack_notification "$err"
 
   exit "$err"
 }
@@ -99,10 +73,7 @@ runScanner(){
     if [[ $exit_code -ne 0 ]]; then
       retries=$((retries + 1))
       echo "Sonar Scanner failed with exit code ${exit_code}. Retrying in ${retry_delay} seconds..."
-      # Only send slack notification on first and last retry to avoid spamming the channel.
-      if [[ $retries -eq 1 ]] || [[ $retries -eq $max_retries ]]; then
-        slack_notification "${exit_code}"
-      fi
+
       sleep $retry_delay
       retry_delay=$((retry_delay * retries))
     fi
@@ -143,6 +114,3 @@ if [[ -z "${SONAR_LOGIN}" ]]; then
 fi
 
 runScanner
-
-# cat cmake-build-docker/compile_commands.json | sed "s|$(pwd)|.|g" > compile_commands.json.tmp && mv compile_commands.json.tmp cmake-build-docker/compile_commands.json
-# sed -i "s|/usr/local/gcc103/bin/g++|g++|g" cmake-build-docker/compile_commands.json
