@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_model_CCountingModel_h
 #define INCLUDED_ml_model_CCountingModel_h
 
+#include <core/CoreTypes.h>
+
 #include <model/CAnomalyDetectorModel.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -230,6 +232,9 @@ public:
     //! Get the annotations produced by this model.
     const TAnnotationVec& annotations() const override;
 
+    //! Apply time shift at the time \p time by \p shift amount of seconds.
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
+
 protected:
     //! Get the start time of the current bucket.
     core_t::TTime currentBucketStartTime() const override;
@@ -280,6 +285,11 @@ private:
 
     //! Get the model memory usage estimator
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
+
+    //! Add an annotation to the model.
+    void addAnnotation(core_t::TTime time,
+                       CAnnotation::EEvent type,
+                       const std::string& annotation) override;
 
 private:
     using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;

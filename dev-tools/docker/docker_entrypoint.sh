@@ -53,7 +53,7 @@ ARTIFACT_NAME=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^artifactName' | aw
 
 # Create the output artifacts
 cd build/distribution
-mkdir ../distributions
+mkdir -p ../distributions
 # Exclude import libraries, test support libraries, debug files and core dumps
 zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
 # Include only debug files

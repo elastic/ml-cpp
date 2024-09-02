@@ -18,6 +18,9 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 # libffi is required for building Python
 RUN \
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+  yum repolist enabled && \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
 
@@ -138,7 +141,7 @@ RUN \
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -151,7 +154,7 @@ RUN \
   export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=2.1.2 && \
+  export PYTORCH_BUILD_VERSION=2.3.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.10 setup.py install && \
   mkdir /usr/local/gcc103/include/pytorch && \
@@ -164,5 +167,8 @@ RUN \
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
 RUN \
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+  yum repolist enabled && \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel

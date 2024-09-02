@@ -127,6 +127,8 @@ public:
 
     void mockTimeSeriesModels(TMathsModelUPtrVec&& model);
 
+    void shiftTime(core_t::TTime startTime, core_t::TTime timeShift) override;
+
 private:
     using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
     using TSizeSizeTimeTriple = core::CTriple<std::size_t, std::size_t, core_t::TTime>;
@@ -143,6 +145,7 @@ private:
     const model::CInterimBucketCorrector& interimValueCorrector() const override;
     void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) override;
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
+    void addAnnotation(core_t::TTime, CAnnotation::EEvent type, const std::string& annotation) override;
 
 private:
     bool m_IsPopulation;

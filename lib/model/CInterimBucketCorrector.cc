@@ -132,5 +132,9 @@ double CInterimBucketCorrector::estimateBucketCompleteness(core_t::TTime time,
                ? maths::common::CTools::truncate(count / bucketCount, 0.0, 1.0)
                : 1.0;
 }
+
+void CInterimBucketCorrector::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    m_FinalCountTrend.shiftTime(time, shift);
+}
 }
 }

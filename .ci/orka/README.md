@@ -19,6 +19,10 @@ If you haven't run these before, run the following once so packer downloads the 
 ```
 packer init orka-macos-12-arm.pkr.hcl
 ```
+or
+```
+packer init orka-macos-12-x86_64.pkr.hcl
+```
 
 ## Build
 
@@ -38,9 +42,11 @@ The name of the resulting images are hard-coded (currently), and end in a sequen
 
 ## Source Images
 
-The source image used for the MacOS 12 ARM build is a slightly modified copy of the standard Orka image 90GBMontereySSH.orkasi:
+The source images used for the MacOS builds are slightly modified copies of the standard Orka images, e.g. 90GBMontereySSH.orkasi:
 
-The source image is named `ml-macos-12-base-arm-fundamental.orkasi`
+The source images are named:
+ * `ml-macos-12-base-arm-fundamental.orkasi`
+ * `ml-macos-12-base-x86_64-fundamental.img`
 
 The source image only has the following changes on it:
     * Adding passwordless `sudo` for the default `admin` user
@@ -64,4 +70,7 @@ The packer script does the following:
 
 ## Caveats
 
-* At the moment we only need Orka for ARM builds (CI and dependencies).
+* Prior to the dependency on PyTorch 2.3.1 we only needed Orka for ARM builds (CI and dependencies), x86_64 builds were
+  performed via cross-compilation. However, PyTorch 2.3.1 now requires a more modern version of `clang` that our cross
+  compilation framework provided. As a suitable Orka base image is available for x86_64, it is now simpler to compile
+  natively for that architecture.

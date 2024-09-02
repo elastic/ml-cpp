@@ -10,19 +10,19 @@
 # limitation.
 #
 
-# Builds the Docker image that can be used to compile the machine learning
-# C++ code for Linux.
+# Builds the Docker image that can be used to cross compile the machine learning
+# C++ code for Linux aarch64.
 #
 # This script is not intended to be run regularly.  When changing the tools
 # or 3rd party components required to build the machine learning C++ code
 # increment the version, change the Dockerfile and build a new image to be
 # used for subsequent builds on this branch.  Then update the version to be
-# used for builds in docker/linux_builder/Dockerfile.
+# used for builds in docker/linux_aarch64_cross_builder/Dockerfile.
 
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-cross-build
-VERSION=12
+VERSION=13
 
 set -e
 

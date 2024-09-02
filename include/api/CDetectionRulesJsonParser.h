@@ -55,6 +55,8 @@ private:
     static bool hasStringMember(const json::object& object, const std::string& name);
     static bool hasArrayMember(const json::object& object, const std::string& name);
     static bool hasDoubleMember(const json::object& object, const std::string& name);
+    static bool hasObjectMember(const json::object& object, const std::string& name);
+    static bool hasIntegerMember(const json::object& object, const std::string& name);
     static bool parseRuleActions(const json::object& ruleObject, model::CDetectionRule& rule);
     static bool parseConditionsConnective(const json::object& ruleObject,
                                           model::CDetectionRule& rule);
@@ -64,6 +66,9 @@ private:
                                        model::CRuleCondition& condition);
     static bool parseConditionValue(const json::object& conditionObject,
                                     model::CRuleCondition& condition);
+    static bool parseParameters(const json::object& ruleObject,
+                                model::CDetectionRule& rule,
+                                int action);
 
 private:
     //! The filters per id used by categorical rule conditions.

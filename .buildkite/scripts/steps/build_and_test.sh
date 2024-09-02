@@ -8,6 +8,8 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+# This script is used for building on various flavours of  linux and macOS.
+# For the corresponding Windows build commands see .buildkite/scripts/steps/build_and_test.ps1
 set -euo pipefail
 
 # Default to a snapshot build
@@ -38,7 +40,7 @@ VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | aw
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
 TEST_OUTCOME=0
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then 
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then # linux aarch64 (native)
   # On Linux native aarch64 build using Docker
   
   # The Docker version is helpful to identify version-specific Docker bugs
@@ -70,33 +72,47 @@ fi
 # For now, re-use our existing CI scripts based on Docker
 # Don't perform these steps for native linux aarch64 builds as
 # they are built using docker, see above.
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
-  if [ "$RUN_TESTS" = "true" ]; then
-    ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
-    grep passed build/test_status.txt || TEST_OUTCOME=$?
-  else
-    ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
+if [[ `uname` = "Linux" ]]; then # Linux x86_64
+  if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
+    if [ "$RUN_TESTS" = "true" ]; then
+      ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
+      grep passed build/test_status.txt || TEST_OUTCOME=$?
+    else
+      ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
+    fi
   fi
-else
-  if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
-     # For macOS, build directly on the machine
-     sudo -E ${REPO_ROOT}/dev-tools/download_macos_deps.sh
-     if [ "$RUN_TESTS" = false ] ; then
-         TASKS="clean buildZip buildZipSymbols"
-     else
-         TASKS="clean buildZip buildZipSymbols check"
-     fi
-     # For macOS we usually only use a particular version as our build platform
-     # once Xcode has stopped receiving updates for it. However, with Big Sur
-     # on ARM we couldn't do this, as Big Sur was the first macOS version for
-     # ARM. Therefore, the compiler may get upgraded on a CI server, and we
-     # need to hardcode the version that was used to build Boost for that
-     # version of Elasticsearch.
-     if [ "$HARDWARE_ARCH" = aarch64 ] ; then
-         export BOOSTCLANGVER=13
-     fi
+else # Darwin (macOS)
+  sudo -E ${REPO_ROOT}/dev-tools/download_macos_deps.sh
+  if [[ "$HARDWARE_ARCH" = aarch64 ]] ; then # Darwin aarch64
+    # For macOS aarch64, build directly on the machine using gradle
+    if [ "$RUN_TESTS" = false ] ; then
+       TASKS="clean buildZip buildZipSymbols"
+    else
+       TASKS="clean buildZip buildZipSymbols check"
+    fi
+    # For macOS we usually only use a particular version as our build platform
+    # once Xcode has stopped receiving updates for it. However, with Big Sur
+    # on ARM we couldn't do this, as Big Sur was the first macOS version for
+    # ARM. Therefore, the compiler may get upgraded on a CI server, and we
+    # need to hardcode the version that was used to build Boost for that
+    # version of Elasticsearch.
+    if [ "$HARDWARE_ARCH" = aarch64 ] ; then
+       export BOOSTCLANGVER=13
+    fi
 
-     (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS) || TEST_OUTCOME=$?
+    (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS) || TEST_OUTCOME=$?
+  else # Darwin x86_64
+    # For macOS x86_64 we re-use existing Docker scripts and build directly on the machine
+    function nproc() {
+        sysctl -n hw.logicalcpu
+    }
+    export -f nproc
+    if [ "$RUN_TESTS" = "true" ]; then
+      ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
+      grep passed build/test_status.txt || TEST_OUTCOME=$?
+    else
+      ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
+    fi
   fi
 fi
 

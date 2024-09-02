@@ -238,6 +238,9 @@ public:
     //! Get the time of the last value.
     core_t::TTime lastValueTime() const;
 
+    //! Reset the inner state of the change point test.
+    void resetChangePointTest(core_t::TTime time);
+
 private:
     using TMediatorPtr = std::unique_ptr<CMediator>;
 

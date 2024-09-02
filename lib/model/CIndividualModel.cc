@@ -133,10 +133,10 @@ bool CIndividualModel::isPopulation() const {
 CIndividualModel::TOptionalUInt64
 CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR(<< "No statistics at " << time << " for " << this->description()
-                  << ", current bucket = " << this->printCurrentBucket()
-                  << ", partitionFieldValue = " << this->dataGatherer().partitionFieldValue()
-                  << ", personName = " << this->dataGatherer().personName(pid));
+        LOG_WARN(<< "No statistics at " << time << " for " << this->description()
+                 << ", current bucket = " << this->printCurrentBucket()
+                 << ", partitionFieldValue = " << this->dataGatherer().partitionFieldValue()
+                 << ", personName = " << this->dataGatherer().personName(pid));
         return TOptionalUInt64();
     }
 
@@ -642,6 +642,16 @@ void CIndividualModel::doSkipSampling(core_t::TTime startTime, core_t::TTime end
             model->skipTime(gap);
         }
     }
+}
+
+void CIndividualModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    for (auto& fm : m_FeatureModels) {
+        for (auto& model : fm.s_Models) {
+            model->shiftTime(time, shift);
+        }
+    }
+    this->addAnnotation(time, CAnnotation::E_ModelChange,
+                        "Model shifted time by " + std::to_string(shift) + " seconds");
 }
 }
 }

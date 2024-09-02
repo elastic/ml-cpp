@@ -40,21 +40,29 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        build_windows = pipeline_steps.generate_step_template("Windows", config.action)
+        build_windows = pipeline_steps.generate_step_template("Windows", config.action, "", config.build_x86_64)
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", config.action)
+        build_macos = pipeline_steps.generate_step_template("MacOS", config.action, config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step_template("Linux", config.action)
+        build_linux = pipeline_steps.generate_step_template("Linux", config.action, config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(build_linux)
-    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
-                                                       ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
-    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
-                                                       ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
-    if config.run_qa_tests:
-        pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
-                                                           ".buildkite/pipelines/run_qa_tests.yml.sh"))
+
+        if config.build_x86_64:
+            pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
+                                                               ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
+            # We only use linux x86_64 builds for QA tests.
+            if config.run_qa_tests:
+                pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
+                                                                   ".buildkite/pipelines/run_qa_tests.yml.sh"))
+            if config.run_pytorch_tests:
+                pipeline_steps.append(pipeline_steps.generate_step("Upload QA PyTorch tests runner pipeline",
+                                                                   ".buildkite/pipelines/run_pytorch_tests.yml.sh"))
+        if config.build_aarch64:
+            pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
+                                                               ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
+
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))

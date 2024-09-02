@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_model_CDetectionRule_h
 #define INCLUDED_ml_model_CDetectionRule_h
 
+#include <core/CoreTypes.h>
+
 #include <model/CRuleCondition.h>
 #include <model/CRuleScope.h>
 #include <model/ImportExport.h>
@@ -36,14 +38,23 @@ class MODEL_EXPORT CDetectionRule {
 
 public:
     using TRuleConditionVec = std::vector<CRuleCondition>;
+    using TCallback = std::function<void(CAnomalyDetectorModel&, core_t::TTime)>;
 
-    //! Rule actions can apply to skip results, skip model updates, or both.
+    //! Rule actions can apply to skip results, skip model updates, evaluate callback
+    //! function or several of the actions.
     //! This is meant to work as a bit mask so added values should be powers of 2.
-    enum ERuleAction { E_SkipResult = 1, E_SkipModelUpdate = 2 };
+    enum ERuleAction {
+        E_SkipResult = 1,
+        E_SkipModelUpdate = 2,
+        E_TimeShift = 4
+    };
 
 public:
     //! Set the rule's action.
     void action(int ruleAction);
+
+    //! Get the rule's action.
+    int action() const;
 
     //! Adds a requirement for \p field not to be in \p filter for the rule to apply
     void includeScope(const std::string& field, const core::CPatternSet& filter);
@@ -54,6 +65,9 @@ public:
     //! Add a condition.
     void addCondition(const CRuleCondition& condition);
 
+    //! Set callback function to apply some action to a supplied time series model.
+    void setCallback(TCallback cb);
+
     //! Check whether the rule applies on a series.
     //! \p action is bitwise and'ed with the m_Action member
     bool apply(ERuleAction action,
@@ -63,6 +77,13 @@ public:
                std::size_t pid,
                std::size_t cid,
                core_t::TTime time) const;
+
+    //! Executes the callback function for anomaly detection on the \p model if all
+    //! conditions are satisfied.
+    void executeCallback(CAnomalyDetectorModel& model, core_t::TTime time) const;
+
+    //! Add a time shift callback function with the specified \p timeShift amount.
+    void addTimeShift(core_t::TTime timeShift);
 
     //! Pretty-print the rule.
     std::string print() const;
@@ -81,6 +102,9 @@ private:
 
     //! The conditions that trigger the rule.
     TRuleConditionVec m_Conditions;
+
+    //! Callback function to apply a change to a model based on the rule action.
+    TCallback m_Callback;
 };
 }
 }
