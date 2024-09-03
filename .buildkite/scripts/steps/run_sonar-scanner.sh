@@ -11,17 +11,25 @@
 
 set -eo pipefail
 
+# Unpack gcov.tar.gz if it exists
+if [ -f gcov.tar.gz ]; then
+  echo "Unpacking gcov.tar.gz"
+  tar -xzf gcov.tar.gz
+fi
+
+
 export CWD="$(pwd)"
 
 # Install the sonar-scanner
+echo "Installing sonar-scanner"
 cd /usr/local
 curl -O https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
-unzip sonar-scanner-cli-6.1.0.4477-linux-x64.zip
+unzip -q sonar-scanner-cli-6.1.0.4477-linux-x64.zip
 mv sonar-scanner-6.1.0.4477-linux-x64/ sonar-scanner
 export PATH=$(pwd)/sonar-scanner/bin:$PATH
 
 # Generate the compile_commands.json file
-
+echo "Generating compile_commands.json"
 cd "${CWD}"
 
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B cmake-build-docker
@@ -115,4 +123,5 @@ if [[ -z "${SONAR_LOGIN}" ]]; then
   fi
 fi
 
+echo "Running sonar-scanner"
 runScanner

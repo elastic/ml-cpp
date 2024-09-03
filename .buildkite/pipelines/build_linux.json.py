@@ -63,7 +63,7 @@ def main(args):
                   f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                   ".buildkite/scripts/steps/build_and_test.sh"
                 ],
-                "depends_on": "check_style",
+                # "depends_on": "check_style",
                 "key": f"build_test_linux-{arch}-{build_type}",
                 "env": {
                   "ML_DEBUG": "0",
@@ -87,6 +87,12 @@ def main(args):
                   },
                 ],
             })
+        # For linux x86_64 additionally generate the test coverage report
+        if args.build_x86_64 and arch == "x86_64":
+            last_step = pipeline_steps[-1]
+            last_step["commands"].append(".buildkite/scripts/steps/generate_coverage_report.sh")
+            last_step["artifact_paths"] = "*/**/unittest/boost_test_results.junit,gcov.tar.gz"
+            last_step["env"]["CODE_COVERAGE"] = "ON"
 
     # Never cross-compile for linux-aarch64 in the nightly debug build.
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
