@@ -10,8 +10,9 @@
 
 set -eo pipefail
 
+echo "Generating coverage report"
 find ./cmake-build-docker -name "*.gcda" -print0 | xargs -0 -n 1 -P $(nproc) gcov --preserve-paths
 
 # Crate gcov.tar.gz from all the .gcov files in .
+echo "Creating gcov.tar.gz"
 find . -name "*.gcov" -print0 | tar -czf gcov.tar.gz --null -T -
-rm *.gcov
