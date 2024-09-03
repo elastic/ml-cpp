@@ -91,7 +91,7 @@ def main(args):
         if args.build_x86_64 and arch == "x86_64":
             last_step = pipeline_steps[-1]
             last_step["commands"].append(".buildkite/scripts/steps/generate_coverage_report.sh")
-            last_step["artifact_paths"].append("gcov.tar.gz")
+            last_step["artifact_paths"] = [last_step["artifact_paths"], "gcov.tar.gz"]
             last_step["env"]["CODE_COVERAGE"] = "ON"
 
     # Never cross-compile for linux-aarch64 in the nightly debug build.
