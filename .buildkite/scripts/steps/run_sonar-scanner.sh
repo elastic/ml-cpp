@@ -11,11 +11,11 @@
 
 set -eo pipefail
 
-# Unpack gcov.tar.gz if it exists
-if [ -f gcov.tar.gz ]; then
-  echo "Unpacking gcov.tar.gz"
-  tar -xzf gcov.tar.gz
-fi
+# # Unpack gcov.tar.gz if it exists
+# if [ -f gcov.tar.gz ]; then
+#   echo "Unpacking gcov.tar.gz"
+#   tar -xzf gcov.tar.gz
+# fi
 
 
 export CWD="$(pwd)"

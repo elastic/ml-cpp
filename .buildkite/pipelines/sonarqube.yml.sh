@@ -20,7 +20,6 @@ steps:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
     command: 
-      - "buildkite-agent artifact download gcov.tar.gz ."
       - ".buildkite/scripts/steps/run_sonar-scanner.sh"
     # artifact_paths:
     #   - "cmake-build-docker/compile_commands.json"
