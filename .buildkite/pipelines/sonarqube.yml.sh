@@ -12,7 +12,7 @@ cat <<EOL
 steps:
   - label: "Run SonarQube scanner :sonarqube:"
     key: "export_compile_commands"
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    # depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     soft_fail: true
     agents:
       image: "docker.elastic.co/ml-dev/ml-linux-build:30"
