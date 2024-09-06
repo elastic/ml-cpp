@@ -69,7 +69,10 @@ runScanner(){
                     -Dsonar.pullrequest.branch="${BUILDKITE_BRANCH}" \
                     -Dsonar.pullrequest.base="${BUILDKITE_PULL_REQUEST_BASE_BRANCH}" \
                     -Dsonar.projectVersion="${BUILDKITE_COMMIT}" \
-                    -Dsonar.scm.provider=git 
+                    -Dsonar.scm.provider=git \
+                    -Dsonar.pullrequest.github.repository="elastic/ml-cpp" \
+                    -Dsonar.pullrequest.provider=github \
+                    -Dsonar.pullrequest.github.endpoint="https://api.github.com"
       exit_code=$?
     else
       sonar-scanner -Dsonar.token="${SONAR_LOGIN}"  \
