@@ -15,6 +15,8 @@ steps:
     # depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     soft_fail: true
     agents:
+      cpu: 6
+      memory: "16GB"
       image: "docker.elastic.co/ml-dev/ml-linux-build:30"
     env:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
