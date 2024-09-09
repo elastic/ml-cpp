@@ -69,17 +69,24 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         }
 
         auto output = module_.forward(inputs);
+        LOG_ERROR(<< "output" << output);
         if (output.isTuple()) {
             // For transformers the result tensor is the first element in a tuple.
             all.push_back(output.toTuple()->elements()[0].toTensor());
         } else {
-            all.push_back(output.toTensor());
+            auto outputTensor = output.toTensor();
+            auto sizes = outputTensor.sizes();
+            if(sizeof(sizes)> 1){
+                all.push_back(outputTensor.reshape((1, 1)));
+            } else {
+                all.push_back(outputTensor);
+            }
         }
 
         inputs.clear();
     }
 
-    return at::cat(all, 0);
+    return at::cat(all);
 }
 
 bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
