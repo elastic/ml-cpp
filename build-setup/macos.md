@@ -132,7 +132,7 @@ Install using all the default options.  When the installer completes a Finder wi
 PyTorch requires that certain Python modules are installed.  To install them:
 
 ```
-sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
