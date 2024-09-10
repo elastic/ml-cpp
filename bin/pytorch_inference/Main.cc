@@ -75,9 +75,8 @@ torch::Tensor infer(torch::jit::script::Module& module_,
             all.push_back(output.toTuple()->elements()[0].toTensor());
         } else {
             auto outputTensor = output.toTensor();
-            auto sizes = outputTensor.sizes();
-            if (sizeof(sizes) > 1) {
-                all.push_back(outputTensor.reshape((1, 1)));
+            if (outputTensor.dim() == 0) { // If the output is a scaler, we need to reshape it into a 1D tensor
+                all.push_back(outputTensor.reshape({1, 1}));
             } else {
                 all.push_back(outputTensor);
             }
