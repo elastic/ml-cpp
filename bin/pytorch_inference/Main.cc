@@ -76,7 +76,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         } else {
             auto outputTensor = output.toTensor();
             auto sizes = outputTensor.sizes();
-            if(sizeof(sizes)> 1){
+            if (sizeof(sizes) > 1) {
                 all.push_back(outputTensor.reshape((1, 1)));
             } else {
                 all.push_back(outputTensor);
