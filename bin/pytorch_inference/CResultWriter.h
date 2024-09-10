@@ -191,7 +191,7 @@ private:
         jsonWriter.onObjectEnd();
     }
 
-        //! Write a 2D inference result
+    //! Write a 1D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 1UL>& accessor,
                                TStringBufWriter& jsonWriter) {
@@ -199,10 +199,12 @@ private:
         jsonWriter.onKey(RESULT);
         jsonWriter.onObjectBegin();
         jsonWriter.onKey(INFERENCE);
-        // The Java side requires a 3D array, so wrap the 2D result in an
-        // extra outer array.
+        // The Java side requires a 3D array, so wrap the 1D result in an
+        // extra outer array twice.
+        jsonWriter.onArrayBegin();
         jsonWriter.onArrayBegin();
         this->writeTensor(accessor, jsonWriter);
+        jsonWriter.onArrayEnd();
         jsonWriter.onArrayEnd();
         jsonWriter.onObjectEnd();
     }

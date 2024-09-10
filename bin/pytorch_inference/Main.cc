@@ -69,7 +69,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         }
 
         auto output = module_.forward(inputs);
-        LOG_DEBUG(<< "output" << output);
+        LOG_DEBUG(<< "output_" << i << ": " << output);
         if (output.isTuple()) {
             // For transformers the result tensor is the first element in a tuple.
             all.push_back(output.toTuple()->elements()[0].toTensor());
@@ -86,7 +86,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         inputs.clear();
     }
 
-    return at::cat(all);
+    return at::cat(all, 0);
 }
 
 bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
