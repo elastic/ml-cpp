@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.15.2
+
+=== Bug Fixes
+
+* Allow for pytorch_inference results to include zero-dimensional tensors.
+
 == {es} version 8.15.1
 
 === Enhancements
