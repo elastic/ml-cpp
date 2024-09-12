@@ -76,7 +76,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         } else {
             auto outputTensor = output.toTensor();
             if (outputTensor.dim() == 0) { // If the output is a scaler, we need to reshape it into a 1D tensor
-                all.push_back(std::move(outputTensor.reshape({1, 1})));
+                all.push_back(outputTensor.reshape({1, 1}));
             } else {
                 all.push_back(std::move(outputTensor));
             }
