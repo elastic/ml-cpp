@@ -80,6 +80,18 @@ BOOST_AUTO_TEST_CASE(testCreateInnerInferenceResult) {
     BOOST_REQUIRE_EQUAL(expected, innerPortion);
 }
 
+BOOST_AUTO_TEST_CASE(testCreateInnerInferenceResultFor1DimensionalResult) {
+    std::ostringstream output;
+    ml::torch::CResultWriter resultWriter{output};
+    ::torch::Tensor tensor{::torch::ones({1})};
+    std::string innerPortion{resultWriter.createInnerResult(tensor)};
+    std::string expected = "\"result\":{\"inference\":"
+                           "[[[1]]]}";
+    LOG_INFO(<< "expected: " << expected);
+    LOG_INFO(<< "actual: " << innerPortion);
+    BOOST_REQUIRE_EQUAL(expected, innerPortion);
+}
+
 BOOST_AUTO_TEST_CASE(testWrapAndWriteInferenceResult) {
     std::string innerPortion{
         "\"result\":{\"inference\":"
