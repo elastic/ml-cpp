@@ -136,6 +136,9 @@ std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
             case 2:
                 this->writePrediction<2>(results, jsonWriter);
                 break;
+            case 1:
+                this->writePrediction<1>(results, jsonWriter);
+                break;
             default: {
                 std::ostringstream ss;
                 ss << "Cannot convert results tensor of size [" << sizes << ']';
