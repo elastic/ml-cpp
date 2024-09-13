@@ -45,10 +45,6 @@
 
 * Update the Pytorch library to version 2.3.1. (See {ml-pull}2688[#2688].)
 
-=== Bug Fixes
-
-* Allow for pytorch_inference results to include zero-dimensional tensors.
-
 == {es} version 8.15.1
 
 == {es} version 8.15.0
