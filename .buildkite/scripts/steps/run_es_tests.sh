@@ -24,11 +24,11 @@ export PR_AUTHOR=$(expr "$BUILDKITE_BRANCH" : '\(.*\):.*')
 export PR_SOURCE_BRANCH=$(expr "$BUILDKITE_BRANCH" : '.*:\(.*\)')
 export PR_TARGET_BRANCH=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 
-mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
-cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
-# Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split
-cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-nodeps.zip"
-# We're cheating here - the dependencies are really in the "no dependencies" zip for this flow
-cp dev-tools/minimal.zip "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-deps.zip"
+#mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
+#cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
+## Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split
+#cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-nodeps.zip"
+## We're cheating here - the dependencies are really in the "no dependencies" zip for this flow
+#cp dev-tools/minimal.zip "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-deps.zip"
 ./dev-tools/run_es_tests.sh ".." "$(cd "${IVY_REPO}" && pwd)"
 

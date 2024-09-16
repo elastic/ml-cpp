@@ -13,10 +13,11 @@ steps:
   - label: "Java :java: Integration Tests for x86_64 :hammer:"
     key: "java_integration_tests_x86_64"
     command:
-      - 'sudo mkdir -p /usr/lib/jvm && wget -O - https://corretto.aws/downloads/latest/amazon-corretto-21-x64-linux-jdk.tar.gz | sudo tar xzf - -C /usr/lib/jvm'
-      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
+      - 'sudo mkdir -p /usr/lib/jvm && wget -O - https://corretto.aws/downloads/latest/amazon-corretto-21-x64-linux-jdk.tar.gz | sudo tar xvzf - -C /usr/lib/jvm'
+      - 'ls -lR /usr/lib/jvm'
+      # - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    # depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       provider: aws
       instanceType: m6i.2xlarge
