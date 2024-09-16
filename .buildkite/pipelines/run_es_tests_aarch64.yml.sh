@@ -25,7 +25,7 @@ steps:
       diskSizeGb: 100
       diskName: '/dev/xvda'
     env:
-      JAVA_HOME: "/usr/lib/jvm/amazon-corretto-21-aarch64-linux-jdk"
+      JAVA_HOME: "/usr/lib/jvm/amazon-corretto-21.0.4.7.1-linux-aarch64"
       IVY_REPO: "../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
     notify:
