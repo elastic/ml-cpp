@@ -14,10 +14,9 @@ steps:
     key: "java_integration_tests_aarch64"
     command:
       - 'sudo mkdir -p /usr/lib/jvm/amazon-corretto-21 && wget -O - https://corretto.aws/downloads/latest/amazon-corretto-21-aarch64-linux-jdk.tar.gz | sudo tar xvzf - -C /usr/lib/jvm/amazon-corretto-21 --strip=1'
-      - 'ls -lR /usr/lib/jvm'
-      # - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo'
+      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    # depends_on: "build_test_linux-aarch64-RelWithDebInfo"
+    depends_on: "build_test_linux-aarch64-RelWithDebInfo"
     agents:
       provider: aws
       instanceType: m6g.2xlarge
