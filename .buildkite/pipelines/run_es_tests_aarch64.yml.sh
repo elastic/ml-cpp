@@ -13,7 +13,7 @@ steps:
   - label: "Java :java: Integration Tests for aarch64 :hammer:"
     key: "java_integration_tests_aarch64"
     command:
-      - "sudo yum -y install java-17-amazon-corretto-devel"
+      - 'sudo mkdir -p /usr/lib/jvm/amazon-corretto-21 && wget -O - https://corretto.aws/downloads/latest/amazon-corretto-21-aarch64-linux-jdk.tar.gz | sudo tar xzf - -C /usr/lib/jvm/amazon-corretto-21 --strip=1'
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-aarch64-RelWithDebInfo"
@@ -24,6 +24,7 @@ steps:
       diskSizeGb: 100
       diskName: '/dev/xvda'
     env:
+      JAVA_HOME: "/usr/lib/jvm/amazon-corretto-21"
       IVY_REPO: "../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
     notify:
