@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE(CIoManagerTest)
 namespace {
 
 const std::uint32_t SLEEP_TIME_MS{100};
-const std::uint32_t PAUSE_TIME_MS{10};
+const std::uint32_t PAUSE_TIME_MS{40};
 const std::size_t MAX_ATTEMPTS{100};
 const std::size_t TEST_SIZE{10000};
 const char TEST_CHAR{'a'};
