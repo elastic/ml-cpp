@@ -120,6 +120,8 @@ public:
     //! Pretty-prints the tree.
     std::string print() const;
 
+    std::uint64_t checksum() const;
+
 private:
     //! The recursive building helper.
     void buildRecursively(const TStrVec& prefixes,

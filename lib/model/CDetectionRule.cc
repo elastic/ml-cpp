@@ -8,12 +8,15 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+#include <model/CDetectionRule.h>
 
+#include <core/CHashing.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
-#include <model/CDetectionRule.h>
+
+#include <cstdint>
 
 namespace ml {
 namespace model {
@@ -74,12 +77,18 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
                 return;
             }
         }
+        if (model.checkRuleApplied(*this)) {
+            return;
+        }
         m_Callback(model, time);
+        model.markRuleApplied(*this);
     }
 }
 
 void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
     using TAnomalyDetectorPtrVec = core::CSmallVector<CAnomalyDetectorModel*, 2>;
+    m_Action |= E_TimeShift;
+    m_TimeShift = timeShift;
     this->setCallback([
         timeShift, timeShiftApplied = TAnomalyDetectorPtrVec()
     ](CAnomalyDetectorModel & model, core_t::TTime time) mutable {
@@ -127,6 +136,34 @@ std::string CDetectionRule::printAction() const {
         }
         result += "FORCE_TIME_SHIFT";
     }
+    return result;
+}
+
+std::uint64_t CDetectionRule::checksum() const {
+    std::uint64_t result{0};
+
+    // Hash m_Action
+    result = core::CHashing::hashCombine(result, static_cast<std::uint64_t>(m_Action));
+
+    // Hash m_Scope
+    std::uint64_t scopeHash = m_Scope.checksum();
+    result = core::CHashing::hashCombine(result, scopeHash);
+
+    // Hash m_Conditions
+    for (const auto& condition : m_Conditions) {
+        std::uint64_t conditionHash = condition.checksum();
+        result = core::CHashing::hashCombine(result, conditionHash);
+    }
+
+    // Hash callback parameters if applicable
+    if (m_Action & E_TimeShift) {
+        // Hash m_TimeShift
+        result = core::CHashing::hashCombine(result, static_cast<std::uint64_t>(m_TimeShift));
+    }
+
+    // IMPLEMENTATION NOTE: If there are other parameters associated with the callback,
+    // they should be included in the checksum.
+
     return result;
 }
 }

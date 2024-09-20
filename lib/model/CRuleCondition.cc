@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
@@ -163,6 +164,23 @@ std::string CRuleCondition::print(ERuleConditionOperator op) const {
         return ">=";
     }
     return std::string();
+}
+
+std::uint64_t CRuleCondition::checksum() const {
+    std::uint64_t result{0};
+
+    // Hash m_AppliesTo
+    result = core::CHashing::hashCombine(result, static_cast<std::uint64_t>(m_AppliesTo));
+
+    // Hash m_Operator
+    result = core::CHashing::hashCombine(result, static_cast<std::uint64_t>(m_Operator));
+
+    // Hash m_Value (convert double to uint64_t representation)
+    std::uint64_t valueHash;
+    std::memcpy(&valueHash, &m_Value, sizeof(m_Value));
+    result = core::CHashing::hashCombine(result, valueHash);
+
+    return result;
 }
 }
 }

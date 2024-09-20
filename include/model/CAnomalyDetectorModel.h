@@ -492,6 +492,10 @@ public:
     //! Apply time shift at the time \p time by \p shift amount of seconds.
     virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
 
+    virtual bool checkRuleApplied(const CDetectionRule& rule) const = 0;
+
+    virtual void markRuleApplied(const CDetectionRule& rule) = 0;
+
 protected:
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;

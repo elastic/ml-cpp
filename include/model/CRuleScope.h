@@ -11,6 +11,7 @@
 #ifndef INCLUDED_ml_model_CRuleScope_h
 #define INCLUDED_ml_model_CRuleScope_h
 
+#include <cstdint>
 #include <model/ImportExport.h>
 
 #include <core/CPatternSet.h>
@@ -57,6 +58,8 @@ public:
 
     //! Pretty-print the scope.
     std::string print() const;
+
+    std::uint64_t checksum() const;
 
 private:
     //! A vector that holds the triple of the field, filter and its type.

@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "core/CMemoryDec.h"
 #include <model/CPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -91,6 +92,8 @@ const std::string ATTRIBUTE_FIRST_BUCKET_TIME_TAG("d");
 const std::string ATTRIBUTE_LAST_BUCKET_TIME_TAG("e");
 const std::string PERSON_ATTRIBUTE_BUCKET_COUNT_TAG("f");
 const std::string DISTINCT_PERSON_COUNT_TAG("g");
+const std::string APPLIED_DETECTION_RULE_CHECKSUMS_TAG("h");
+
 // Extra data tag deprecated at model version 34
 // TODO remove on next version bump
 //const std::string EXTRA_DATA_TAG("h");
@@ -195,7 +198,9 @@ std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     hashActive(E_Person, gatherer, m_PersonLastBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeFirstBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
-
+    for (std::uint64_t checksum : m_AppliedRuleChecksums) {
+        seed = maths::common::CChecksum::calculate(seed, checksum);
+    }
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << hashes);
 
@@ -216,6 +221,7 @@ void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePt
     core::memory_debug::dynamicSize("m_NewPersonBucketCounts", m_NewPersonBucketCounts, mem);
     core::memory_debug::dynamicSize("m_PersonAttributeBucketCounts",
                                     m_PersonAttributeBucketCounts, mem);
+    core::memory_debug::dynamicSize("m_AppliedRuleChecksums", m_AppliedRuleChecksums, mem);
 }
 
 std::size_t CPopulationModel::memoryUsage() const {
@@ -227,6 +233,7 @@ std::size_t CPopulationModel::memoryUsage() const {
     mem += core::memory::dynamicSize(m_DistinctPersonCounts);
     mem += core::memory::dynamicSize(m_NewPersonBucketCounts);
     mem += core::memory::dynamicSize(m_PersonAttributeBucketCounts);
+    mem += core::memory::dynamicSize(m_AppliedRuleChecksums);
     return mem;
 }
 
@@ -294,6 +301,8 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
             std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
                       &m_DistinctPersonCounts[cid], std::placeholders::_1));
     }
+    core::CPersistUtils::persist(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
+                                 m_AppliedRuleChecksums, inserter);
 }
 
 bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -316,12 +325,16 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
                 maths::time_series::CCountMinSketch(0, 0));
             m_PersonAttributeBucketCounts.back().swap(sketch);
             continue;
-        }
-        if (name == DISTINCT_PERSON_COUNT_TAG) {
+        } else if (name == DISTINCT_PERSON_COUNT_TAG) {
             maths::common::CBjkstUniqueValues sketch(traverser);
             m_DistinctPersonCounts.push_back(maths::common::CBjkstUniqueValues(0, 0));
             m_DistinctPersonCounts.back().swap(sketch);
             continue;
+        } else if (name == APPLIED_DETECTION_RULE_CHECKSUMS_TAG) {
+            if (core::CPersistUtils::restore(name, m_AppliedRuleChecksums, traverser) == false) {
+                LOG_ERROR(<< "Invalid applied detection rule checksums");
+                return false;
+            }
         }
     } while (traverser.next());
 
@@ -580,6 +593,16 @@ std::size_t CPopulationModel::CCorrectionKey::hash() const {
         core::CHashing::hashCombine(static_cast<std::uint64_t>(m_Feature), m_Pid);
     seed = core::CHashing::hashCombine(seed, m_Cid);
     return static_cast<std::size_t>(core::CHashing::hashCombine(seed, m_Correlate));
+}
+
+bool CPopulationModel::checkRuleApplied(const CDetectionRule& rule) const {
+    auto checksum = rule.checksum();
+    return std::find(m_AppliedRuleChecksums.begin(), m_AppliedRuleChecksums.end(),
+                     checksum) != m_AppliedRuleChecksums.end();
+}
+
+void CPopulationModel::markRuleApplied(const CDetectionRule& rule) {
+    m_AppliedRuleChecksums.push_back(rule.checksum());
 }
 }
 }

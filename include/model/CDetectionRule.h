@@ -88,6 +88,9 @@ public:
     //! Pretty-print the rule.
     std::string print() const;
 
+    //! Checksum the rule.
+    std::uint64_t checksum() const;
+
 private:
     std::string printAction() const;
 
@@ -105,6 +108,9 @@ private:
 
     //! Callback function to apply a change to a model based on the rule action.
     TCallback m_Callback;
+
+    //! The time shift to apply to the model.
+    core_t::TTime m_TimeShift{0};
 };
 }
 }

@@ -67,6 +67,7 @@ const std::string FEATURE_CORRELATE_MODELS_TAG("f");
 //const std::string INTERIM_BUCKET_CORRECTOR_TAG("h");
 const std::string MEMORY_ESTIMATOR_TAG("i");
 const std::string UPGRADING_PRE_7_5_STATE("j");
+const std::string APPLIED_DETECTION_RULE_CHECKSUMS_TAG("k");
 }
 
 CIndividualModel::CIndividualModel(const SModelParams& params,
@@ -291,6 +292,7 @@ void CIndividualModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePt
     core::memory_debug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
     core::memory_debug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
+    core::memory_debug::dynamicSize("m_AppliedRuleChecksums", m_AppliedRuleChecksums, mem);
 }
 
 std::size_t CIndividualModel::memoryUsage() const {
@@ -308,6 +310,7 @@ std::size_t CIndividualModel::computeMemoryUsage() const {
     mem += core::memory::dynamicSize(m_FeatureModels);
     mem += core::memory::dynamicSize(m_FeatureCorrelatesModels);
     mem += core::memory::dynamicSize(m_MemoryEstimator);
+    mem += core::memory::dynamicSize(m_AppliedRuleChecksums);
     return mem;
 }
 
@@ -357,6 +360,8 @@ void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
     inserter.insertValue(UPGRADING_PRE_7_5_STATE, false);
+    core::CPersistUtils::persist(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
+                                 m_AppliedRuleChecksums, inserter);
 }
 
 bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -387,6 +392,8 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
         RESTORE_BUILT_IN(UPGRADING_PRE_7_5_STATE, upgradingPre7p5State)
+        RESTORE(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
+                core::CPersistUtils::restore(name, m_AppliedRuleChecksums, traverser));
     } while (traverser.next());
 
     if (traverser.haveBadState()) {
@@ -652,6 +659,16 @@ void CIndividualModel::shiftTime(core_t::TTime time, core_t::TTime shift) {
     }
     this->addAnnotation(time, CAnnotation::E_ModelChange,
                         "Model shifted time by " + std::to_string(shift) + " seconds");
+}
+
+bool CIndividualModel::checkRuleApplied(const CDetectionRule& rule) const {
+    auto checksum = rule.checksum();
+    return std::find(m_AppliedRuleChecksums.begin(), m_AppliedRuleChecksums.end(),
+                     checksum) != m_AppliedRuleChecksums.end();
+}
+
+void CIndividualModel::markRuleApplied(const CDetectionRule& rule) {
+    m_AppliedRuleChecksums.push_back(rule.checksum());
 }
 }
 }

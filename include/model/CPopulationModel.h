@@ -23,8 +23,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <map>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -177,6 +175,10 @@ public:
     //! \p pid based on their sample rate.
     double sampleRateWeight(std::size_t pid, std::size_t cid) const;
 
+    bool checkRuleApplied(const CDetectionRule& rule) const override;
+
+    void markRuleApplied(const CDetectionRule& rule) override;
+
 protected:
     //! \brief A key for the partial bucket corrections map.
     class MODEL_EXPORT CCorrectionKey {
@@ -269,6 +271,7 @@ protected:
 
 private:
     using TOptionalCountMinSketch = std::optional<maths::time_series::CCountMinSketch>;
+    using TUint64Vec = std::vector<std::uint64_t>;
 
 private:
     //! The last time each person was seen.
@@ -292,6 +295,8 @@ private:
     //! The bucket count of each (person, attribute) pair in the exponentially
     //! decaying window with decay rate equal to CAnomalyDetectorModel::m_DecayRate.
     TCountMinSketchVec m_PersonAttributeBucketCounts;
+
+    TUint64Vec m_AppliedRuleChecksums;
 };
 }
 }

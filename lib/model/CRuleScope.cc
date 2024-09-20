@@ -12,6 +12,7 @@
 #include <model/CRuleScope.h>
 
 #include <core/CPatternSet.h>
+#include <core/CHashing.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
@@ -68,6 +69,28 @@ std::string CRuleScope::print() const {
             result += " AND ";
         }
     }
+    return result;
+}
+
+
+std::uint64_t CRuleScope::checksum() const {
+    std::uint64_t result = 0;
+    core::CHashing::CMurmurHash2String stringHasher;
+
+    for (const auto& triple : m_Scope) {
+        // Hash field_name
+        std::uint64_t fieldNameHash = stringHasher(triple.first);
+        result = core::CHashing::hashCombine(result, fieldNameHash);
+
+        // Hash filter_type
+        result = core::CHashing::hashCombine(result, static_cast<std::uint64_t>(triple.third));
+
+        // Hash the pattern set
+        const core::CPatternSet& patternSet = triple.second.get();
+        std::uint64_t patternSetHash = patternSet.checksum();
+        result = core::CHashing::hashCombine(result, patternSetHash);
+    }
+
     return result;
 }
 }
