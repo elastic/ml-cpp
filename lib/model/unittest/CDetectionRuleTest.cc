@@ -1020,8 +1020,8 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestF
         rule.executeCallback(*model, timestamp);
 
         // the time series model should have been shifted by specified amount.
-        BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTime + timeShiftInSecs);
-        BOOST_TEST_REQUIRE(trendModel.timeShift() == timeShiftInSecs);
+        BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTime - timeShiftInSecs);
+        BOOST_TEST_REQUIRE(trendModel.timeShift() == -timeShiftInSecs);
 
         // and an annotation should have been added to the model
         BOOST_TEST_REQUIRE(annotations.size() == numAnnotationsBeforeShift + 1);
@@ -1091,8 +1091,8 @@ BOOST_FIXTURE_TEST_CASE(testTwoTimeShiftRuleShouldShiftTwice, CTestFixture) {
     // the values after the second time should be the sum of two rules.
     timestamp += timeShift1; // simulate the time has moved forward by the time shift
     rule2.executeCallback(*model, timestamp);
-    BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTimeAfterFirstShift + timeShift2);
-    BOOST_TEST_REQUIRE(trendModel.timeShift() == timeShift1 + timeShift2);
+    BOOST_TEST_REQUIRE(trendModel.lastValueTime() == lastValueTimeAfterFirstShift - timeShift2);
+    BOOST_TEST_REQUIRE(trendModel.timeShift() == -(timeShift1 + timeShift2));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
