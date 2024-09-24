@@ -147,7 +147,9 @@ def path_to_app():
 
 def launch_pytorch_app(args):
 
-    command = [path_to_app(),
+    os.environ["HEAPPROFILE"] = "/tmp/heapprof"
+    command = [#'/heaptrack/build/bin/heaptrack',
+        path_to_app(),
         '--restore=' + args.restore_file,
         '--input=' + args.input_file,
         '--output=' + args.output_file,
@@ -385,6 +387,10 @@ def threading_benchmark(args):
         print(f"{result['inference_threads']},{result['num_allocations']},{result['run_time_ms']},{result['avg_time_ms']}")
 
 
+def create_mkl_free_buffers_request(request_num):
+    print("mkl_free_buffers")
+    return {"request_id": "mkl_free_buffers_" + str(request_num), "control": 3}
+
 def create_mem_usage_request(request_num):
     return {"request_id": "mem_" + str(request_num), "control": 2}
 
@@ -410,13 +416,16 @@ def memory_usage(args):
     with open(args.input_file, 'w') as input_file:
         
         request_num = 0        
-        request_sizes = [10, 20, 30, 40, 50]
+        #request_sizes = [10, 20, 30, 40, 50]
+        request_sizes = [1, 2, 3, 4]
         
         write_request(create_mem_usage_request(request_num), input_file)
         for i in request_sizes: 
             request_num = request_num + 1                        
             write_request(create_inference_request(batch_size=i, num_tokens=512, request_num=request_num), input_file)
             write_request(create_mem_usage_request(request_num), input_file)
+            if i % 2 == 0:
+                write_request(create_mkl_free_buffers_request(request_num), input_file)
 
     launch_pytorch_app(args)
 
@@ -453,6 +462,7 @@ def memory_usage(args):
                 continue
 
             if 'error' in result: 
+                print(result)
                 print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")                
                 continue            
 
@@ -477,12 +487,7 @@ def main():
         else:
             test_evaluation(args)
     finally:
-        if os.path.isfile(args.restore_file):
-            os.remove(args.restore_file)
-        if os.path.isfile(args.input_file):
-            os.remove(args.input_file)
-        if os.path.isfile(args.output_file):
-            os.remove(args.output_file)
+        pass
 
 if __name__ == "__main__":
     main()

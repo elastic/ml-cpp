@@ -143,6 +143,7 @@ CCommandParser::validateControlMessageJson(const json::object& doc,
     }
     case E_ClearCache:
     case E_ProcessStats:
+    case E_FreeMklBuffers:
         // No extra arguments needed
         break;
     case E_Unknown:
@@ -276,6 +277,7 @@ CCommandParser::SControlMessage CCommandParser::jsonToControlMessage(const json:
                 doc.at(REQUEST_ID).as_string()};
     case E_ClearCache:
     case E_ProcessStats:
+    case E_FreeMklBuffers:
         return {controlMessageType, 0, doc.at(REQUEST_ID).as_string()};
     case E_Unknown:
         break;

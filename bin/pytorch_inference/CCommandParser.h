@@ -126,6 +126,7 @@ public:
         E_NumberOfAllocations,
         E_ClearCache,
         E_ProcessStats,
+        E_FreeMklBuffers,
         E_Unknown
     };
 
