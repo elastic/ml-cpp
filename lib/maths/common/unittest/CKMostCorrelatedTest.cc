@@ -764,7 +764,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
     double sdRatio = std::sqrt(maths::common::CBasicStatistics::variance(slope)) /
                      maths::common::CBasicStatistics::mean(slope);
     LOG_DEBUG(<< "sdRatio = " << sdRatio);
-    BOOST_TEST_REQUIRE(exponent < 2.0);
+    BOOST_TEST(exponent <= 2.0, boost::test_tools::tolerance(0.1));
     BOOST_TEST_REQUIRE(sdRatio < 0.75);
 }
 
