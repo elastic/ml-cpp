@@ -91,10 +91,10 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
 void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
     m_Action |= E_TimeShift;
     m_TimeShift = timeShift;
-    this->setCallback([timeShift](CAnomalyDetectorModel & model, core_t::TTime time) {
-            // When the callback is executed, the model is already in the correct time
-            // interval. Hence, we need to shift the time right away.
-            model.shiftTime(time, timeShift);
+    this->setCallback([timeShift](CAnomalyDetectorModel& model, core_t::TTime time) {
+        // When the callback is executed, the model is already in the correct time
+        // interval. Hence, we need to shift the time right away.
+        model.shiftTime(time, timeShift);
     });
 }
 
