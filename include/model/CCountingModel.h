@@ -235,12 +235,6 @@ public:
     //! Apply time shift at the time \p time by \p shift amount of seconds.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 
-    //! Check if the rule has been applied.
-    bool checkRuleApplied(const CDetectionRule& rule) const override;
-
-    //! Mark the rule as applied.
-    void markRuleApplied(const CDetectionRule& rule) override;
-
 protected:
     //! Get the start time of the current bucket.
     core_t::TTime currentBucketStartTime() const override;
@@ -300,7 +294,6 @@ private:
 private:
     using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TUint64Vec = std::vector<std::uint64_t>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TTimeStr1VecUMap = boost::unordered_map<core_t::TTime, TStr1Vec>;
@@ -323,9 +316,6 @@ private:
 
     //! Annotations produced by this model.
     TAnnotationVec m_Annotations;
-
-    //! Checksums of the rules that should be applied only once.
-    TUint64Vec m_AppliedRuleChecksums;
 
     friend struct CCountingModelTest::testCheckScheduledEvents;
 };

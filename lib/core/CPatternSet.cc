@@ -158,17 +158,10 @@ void CPatternSet::clear() {
 std::uint64_t CPatternSet::checksum() const {
     std::uint64_t result{0};
 
-    std::uint64_t fullMatchHash = m_FullMatchPatterns.checksum();
-    result = CHashing::hashCombine(result, fullMatchHash);
-
-    std::uint64_t prefixHash = m_PrefixPatterns.checksum();
-    result = CHashing::hashCombine(result, prefixHash);
-
-    std::uint64_t suffixHash = m_SuffixPatterns.checksum();
-    result = CHashing::hashCombine(result, suffixHash);
-
-    std::uint64_t containsHash = m_ContainsPatterns.checksum();
-    result = CHashing::hashCombine(result, containsHash);
+    result = CHashing::hashCombine(result, m_FullMatchPatterns.checksum());
+    result = CHashing::hashCombine(result, m_PrefixPatterns.checksum());
+    result = CHashing::hashCombine(result, m_SuffixPatterns.checksum());
+    result = CHashing::hashCombine(result, m_ContainsPatterns.checksum());
 
     return result;
 }

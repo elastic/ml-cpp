@@ -81,7 +81,7 @@ void CCountingModel::acceptPersistInserter(core::CStatePersistInserter& inserter
                                  this->personBucketCounts(), inserter);
     core::CPersistUtils::persist(MEAN_COUNT_TAG, m_MeanCounts, inserter);
     core::CPersistUtils::persist(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
-                                 m_AppliedRuleChecksums, inserter);
+                                 this->appliedRuleChecksums(), inserter);
 }
 
 bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -106,7 +106,8 @@ bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
                 return false;
             }
         } else if (name == APPLIED_DETECTION_RULE_CHECKSUMS_TAG) {
-            if (core::CPersistUtils::restore(name, m_AppliedRuleChecksums, traverser) == false) {
+            if (core::CPersistUtils::restore(name, this->appliedRuleChecksums(),
+                                             traverser) == false) {
                 LOG_ERROR(<< "Invalid applied detection rule checksums");
                 return false;
             }
@@ -326,9 +327,6 @@ std::uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
         result = maths::common::CChecksum::calculate(result, m_StartTime);
         result = maths::common::CChecksum::calculate(result, m_Counts);
     }
-    for (std::uint64_t checksum : m_AppliedRuleChecksums) {
-        result = maths::common::CChecksum::calculate(result, checksum);
-    }
     return result;
 }
 
@@ -339,7 +337,6 @@ void CCountingModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr&
     core::memory_debug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
     core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
-    core::memory_debug::dynamicSize("m_AppliedRuleChecksums", m_AppliedRuleChecksums, mem);
 }
 
 std::size_t CCountingModel::memoryUsage() const {
@@ -347,7 +344,6 @@ std::size_t CCountingModel::memoryUsage() const {
     mem += core::memory::dynamicSize(m_Counts);
     mem += core::memory::dynamicSize(m_MeanCounts);
     mem += core::memory::dynamicSize(m_InterimBucketCorrector);
-    mem += core::memory::dynamicSize(m_AppliedRuleChecksums);
     return mem;
 }
 
@@ -470,16 +466,6 @@ void CCountingModel::addAnnotation(core_t::TTime time,
                                this->dataGatherer().searchKey().detectorIndex(),
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
-}
-
-bool CCountingModel::checkRuleApplied(const CDetectionRule& rule) const {
-    auto checksum = rule.checksum();
-    return std::find(m_AppliedRuleChecksums.begin(), m_AppliedRuleChecksums.end(),
-                     checksum) != m_AppliedRuleChecksums.end();
-}
-
-void CCountingModel::markRuleApplied(const CDetectionRule& rule) {
-    m_AppliedRuleChecksums.push_back(rule.checksum());
 }
 }
 }

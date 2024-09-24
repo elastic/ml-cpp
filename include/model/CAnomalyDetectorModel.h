@@ -492,15 +492,19 @@ public:
     //! Apply time shift at the time \p time by \p shift amount of seconds.
     virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
 
-    virtual bool checkRuleApplied(const CDetectionRule& rule) const = 0;
+    //! Check if the rule has been applied.
+    bool checkRuleApplied(const CDetectionRule& rule) const;
 
-    virtual void markRuleApplied(const CDetectionRule& rule) = 0;
+    //! Mark the rule as applied.
+    void markRuleApplied(const CDetectionRule& rule);
 
 protected:
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;
     using TFeatureSizeSize1VecUMapPr = std::pair<model_t::EFeature, TSizeSize1VecUMap>;
     using TFeatureSizeSize1VecUMapPrVec = std::vector<TFeatureSizeSize1VecUMapPr>;
+    using TUint64TTimePr = std::pair<std::uint64_t, core_t::TTime>;
+    using TUint64TTimePrVec = std::vector<TUint64TTimePr>;
 
     //! \brief The feature models.
     struct MODEL_EXPORT SFeatureModels {
@@ -714,6 +718,9 @@ protected:
                                CAnnotation::EEvent type,
                                const std::string& annotation) = 0;
 
+    TUint64TTimePrVec& appliedRuleChecksums();
+    const TUint64TTimePrVec& appliedRuleChecksums() const;
+
 private:
     using TModelParamsCRef = std::reference_wrapper<const SModelParams>;
 
@@ -742,6 +749,9 @@ private:
     //! The influence calculators to use for each feature which is being
     //! modeled.
     TFeatureInfluenceCalculatorCPtrPrVecVec m_InfluenceCalculators;
+
+    //! Checksums of the rules that should be applied only once.
+    TUint64TTimePrVec m_AppliedRuleChecksums;
 };
 
 class CMemoryCircuitBreaker : public core::CMemoryCircuitBreaker {

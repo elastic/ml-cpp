@@ -168,12 +168,6 @@ public:
     //! Apply time shift at the time \p time by \p shift amount of seconds.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 
-    //! Check if the rule has been applied.
-    bool checkRuleApplied(const CDetectionRule& rule) const override;
-
-    //! Mark the rule as applied.
-    void markRuleApplied(const CDetectionRule& rule) override;
-
 protected:
     using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;
@@ -295,9 +289,6 @@ private:
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
 
 private:
-    using TUint64Vec = std::vector<std::uint64_t>;
-
-private:
     //! The time that each person was first seen.
     TTimeVec m_FirstBucketTimes;
 
@@ -316,8 +307,6 @@ private:
 
     //! The memory estimator.
     mutable CMemoryUsageEstimator m_MemoryEstimator;
-
-    TUint64Vec m_AppliedRuleChecksums;
 
     friend class CIndividualModelTestHelper;
 };

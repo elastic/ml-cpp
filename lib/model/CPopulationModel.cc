@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "core/CMemoryDec.h"
 #include <model/CPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -198,9 +197,6 @@ std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     hashActive(E_Person, gatherer, m_PersonLastBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeFirstBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
-    for (std::uint64_t checksum : m_AppliedRuleChecksums) {
-        seed = maths::common::CChecksum::calculate(seed, checksum);
-    }
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << hashes);
 
@@ -221,7 +217,6 @@ void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePt
     core::memory_debug::dynamicSize("m_NewPersonBucketCounts", m_NewPersonBucketCounts, mem);
     core::memory_debug::dynamicSize("m_PersonAttributeBucketCounts",
                                     m_PersonAttributeBucketCounts, mem);
-    core::memory_debug::dynamicSize("m_AppliedRuleChecksums", m_AppliedRuleChecksums, mem);
 }
 
 std::size_t CPopulationModel::memoryUsage() const {
@@ -233,7 +228,6 @@ std::size_t CPopulationModel::memoryUsage() const {
     mem += core::memory::dynamicSize(m_DistinctPersonCounts);
     mem += core::memory::dynamicSize(m_NewPersonBucketCounts);
     mem += core::memory::dynamicSize(m_PersonAttributeBucketCounts);
-    mem += core::memory::dynamicSize(m_AppliedRuleChecksums);
     return mem;
 }
 
@@ -302,7 +296,7 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
                       &m_DistinctPersonCounts[cid], std::placeholders::_1));
     }
     core::CPersistUtils::persist(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
-                                 m_AppliedRuleChecksums, inserter);
+                                 this->appliedRuleChecksums(), inserter);
 }
 
 bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -331,7 +325,8 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
             m_DistinctPersonCounts.back().swap(sketch);
             continue;
         } else if (name == APPLIED_DETECTION_RULE_CHECKSUMS_TAG) {
-            if (core::CPersistUtils::restore(name, m_AppliedRuleChecksums, traverser) == false) {
+            if (core::CPersistUtils::restore(name, this->appliedRuleChecksums(),
+                                             traverser) == false) {
                 LOG_ERROR(<< "Invalid applied detection rule checksums");
                 return false;
             }
@@ -593,16 +588,6 @@ std::size_t CPopulationModel::CCorrectionKey::hash() const {
         core::CHashing::hashCombine(static_cast<std::uint64_t>(m_Feature), m_Pid);
     seed = core::CHashing::hashCombine(seed, m_Cid);
     return static_cast<std::size_t>(core::CHashing::hashCombine(seed, m_Correlate));
-}
-
-bool CPopulationModel::checkRuleApplied(const CDetectionRule& rule) const {
-    auto checksum = rule.checksum();
-    return std::find(m_AppliedRuleChecksums.begin(), m_AppliedRuleChecksums.end(),
-                     checksum) != m_AppliedRuleChecksums.end();
-}
-
-void CPopulationModel::markRuleApplied(const CDetectionRule& rule) {
-    m_AppliedRuleChecksums.push_back(rule.checksum());
 }
 }
 }
