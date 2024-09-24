@@ -972,6 +972,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
     std::string functionDescription("lat_long(location)");
     ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
     std::string emptyString;
+    std::string mean_function("mean");
     // The output writer won't close the JSON structures until is is destroyed
     {
         std::ostringstream sstream;
@@ -1070,7 +1071,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             ml::api::CHierarchicalResultsWriter::SResults result(
                 ml::api::CHierarchicalResultsWriter::E_Result,
                 partitionFieldName, partitionFieldValue, byFieldName,
-                byFieldValue, correlatedByFieldValue, 1, "mean",
+                byFieldValue, correlatedByFieldValue, 1, mean_function,
                 functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
                 0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
