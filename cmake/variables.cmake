@@ -159,7 +159,7 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
-  set(CMAKE_CXX_FLAGS_DEBUG "/fsanitize=address /Zi /Od /RTC1")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
   set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /O2 /Zi" CACHE STRING
           "Flags used by the C++ compiler during sanitizer builds."
           FORCE)
