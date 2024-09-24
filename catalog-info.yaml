@@ -185,7 +185,7 @@ spec:
 
           '
         filter_enabled: true
-        trigger_mode: none
+        trigger_mode: code
       repository: elastic/ml-cpp
       skip_intermediate_builds: true
       teams:
