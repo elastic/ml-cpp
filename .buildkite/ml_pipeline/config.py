@@ -19,6 +19,8 @@ class Config:
     build_x86_64: str = ""
     run_qa_tests: bool = False
     run_pytorch_tests: bool = False
+    branch: str = ""
+    version: str = ""
     action: str = "build"
 
     def parse_comment(self):
