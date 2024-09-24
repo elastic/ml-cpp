@@ -25,6 +25,16 @@ steps:
       message: "${BUILDKITE_MESSAGE}"
       env:
         QAF_TESTS_TO_RUN: "ml_cpp_pr"
-        ES_BRANCH: ${GITHUB_PR_COMMENT_VAR_BRANCH}
-        STACK_VERSION: ${GITHUB_PR_COMMENT_VAR_VERSION}
 EOL
+
+if [ "${GITHUB_PR_COMMENT_VAR_BRANCH}" != "" ]; then
+cat <<EOL
+        ES_BRANCH: "${GITHUB_PR_COMMENT_VAR_BRANCH}"
+EOL
+fi
+
+if [ "${GITHUB_PR_COMMENT_VAR_VERSION}" != "" ]; then
+cat <<EOL
+        STACK_VERSION: "${GITHUB_PR_COMMENT_VAR_VERSION}"
+EOL
+fi
