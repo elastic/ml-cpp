@@ -16,7 +16,6 @@
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CDetectionRule.h>
 #include <model/CForecastDataSink.h>
 #include <model/CModelPlotData.h>
 #include <model/CMonitoredResource.h>

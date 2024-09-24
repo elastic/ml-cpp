@@ -1095,4 +1095,99 @@ BOOST_FIXTURE_TEST_CASE(testTwoTimeShiftRuleShouldShiftTwice, CTestFixture) {
     BOOST_TEST_REQUIRE(trendModel.timeShift() == -(timeShift1 + timeShift2));
 }
 
+BOOST_FIXTURE_TEST_CASE(testChecksum, CTestFixture) {
+    // Create two identical rules
+    CDetectionRule rule1;
+    CDetectionRule rule2;
+
+    // Compute checksums
+    std::uint64_t checksum1 = rule1.checksum();
+    std::uint64_t checksum2 = rule2.checksum();
+
+    // Verify that identical rules have the same checksum
+    BOOST_REQUIRE_EQUAL(checksum1, checksum2);
+
+    // Test actions
+    // Modify the action of rule2
+    rule2.action(CDetectionRule::E_SkipModelUpdate);
+
+    // Verify that different actions result in different checksums
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_NE(checksum1, checksum2);
+
+    // Test conditions
+    // Reset rule2 to be identical to rule1
+    rule2 = rule1;
+
+    // Add a condition to rule2
+    CRuleCondition condition;
+    condition.appliesTo(CRuleCondition::E_Actual);
+    condition.op(CRuleCondition::E_GT);
+    condition.value(100.0);
+    rule2.addCondition(condition);
+
+    // Verify that adding a condition changes the checksum
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_NE(checksum1, checksum2);
+
+    // Add the same condition to rule1
+    rule1.addCondition(condition);
+
+    // Verify that identical conditions result in the same checksum
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_EQUAL(checksum1, checksum2);
+
+    // Modify the condition in rule2
+    condition.value(200.0);
+    rule2.clearConditions();
+    rule2.addCondition(condition);
+
+    // Verify that different condition values result in different checksums
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_NE(checksum1, checksum2);
+
+    // Test Scope
+    rule2 = rule1;
+
+    // Modify the scope of rule2
+    std::string fieldName = "user";
+    core::CPatternSet valueFilter;
+    valueFilter.initFromPatternList({"admin"});
+    rule2.includeScope(fieldName, valueFilter);
+
+    // Verify that different scopes result in different checksums
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_NE(checksum1, checksum2);
+
+    // Add the same scope to rule1
+    rule1.includeScope(fieldName, valueFilter);
+
+    // Verify that identical scopes result in the same checksum
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_EQUAL(checksum1, checksum2);
+
+    // Test Time Shift
+    // Modify the time shift in rule2
+    rule2.addTimeShift(3600);
+
+    // Verify that different time shifts result in different checksums
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_NE(checksum1, checksum2);
+
+    // Add the same time shift to rule1
+    rule1.addTimeShift(3600);
+
+    // Verify that identical time shifts result in the same checksum
+    checksum1 = rule1.checksum();
+    checksum2 = rule2.checksum();
+    BOOST_REQUIRE_EQUAL(checksum1, checksum2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

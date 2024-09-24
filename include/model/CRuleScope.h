@@ -11,12 +11,12 @@
 #ifndef INCLUDED_ml_model_CRuleScope_h
 #define INCLUDED_ml_model_CRuleScope_h
 
-#include <cstdint>
 #include <model/ImportExport.h>
 
 #include <core/CPatternSet.h>
 #include <core/CTriple.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

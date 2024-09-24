@@ -10,7 +10,6 @@
  */
 #include <model/CDetectionRule.h>
 
-#include <core/CHashing.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
@@ -41,6 +40,10 @@ void CDetectionRule::excludeScope(const std::string& field, const core::CPattern
 
 void CDetectionRule::addCondition(const CRuleCondition& condition) {
     m_Conditions.push_back(condition);
+}
+
+void CDetectionRule::clearConditions() {
+    m_Conditions.clear();
 }
 
 void CDetectionRule::setCallback(TCallback cb) {
@@ -79,12 +82,15 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
                 return;
             }
         }
-        // Time shift rules should be applied only once
-        if ((m_Action & E_TimeShift) && model.checkRuleApplied(*this)) {
+        if (model.checkRuleApplied(*this)) {
             return;
         }
         m_Callback(model, time);
-        model.markRuleApplied(*this);
+
+        // Time shift rules should be applied only once
+        if (m_Action & E_TimeShift) {
+            model.markRuleApplied(*this);
+        }
     }
 }
 

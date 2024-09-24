@@ -65,6 +65,9 @@ public:
     //! Add a condition.
     void addCondition(const CRuleCondition& condition);
 
+    //! Clear conditions.
+    void clearConditions();
+
     //! Set callback function to apply some action to a supplied time series model.
     void setCallback(TCallback cb);
 
