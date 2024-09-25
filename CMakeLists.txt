@@ -69,6 +69,26 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  if(NOT LINK_TCMALLOC)
+    set(LINK_TCMALLOC FALSE)
+  endif()
+  if(NOT LINK_PROFILER)
+    set(LINK_PROFILER FALSE)
+  endif()
+else()
+  if(LINK_TCMALLOC)
+    message(WARNING "Not linking libtcmalloc on ${CMAKE_SYSTEM_NAME}")
+    set(LINK_TCMALLOC FALSE)
+    unset(LINK_TCMALLOC CACHE)
+  endif()
+  if(LINK_PROFILER)
+    message(WARNING "Not linking libprofiler on ${CMAKE_SYSTEM_NAME}")
+    set(LINK_PROFILER FALSE)
+    unset(LINK_PROFILER CACHE)
+  endif()
+endif()
+
 message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
 include_directories(SYSTEM ${ML_SYSTEM_INCLUDE_DIRECTORIES})
@@ -87,3 +107,11 @@ add_subdirectory(devlib)
 # Add a target to build Doxygen generated documentation
 # if the doxygen executable can be found
 ml_doxygen(${CMAKE_SOURCE_DIR}/build/doxygen)
+
+if (LINK_TCMALLOC)
+  unset(LINK_TCMALLOC CACHE)
+endif()
+
+if (LINK_PROFILER)
+  unset(LINK_PROFILER CACHE)
+endif()
