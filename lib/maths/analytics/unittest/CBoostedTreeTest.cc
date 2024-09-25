@@ -447,8 +447,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
 
-    fillDataFrame(5, 0, 2, {{1.0}, {1.0}, {1.0}, {1.0}, {1.0}},
-                  {0.0, 0.0, 0.0, 0.0, 0.0}, [](const TRowRef&) { return 1.0; }, *frame);
+    fillDataFrame(5, 0, 2, {{1.0, 1.0, 1.0, 1.0, 1.0}}, {0.0, 0.0, 0.0, 0.0, 0.0},
+                  [](const TRowRef&) { return 1.0; }, *frame);
 
     BOOST_REQUIRE_NO_THROW(maths::analytics::CBoostedTreeFactory::constructFromParameters(
                                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
