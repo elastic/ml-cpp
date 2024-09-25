@@ -310,10 +310,15 @@ void CTrendComponent::shiftLevel(double shift,
     double magnitude{shifts[last] - shifts[next - 1]};
     if (m_TimeOfLastLevelChange != UNSET_TIME) {
         double dt{static_cast<double>(time - m_TimeOfLastLevelChange)};
-        double value{static_cast<double>(
-            common::CBasicStatistics::mean(values[segments[next] - 1]))};
-        m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL,
-                                                             {{dt}, {value}});
+        if (values.size() > segments[next] - 1) {
+            double value{static_cast<double>(
+                common::CBasicStatistics::mean(values[segments[next] - 1]))};
+            m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL,
+                                                                 {{dt}, {value}});
+        } else {
+            LOG_DEBUG(<< "Size mis-match reading from values. Length = "
+                      << values.size() << ", requested index = " << segments[next] - 1);
+        }
     }
     m_TimeOfLastLevelChange = time;
     for (std::size_t i = segments[last]; i < values.size(); ++i, time += bucketLength) {

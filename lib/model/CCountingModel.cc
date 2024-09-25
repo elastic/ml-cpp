@@ -36,6 +36,7 @@ namespace {
 const std::string WINDOW_BUCKET_COUNT_TAG("a");
 const std::string PERSON_BUCKET_COUNT_TAG("b");
 const std::string MEAN_COUNT_TAG("c");
+const std::string APPLIED_DETECTION_RULE_CHECKSUMS_TAG("d");
 // Extra data tag deprecated at model version 34
 // TODO remove on next version bump
 //const std::string EXTRA_DATA_TAG("d");
@@ -79,6 +80,8 @@ void CCountingModel::acceptPersistInserter(core::CStatePersistInserter& inserter
     core::CPersistUtils::persist(PERSON_BUCKET_COUNT_TAG,
                                  this->personBucketCounts(), inserter);
     core::CPersistUtils::persist(MEAN_COUNT_TAG, m_MeanCounts, inserter);
+    core::CPersistUtils::persist(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
+                                 this->appliedRuleChecksums(), inserter);
 }
 
 bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -100,6 +103,12 @@ bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
         } else if (name == MEAN_COUNT_TAG) {
             if (core::CPersistUtils::restore(name, m_MeanCounts, traverser) == false) {
                 LOG_ERROR(<< "Invalid mean counts");
+                return false;
+            }
+        } else if (name == APPLIED_DETECTION_RULE_CHECKSUMS_TAG) {
+            if (core::CPersistUtils::restore(name, this->appliedRuleChecksums(),
+                                             traverser) == false) {
+                LOG_ERROR(<< "Invalid applied detection rule checksums");
                 return false;
             }
         }

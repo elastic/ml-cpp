@@ -16,6 +16,7 @@
 #include <core/CPatternSet.h>
 #include <core/CTriple.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -57,6 +58,8 @@ public:
 
     //! Pretty-print the scope.
     std::string print() const;
+
+    std::uint64_t checksum() const;
 
 private:
     //! A vector that holds the triple of the field, filter and its type.

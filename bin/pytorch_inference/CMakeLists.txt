@@ -21,6 +21,16 @@ set(ML_LINK_LIBRARIES
   ${C10_LIB}
   )
 
+if (LINK_TCMALLOC)
+  message(AUTHOR_WARNING "Linking libtcmalloc. Build is not for production release.")
+  list(APPEND ML_LINK_LIBRARIES tcmalloc)
+endif ()
+
+if (LINK_PROFILER)
+  message(AUTHOR_WARNING "Linking libprofiler. Build is not for production release.")
+  list(APPEND ML_LINK_LIBRARIES profiler)
+endif ()
+
 ml_add_executable(pytorch_inference
   CBufferedIStreamAdapter.cc
   CCmdLineParser.cc

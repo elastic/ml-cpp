@@ -11,6 +11,7 @@
 
 #include <core/CFlatPrefixTree.h>
 
+#include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CStringUtils.h>
@@ -224,6 +225,25 @@ std::string CFlatPrefixTree::print() const {
         result += ") ";
     }
     result += "]";
+    return result;
+}
+
+std::uint64_t CFlatPrefixTree::SNode::checksum() const {
+    std::uint64_t result{0};
+    result = CHashing::hashCombine(result, static_cast<std::uint64_t>(s_Char));
+    result = CHashing::hashCombine(result, static_cast<std::uint64_t>(s_Type));
+    result = CHashing::hashCombine(result, static_cast<std::uint64_t>(s_Next));
+    return result;
+}
+
+std::uint64_t CFlatPrefixTree::checksum() const {
+    std::uint64_t result{0};
+
+    // Iterate over m_FlatTree
+    for (const auto& node : m_FlatTree) {
+        result = CHashing::hashCombine(result, node.checksum());
+    }
+
     return result;
 }
 }

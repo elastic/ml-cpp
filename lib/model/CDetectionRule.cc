@@ -8,12 +8,16 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+#include <model/CDetectionRule.h>
 
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CChecksum.h>
+
 #include <model/CAnomalyDetectorModel.h>
-#include <model/CDetectionRule.h>
+
+#include <cstdint>
 
 namespace ml {
 namespace model {
@@ -36,6 +40,10 @@ void CDetectionRule::excludeScope(const std::string& field, const core::CPattern
 
 void CDetectionRule::addCondition(const CRuleCondition& condition) {
     m_Conditions.push_back(condition);
+}
+
+void CDetectionRule::clearConditions() {
+    m_Conditions.clear();
 }
 
 void CDetectionRule::setCallback(TCallback cb) {
@@ -74,22 +82,30 @@ void CDetectionRule::executeCallback(CAnomalyDetectorModel& model, core_t::TTime
                 return;
             }
         }
+        if (model.checkRuleApplied(*this)) {
+            return;
+        }
         m_Callback(model, time);
+
+        // Time shift rules should be applied only once
+        if (m_Action & E_TimeShift) {
+            model.markRuleApplied(*this);
+        }
     }
 }
 
 void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
-    using TAnomalyDetectorPtrVec = core::CSmallVector<CAnomalyDetectorModel*, 2>;
-    this->setCallback([
-        timeShift, timeShiftApplied = TAnomalyDetectorPtrVec()
-    ](CAnomalyDetectorModel & model, core_t::TTime time) mutable {
-        if (std::find(timeShiftApplied.begin(), timeShiftApplied.end(), &model) ==
-            timeShiftApplied.end()) {
-            // When the callback is executed, the model is already in the correct time
-            // interval. Hence, we need to shift the time right away.
-            model.shiftTime(time, timeShift);
-            timeShiftApplied.emplace_back(&model);
-        }
+    m_Action |= E_TimeShift;
+    m_TimeShift = timeShift;
+    this->setCallback([timeShift](CAnomalyDetectorModel& model, core_t::TTime time) {
+        // When the callback is executed, the model is already in the correct time
+        // interval. Hence, we need to shift the time right away.
+        // IMPLEMENTATION DECISION: We apply the negative amount of time shift to the
+        // model. This is because the time shift is applied to the model's frame of reference
+        // and not the global time. This allows a more intuitive configuration from the user's
+        // perspective: in spring we move the clock forward, and the time shift is positive, in
+        // autumn we move the clock backward, and the time shift is negative.
+        model.shiftTime(time, -timeShift);
     });
 }
 
@@ -127,6 +143,23 @@ std::string CDetectionRule::printAction() const {
         }
         result += "FORCE_TIME_SHIFT";
     }
+    return result;
+}
+
+std::uint64_t CDetectionRule::checksum() const {
+    std::uint64_t result = maths::common::CChecksum::calculate(0, m_Action);
+    result = maths::common::CChecksum::calculate(result, m_Scope);
+    result = maths::common::CChecksum::calculate(result, m_Conditions);
+
+    // Hash callback parameters if applicable
+    if (m_Action & E_TimeShift) {
+        // Hash m_TimeShift
+        result = maths::common::CChecksum::calculate(result, m_TimeShift);
+    }
+
+    // IMPLEMENTATION NOTE: If there are other parameters associated with the callback,
+    // they should be included in the checksum.
+
     return result;
 }
 }
