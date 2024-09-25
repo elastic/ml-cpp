@@ -10,6 +10,7 @@
  */
 
 #include <core/CContainerPrinter.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CoreTypes.h>
 
 #include <model/CCountingModel.h>
@@ -23,6 +24,7 @@
 #include <test/CRandomNumbers.h>
 
 #include "CModelTestFixtureBase.h"
+#include "core/CJsonStateRestoreTraverser.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -261,6 +263,46 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
         BOOST_REQUIRE_EQUAL(static_cast<double>(i + 1) / 10.0,
                             m_InterimBucketCorrector->completeness());
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(testAppliedRuleChecksumsPersistRestore, CTestFixture) {
+    // Check that applied rule checksums are persisted and restored correctly.
+
+    core_t::TTime time{200};
+    core_t::TTime bucketLength{600};
+
+    SModelParams params(bucketLength);
+    params.s_DecayRate = 0.001;
+
+    this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, time);
+    CCountingModel* model = dynamic_cast<CCountingModel*>(m_Model.get());
+    BOOST_TEST_REQUIRE(model);
+
+    // Create a time shift detection rule and apply it
+    CRuleCondition conditionGte;
+    conditionGte.appliesTo(CRuleCondition::E_Time);
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(100.0);
+
+    CDetectionRule rule;
+    rule.addCondition(conditionGte);
+    rule.addTimeShift(100);
+    rule.executeCallback(*model, time);
+
+    // Persist the model with CCountingModel::acceptPersistInserter
+    std::ostringstream persistStream;
+    core::CJsonStatePersistInserter inserter(persistStream);
+    model->acceptPersistInserter(inserter);
+    std::string persist = persistStream.str();
+
+    // Restore the model with CCountingModel::acceptRestoreTraversal
+    std::istringstream restoreStream(persist);
+    core::CJsonStateRestoreTraverser traverser(restoreStream);
+    auto restoredModel = std::make_shared<CCountingModel>(
+        params, m_Gatherer, m_InterimBucketCorrector, traverser);
+
+    // Check that for the restored model the rule is marked as applied
+    BOOST_REQUIRE(model->checkRuleApplied(rule) == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

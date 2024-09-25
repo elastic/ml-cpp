@@ -16,6 +16,7 @@
 #include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CTimeUtils.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMultivariatePrior.h>
@@ -48,6 +49,7 @@ const std::string EMPTY;
 
 const model_t::CResultType SKIP_SAMPLING_RESULT_TYPE;
 const double SKIP_SAMPLING_WEIGHT{0.005};
+const core_t::TTime APPLIED_DETECTION_RULE_EXPIRATION{31536000}; // 1 year
 
 const CAnomalyDetectorModel::TStr1Vec EMPTY_STRING_LIST;
 
@@ -325,6 +327,7 @@ std::uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/
             hash = maths::common::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
         }
     }
+    seed = maths::common::CChecksum::calculate(seed, m_AppliedRuleChecksums);
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "checksums = " << hashes);
     return maths::common::CChecksum::calculate(seed, hashes);
@@ -336,6 +339,7 @@ void CAnomalyDetectorModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUs
     core::memory_debug::dynamicSize("m_Params", m_Params, mem);
     core::memory_debug::dynamicSize("m_PersonBucketCounts", m_PersonBucketCounts, mem);
     core::memory_debug::dynamicSize("m_InfluenceCalculators", m_InfluenceCalculators, mem);
+    core::memory_debug::dynamicSize("m_AppliedRuleChecksums", m_AppliedRuleChecksums, mem);
 }
 
 std::size_t CAnomalyDetectorModel::memoryUsage() const {
@@ -343,6 +347,7 @@ std::size_t CAnomalyDetectorModel::memoryUsage() const {
     mem += core::memory::dynamicSize(m_DataGatherer);
     mem += core::memory::dynamicSize(m_PersonBucketCounts);
     mem += core::memory::dynamicSize(m_InfluenceCalculators);
+    mem += core::memory::dynamicSize(m_AppliedRuleChecksums);
     return mem;
 }
 
@@ -656,6 +661,36 @@ void CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::prototypePrior(
 
 bool CMemoryCircuitBreaker::areAllocationsAllowed() const {
     return m_ResourceMonitor->areAllocationsAllowed();
+}
+
+CAnomalyDetectorModel::TUint64TTimePrVec& CAnomalyDetectorModel::appliedRuleChecksums() {
+    return m_AppliedRuleChecksums;
+}
+
+const CAnomalyDetectorModel::TUint64TTimePrVec&
+CAnomalyDetectorModel::appliedRuleChecksums() const {
+    return m_AppliedRuleChecksums;
+}
+
+bool CAnomalyDetectorModel::checkRuleApplied(const CDetectionRule& rule) const {
+    auto checksum = rule.checksum();
+    return std::find_if(m_AppliedRuleChecksums.begin(),
+                        m_AppliedRuleChecksums.end(), [checksum](const auto& pair) {
+                            return pair.first == checksum;
+                        }) != m_AppliedRuleChecksums.end();
+}
+
+void CAnomalyDetectorModel::markRuleApplied(const CDetectionRule& rule) {
+    auto currentTime = core::CTimeUtils::now();
+    m_AppliedRuleChecksums.emplace_back(rule.checksum(), currentTime);
+
+    // Remove all rules that are older than the expiration time
+    m_AppliedRuleChecksums.erase(
+        std::remove_if(m_AppliedRuleChecksums.begin(), m_AppliedRuleChecksums.end(),
+                       [currentTime](const auto& pair) {
+                           return currentTime - pair.second > APPLIED_DETECTION_RULE_EXPIRATION;
+                       }),
+        m_AppliedRuleChecksums.end());
 }
 }
 }
