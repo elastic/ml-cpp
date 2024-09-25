@@ -160,7 +160,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
   set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
-  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /Zi" CACHE STRING
+  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /O2 /Zi" CACHE STRING
           "Flags used by the C++ compiler during sanitizer builds."
           FORCE)
   set(CMAKE_EXE_LINKER_FLAGS_SANITIZER "")
@@ -173,7 +173,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
-  set(CMAKE_CXX_FLAGS_SANITIZER "-fsanitize=address -g -fno-omit-frame-pointer" CACHE STRING
+  set(CMAKE_CXX_FLAGS_SANITIZER "-fsanitize=address -g -O3 -fno-omit-frame-pointer" CACHE STRING
           "Flags used by the C++ compiler during sanitizer builds."
           FORCE)
 endif()
@@ -182,7 +182,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
-  set(CMAKE_CXX_FLAGS_SANITIZER "-fsanitize=address -g -fno-omit-frame-pointer" CACHE STRING
+  set(CMAKE_CXX_FLAGS_SANITIZER "-fsanitize=address -g -O3 -fno-omit-frame-pointer" CACHE STRING
           "Flags used by the C++ compiler during sanitizer builds."
           FORCE)
   mark_as_advanced(
