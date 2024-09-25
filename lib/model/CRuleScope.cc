@@ -13,6 +13,8 @@
 
 #include <core/CPatternSet.h>
 
+#include <maths/common/CChecksum.h>
+
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
 
@@ -67,6 +69,16 @@ std::string CRuleScope::print() const {
         if (itr != m_Scope.end()) {
             result += " AND ";
         }
+    }
+    return result;
+}
+
+std::uint64_t CRuleScope::checksum() const {
+    std::uint64_t result{0};
+    for (const auto& triple : m_Scope) {
+        result = maths::common::CChecksum::calculate(result, triple.first);
+        result = maths::common::CChecksum::calculate(result, triple.second.get());
+        result = maths::common::CChecksum::calculate(result, triple.third);
     }
     return result;
 }

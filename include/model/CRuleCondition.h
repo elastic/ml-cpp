@@ -73,6 +73,8 @@ public:
               std::size_t cid,
               core_t::TTime time) const;
 
+    std::uint64_t checksum() const;
+
 private:
     bool testValue(double value) const;
     std::string print(ERuleConditionAppliesTo appliesTo) const;

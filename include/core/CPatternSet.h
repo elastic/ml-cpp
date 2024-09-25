@@ -61,6 +61,8 @@ public:
     //! Clears the set.
     void clear();
 
+    std::uint64_t checksum() const;
+
 private:
     void sortAndPruneDuplicates(TStrVec& keys);
 

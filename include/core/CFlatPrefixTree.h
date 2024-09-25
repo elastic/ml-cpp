@@ -63,6 +63,8 @@ private:
 
         SNode(char c, char type, std::uint32_t next);
 
+        std::uint64_t checksum() const;
+
         bool operator<(char rhs) const;
         char s_Char;
         char s_Type;
@@ -119,6 +121,8 @@ public:
 
     //! Pretty-prints the tree.
     std::string print() const;
+
+    std::uint64_t checksum() const;
 
 private:
     //! The recursive building helper.
