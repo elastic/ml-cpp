@@ -24,17 +24,17 @@ steps:
     build:
       message: "${BUILDKITE_MESSAGE}"
       env:
-        QAF_TESTS_TO_RUN: "ml_cpp_pr"
+        QAF_TESTS_TO_RUN: "${QAF_TESTS_TO_RUN:-ml_cpp_pr}"
 EOL
 
-if [ "${GITHUB_PR_COMMENT_VAR_BRANCH}" != "" ]; then
+if [ "${ES_BRANCH}" != "" ]; then
 cat <<EOL
-        ES_BRANCH: "${GITHUB_PR_COMMENT_VAR_BRANCH}"
+        ES_BRANCH: "${ES_BRANCH}"
 EOL
 fi
 
-if [ "${GITHUB_PR_COMMENT_VAR_VERSION}" != "" ]; then
+if [ "${STACK_VERSION}" != "" ]; then
 cat <<EOL
-        STACK_VERSION: "${GITHUB_PR_COMMENT_VAR_VERSION}"
+        STACK_VERSION: "${STACK_VERSION}"
 EOL
 fi
