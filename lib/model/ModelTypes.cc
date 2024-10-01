@@ -398,14 +398,12 @@ bool isMedianFeature(EFeature feature) {
 
 bool isMinFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) &&
-           (category == E_Min || category == E_MultivariateMin);
+    return metricCategory(feature, category) && (category == E_Min);
 }
 
 bool isMaxFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) &&
-           (category == E_Max || category == E_MultivariateMax);
+    return metricCategory(feature, category) && (category == E_Max);
 }
 
 bool isVarianceFeature(EFeature feature) {
@@ -422,126 +420,6 @@ double varianceScale(EFeature feature, double sampleCount, double count) {
     return isMeanFeature(feature) || isMedianFeature(feature) || isVarianceFeature(feature)
                ? (sampleCount > 0.0 && count > 0.0 ? sampleCount / count : 1.0)
                : 1.0;
-}
-
-bool isSampled(EFeature feature) {
-    switch (feature) {
-    CASE_INDIVIDUAL_COUNT:
-        return false;
-
-    case E_IndividualMeanByPerson:
-    case E_IndividualLowMeanByPerson:
-    case E_IndividualHighMeanByPerson:
-    case E_IndividualMedianByPerson:
-    case E_IndividualLowMedianByPerson:
-    case E_IndividualHighMedianByPerson:
-    case E_IndividualMinByPerson:
-    case E_IndividualMaxByPerson:
-    case E_IndividualVarianceByPerson:
-    case E_IndividualLowVarianceByPerson:
-    case E_IndividualHighVarianceByPerson:
-    case E_IndividualMeanVelocityByPerson:
-    case E_IndividualMinVelocityByPerson:
-    case E_IndividualMaxVelocityByPerson:
-    case E_IndividualMeanLatLongByPerson:
-        return true;
-    case E_IndividualSumByBucketAndPerson:
-    case E_IndividualLowSumByBucketAndPerson:
-    case E_IndividualHighSumByBucketAndPerson:
-    case E_IndividualNonNullSumByBucketAndPerson:
-    case E_IndividualLowNonNullSumByBucketAndPerson:
-    case E_IndividualHighNonNullSumByBucketAndPerson:
-    case E_IndividualSumVelocityByPerson:
-        return false;
-
-    CASE_POPULATION_COUNT:
-        return false;
-
-    case E_PopulationMeanByPersonAndAttribute:
-    case E_PopulationLowMeanByPersonAndAttribute:
-    case E_PopulationHighMeanByPersonAndAttribute:
-    case E_PopulationMedianByPersonAndAttribute:
-    case E_PopulationLowMedianByPersonAndAttribute:
-    case E_PopulationHighMedianByPersonAndAttribute:
-    case E_PopulationMinByPersonAndAttribute:
-    case E_PopulationMaxByPersonAndAttribute:
-    case E_PopulationVarianceByPersonAndAttribute:
-    case E_PopulationLowVarianceByPersonAndAttribute:
-    case E_PopulationHighVarianceByPersonAndAttribute:
-    case E_PopulationMeanVelocityByPersonAndAttribute:
-    case E_PopulationMinVelocityByPersonAndAttribute:
-    case E_PopulationMaxVelocityByPersonAndAttribute:
-    case E_PopulationMeanLatLongByPersonAndAttribute:
-        return true;
-    case E_PopulationSumByBucketPersonAndAttribute:
-    case E_PopulationLowSumByBucketPersonAndAttribute:
-    case E_PopulationHighSumByBucketPersonAndAttribute:
-    case E_PopulationSumVelocityByPersonAndAttribute:
-        return false;
-    }
-    return false;
-}
-
-unsigned minimumSampleCount(EFeature feature) {
-    switch (feature) {
-    CASE_INDIVIDUAL_COUNT:
-        return 1;
-
-    case E_IndividualMeanByPerson:
-    case E_IndividualMinByPerson:
-    case E_IndividualMaxByPerson:
-    case E_IndividualSumByBucketAndPerson:
-    case E_IndividualLowMeanByPerson:
-    case E_IndividualHighMeanByPerson:
-    case E_IndividualLowSumByBucketAndPerson:
-    case E_IndividualHighSumByBucketAndPerson:
-    case E_IndividualNonNullSumByBucketAndPerson:
-    case E_IndividualLowNonNullSumByBucketAndPerson:
-    case E_IndividualHighNonNullSumByBucketAndPerson:
-    case E_IndividualMeanLatLongByPerson:
-    case E_IndividualMaxVelocityByPerson:
-    case E_IndividualMinVelocityByPerson:
-    case E_IndividualMeanVelocityByPerson:
-    case E_IndividualSumVelocityByPerson:
-    case E_IndividualMedianByPerson:
-    case E_IndividualLowMedianByPerson:
-    case E_IndividualHighMedianByPerson:
-        return 1;
-
-    // Population variance needs a minimum population size
-    case E_IndividualVarianceByPerson:
-    case E_IndividualLowVarianceByPerson:
-    case E_IndividualHighVarianceByPerson:
-        return 3;
-
-    CASE_POPULATION_COUNT:
-        return 1;
-
-    case E_PopulationMeanByPersonAndAttribute:
-    case E_PopulationMedianByPersonAndAttribute:
-    case E_PopulationLowMedianByPersonAndAttribute:
-    case E_PopulationHighMedianByPersonAndAttribute:
-    case E_PopulationMinByPersonAndAttribute:
-    case E_PopulationMaxByPersonAndAttribute:
-    case E_PopulationSumByBucketPersonAndAttribute:
-    case E_PopulationLowMeanByPersonAndAttribute:
-    case E_PopulationHighMeanByPersonAndAttribute:
-    case E_PopulationLowSumByBucketPersonAndAttribute:
-    case E_PopulationHighSumByBucketPersonAndAttribute:
-    case E_PopulationMeanLatLongByPersonAndAttribute:
-    case E_PopulationMaxVelocityByPersonAndAttribute:
-    case E_PopulationMinVelocityByPersonAndAttribute:
-    case E_PopulationMeanVelocityByPersonAndAttribute:
-    case E_PopulationSumVelocityByPersonAndAttribute:
-        return 1;
-
-    // Population variance needs a minimum population size
-    case E_PopulationVarianceByPersonAndAttribute:
-    case E_PopulationLowVarianceByPersonAndAttribute:
-    case E_PopulationHighVarianceByPersonAndAttribute:
-        return 3;
-    }
-    return 1;
 }
 
 double offsetCountToZero(EFeature feature, double count) {
@@ -1656,10 +1534,6 @@ std::string print(EMetricCategory category) {
         return "'sum'";
     case E_MultivariateMean:
         return "'multivariate mean'";
-    case E_MultivariateMin:
-        return "'multivariate minimum'";
-    case E_MultivariateMax:
-        return "'multivariate maximum'";
     case E_Median:
         return "'median'";
     case E_Variance:
