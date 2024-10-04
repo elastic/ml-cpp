@@ -129,10 +129,7 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
 
                 maths::common::SModelRestoreParams params{
                     modelParams,
-                    maths::common::STimeSeriesDecompositionRestoreParams{
-                        m_ModelParams.s_DecayRate, m_ModelParams.s_BucketLength,
-                        m_ModelParams.s_ComponentSize,
-                        m_ModelParams.distributionRestoreParams(dataType)},
+                    m_ModelParams.decompositionRestoreParams(dataType),
                     m_ModelParams.distributionRestoreParams(dataType)};
 
                 auto serialiserOperator =
