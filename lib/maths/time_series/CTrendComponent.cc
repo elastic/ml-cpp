@@ -601,9 +601,10 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double variance{a * common::CBasicStatistics::mean(variance_) +
                         b * common::CBasicStatistics::variance(m_ValueMoments)};
 
-        TVector2x1 trend{confidenceInterval(
-            this->value(modelWeights, models, scaleTime(time, m_RegressionOrigin)),
-            variance, confidence)};
+        auto prediction = a*this->value(modelWeights, models, scaleTime(time, m_RegressionOrigin))
+                                + b*common::CBasicStatistics::mean(m_ValueMoments);
+        TVector2x1 trend{confidenceInterval(prediction, variance, confidence)
+            };
         TDouble3Vec seasonal_(seasonal(time));
         TDouble3Vec level_(level.forecast(time, seasonal_[1] + trend.mean(), confidence));
 
