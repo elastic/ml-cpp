@@ -128,8 +128,7 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
                     m_ModelParams.s_MaximumTimeToTestForChange};
 
                 maths::common::SModelRestoreParams params{
-                    modelParams,
-                    m_ModelParams.decompositionRestoreParams(dataType),
+                    modelParams, m_ModelParams.decompositionRestoreParams(dataType),
                     m_ModelParams.distributionRestoreParams(dataType)};
 
                 auto serialiserOperator =
