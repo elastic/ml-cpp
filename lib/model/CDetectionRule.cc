@@ -100,12 +100,7 @@ void CDetectionRule::addTimeShift(core_t::TTime timeShift) {
     this->setCallback([timeShift](CAnomalyDetectorModel& model, core_t::TTime time) {
         // When the callback is executed, the model is already in the correct time
         // interval. Hence, we need to shift the time right away.
-        // IMPLEMENTATION DECISION: We apply the negative amount of time shift to the
-        // model. This is because the time shift is applied to the model's frame of reference
-        // and not the global time. This allows a more intuitive configuration from the user's
-        // perspective: in spring we move the clock forward, and the time shift is positive, in
-        // autumn we move the clock backward, and the time shift is negative.
-        model.shiftTime(time, -timeShift);
+        model.shiftTime(time, timeShift);
     });
 }
 
