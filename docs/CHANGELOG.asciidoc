@@ -39,6 +39,12 @@
 
 * Allow for pytorch_inference results to include zero-dimensional tensors.
 
+== {es} version 8.15.4
+
+=== Bug Fixes
+
+* Fix parameter initialization for large forecasting models. (See {ml-pull}2759[#2759].)
+
 == {es} version 8.15.2
 
 === Enhancements
