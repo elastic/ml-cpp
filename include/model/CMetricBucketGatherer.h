@@ -209,7 +209,7 @@ public:
     bool resetBucket(core_t::TTime bucketStart) override;
 
     //! Release memory that is no longer needed
-    void releaseMemory(core_t::TTime samplingCutoffTime) override;
+    void releaseMemory() override;
 
     //! \name Features
     //@{
@@ -218,15 +218,10 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    void featureData(core_t::TTime time,
-                     core_t::TTime bucketLength,
-                     TFeatureAnyPrVec& result) const override;
+    void featureData(core_t::TTime time, TFeatureAnyPrVec& result) const override;
     //@}
 
 private:
-    //! Create samples if possible for the bucket pointed out by \p time.
-    void sample(core_t::TTime time) override;
-
     //! Resize the necessary data structures so they can accommodate
     //! the person and attribute identified by \p pid and \p cid,
     //! respectively.

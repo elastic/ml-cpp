@@ -97,7 +97,7 @@ CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitialization
                              this->modelParams(), m_SummaryCountFieldName,
                              initData.s_PartitionFieldValue, m_PersonFieldName,
                              m_AttributeFieldName, m_ValueFieldName, m_InfluenceFieldNames,
-                             this->searchKey(), m_Features, initData.s_StartTime, 0);
+                             this->searchKey(), m_Features, initData.s_StartTime);
 }
 
 CDataGatherer*

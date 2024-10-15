@@ -95,9 +95,8 @@ CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationDat
     return new CDataGatherer(model_t::E_PopulationMetric, m_SummaryMode,
                              this->modelParams(), m_SummaryCountFieldName,
                              initData.s_PartitionFieldValue, m_PersonFieldName,
-                             m_AttributeFieldName, m_ValueFieldName,
-                             m_InfluenceFieldNames, this->searchKey(), m_Features,
-                             initData.s_StartTime, initData.s_SampleOverrideCount);
+                             m_AttributeFieldName, m_ValueFieldName, m_InfluenceFieldNames,
+                             this->searchKey(), m_Features, initData.s_StartTime);
 }
 
 CDataGatherer*
