@@ -18,6 +18,7 @@
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CForecastModelPersist.h>
 
 #include <test/BoostTestPointerOutput.h>
@@ -39,8 +40,9 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
     params.s_DecayRate = 0.001;
     params.s_LearnRate = 1.0;
     params.s_MinimumTimeToDetectChange = 6 * core::constants::HOUR;
-    params.s_MaximumTimeToTestForChange = core::constants::DAY;
-    maths::time_series::CTimeSeriesDecomposition trend(params.s_DecayRate, bucketLength);
+    double trendDecayRate{CAnomalyDetectorModelConfig::trendDecayRate(
+        params.s_DecayRate, bucketLength)};
+    maths::time_series::CTimeSeriesDecomposition trend(trendDecayRate, bucketLength);
 
     maths::common::CNormalMeanPrecConjugate prior{
         maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
