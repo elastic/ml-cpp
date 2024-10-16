@@ -141,7 +141,7 @@ protected:
 
 //! \brief A weighted mean of a sliding window of time series values.
 template<typename T>
-class CTimeSeriesMultibucketMean final : public CTimeSeriesMultibucketFeature<T> {
+class CTimeSeriesMultibucketMean : public CTimeSeriesMultibucketFeature<T> {
 public:
     using TT1Vec = typename CTimeSeriesMultibucketFeature<T>::TT1Vec;
     using TWeightsAry1Vec = typename CTimeSeriesMultibucketFeature<T>::TWeightsAry1Vec;
