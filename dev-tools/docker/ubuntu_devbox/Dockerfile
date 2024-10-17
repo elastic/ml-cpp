@@ -13,7 +13,7 @@ FROM ubuntu:22.04 AS builder
 
 # This is basically automating the setup instructions in build-setup/linux.md
 
-MAINTAINER David Roberts <dave.roberts@elastic.co>
+MAINTAINER Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>
 
 # Make sure OS packages are up to date and required packages are installed
 # libffi is required for building Python
