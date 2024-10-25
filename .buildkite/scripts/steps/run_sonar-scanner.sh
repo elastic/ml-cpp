@@ -17,10 +17,13 @@ export CWD="$(pwd)"
 # Install the sonar-scanner
 echo "Installing sonar-scanner"
 cd /usr/local
-curl -O https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
-unzip -q sonar-scanner-cli-6.1.0.4477-linux-x64.zip
-mv sonar-scanner-6.1.0.4477-linux-x64/ sonar-scanner
+curl -O https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+unzip -q sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+mv sonar-scanner-6.2.1.4610-linux-x64/ sonar-scanner
 export PATH=$(pwd)/sonar-scanner/bin:$PATH
+
+# Set the Java heap size to 512MB
+export SONAR_SCANNER_JAVA_OPTS="-Xmx512m"
 
 # Generate the compile_commands.json file
 echo "Generating compile_commands.json"
