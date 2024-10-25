@@ -15,7 +15,7 @@ steps:
     # depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     soft_fail: true
     agents:
-      cpu: 6
+      cpu: 4
       ephemeralStorage: "20G"
       memory: "64GB"
       image: "docker.elastic.co/ml-dev/ml-linux-build:30"
