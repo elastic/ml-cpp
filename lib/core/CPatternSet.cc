@@ -12,6 +12,7 @@
 #include <core/CPatternSet.h>
 
 #include <core/CBoostJsonParser.h>
+#include <core/CHashing.h>
 #include <core/CLogger.h>
 
 #include <algorithm>
@@ -152,6 +153,17 @@ void CPatternSet::clear() {
     m_PrefixPatterns.clear();
     m_SuffixPatterns.clear();
     m_ContainsPatterns.clear();
+}
+
+std::uint64_t CPatternSet::checksum() const {
+    std::uint64_t result{0};
+
+    result = CHashing::hashCombine(result, m_FullMatchPatterns.checksum());
+    result = CHashing::hashCombine(result, m_PrefixPatterns.checksum());
+    result = CHashing::hashCombine(result, m_SuffixPatterns.checksum());
+    result = CHashing::hashCombine(result, m_ContainsPatterns.checksum());
+
+    return result;
 }
 }
 }

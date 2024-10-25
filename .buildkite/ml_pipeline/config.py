@@ -40,6 +40,19 @@ class Config:
             if self.run_pytorch_tests or self.run_qa_tests:
                 self.action = "build"
 
+        # If the ACTION is set to "run_qa_tests" then set some optional variables governing the ES branch to build, the
+        # stack version to set and the subset of QA tests to run, depending on whether appropriate variables are set in
+        # the environment.
+        if self.run_qa_tests:
+            if "GITHUB_PR_COMMENT_VAR_BRANCH" in os.environ:
+                os.environ["ES_BRANCH"] = os.environ["GITHUB_PR_COMMENT_VAR_BRANCH"]
+
+            if "GITHUB_PR_COMMENT_VAR_VERSION" in os.environ:
+                os.environ["STACK_VERSION"] = os.environ["GITHUB_PR_COMMENT_VAR_VERSION"]
+
+            if "GITHUB_PR_COMMENT_VAR_ARGS" in os.environ:
+                os.environ["QAF_TESTS_TO_RUN"] = os.environ["GITHUB_PR_COMMENT_VAR_ARGS"]
+
         # If the GITHUB_PR_COMMENT_VAR_ARCH environment variable is set then   attemot to parse it
         # into comma separated values. If the values are one or both of "aarch64" or "x86_64" then set the member
         # variables self.build_aarch64, self.build_x86_64 accordingly. These values will be used to restrict the build

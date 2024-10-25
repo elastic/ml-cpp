@@ -12,6 +12,8 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
+#include <maths/common/CChecksum.h>
+
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CRuleCondition.h>
 
@@ -163,6 +165,13 @@ std::string CRuleCondition::print(ERuleConditionOperator op) const {
         return ">=";
     }
     return std::string();
+}
+
+std::uint64_t CRuleCondition::checksum() const {
+    std::uint64_t result{maths::common::CChecksum::calculate(0, m_AppliesTo)};
+    result = maths::common::CChecksum::calculate(result, m_Operator);
+    result = maths::common::CChecksum::calculate(result, m_Value);
+    return result;
 }
 }
 }

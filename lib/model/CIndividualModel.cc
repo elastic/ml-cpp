@@ -67,6 +67,7 @@ const std::string FEATURE_CORRELATE_MODELS_TAG("f");
 //const std::string INTERIM_BUCKET_CORRECTOR_TAG("h");
 const std::string MEMORY_ESTIMATOR_TAG("i");
 const std::string UPGRADING_PRE_7_5_STATE("j");
+const std::string APPLIED_DETECTION_RULE_CHECKSUMS_TAG("k");
 }
 
 CIndividualModel::CIndividualModel(const SModelParams& params,
@@ -357,6 +358,8 @@ void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
     inserter.insertValue(UPGRADING_PRE_7_5_STATE, false);
+    core::CPersistUtils::persist(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
+                                 this->appliedRuleChecksums(), inserter);
 }
 
 bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -387,6 +390,8 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
         RESTORE_BUILT_IN(UPGRADING_PRE_7_5_STATE, upgradingPre7p5State)
+        RESTORE(APPLIED_DETECTION_RULE_CHECKSUMS_TAG,
+                core::CPersistUtils::restore(name, this->appliedRuleChecksums(), traverser));
     } while (traverser.next());
 
     if (traverser.haveBadState()) {

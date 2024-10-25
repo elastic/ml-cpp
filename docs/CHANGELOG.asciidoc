@@ -35,11 +35,27 @@
 * Allow the user to force a detector to shift time series state by a specific amount.
   (See {ml-pull}2695[#2695].)
 
-== {es} version 8.15.1
+=== Bug Fixes
+
+* Allow for pytorch_inference results to include zero-dimensional tensors.
+
+== {es} version 8.15.4
+
+=== Bug Fixes
+
+* Fix parameter initialization for large forecasting models. (See {ml-pull}2759[#2759].)
+
+== {es} version 8.15.2
 
 === Enhancements
 
 * Update the Pytorch library to version 2.3.1. (See {ml-pull}2688[#2688].)
+
+=== Bug Fixes
+
+* Allow for pytorch_inference results to include zero-dimensional tensors.
+
+== {es} version 8.15.1
 
 == {es} version 8.15.0
 
