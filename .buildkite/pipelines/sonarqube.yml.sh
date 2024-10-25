@@ -16,6 +16,7 @@ steps:
     soft_fail: true
     agents:
       cpu: 6
+      ephemeralStorage: "20G"
       memory: "64GB"
       image: "docker.elastic.co/ml-dev/ml-linux-build:30"
     env:
