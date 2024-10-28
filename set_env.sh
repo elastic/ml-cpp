@@ -95,7 +95,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/local/cmake/bin:/usr/sbin:/sbin:/usr/local/bin
+        PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/local/gcc133/sbin:/usr/local/cmake/bin:/usr/sbin:/sbin:/usr/local/bin
         ;;
 
     macos)
@@ -120,7 +120,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
+        export LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
         ;;
 
     windows)
