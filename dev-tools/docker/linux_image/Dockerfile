@@ -203,4 +203,4 @@ FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
 RUN \
   dnf -y update && \
-  dnf install -y bzip2 gcc git make unzip which zip zlib-devel 
+  dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils

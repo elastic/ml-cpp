@@ -16,6 +16,7 @@
 
 #include <maths/time_series/ImportExport.h>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
