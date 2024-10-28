@@ -16,8 +16,8 @@ steps:
     soft_fail: true
     agents:
       cpu: 4
-      ephemeralStorage: "60GB"
-      memory: "128GB"
+      ephemeralStorage: "20G"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:30"
     env:
       PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
