@@ -120,7 +120,7 @@ RUN \
   rm -rf patchelf-0.18.0
 
 # Build OpenSSL 1.1.1
-# This is only needed as a dependency for Python 3.10 during the PyTorch build
+# This is only needed as a dependency for Python 3.12 during the PyTorch build
 # Not using --prefix=/usr/local/gcc133 so that this can be excluded from the final image
 RUN \
   cd ${build_dir} && \
@@ -167,7 +167,7 @@ enabled=1\n\
 gpgcheck=1\n\
 repo_gpgcheck=1\n\
 gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB\n' > /etc/yum.repos.d/oneAPI.repo && \
-  yum install -y intel-oneapi-mkl-devel-2024.0 && \
+  dnf install -y intel-oneapi-mkl-devel-2024.0 && \
   (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc133 && tar xvf -)
 
 # Clone PyTorch and build LibTorch
@@ -201,5 +201,6 @@ RUN \
 
 FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
-    dnf -y update && \
-    dnf install -y bzip2 gcc git make unzip which zip zlib-devel 
+RUN \
+  dnf -y update && \
+  dnf install -y bzip2 gcc git make unzip which zip zlib-devel 
