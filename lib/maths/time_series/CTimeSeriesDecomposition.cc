@@ -11,18 +11,18 @@
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
+#include <maths/common/CRestoreParams.h>
+
 #include <core/CLogger.h>
 #include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
-
-#include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
-#include <maths/common/CMathsFuncs.h>
-#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>
 
