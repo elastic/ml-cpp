@@ -11,7 +11,6 @@
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
-
 #include <core/CLogger.h>
 #include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>

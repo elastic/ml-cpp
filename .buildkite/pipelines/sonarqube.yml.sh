@@ -12,7 +12,6 @@ cat <<EOL
 steps:
   - label: "Run SonarQube scanner :sonarqube:"
     key: "export_compile_commands"
-    # depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     soft_fail: true
     agents:
       cpu: 6
@@ -24,8 +23,6 @@ steps:
       VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
     command: 
       - ".buildkite/scripts/steps/run_sonar-scanner.sh"
-    # artifact_paths:
-    #   - "cmake-build-docker/compile_commands.json"
     notify:
       - github_commit_status:
           context: "Run SonarQube scanner"
