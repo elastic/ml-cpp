@@ -13,14 +13,14 @@ issues we may have with the latest PyTorch release as early as possible.
 To avoid swamping the Docker registry with numerous images we re-use the
 same tag - pytorch_viable_strict - for the image.
 
-### Depends on: ml-linux-dependency-builder:2
+### Depends on: ml-linux-dependency-builder:3
 
 ### Build script: dev-tools/docker/build_pytorch_linux_build_image.sh
 
 
 ## Repository: ml-linux-dependency-builder
 
-### Latest version: 2
+### Latest version: 3
 
 ### Comments
 A Docker image that can be used to compile the dependencies of
