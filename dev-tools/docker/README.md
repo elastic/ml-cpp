@@ -82,7 +82,7 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-native-build
 
-### Latest version: 12
+### Latest version: 14
 
 ### Comments
 A Docker image that can be used to compile the machine learning

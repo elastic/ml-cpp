@@ -132,10 +132,10 @@ RUN \
 # v3.30.5 minimum is required
 RUN \
   cd ${build_dir} && \
-  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh && \
-  chmod +x cmake-3.30.5-linux-x86_64.sh && \
-  ./cmake-3.30.5-linux-x86_64.sh --skip-license --prefix=/usr/local/gcc133 && \
-  rm -f cmake-3.30.5-linux-x86_64.sh
+  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-aarch64.sh && \
+  chmod +x cmake-3.30.5-linux-aarch64.sh && \
+  ./cmake-3.30.5-linux-aarch64.sh --skip-license --prefix=/usr/local/gcc133 && \
+  rm -f cmake-3.30.5-linux-aarch64.sh
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
