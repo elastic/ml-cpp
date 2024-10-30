@@ -19,7 +19,9 @@ LABEL maintainer="Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>"
 RUN dnf -y update && \
     dnf install -y dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
-    dnf install -y bzip2 gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel findutils
+    dnf install -y bzip2 gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel findutils bison flex file pkg-config autoconf automake libtool gettext && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
 
 # Add build dependencies transferred from native aarch64 build server
 RUN \
@@ -36,9 +38,18 @@ ENV CXXFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse
 ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now"
 ENV LDFLAGS_FOR_TARGET="-Wl,-z,relro -Wl,-z,now"
 
+# Build binutils (bootstrap version)
+RUN \
+  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.27.tar.bz2 | tar jxf - && \
+  cd binutils-2.27 && \
+  ./configure --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --with-system-zlib --disable-multilib --disable-libstdcxx && \
+  make -j`nproc` && \
+  make install && \
+  cd .. && \
+  rm -rf binutils-2.27
 
 # Update the path so that the bootstrap cross tools are visible
-ENV PATH /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+ENV PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 
 # Build gcc 13.3 cross compiler
 RUN \
@@ -76,7 +87,6 @@ RUN \
   rm -rf patchelf-0.18.0
 
 # Install CMake
-# v3.30.5 minimum is required
 RUN \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh && \
   chmod +x cmake-3.30.5-linux-x86_64.sh && \
