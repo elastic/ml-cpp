@@ -21,7 +21,9 @@ RUN dnf -y update && \
     dnf install -y dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
     dnf groupinstall "Development Tools" -y && \
-    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel 
+    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /tmp/*
 
 # For compiling with hardening and optimisation
 ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -45,7 +47,7 @@ RUN \
   make -j$(nproc) && \
   make install && \
   cd .. && \
-  rm -rf gcc-13.3.0 gcc-13.3.0-build
+  rm -rf gcc-13.3.0 gcc-13.3.0-build /tmp/*
 
 # Update paths to use the newly built compiler in C++17 mode
 ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
@@ -61,7 +63,7 @@ RUN \
   make -j$(nproc) && \
   make install && \
   cd .. && \
-  rm -rf binutils-2.41
+  rm -rf binutils-2.41 /tmp/*
 
 # Build libxml2
 RUN \
@@ -72,7 +74,7 @@ RUN \
   make -j$(nproc) && \
   make install && \
   cd .. && \
-  rm -rf libxml2-2.10.4
+  rm -rf libxml2-2.10.4 /tmp/*
 
 # Build Boost
 RUN \
@@ -84,7 +86,7 @@ RUN \
   ./b2 -j$(nproc) --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
   ./b2 install --prefix=/usr/local/gcc133 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
   cd .. && \
-  rm -rf boost_1_83_0
+  rm -rf boost_1_83_0 /tmp/*
 
 # Build patchelf
 RUN \
@@ -95,7 +97,7 @@ RUN \
   make -j$(nproc) && \
   make install && \
   cd .. && \
-  rm -rf patchelf-0.18.0
+  rm -rf patchelf-0.18.0 /tmp/*
 
 # Build OpenSSL 1.1.1
 # This is only needed as a dependency for Python 3.12 during the PyTorch build
@@ -108,7 +110,7 @@ RUN \
   make -j$(nproc) && \
   make install && \
   cd .. && \
-  rm -rf openssl-1.1.1u
+  rm -rf openssl-1.1.1u /usr/local/share/man /tmp/*
 
 # Build Python 3.12
 # --enable-optimizations for a stable/release build
@@ -122,11 +124,12 @@ RUN \
   make -j$(nproc) && \
   make altinstall && \
   cd .. && \
-  rm -rf Python-3.12.7
+  rm -rf Python-3.12.7 /usr/local/share/man /tmp/*
 
 # Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.12 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+  /usr/local/bin/pip3.12 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses && \
+  rm -rf /root/.cache/pip /tmp/*
 
 # Install CMake
 # v3.30.5 minimum is required
@@ -135,7 +138,7 @@ RUN \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-aarch64.sh && \
   chmod +x cmake-3.30.5-linux-aarch64.sh && \
   ./cmake-3.30.5-linux-aarch64.sh --skip-license --prefix=/usr/local/gcc133 && \
-  rm -f cmake-3.30.5-linux-aarch64.sh
+  rm -f cmake-3.30.5-linux-aarch64.sh /tmp/*
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
@@ -162,10 +165,12 @@ RUN \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
   cp torch/lib/libc10.so /usr/local/gcc133/lib && \
   cd .. && \
-  rm -rf pytorch
+  rm -rf pytorch /tmp/*
 
 FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
 RUN \
   dnf -y update && \
-  dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils
+  dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \
+  dnf clean all && \
+  rm -rf /var/cache/dnf /tmp/*
