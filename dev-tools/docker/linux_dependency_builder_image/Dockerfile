@@ -21,7 +21,9 @@ LABEL maintainer="Ed Savage <ed.savage@elastic.co>"
 RUN dnf -y update && \
     dnf install -y dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
-    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
+    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /tmp/*
 
 # For compiling with hardening and optimisation
 ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
@@ -47,7 +49,7 @@ RUN \
   make -j$(nproc) && \
   make install && \
   cd .. && \
-  rm -rf openssl-1.1.1u
+  rm -rf openssl-1.1.1u /usr/local/share/man /tmp/*
 
 # Build Python 3.12
 # --enable-optimizations for a stable/release build
@@ -61,11 +63,12 @@ RUN \
   make -j$(nproc) && \
   make altinstall && \
   cd .. && \
-  rm -rf Python-3.12.7
+  rm -rf Python-3.12.7 /usr/local/share/man /tmp/*
 
 # Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.12 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+  /usr/local/bin/pip3.12 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses && \
+  rm -rf /root/.cache/pip /tmp/*
 
 # Install Intel MKL
 RUN \
@@ -77,4 +80,6 @@ gpgcheck=1\n\
 repo_gpgcheck=1\n\
 gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB\n' > /etc/yum.repos.d/oneAPI.repo && \
   dnf install -y intel-oneapi-mkl-devel-2024.0 && \
-  (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc133 && tar xvf -)
+  (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc133 && tar xvf -) && \
+  dnf clean all && \
+  rm -rf /var/cache/dnf /tmp/* /opt/intel/oneapi/mkl/2024.0/doc
