@@ -30,10 +30,10 @@ RUN dnf -y update && \
 # ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-12/root/usr/lib64:$LD_LIBRARY_PATH
 
 # For compiling with hardening and optimisation
-ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
-ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
-ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
-ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
+ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
+ENV CXXFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
+ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now"
+ENV LDFLAGS_FOR_TARGET="-Wl,-z,relro -Wl,-z,now"
 
 ARG build_dir=/usr/src
 
