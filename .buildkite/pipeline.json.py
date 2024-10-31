@@ -37,6 +37,8 @@ def main():
                                                        ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Scan and upload SonarQube report", 
+                                                        ".buildkite/pipelines/sonarqube.yml.sh"))
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
