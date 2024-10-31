@@ -45,7 +45,7 @@ def main(args):
               "provider": "gcp",
               "machineType": "c2-standard-16",
               "minCpuPlatform": "Intel Cascade Lake",
-              "image": "family/ml-cpp-1-windows-2016",
+              "image": "family/ml-cpp-1-windows-2022",
             },
             "commands": [
               f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
