@@ -8,15 +8,15 @@ This setup relies on pre-built 3rd party components previously built by the "fro
 
 64 bit Windows is required.
 
-It is possible to build on Windows Server 2012r2, Windows Server 2016 and Windows 10.  Other versions may encounter problems.
+It is possible to build on Windows Server 2012r2, Windows Server 2016, 2019, 2022 and Windows 10.  Other versions may encounter problems.
 
 ### Base requirements
 
-Follow the instructions (**only!**) for Windows 8 SDK, CMake and Git for Windows from [windows.md](windows.md).
+Follow the instructions (**only!**) for Windows 8 & 10 SDKs, CMake and Git for Windows from [windows.md](windows.md).
 
 ### Microsoft C++ build tools
 
-Download "Build Tools for Visual Studio 2019" from <https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019> and run it.
+Download "Build Tools for Visual Studio 2019" from <https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022> and run it.
 
 ### Clone ml-cpp
 
@@ -24,10 +24,10 @@ The github repository contains a script to download the remaining dependencies, 
 
 ### Environment
 
-Create a `.bashrc` similar to that recommended in [windows.md](windows.md), but with a couple of extra environment variables.  The build system lets you define `VCBASE` and `WINSDKBASE` to point it to the right compiler and SDK. In addition you have to put the directories into PATH as well. This is how it could look:
+Create a `.bashrc` similar to that recommended in [windows.md](windows.md), but with a couple of extra environment variables.  The build system lets you define `VCBASE` and `WINSDKBASE` to point it to the right compiler and SDK. In addition you have to put the directories into PATH as well. This is how it could look (paths may be different depending on other packages installed):
 
 ```
-export VCBASE=PROGRA~2/MICROS~2/2019/BUILDT~1
+export VCBASE=PROGRA~2/MICROS~3/2022/BUILDT~1
 export WINSDKBASE=PROGRA~2/WI3CF2~1
 
 export CPP_SRC_HOME=$HOME/ml-cpp
