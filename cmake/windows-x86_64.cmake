@@ -22,7 +22,15 @@ include ("${CMAKE_CURRENT_LIST_DIR}/os/windows.cmake")
 # set the architecture bits
 include ("${CMAKE_CURRENT_LIST_DIR}/architecture/x86_64.cmake")
 
-include ("${CMAKE_CURRENT_LIST_DIR}/compiler/vs2019.cmake")
+if (${CMAKE_HOST_SYSTEM_VERSION} STREQUAL "10.0.17763")
+  # Windows Server 2019 Version 1809
+  include ("${CMAKE_CURRENT_LIST_DIR}/compiler/vs2019.cmake")
+elseif(${CMAKE_HOST_SYSTEM_VERSION} STREQUAL "10.0.20348")
+  # Windows Server 2022 Version 21H2
+  include ("${CMAKE_CURRENT_LIST_DIR}/compiler/vs2022.cmake")
+else()
+  message(STATUS "Unknown CMAKE_HOST_SYSTEM_VERSION = ${CMAKE_HOST_SYSTEM_VERSION}")
+endif()
 
 message(STATUS "windows-x86_64: ML_COMPILE_DEFINITIONS = ${ML_COMPILE_DEFINITIONS}")
 message(STATUS "windows-x86_64: ML_LIBRARY_PREFIX ${ML_LIBRARY_PREFIX}")
