@@ -73,6 +73,12 @@ CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI i
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 
+## Third Party Dependency Libraries
+
+The instructions below relate to building 3rd party dependencies from source. These steps can either be performed
+manually or, if preferred, automatically by running the PowerShell script `build_windows_third_party_deps.ps1` in the
+`dev-tools` directory.
+
 ### zlib
 
 Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2022 C runtime library. Therefore it is necessary to build zlib from source.
@@ -206,7 +212,7 @@ For the time being, do not take advantage of the option on the final installer s
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
 ```
-pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+pip install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
 ```
 
 Next, in a Git bash shell run:
