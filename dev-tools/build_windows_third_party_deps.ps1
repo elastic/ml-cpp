@@ -101,7 +101,7 @@ $PythonArchive="python-3.10.10-amd64.exe"
 $ZipSource="https://www.python.org/ftp/python/3.10.10/$PythonArchive"
 $ZipDestination="\tools\$PythonArchive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
-& c:\tools\$PythonArchive TargetDir="c:\Python310" /quiet
+Start-Process -FilePath  C:\tools\$PythonArchive -ArgumentList "TargetDir=C:\Python310 InstallAllUsers=1 PrependPath=1 Include_pip=1 /quiet /passive" -NoNewWindow -Wait
 $env:PATH = "C:\Python310\Scripts\;C:\Python310\;" + $env:PATH
 Write-Host "--- Done Installing python 3.10.10"
 
