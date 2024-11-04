@@ -134,7 +134,7 @@ set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
 set PYTORCH_BUILD_VERSION=2.3.1
 set PYTORCH_BUILD_NUMBER=1
-python3.10 setup.py install
+python setup.py install
 Write-Host "--- Done Installing PyTorch locally"
 
 
@@ -159,8 +159,9 @@ mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.
 
 # Uninstall python, it was only needed for the PyTorch build
 & c:\tools\$PythonArchive /uninstall /quiet
+rm c:\Python310 -recurse -force
 
 # Remove c:\tools entirely
 cd c:\
-rm c:\tools -recurse -ea 0
+rm c:\tools -recurse -force
 
