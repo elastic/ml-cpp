@@ -24,7 +24,7 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 
 ### OS Packages
 
-You need the C++ compiler and the headers for the `zlib` library that comes with the OS. You also need the archive utilities `unzip`, `bzip2` and `xz`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Installing the group `Debelopment Tools` will ensure you habe all required tools to buils the C++ compiler. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database. On RHEL/Rocky Linux these can be installed using:
+You need the C++ compiler and the headers for the `zlib` library that comes with the OS. You also need the archive utilities `unzip`, `bzip2` and `xz`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Installing the group `Development Tools` will ensure you have all required tools to build the C++ compiler. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database. On RHEL/Rocky Linux these can be installed using:
 
 ```
 sudo dnf -y update && \
@@ -243,7 +243,8 @@ to complete the build.
 
 ### CMake
 
-CMake version 3.30.5 is the minimum required to build ml-cpp. Download version 3.30.5 from <https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh> and install:
+We use CMake version 3.30.5 to build ml-cpp, although it will work with other recent versons of CMake. 
+Download version 3.30.5 from <https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh> and install:
 
 ```
 chmod +x cmake-3.30.5-linux-x86_64.sh

@@ -25,10 +25,6 @@ RUN dnf -y update && \
     dnf clean all && \
     rm -rf /var/cache/dnf /tmp/*
 
-# Enable gcc-toolset-12
-# ENV PATH=/opt/rh/gcc-toolset-12/root/usr/bin:$PATH
-# ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-12/root/usr/lib64:$LD_LIBRARY_PATH
-
 # For compiling with hardening and optimisation
 ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
 ENV CXXFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"

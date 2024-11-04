@@ -14,7 +14,7 @@ FROM docker.elastic.co/ml-dev/ml-linux-build:31 AS builder
 
 # This is basically automating the setup instructions in build-setup/linux.md
 
-LABEL maintainer="Ed Savage <ed.savage@elastic.co>"
+LABEL maintainer="Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>"
 
 # Make sure OS packages are up to date and required packages are installed
 # libffi is required for building Python
