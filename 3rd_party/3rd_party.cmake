@@ -148,7 +148,7 @@ else()
   set(XML_EXTENSION ".dll")
   set(GCC_RT_LOCATION)
   # Read VCBASE from environment if defined, otherwise default to VS Professional 2019
-  message(STATUS "3rd_party: $ENV{VCBASE} $ENV{VCBASE}")
+  message(STATUS "3rd_party: \$ENV{VCBASE} $ENV{VCBASE}")
   set(VCBASE "${LOCAL_DRIVE}/Program Files (x86)/Microsoft Visual Studio/2019/Professional")
   if (DEFINED ENV{VCBASE})
     set(VCBASE $ENV{VCBASE})
