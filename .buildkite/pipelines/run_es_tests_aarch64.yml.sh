@@ -22,7 +22,7 @@ steps:
     agents:
       provider: aws
       instanceType: m6g.2xlarge
-      imagePrefix: ci-amazonlinux-2023-aarch64
+      imagePrefix: ci-almalinux-8-aarch64
       diskSizeGb: 100
       diskName: '/dev/xvda'
     env:
