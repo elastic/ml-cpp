@@ -18,8 +18,10 @@ $ErrorActionPreference="Stop"
 # Change directory to the top level of the repo
 Set-Location -Path "$PSScriptRoot\..\..\.."
 
-# Ensure 3rd party dependencies are installed
-& "dev-tools\download_windows_deps.ps1"
+if ([System.Environment]::OSVersion.Version.Build -lt 20348) {
+  # Ensure 3rd party dependencies are installed (not needed for Windows Server 2022 and later)
+  & "dev-tools\download_windows_deps.ps1"
+}
 
 # Default to a snapshot build
 if (!(Test-Path Env:BUILD_SNAPSHOT)) {
