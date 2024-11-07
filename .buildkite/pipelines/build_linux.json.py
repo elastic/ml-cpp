@@ -41,7 +41,7 @@ agents = {
    "aarch64": {
       "provider": "aws",
       "instanceType": "m6g.2xlarge",
-      "imagePrefix": "ci-almalinux-8-aarch64",
+      "imagePrefix": "elastic-elasticsearch-ci-almalinux-8-aarch64",
       "diskSizeGb": "100",
       "diskName": "/dev/xvda"
    }
