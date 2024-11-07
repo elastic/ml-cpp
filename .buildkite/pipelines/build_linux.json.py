@@ -94,37 +94,37 @@ def main(args):
         # Always cross compile for aarch64 with full debug and assertions
         # enabled for PR builds only. This is to detect any compilation errors
         # as early as possible.
-        # pipeline_steps.append({
-        #     "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
-        #     "timeout_in_minutes": "240",
-        #     "agents": {
-        #       "cpu": "6",
-        #       "ephemeralStorage": "20G",
-        #       "memory": "64G",
-        #       "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:14"
-        #     },
-        #     "commands": [
-        #       ".buildkite/scripts/steps/build_and_test.sh"
-        #     ],
-        #     "depends_on": "check_style",
-        #     "key": "build_linux_aarch64_cross-RelWithDebInfo",
-        #     "env": {
-        #       "CPP_CROSS_COMPILE": "aarch64",
-        #       "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
-        #       "RUN_TESTS": "false",
-        #       "ML_DEBUG": "1"
-        #     },
-        #     "notify": [
-        #       {
-        #         "github_commit_status": {
-        #           "context": "Cross compile for Linux aarch64 RelWithDebInfo",
-        #         },
-        #       },
-        #     ],
-        # })
+        pipeline_steps.append({
+            "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
+            "timeout_in_minutes": "240",
+            "agents": {
+              "cpu": "6",
+              "ephemeralStorage": "20G",
+              "memory": "64G",
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:14"
+            },
+            "commands": [
+              ".buildkite/scripts/steps/build_and_test.sh"
+            ],
+            "depends_on": "check_style",
+            "key": "build_linux_aarch64_cross-RelWithDebInfo",
+            "env": {
+              "CPP_CROSS_COMPILE": "aarch64",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
+              "RUN_TESTS": "false",
+              "ML_DEBUG": "1"
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": "Cross compile for Linux aarch64 RelWithDebInfo",
+                },
+              },
+            ],
+        })
 
     pipeline = {
-        "steps": pipeline_steps,
+        # "steps": pipeline_steps,
     }
     print(json.dumps(pipeline, indent=2))
 
