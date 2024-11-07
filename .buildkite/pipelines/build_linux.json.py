@@ -124,7 +124,7 @@ def main(args):
         })
 
     pipeline = {
-        # "steps": pipeline_steps,
+        "steps": pipeline_steps,
     }
     print(json.dumps(pipeline, indent=2))
 
