@@ -41,6 +41,12 @@ if ! command -v jq 2> /dev/null ; then
     brew install jq
 fi
 
+if ! command -v vault 2> /dev/null ; then
+    echo "install vault"
+    brew tap hashicorp/tap
+    brew install hashicorp/tap/vault
+fi
+
 if ! command -v orka-vm-tools 2> /dev/null ; then
     echo "Install orka-vm-tools"
     brew install orka-vm-tools
