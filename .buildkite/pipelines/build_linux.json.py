@@ -63,7 +63,7 @@ def main(args):
                   f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                   ".buildkite/scripts/steps/build_and_test.sh"
                 ],
-                # "depends_on": "check_style",
+                "depends_on": "check_style",
                 "key": f"build_test_linux-{arch}-{build_type}",
                 "env": {
                   "ML_DEBUG": "0",
