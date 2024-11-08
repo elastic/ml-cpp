@@ -4,8 +4,8 @@ export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 
 MACHINE_TYPE=$(uname -m)
 
-PYTHON3_URL=https://www.python.org/ftp/python/3.10.8/python-3.10.8-macos11.pkg
-PYTHON3_FILE=python-3.10.8-macos11.pkg
+PYTHON3_URL=https://www.python.org/ftp/python/3.10.10/python-3.10.10-macos11.pkg
+PYTHON3_FILE=python-3.10.10-macos11.pkg
 
 GCLOUD_SDK_URL=https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-408.0.1-darwin-x86_64.tar.gz
 GCLOUD_SDK_FILE=google-cloud-cli.tar.gz
@@ -29,13 +29,11 @@ eval "$(brew shellenv)"
 
 if ! java --version 2> /dev/null ; then
   echo 'install jdk 11'
-  brew install openjdk@11
-  sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
-fi
-
-if ! command -v vault 2> /dev/null ; then
-    echo "Install vault"
-    brew install vault
+  # Don't use brew to install java, it brings in many unnecessary libraries that e.g. Boost will link against if
+  # present.
+  curl https://cdn.azul.com/zulu/bin/zulu11.76.21-ca-jdk11.0.25-macosx_aarch64.tar.gz | sudo tar xvzf - -C /Library/Java/JavaVirtualMachines && \
+  sudo mv /Library/Java/JavaVirtualMachines/zulu11.76.21-ca-jdk11.0.25-macosx_aarch64/zulu-11.jdk /Library/Java/JavaVirtualMachines && \
+  sudo rm -rf /Library/Java/JavaVirtualMachines/zulu11.76.21-ca-jdk11.0.25-macosx_aarch64
 fi
 
 if ! command -v jq 2> /dev/null ; then
@@ -71,7 +69,7 @@ sudo cp /tmp/gobld-bootstrap.plist /Users/admin
 
 # Install CMake
 echo "Install CMake"
-curl -v -L https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-macos-universal.tar.gz | tar xvzf - --strip-components 1 -C /Applications
+curl -v -L https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-macos-universal.tar.gz | tar xvzf - --strip-components 1 -C /Applications
 sudo ln -sf /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
 
 # Make sure all changes are written to disk
