@@ -20,9 +20,9 @@ steps:
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
-      provider: gcp
+      provider: aws
       instanceType: m6i.2xlarge
-      imagePrefix: core-almalinux-8
+      imagePrefix: core-amazonlinux-2023
       diskSizeGb: 100
       diskName: '/dev/xvda'
     env:
