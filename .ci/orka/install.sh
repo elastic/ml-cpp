@@ -36,20 +36,28 @@ if ! java --version 2> /dev/null ; then
   sudo rm -rf /Library/Java/JavaVirtualMachines/zulu11.76.21-ca-jdk11.0.25-macosx_aarch64
 fi
 
-if ! command -v jq 2> /dev/null ; then
-    echo "Install jq"
-    brew install jq
-fi
-
 if ! command -v vault 2> /dev/null ; then
     echo "install vault"
     brew tap hashicorp/tap
     brew install hashicorp/tap/vault
 fi
 
+if ! command -v jq 2> /dev/null ; then
+    echo "Install jq"
+    brew install jq
+fi
+
 if ! command -v orka-vm-tools 2> /dev/null ; then
     echo "Install orka-vm-tools"
     brew install orka-vm-tools
+fi
+
+if ! command -v buildkite-agent 2> /dev/null ; then
+  echo "Downloading buildkite-agent..."
+  curl -sL https://raw.githubusercontent.com/elastic/buildkite-agent/main/install.sh -o /tmp/buildkite-install.sh
+  echo "Done downloading buildkite-agent..."
+
+  bash -c "$(cat /tmp/buildkite-install.sh)" > /tmp/insty 2>&1 || true
 fi
 
 echo "Install google cloud sdk in home dir"
