@@ -33,7 +33,7 @@ actions = [
 agents = {
    "aarch64": {
       "provider": "orka",
-      "image": "generic-13-ventura-arm-002.orkasi"
+      "image": "ml-macos-13-arm-003.orkasi"
       #"image": "ml-macos-13-arm-002.orkasi"
    }
 }
