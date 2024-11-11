@@ -26,6 +26,9 @@ if ! command -v brew 2> /dev/null ; then
 fi
 
 eval "$(brew shellenv)"
+echo 'export PATH="$HOMEBREW_PREFIX/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOMEBREW_PREFIX/bin:$PATH"' >> ~/.bash_profile
+export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 if ! java --version 2> /dev/null ; then
   echo 'install jdk 11'
