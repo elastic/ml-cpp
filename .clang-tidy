@@ -13,7 +13,9 @@ Checks: >
   -google-build-using-namespace,
   -google-readability-namespace-comments,
   -google-runtime-references,
+  
   misc-*,
+  -misc-non-private-member-variables-in-classes,
   
   modernize-*,
   -modernize-use-trailing-return-type,
@@ -29,7 +31,6 @@ Checks: >
   -readability-identifier-length,
   
 WarningsAsErrors: false
-AnalyzeTemporaryDtors: false
 FormatStyle:     file
 CheckOptions:
   - key:             bugprone-assert-side-effect.AssertMacros
