@@ -13,14 +13,14 @@ issues we may have with the latest PyTorch release as early as possible.
 To avoid swamping the Docker registry with numerous images we re-use the
 same tag - pytorch_viable_strict - for the image.
 
-### Depends on: ml-linux-dependency-builder:3
+### Depends on: ml-linux-dependency-builder:2
 
 ### Build script: dev-tools/docker/build_pytorch_linux_build_image.sh
 
 
 ## Repository: ml-linux-dependency-builder
 
-### Latest version: 3
+### Latest version: 2
 
 ### Comments
 A Docker image that can be used to compile the dependencies of
@@ -36,7 +36,7 @@ required to build the machine learning C++ code dependencies:
 2. Change the Dockerfile and build a new image to be used for subsequent builds on this branch.
 3. Update the version to be used for builds in docker files that refer to it.
 
-### Depends on: ml-linux-build:31
+### Depends on: ml-linux-build:30
 
 ### Build script: dev-tools/docker/build_linux_dependency_builder_image.sh
 
@@ -44,7 +44,7 @@ required to build the machine learning C++ code dependencies:
 
 ## Repository: ml-linux-build
 
-### Latest version: 31
+### Latest version: 30
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -63,7 +63,7 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-cross-build
 
-### Latest version: 14
+### Latest version: 12
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -82,7 +82,7 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-native-build
 
-### Latest version: 14
+### Latest version: 12
 
 ### Comments
 A Docker image that can be used to compile the machine learning

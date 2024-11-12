@@ -36,12 +36,12 @@ agents = {
       "cpu": "6",
       "ephemeralStorage": "20G",
       "memory": "64G",
-      "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:31")
+      "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:30")
    },
    "aarch64": {
       "provider": "aws",
       "instanceType": "m6g.2xlarge",
-      "imagePrefix": "core-almalinux-8-aarch64",
+      "imagePrefix": "ci-amazonlinux-2-aarch64",
       "diskSizeGb": "100",
       "diskName": "/dev/xvda"
    }
@@ -101,7 +101,7 @@ def main(args):
               "cpu": "6",
               "ephemeralStorage": "20G",
               "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:14"
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:13"
             },
             "commands": [
               ".buildkite/scripts/steps/build_and_test.sh"
