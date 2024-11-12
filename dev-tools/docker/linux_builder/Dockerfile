@@ -10,9 +10,9 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-build:31
+FROM docker.elastic.co/ml-dev/ml-linux-build:30
 
-LABEL maintainer="Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>"
+MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Copy the current Git repository into the container
 COPY . /ml-cpp/
@@ -26,7 +26,7 @@ ARG SNAPSHOT=yes
 # Pass through ML debug option (default blank)
 ARG ML_DEBUG=
 
-ENV CMAKE_FLAGS=-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-x86_64.cmake
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-x86_64.cmake
 
 # Run the build
 RUN \

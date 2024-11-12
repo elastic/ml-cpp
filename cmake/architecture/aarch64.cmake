@@ -10,4 +10,4 @@
 #
 
 message(STATUS "aarch64 detected for target")
-set(ARCHCFLAGS "-march=armv8-a+crc+crypto" "-ffp-contract=on") 
+set(ARCHCFLAGS "-march=armv8-a+crc+crypto")

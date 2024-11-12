@@ -9,29 +9,31 @@
 # limitation.
 #
 
-FROM docker.elastic.co/ml-dev/ml-linux-dependency-builder:3 AS builder
+FROM docker.elastic.co/ml-dev/ml-linux-dependency-builder:2 AS builder
 
-LABEL maintainer="Ed Savage <ed.savage@elastic.co>"
+MAINTAINER Ed Savage <ed.savage@elastic.co>
 
 # Make sure OS packages are up to date and required packages are installed
 # libffi is required for building Python
-RUN dnf -y update && \
-    dnf install -y dnf-plugins-core && \
-    dnf config-manager --set-enabled powertools && \
-    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
+RUN \
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+  yum repolist enabled && \
+  rm /var/lib/rpm/__db.* && \
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
 
 # For compiling with hardening and optimisation
-ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
-ENV CXXFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
-ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now"
-ENV LDFLAGS_FOR_TARGET="-Wl,-z,relro -Wl,-z,now"
+ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
+ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
+ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
+ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
 
 ARG build_dir=/usr/src
 
 # Update paths to use the compiler in C++17 mode
-ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
-ENV PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/sbin:/sbin
-ENV CXX="g++ -std=gnu++17"
+ENV LD_LIBRARY_PATH /usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
+ENV PATH /usr/local/gcc103/bin:/usr/bin:/bin:/usr/sbin:/sbin
+ENV CXX "g++ -std=gnu++17"
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
@@ -47,7 +49,7 @@ RUN \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
-  sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.12")' ./third_party/onnx/CMakeLists.txt && \
+  sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.10")' ./third_party/onnx/CMakeLists.txt && \
   if [[ "$PYTORCH_BRANCH" != "main" && "$PYTORCH_BRANCH" != "viable/strict" ]]; then PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
@@ -61,16 +63,19 @@ RUN \
   export PYTORCH_BUILD_VERSION && \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
-  /usr/local/bin/python3.12 setup.py install && \
-  mkdir -p /usr/local/gcc133/include/pytorch && \
-  /bin/cp -rf torch/include/* /usr/local/gcc133/include/pytorch/ && \
-  /bin/cp -f torch/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
-  /bin/cp -f torch/lib/libc10.so /usr/local/gcc133/lib && \
+  /usr/local/bin/python3.10 setup.py install && \
+  mkdir -p /usr/local/gcc103/include/pytorch && \
+  /bin/cp -rf torch/include/* /usr/local/gcc103/include/pytorch/ && \
+  /bin/cp -f torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
+  /bin/cp -f torch/lib/libc10.so /usr/local/gcc103/lib && \
   cd .. && \
   rm -rf pytorch
 
-FROM rockylinux:8
-COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
+FROM centos:7
+COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
 RUN \
-  dnf -y update && \
-  dnf install -y bzip2 gcc git make unzip which zip zlib-devel
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+  yum repolist enabled && \
+  rm /var/lib/rpm/__db.* && \
+  yum install -y bzip2 gcc git make unzip which zip zlib-devel

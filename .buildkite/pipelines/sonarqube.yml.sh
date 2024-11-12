@@ -17,9 +17,9 @@ steps:
       cpu: 6
       ephemeralStorage: "20G"
       memory: "8G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:31"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:30"
     env:
-      PATH: "/usr/local/gcc133/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      PATH: "/usr/local/gcc103/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       VAULT_SONAR_TOKEN_PATH: "secret/ci/elastic-ml-cpp/sonar-analyze-token"
     command: 
       - ".buildkite/scripts/steps/run_sonar-scanner.sh"
