@@ -17,8 +17,8 @@ locals {
 }
 
 source "macstadium-orka" "image" {
-  source_image     = "ml-macos-13-base-arm-fundamental.orkasi"
-  image_name       = "ml-macos-13-arm-003.orkasi"
+  source_image     = "generic-13-ventura-arm-002.orkasi"
+  image_name       = "ml-macos-13-arm-001.orkasi"
   orka_endpoint    = local.orka_endpoint
   orka_user        = local.orka_user
   orka_password    = local.orka_password
@@ -54,10 +54,10 @@ build {
       "/tmp/install.sh",
     ]
   }
-  #provisioner "shell" {
-  #  inline = [
-  #    "chmod u+x /tmp/third_party_deps.sh",
-  #    "/tmp/third_party_deps.sh",
-  #  ]
-  #}
+  provisioner "shell" {
+    inline = [
+      "chmod u+x /tmp/third_party_deps.sh",
+      "/tmp/third_party_deps.sh",
+    ]
+  }
 }
