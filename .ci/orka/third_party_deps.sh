@@ -21,15 +21,14 @@ unset C_INCLUDE_PATH
 unset CPLUS_INCLUDE_PATH
 unset LIBRARY_PATH
 
-# Build and install boost 1.83.0
-curl -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2 | tar xvjf - && \
-cd boost_1_83_0 && \
+# Build and install boost 1.86.0
+curl -L https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar xvjf - && \
+cd boost_1_86_0 && \
 ./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
-sed -i -e 's|(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)( \\|(3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \\|' boost/unordered/detail/prime_fmod.hpp
-./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC && \
-sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC && \
+sed -i -e 's|constexpr static std::size_t const sizes[] = {13ul, 29ul, 53ul, 97ul,|constexpr static std::size_t const sizes[] = {3ul, 13ul, 29ul, 53ul, 97ul,|' boost/unordered/detail/prime_fmod.hpp
+sudo ./b2 -j8 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC && \
 cd .. && \
-sudo rm -rf boost_1_83_0
+sudo rm -rf boost_1_86_0
 
 # Install python modules required by PyTorch
 sudo pip3 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
