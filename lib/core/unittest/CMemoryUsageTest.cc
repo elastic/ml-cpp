@@ -1292,7 +1292,7 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
     // off of internal storage it would NEVER go back to internal storage.
     // Arguably that was a bug, and this assertion started failing after
     // upgrading Boost to 1.86.0, meaning that boost::small_vector has been improved.
-    BOOST_TEST_REQUIRE(extraMem >= 0); // TODO Change to `==` once upgraded to Boost 1.86 on all platforms
+    BOOST_TEST_REQUIRE(extraMem >= 0); // Change to `==` once upgraded to Boost 1.86 on all platforms
 }
 
 BOOST_AUTO_TEST_CASE(testAlignedVector) {
