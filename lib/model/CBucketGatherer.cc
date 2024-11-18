@@ -27,6 +27,8 @@
 #include <algorithm>
 #include <map>
 
+#include "boost/tuple/tuple.hpp"
+
 namespace ml {
 namespace model {
 
