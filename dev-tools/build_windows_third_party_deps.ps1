@@ -111,6 +111,8 @@ pip install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_exte
 Write-Host "--- Done Installing python modules"
 
 # Move the experimental MS libomp libraries out of the way temporarily, as we don't want to inadvertently redistribute them.
+ls 'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\'
+ls 'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\'
 mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib.bak"
 mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib.bak"
 
@@ -118,11 +120,12 @@ mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.
 # Build and install PyTorch (this may take a while)
 Write-Host "--- Installing PyTorch locally"
 cd c:\tools
-git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e '/pipe(/{N; s/std::unique_ptr<FILE, decltype(&_pclose)> pipe(\n      _wpopen(cmd.c_str(), L"r"), _pclose);/std::unique_ptr<FILE> pipe;/}' -e '/_wspawnve/{N; s/intptr_t r = _wspawnve(_P_WAIT, comspec, a, e.data());\n  return r/return -1;/}' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp
+$x = (Get-Content ".\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp" -Raw) -replace "(?ms)std::unique_ptr.*pipe.*?;" , "std::unique_ptr<FILE> pipe;" -replace "(?ms)intptr_t r = _wspawnve.*?return r;" , "return -1"
+$x | Set-Content -path .\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp
 set BUILD_TEST=OFF
 set BUILD_CAFFE2=OFF
 set USE_NUMPY=OFF
@@ -132,7 +135,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.3.1
+set PYTORCH_BUILD_VERSION=2.5.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 Write-Host "--- Done Installing PyTorch locally"

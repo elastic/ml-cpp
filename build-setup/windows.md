@@ -205,7 +205,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 2.3.1
+### PyTorch 2.5.0
 
 (This step requires a lot of memory. It failed on a machine with 12GB of RAM. It just about fitted on a 20GB machine. 32GB RAM is recommended.)
 
@@ -219,7 +219,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -275,7 +275,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.3.1
+set PYTORCH_BUILD_VERSION=2.5.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
