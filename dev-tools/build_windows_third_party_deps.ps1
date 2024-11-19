@@ -109,10 +109,9 @@ pip install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_exte
 Write-Host "--- Done Installing python modules"
 
 # Move the experimental MS libomp libraries out of the way temporarily, as we don't want to inadvertently redistribute them.
-ls 'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\'
-ls 'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\'
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib.bak"
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib.bak"
+$f = ls 'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\' -name | Select-Object -Last 1
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib.bak"
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib.bak"
 
 
 # Build and install PyTorch (this may take a while)
@@ -155,8 +154,8 @@ cp torch\lib\asmjit.lib c:\usr\local\lib\
 Write-Host "--- Done Installing PyTorch globally"
 
 # Move the libomp libraries back where we found them
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib"
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib"
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib"
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib"
 
 # Uninstall python, it was only needed for the PyTorch build
 & c:\tools\$PythonArchive /uninstall /quiet
