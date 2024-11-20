@@ -58,7 +58,7 @@ $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
 C:\Progra~1\git\bin\bash.exe -c "tar Jxvf libxml2-2.9.14.tar.xz"
 cd \tools\libxml2-2.9.14\win32
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e 's|CFLAGS = `$(CFLAGS) /D "NDEBUG" /O2|CFLAGS = `$(CFLAGS) /D "NDEBUG" /O2 /Zi /D_WIN32_WINNT=0x0601|' Makefile.msvc
+(Get-Content .\Makefile.msvc) -replace """NDEBUG"" /O2" , """NDEBUG"" /O2 /Zi /D_WIN32_WINNT=0x0601" | Set-Content .\Makefile.msvc
 cscript configure.js iconv=no prefix=C:\usr\local
 nmake
 nmake install
@@ -73,7 +73,7 @@ $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
 C:\Progra~1\git\bin\bash.exe -c "tar jxvf boost_1_86_0.tar.bz2"
 cd \tools\boost_1_86_0
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e 's|constexpr static std::size_t const sizes[] = {13ul, 29ul, 53ul, 97ul,|constexpr static std::size_t const sizes[] = {3ul, 13ul, 29ul, 53ul, 97ul,|' boost/unordered/detail/prime_fmod.hpp
+(Get-Content .\boost\unordered\detail\prime_fmod.hpp) -replace "{13ul" , "{3ul, 13ul" | Set-Content .\boost\unordered\detail\prime_fmod.hpp
 c:\tools\boost_1_86_0\bootstrap.bat
 c:\tools\boost_1_86_0\b2 -j6 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.4 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.3.1" -sZLIB_LIBPATH="C:\tools\zlib-1.3.1" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
 Write-Host "--- Done Installing boost 1.86.0"
@@ -121,8 +121,7 @@ git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
-$x = (Get-Content ".\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp" -Raw) -replace "(?ms)std::unique_ptr.*pipe.*?;" , "std::unique_ptr<FILE> pipe;" -replace "(?ms)intptr_t r = _wspawnve.*?return r;" , "return -1"
-$x | Set-Content -path .\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp
+(Get-Content ".\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp" -Raw) -replace "(?ms)std::unique_ptr.*?pipe.*?;" , "std::unique_ptr<FILE> pipe;" -replace "(?ms)intptr_t r = _wspawnve.*?return r;" , "return -1;" | Set-Content -Path ".\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp"
 set BUILD_TEST=OFF
 set BUILD_CAFFE2=OFF
 set USE_NUMPY=OFF
