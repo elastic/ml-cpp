@@ -8,14 +8,16 @@ Checks: >
 
   clang-diagnostic-*,
   -clang-diagnostic-sign-conversion,
+  -clang-diagnostic-unused-macros,
   
   google-*,
   -google-build-using-namespace,
   -google-readability-namespace-comments,
   -google-runtime-references,
-  
+
   misc-*,
   -misc-non-private-member-variables-in-classes,
+  -misc-include-cleaner,
   
   modernize-*,
   -modernize-use-trailing-return-type,
@@ -59,3 +61,5 @@ CheckOptions:
     value:           'true'
   - key:             readability-function-cognitive-complexity.IgnoreMacros
     value:           'true'
+  - key: modernize-include.UseAngleBrackets
+    value: true
