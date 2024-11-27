@@ -168,11 +168,11 @@ spec:
           branch: '7.17'
           cronline: 30 04 * * *
           message: Daily SNAPSHOT build for 7.17
-        Daily 8_15:
+        Daily 8_16:
           branch: '8.16'
           cronline: 30 03 * * *
           message: Daily SNAPSHOT build for 8.16
-        Daily 8_16:
+        Daily 8_17:
           branch: '8.17'
           cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 8.17
