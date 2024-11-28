@@ -129,7 +129,7 @@ RUN \
   wget --quiet -O - https://www.openssl.org/source/old/1.1.1/openssl-1.1.1u.tar.gz | tar xzf - && \
   cd openssl-1.1.1u && \
   ./Configure --prefix=/usr/local shared linux-x86_64 && \
-  make -j$(nproc) && \https://excalidraw.com/
+  make -j$(nproc) && \
   make install && \
   cd .. && \
   rm -rf openssl-1.1.1u /usr/local/share/man /tmp/*
