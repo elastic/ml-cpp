@@ -19,7 +19,7 @@ LABEL maintainer="Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>"
 # libffi is required for building Python
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    bzip2 gcc g++ git libffi-dev make texinfo unzip wget xz-utils zip zlib1g-dev && \
+    bzip2 gcc g++ git libffi-dev make texinfo unzip wget xz-utils zip zlib1g-dev ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -34,9 +34,8 @@ ARG build_dir=/usr/src
 # Build gcc 13.3
 RUN \
   cd ${build_dir} && \
-  wget https://ftp.mpi-inf.mpg.de/mirrors/gnu/mirror/gcc.gnu.org/pub/gcc/releases/gcc-13.3.0/gcc-13.3.0.tar.gz && \
-  tar zxf gcc-13.3.0.tar.gz
-RUN cd ${build_dir}/gcc-13.3.0 && \
+  wget --quiet -O - https://ftp.mpi-inf.mpg.de/mirrors/gnu/mirror/gcc.gnu.org/pub/gcc/releases/gcc-13.3.0/gcc-13.3.0.tar.gz | tar xzf - && \
+  cd gcc-13.3.0 && \
   contrib/download_prerequisites && \
   sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
@@ -52,6 +51,12 @@ RUN cd ${build_dir}/gcc-13.3.0 && \
 ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
 ENV PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX="g++ -std=gnu++17"
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates file bison flex && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Build binutils
 RUN \
@@ -118,7 +123,7 @@ RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz | tar xzf - && \
   cd Python-3.12.7 && \
-  ./configure --enable-optimizations --with-openssl=/usr/local --with-openssl-rpath=/usr/local/lib64 && \
+  ./configure --enable-optimizations --with-openssl=/usr/local --with-openssl-rpath=/usr/local/lib && \
   make -j`nproc` && \
   make altinstall && \
   cd .. && \
@@ -132,7 +137,7 @@ RUN \
 # v3.30.5 minimum is required
 RUN \
   cd ${build_dir} && \
-  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh && \
+  wget --quiet --no-check-certificate https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh && \
   chmod +x cmake-3.30.5-linux-x86_64.sh && \
   ./cmake-3.30.5-linux-x86_64.sh --skip-license --prefix=/usr/local/gcc133 && \
   rm -f cmake-3.30.5-linux-x86_64.sh
@@ -140,7 +145,10 @@ RUN \
 ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib:/usr/lib:/lib
 ENV PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
-RUN apt-get install -y gpg-agent
+RUN apt-get update && \ 
+    apt-get install -y gpg-agent && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Intel MKL
 RUN \
