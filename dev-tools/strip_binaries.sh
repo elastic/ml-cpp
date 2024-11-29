@@ -21,13 +21,8 @@ case `uname` in
         ;;
 
     Linux)
-        if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-            EXE_DIR="$ML_APP_NAME.app/Contents/MacOS"
-            DYNAMIC_LIB_DIR="$ML_APP_NAME.app/Contents/lib"
-        else
-            EXE_DIR=bin
-            DYNAMIC_LIB_DIR=lib
-        fi
+        EXE_DIR=bin
+        DYNAMIC_LIB_DIR=lib
         ;;
 
 esac
@@ -90,23 +85,6 @@ case `uname` in
                 objcopy --only-keep-debug "$LIBRARY" "$LIBRARY-debug"
                 strip --strip-unneeded $LIBRARY
                 objcopy --add-gnu-debuglink="$LIBRARY-debug" "$LIBRARY"
-            done
-        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-            CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.14
-            for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
-            do
-                echo "Stripping $PROGRAM"
-                dsymutil-8 $PROGRAM
-                /usr/local/bin/$CROSS_TARGET_PLATFORM-strip -u -r $PROGRAM
-            done
-            for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
-            do
-                echo "Stripping $LIBRARY"
-                case $LIBRARY in
-                    *Ml*)
-                        dsymutil-8 $LIBRARY
-                esac
-                /usr/local/bin/$CROSS_TARGET_PLATFORM-strip -x $LIBRARY
             done
         else
             CROSS_TARGET_PLATFORM=$CPP_CROSS_COMPILE-linux-gnu
