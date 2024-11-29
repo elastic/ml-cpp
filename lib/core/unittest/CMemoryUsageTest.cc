@@ -1287,12 +1287,12 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
     BOOST_REQUIRE_EQUAL(0, extraMem);
     growShrink.push_back(1.7);
     extraMem = core::memory::dynamicSize(growShrink);
-    // Interesting (shocking?) result: once a boost::small_vector has switched
-    // off of internal storage it will NEVER go back to internal storage.
-    // Arguably this is a bug, and this assertion might start failing after a
-    // Boost upgrade.  If that happens and changing it to assert extraMem is 0
-    // fixes it then this means boost::small_vector has been improved.
-    BOOST_TEST_REQUIRE(extraMem > 0);
+    // Interestingly we used to assert extraMem > 0 here as it used to be the case
+    // that once a boost::small_vector had switched
+    // off of internal storage it would NEVER go back to internal storage.
+    // Arguably that was a bug, and this assertion started failing after
+    // upgrading Boost to 1.86.0, meaning that boost::small_vector has been improved.
+    BOOST_TEST_REQUIRE(extraMem >= 0); // Change this to "==" when all platforms have been upgraded to Boost 1.86.0
 }
 
 BOOST_AUTO_TEST_CASE(testAlignedVector) {
