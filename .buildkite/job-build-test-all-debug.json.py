@@ -44,7 +44,7 @@ def main():
         debug_windows = pipeline_steps.generate_step_template("Windows", "debug", "", config.build_x86_64)
         pipeline_steps.append(debug_windows)
     if config.build_macos:
-        debug_macos = pipeline_steps.generate_step_template("MacOS", "debug", config.build_aarch64, config.build_x86_64)
+        debug_macos = pipeline_steps.generate_step_template("MacOS", "debug", config.build_aarch64, "")
         pipeline_steps.append(debug_macos)
     if config.build_linux:
         debug_linux = pipeline_steps.generate_step_template("Linux", "debug", config.build_aarch64, config.build_x86_64)
