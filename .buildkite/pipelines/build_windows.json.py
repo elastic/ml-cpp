@@ -45,6 +45,7 @@ def main(args):
               "provider": "gcp",
               "machineType": "c2-standard-16",
               "minCpuPlatform": "Intel Cascade Lake",
+              "image": "family/ml-cpp-3-windows-2022",
               "image": "family/ml-cpp-2-windows-2022",
             },
             "commands": [
