@@ -58,27 +58,25 @@ $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
 C:\Progra~1\git\bin\bash.exe -c "tar Jxvf libxml2-2.9.14.tar.xz"
 cd \tools\libxml2-2.9.14\win32
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e 's|CFLAGS = `$(CFLAGS) /D "NDEBUG" /O2|CFLAGS = `$(CFLAGS) /D "NDEBUG" /O2 /Zi /D_WIN32_WINNT=0x0601|' Makefile.msvc
+(Get-Content .\Makefile.msvc) -replace """NDEBUG"" /O2" , """NDEBUG"" /O2 /Zi /D_WIN32_WINNT=0x0601" | Set-Content .\Makefile.msvc
 cscript configure.js iconv=no prefix=C:\usr\local
 nmake
 nmake install
 Write-Host "--- Done Installing libxml2 2.9.14"
 
-# Build and install Boost 1.83.0
-Write-Host "--- Installing boost 1.83.0"
+# Build and install Boost 1.86.0
+Write-Host "--- Installing boost 1.86.0"
 cd c:\tools
-$Archive="boost_1_83_0.tar.bz2"
-$ZipSource="https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/$Archive"
+$Archive="boost_1_86_0.tar.bz2"
+$ZipSource="https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/$Archive"
 $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
-C:\Progra~1\git\bin\bash.exe -c "tar jxvf boost_1_83_0.tar.bz2"
-cd \tools\boost_1_83_0
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e 's|(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)( |(3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       |' boost/unordered/detail/prime_fmod.hpp
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e 's/14\.3/14\.4/' tools/build/src/tools/msvc.jam
-c:\tools\boost_1_83_0\bootstrap.bat
-c:\tools\boost_1_83_0\b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.4 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.3.1" -sZLIB_LIBPATH="C:\tools\zlib-1.3.1" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
-c:\tools\boost_1_83_0\b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.4 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.3.1" -sZLIB_LIBPATH="C:\tools\zlib-1.3.1" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
-Write-Host "--- Done Installing boost 1.83.0"
+C:\Progra~1\git\bin\bash.exe -c "tar jxvf boost_1_86_0.tar.bz2"
+cd \tools\boost_1_86_0
+(Get-Content .\boost\unordered\detail\prime_fmod.hpp) -replace "{13ul" , "{3ul, 13ul" | Set-Content .\boost\unordered\detail\prime_fmod.hpp
+c:\tools\boost_1_86_0\bootstrap.bat
+c:\tools\boost_1_86_0\b2 -j6 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.4 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.3.1" -sZLIB_LIBPATH="C:\tools\zlib-1.3.1" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+Write-Host "--- Done Installing boost 1.86.0"
 
 
 # Build and install strptime
@@ -111,18 +109,19 @@ pip install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_exte
 Write-Host "--- Done Installing python modules"
 
 # Move the experimental MS libomp libraries out of the way temporarily, as we don't want to inadvertently redistribute them.
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib.bak"
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib.bak"
+$f = ls 'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\' -name | Select-Object -Last 1
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib.bak"
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib.bak"
 
 
 # Build and install PyTorch (this may take a while)
 Write-Host "--- Installing PyTorch locally"
 cd c:\tools
-git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
-& 'C:\Program Files\Git\usr\bin\sed.exe' -i -e '/pipe(/{N; s/std::unique_ptr<FILE, decltype(&_pclose)> pipe(\n      _wpopen(cmd.c_str(), L"r"), _pclose);/std::unique_ptr<FILE> pipe;/}' -e '/_wspawnve/{N; s/intptr_t r = _wspawnve(_P_WAIT, comspec, a, e.data());\n  return r/return -1;/}' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp
+(Get-Content ".\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp" -Raw) -replace "(?ms)std::unique_ptr.*?pipe.*?;" , "std::unique_ptr<FILE> pipe;" -replace "(?ms)intptr_t r = _wspawnve.*?return r;" , "return -1;" | Set-Content -Path ".\torch\csrc\jit\codegen\fuser\cpu\fused_kernel.cpp"
 set BUILD_TEST=OFF
 set BUILD_CAFFE2=OFF
 set USE_NUMPY=OFF
@@ -132,7 +131,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.3.1
+set PYTORCH_BUILD_VERSION=2.5.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 Write-Host "--- Done Installing PyTorch locally"
@@ -154,8 +153,8 @@ cp torch\lib\asmjit.lib c:\usr\local\lib\
 Write-Host "--- Done Installing PyTorch globally"
 
 # Move the libomp libraries back where we found them
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libomp.lib"
-mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.41.34120\lib\x64\libompd.lib"
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libomp.lib"
+mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib.bak" "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\lib\x64\libompd.lib"
 
 # Uninstall python, it was only needed for the PyTorch build
 & c:\tools\$PythonArchive /uninstall /quiet
