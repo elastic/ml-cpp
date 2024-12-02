@@ -14,12 +14,12 @@ If you use Gradle to build Machine Learning you do not need to work in Git Bash,
 
 You will also need to add several directories to your `PATH` environment variable. These need to be in the MinGW format, i.e. beginning with /drive letter/ followed by the directory path using forward slashes instead of backslashes, and with no spaces in the directory names. Where a Windows directory name contains a space, you must use the 8.3 version of that directory name (which you can find using `dir /x` at a command prompt). The directories that need to be added are:
 
-- `/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/14.23.28105/bin/Hostx64/x64`
-- `/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE`
+- `/c/PROGRA~1/MICROS~1/2022/Professional/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/`
+- `/c/PROGRA~1/MICROS~1/2022/Professional/Common7/IDE`
 - `/c/PROGRA~2/WI3CF2~1/8.0/bin/x64`
 - `/c/PROGRA~2/WI3CF2~1/8.0/bin/x86`
-- `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64`
-- `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1`
+- `/c/PROGRA~1/MICROS~1/2022/Professional/TEAMTO~1/PERFOR~1/x64`
+- `/c/PROGRA~1/MICROS~1/2022/Professional/TEAMTO~1/PERFOR~1`
 - `/c/PROGRA~1/Java/jdk1.8.0_121/bin`
 - `/c/PROGRA~1/CMake/bin`
 - `/c/usr/local/bin`
@@ -29,8 +29,8 @@ For example, you might create a `.bashrc` file in your home directory containing
 
 ```
 export CPP_SRC_HOME=$HOME/ml-cpp
-VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC | tail -1`
-VCBINDIR=/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE:/c/PROGRA~2/WI3CF2~1/8.0/bin/x64:/c/PROGRA~2/WI3CF2~1/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1
+VCVER=`/bin/ls -1 /c/PROGRA~1/MICROS~1/2022/Professional/VC/Tools/MSVC | tail -1`
+VCBINDIR=/c/PROGRA~1/MICROS~1/2022/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:/c/PROGRA~1/MICROS~1/2022/Professional/Common7/IDE:/c/PROGRA~2/WI3CF2~1/8.0/bin/x64:/c/PROGRA~2/WI3CF2~1/8.0/bin/x86:/c/PROGRA~1/MICROS~1/2022/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~1/MICROS~1/2022/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
 export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin"
 ```
@@ -39,23 +39,27 @@ export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBIN
 
 64 bit Windows is required.
 
-It is possible to build on Windows Server 2012r2, Windows Server 2016 and Windows 10.  Other versions may encounter problems.
+It is possible to build on Windows Server 2012r2, Windows Server 2016, 2019 & 2022 and Windows 10.  Other versions may encounter problems.
 
 ### Windows 8 SDK
 
 Download `sdksetup.exe` from https://developer.microsoft.com/en-us/windows/downloads/windows-8-sdk and run it.  Accept the default installation location, opt out of the customer experience improvement program and accept the license agreement.  Then install with all features selected.
 
-### Microsoft Visual Studio 2019 Professional
+### Windows 10 SDK
+
+Visit <https://my.visualstudio.com/downloads> and download the DVD image, `VisualStudioSetup.exe`, by clicking on the `Download` button for `Windows SDK for Windows 11, version 21H2`. Once downloaded, double click on the `iso` image to mount it, then navigate to the newly mounted drive in `File Explorer` and run `WinSDKSetup.exe` by double clicking on it.
+
+### Microsoft Visual Studio 2022 Professional
 
 _Make sure you install the Windows 8 SDK before this, as it cannot be installed afterwards._
 
-The Professional edition requires an MSDN subscription. Download the installer, `vs_professional__904165217.1561988349.exe`, from <https://my.visualstudio.com/downloads>, and run it.
+The Professional edition requires an MSDN subscription. Visit <https://my.visualstudio.com/downloads> and download the installer, `VisualStudioSetup.exe`, by clicking on the `Download` button for `Visual Studio Professional 2022`, and run it.
 
 On the "Workloads" page that is displayed after a short while, check "Desktop development with C++".  Then click on the "Individual Components" tab and check "Windows Universal CRT SDK" (about half way down the list).  Then click "Install".
 
 ### Git for Windows
 
-Download `Git-2.42.0.2-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe>.
+Download `Git-2.46.2-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.46.2.windows.1/Git-2.46.2-64-bit.exe>.
 
 Install it using mainly the default options suggested by the installer, but on the feature selection dialog also check "On the desktop" in the "Additional icons" section.
 
@@ -65,25 +69,31 @@ As well as providing a Git implementation, Git for Windows comes with Windows po
 
 ### CMake
 
-CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.3 from <https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-windows-x86_64.msi> (or get a more recent version).
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.27.9 from <https://cmake.org/files/v3.27/cmake-3.27.9-windows-x86_64.msi> (or get a more recent version).
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 
+## Third Party Dependency Libraries
+
+The instructions below relate to building 3rd party dependencies from source. These steps can either be performed
+manually or, if preferred, automatically by running the PowerShell script `build_windows_third_party_deps.ps1` in the
+`dev-tools` directory.
+
 ### zlib
 
-Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2019 C runtime library. Therefore it is necessary to build zlib from source.
+Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2022 C runtime library. Therefore it is necessary to build zlib from source.
 
-Download the source code from <http://zlib.net/> - the file is called `zlib1213.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.2.13`.
+Download the source code from <http://zlib.net/> - the file is called `zlib131.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.3.1`.
 
-To build, start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+To build, start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2022 -&gt; x64 Native Tools Command Prompt for VS 2022, then in it type:
 
 ```
-cd \tools\zlib-1.2.13
+cd \tools\zlib-1.3.1
 nmake -f win32/Makefile.msc LOC="-D_WIN32_WINNT=0x0601"
 nmake -f win32/Makefile.msc test
 ```
 
-All the build output will end up in the top level `C:\tools\zlib-1.2.13` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
+All the build output will end up in the top level `C:\tools\zlib-1.3.1` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
 
 ### libxml2
 
@@ -110,7 +120,7 @@ CFLAGS = $(CFLAGS) /D "NDEBUG" /O2 /Zi /D_WIN32_WINNT=0x0601
 
 (because we might as well generate a PDB file and we want to limit Windows API functions to those that exist in Windows Server 2008r2).
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2022 -&gt; x64 Native Tools Command Prompt for VS 2022, then in it type:
 
 ```
 cd \tools\libxml2-2.9.14\win32
@@ -119,36 +129,35 @@ nmake
 nmake install
 ```
 
-### Boost 1.83.0
+### Boost 1.86.0
 
-Download version 1.83.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2> . You must get this exact version, as the Machine Learning build system requires it.
+Download version 1.86.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.bz2> . You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
 
 ```
 cd /c/tools
-tar jxvf /z/cpp_src/boost_1_83_0.tar.bz2
+tar jxvf /z/cpp_src/boost_1_86_0.tar.bz2
 ```
 
-Edit `boost/unordered/detail/prime_fmod.hpp` and change line 134 from:
+Edit `boost/unordered/detail/prime_fmod.hpp` and change line 37 from:
 
 ```
-    (13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+    constexpr static std::size_t const sizes[] = {13ul, 29ul, 53ul, 97ul,
 ```
 
 to:
 
 ```
-    (3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+    constexpr static std::size_t const sizes[] = {3ul, 13ul, 29ul, 53ul, 97ul,
 ```
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2022 -&gt; x64 Native Tools Command Prompt for VS 2022, then in it type:
 
 ```
-cd \tools\boost_1_83_0
+cd \tools\boost_1_86_0
 bootstrap.bat
-b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.13" -sZLIB_LIBPATH="C:\tools\zlib-1.2.13" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
-b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.13" -sZLIB_LIBPATH="C:\tools\zlib-1.2.13" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+b2 -j6 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.13" -sZLIB_LIBPATH="C:\tools\zlib-1.2.13" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
 ```
 
 The Boost headers and appropriate libraries should end up in `C:\usr\local\include` and `C:\usr\local\lib` respectively.
@@ -168,7 +177,7 @@ patch -i strptime.ucrt.patch
 patch -i private.patch
 ```
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2022 -&gt; x64 Native Tools Command Prompt for VS 2022, then in it type:
 
 ```
 cd C:\tools\strptime
@@ -181,9 +190,9 @@ copy strptime.lib C:\usr\local\lib
 
 PyTorch currently requires Python 3.7 or higher; we use version 3.10.
 
-Download the executable installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-amd64.exe>.
+Download the executable installer for Python 3.10.10 from <https://www.python.org/ftp/python/3.10.10/python-3.10.10-amd64.exe>.
 
-Right click on the installer and "Run as administrator".  (Note that evelating privileges during the install is not sufficient for the Python 3.10.9 installer, it needs to have elevated privileges when first run.  Obviously this is bad practice, but that's the way it is in version 3.10.9.)
+Right click on the installer and "Run as administrator".  (Note that elevating privileges during the install is not sufficient for the Python 3.10.10 installer, it needs to have elevated privileges when first run.  Obviously this is bad practice, but that's the way it is in version 3.10.10.)
 
 On the first installer screen click "Customize installation".  (Although "Install Now" seems like it would do the job, the "Install launcher for all users" option literally only installs the _launcher_ for all users, not Python itself.)
 
@@ -193,23 +202,21 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 2.3.1
+### PyTorch 2.5.0
 
 (This step requires a lot of memory. It failed on a machine with 12GB of RAM. It just about fitted on a 20GB machine. 32GB RAM is recommended.)
 
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
 ```
-pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+pip install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
 ```
-
-This stalls part way through waiting for a key press, and it's necessary to press enter in the command prompt window to get it to complete.
 
 Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -247,12 +254,12 @@ doing and never want to do for security reasons. Replacing the calls to
 potentially dangerous function calls in our shipped product will not encounter
 these functions that run external processes.
 
-In `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\lib\x64`
+In `C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.29.30133\lib\x64`
 rename `libomp.lib` to `libomp.lib.bak` and rename `libompd.lib` to `libompd.lib.bak`.
 This is to prevent CMake's FindOpenMP module from linking to Microsoft's experimental
 library that we are not allowed to redistribute.
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2022 -&gt; x64 Native Tools Command Prompt for VS 2022, then in it type:
 
 ```
 cd \tools\pytorch
@@ -265,7 +272,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.3.1
+set PYTORCH_BUILD_VERSION=2.5.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
@@ -289,5 +296,5 @@ cp torch/lib/asmjit.dll /c/usr/local/bin/
 cp torch/lib/asmjit.lib /c/usr/local/lib/
 ```
 
-Finally, in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\lib\x64`
+Finally, in `C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.29.30133\lib\x64`
 rename `libomp.lib.bak` to `libomp.lib` and rename `libompd.lib.bak` to `libompd.lib`.

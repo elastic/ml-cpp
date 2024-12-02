@@ -21,8 +21,7 @@ import os
 from itertools import product
 
 archs = [
-  "aarch64",
-  "x86_64",
+  "aarch64"
 ]
 build_types = [
   "RelWithDebInfo",
@@ -32,13 +31,9 @@ actions = [
   "debug"
 ]
 agents = {
-   "x86_64": {
-      "provider": "orka",
-      "image": "ml-macos-12-x86_64-001.img"
-   },
    "aarch64": {
       "provider": "orka",
-      "image": "ml-macos-12-arm-001.orkasi"
+      "imagePrefix": "ml-macos-13-arm"
    }
 }
 envs = {
@@ -49,16 +44,6 @@ envs = {
       "ML_DEBUG": "0",
       "CPP_CROSS_COMPILE": "",
       "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
-      "RUN_TESTS": "true",
-      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-    },
-    "x86_64": {
-      "TMPDIR": "/tmp",
-      "HOMEBREW_PREFIX": "/opt/homebrew",
-      "PATH": "/opt/homebrew/bin:$PATH",
-      "ML_DEBUG": "0",
-      "CPP_CROSS_COMPILE": "",
-      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
       "RUN_TESTS": "true",
       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
     }
@@ -122,11 +107,6 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False,
                         help="Build for aarch64?.")
-    parser.add_argument("--build-x86_64",
-                        required=False,
-                        action='store_true',
-                        default=False,
-                        help="Build for x86_64?")
 
     args = parser.parse_args()
 

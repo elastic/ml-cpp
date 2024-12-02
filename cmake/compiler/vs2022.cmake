@@ -21,9 +21,10 @@ if(DEFINED ENV{ROOT})
   set(ROOT $ENV{ROOT})
 endif()
 
+set(PF_DIR "${ROOT}/Program Files")
 set(PFX86_DIR "${ROOT}/Program Files (x86)")
-set(MSVC_DIR "${PFX86_DIR}/Microsoft Visual Studio")
-set(VCBASE "${MSVC_DIR}/2019/Professional")
+set(MSVC_DIR "${PF_DIR}/Microsoft Visual Studio")
+set(VCBASE "${MSVC_DIR}/2022/Professional")
 set(WINSDKBASE "${PFX86_DIR}/Windows Kits")
 set(WIN_KITS_DIR "${PFX86_DIR}/Windows Kits")
 

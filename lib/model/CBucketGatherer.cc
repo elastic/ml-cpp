@@ -24,6 +24,8 @@
 
 #include <model/CDataGatherer.h>
 
+#include <boost/tuple/tuple.hpp>
+
 #include <algorithm>
 #include <map>
 
