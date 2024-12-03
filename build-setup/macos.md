@@ -184,11 +184,10 @@ export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
-[ $(uname -m) != x86_64 ] && export DNNL_TARGET_ARCH=AARCH64
+export DNNL_TARGET_ARCH=AARCH64
 export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
-[ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
 export PYTORCH_BUILD_VERSION=2.5.0
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 setup.py install
