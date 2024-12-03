@@ -19,6 +19,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <list>
 #include <map>
 #include <string>

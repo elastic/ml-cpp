@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 9.0.0
+
+=== Enhancements
+
+* Update Linux build images to Rocky Linux 8 with gcc 13.3. (See {ml-pull}2773[#2773].)
+
 == {es} version 8.18.0
 
 === Enhancements

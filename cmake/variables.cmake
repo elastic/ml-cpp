@@ -85,7 +85,7 @@ else()
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  string(APPEND ML_BASE_PATH "gcc103")
+  string(APPEND ML_BASE_PATH "gcc133")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
