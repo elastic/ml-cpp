@@ -9,7 +9,7 @@
 # limitation.
 #
 $ErrorActionPreference="Stop"
-$Archive="usr-x86_64-windows-2016-14-trial.zip"
+$Archive="usr-x86_64-windows-2016-14.zip"
 $Destination="C:\"
 # If PyTorch is not version 2.5.0 then we need the latest download
 if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h") -Or

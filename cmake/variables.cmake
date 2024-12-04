@@ -245,9 +245,6 @@ set(Boost_COMPILER "${ML_BOOST_COMPILER_VER}")
 
 set(Boost_VERSION 1.83.0)
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  execute_process(COMMAND  dir c:\\usr\\local\\lib\\cmake OUTPUT_VARIABLE BOOST_CONFIGS)
-  message(WARNING "Boost configs: ${BOOST_CONFIGS}")
-
   message(WARNING "Using Boost 1.86.0 on Windows only.")
   set(Boost_VERSION 1.86.0)
   set(Boost_DIR "c:\\usr\\local\\lib\\cmake\\Boost-1.86.0")
