@@ -78,14 +78,14 @@ RUN \
 # Build Boost
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2 | tar jxf - && \
-  cd boost_1_83_0 && \
+  wget --quiet -O - https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar jxf - && \
+  cd boost_1_86_0 && \
   ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
-  sed -i -e 's|(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)( \\|(3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \\|' boost/unordered/detail/prime_fmod.hpp && \
+  sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp&& \
   ./b2 -j`nproc` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
   ./b2 install --prefix=/usr/local/gcc103 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
   cd .. && \
-  rm -rf boost_1_83_0
+  rm -rf boost_1_86_0
 
 # Build patchelf
 RUN \
@@ -141,11 +141,12 @@ RUN \
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
+  sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.10")' ./third_party/onnx/CMakeLists.txt && \
   export BLAS=Eigen && \
   export BUILD_TEST=OFF && \
   export USE_FBGEMM=OFF && \
@@ -154,7 +155,7 @@ RUN \
   export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=2.3.1 && \
+  export PYTORCH_BUILD_VERSION=2.5.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.10 setup.py install && \
   mkdir /usr/local/gcc103/include/pytorch && \
