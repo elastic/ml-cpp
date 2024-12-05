@@ -28,7 +28,7 @@ case `uname -m` in
         ARCHIVE=local-x86_64-apple-macosx12.0-1.tar.bz2
         ;;
     arm64)
-        ARCHIVE=local-arm64-apple-macosx11.1-10.tar.bz2
+        ARCHIVE=local-arm64-apple-macosx11.1-11.tar.bz2
         ;;
 
     *)
