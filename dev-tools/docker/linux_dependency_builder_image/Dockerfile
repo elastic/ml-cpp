@@ -10,7 +10,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-build:30 AS builder
+FROM docker.elastic.co/ml-dev/ml-linux-build:32 AS builder
 
 # This is basically automating the setup instructions in build-setup/linux.md
 
