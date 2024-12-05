@@ -182,7 +182,6 @@ function(install_libs _target _source_dir _prefix _postfix)
   set(LIBRARIES ${ARGN})
 
   file(GLOB _LIBS ${_source_dir}/*${_prefix}*${_postfix})
-  message(STATUS "Installing libs ${_LIBS}")
 
   if(_LIBS)
     foreach(LIBRARY ${LIBRARIES})
