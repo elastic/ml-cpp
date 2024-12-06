@@ -324,10 +324,6 @@ const core::TPersistenceTag OUTLIER_WEIGHT_DERATE_8_3_TAG{"l", "winsorization_de
 // Seasonality Test Tags
 // Version 6.3
 const core::TPersistenceTag SEASONALITY_TEST_MACHINE_6_3_TAG{"a", "periodicity_test_machine"};
-const core::TPersistenceTag SHORT_WINDOW_6_3_TAG{"b", "short_window"};
-const core::TPersistenceTag LONG_WINDOW_6_3_TAG{"c", "long_window"};
-// Version 7.2
-// const core::TPersistenceTag LINEAR_SCALES_7_2_TAG{"d", "linear_scales"}; Removed in 7.11
 // Version 7.9
 const core::TPersistenceTag SHORT_WINDOW_7_9_TAG{"e", "short_window_7_9"};
 const core::TPersistenceTag LONG_WINDOW_7_9_TAG{"f", "long_window_7_9"};
@@ -359,8 +355,6 @@ const core::TPersistenceTag ERRORS_6_4_TAG{"g", "errors"};
 const core::TPersistenceTag REGRESSION_ORIGIN_6_4_TAG{"a", "regression_origin"};
 const core::TPersistenceTag MEAN_SUM_AMPLITUDES_6_4_TAG{"b", "mean_sum_amplitudes"};
 const core::TPersistenceTag MEAN_SUM_AMPLITUDES_TREND_6_4_TAG{"c", "mean_sum_amplitudes_trend"};
-// Version 6.5
-// const core::TPersistenceTag TESTING_FOR_CHANGE_6_5_TAG{"m", "testing_for_change"};
 
 // This implements the mapping from restored states to their best
 // equivalents; specifically:
@@ -1135,11 +1129,11 @@ bool CTimeSeriesDecompositionDetail::CSeasonalityTest::acceptRestoreTraverser(
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
-        // The intention is to discard the short and long windows after reloading
-        // state saved before 7.9. Although their format hasn't changed, they use
-        // old parameters which aren't compatible with the changes to this class.
-        RESTORE_NO_ERROR(SHORT_WINDOW_6_3_TAG, m_Windows[E_Short] = this->newWindow(E_Short))
-        RESTORE_NO_ERROR(LONG_WINDOW_6_3_TAG, m_Windows[E_Long] = this->newWindow(E_Long))
+        // // The intention is to discard the short and long windows after reloading
+        // // state saved before 7.9. Although their format hasn't changed, they use
+        // // old parameters which aren't compatible with the changes to this class.
+        // RESTORE_NO_ERROR(SHORT_WINDOW_6_3_TAG, m_Windows[E_Short] = this->newWindow(E_Short))
+        // RESTORE_NO_ERROR(LONG_WINDOW_6_3_TAG, m_Windows[E_Long] = this->newWindow(E_Long))
         RESTORE_SETUP_TEARDOWN(
             SHORT_WINDOW_7_9_TAG, m_Windows[E_Short] = this->newWindow(E_Short),
             m_Windows[E_Short] && traverser.traverseSubLevel([this](auto& traverser_) {
@@ -2586,13 +2580,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::acceptRestoreTraver
             RESTORE(ERRORS_6_4_TAG,
                     core::CPersistUtils::restore(ERRORS_6_4_TAG, m_PredictionErrors, traverser))
         }
-    } else if (traverser.name() == VERSION_6_3_TAG) {
-        while (traverser.next()) {
-            const std::string& name{traverser.name()};
-            RESTORE_NO_ERROR(COMPONENT_6_3_TAG,
-                             m_Components.emplace_back(decayRate, bucketLength, traverser))
-        }
-        m_PredictionErrors.resize(m_Components.size());
     } else {
         return false;
     }
@@ -2932,13 +2919,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::acceptRestoreTraver
             RESTORE(ERRORS_6_4_TAG,
                     core::CPersistUtils::restore(ERRORS_6_4_TAG, m_PredictionErrors, traverser))
         }
-    } else if (traverser.name() == VERSION_6_3_TAG) {
-        while (traverser.next()) {
-            const std::string& name{traverser.name()};
-            RESTORE_NO_ERROR(COMPONENT_6_3_TAG,
-                             m_Components.emplace_back(decayRate, bucketLength, traverser))
-        }
-        m_PredictionErrors.resize(m_Components.size());
     } else {
         return false;
     }
