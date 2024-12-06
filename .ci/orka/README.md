@@ -17,7 +17,7 @@
 If you haven't run these before, run the following once so packer downloads the `vault` integration:
 
 ```
-packer init orka-macos-13-arm.pkr.hcl
+packer init orka-macos-12-arm.pkr.hcl
 ```
 
 ## Build
@@ -29,7 +29,7 @@ Packer requires access to secrets in vault, where VAULT_ADDR=https://vault-ci-pr
 Run the following to create the image (MacOS 12 ARM in this example):
 
 ```
-packer build orka-macos-13-arm.pkr.hcl
+packer build orka-macos-12-arm.pkr.hcl
 ```
 
 ## Versioning
@@ -38,33 +38,31 @@ The name of the resulting images are hard-coded (currently), and end in a sequen
 
 ## Source Images
 
-We make use of an image - `generic-13-ventura-arm-002.orkasi` - that is configured such that it:
+The source images used for the MacOS builds are slightly modified copies of the standard Orka images, e.g. 90GBMontereySSH.orkasi:
 
-    * Adds passwordless `sudo` for the default `admin` user
-    * Configures `the admin` user to be automatically logged in
-    * Installs Xcode command line tools version 14 (by running `clang++ --version` and clicking through the dialogues)
+The source images are named:
+ * `ml-macos-12-base-arm-fundamental.orkasi`
 
-The generic image has the following packages installed:
-
- * brew `4.0.28`
- * vault `1.14.0`
- * python3 `3.10.8`
- * jq `1.6`
- * orka-vm-tools
- * Google Cloud SDK into `~admin/google-cloud-sdk/`
- * `gobld-bootstrap.sh` script to run at system startup
-    * This script pulls down and runs another script from a static location to do the following:
-      * Unseal one-time vault token from gobld
-      * Install and run the latest `buildkite-agent`
+The source image only has the following changes on it:
+    * Adding passwordless `sudo` for the default `admin` user
+    * Configured `admin` user to be automatically logged in
+    * Installed Xcode command line tools version 13 (by running `clang++ --version` and clicking through the dialogues)
 
 ## Packer Install Steps
 
-The ML packer scripts do the following:
- * Install JDK `11.0.25`
- * Install CMake `3.30.5`
- * Install Boost `1.83.0` from source
- * Install PyTorch `2.3.1` from source
+The packer script does the following:
+    * Install Brew `4.2.21`
+    * Install JDK `11.0.23`
+    * Install python3
+    * Install vault
+    * Install jq
+    * Install Google Cloud SDK into `~admin/google-cloud-sdk/`
+    * Install CMake 3.23.3
+    * Install `gobld-bootstrap.sh` script to run at system startup
+        * This script pulls down and runs another script from a static location to do the following:
+            * Unseal one-time vault token from gobld
+            * Install and run the latest `buildkite-agent`
 
 ## Caveats
 
-* As of version 9.0.0 support for macos x86_64 builds has been dropped. It is necessary to checkout and work on previous branches in order to maintain x86_64 Orka VMs.
+* As of version 8.18 support for macos x86_64 builds has been dropped. It is necessary to checkout and work on previous branches in order to maintain x86_64 Orka VMs.

@@ -16,7 +16,7 @@ For example, you might create a `.bashrc` file in your home directory containing
 
 ```
 umask 0002
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.0.1.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home
 export PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.10
 export PATH=$JAVA_HOME/bin:$PYTHONHOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
@@ -66,25 +66,6 @@ xcode-select --install
 
 at the command prompt.
 
-### CMake
-
-CMake version 3.19.2 is the minimum required to build ml-cpp.  Download the graphical installer for version 3.30.5 from <https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-macos-universal.dmg> (or get a more recent version).
-
-Open the `.dmg` and install the application it by dragging it to the `Applications` folder.
-
-Then make the `cmake` program accessible to programs that look in `/usr/local/bin`:
-
-```
-sudo mkdir -p /usr/local/bin
-sudo ln -s /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
-```
-
-## Third Party Dependencies
-
-The following instructions are for building and installing 3rd party dependencies required for the `ml-cpp` build. They
-can either be performed manually, or if preferred, running the `dev-tools/build_macos_third_party_deps.sh` automates the
-process.
-
 ### Boost 1.83.0
 
 Download version 1.83.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
@@ -125,11 +106,24 @@ sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=
 
 to install the Boost headers and libraries.
 
+### CMake
+
+CMake version 3.19.2 is the minimum required to build ml-cpp.  Download the graphical installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-macos-universal.dmg> (or get a more recent version).
+
+Open the `.dmg` and install the application it by dragging it to the `Applications` folder.
+
+Then make the `cmake` program accessible to programs that look in `/usr/local/bin`:
+
+```
+sudo mkdir -p /usr/local/bin
+sudo ln -s /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
+```
+
 ### Python 3.10
 
 PyTorch currently requires Python 3.7 or higher; we use version 3.10.
 
-Download the graphical installer for Python 3.10.10 from <https://www.python.org/ftp/python/3.10.10/python-3.10.10-macos11.pkg>.
+Download the graphical installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-macos11.pkg>.
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
