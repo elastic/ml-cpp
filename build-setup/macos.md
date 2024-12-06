@@ -170,6 +170,38 @@ inline void to_bytes(bytestring& bytes, const unsigned long arg) {
 
 at around line 189. This is necessary to resolve a template specialization issue.
 
+Depending on your version of macOS it may also be necessary to follow these additional steps:
+
+* Edit `aten/src/ATen/mps/MPSDevice.mm` and change
+  ```
+  return MTLLanguageVersion3_0;
+  ```
+  to
+  ```
+  return MTLLanguageVersion2_0;
+  ```
+* Edit `aten/src/ATen/native/mps/operations/Indexing.mm` and change
+  ```
+  indexABContents[idx] =
+      getMTLBufferStorage(indexTensor).gpuAddress + (indexTensor.storage_offset() * indexTensor.element_size());
+  ```
+  to
+  ```
+  //indexABContents[idx] =
+  //    getMTLBufferStorage(indexTensor).gpuAddress + (indexTensor.storage_offset() * indexTensor.element_size());
+  ```
+* Edit `third_party/onnx/CMakelists.txt` and change
+  ```
+  # find_package(Python ${PY_VERSION} COMPONENTS Interpreter Development REQUIRED)
+  find_package(PythonInterp ${PY_VERSION} REQUIRED)
+  ```
+  to
+  ```
+  set(PY_VERSION 3.10)
+  find_package(Python3 ${PY_VERSION} COMPONENTS Interpreter Development REQUIRED)
+  #find_package(PythonInterp ${PY_VERSION} REQUIRED)
+  ```
+
 For compilation on `macOS Mojave (10.14)`
 
 * Edit `torch/csrc/jit/api/module.h` and change
