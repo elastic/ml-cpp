@@ -17,7 +17,6 @@ steps:
     depends_on:
         - "build_test_linux-aarch64-RelWithDebInfo"
         - "build_test_linux-x86_64-RelWithDebInfo"
-        - "build_test_macos-x86_64-RelWithDebInfo"
         - "build_test_macos-aarch64-RelWithDebInfo"
         - "build_test_Windows-x86_64-RelWithDebInfo"
 

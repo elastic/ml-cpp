@@ -260,6 +260,7 @@ export PYTORCH_BUILD_NUMBER=1
 Once built copy headers and libraries to system directories:
 
 ```
+sudo mkdir -p /usr/local/lib
 sudo mkdir -p /usr/local/include/pytorch
 sudo cp -r torch/include/* /usr/local/include/pytorch/
 sudo cp torch/lib/libtorch_cpu.dylib /usr/local/lib/

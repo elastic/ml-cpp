@@ -9,36 +9,11 @@
 # limitation.
 #
 
-# which compilers to use for C and C++
-if(DEFINED ENV{CPP_CROSS_COMPILE} AND NOT "$ENV{CPP_CROSS_COMPILE}" STREQUAL "")
-  message(STATUS "Cross compiling: CPP_CROSS_COMPILE = $ENV{CPP_CROSS_COMPILE}")
-
-  set(CROSS_FLAGS --sysroot=${SYSROOT} -B /usr/local/bin -target ${CROSS_TARGET_PLATFORM} -stdlib=libc++)
-  set(ML_SHARED_LINKER_FLAGS ${CROSS_FLAGS})
-  set(ML_EXE_LINKER_FLAGS    ${CROSS_FLAGS})
-
-  # which compilers to use for C and C++
-  set(CMAKE_C_COMPILER   "clang-8")
-  set(CMAKE_CXX_COMPILER "clang++-8")
-
-  set(CMAKE_AR  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ar")
-  set(CMAKE_RANLIB  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ranlib")
-  set(CMAKE_STRIP  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-strip")
-  set(CMAKE_LD  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ld")
-
-  set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -ru <TARGET> <OBJECTS>")
-
-  # where is the target environment located
-  set(CMAKE_FIND_ROOT_PATH  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-else()
-  set(CMAKE_C_COMPILER   "clang")
-  set(CMAKE_CXX_COMPILER "clang++")
-  set(CMAKE_AR  "ar")
-  set(CMAKE_RANLIB  "ranlib")
-  set(CMAKE_STRIP  "strip")
-
-  #set(Boost_COMPILER "-clang-darwin13")
-endif()
+set(CMAKE_C_COMPILER   "clang")
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_AR  "ar")
+set(CMAKE_RANLIB  "ranlib")
+set(CMAKE_STRIP  "strip")
 
 
 list(APPEND ML_C_FLAGS 

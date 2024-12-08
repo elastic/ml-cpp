@@ -43,7 +43,7 @@ def main():
         build_windows = pipeline_steps.generate_step_template("Windows", config.action, "", config.build_x86_64)
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", config.action, config.build_aarch64, config.build_x86_64)
+        build_macos = pipeline_steps.generate_step_template("MacOS", config.action, config.build_aarch64, "")
         pipeline_steps.append(build_macos)
     if config.build_linux:
         build_linux = pipeline_steps.generate_step_template("Linux", config.action, config.build_aarch64, config.build_x86_64)
