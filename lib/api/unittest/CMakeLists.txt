@@ -50,7 +50,6 @@ set (SRCS
   CNoopCategoryIdMapperTest.cc
   CPerPartitionCategoryIdMapperTest.cc
   CPersistenceManagerTest.cc
-  CRestorePreviousStateTest.cc
   CResultNormalizerTest.cc
   CSerializableToJsonTest.cc
   CSingleFieldDataCategorizerTest.cc
