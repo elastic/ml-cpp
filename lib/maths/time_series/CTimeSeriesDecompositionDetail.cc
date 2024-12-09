@@ -1129,11 +1129,6 @@ bool CTimeSeriesDecompositionDetail::CSeasonalityTest::acceptRestoreTraverser(
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
-        // // The intention is to discard the short and long windows after reloading
-        // // state saved before 7.9. Although their format hasn't changed, they use
-        // // old parameters which aren't compatible with the changes to this class.
-        // RESTORE_NO_ERROR(SHORT_WINDOW_6_3_TAG, m_Windows[E_Short] = this->newWindow(E_Short))
-        // RESTORE_NO_ERROR(LONG_WINDOW_6_3_TAG, m_Windows[E_Long] = this->newWindow(E_Long))
         RESTORE_SETUP_TEARDOWN(
             SHORT_WINDOW_7_9_TAG, m_Windows[E_Short] = this->newWindow(E_Short),
             m_Windows[E_Short] && traverser.traverseSubLevel([this](auto& traverser_) {
