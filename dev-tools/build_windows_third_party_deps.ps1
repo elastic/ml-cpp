@@ -117,7 +117,7 @@ mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\
 # Build and install PyTorch (this may take a while)
 Write-Host "--- Installing PyTorch locally"
 cd c:\tools
-git clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.5.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -131,7 +131,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.5.0
+set PYTORCH_BUILD_VERSION=2.5.1
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 Write-Host "--- Done Installing PyTorch locally"
@@ -158,9 +158,9 @@ mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\
 
 # Uninstall python, it was only needed for the PyTorch build
 & c:\tools\$PythonArchive /uninstall /quiet
-rm c:\Python310 -recurse -force
+rm c:\Python310 -recurse -force -ErrorAction Ignore
 
 # Remove c:\tools entirely
 cd c:\
-rm c:\tools -recurse -force
+rm c:\tools -recurse -force -ErrorAction Ignore
 
