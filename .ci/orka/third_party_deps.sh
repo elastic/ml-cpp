@@ -34,7 +34,7 @@ sudo rm -rf boost_1_86_0
 sudo pip3 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Build and install PyTorch
-git clone --depth=1 --branch=v2.5.0 https://github.com/pytorch/pytorch.git && \
+git clone --depth=1 --branch=v2.5.1 https://github.com/pytorch/pytorch.git && \
 cd pytorch && \
 git submodule sync && \
 git submodule update --init --recursive && \
@@ -59,7 +59,7 @@ export DNNL_TARGET_ARCH=AARCH64
 export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.5.0
+export PYTORCH_BUILD_VERSION=2.5.1
 export PYTORCH_BUILD_NUMBER=1
 python3 setup.py install
 
