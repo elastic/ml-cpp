@@ -10,7 +10,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:14
+FROM docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:16
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
