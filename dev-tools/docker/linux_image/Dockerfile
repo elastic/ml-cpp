@@ -21,9 +21,9 @@ RUN dnf -y update && \
     dnf install -y dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
     dnf groupinstall "Development Tools" -y && \
-    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel && \
+    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which zip zlib-devel && \
     dnf clean all && \
-    rm -rf /var/cache/dnf /tmp/*
+    rm -rf /var/cache/dnf /tmp/* 
 
 # For compiling with hardening and optimisation
 ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
@@ -43,7 +43,7 @@ RUN \
   cd .. && \
   mkdir gcc-13.3.0-build && \
   cd gcc-13.3.0-build && \
-  ../gcc-13.3.0/configure --prefix=/usr/local/gcc133 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
+  ../gcc-13.3.0/configure --prefix=/usr/local/gcc133 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-lto-compression --without-system-liblzma --disable-multilib --without-xz --without-lzma --without-zstd && \
   make -j$(nproc) && \
   make install && \
   cd .. && \
@@ -59,7 +59,7 @@ RUN \
   cd ${build_dir} && \
   wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.41.tar.bz2 | tar jxf - && \
   cd binutils-2.41 && \
-  ./configure --prefix=/usr/local/gcc133 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only && \
+  ./configure --prefix=/usr/local/gcc133 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only --without-lzma --without-zstd && \
   make -j$(nproc) && \
   make install && \
   cd .. && \
@@ -70,11 +70,15 @@ RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://download.gnome.org/sources/libxml2/2.10/libxml2-2.10.4.tar.xz | tar Jxf - && \
   cd libxml2-2.10.4 && \
-  ./configure --prefix=/usr/local/gcc133 --without-python --without-readline && \
+  ./configure --prefix=/usr/local/gcc133 --without-python --without-readline --without-lzma --without-zstd  && \
   make -j$(nproc) && \
   make install && \
   cd .. && \
   rm -rf libxml2-2.10.4 /tmp/*
+
+RUN \
+  for i in $(ls /lib64/libzstd.*); do mv $i "$i.bak" ; done && \
+  for i in $(ls /lib64/liblzma.*); do mv $i "$i.bak" ; done
 
 # Build Boost
 RUN \
@@ -129,6 +133,10 @@ RUN \
   make install && \
   cd .. && \
   rm -rf openssl-1.1.1u /usr/local/share/man /tmp/*
+
+RUN \
+  for i in $(ls /lib64/libzstd.*.bak); do mv $i "${i%.bak}" ; done && \
+  for i in $(ls /lib64/liblzma.*.bak); do mv $i "${i%.bak}" ; done
 
 # Build Python 3.12
 # --enable-optimizations for a stable/release build

@@ -129,24 +129,3 @@ This image is not intended to be built regularly.  When changing the
  
 ### Build script: dev-tools/docker/build_check_style_image.sh
 
-
-
-## REPOSITORY: ml-macosx-build
-
-### VERSION: 18
-
-### Comments
-A Docker image that can be used to **cross compile** the machine learning
-C++ code for Intel macOS
-
-This image is not intended to be built regularly.  When changing the tools
-or 3rd party components required to build the machine learning C++ code:
-
-
- 1. increment the version
- 2.  Change the Dockerfile and build a new image to be
-used for subsequent builds on this branch.
- 3. Update the version to be used for builds in *dev-tools/docker/macosx_builder/Dockerfile*.
-
-### Build script: dev-tools/docker/build_macosx_build_image.sh
-

@@ -34,6 +34,13 @@
 
 * Update Linux build images to Rocky Linux 8 with gcc 13.3. (See {ml-pull}2773[#2773].)
 
+== {es} version 8.18.0
+
+=== Enhancements
+
+* Update the PyTorch library to version 2.5.0. (See {ml-pull}2783[#2783], {ml-pull}2778[#2778].)
+* Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
+
 == {es} version 8.16.0
 
 === Enhancements
