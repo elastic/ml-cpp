@@ -104,7 +104,7 @@ def main(args):
               "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:14"
             },
             "commands": [
-              "PATH=/usr/local/gcc103/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/buildkite-agent/bin:/root/google-cloud-sdk/bin .buildkite/scripts/steps/build_and_test.sh"
+              ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
             "key": "build_linux_aarch64_cross-RelWithDebInfo",
@@ -112,8 +112,7 @@ def main(args):
               "CPP_CROSS_COMPILE": "aarch64",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
               "RUN_TESTS": "false",
-              "ML_DEBUG": "1",
-              "PATH": "/usr/local/gcc103/bin/:$PATH"
+              "ML_DEBUG": "1"
             },
             "notify": [
               {
