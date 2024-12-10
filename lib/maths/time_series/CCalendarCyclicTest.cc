@@ -75,8 +75,7 @@ double binomialPValueAdj(double n, double p, double np) {
 }
 
 const std::string VERSION_6_4_TAG("6.4");
-// Version < 6.4
-const std::string ERROR_QUANTILES_OLD_TAG("a");
+
 // Version 6.4
 const core::TPersistenceTag ERROR_QUANTILES_6_4_TAG("a", "error_quantiles");
 const core::TPersistenceTag CURRENT_BUCKET_TIME_6_4_TAG("b", "current_bucket_time");
@@ -135,13 +134,10 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                     m_MeanAbsValue.fromDelimited(traverser.value()))
         }
     } else {
-        do {
-            const std::string& name = traverser.name();
-            RESTORE(ERROR_QUANTILES_OLD_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
-                return m_ErrorQuantiles.acceptRestoreTraverser(traverser_);
-            }))
-        } while (traverser.next());
-        errors.resize(SIZE);
+        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+                  << traverser.name()
+                  << "'. Currently supported version: " << VERSION_6_4_TAG);
+        return false;
     }
     this->checkRestoredInvariants(errors);
     this->deflate(errors);

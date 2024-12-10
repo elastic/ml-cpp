@@ -2576,6 +2576,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::acceptRestoreTraver
                     core::CPersistUtils::restore(ERRORS_6_4_TAG, m_PredictionErrors, traverser))
         }
     } else {
+        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+                  << traverser.name()
+                  << "'. Currently supported version: " << VERSION_6_4_TAG);
         return false;
     }
     return true;
@@ -2915,6 +2918,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::acceptRestoreTraver
                     core::CPersistUtils::restore(ERRORS_6_4_TAG, m_PredictionErrors, traverser))
         }
     } else {
+        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+                  << traverser.name()
+                  << "'. Currently supported version: " << VERSION_6_4_TAG);
         return false;
     }
     return true;

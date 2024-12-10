@@ -579,7 +579,9 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestore
             }))
         }
     } else {
-        LOG_ERROR(<< "Unsupported version '" << traverser.name() << "'");
+        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+                  << traverser.name()
+                  << "'. Currently supported version: " << VERSION_7_3_TAG);
         return false;
     }
 
@@ -1311,9 +1313,7 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
-    bool stateMissingControllerChecks{false};
     if (traverser.name() == VERSION_7_11_TAG) {
-        stateMissingControllerChecks = false;
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_6_3_TAG, m_Id)
@@ -1357,16 +1357,6 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRest
     } else {
         LOG_ERROR(<< "Unsupported version '" << traverser.name() << "'");
         return false;
-    }
-
-    if (m_Controllers != nullptr && stateMissingControllerChecks) {
-        (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
-                                                CDecayRateController::E_PredictionErrorIncrease);
-    }
-    if (m_Controllers != nullptr && stateMissingControllerChecks) {
-        (*m_Controllers)[E_ResidualControl].checks(
-            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
-            CDecayRateController::E_PredictionErrorDecrease);
     }
 
     this->checkRestoredInvariants();
@@ -2721,9 +2711,7 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRestoreParams& params,
                                                           core::CStateRestoreTraverser& traverser) {
-    bool stateMissingControllerChecks{false};
     if (traverser.name() == VERSION_7_11_TAG) {
-        stateMissingControllerChecks = false;
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
@@ -2771,16 +2759,6 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRe
     }
 
     this->checkRestoredInvariants();
-
-    if (m_Controllers != nullptr && stateMissingControllerChecks) {
-        (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
-                                                CDecayRateController::E_PredictionErrorIncrease);
-    }
-    if (m_Controllers != nullptr && stateMissingControllerChecks) {
-        (*m_Controllers)[E_ResidualControl].checks(
-            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
-            CDecayRateController::E_PredictionErrorDecrease);
-    }
 
     return true;
 }
