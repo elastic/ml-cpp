@@ -158,9 +158,9 @@ mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\
 
 # Uninstall python, it was only needed for the PyTorch build
 & c:\tools\$PythonArchive /uninstall /quiet
-rm c:\Python310 -recurse -force
+rm c:\Python310 -recurse -force -ErrorAction Ignore
 
 # Remove c:\tools entirely
 cd c:\
-rm c:\tools -recurse -force
+rm c:\tools -recurse -force -ErrorAction Ignore
 
