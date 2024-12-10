@@ -112,7 +112,8 @@ def main(args):
               "CPP_CROSS_COMPILE": "aarch64",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
               "RUN_TESTS": "false",
-              "ML_DEBUG": "1"
+              "ML_DEBUG": "1",
+              "PATH": "/usr/local/gcc103/bin/:$PATH"
             },
             "notify": [
               {
