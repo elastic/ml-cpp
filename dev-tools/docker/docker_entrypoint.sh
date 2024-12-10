@@ -32,7 +32,7 @@ cd "$MY_DIR/../.."
 # Note: no need to clean due to the .dockerignore file
 
 # Configure the build
-export PATH=usr/local/gcc103/bin:$PATH
+export PATH=/usr/local/gcc103/bin:$PATH
 cmake -B cmake-build-docker ${CMAKE_FLAGS}
 
 # Build the code
