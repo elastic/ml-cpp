@@ -62,8 +62,8 @@ The generic image has the following packages installed:
 The ML packer scripts do the following:
  * Install JDK `11.0.25`
  * Install CMake `3.30.5`
- * Install Boost `1.83.0` from source
- * Install PyTorch `2.3.1` from source
+ * Install Boost `1.86.0` from source
+ * Install PyTorch `2.5.1` from source
 
 ## Caveats
 
