@@ -136,10 +136,6 @@ const core::TPersistenceTag MAGNITUDE_OF_LEVEL_CHANGE_MODEL_TAG{"j", "magnitude_
 const core::TPersistenceTag WEIGHT_7_1_TAG{"a", "weight"};
 const core::TPersistenceTag REGRESSION_7_1_TAG{"b", "regression"};
 const core::TPersistenceTag MSE_7_1_TAG{"c", "mse"};
-// Version < 7.1
-const std::string WEIGHT_OLD_TAG{"a"};
-const std::string REGRESSION_OLD_TAG{"b"};
-const std::string RESIDUAL_MOMENTS_OLD_TAG{"c"};
 }
 
 CTrendComponent::CTrendComponent(double decayRate)
@@ -765,29 +761,10 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
             RESTORE(MSE_7_1_TAG, s_Mse.fromDelimited(traverser.value()))
         }
     } else {
-        TMeanVarAccumulator residualMoments;
-        do {
-            const std::string& name{traverser.name()};
-            RESTORE(WEIGHT_OLD_TAG, s_Weight.fromDelimited(traverser.value()))
-            RESTORE(REGRESSION_OLD_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
-                return s_Regression.acceptRestoreTraverser(traverser_);
-            }))
-            RESTORE(RESIDUAL_MOMENTS_OLD_TAG,
-                    residualMoments.fromDelimited(traverser.value()))
-        } while (traverser.next());
-
-        // We need initial values for all models' mse to deal with forecasting
-        // immediately after upgrade. These values will be aged out reasonably
-        // quickly.
-
-        TVector3x1 mse;
-        for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 3) {
-            mse(order - 1) =
-                static_cast<double>(scale) *
-                (common::CTools::pow2(common::CBasicStatistics::mean(residualMoments)) +
-                 common::CBasicStatistics::variance(residualMoments));
-        }
-        s_Mse.add(mse, 10.0);
+        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+                  << traverser.name()
+                  << "'. Currently supported version: " << VERSION_7_1_TAG);
+        return false;
     }
     return true;
 }
