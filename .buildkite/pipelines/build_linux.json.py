@@ -104,9 +104,7 @@ def main(args):
               "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:14"
             },
             "commands": [
-              "export PATH=/usr/local/gcc103/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/buildkite-agent/bin:/root/google-cloud-sdk/bin",
-              "env",
-              ".buildkite/scripts/steps/build_and_test.sh"
+              "PATH=/usr/local/gcc103/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/buildkite-agent/bin:/root/google-cloud-sdk/bin .buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
             "key": "build_linux_aarch64_cross-RelWithDebInfo",
