@@ -761,9 +761,9 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
             RESTORE(MSE_7_1_TAG, s_Mse.fromDelimited(traverser.value()))
         }
     } else {
-        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+        LOG_ERROR(<< "Input error: unsupported state serialization version '"
                   << traverser.name()
-                  << "'. Currently supported version: " << VERSION_7_1_TAG);
+                  << "'. Currently supported minimum version: " << VERSION_7_1_TAG);
         return false;
     }
     return true;
