@@ -111,9 +111,9 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributio
             }))
         }
     } else {
-        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+        LOG_ERROR(<< "Input error: unsupported state serialization version '"
                   << traverser.name()
-                  << "'. Currently supported version: " << VERSION_7_11_TAG);
+                  << "'. Currently supported minimum version: " << VERSION_7_11_TAG);
         return false;
     }
     return true;
