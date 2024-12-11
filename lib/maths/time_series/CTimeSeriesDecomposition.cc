@@ -45,14 +45,6 @@ const core::TPersistenceTag SEASONALITY_TEST_7_11_TAG{"d", "seasonality_test"};
 const core::TPersistenceTag CALENDAR_CYCLIC_TEST_7_11_TAG{"e", "calendar_cyclic_test"};
 const core::TPersistenceTag COMPONENTS_7_11_TAG{"f", "components"};
 const core::TPersistenceTag TIME_SHIFT_7_11_TAG{"g", "time_shift"};
-// Version 6.3
-const std::string VERSION_6_3_TAG("6.3");
-const core::TPersistenceTag LAST_VALUE_TIME_6_3_TAG{"a", "last_value_time"};
-const core::TPersistenceTag LAST_PROPAGATION_TIME_6_3_TAG{"b", "last_propagation_time"};
-const core::TPersistenceTag SEASONALITY_TEST_6_3_TAG{"c", "periodicity_test"};
-const core::TPersistenceTag CALENDAR_CYCLIC_TEST_6_3_TAG{"d", "calendar_cyclic_test"};
-const core::TPersistenceTag COMPONENTS_6_3_TAG{"e", "components"};
-const core::TPersistenceTag TIME_SHIFT_6_3_TAG{"f", "time_shift"};
 
 const std::string EMPTY_STRING;
 }
@@ -118,25 +110,10 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributio
                 return m_Components.acceptRestoreTraverser(params, traverser_);
             }))
         }
-    } else if (traverser.name() == VERSION_6_3_TAG) {
-        while (traverser.next()) {
-            const std::string& name{traverser.name()};
-            RESTORE_BUILT_IN(TIME_SHIFT_6_3_TAG, m_TimeShift)
-            RESTORE_BUILT_IN(LAST_VALUE_TIME_6_3_TAG, m_LastValueTime)
-            RESTORE_BUILT_IN(LAST_PROPAGATION_TIME_6_3_TAG, m_LastPropagationTime)
-            RESTORE(SEASONALITY_TEST_6_3_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
-                return m_SeasonalityTest.acceptRestoreTraverser(traverser_);
-            }))
-            RESTORE(CALENDAR_CYCLIC_TEST_6_3_TAG,
-                    traverser.traverseSubLevel([this](auto& traverser_) {
-                        return m_CalendarCyclicTest.acceptRestoreTraverser(traverser_);
-                    }))
-            RESTORE(COMPONENTS_6_3_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
-                return m_Components.acceptRestoreTraverser(params, traverser_);
-            }))
-        }
     } else {
-        LOG_ERROR(<< "Unsupported version '" << traverser.name() << "'");
+        LOG_ERROR(<< "Input error: unsupported state serialization version '"
+                  << traverser.name()
+                  << "'. Currently supported minimum version: " << VERSION_7_11_TAG);
         return false;
     }
     return true;
