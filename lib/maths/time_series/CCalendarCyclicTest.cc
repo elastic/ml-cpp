@@ -134,9 +134,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                     m_MeanAbsValue.fromDelimited(traverser.value()))
         }
     } else {
-        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+        LOG_ERROR(<< "Input error: unsupported state serialization version '"
                   << traverser.name()
-                  << "'. Currently supported version: " << VERSION_6_4_TAG);
+                  << "'. Currently supported minimum version: " << VERSION_6_4_TAG);
         return false;
     }
     this->checkRestoredInvariants(errors);
