@@ -368,6 +368,7 @@ external processes.
 Edit the file `./third_party/onnx/CMakeLists.txt` and inserts the line 
 ```
 set(PYTHON_EXECUTABLE "/usr/local/bin/python3.10") 
+```
 before line 104. This line sets the PYTHON_EXECUTABLE variable to the specified Python
 executable path in the CMake configuration file.
 
