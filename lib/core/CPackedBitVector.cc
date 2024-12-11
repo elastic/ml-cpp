@@ -132,7 +132,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
         }
     }
 
-    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported minimum version: "
               << VERSION_7_9_TAG);
 
     return false;
