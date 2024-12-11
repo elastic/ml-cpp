@@ -579,9 +579,9 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestore
             }))
         }
     } else {
-        LOG_ERROR(<< "Input error: unsupported state serialization version'"
+        LOG_ERROR(<< "Input error: unsupported state serialization version '"
                   << traverser.name()
-                  << "'. Currently supported version: " << VERSION_7_3_TAG);
+                  << "'. Currently supported minimum version: " << VERSION_7_3_TAG);
         return false;
     }
 
