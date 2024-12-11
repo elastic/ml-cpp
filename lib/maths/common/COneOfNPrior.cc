@@ -68,6 +68,11 @@ const core::TPersistenceTag SAMPLE_MOMENTS_7_1_TAG("b", "sample_moments");
 const core::TPersistenceTag NUMBER_SAMPLES_7_1_TAG("c", "number_samples");
 const core::TPersistenceTag DECAY_RATE_7_1_TAG("d", "decay_rate");
 
+// Version < 7.1
+const std::string MODEL_OLD_TAG("a");
+const std::string NUMBER_SAMPLES_OLD_TAG("b");
+const std::string DECAY_RATE_OLD_TAG("e");
+
 // Nested tags
 const core::TPersistenceTag WEIGHT_TAG("a", "weight");
 const core::TPersistenceTag PRIOR_TAG("b", "prior");
@@ -149,10 +154,28 @@ bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& para
                 this->numberSamples(numberSamples))
         }
     } else {
-        LOG_ERROR(<< "Input error: unsupported state serialization version '"
-                  << traverser.name()
-                  << "'. Currently supported minimum version: " << VERSION_7_1_TAG);
-        return false;
+        do {
+            const std::string& name = traverser.name();
+            RESTORE_SETUP_TEARDOWN(DECAY_RATE_OLD_TAG, double decayRate,
+                                   core::CStringUtils::stringToType(traverser.value(), decayRate),
+                                   this->decayRate(decayRate))
+            RESTORE(MODEL_OLD_TAG, traverser.traverseSubLevel(std::bind(
+                                       &COneOfNPrior::modelAcceptRestoreTraverser, this,
+                                       std::cref(params), std::placeholders::_1)))
+            RESTORE_SETUP_TEARDOWN(
+                NUMBER_SAMPLES_OLD_TAG, double numberSamples,
+                core::CStringUtils::stringToType(traverser.value(), numberSamples),
+                this->numberSamples(numberSamples))
+        } while (traverser.next());
+
+        if (!this->isNonInformative()) {
+            double variance{INF};
+            for (const auto& model : m_Models) {
+                variance = std::min(variance, model.second->marginalLikelihoodVariance());
+            }
+            m_SampleMoments = CBasicStatistics::momentsAccumulator(
+                this->numberSamples(), this->marginalLikelihoodMean(), variance);
+        }
     }
     return true;
 }
