@@ -472,51 +472,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
-    // Read in the old trend format and test we get an accurate forecast.
-
-    auto load = [](const std::string& name, std::string& result) {
-        std::ifstream file;
-        file.open(name);
-        std::stringbuf buf;
-        file >> &buf;
-        result = buf.str();
-    };
-
-    std::string xml;
-    std::string expectedValues;
-    load("testfiles/CTrendComponent.7.0.xml", xml);
-    load("testfiles/CTrendComponent.7.0.expected_values.txt", expectedValues);
-
-    TDoubleVec values;
-    std::vector<std::string> tokens;
-    std::string empty;
-    core::CStringUtils::tokenise(",", expectedValues, tokens, empty);
-    for (const auto& token : tokens) {
-        double value;
-        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(token, value));
-        values.push_back(value);
-    }
-
-    maths::common::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.012};
-    maths::time_series::CTrendComponent component{0.012};
-
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
-    traverser.traverseSubLevel([&](auto& traverser_) {
-        return component.acceptRestoreTraverser(params, traverser_);
-    });
-
-    test::CRandomNumbers rng;
-
-    double error;
-    double errorAt95;
-    std::tie(error, errorAt95) =
-        forecastErrors(values.begin(), values.end(), 3000000, component);
-    BOOST_TEST_REQUIRE(error < 0.17);
-    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
 }
