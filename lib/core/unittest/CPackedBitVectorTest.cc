@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
 
     // Test restoring old state produces the correct vector.
 
-    std::string state{"1310:1:1:0:255:1:5:19:7:52:255:255:206"};
+    std::string state{"7.9:1310:1:1:2:253:3:1:4:20:76:28:208:49:11"};
 
     core::CPackedBitVector expected;
     expected.extend(true, 255);
