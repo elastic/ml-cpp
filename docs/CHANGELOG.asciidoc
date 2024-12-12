@@ -32,7 +32,7 @@
 
 === Enhancements
 
-* Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2783], {ml-pull}2799[#2799].)
+* Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2798], {ml-pull}2799[#2799].)
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
 * Drop support for macOS Intel builds. (See {ml-pull}2795[#2795].)
 
