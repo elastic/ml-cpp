@@ -139,24 +139,21 @@ CAnomalyJob::CAnomalyJob(std::string jobId,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
                          size_t maxAnomalyRecords)
-    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)},
-      m_Limits{limits}, m_OutputStream{outputStream},
-      m_ForecastRunner{m_JobId, m_OutputStream, limits.resourceMonitor()},
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)}, m_Limits{limits},
+      m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
+                                                     limits.resourceMonitor()},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
-      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
-      m_LastFinalisedBucketEndTime{0},
+      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0}, m_LastFinalisedBucketEndTime{0},
       m_PersistCompleteFunc{std::move(persistCompleteFunc)},
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
-      m_PersistenceManager{persistenceManager},
-      m_MaxQuantileInterval{maxQuantileInterval},
+      m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
       m_LastNormalizerPersistTime{core::CTimeUtils::now()}, m_LatestRecordTime{0},
       m_LastResultsTime{0}, m_Aggregator{modelConfig}, m_Normalizer{modelConfig} {
     m_JsonOutputWriter.limitNumberRecords(maxAnomalyRecords);
 
-    m_Limits.resourceMonitor().memoryUsageReporter(
-        [ObjectPtr = &m_JsonOutputWriter](auto&& PH1) {
-            ObjectPtr->reportMemoryUsage(std::forward<decltype(PH1)>(PH1));
-        });
+    m_Limits.resourceMonitor().memoryUsageReporter([ObjectPtr = &m_JsonOutputWriter](auto&& PH1) {
+        ObjectPtr->reportMemoryUsage(std::forward<decltype(PH1)>(PH1));
+    });
 }
 
 CAnomalyJob::~CAnomalyJob() {
@@ -1108,8 +1105,9 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     LOG_DEBUG(<< "Restoring state for detector with key '" << key.debug() << '/'
               << partitionFieldValue << '\'');
 
-    if (traverser.traverseSubLevel([capture0 = detector.get(),
-                                    capture1 = std::cref(partitionFieldValue)](auto&& PH1) {
+    if (traverser.traverseSubLevel([
+            capture0 = detector.get(), capture1 = std::cref(partitionFieldValue)
+        ](auto&& PH1) {
             return capture0->acceptRestoreTraverser(
                 capture1, std::forward<decltype(PH1)>(PH1));
         }) == false) {
@@ -1352,11 +1350,10 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                 core::CJsonStatePersistInserter inserter(*strm);
                 inserter.insertValue(TIME_TAG, time);
                 inserter.insertValue(VERSION_TAG, model::CAnomalyDetector::STATE_VERSION);
-                inserter.insertLevel(INTERIM_BUCKET_CORRECTOR_TAG,
-                                     [ObjectPtr = &interimBucketCorrector](auto&& PH1) {
-                                         ObjectPtr->acceptPersistInserter(
-                                             std::forward<decltype(PH1)>(PH1));
-                                     });
+                inserter.insertLevel(INTERIM_BUCKET_CORRECTOR_TAG, [ObjectPtr = &interimBucketCorrector](
+                                                                       auto&& PH1) {
+                    ObjectPtr->acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+                });
 
                 for (const auto& detector_ : detectors) {
                     const model::CAnomalyDetector* detector(detector_.second.get());
@@ -1371,8 +1368,7 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                         continue;
                     }
                     inserter.insertLevel(
-                        TOP_LEVEL_DETECTOR_TAG,
-                        [capture0 = std::cref(*detector)](auto&& PH1) {
+                        TOP_LEVEL_DETECTOR_TAG, [capture0 = std::cref(*detector)](auto&& PH1) {
                             CAnomalyJob::persistIndividualDetector(
                                 capture0, std::forward<decltype(PH1)>(PH1));
                         });
