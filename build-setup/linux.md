@@ -175,17 +175,17 @@ sudo make install
 
 to install.
 
-### Boost 1.83.0
+### Boost 1.86.0
 
-Download version 1.83.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
+Download version 1.86.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_83_0.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_86_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_83_0` directory, run:
+In the resulting `boost_1_86_0` directory, run:
 
 ```
 ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
@@ -193,18 +193,14 @@ In the resulting `boost_1_83_0` directory, run:
 
 This should build the `b2` program, which in turn is used to build Boost.
 
-Edit `boost/unordered/detail/prime_fmod.hpp` and change line 134 from:
-
+Edit `boost/unordered/detail/prime_fmod.hpp` and change line 37 from
 ```
-    (13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+    constexpr static std::size_t const sizes[] = {13ul, 29ul, 53ul, 97ul,
 ```
-
 to:
-
 ```
-    (3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+    constexpr static std::size_t const sizes[] = {3ul, 13ul, 29ul, 53ul, 97ul,
 ```
-
 Finally, run:
 
 ```
@@ -337,7 +333,7 @@ Then copy the shared libraries to the system directory:
 (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc133 && sudo tar xvf -)
 ```
 
-### PyTorch 2.3.1
+### PyTorch 2.5.1
 
 (This step requires a reasonable amount of memory. It failed on a machine with 8GB of RAM. It succeeded on a 16GB machine. You can specify the number of parallel jobs using environment variable MAX_JOBS. Lower number of jobs will reduce memory usage.)
 
@@ -356,7 +352,7 @@ sudo /usr/local/gcc133/bin/python3.12 -m pip install numpy pyyaml setuptools cff
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.3.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.5.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -369,6 +365,12 @@ do for security reasons. Replacing the calls to `system()` ensures that
 a heuristic virus scanner looking for potentially dangerous function
 calls in our shipped product will not encounter these functions that run
 external processes.
+
+Edit the file ./third_party/onnx/CMakeLists.txt and inserts the line
+```
+set(PYTHON_EXECUTABLE "/usr/local/bin/python3.12") 
+````
+before line 104. This line sets the PYTHON_EXECUTABLE variable to the specified Python executable path in the CMake configuration file.
 
 Build as follows:
 
@@ -384,7 +386,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.3.1
+export PYTORCH_BUILD_VERSION=2.5.1
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc133/bin/python3.12 setup.py install
 ```

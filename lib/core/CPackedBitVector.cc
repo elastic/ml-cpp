@@ -24,15 +24,6 @@ namespace ml {
 namespace core {
 namespace {
 const std::string VERSION_7_9_TAG{"7.9"};
-const std::uint8_t MAX_RUN_LENGTH{std::numeric_limits<std::uint8_t>::max()};
-
-std::size_t read(std::uint8_t run) {
-    return static_cast<std::size_t>(run == 0 ? MAX_RUN_LENGTH : run);
-}
-
-bool complete(std::uint8_t run) {
-    return run != MAX_RUN_LENGTH;
-}
 
 template<typename T>
 bool read(const std::string& str, std::size_t& last, std::size_t& pos, T& value) {
@@ -139,26 +130,10 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
             m_LastRunBytes = static_cast<std::uint8_t>(lastRunBytes);
             return true;
         }
-    } else {
-        int first{0};
-        int parity{0};
-        TUInt8Vec runLengthBytes;
-        if (CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) &&
-            read(str, last, pos, first) && read(str, last, pos, parity) &&
-            CPersistUtils::fromString(str.substr(pos + 1), runLengthBytes)) {
-            m_First = (first != 0);
-            m_Parity = (parity != 0);
-            runLengthBytes.push_back(0);
-            for (std::size_t j = 0, runLength = read(runLengthBytes[j]);
-                 j + 1 < runLengthBytes.size(); runLength += read(runLengthBytes[++j])) {
-                if (complete(runLengthBytes[j])) {
-                    appendRun(runLength, m_LastRunBytes, m_RunLengthBytes);
-                    runLength = 0;
-                }
-            }
-            return true;
-        }
     }
+
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported minimum version: "
+              << VERSION_7_9_TAG);
 
     return false;
 }
