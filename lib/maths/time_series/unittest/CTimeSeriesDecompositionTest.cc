@@ -252,9 +252,9 @@ public:
                 TSeasonalDecomposition::TPeriodDescriptor::E_Week};
             TSeasonalDecomposition::TOptionalTime startOfWeekTime;
             TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
-            seasonalDecompositionComponents.add(
-                "Test component 2", secondSeasonalComponent, 0,
-                periodDescriptor, 0.0, 0.0, 1.0, startOfWeekTime, seasonalValues);
+            seasonalDecompositionComponents.add("Test component 2", secondSeasonalComponent,
+                                                0, periodDescriptor, 0.0, 0.0, 1.0,
+                                                startOfWeekTime, seasonalValues);
 
             CConfigurableMemoryCircuitBreaker allocator{false};
 
