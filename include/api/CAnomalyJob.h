@@ -456,7 +456,7 @@ private:
     model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Keep count of how many records we've handled
-    std::uint64_t m_NumRecordsHandled;
+    std::uint64_t m_NumRecordsHandled = 0;
 
     //! Detector keys.
     TKeyVec m_DetectorKeys;
@@ -465,7 +465,7 @@ private:
     TKeyAnomalyDetectorPtrUMap m_Detectors;
 
     //! The end time of the last bucket out of latency window we've seen
-    core_t::TTime m_LastFinalisedBucketEndTime;
+    core_t::TTime m_LastFinalisedBucketEndTime = 0;
 
     //! Optional function to be called when persistence is complete
     TPersistCompleteFunc m_PersistCompleteFunc;
@@ -488,10 +488,10 @@ private:
     core_t::TTime m_LastNormalizerPersistTime;
 
     //! Latest record time seen.
-    core_t::TTime m_LatestRecordTime;
+    core_t::TTime m_LatestRecordTime = 0;
 
     //! Last time we sent a finalised result to the API.
-    core_t::TTime m_LastResultsTime;
+    core_t::TTime m_LastResultsTime = 0;
 
     //! When the model state was restored was it entirely successful.
     //! Extra information about any errors that may have occurred
