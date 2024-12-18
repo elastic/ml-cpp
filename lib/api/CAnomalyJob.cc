@@ -822,23 +822,24 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
     }
     core_t::TTime start = 0;
     core_t::TTime end = 0;
-    if (ml::api::CAnomalyJob::parseTimeRangeInControlMessage(controlMessage, start, end)) {
-        core_t::TTime const bucketLength = m_ModelConfig.bucketLength();
-        core_t::TTime time = maths::common::CIntegerTools::floor(start, bucketLength);
-        core_t::TTime const bucketEnd = maths::common::CIntegerTools::ceil(end, bucketLength);
-        while (time < bucketEnd) {
-            for (const auto& detector_ : m_Detectors) {
-                model::CAnomalyDetector* detector = detector_.second.get();
-                if (detector == nullptr) {
-                    LOG_ERROR(<< "Unexpected NULL pointer for key '"
-                              << pairDebug(detector_.first) << '\'');
-                    continue;
-                }
-                LOG_TRACE(<< "Resetting bucket = " << time);
-                detector->resetBucket(time);
+    if (ml::api::CAnomalyJob::parseTimeRangeInControlMessage(controlMessage, start, end) == false) {
+        return;
+    }
+    core_t::TTime const bucketLength = m_ModelConfig.bucketLength();
+    core_t::TTime time = maths::common::CIntegerTools::floor(start, bucketLength);
+    core_t::TTime const bucketEnd = maths::common::CIntegerTools::ceil(end, bucketLength);
+    while (time < bucketEnd) {
+        for (const auto& detector_ : m_Detectors) {
+            model::CAnomalyDetector* detector = detector_.second.get();
+            if (detector == nullptr) {
+                LOG_ERROR(<< "Unexpected NULL pointer for key '"
+                          << pairDebug(detector_.first) << '\'');
+                continue;
             }
-            time += bucketLength;
+            LOG_TRACE(<< "Resetting bucket = " << time);
+            detector->resetBucket(time);
         }
+        time += bucketLength;
     }
 }
 
