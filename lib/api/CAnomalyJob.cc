@@ -1612,7 +1612,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
                             core_t::TTime time,
                             const model::CSearchKey& key,
                             const std::string& partitionFieldValue,
-                            model::CResourceMonitor& resourceMonitor) {
+                            const model::CResourceMonitor& resourceMonitor) {
     // The simple count detector always lives in a special null partition.
     const std::string& partition = key.isSimpleCount() ? EMPTY_STRING : partitionFieldValue;
 
@@ -1658,7 +1658,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     return itr->second;
 }
 
-void CAnomalyJob::pruneAllModels(std::size_t buckets) {
+void CAnomalyJob::pruneAllModels(std::size_t buckets) const {
     if (buckets == 0) {
         LOG_INFO(<< "Pruning obsolete models");
     } else {
