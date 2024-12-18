@@ -126,7 +126,7 @@ public:
     struct SBackgroundPersistArgs {
         SBackgroundPersistArgs(core_t::TTime time,
                                const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
-                               const model::CInterimBucketCorrector& interimBucketCorrector,
+                               model::CInterimBucketCorrector interimBucketCorrector,
                                const model::CHierarchicalResultsAggregator& aggregator,
                                core_t::TTime latestRecordTime,
                                core_t::TTime lastResultsTime,
@@ -146,12 +146,12 @@ public:
     using TBackgroundPersistArgsPtr = std::shared_ptr<SBackgroundPersistArgs>;
 
 public:
-    CAnomalyJob(const std::string& jobId,
+    CAnomalyJob(std::string jobId,
                 model::CLimits& limits,
                 CAnomalyJobConfig& jobConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
-                const TPersistCompleteFunc& persistCompleteFunc,
+                TPersistCompleteFunc persistCompleteFunc,
                 CPersistenceManager* persistenceManager,
                 core_t::TTime maxQuantileInterval,
                 const std::string& timeFieldName,
@@ -265,7 +265,8 @@ private:
 
     //! This is the function that is called in a different thread to the
     //! main processing when background persistence is triggered.
-    bool runBackgroundPersist(TBackgroundPersistArgsPtr args, core::CDataAdder& persister);
+    bool runBackgroundPersist(const TBackgroundPersistArgsPtr& args,
+                              core::CDataAdder& persister);
 
     //! This function is called from the persistence manager when foreground persistence is triggered
     bool runForegroundPersist(core::CDataAdder& persister);
@@ -331,9 +332,9 @@ private:
 
     //! Parses the time range in a control message assuming the time range follows after a
     //! single character code (e.g. starts with 'i10 20').
-    bool parseTimeRangeInControlMessage(const std::string& controlMessage,
-                                        core_t::TTime& start,
-                                        core_t::TTime& end);
+    static bool parseTimeRangeInControlMessage(const std::string& controlMessage,
+                                               core_t::TTime& start,
+                                               core_t::TTime& end);
 
     //! Update equalizers if not interim and aggregate.
     void updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults& results);
@@ -375,7 +376,7 @@ private:
     //! Update configuration
     void doForecast(const std::string& controlMessage);
 
-    TAnomalyDetectorPtr
+    static TAnomalyDetectorPtr
     makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                  model::CLimits& limits,
                  const std::string& partitionFieldValue,
@@ -383,16 +384,17 @@ private:
                  const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
     //! Populate detector keys from the anomaly job config.
-    void populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys);
+    static void populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
-    const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
+    static const std::string* fieldValue(const std::string& fieldName,
+                                         const TStrStrUMap& dataRowFields);
 
     //! Extract the required fields from \p dataRowFields
     //! and add the new record to \p detector
-    void addRecord(const TAnomalyDetectorPtr detector,
-                   core_t::TTime time,
-                   const TStrStrUMap& dataRowFields);
+    static void addRecord(const TAnomalyDetectorPtr& detector,
+                          core_t::TTime time,
+                          const TStrStrUMap& dataRowFields);
 
     //! Parses a control message requesting that model state be persisted.
     //! Extracts optional arguments to be used for persistence.
@@ -420,12 +422,12 @@ protected:
                                               core_t::TTime time,
                                               const model::CSearchKey& key,
                                               const std::string& partitionFieldValue,
-                                              model::CResourceMonitor& resourceMonitor);
+                                              const model::CResourceMonitor& resourceMonitor);
 
     //! Prune all the models that exceed \p buckets in age
     //! A value of 0 for \buckets indicates that only 'obsolete' models will
     //! be pruned, i.e. those which are so old as to be effectively dead.
-    void pruneAllModels(std::size_t buckets = 0);
+    void pruneAllModels(std::size_t buckets = 0) const;
 
 private:
     //! The job ID
@@ -454,7 +456,7 @@ private:
     model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Keep count of how many records we've handled
-    std::uint64_t m_NumRecordsHandled;
+    std::uint64_t m_NumRecordsHandled = 0;
 
     //! Detector keys.
     TKeyVec m_DetectorKeys;
@@ -463,7 +465,7 @@ private:
     TKeyAnomalyDetectorPtrUMap m_Detectors;
 
     //! The end time of the last bucket out of latency window we've seen
-    core_t::TTime m_LastFinalisedBucketEndTime;
+    core_t::TTime m_LastFinalisedBucketEndTime = 0;
 
     //! Optional function to be called when persistence is complete
     TPersistCompleteFunc m_PersistCompleteFunc;
@@ -486,10 +488,10 @@ private:
     core_t::TTime m_LastNormalizerPersistTime;
 
     //! Latest record time seen.
-    core_t::TTime m_LatestRecordTime;
+    core_t::TTime m_LatestRecordTime = 0;
 
     //! Last time we sent a finalised result to the API.
-    core_t::TTime m_LastResultsTime;
+    core_t::TTime m_LastResultsTime = 0;
 
     //! When the model state was restored was it entirely successful.
     //! Extra information about any errors that may have occurred

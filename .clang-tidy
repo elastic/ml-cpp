@@ -8,32 +8,31 @@ Checks: >
 
   clang-diagnostic-*,
   -clang-diagnostic-sign-conversion,
+  -clang-diagnostic-unused-macros,
   
   google-*,
   -google-build-using-namespace,
   -google-readability-namespace-comments,
   -google-runtime-references,
+
   misc-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-include-cleaner,
   
   modernize-*,
   -modernize-use-trailing-return-type,
   -modernize-concat-nested-namespaces,
   -modernize-use-nodiscard,
-  -modernize-replace-random-shuffle,
-  -modernize-unary-static-assert,
-  -modernize-use-uncaught-exception,
   
   performance-*,
   
   readability-*,
   -readability-magic-numbers,
-  -readability-named-parameter,
   -readability-redundant-access-specifiers,
   -readability-simplify-boolean-expr,
   -readability-identifier-length,
   
 WarningsAsErrors: false
-AnalyzeTemporaryDtors: false
 FormatStyle:     file
 CheckOptions:
   - key:             bugprone-assert-side-effect.AssertMacros
@@ -62,3 +61,5 @@ CheckOptions:
     value:           'true'
   - key:             readability-function-cognitive-complexity.IgnoreMacros
     value:           'true'
+  - key: modernize-include.UseAngleBrackets
+    value: true

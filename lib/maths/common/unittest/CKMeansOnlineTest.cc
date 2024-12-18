@@ -205,8 +205,8 @@ BOOST_AUTO_TEST_CASE(testDeduplicate) {
                         0.0);
     CKMeansOnlineForTest<TVector2>::deduplicate(points);
     BOOST_REQUIRE_EQUAL(1, points.size());
-    BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
-                        maths::common::CBasicStatistics::mean(points[0].first));
+    BOOST_ASSERT(TFloatVector2{0.0} ==
+                 maths::common::CBasicStatistics::mean(points[0].first));
     BOOST_REQUIRE_EQUAL(4.0, maths::common::CBasicStatistics::count(points[0].first));
     BOOST_REQUIRE_EQUAL(0.0, points[0].second);
     points.clear();
@@ -222,16 +222,16 @@ BOOST_AUTO_TEST_CASE(testDeduplicate) {
                         0.0);
     CKMeansOnlineForTest<TVector2>::deduplicate(points);
     BOOST_REQUIRE_EQUAL(3, points.size());
-    BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
-                        maths::common::CBasicStatistics::mean(points[0].first));
+    BOOST_ASSERT(TFloatVector2{0.0} ==
+                 maths::common::CBasicStatistics::mean(points[0].first));
     BOOST_REQUIRE_EQUAL(1.0, maths::common::CBasicStatistics::count(points[0].first));
     BOOST_REQUIRE_EQUAL(0.0, points[0].second);
-    BOOST_REQUIRE_EQUAL(TFloatVector2{1.0},
-                        maths::common::CBasicStatistics::mean(points[1].first));
+    BOOST_ASSERT(TFloatVector2{1.0} ==
+                 maths::common::CBasicStatistics::mean(points[1].first));
     BOOST_REQUIRE_EQUAL(2.0, maths::common::CBasicStatistics::count(points[1].first));
     BOOST_REQUIRE_EQUAL(0.0, points[1].second);
-    BOOST_REQUIRE_EQUAL(TFloatVector2{2.0},
-                        maths::common::CBasicStatistics::mean(points[2].first));
+    BOOST_ASSERT(TFloatVector2{2.0} ==
+                 maths::common::CBasicStatistics::mean(points[2].first));
     BOOST_REQUIRE_EQUAL(1.0, maths::common::CBasicStatistics::count(points[2].first));
     BOOST_REQUIRE_EQUAL(0.0, points[2].second);
     points.clear();
@@ -259,16 +259,16 @@ BOOST_AUTO_TEST_CASE(testDeduplicate) {
         CKMeansOnlineForTest<TVector2>::deduplicate(points);
 
         BOOST_REQUIRE_EQUAL(3, points.size());
-        BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
-                            maths::common::CBasicStatistics::mean(points[0].first));
+        BOOST_ASSERT(TFloatVector2{0.0} ==
+                     maths::common::CBasicStatistics::mean(points[0].first));
         BOOST_REQUIRE_EQUAL(10.0,
                             maths::common::CBasicStatistics::count(points[0].first));
-        BOOST_REQUIRE_EQUAL(TFloatVector2{1.0},
-                            maths::common::CBasicStatistics::mean(points[1].first));
+        BOOST_ASSERT(TFloatVector2{1.0} ==
+                     maths::common::CBasicStatistics::mean(points[1].first));
         BOOST_REQUIRE_EQUAL(7.0,
                             maths::common::CBasicStatistics::count(points[1].first));
-        BOOST_REQUIRE_EQUAL(TFloatVector2{2.0},
-                            maths::common::CBasicStatistics::mean(points[2].first));
+        BOOST_ASSERT(TFloatVector2{2.0} ==
+                     maths::common::CBasicStatistics::mean(points[2].first));
         BOOST_REQUIRE_EQUAL(6.0,
                             maths::common::CBasicStatistics::count(points[2].first));
 
