@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStateMachine.h>
 #include <core/CThread.h>
 
@@ -161,18 +160,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     core::CStateMachine original = core::CStateMachine::create(
         machine[0].s_Alphabet, machine[0].s_States, machine[0].s_TransitionFunction,
         1); // initial state
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         original.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "State machine XML representation:\n" << origXml);
+    LOG_DEBUG(<< "State machine JSON representation:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // The traverser expects the state json in a embedded document
+    std::istringstream is("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(is);
 
     core::CStateMachine restored = core::CStateMachine::create(
         machine[0].s_Alphabet, machine[0].s_States, machine[0].s_TransitionFunction,
@@ -182,13 +180,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     });
 
     BOOST_REQUIRE_EQUAL(original.checksum(), restored.checksum());
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
+        ml::core::CJsonStatePersistInserter inserter(newJson);
         restored.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_CASE(testMultithreaded) {

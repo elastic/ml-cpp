@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
 #include <core/CThread.h>
 
@@ -63,19 +62,19 @@ std::string persist(bool shouldCacheCounters = true) {
     if (shouldCacheCounters) {
         counters.cacheCounters();
     }
-    ml::core::CRapidXmlStatePersistInserter inserter("root");
-    counters.staticsAcceptPersistInserter(inserter);
+    std::ostringstream staticsJson;
+    {
+        ml::core::CJsonStatePersistInserter inserter(staticsJson);
+        counters.staticsAcceptPersistInserter(inserter);
+    }
 
-    std::string staticsXml;
-    inserter.toXml(staticsXml);
-
-    return staticsXml;
+    return staticsJson.str();
 }
 
-void restore(const std::string& staticsXml) {
-    ml::core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(staticsXml));
-    ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
+void restore(const std::string& staticsJson) {
+    // The traverser expects the state json in a embedded document
+    std::istringstream staticsJsonStrm("{\"topLevel\" : " + staticsJson + "}");
+    ml::core::CJsonStateRestoreTraverser traverser(staticsJsonStrm);
     BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
         &ml::core::CProgramCounters::staticsAcceptRestoreTraverser));
 }
@@ -138,18 +137,18 @@ BOOST_FIXTURE_TEST_CASE(testPersist, ml::test::CProgramCounterClearingFixture) {
     }
 
     // Save this state, without first caching the live values
-    std::string newStaticsXmlNoCaching = persist(false);
+    std::string newStaticsJsonNoCaching = persist(false);
 
     // Save the state after updating the cache
-    std::string newStaticsXml = persist();
+    std::string newStaticsJson = persist();
 
     // we expect the persisted counters without first caching to be the
     // same as those from when we do cache the live values,
     // as persistence uses live values if the cache is not available
-    BOOST_REQUIRE_EQUAL(newStaticsXml, newStaticsXmlNoCaching);
+    BOOST_REQUIRE_EQUAL(newStaticsJson, newStaticsJsonNoCaching);
 
     // Restore the non-zero state
-    restore(newStaticsXml);
+    restore(newStaticsJson);
 
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
         BOOST_REQUIRE_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
@@ -200,7 +199,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, ml::test::CProgramCounterClearingFixture) {
         }
 
         // Save the state after updating the cache
-        std::string newStaticsXmlSubset = persist();
+        std::string newStaticsJsonSubset = persist();
 
         // reset to zero values
         for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
@@ -209,7 +208,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, ml::test::CProgramCounterClearingFixture) {
         }
 
         // Restore the non-zero state
-        restore(newStaticsXmlSubset);
+        restore(newStaticsJsonSubset);
 
         // confirm the restored values are as expected
         for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
@@ -320,9 +319,9 @@ BOOST_FIXTURE_TEST_CASE(testMissingCounter, ml::test::CProgramCounterClearingFix
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counterSet);
 
-    // Attempt to restore from an XML string that's missing all but 2 of the counters
-    const std::string countersXml = "<root><a>0</a><b>618</b><a>18</a><b>621</b></root>";
-    restore(countersXml);
+    // Attempt to restore from an JSON string that's missing all but 2 of the counters
+    const std::string countersJson = "{\"a\":\"0\",\"b\":\"618\",\"a\":\"18\",\"b\":\"621\"}";
+    restore(countersJson);
 
     using TCounter = ml::core::CProgramCounters::TCounter;
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();

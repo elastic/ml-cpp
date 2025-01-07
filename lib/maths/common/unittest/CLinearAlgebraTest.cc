@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsCovariances.h>
@@ -1599,19 +1598,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths::common::CDenseVector<double> origVector(4);
         origVector << 1.3, 2.4, 3.1, 5.1;
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             origVector.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "vector XML representation:\n" << origXml);
+        LOG_DEBUG(<< "vector JSON representation:\n" << origJson.str());
 
-        // Restore the XML into a new vector.
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the JSON into a new vector.
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         maths::common::CDenseVector<double> restoredVector;
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::common::CDenseVector<double>::acceptRestoreTraverser,

@@ -11,10 +11,9 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CSmallVector.h>
 
 #include <model/CInterimBucketCorrector.h>
@@ -188,17 +187,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     double correction = corrector.corrections(1000, value);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         corrector.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
-    LOG_TRACE(<< "XML:\n" << origXml);
+    LOG_TRACE(<< "JSON:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     CInterimBucketCorrector restoredCorrector(bucketLength);
     traverser.traverseSubLevel(std::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
                                          &restoredCorrector, std::placeholders::_1));

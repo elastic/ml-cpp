@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CStatisticalTests.h>
 
@@ -150,20 +149,19 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         }
     }
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origEqualizer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "equalizer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "equalizer JSON representation:\n" << origJson.str());
 
     model::CDetectorEqualizer restoredEqualizer;
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // The traverser expects the state json in a embedded document
+        std::istringstream is("{\"topLevel\" : " + origJson.str() + "}");
+        core::CJsonStateRestoreTraverser traverser(is);
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
             return restoredEqualizer.acceptRestoreTraverser(traverser_);
         }));
@@ -173,13 +171,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origEqualizer.checksum(), restoredEqualizer.checksum());
 
     // The persist and restore should be idempotent.
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredEqualizer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -9,12 +9,11 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDec.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CWordDictionary.h>
 
 #include <model/CLimits.h>
@@ -508,35 +507,33 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     origCategorizer.computeCategory(
         false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+        ml::core::CJsonStatePersistInserter inserter{origJson};
         origCategorizer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "Categorizer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Categorizer JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new categorizer
+    // Restore the JSON into a new categorizer
     TTokenListDataCategorizerKeepsFields restoredCategorizer{
         m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
     {
-        ml::core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        ml::core::CRapidXmlStateRestoreTraverser traverser{parser};
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        ml::core::CJsonStateRestoreTraverser traverser{origJsonStrm};
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&TTokenListDataCategorizerKeepsFields::acceptRestoreTraverser,
                       &restoredCategorizer, std::placeholders::_1)));
     }
 
-    // The XML representation of the new categorizer should be the same as the original
-    std::string newXml;
+    // The JSON representation of the new categorizer should be the same as the original
+    std::ostringstream newJson;
     {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
+        ml::core::CJsonStatePersistInserter inserter(newJson);
         restoredCategorizer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 
     checkMemoryUsageInstrumentation(origCategorizer);
     checkMemoryUsageInstrumentation(restoredCategorizer);

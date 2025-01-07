@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
@@ -79,7 +78,7 @@ using TXMeans2ForTest = CXMeansOnlineForTest<double, 2>;
 using TXMeans2FloatForTest = CXMeansOnlineForTest<maths::common::CFloatStorage, 2>;
 
 bool restore(const maths::common::SDistributionRestoreParams& params,
-             core::CRapidXmlStateRestoreTraverser& traverser,
+             core::CJsonStateRestoreTraverser& traverser,
              TXMeans2::CCluster& result) {
     return traverser.traverseSubLevel(
         std::bind(&TXMeans2::CCluster::acceptRestoreTraverser, &result,
@@ -156,19 +155,17 @@ BOOST_AUTO_TEST_CASE(testCluster) {
         1e-10);
 
     std::uint64_t origChecksum = cluster.checksum(0);
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         cluster.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "Cluster XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Cluster JSON representation:\n" << origJson.str());
 
     // Restore the XML into a new cluster.
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     TXMeans2::CCluster restoredCluster(clusterer);
     maths::common::SDistributionRestoreParams params(
@@ -798,31 +795,28 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         clusterer.add(TPoint(samples[i]));
     }
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         clusterer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "Clusterer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Clusterer JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new clusterer.
+    // Restore the JSON into a new clusterer.
     maths::common::SDistributionRestoreParams params(
         maths_t::E_ContinuousData, 0.15, maths::common::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::common::MINIMUM_CLUSTER_SPLIT_COUNT, maths::common::MINIMUM_CATEGORY_COUNT);
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     maths::common::CXMeansOnline<double, 2> restoredClusterer(params, traverser);
 
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredClusterer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

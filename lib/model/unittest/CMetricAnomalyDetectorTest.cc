@@ -10,9 +10,8 @@
  */
 
 #include <core/CContainerPrinter.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CRegex.h>
 
 #include <maths/common/CIntegerTools.h>
@@ -357,21 +356,20 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     importData(FIRST_TIME, LAST_TIME, BUCKET_LENGTH, writer,
                "testfiles/variable_rate_metric.data", origDetector);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origDetector.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    std::string origStaticsXml;
+    std::ostringstream origStaticsJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origStaticsJson);
         core::CProgramCounters::staticsAcceptPersistInserter(inserter);
-        inserter.toXml(origStaticsXml);
     }
 
-    LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
+    LOG_TRACE(<< "Event rate detector JSON representation:\n"
+              << origJson.str());
 
     std::uint64_t peakMemoryUsageBeforeRestoring =
         counters.counter(counter_t::E_TSADPeakMemoryUsage);
@@ -380,22 +378,22 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     counters.counter(counter_t::E_TSADPeakMemoryUsage) = 0;
     BOOST_REQUIRE_EQUAL(0, counters.counter(counter_t::E_TSADPeakMemoryUsage));
 
-    // Restore the XML into a new detector
+    // Restore the JSON into a new detector
     model::CAnomalyDetector restoredDetector(limits, modelConfig, EMPTY_STRING,
                                              0, modelConfig.factory(key));
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origStaticsXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origStaticsJsonStrm{
+            "{\"topLevel\":" + origStaticsJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origStaticsJsonStrm);
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             &core::CProgramCounters::staticsAcceptRestoreTraverser));
     }
@@ -404,14 +402,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         counters.counter(counter_t::E_TSADPeakMemoryUsage);
     BOOST_REQUIRE_EQUAL(peakMemoryUsageBeforeRestoring, peakMemoryUsageAfterRestoring);
 
-    // The XML representation of the new detector should be the same as the original
-    std::string newXml;
+    // The JSON representation of the new detector should be the same as the original
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredDetector.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_CASE(testExcludeFrequent) {

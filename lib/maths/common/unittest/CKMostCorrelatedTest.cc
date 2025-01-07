@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStopWatch.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -797,18 +796,16 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
         origMostCorrelated.capture();
     }
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origMostCorrelated.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
-    LOG_DEBUG(<< "original k-most correlated XML = " << origXml);
+    LOG_DEBUG(<< "original k-most correlated JSON = " << origJson.str());
 
-    // Restore the XML into a new sketch.
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new sketch.
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     maths::common::CKMostCorrelated restoredMostCorrelated(10, 0.001);
     BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
         std::bind(&maths::common::CKMostCorrelated::acceptRestoreTraverser,
@@ -818,12 +815,13 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
               << ", new checksum = " << restoredMostCorrelated.checksum());
     BOOST_REQUIRE_EQUAL(origMostCorrelated.checksum(), restoredMostCorrelated.checksum());
 
-    std::string newXml;
-    core::CRapidXmlStatePersistInserter inserter("root");
-    restoredMostCorrelated.acceptPersistInserter(inserter);
-    inserter.toXml(newXml);
+    std::ostringstream newJson;
+    {
+        core::CJsonStatePersistInserter inserter(newJson);
+        restoredMostCorrelated.acceptPersistInserter(inserter);
+    }
 
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -187,9 +187,7 @@ public:
     //! This method is not intended to be called in production code
     //! as it only persists a very small subset of model state with longer,
     //! human readable tags.
-    bool persistModelsState(core::CDataAdder& persister,
-                            core_t::TTime timestamp,
-                            const std::string& outputFormat);
+    bool persistModelsState(core::CDataAdder& persister, core_t::TTime timestamp);
 
     //! Initialise normalizer from quantiles state
     virtual bool initNormalizer(const std::string& quantilesStateFile);
@@ -292,12 +290,9 @@ private:
 
     //! Persist state of the residual models only.
     //! This method is not intended to be called in production code.
-    //! \p outputFormat specifies the format of the output document and may
-    //! either be JSON or XML.
     bool persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                             core::CDataAdder& persister,
-                            core_t::TTime timestamp,
-                            const std::string& outputFormat);
+                            core_t::TTime timestamp);
 
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId);

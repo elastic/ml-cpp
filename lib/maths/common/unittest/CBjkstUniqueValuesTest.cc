@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBjkstUniqueValues.h>
@@ -314,62 +314,61 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origSketch.add(static_cast<std::uint32_t>(categories[i]));
     }
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origSketch.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
+    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
-    // Restore the XML into a new sketch.
+    // Restore the JSON into a new sketch
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         maths::common::CBjkstUniqueValues restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
         BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSketch.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
+        std::ostringstream newJson;
+        {
+            core::CJsonStatePersistInserter inserter(newJson);
+            restoredSketch.acceptPersistInserter(inserter);
+        }
 
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 
     for (std::size_t i = 100; i < categories.size(); ++i) {
         origSketch.add(static_cast<std::uint32_t>(categories[i]));
     }
 
-    origXml.clear();
+    origJson.str("");
+    origJson.clear();
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origSketch.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
+    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
-    // Restore the XML into a new sketch.
+    // Restore the JSON into a new sketch.
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         maths::common::CBjkstUniqueValues restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
         BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSketch.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
+        std::ostringstream newJson;
+        {
+            core::CJsonStatePersistInserter inserter(newJson);
+            restoredSketch.acceptPersistInserter(inserter);
+        }
 
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 }
 

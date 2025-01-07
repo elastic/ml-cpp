@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -271,35 +270,33 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 
     // Test persistence. (We check for idempotency.)
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         model->acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_TRACE(<< "origXml = " << origXml);
-    LOG_DEBUG(<< "origXml size = " << origXml.size());
-    BOOST_TEST_REQUIRE(origXml.size() < 41000);
+    LOG_TRACE(<< "origJson = " << origJson.str());
+    LOG_DEBUG(<< "origJson size = " << origJson.str().size());
+    BOOST_TEST_REQUIRE(origJson.str().size() < 41000);
 
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the Json into a new filter
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     CModelFactory::TModelPtr restoredModelPtr(m_Factory->makeModel(m_Gatherer, traverser));
 
-    // The XML representation of the new filter should be the same as the original
-    std::string newXml;
+    // The Json representation of the new filter should be the same as the original
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredModelPtr->acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
 
     LOG_DEBUG(<< "original checksum = " << model->checksum(false));
     LOG_DEBUG(<< "restored checksum = " << restoredModelPtr->checksum(false));
     BOOST_REQUIRE_EQUAL(model->checksum(false), restoredModelPtr->checksum(false));
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
@@ -418,32 +415,30 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
     BOOST_REQUIRE_EQUAL(probabilities[2], probabilities[3]);
     BOOST_TEST_REQUIRE(probabilities[3] > 50.0 * probabilities[4]);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         model->acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_TRACE(<< "origXml = " << origXml);
-    LOG_DEBUG(<< "origXml size = " << origXml.size());
-    BOOST_TEST_REQUIRE(origXml.size() < 22000);
+    LOG_TRACE(<< "origJson = " << origJson.str());
+    LOG_DEBUG(<< "origJson size = " << origJson.str().size());
+    BOOST_TEST_REQUIRE(origJson.str().size() < 22000);
 
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the Json into a new filter
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     CModelFactory::TModelPtr restoredModelPtr(m_Factory->makeModel(m_Gatherer, traverser));
 
-    // The XML representation of the new filter should be the same as the original
-    std::string newXml;
+    // The Json representation of the new filter should be the same as the original
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredModelPtr->acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
 
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculation, CTestFixture) {
@@ -714,29 +709,28 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         }
 
         // Test persist and restore with correlate models.
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             model->acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_TRACE(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "origXml size = " << origXml.size());
-        BOOST_TEST_REQUIRE(origXml.size() < 195000);
+        LOG_TRACE(<< "origJson = " << origJson.str());
+        LOG_DEBUG(<< "origJson size = " << origJson.str().size());
+        BOOST_TEST_REQUIRE(origJson.str().size() < 195000);
 
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm =
+            std::istringstream{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         CModelFactory::TModelPtr restoredModel(m_Factory->makeModel(m_Gatherer, traverser));
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredModel->acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
 
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
         LOG_DEBUG(<< "Test marginal anomalies");
@@ -1962,28 +1956,27 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
     BOOST_REQUIRE_EQUAL(std::string("inf2"), *lastInfluencersResult[0].first.second);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         model->acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the Json into a new filter
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm =
+        std::istringstream{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     CModelFactory::TModelPtr restoredModelPtr(factory.makeModel(gatherer, traverser));
 
-    // The XML representation of the new filter should be the same as the original
-    std::string newXml;
+    // The Json representation of the new filter should be the same as the original
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredModelPtr->acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
 
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {

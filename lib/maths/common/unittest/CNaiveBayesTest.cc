@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CNaiveBayes.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
@@ -381,18 +380,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origNb.addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
     }
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origNb.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "Naive Bayes XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Naive Bayes JSON representation:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     maths::common::SDistributionRestoreParams params{maths_t::E_ContinuousData,
                                                      0.1, 0.0, 0.0, 0.0};
@@ -401,13 +398,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     BOOST_REQUIRE_EQUAL(origNb.checksum(), restoredNb.checksum());
 
-    std::string restoredXml;
+    std::ostringstream restoredJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(restoredJson);
         origNb.acceptPersistInserter(inserter);
-        inserter.toXml(restoredXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

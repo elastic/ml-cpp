@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CompressUtils.h>
 
 #include <model/CDataGatherer.h>
@@ -805,36 +804,34 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
                        messages[i].s_Attribute, origDataGatherer, m_ResourceMonitor);
         }
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             origDataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "length = " << origXml.length() << ", # tabs "
-                  << std::count_if(origXml.begin(), origXml.end(), isSpace));
+        LOG_DEBUG(<< "origJson = " << origJson.str());
+        LOG_DEBUG(<< "length = " << origJson.str().length() << ", # tabs "
+                  << std::count_if(origJson.str().begin(), origJson.str().end(), isSpace));
 
-        // Restore the XML into a new data gatherer
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the Json into a new data gatherer
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
         CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
                                            model_t::E_None, params, EMPTY_STRING,
                                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                            EMPTY_STRING, {}, searchKey, traverser);
 
-        // The XML representation of the new data gatherer should be the same as the
+        // The Json representation of the new data gatherer should be the same as the
         // original
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredDataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
         // Check feature data for model_t::E_UniqueValues
@@ -871,36 +868,34 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
             dataGatherer.timeNow(time + bucketLength);
         }
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             dataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "length = " << origXml.length() << ", # tabs "
-                  << std::count_if(origXml.begin(), origXml.end(), isSpace));
+        LOG_DEBUG(<< "origJson = " << origJson.str());
+        LOG_DEBUG(<< "length = " << origJson.str().length() << ", # tabs "
+                  << std::count_if(origJson.str().begin(), origJson.str().end(), isSpace));
 
-        // Restore the XML into a new data gatherer
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the Json into a new data gatherer
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
         CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
                                            model_t::E_None, params, EMPTY_STRING,
                                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                            EMPTY_STRING, {}, searchKey, traverser);
 
-        // The XML representation of the new data gatherer should be the same as the
+        // The Json representation of the new data gatherer should be the same as the
         // original
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredDataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
         BOOST_REQUIRE_EQUAL(dataGatherer.checksum(), restoredDataGatherer.checksum());
     }
 }

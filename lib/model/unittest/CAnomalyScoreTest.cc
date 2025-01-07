@@ -779,11 +779,9 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     }
     std::string origJson = ss.str();
 
-    // The traverser expects the state json in a embedded document
-    std::string wrappedJson = "{\"topLevel\" : " + origJson + "}";
-
     // Restore the JSON into a new filter
-    std::istringstream iss(wrappedJson);
+    // The traverser expects the state json in a embedded document
+    std::istringstream iss("{\"topLevel\" : " + origJson + "}");
     model::CAnomalyScore::CNormalizer restoredNormalizer(config);
     {
         core::CJsonStateRestoreTraverser traverser(iss);

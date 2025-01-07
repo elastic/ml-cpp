@@ -10,10 +10,9 @@
  */
 
 #include <core/CBase64Filter.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
@@ -1838,20 +1837,19 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         BOOST_TEST_REQUIRE(significance > 0.002);
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             aggregator.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "aggregator XML representation:\n" << origXml);
+        LOG_DEBUG(<< "aggregator JSON representation:\n" << origJson.str());
 
         model::CHierarchicalResultsAggregator restoredAggregator(modelConfig);
         {
-            core::CRapidXmlParser parser;
-            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
+            // The traverser expects the state json in a embedded document
+            std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+            core::CJsonStateRestoreTraverser traverser(origJsonStrm);
             BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                 &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
                 &restoredAggregator, std::placeholders::_1)));
@@ -1861,13 +1859,12 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         BOOST_REQUIRE_EQUAL(aggregator.checksum(), restoredAggregator.checksum());
 
         // The persist and restore should be idempotent.
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredAggregator.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
         model::CHierarchicalResultsAggregator aggregator(modelConfig);

@@ -9,11 +9,10 @@
  * limitation.
  */
 
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
-
 #include <model/CCategoryExamplesCollector.h>
+
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -95,17 +94,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     examplesCollector.add(CLocalCategoryId{2}, "qux");
     examplesCollector.add(CLocalCategoryId{3}, "quux");
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         examplesCollector.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
-    LOG_TRACE(<< "XML:\n" << origXml);
+    LOG_TRACE(<< "JSON:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // The traverser expects the state json in a embedded document
+    std::istringstream inputStream("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(inputStream);
 
     CCategoryExamplesCollector restoredExamplesCollector(3, traverser);
 

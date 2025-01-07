@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <model/CMemoryUsageEstimator.h>
 
@@ -159,33 +158,31 @@ BOOST_AUTO_TEST_CASE(testEstimateNonlinear) {
 BOOST_AUTO_TEST_CASE(testPersist) {
     CMemoryUsageEstimator origEstimator;
     {
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             origEstimator.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
-            LOG_DEBUG(<< "origXml = " << origXml);
+            LOG_DEBUG(<< "origJson = " << origJson.str());
         }
 
-        // Restore the XML into a new data gatherer
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the JSON into a new data gatherer
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
         CMemoryUsageEstimator restoredEstimator;
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&CMemoryUsageEstimator::acceptRestoreTraverser,
                       &restoredEstimator, std::placeholders::_1)));
 
-        // The XML representation of the new data gatherer should be the same
+        // The JSON representation of the new data gatherer should be the same
         // as the original.
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredEstimator.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
         int pScale = 10000;
@@ -198,33 +195,31 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         addValue(origEstimator, pScale * 17 + aScale * 19 + cScale * 27, 17, 19, 27);
         addValue(origEstimator, pScale * 20 + aScale * 19 + cScale * 30, 20, 19, 30);
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             origEstimator.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
-            LOG_DEBUG(<< "origXml = " << origXml);
+            LOG_DEBUG(<< "origJson = " << origJson.str());
         }
 
-        // Restore the XML into a new data gatherer
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the JSON into a new data gatherer
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
         CMemoryUsageEstimator restoredEstimator;
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&CMemoryUsageEstimator::acceptRestoreTraverser,
                       &restoredEstimator, std::placeholders::_1)));
 
-        // The XML representation of the new data gatherer should be the same
+        // The JSON representation of the new data gatherer should be the same
         // as the original.
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredEstimator.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 }
 

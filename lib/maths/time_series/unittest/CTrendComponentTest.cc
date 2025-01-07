@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -442,18 +442,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origComponent.propagateForwardsByTime(BUCKET_LENGTH);
     }
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
+        ml::core::CJsonStatePersistInserter inserter(origJson);
         origComponent.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "decomposition XML representation:\n" << origXml);
+    LOG_DEBUG(<< "decomposition JSON representation:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     maths::common::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
     maths::time_series::CTrendComponent restoredComponent{0.1};
@@ -463,13 +461,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredComponent.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

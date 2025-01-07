@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CTimeUtils.h>
 #include <core/CTimezone.h>
 #include <core/Constants.h>
@@ -496,20 +495,18 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 
     std::uint64_t checksum{bucketing.checksum()};
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter{"root"};
+        core::CJsonStatePersistInserter inserter(origJson);
         bucketing.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "Bucketing XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Bucketing JSON representation:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(is);
 
-    // Restore the XML into a new bucketing.
+    // Restore the JSON into a new bucketing.
     maths::time_series::CCalendarComponentAdaptiveBucketing restoredBucketing{
         decayRate + 0.1, minimumBucketLength, traverser};
 
@@ -517,15 +514,14 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
               << " restored checksum = " << restoredBucketing.checksum());
     BOOST_REQUIRE_EQUAL(checksum, restoredBucketing.checksum());
 
-    // The XML representation of the new bucketing should be the
+    // The JSON representation of the new bucketing should be the
     // same as the original.
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter{"root"};
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredBucketing.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testName, CTestFixture) {

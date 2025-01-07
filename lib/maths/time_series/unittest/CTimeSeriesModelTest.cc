@@ -9,12 +9,11 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CMultimodalPrior.h>
@@ -1755,20 +1754,18 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             time += bucketLength;
         }
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+            ml::core::CJsonStatePersistInserter inserter{origJson};
             origModel.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_TRACE(<< "model XML representation:\n" << origXml);
-        LOG_DEBUG(<< "model XML size: " << origXml.size());
+        LOG_TRACE(<< "model JSON representation:\n" << origJson.str());
+        LOG_DEBUG(<< "model JSON size: " << origJson.str().size());
 
-        // Restore the XML into a new time series model.
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the JSON into a new time series model.
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
         maths::common::SDistributionRestoreParams distributionParams{
             maths_t::E_ContinuousData, DECAY_RATE};
@@ -1802,20 +1799,18 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             time += bucketLength;
         }
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+            ml::core::CJsonStatePersistInserter inserter{origJson};
             origModel.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_TRACE(<< "model XML representation:\n" << origXml);
-        LOG_DEBUG(<< "model XML size: " << origXml.size());
+        LOG_TRACE(<< "model JSON representation:\n" << origJson.str());
+        LOG_DEBUG(<< "model JSON size: " << origJson.str().size());
 
-        // Restore the XML into a new time series model.
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the JSON into a new time series model.
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
         maths::common::SDistributionRestoreParams distributionParams{
             maths_t::E_ContinuousData, DECAY_RATE};

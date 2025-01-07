@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CSmallVector.h>
 #include <core/Constants.h>
 
@@ -219,18 +218,16 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
 
     // Check persist and restore is idempotent.
     for (auto i : {0, 1}) {
-        std::string xml;
-        ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+        std::ostringstream json;
+        ml::core::CJsonStatePersistInserter inserter{json};
         feature.acceptPersistInserter(inserter);
-        inserter.toXml(xml);
-        LOG_TRACE(<< i << ") model XML representation:\n" << xml);
-        LOG_DEBUG(<< i << ") model XML size: " << xml.size());
+        LOG_TRACE(<< i << ") model JSON representation:\n" << json.str());
+        LOG_DEBUG(<< i << ") model JSON size: " << json.str().size());
 
-        // Restore the XML into a new feature and assert checksums.
+        // Restore the JSON into a new feature and assert checksums.
 
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-        core::CRapidXmlStateRestoreTraverser traverser{parser};
+        std::istringstream jsonStrm{"{\"topLevel\":" + json.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser{jsonStrm};
 
         maths::time_series::CTimeSeriesMultibucketScalarMean restored{3};
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](core::CStateRestoreTraverser& traverser_) {
@@ -382,20 +379,17 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
 
     // Check persist and restore is idempotent.
     for (auto i : {0, 1}) {
-        std::string xml;
-        ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+        std::ostringstream json;
+        ml::core::CJsonStatePersistInserter inserter{json};
         feature.acceptPersistInserter(inserter);
-        inserter.toXml(xml);
-        LOG_TRACE(<< i << ") model XML representation:\n" << xml);
-        LOG_DEBUG(<< i << ") model XML size: " << xml.size());
+        LOG_TRACE(<< i << ") model JSON representation:\n" << json);
+        LOG_DEBUG(<< i << ") model JSON size: " << json.str().size());
 
-        // Restore the XML into a new feature and assert checksums.
+        // Restore the JSON into a new feature and assert checksums.
 
         maths::time_series::CTimeSeriesMultibucketVectorMean restored{3};
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-
-        core::CRapidXmlStateRestoreTraverser traverser{parser};
+        std::istringstream jsonStrm{"{\"topLevel\":" + json.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser{jsonStrm};
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](core::CStateRestoreTraverser& traverser_) {
             return restored.acceptRestoreTraverser(traverser_);
         }));

@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
 
 #include <maths/common/COrderings.h>
@@ -153,20 +152,20 @@ void addArrival(CDataGatherer& gatherer,
 
 void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
     // Test persistence. (We check for idempotency.)
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "gatherer XML size " << origXml.size());
-    LOG_TRACE(<< "gatherer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "gatherer Json size " << origJson.str().size());
+    LOG_TRACE(<< "gatherer Json representation:\n" << origJson.str());
 
-    // Restore the XML into a new filter.
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the Json into a new filter.
+
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     CDataGatherer restoredGatherer(model_t::E_EventRate, model_t::E_None, params,
                                    EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
@@ -174,15 +173,14 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
 
     BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
 
-    // The XML representation of the new filter should be the
+    // The Json representation of the new filter should be the
     // same as the original.
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 void testInfluencerPerFeature(model_t::EFeature feature,

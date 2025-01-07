@@ -59,7 +59,7 @@ public:
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-    //! Create from part of an XML document.
+    //! Create from part of an JSON document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     //@}
 

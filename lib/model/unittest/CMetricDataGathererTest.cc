@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 #include <core/UnwrapRef.h>
@@ -170,20 +169,19 @@ const std::string EMPTY_STRING;
 
 void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
     // Test persistence. (We check for idempotency.)
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         origGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
 
-    LOG_DEBUG(<< "gatherer XML size " << origXml.size());
-    LOG_TRACE(<< "gatherer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "gatherer JSON size " << origJson.str().size());
+    LOG_TRACE(<< "gatherer JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new filter
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
                                    EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
@@ -191,15 +189,14 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
 
     BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
 
-    // The XML representation of the new filter should be the
+    // The JSON representation of the new filter should be the
     // same as the original
-    std::string newXml;
+    std::ostringstream newJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(newJson);
         restoredGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
     }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 }
 
@@ -1704,21 +1701,19 @@ BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
     stat.add(TDoubleVec(1, 5.5), 1299196741, 1);
     stat.add(TDoubleVec(1, 0.6), 1299196742, 1);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         stat.persist(inserter);
-        inserter.toXml(origXml);
     }
 
     core_t::TTime origTime = stat.time();
-    std::string restoredXml;
+    std::ostringstream restoredJson;
     std::string restoredPrint;
     core_t::TTime restoredTime;
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         CGathererTools::TMeanGatherer::TMetricPartialStatistic restored(1);
         traverser.traverseSubLevel(
             std::bind(&CGathererTools::TMeanGatherer::TMetricPartialStatistic::restore,
@@ -1726,12 +1721,11 @@ BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
 
         restoredTime = restored.time();
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(restoredJson);
             restored.persist(inserter);
-            inserter.toXml(restoredXml);
         }
     }
-    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
     BOOST_REQUIRE_EQUAL(origTime, restoredTime);
 }
 

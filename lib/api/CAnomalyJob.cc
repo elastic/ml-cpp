@@ -17,7 +17,6 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CScopedBoostJsonPoolAllocator.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
@@ -101,23 +100,6 @@ public:
     explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
         : core::CJsonStatePersistInserter(outputStream) {}
     bool readableTags() const override { return true; }
-};
-
-//! Persist state as XML (wrapped in a JSON object) with meaningful tag names.
-class CReadableRapidXmlStatePersistInserter : public core::CRapidXmlStatePersistInserter {
-public:
-    explicit CReadableRapidXmlStatePersistInserter(std::ostream& strm)
-        : core::CRapidXmlStatePersistInserter("root"), m_WriteStream(strm) {}
-
-    ~CReadableRapidXmlStatePersistInserter() override {
-        std::string xml;
-        this->toXml(false, xml);
-        m_WriteStream << R"({"xml":")" << xml << "\"}\n";
-    }
-    bool readableTags() const override { return true; }
-
-private:
-    std::ostream& m_WriteStream;
 };
 }
 
@@ -1119,9 +1101,7 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     return true;
 }
 
-bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
-                                     core_t::TTime timestamp,
-                                     const std::string& outputFormat) {
+bool CAnomalyJob::persistModelsState(core::CDataAdder& persister, core_t::TTime timestamp) {
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
 
@@ -1130,7 +1110,7 @@ bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
     // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
     core::CProgramCounters::cacheCounters();
 
-    return this->persistModelsState(detectors, persister, timestamp, outputFormat);
+    return this->persistModelsState(detectors, persister, timestamp);
 }
 
 bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
@@ -1267,8 +1247,7 @@ bool CAnomalyJob::runBackgroundPersist(const TBackgroundPersistArgsPtr& args,
 
 bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                      core::CDataAdder& persister,
-                                     core_t::TTime timestamp,
-                                     const std::string& outputFormat) {
+                                     core_t::TTime timestamp) {
     try {
         const std::string snapShotId{core::CStringUtils::typeToString(timestamp)};
         core::CDataAdder::TOStreamP strm =
@@ -1277,11 +1256,8 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
             {
                 // The JSON inserter must be destroyed before the stream is complete
                 using TStatePersistInserterUPtr = std::unique_ptr<core::CStatePersistInserter>;
-                TStatePersistInserterUPtr inserter{[&outputFormat, &strm]() -> TStatePersistInserterUPtr {
-                    if (outputFormat == "JSON") {
-                        return std::make_unique<CReadableJsonStatePersistInserter>(*strm);
-                    }
-                    return std::make_unique<CReadableRapidXmlStatePersistInserter>(*strm);
+                TStatePersistInserterUPtr inserter{[&strm]() -> TStatePersistInserterUPtr {
+                    return std::make_unique<CReadableJsonStatePersistInserter>(*strm);
                 }()};
 
                 for (const auto& detector_ : detectors) {

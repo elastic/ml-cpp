@@ -90,7 +90,7 @@ public:
     };
 
 public:
-    //! \name XML Tag Names
+    //! \name JSON Tag Names
     //!
     //! These tag the type of clusterer for polymorphic model persistence.
     //@{

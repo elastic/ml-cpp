@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CSmallVector.h>
 
 #include <model/CDynamicStringIdRegistry.h>
@@ -87,32 +86,30 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     registry.addName(person1, 0, resourceMonitor, addedPerson);
     registry.addName(person2, 0, resourceMonitor, addedPerson);
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(origJson);
         registry.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
     }
-    LOG_TRACE(<< "Original XML:\n" << origXml);
+    LOG_TRACE(<< "Original JSON:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // The traverser expects the state json in a embedded document
+    std::istringstream is("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(is);
     CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
                                               counter_t::E_TSADNumberNewPeopleNotAllowed,
                                               counter_t::E_TSADNumberNewPeopleRecycled);
     traverser.traverseSubLevel(std::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
                                          &restoredRegistry, std::placeholders::_1));
 
-    std::string restoredXml;
+    std::ostringstream restoredJson;
     {
-        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CJsonStatePersistInserter inserter(restoredJson);
         restoredRegistry.acceptPersistInserter(inserter);
-        inserter.toXml(restoredXml);
     }
-    LOG_TRACE(<< "Restored XML:\n" << restoredXml);
+    LOG_TRACE(<< "Restored JSON:\n" << restoredJson);
 
-    BOOST_REQUIRE_EQUAL(restoredXml, origXml);
+    BOOST_REQUIRE_EQUAL(restoredJson.str(), origJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

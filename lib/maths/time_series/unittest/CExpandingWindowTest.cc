@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -268,20 +268,18 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
             origWindow.add(time, value);
         }
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             origWindow.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
-        LOG_TRACE(<< "Window XML = " << origXml);
-        LOG_DEBUG(<< "Window XML size = " << origXml.size());
+        LOG_TRACE(<< "Window JSON = " << origJson.str());
+        LOG_DEBUG(<< "Window JSON size = " << origJson.str().size());
 
-        // Restore the XML into a new window.
+        // Restore the JSON into a new window.
         {
-            core::CRapidXmlParser parser;
-            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
+            std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+            core::CJsonStateRestoreTraverser traverser(origJsonStrm);
             maths::time_series::CExpandingWindow restoredWindow{
                 bucketLength, TTimeCRng{BUCKET_LENGTHS, 0, 4}, size, decayRate, compressed};
             BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(

@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CTimezone.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
@@ -170,28 +169,26 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
             origComponent.addPoint(time, trend(time) + noise[0]);
         }
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             origComponent.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "seasonal component XML representation:\n" << origXml);
+        LOG_DEBUG(<< "seasonal component JSON representation:\n"
+                  << origJson.str());
 
-        // Restore the XML into a new component.
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // Restore the JSON into a new component.
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         maths::time_series::CCalendarComponent restoredComponent{0.0, 0.0, traverser};
 
-        std::string newXml;
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             restoredComponent.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
         BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
     }
 }

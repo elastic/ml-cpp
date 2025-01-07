@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -288,26 +287,23 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                                             ->checksum());
 
                     // Test persistence. (We check for idempotency.)
-                    std::string origXml;
+                    std::ostringstream origJson;
                     {
-                        core::CRapidXmlStatePersistInserter inserter("root");
+                        core::CJsonStatePersistInserter inserter(origJson);
                         model.acceptPersistInserter(inserter);
-                        inserter.toXml(origXml);
                     }
 
-                    // Restore the XML into a new filter
-                    core::CRapidXmlParser parser;
-                    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-                    core::CRapidXmlStateRestoreTraverser traverser(parser);
+                    // Restore the JSON into a new filter
+                    std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+                    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
                     CModelFactory::TModelPtr restoredModel(
                         m_Factory->makeModel(m_Gatherer, traverser));
 
-                    // The XML representation of the new filter should be the same as the original
-                    std::string newXml;
+                    // The JSON representation of the new filter should be the same as the original
+                    std::ostringstream newJson;
                     {
-                        ml::core::CRapidXmlStatePersistInserter inserter("root");
+                        ml::core::CJsonStatePersistInserter inserter(newJson);
                         restoredModel->acceptPersistInserter(inserter);
-                        inserter.toXml(newXml);
                     }
 
                     std::uint64_t origChecksum = model.checksum(false);
@@ -315,7 +311,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                     std::uint64_t restoredChecksum = restoredModel->checksum(false);
                     LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
                     BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-                    BOOST_REQUIRE_EQUAL(origXml, newXml);
+                    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 
                     expectedCount = 0;
                     expectedMean = TMeanAccumulator();
@@ -475,25 +471,22 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                 BOOST_REQUIRE_EQUAL(expectedPrior->checksum(), prior.checksum());
 
                 // Test persistence. (We check for idempotency.)
-                std::string origXml;
+                std::ostringstream origJson;
                 {
-                    core::CRapidXmlStatePersistInserter inserter("root");
+                    core::CJsonStatePersistInserter inserter(origJson);
                     model.acceptPersistInserter(inserter);
-                    inserter.toXml(origXml);
                 }
 
-                // Restore the XML into a new filter
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
+                // Restore the JSON into a new filter
+                std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+                core::CJsonStateRestoreTraverser traverser(origJsonStrm);
                 CModelFactory::TModelPtr restoredModel(factory.makeModel(m_Gatherer, traverser));
 
-                // The XML representation of the new filter should be the same as the original
-                std::string newXml;
+                // The JSON representation of the new filter should be the same as the original
+                std::ostringstream newJson;
                 {
-                    ml::core::CRapidXmlStatePersistInserter inserter("root");
+                    ml::core::CJsonStatePersistInserter inserter(newJson);
                     restoredModel->acceptPersistInserter(inserter);
-                    inserter.toXml(newXml);
                 }
 
                 std::uint64_t origChecksum = model.checksum(false);
@@ -501,7 +494,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                 std::uint64_t restoredChecksum = restoredModel->checksum(false);
                 LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
                 BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-                BOOST_REQUIRE_EQUAL(origXml, newXml);
+                BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 
                 expectedCount = 0;
                 expectedLatLong = TMean2Accumulator();
@@ -1794,25 +1787,22 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
 
         if ((i + 1) % 1000 == 0) {
             // Test persistence. (We check for idempotency.)
-            std::string origXml;
+            std::ostringstream origJson;
             {
-                core::CRapidXmlStatePersistInserter inserter("root");
+                core::CJsonStatePersistInserter inserter(origJson);
                 m_Model->acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
             }
 
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
+            // Restore the JSON into a new filter
+            std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+            core::CJsonStateRestoreTraverser traverser(origJsonStrm);
             CModelFactory::TModelPtr restoredModel(m_Factory->makeModel(m_Gatherer, traverser));
 
-            // The XML representation of the new filter should be the same as the original
-            std::string newXml;
+            // The JSON representation of the new filter should be the same as the original
+            std::ostringstream newJson;
             {
-                ml::core::CRapidXmlStatePersistInserter inserter("root");
+                ml::core::CJsonStatePersistInserter inserter(newJson);
                 restoredModel->acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
             }
 
             std::uint64_t origChecksum = m_Model->checksum(false);
@@ -1820,7 +1810,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
             std::uint64_t restoredChecksum = restoredModel->checksum(false);
             LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
             BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-            BOOST_REQUIRE_EQUAL(origXml, newXml);
+            BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
         }
     }
 }

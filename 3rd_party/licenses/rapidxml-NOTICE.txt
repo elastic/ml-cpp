@@ -1,2 +1,0 @@
-Of the two options provided, Elastic chooses to license RapidXml under the
-MIT License.
