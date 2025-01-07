@@ -1056,13 +1056,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         core::CJsonStatePersistInserter inserter(origJson);
         origDataGatherer.acceptPersistInserter(inserter);
     }
-    //LOG_DEBUG(<< "origJson = " << origJson.str());
-    LOG_DEBUG(<< "origJson length = " << origJson.str().length() << ", # tabs "
-              << std::count_if(origJson.str().begin(), origJson.str().end(), isSpace));
-
-    std::size_t length = origJson.str().length() -
-                         std::count_if(origJson.str().begin(), origJson.str().end(), isSpace);
-    BOOST_TEST_REQUIRE(length < 645000);
+    LOG_DEBUG(<< "origJson length = " << origJson.str().size());
+    BOOST_TEST_REQUIRE(origJson.str().size() < 292000);
 
     // Restore the JSON into a new data gatherer
     // The traverser expects the state json in a embedded document
@@ -1082,9 +1077,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         core::CJsonStatePersistInserter inserter(newJson);
         restoredDataGatherer.acceptPersistInserter(inserter);
     }
-    //LOG_DEBUG(<< "newJson = " << newJson);
-    LOG_DEBUG(<< "newJson length = " << newJson.str().length() << ", # tabs "
-              << std::count_if(newJson.str().begin(), newJson.str().end(), isSpace));
+    LOG_DEBUG(<< "newJson length = " << newJson.str().size());
 
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }

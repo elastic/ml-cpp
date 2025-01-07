@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         core::CJsonStatePersistInserter inserter(restoredJson);
         restoredRegistry.acceptPersistInserter(inserter);
     }
-    LOG_TRACE(<< "Restored JSON:\n" << restoredJson);
+    LOG_TRACE(<< "Restored JSON:\n" << restoredJson.str());
 
     BOOST_REQUIRE_EQUAL(restoredJson.str(), origJson.str());
 }

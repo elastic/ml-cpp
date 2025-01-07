@@ -811,8 +811,6 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         }
 
         LOG_DEBUG(<< "origJson = " << origJson.str());
-        LOG_DEBUG(<< "length = " << origJson.str().length() << ", # tabs "
-                  << std::count_if(origJson.str().begin(), origJson.str().end(), isSpace));
 
         // Restore the Json into a new data gatherer
         // The traverser expects the state json in a embedded document
@@ -875,8 +873,6 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         }
 
         LOG_DEBUG(<< "origJson = " << origJson.str());
-        LOG_DEBUG(<< "length = " << origJson.str().length() << ", # tabs "
-                  << std::count_if(origJson.str().begin(), origJson.str().end(), isSpace));
 
         // Restore the Json into a new data gatherer
         // The traverser expects the state json in a embedded document
