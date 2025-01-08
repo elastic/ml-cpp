@@ -188,18 +188,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        corrector.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CInterimBucketCorrector::acceptPersistInserter, &corrector));
     LOG_TRACE(<< "JSON:\n" << origJson.str());
 
     // The traverser expects the state json in a embedded document
     std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     CInterimBucketCorrector restoredCorrector(bucketLength);
-    traverser.traverseSubLevel(std::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
-                                         &restoredCorrector, std::placeholders::_1));
+    traverser.traverseSubLevel(std::bind_front(
+        &CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector));
 
     corrector.currentBucketCount(now, 50);
     correction = restoredCorrector.corrections(1000, value);

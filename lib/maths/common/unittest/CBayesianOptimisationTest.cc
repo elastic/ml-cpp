@@ -83,9 +83,8 @@ void testPersistRestoreIsIdempotent(const TDoubleVec& minBoundary,
         }
 
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
-        inserter.insertLevel(
-            topLevelTag, std::bind(&maths::common::CBayesianOptimisation::acceptPersistInserter,
-                                   &bayesianOptimisation, std::placeholders::_1));
+        inserter.insertLevel(topLevelTag, std::bind_front(&maths::common::CBayesianOptimisation::acceptPersistInserter,
+                                                          &bayesianOptimisation));
         persistOnceSStream.flush();
     }
     // and restore
@@ -94,9 +93,8 @@ void testPersistRestoreIsIdempotent(const TDoubleVec& minBoundary,
         maths::common::CBayesianOptimisation bayesianOptimisation{traverser};
 
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
-        inserter.insertLevel(
-            topLevelTag, std::bind(&maths::common::CBayesianOptimisation::acceptPersistInserter,
-                                   &bayesianOptimisation, std::placeholders::_1));
+        inserter.insertLevel(topLevelTag, std::bind_front(&maths::common::CBayesianOptimisation::acceptPersistInserter,
+                                                          &bayesianOptimisation));
         persistTwiceSStream.flush();
     }
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());

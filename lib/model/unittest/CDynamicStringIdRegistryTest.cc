@@ -87,10 +87,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     registry.addName(person2, 0, resourceMonitor, addedPerson);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        registry.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CDynamicStringIdRegistry::acceptPersistInserter, &registry));
     LOG_TRACE(<< "Original JSON:\n" << origJson.str());
 
     // The traverser expects the state json in a embedded document
@@ -99,14 +97,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
                                               counter_t::E_TSADNumberNewPeopleNotAllowed,
                                               counter_t::E_TSADNumberNewPeopleRecycled);
-    traverser.traverseSubLevel(std::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
-                                         &restoredRegistry, std::placeholders::_1));
+    traverser.traverseSubLevel(std::bind_front(
+        &CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry));
 
     std::ostringstream restoredJson;
-    {
-        core::CJsonStatePersistInserter inserter(restoredJson);
-        restoredRegistry.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        restoredJson, std::bind_front(&CDynamicStringIdRegistry::acceptPersistInserter,
+                                      &restoredRegistry));
     LOG_TRACE(<< "Restored JSON:\n" << restoredJson.str());
 
     BOOST_REQUIRE_EQUAL(restoredJson.str(), origJson.str());

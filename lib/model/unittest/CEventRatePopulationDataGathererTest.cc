@@ -524,11 +524,11 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
             const TStrSet& uniqueValues = iter->second;
 
             core::CDeflator compressor(false);
-            BOOST_REQUIRE_EQUAL(uniqueValues.size(),
-                                static_cast<size_t>(std::count_if(
-                                    uniqueValues.begin(), uniqueValues.end(),
-                                    std::bind(&core::CCompressUtil::addString,
-                                              &compressor, std::placeholders::_1))));
+            BOOST_REQUIRE_EQUAL(
+                uniqueValues.size(),
+                static_cast<size_t>(std::count_if(
+                    uniqueValues.begin(), uniqueValues.end(),
+                    std::bind_front(&core::CCompressUtil::addString, &compressor))));
             std::size_t length(0);
             BOOST_TEST_REQUIRE(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
@@ -805,11 +805,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         }
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            origDataGatherer.acceptPersistInserter(inserter);
-        }
-
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &origDataGatherer));
         LOG_DEBUG(<< "origJson = " << origJson.str());
 
         // Restore the Json into a new data gatherer
@@ -825,10 +822,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         // The Json representation of the new data gatherer should be the same as the
         // original
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredDataGatherer.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &restoredDataGatherer));
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
@@ -867,11 +862,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         }
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            dataGatherer.acceptPersistInserter(inserter);
-        }
-
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &dataGatherer));
         LOG_DEBUG(<< "origJson = " << origJson.str());
 
         // Restore the Json into a new data gatherer
@@ -887,10 +879,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         // The Json representation of the new data gatherer should be the same as the
         // original
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredDataGatherer.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &restoredDataGatherer));
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
         BOOST_REQUIRE_EQUAL(dataGatherer.checksum(), restoredDataGatherer.checksum());
     }

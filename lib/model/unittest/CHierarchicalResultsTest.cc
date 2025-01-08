@@ -1838,11 +1838,9 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         BOOST_TEST_REQUIRE(significance > 0.002);
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            aggregator.acceptPersistInserter(inserter);
-        }
-
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind_front(&model::CHierarchicalResultsAggregator::acceptPersistInserter,
+                                      &aggregator));
         LOG_DEBUG(<< "aggregator JSON representation:\n" << origJson.str());
 
         model::CHierarchicalResultsAggregator restoredAggregator(modelConfig);
@@ -1850,9 +1848,9 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             // The traverser expects the state json in a embedded document
             std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
             core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-            BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
+            BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
                 &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
-                &restoredAggregator, std::placeholders::_1)));
+                &restoredAggregator)));
         }
 
         // Checksums should agree.
@@ -1860,10 +1858,9 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         // The persist and restore should be idempotent.
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredAggregator.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind_front(&model::CHierarchicalResultsAggregator::acceptPersistInserter,
+                                     &restoredAggregator));
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {

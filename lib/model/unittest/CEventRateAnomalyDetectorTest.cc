@@ -254,11 +254,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     importData(FIRST_TIME, LAST_TIME, BUCKET_SIZE, writer, files, origDetector);
 
     std::ostringstream origJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter(origJson);
-        origDetector.acceptPersistInserter(inserter);
-    }
-
+    ml::core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&ml::model::CAnomalyDetector::acceptPersistInserter,
+                                  &origDetector));
     LOG_DEBUG(<< "Event rate detector JSON representation:\n"
               << origJson.str());
 
@@ -276,10 +274,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // The JSON representation of the new detector should be the same as the original
     std::ostringstream newJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter(newJson);
-        restoredDetector.acceptPersistInserter(inserter);
-    }
+    ml::core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&ml::model::CAnomalyDetector::acceptPersistInserter,
+                                 &restoredDetector));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

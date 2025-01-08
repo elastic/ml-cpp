@@ -1143,8 +1143,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::common::CNormalMeanPrecConjugate::acceptPersistInserter,
-                            &origFilter, std::placeholders::_1));
+        origJson, std::bind_front(&maths::common::CNormalMeanPrecConjugate::acceptPersistInserter,
+                                  &origFilter));
 
     LOG_DEBUG(<< "Normal mean conjugate JSON representation:\n"
               << origJson.str());
@@ -1165,8 +1165,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new filter should be the same as the original
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::common::CNormalMeanPrecConjugate::acceptPersistInserter,
-                           &restoredFilter, std::placeholders::_1));
+        newJson, std::bind_front(&maths::common::CNormalMeanPrecConjugate::acceptPersistInserter,
+                                 &restoredFilter));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

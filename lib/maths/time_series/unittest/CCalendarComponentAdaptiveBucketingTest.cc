@@ -497,8 +497,8 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::time_series::CCalendarComponentAdaptiveBucketing::acceptPersistInserter,
-                            &bucketing, std::placeholders::_1));
+        origJson, std::bind_front(&maths::time_series::CCalendarComponentAdaptiveBucketing::acceptPersistInserter,
+                                  &bucketing));
 
     LOG_DEBUG(<< "Bucketing JSON representation:\n" << origJson.str());
 
@@ -517,8 +517,8 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     // same as the original.
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::time_series::CCalendarComponentAdaptiveBucketing::acceptPersistInserter,
-                           &restoredBucketing, std::placeholders::_1));
+        newJson, std::bind_front(&maths::time_series::CCalendarComponentAdaptiveBucketing::acceptPersistInserter,
+                                 &restoredBucketing));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

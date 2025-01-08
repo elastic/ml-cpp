@@ -157,8 +157,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     std::uint64_t origChecksum = cluster.checksum(0);
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&TXMeans2::CCluster::acceptPersistInserter,
-                            &cluster, std::placeholders::_1));
+        origJson, std::bind_front(&TXMeans2::CCluster::acceptPersistInserter, &cluster));
 
     LOG_DEBUG(<< "Cluster JSON representation:\n" << origJson.str());
 
@@ -796,8 +795,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&TXMeans2ForTest::acceptPersistInserter, &clusterer,
-                            std::placeholders::_1));
+        origJson, std::bind_front(&TXMeans2ForTest::acceptPersistInserter, &clusterer));
 
     LOG_DEBUG(<< "Clusterer JSON representation:\n" << origJson.str());
 
@@ -811,8 +809,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::common::CXMeansOnline<double, 2>::acceptPersistInserter,
-                           &restoredClusterer, std::placeholders::_1));
+        newJson, std::bind_front(&maths::common::CXMeansOnline<double, 2>::acceptPersistInserter,
+                                 &restoredClusterer));
 
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }

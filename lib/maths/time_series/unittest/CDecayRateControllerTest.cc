@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::time_series::CDecayRateController::acceptPersistInserter,
-                            &origController, std::placeholders::_1));
+        origJson, std::bind_front(&maths::time_series::CDecayRateController::acceptPersistInserter,
+                                  &origController));
     LOG_TRACE(<< "Controller JSON = " << origJson.str());
     LOG_DEBUG(<< "Controller JSON size = " << origJson.str().size());
 
@@ -104,9 +104,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
         core::CJsonStateRestoreTraverser traverser(is);
         maths::time_series::CDecayRateController restoredController;
-        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
+        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind_front(
                                       &maths::time_series::CDecayRateController::acceptRestoreTraverser,
-                                      &restoredController, std::placeholders::_1)));
+                                      &restoredController)));
 
         LOG_DEBUG(<< "orig checksum = " << origController.checksum()
                   << ", new checksum = " << restoredController.checksum());
@@ -134,16 +134,16 @@ BOOST_AUTO_TEST_CASE(testBehaviourAfterPersistAndRestore) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::time_series::CDecayRateController::acceptPersistInserter,
-                            &origController, std::placeholders::_1));
+        origJson, std::bind_front(&maths::time_series::CDecayRateController::acceptPersistInserter,
+                                  &origController));
 
     // Restore the JSON into a new controller.
     {
         std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
         core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
+        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind_front(
                                       &maths::time_series::CDecayRateController::acceptRestoreTraverser,
-                                      &restoredController, std::placeholders::_1)));
+                                      &restoredController)));
     }
 
     for (std::size_t i = 500; i < values.size(); ++i) {

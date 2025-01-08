@@ -773,10 +773,9 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
         origNormalizer.normalize({EMPTY, EMPTY, personFieldName, EMPTY}, sample);
     }
     std::ostringstream ss;
-    {
-        core::CJsonStatePersistInserter inserter(ss);
-        origNormalizer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        ss, std::bind_front(&model::CAnomalyScore::CNormalizer::acceptPersistInserter,
+                            &origNormalizer));
     std::string origJson = ss.str();
 
     // Restore the JSON into a new filter
@@ -785,17 +784,15 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     model::CAnomalyScore::CNormalizer restoredNormalizer(config);
     {
         core::CJsonStateRestoreTraverser traverser(iss);
-        traverser.traverseSubLevel(
-            std::bind(&model::CAnomalyScore::CNormalizer::acceptRestoreTraverser,
-                      &restoredNormalizer, std::placeholders::_1));
+        traverser.traverseSubLevel(std::bind_front(
+            &model::CAnomalyScore::CNormalizer::acceptRestoreTraverser, &restoredNormalizer));
     }
 
     // The new JSON representation of the new filter should be the same as the original
     std::ostringstream restoredSs;
-    {
-        core::CJsonStatePersistInserter inserter(restoredSs);
-        restoredNormalizer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        restoredSs, std::bind_front(&model::CAnomalyScore::CNormalizer::acceptPersistInserter,
+                                    &restoredNormalizer));
     std::string newJson = restoredSs.str();
     BOOST_REQUIRE_EQUAL(ss.str(), newJson);
 

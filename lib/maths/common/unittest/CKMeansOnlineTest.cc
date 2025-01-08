@@ -783,8 +783,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
-                            &origKmeans, std::placeholders::_1));
+        origJson, std::bind_front(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
+                                  &origKmeans));
     LOG_DEBUG(<< "original k-means JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch.
@@ -796,9 +796,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             maths_t::E_ContinuousData, 0.1, maths::common::MINIMUM_CLUSTER_SPLIT_FRACTION,
             maths::common::MINIMUM_CLUSTER_SPLIT_COUNT,
             maths::common::MINIMUM_CATEGORY_COUNT);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
             &maths::common::CKMeansOnline<TVector2>::acceptRestoreTraverser,
-            &restoredKmeans, std::cref(params), std::placeholders::_1)));
+            &restoredKmeans, std::cref(params))));
 
         LOG_DEBUG(<< "orig checksum = " << origKmeans.checksum()
                   << ", new checksum = " << restoredKmeans.checksum());
@@ -806,8 +806,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         std::ostringstream newJson;
         core::CJsonStatePersistInserter::persist(
-            newJson, std::bind(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
-                               &restoredKmeans, std::placeholders::_1));
+            newJson, std::bind_front(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
+                                     &restoredKmeans));
 
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }

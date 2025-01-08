@@ -1600,8 +1600,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         std::ostringstream origJson;
         core::CJsonStatePersistInserter::persist(
-            origJson, std::bind(&maths::common::CDenseVector<double>::acceptPersistInserter,
-                                &origVector, std::placeholders::_1));
+            origJson, std::bind_front(&maths::common::CDenseVector<double>::acceptPersistInserter,
+                                      &origVector));
 
         LOG_DEBUG(<< "vector JSON representation:\n" << origJson.str());
 
@@ -1609,9 +1609,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
         core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         maths::common::CDenseVector<double> restoredVector;
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-            std::bind(&maths::common::CDenseVector<double>::acceptRestoreTraverser,
-                      &restoredVector, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
+            &maths::common::CDenseVector<double>::acceptRestoreTraverser, &restoredVector)));
 
         BOOST_REQUIRE_EQUAL(origVector.checksum(), restoredVector.checksum());
     }

@@ -798,17 +798,16 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::common::CKMostCorrelated::acceptPersistInserter,
-                            &origMostCorrelated, std::placeholders::_1));
+        origJson, std::bind_front(&maths::common::CKMostCorrelated::acceptPersistInserter,
+                                  &origMostCorrelated));
     LOG_DEBUG(<< "original k-most correlated JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch.
     std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     maths::common::CKMostCorrelated restoredMostCorrelated(10, 0.001);
-    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-        std::bind(&maths::common::CKMostCorrelated::acceptRestoreTraverser,
-                  &restoredMostCorrelated, std::placeholders::_1)));
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
+        &maths::common::CKMostCorrelated::acceptRestoreTraverser, &restoredMostCorrelated)));
 
     LOG_DEBUG(<< "orig checksum = " << origMostCorrelated.checksum()
               << ", new checksum = " << restoredMostCorrelated.checksum());
@@ -816,8 +815,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
 
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::common::CKMostCorrelated::acceptPersistInserter,
-                           &restoredMostCorrelated, std::placeholders::_1));
+        newJson, std::bind_front(&maths::common::CKMostCorrelated::acceptPersistInserter,
+                                 &restoredMostCorrelated));
 
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }

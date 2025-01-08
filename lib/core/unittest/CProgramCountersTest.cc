@@ -63,7 +63,8 @@ std::string persist(bool shouldCacheCounters = true) {
         counters.cacheCounters();
     }
     std::ostringstream staticsJson;
-    ml::core::CJsonStatePersistInserter::persist(staticsJson, counters.staticsAcceptPersistInserter);
+    ml::core::CJsonStatePersistInserter::persist(
+        staticsJson, ml::core::CProgramCounters::staticsAcceptPersistInserter);
 
     return staticsJson.str();
 }

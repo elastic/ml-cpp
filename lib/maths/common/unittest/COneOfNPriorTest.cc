@@ -1206,8 +1206,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::common::COneOfNPrior::acceptPersistInserter,
-                            &origFilter, std::placeholders::_1));
+        origJson, std::bind_front(&maths::common::COneOfNPrior::acceptPersistInserter,
+                                  &origFilter));
 
     LOG_DEBUG(<< "One-of-N prior JSON representation:\n" << origJson.str());
 
@@ -1227,8 +1227,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new filter should be the same as the original
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::common::COneOfNPrior::acceptPersistInserter,
-                           &restoredFilter, std::placeholders::_1));
+        newJson, std::bind_front(&maths::common::COneOfNPrior::acceptPersistInserter,
+                                 &restoredFilter));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

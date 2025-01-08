@@ -522,9 +522,8 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         // The traverser expects the state json in a embedded document
         std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
         ml::core::CJsonStateRestoreTraverser traverser{origJsonStrm};
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-            std::bind(&TTokenListDataCategorizerKeepsFields::acceptRestoreTraverser,
-                      &restoredCategorizer, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
+            &TTokenListDataCategorizerKeepsFields::acceptRestoreTraverser, &restoredCategorizer)));
     }
 
     // The JSON representation of the new categorizer should be the same as the original

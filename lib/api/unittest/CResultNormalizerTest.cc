@@ -38,8 +38,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm);
-    BOOST_TEST_REQUIRE(inputParser.readStreamIntoMaps(std::bind(
-        &ml::api::CResultNormalizer::handleRecord, &normalizer, std::placeholders::_1)));
+    BOOST_TEST_REQUIRE(inputParser.readStreamIntoMaps(
+        std::bind_front(&ml::api::CResultNormalizer::handleRecord, &normalizer)));
 
     std::string results(outputWriter.internalString());
     LOG_INFO(<< "Results:\n" << results);
@@ -396,8 +396,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
 
     std::ifstream inputStrm("testfiles/normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm);
-    BOOST_TEST_REQUIRE(inputParser.readStreamIntoMaps(std::bind(
-        &ml::api::CResultNormalizer::handleRecord, &normalizer, std::placeholders::_1)));
+    BOOST_TEST_REQUIRE(inputParser.readStreamIntoMaps(
+        std::bind_front(&ml::api::CResultNormalizer::handleRecord, &normalizer)));
 
     std::string results(outputWriter.internalString());
     LOG_DEBUG(<< "Results:\n" << results);

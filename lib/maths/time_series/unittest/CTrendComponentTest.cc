@@ -444,8 +444,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::time_series::CTrendComponent::acceptPersistInserter,
-                            &origComponent, std::placeholders::_1));
+        origJson, std::bind_front(&maths::time_series::CTrendComponent::acceptPersistInserter,
+                                  &origComponent));
 
     LOG_DEBUG(<< "decomposition JSON representation:\n" << origJson.str());
 
@@ -462,8 +462,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::time_series::CTrendComponent::acceptPersistInserter,
-                           &restoredComponent, std::placeholders::_1));
+        newJson, std::bind_front(&maths::time_series::CTrendComponent::acceptPersistInserter,
+                                 &restoredComponent));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

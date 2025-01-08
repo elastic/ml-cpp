@@ -962,10 +962,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
     queue.add(30, {8.0}, 1, sampleCount);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        queue.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&TTestSampleQueue::acceptPersistInserter, &queue));
     LOG_DEBUG(<< "JSON:\n" << origJson.str());
 
     std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
@@ -973,8 +971,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
 
     TTestSampleQueue restoredQueue(1, sampleCountFactor, latencyBuckets,
                                    growthFactor, bucketLength);
-    traverser.traverseSubLevel(std::bind(&TTestSampleQueue::acceptRestoreTraverser,
-                                         &restoredQueue, std::placeholders::_1));
+    traverser.traverseSubLevel(
+        std::bind_front(&TTestSampleQueue::acceptRestoreTraverser, &restoredQueue));
 
     BOOST_REQUIRE_EQUAL(2, restoredQueue.size());
 

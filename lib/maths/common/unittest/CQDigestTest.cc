@@ -546,8 +546,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&CQDigest::acceptPersistInserter, &origQDigest,
-                            std::placeholders::_1));
+        origJson, std::bind_front(&CQDigest::acceptPersistInserter, &origQDigest));
 
     LOG_DEBUG(<< "q-digest JSON representation:\n" << origJson.str());
 
@@ -556,8 +555,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     {
         std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
         core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-            &CQDigest::acceptRestoreTraverser, &restoredQDigest, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+            std::bind_front(&CQDigest::acceptRestoreTraverser, &restoredQDigest)));
     }
 
     BOOST_TEST_REQUIRE(restoredQDigest.checkInvariants());
@@ -566,8 +565,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new filter should be the same as the original
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&CQDigest::acceptPersistInserter, &restoredQDigest,
-                           std::placeholders::_1));
+        newJson, std::bind_front(&CQDigest::acceptPersistInserter, &restoredQDigest));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

@@ -785,8 +785,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind(&maths::common::CQuantileSketch::acceptPersistInserter,
-                            &origSketch, std::placeholders::_1));
+        origJson, std::bind_front(&maths::common::CQuantileSketch::acceptPersistInserter,
+                                  &origSketch));
 
     LOG_DEBUG(<< "quantile sketch JSON representation:\n" << origJson.str());
 
@@ -805,8 +805,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The persist then restore should be idempotent.
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind(&maths::common::CQuantileSketch::acceptPersistInserter,
-                           &restoredSketch, std::placeholders::_1));
+        newJson, std::bind_front(&maths::common::CQuantileSketch::acceptPersistInserter,
+                                 &restoredSketch));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
