@@ -775,10 +775,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "k-means = " << origKmeans.print());
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origKmeans.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
+                            &origKmeans, std::placeholders::_1));
     LOG_DEBUG(<< "original k-means JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch.
@@ -799,10 +798,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_REQUIRE_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
 
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredKmeans.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
+                               &restoredKmeans, std::placeholders::_1));
 
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }

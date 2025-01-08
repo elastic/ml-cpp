@@ -629,11 +629,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     std::uint64_t checksum = origClassifier.checksum();
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origClassifier.acceptPersistInserter(inserter);
-    }
-
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&CNaturalBreaksClassifier::acceptPersistInserter,
+                            &origClassifier, std::placeholders::_1));
     LOG_DEBUG(<< "Classifier JSON representation:\n" << origJson.str());
 
     std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
@@ -655,10 +653,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new filter should be the same
     // as the original.
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredClassifier.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&CNaturalBreaksClassifier::acceptPersistInserter,
+                           &restoredClassifier, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

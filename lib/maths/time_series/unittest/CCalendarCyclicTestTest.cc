@@ -568,10 +568,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        orig.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CCalendarCyclicTest::acceptPersistInserter,
+                            &orig, std::placeholders::_1));
 
     LOG_TRACE(<< "JSON representation:\n" << origJson.str());
     LOG_TRACE(<< "JSON size:" << origJson.str().size());
@@ -587,10 +586,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(orig.checksum(), restored.checksum());
 
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restored.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&maths::time_series::CCalendarCyclicTest::acceptPersistInserter,
+                           &restored, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

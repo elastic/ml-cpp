@@ -142,10 +142,9 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     std::uint64_t origChecksum = cluster.checksum(0);
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        cluster.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CXMeansOnline1d::CCluster::acceptPersistInserter,
+                            &cluster, std::placeholders::_1));
 
     LOG_DEBUG(<< "Cluster JSON representation:\n" << origJson.str());
 
@@ -895,10 +894,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        clusterer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CXMeansOnline1d::acceptPersistInserter,
+                            &clusterer, std::placeholders::_1));
 
     LOG_DEBUG(<< "Clusterer JSON representation:\n" << origJson.str());
 
@@ -913,10 +911,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new filter should be the same
     // as the original.
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredClusterer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&maths::common::CXMeansOnline1d::acceptPersistInserter,
+                           &restoredClusterer, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

@@ -921,10 +921,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     std::uint64_t checksum = origFilter.checksum();
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origFilter.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CPoissonMeanConjugate::acceptPersistInserter,
+                            &origFilter, std::placeholders::_1));
 
     LOG_DEBUG(<< "Poisson mean conjugate JSON representation:\n"
               << origJson.str());
@@ -945,10 +944,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new filter should be the same
     // as the original.
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredFilter.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&maths::common::CPoissonMeanConjugate::acceptPersistInserter,
+                           &restoredFilter, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

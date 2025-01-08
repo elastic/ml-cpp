@@ -357,16 +357,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
                "testfiles/variable_rate_metric.data", origDetector);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origDetector.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&model::CAnomalyDetector::acceptPersistInserter,
+                            &origDetector, std::placeholders::_1));
 
     std::ostringstream origStaticsJson;
-    {
-        core::CJsonStatePersistInserter inserter(origStaticsJson);
-        core::CProgramCounters::staticsAcceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origStaticsJson, &core::CProgramCounters::staticsAcceptPersistInserter);
 
     LOG_TRACE(<< "Event rate detector JSON representation:\n"
               << origJson.str());
@@ -404,10 +401,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // The JSON representation of the new detector should be the same as the original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredDetector.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&model::CAnomalyDetector::acceptPersistInserter,
+                           &restoredDetector, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

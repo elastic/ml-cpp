@@ -720,8 +720,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         BOOST_TEST_REQUIRE(origJson.str().size() < 195000);
 
         // The traverser expects the state json in a embedded document
-        std::istringstream origJsonStrm =
-            std::istringstream{"{\"topLevel\" : " + origJson.str() + "}"};
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
         core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         CModelFactory::TModelPtr restoredModel(m_Factory->makeModel(m_Gatherer, traverser));
         std::ostringstream newJson;
@@ -1964,8 +1963,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
 
     // Restore the Json into a new filter
     // The traverser expects the state json in a embedded document
-    std::istringstream origJsonStrm =
-        std::istringstream{"{\"topLevel\" : " + origJson.str() + "}"};
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     CModelFactory::TModelPtr restoredModelPtr(factory.makeModel(gatherer, traverser));
 

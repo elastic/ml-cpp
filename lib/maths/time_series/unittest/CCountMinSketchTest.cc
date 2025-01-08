@@ -193,10 +193,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origSketch.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                            &origSketch, std::placeholders::_1));
     LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch.
@@ -210,11 +209,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredSketch.acceptPersistInserter(inserter);
-        }
-
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                               &restoredSketch, std::placeholders::_1));
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 
@@ -227,10 +224,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     origJson.str("");
     origJson.clear();
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origSketch.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                            &origSketch, std::placeholders::_1));
     LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch.
@@ -244,10 +240,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredSketch.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                               &restoredSketch, std::placeholders::_1));
         LOG_DEBUG(<< "restored sketch JSON = " << newJson.str());
 
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());

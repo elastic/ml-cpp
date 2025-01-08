@@ -93,10 +93,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origController.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CDecayRateController::acceptPersistInserter,
+                            &origController, std::placeholders::_1));
     LOG_TRACE(<< "Controller JSON = " << origJson.str());
     LOG_DEBUG(<< "Controller JSON size = " << origJson.str().size());
 
@@ -134,10 +133,9 @@ BOOST_AUTO_TEST_CASE(testBehaviourAfterPersistAndRestore) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origController.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CDecayRateController::acceptPersistInserter,
+                            &origController, std::placeholders::_1));
 
     // Restore the JSON into a new controller.
     {

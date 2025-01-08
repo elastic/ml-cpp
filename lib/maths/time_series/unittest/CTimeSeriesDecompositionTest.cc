@@ -2527,10 +2527,9 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     }
 
     std::ostringstream origJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter(origJson);
-        origDecomposition.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CTimeSeriesDecomposition::acceptPersistInserter,
+                            &origDecomposition, std::placeholders::_1));
 
     LOG_TRACE(<< "Decomposition Json representation:\n" << origJson.str());
 
@@ -2544,10 +2543,9 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     maths::time_series::CTimeSeriesDecomposition restoredDecomposition(params, traverser);
 
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredDecomposition.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&maths::time_series::CTimeSeriesDecomposition::acceptPersistInserter,
+                           &restoredDecomposition, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

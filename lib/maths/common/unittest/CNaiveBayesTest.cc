@@ -381,10 +381,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origNb.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CNaiveBayes::acceptPersistInserter,
+                            &origNb, std::placeholders::_1));
 
     LOG_DEBUG(<< "Naive Bayes JSON representation:\n" << origJson.str());
 
@@ -399,10 +398,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origNb.checksum(), restoredNb.checksum());
 
     std::ostringstream restoredJson;
-    {
-        core::CJsonStatePersistInserter inserter(restoredJson);
-        origNb.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        restoredJson, std::bind(&maths::common::CNaiveBayes::acceptPersistInserter,
+                                &restoredNb, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
 }
 

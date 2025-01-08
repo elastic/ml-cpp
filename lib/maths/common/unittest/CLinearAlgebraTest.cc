@@ -1599,10 +1599,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origVector << 1.3, 2.4, 3.1, 5.1;
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            origVector.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind(&maths::common::CDenseVector<double>::acceptPersistInserter,
+                                &origVector, std::placeholders::_1));
 
         LOG_DEBUG(<< "vector JSON representation:\n" << origJson.str());
 

@@ -63,10 +63,7 @@ std::string persist(bool shouldCacheCounters = true) {
         counters.cacheCounters();
     }
     std::ostringstream staticsJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter(staticsJson);
-        counters.staticsAcceptPersistInserter(inserter);
-    }
+    ml::core::CJsonStatePersistInserter::persist(staticsJson, counters.staticsAcceptPersistInserter);
 
     return staticsJson.str();
 }
@@ -320,7 +317,7 @@ BOOST_FIXTURE_TEST_CASE(testMissingCounter, ml::test::CProgramCounterClearingFix
     ml::core::CProgramCounters::registerProgramCounterTypes(counterSet);
 
     // Attempt to restore from an JSON string that's missing all but 2 of the counters
-    const std::string countersJson = "{\"a\":\"0\",\"b\":\"618\",\"a\":\"18\",\"b\":\"621\"}";
+    const std::string countersJson = R"({"a":"0","b":"618","a":"18","b":"621"})";
     restore(countersJson);
 
     using TCounter = ml::core::CProgramCounters::TCounter;

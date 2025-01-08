@@ -35,6 +35,13 @@ namespace core {
 //!
 class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter {
 public:
+    static void persist(std::ostringstream& oss,
+                        std::function<void(ml::core::CJsonStatePersistInserter&)> func) {
+        ml::core::CJsonStatePersistInserter inserter(oss);
+        func(inserter);
+    }
+
+public:
     //! Root node has no attributes
     CJsonStatePersistInserter(std::ostream& outputStream);
 

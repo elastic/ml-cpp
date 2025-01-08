@@ -315,10 +315,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origSketch.acceptPersistInserter(inserter);
-    }
+    ml::core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
+                            &origSketch, std::placeholders::_1));
     LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch
@@ -332,10 +331,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredSketch.acceptPersistInserter(inserter);
-        }
+        ml::core::CJsonStatePersistInserter::persist(
+            newJson, std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
+                               &restoredSketch, std::placeholders::_1));
 
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
@@ -346,10 +344,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     origJson.str("");
     origJson.clear();
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origSketch.acceptPersistInserter(inserter);
-    }
+    ml::core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
+                            &origSketch, std::placeholders::_1));
     LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
     // Restore the JSON into a new sketch.
@@ -363,10 +360,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredSketch.acceptPersistInserter(inserter);
-        }
+        ml::core::CJsonStatePersistInserter::persist(
+            newJson, std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
+                               &restoredSketch, std::placeholders::_1));
 
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }

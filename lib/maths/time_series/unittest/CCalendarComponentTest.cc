@@ -170,10 +170,9 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         }
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            origComponent.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind(&CTestCalendarComponent::acceptPersistInserter,
+                                &origComponent, std::placeholders::_1));
 
         LOG_DEBUG(<< "seasonal component JSON representation:\n"
                   << origJson.str());
@@ -184,10 +183,9 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         maths::time_series::CCalendarComponent restoredComponent{0.0, 0.0, traverser};
 
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredComponent.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind(&CTestCalendarComponent::acceptPersistInserter,
+                               &restoredComponent, std::placeholders::_1));
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
         BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
     }

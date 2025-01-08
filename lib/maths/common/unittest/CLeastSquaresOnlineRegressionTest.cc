@@ -987,10 +987,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origRegression.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::common::CLeastSquaresOnlineRegression<2, double>::acceptPersistInserter,
+                            &origRegression, std::placeholders::_1));
 
     LOG_DEBUG(<< "Regression JSON representation:\n" << origJson.str());
 
@@ -1006,10 +1005,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origRegression.checksum(), restoredRegression.checksum());
 
     std::ostringstream restoredJson;
-    {
-        core::CJsonStatePersistInserter inserter(restoredJson);
-        restoredRegression.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        restoredJson, std::bind(&maths::common::CLeastSquaresOnlineRegression<2, double>::acceptPersistInserter,
+                                &restoredRegression, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
 }
 

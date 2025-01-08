@@ -1061,8 +1061,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
 
     // Restore the JSON into a new data gatherer
     // The traverser expects the state json in a embedded document
-    std::stringstream origJsonStrm =
-        std::stringstream{"{\"topLevel\" : " + origJson.str() + "}"};
+    std::stringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     CDataGatherer restoredDataGatherer(model_t::E_PopulationMetric,

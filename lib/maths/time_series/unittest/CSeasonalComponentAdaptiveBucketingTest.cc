@@ -736,10 +736,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     std::uint64_t checksum = origBucketing.checksum();
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origBucketing.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind(&maths::time_series::CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
+                            &origBucketing, std::placeholders::_1));
 
     LOG_DEBUG(<< "Bucketing JSON representation:\n" << origJson.str());
 
@@ -757,10 +756,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // The JSON representation of the new bucketing should be the
     // same as the original.
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredBucketing.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind(&maths::time_series::CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
+                           &restoredBucketing, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

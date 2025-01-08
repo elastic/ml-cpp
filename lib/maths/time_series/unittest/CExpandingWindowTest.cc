@@ -269,10 +269,9 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
         }
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            origWindow.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind(&maths::time_series::CExpandingWindow::acceptPersistInserter,
+                                &origWindow, std::placeholders::_1));
         LOG_TRACE(<< "Window JSON = " << origJson.str());
         LOG_DEBUG(<< "Window JSON size = " << origJson.str().size());
 
