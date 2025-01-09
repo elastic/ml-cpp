@@ -252,7 +252,6 @@ void testPersistFilter(const maths::common::CMultivariateConstantPrior& origFilt
         newJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
                                  &restoredFilter));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
-
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

@@ -780,7 +780,8 @@ bool isSpace(const char x) {
 }
 }
 
-void testPersistDataGatherer(const CDataGatherer& origDataGatherer, const SModelParams& params) {
+void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
+                             const SModelParams& params) {
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
         origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &origDataGatherer));
