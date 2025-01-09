@@ -432,6 +432,39 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
     test::CRandomNumbers rng;
 
+    auto testExpectedMode = [](const maths::time_series::CTimeSeriesDecomposition& trend,
+                               const maths::common::CNormalMeanPrecConjugate& prior,
+                               const maths::time_series::CUnivariateTimeSeriesModel& model,
+                               core_t::TTime time) {
+        double expectedMode{trend.value(time, 0.0, false).mean() +
+                            prior.marginalLikelihoodMode()};
+        TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(1)));
+
+        LOG_DEBUG(<< "expected mode = " << expectedMode);
+        LOG_DEBUG(<< "mode          = " << mode[0]);
+        BOOST_REQUIRE_EQUAL(1, mode.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
+    };
+
+    auto testExpectedMultivariateMode =
+        [](const TDecompositionPtr10Vec& trends,
+           const maths::common::CMultivariateNormalConjugate<3>& prior,
+           const maths::time_series::CMultivariateTimeSeriesModel& model,
+           core_t::TTime time) {
+            TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
+                maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
+            for (std::size_t i = 0; i < trends.size(); ++i) {
+                expectedMode[i] += trends[i]->value(time, 0.0, false).mean();
+            }
+            TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
+            LOG_DEBUG(<< "expected mode = " << expectedMode);
+            LOG_DEBUG(<< "mode          = " << mode);
+            BOOST_REQUIRE_EQUAL(3, mode.size());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
+        };
+
     LOG_DEBUG(<< "Univariate no trend");
     {
         TDoubleVec samples;
@@ -458,14 +491,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
-        double expectedMode{trend.value(time, 0.0, false).mean() +
-                            prior.marginalLikelihoodMode()};
-        TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(1)));
 
-        LOG_DEBUG(<< "expected mode = " << expectedMode);
-        LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_REQUIRE_EQUAL(1, mode.size());
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
+        testExpectedMode(trend, prior, model, time);
     }
 
     LOG_DEBUG(<< "Univariate trend");
@@ -500,14 +527,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
             time += bucketLength;
         }
 
-        double expectedMode{trend.value(time, 0.0, false).mean() +
-                            prior.marginalLikelihoodMode()};
-        TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(1)));
-
-        LOG_DEBUG(<< "expected mode = " << expectedMode);
-        LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_REQUIRE_EQUAL(1, mode.size());
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
+        testExpectedMode(trend, prior, model, time);
     }
 
     LOG_DEBUG(<< "Multivariate no trend");
@@ -547,19 +567,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
-        TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
-            maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
-        for (std::size_t i = 0; i < trends.size(); ++i) {
-            expectedMode[i] += trends[i]->value(time, 0.0, false).mean();
-        }
-        TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
 
-        LOG_DEBUG(<< "expected mode = " << expectedMode);
-        LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_REQUIRE_EQUAL(3, mode.size());
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
+        testExpectedMultivariateMode(trends, prior, model, time);
     }
 
     LOG_DEBUG(<< "Multivariate trend");
@@ -620,19 +629,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
             time += bucketLength;
         }
-        TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
-            maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
-        for (std::size_t i = 0; i < trends.size(); ++i) {
-            expectedMode[i] += trends[i]->value(time, 0.0, false).mean();
-        }
-        TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
 
-        LOG_DEBUG(<< "expected mode = " << expectedMode);
-        LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_REQUIRE_EQUAL(3, mode.size());
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);
+        testExpectedMultivariateMode(trends, prior, model, time);
     }
 }
 
