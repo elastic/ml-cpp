@@ -181,6 +181,29 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     sketch3.swap(sketch4);
 }
 
+void testPersistSketch(const maths::time_series::CCountMinSketch& origSketch) {
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                                  &origSketch));
+    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
+
+    // Restore the JSON into a new sketch.
+    std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(is);
+    maths::time_series::CCountMinSketch restoredSketch(traverser);
+
+    LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
+              << ", new checksum = " << restoredSketch.checksum());
+    BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                                 &restoredSketch));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
@@ -192,28 +215,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origSketch.add(static_cast<std::uint32_t>(i), counts[i]);
     }
 
-    std::ostringstream origJson;
-    core::CJsonStatePersistInserter::persist(
-        origJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
-                                  &origSketch));
-    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
-
-    // Restore the JSON into a new sketch.
-    {
-        std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
-        core::CJsonStateRestoreTraverser traverser(is);
-        maths::time_series::CCountMinSketch restoredSketch(traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
-                  << ", new checksum = " << restoredSketch.checksum());
-        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
-
-        std::ostringstream newJson;
-        core::CJsonStatePersistInserter::persist(
-            newJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
-                                     &restoredSketch));
-        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
-    }
+    testPersistSketch(origSketch);
 
     // Sketch.
     TDoubleVec moreCounts;
@@ -222,31 +224,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origSketch.add(static_cast<std::uint32_t>(counts.size() + i), moreCounts[i]);
     }
 
-    origJson.str("");
-    origJson.clear();
-    core::CJsonStatePersistInserter::persist(
-        origJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
-                                  &origSketch));
-    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
-
-    // Restore the JSON into a new sketch.
-    {
-        std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
-        core::CJsonStateRestoreTraverser traverser(is);
-        maths::time_series::CCountMinSketch restoredSketch(traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
-                  << ", new checksum = " << restoredSketch.checksum());
-        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
-
-        std::ostringstream newJson;
-        core::CJsonStatePersistInserter::persist(
-            newJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
-                                     &restoredSketch));
-        LOG_DEBUG(<< "restored sketch JSON = " << newJson.str());
-
-        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
-    }
+    testPersistSketch(origSketch);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

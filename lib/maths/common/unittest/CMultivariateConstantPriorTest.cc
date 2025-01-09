@@ -227,36 +227,42 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     }
 }
 
+void testPersistFilter(const maths::common::CMultivariateConstantPrior& origFilter) {
+    std::uint64_t checksum = origFilter.checksum();
+
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
+                                  &origFilter));
+    LOG_DEBUG(<< "Constant JSON representation:\n" << origJson.str());
+
+    // Restore the JSON into a new filter
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+
+    maths::common::CMultivariateConstantPrior restoredFilter(3, traverser);
+
+    LOG_DEBUG(<< "orig checksum = " << checksum
+              << " restored checksum = " << restoredFilter.checksum());
+    BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
+
+    // The JSON representation of the new filter should be the same as the original
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
+                                 &restoredFilter));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     // Check persistence is idempotent.
 
     LOG_DEBUG(<< "*** Non-informative ***");
     {
         maths::common::CMultivariateConstantPrior origFilter(3);
-        std::uint64_t checksum = origFilter.checksum();
 
-        std::ostringstream origJson;
-        core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
-                                      &origFilter));
-        LOG_DEBUG(<< "Constant JSON representation:\n" << origJson.str());
-
-        // Restore the JSON into a new filter
-        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
-        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-
-        maths::common::CMultivariateConstantPrior restoredFilter(3, traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << checksum
-                  << " restored checksum = " << restoredFilter.checksum());
-        BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
-
-        // The JSON representation of the new filter should be the same as the original
-        std::ostringstream newJson;
-        core::CJsonStatePersistInserter::persist(
-            newJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
-                                     &restoredFilter));
-        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+        testPersistFilter(origFilter);
     }
 
     LOG_DEBUG(<< "*** Constant ***");
@@ -265,31 +271,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         maths::common::CMultivariateConstantPrior origFilter(
             3, TDouble10Vec(std::begin(constant), std::end(constant)));
-        std::uint64_t checksum = origFilter.checksum();
 
-        std::ostringstream origJson;
-        core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
-                                      &origFilter));
-
-        LOG_DEBUG(<< "Constant JSON representation:\n" << origJson.str());
-
-        // Restore the JSON into a new filter
-        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
-        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-
-        maths::common::CMultivariateConstantPrior restoredFilter(3, traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << checksum
-                  << " restored checksum = " << restoredFilter.checksum());
-        BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
-
-        // The JSON representation of the new filter should be the same as the original
-        std::ostringstream newJson;
-        core::CJsonStatePersistInserter::persist(
-            newJson, std::bind_front(&maths::common::CMultivariateConstantPrior::acceptPersistInserter,
-                                     &restoredFilter));
-        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+        testPersistFilter(origFilter);
     }
 }
 

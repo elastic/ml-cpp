@@ -780,6 +780,30 @@ bool isSpace(const char x) {
 }
 }
 
+void testPersistDataGatherer(const CDataGatherer& origDataGatherer, const SModelParams& params) {
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &origDataGatherer));
+    LOG_DEBUG(<< "origJson = " << origJson.str());
+
+    // Restore the Json into a new data gatherer
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+
+    CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
+                                       model_t::E_None, params, EMPTY_STRING,
+                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                       EMPTY_STRING, {}, searchKey, traverser);
+
+    // The Json representation of the new data gatherer should be the same as the
+    // original
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &restoredDataGatherer));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+}
+
 BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -804,27 +828,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
                        messages[i].s_Attribute, origDataGatherer, m_ResourceMonitor);
         }
 
-        std::ostringstream origJson;
-        core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &origDataGatherer));
-        LOG_DEBUG(<< "origJson = " << origJson.str());
-
-        // Restore the Json into a new data gatherer
-        // The traverser expects the state json in a embedded document
-        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
-        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-
-        CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
-                                           model_t::E_None, params, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, {}, searchKey, traverser);
-
-        // The Json representation of the new data gatherer should be the same as the
-        // original
-        std::ostringstream newJson;
-        core::CJsonStatePersistInserter::persist(
-            newJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &restoredDataGatherer));
-        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+        testPersistDataGatherer(origDataGatherer, params);
     }
     {
         // Check feature data for model_t::E_UniqueValues
@@ -861,28 +865,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
             dataGatherer.timeNow(time + bucketLength);
         }
 
-        std::ostringstream origJson;
-        core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &dataGatherer));
-        LOG_DEBUG(<< "origJson = " << origJson.str());
-
-        // Restore the Json into a new data gatherer
-        // The traverser expects the state json in a embedded document
-        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
-        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-
-        CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
-                                           model_t::E_None, params, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, {}, searchKey, traverser);
-
-        // The Json representation of the new data gatherer should be the same as the
-        // original
-        std::ostringstream newJson;
-        core::CJsonStatePersistInserter::persist(
-            newJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &restoredDataGatherer));
-        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
-        BOOST_REQUIRE_EQUAL(dataGatherer.checksum(), restoredDataGatherer.checksum());
+        testPersistDataGatherer(dataGatherer, params);
     }
 }
 
