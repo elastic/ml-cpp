@@ -65,6 +65,26 @@ struct SRestore {
         return restored.fromDelimited(traverser.value());
     }
 };
+
+template<typename T>
+void testPersistCollection(const T& moments) {
+    std::ostringstream json;
+    core::CJsonStatePersistInserter inserter(json);
+    core::CPersistUtils::persist(TAG, moments, inserter);
+
+    LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
+
+    std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(jsonStrm);
+    T restored;
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+        std::bind(SRestore(), std::ref(restored), std::placeholders::_1)));
+    LOG_DEBUG(<< "restored = " << restored);
+    BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
+    for (std::size_t i = 0; i < restored.size(); ++i) {
+        BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
+    }
+}
 }
 
 BOOST_AUTO_TEST_CASE(testMean) {
@@ -573,24 +593,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[0].add(2.0);
             moments[0].add(3.0);
 
-            {
-                std::ostringstream json;
-                core::CJsonStatePersistInserter inserter(json);
-                core::CPersistUtils::persist(TAG, moments, inserter);
-
-                LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
-
-                std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(jsonStrm);
-                TMeanAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
 
             moments.push_back(TMeanAccumulator());
             moments.push_back(TMeanAccumulator());
@@ -600,23 +603,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[2].add(11.0);
             moments[2].add(12.0);
 
-            {
-                std::ostringstream json;
-                core::CJsonStatePersistInserter inserter(json);
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
-
-                std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(jsonStrm);
-                TMeanAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
         }
         LOG_DEBUG(<< "Test means and variances");
         {
@@ -624,23 +611,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[0].add(2.0);
             moments[0].add(3.0);
             moments[0].add(3.5);
-            {
-                std::ostringstream json;
-                core::CJsonStatePersistInserter inserter(json);
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
 
-                std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(jsonStrm);
-                TMeanVarAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
 
             moments.push_back(TMeanVarAccumulator());
             moments.push_back(TMeanVarAccumulator());
@@ -651,23 +623,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[2].add(11.0);
             moments[2].add(12.0);
             moments[2].add(12.0);
-            {
-                std::ostringstream json;
-                core::CJsonStatePersistInserter inserter(json);
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
 
-                std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(jsonStrm);
-                TMeanVarAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
         }
         LOG_DEBUG(<< "Test means, variances and skews");
         {
@@ -675,23 +632,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[0].add(2.0);
             moments[0].add(3.0);
             moments[0].add(3.5);
-            {
-                std::ostringstream json;
-                core::CJsonStatePersistInserter inserter(json);
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
 
-                std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(jsonStrm);
-                TMeanVarSkewAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
 
             moments.push_back(TMeanVarSkewAccumulator());
             moments.push_back(TMeanVarSkewAccumulator());
@@ -702,24 +644,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[2].add(11.0);
             moments[2].add(12.0);
             moments[2].add(12.0);
-            {
-                std::ostringstream json;
-                core::CJsonStatePersistInserter inserter(json);
-                core::CPersistUtils::persist(TAG, moments, inserter);
 
-                LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
-
-                std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(jsonStrm);
-                TMeanVarSkewAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
         }
     }
 
