@@ -288,10 +288,10 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
 
                     // Test persistence. (We check for idempotency.)
                     std::ostringstream origJson;
-                    {
-                        core::CJsonStatePersistInserter inserter(origJson);
-                        model.acceptPersistInserter(inserter);
-                    }
+                    core::CJsonStatePersistInserter::persist(
+                        origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+                            model.acceptPersistInserter(inserter);
+                        });
 
                     // Restore the JSON into a new filter
                     std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
@@ -301,10 +301,10 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
 
                     // The JSON representation of the new filter should be the same as the original
                     std::ostringstream newJson;
-                    {
-                        ml::core::CJsonStatePersistInserter inserter(newJson);
-                        restoredModel->acceptPersistInserter(inserter);
-                    }
+                    core::CJsonStatePersistInserter::persist(
+                        newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+                            restoredModel->acceptPersistInserter(inserter);
+                        });
 
                     std::uint64_t origChecksum = model.checksum(false);
                     LOG_DEBUG(<< "original checksum = " << origChecksum);
@@ -472,10 +472,10 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
 
                 // Test persistence. (We check for idempotency.)
                 std::ostringstream origJson;
-                {
-                    core::CJsonStatePersistInserter inserter(origJson);
-                    model.acceptPersistInserter(inserter);
-                }
+                core::CJsonStatePersistInserter::persist(
+                    origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+                        model.acceptPersistInserter(inserter);
+                    });
 
                 // Restore the JSON into a new filter
                 std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
@@ -484,10 +484,10 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
 
                 // The JSON representation of the new filter should be the same as the original
                 std::ostringstream newJson;
-                {
-                    ml::core::CJsonStatePersistInserter inserter(newJson);
-                    restoredModel->acceptPersistInserter(inserter);
-                }
+                core::CJsonStatePersistInserter::persist(
+                    newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+                        restoredModel->acceptPersistInserter(inserter);
+                    });
 
                 std::uint64_t origChecksum = model.checksum(false);
                 LOG_DEBUG(<< "original checksum = " << origChecksum);
@@ -1788,10 +1788,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
         if ((i + 1) % 1000 == 0) {
             // Test persistence. (We check for idempotency.)
             std::ostringstream origJson;
-            {
-                core::CJsonStatePersistInserter inserter(origJson);
-                m_Model->acceptPersistInserter(inserter);
-            }
+            core::CJsonStatePersistInserter::persist(
+                origJson, [& m_Model = m_Model](core::CJsonStatePersistInserter & inserter) {
+                    m_Model->acceptPersistInserter(inserter);
+                });
 
             // Restore the JSON into a new filter
             std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
@@ -1800,10 +1800,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
 
             // The JSON representation of the new filter should be the same as the original
             std::ostringstream newJson;
-            {
-                ml::core::CJsonStatePersistInserter inserter(newJson);
-                restoredModel->acceptPersistInserter(inserter);
-            }
+            core::CJsonStatePersistInserter::persist(
+                newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+                    restoredModel->acceptPersistInserter(inserter);
+                });
 
             std::uint64_t origChecksum = m_Model->checksum(false);
             LOG_DEBUG(<< "original checksum = " << origChecksum);

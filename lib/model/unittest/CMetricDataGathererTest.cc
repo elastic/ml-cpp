@@ -170,10 +170,10 @@ const std::string EMPTY_STRING;
 void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
     // Test persistence. (We check for idempotency.)
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origGatherer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&origGatherer](core::CJsonStatePersistInserter& inserter) {
+            origGatherer.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "gatherer JSON size " << origJson.str().size());
     LOG_TRACE(<< "gatherer JSON representation:\n" << origJson.str());
@@ -192,10 +192,10 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
     // The JSON representation of the new filter should be the
     // same as the original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredGatherer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredGatherer](core::CJsonStatePersistInserter& inserter) {
+            restoredGatherer.acceptPersistInserter(inserter);
+        });
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 }
@@ -1702,10 +1702,10 @@ BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
     stat.add(TDoubleVec(1, 0.6), 1299196742, 1);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        stat.persist(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&stat](core::CJsonStatePersistInserter& inserter) {
+            stat.persist(inserter);
+        });
 
     core_t::TTime origTime = stat.time();
     std::ostringstream restoredJson;
@@ -1720,10 +1720,10 @@ BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
                       std::ref(restored), std::placeholders::_1));
 
         restoredTime = restored.time();
-        {
-            core::CJsonStatePersistInserter inserter(restoredJson);
-            restored.persist(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            restoredJson, [&restored](core::CJsonStatePersistInserter& inserter) {
+                restored.persist(inserter);
+            });
     }
     BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
     BOOST_REQUIRE_EQUAL(origTime, restoredTime);

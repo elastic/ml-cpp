@@ -271,10 +271,10 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
     // Test persistence. (We check for idempotency.)
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        model->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+            model->acceptPersistInserter(inserter);
+        });
 
     LOG_TRACE(<< "origJson = " << origJson.str());
     LOG_DEBUG(<< "origJson size = " << origJson.str().size());
@@ -288,10 +288,10 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 
     // The Json representation of the new filter should be the same as the original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredModelPtr->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredModelPtr](core::CJsonStatePersistInserter& inserter) {
+            restoredModelPtr->acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "original checksum = " << model->checksum(false));
     LOG_DEBUG(<< "restored checksum = " << restoredModelPtr->checksum(false));
@@ -416,10 +416,10 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
     BOOST_TEST_REQUIRE(probabilities[3] > 50.0 * probabilities[4]);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        model->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+            model->acceptPersistInserter(inserter);
+        });
 
     LOG_TRACE(<< "origJson = " << origJson.str());
     LOG_DEBUG(<< "origJson size = " << origJson.str().size());
@@ -433,10 +433,10 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
 
     // The Json representation of the new filter should be the same as the original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredModelPtr->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredModelPtr](core::CJsonStatePersistInserter& inserter) {
+            restoredModelPtr->acceptPersistInserter(inserter);
+        });
 
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
@@ -710,10 +710,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
 
         // Test persist and restore with correlate models.
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            model->acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+                model->acceptPersistInserter(inserter);
+            });
 
         LOG_TRACE(<< "origJson = " << origJson.str());
         LOG_DEBUG(<< "origJson size = " << origJson.str().size());
@@ -724,10 +724,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         CModelFactory::TModelPtr restoredModel(m_Factory->makeModel(m_Gatherer, traverser));
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredModel->acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+                restoredModel->acceptPersistInserter(inserter);
+            });
 
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
@@ -1956,10 +1956,10 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     BOOST_REQUIRE_EQUAL(std::string("inf2"), *lastInfluencersResult[0].first.second);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        model->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+            model->acceptPersistInserter(inserter);
+        });
 
     // Restore the Json into a new filter
     // The traverser expects the state json in a embedded document
@@ -1969,10 +1969,10 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
 
     // The Json representation of the new filter should be the same as the original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredModelPtr->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredModelPtr](core::CJsonStatePersistInserter& inserter) {
+            restoredModelPtr->acceptPersistInserter(inserter);
+        });
 
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }

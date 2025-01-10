@@ -25,10 +25,10 @@ namespace {
 void persistAndRestore(const ml::api::CPerPartitionCategoryIdMapper& persistFrom,
                        ml::api::CPerPartitionCategoryIdMapper& restoreTo) {
     std::stringstream jsonStrm;
-    {
-        ml::core::CJsonStatePersistInserter inserter(jsonStrm);
-        persistFrom.acceptPersistInserter(inserter);
-    }
+    ml::core::CJsonStatePersistInserter::persist(
+        jsonStrm, [&persistFrom](ml::core::CJsonStatePersistInserter& inserter) {
+            persistFrom.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "JSON representation is: " << jsonStrm.str());
 

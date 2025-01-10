@@ -153,10 +153,10 @@ void addArrival(CDataGatherer& gatherer,
 void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
     // Test persistence. (We check for idempotency.)
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origGatherer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&origGatherer](core::CJsonStatePersistInserter& inserter) {
+            origGatherer.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "gatherer Json size " << origJson.str().size());
     LOG_TRACE(<< "gatherer Json representation:\n" << origJson.str());
@@ -176,10 +176,10 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
     // The Json representation of the new filter should be the
     // same as the original.
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredGatherer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredGatherer](core::CJsonStatePersistInserter& inserter) {
+            restoredGatherer.acceptPersistInserter(inserter);
+        });
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

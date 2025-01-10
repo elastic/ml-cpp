@@ -36,7 +36,7 @@ namespace core {
 class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter {
 public:
     template<class Func>
-    static void persist(std::ostringstream& oss, const Func& func) {
+    static void persist(std::ostream& oss, const Func& func) {
         ml::core::CJsonStatePersistInserter inserter(oss);
         func(inserter);
     }

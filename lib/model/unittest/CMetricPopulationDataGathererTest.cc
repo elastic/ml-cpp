@@ -1052,10 +1052,10 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     origDataGatherer.sampleNow(bucketStart);
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origDataGatherer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&origDataGatherer](core::CJsonStatePersistInserter& inserter) {
+            origDataGatherer.acceptPersistInserter(inserter);
+        });
     LOG_DEBUG(<< "origJson length = " << origJson.str().size());
     BOOST_TEST_REQUIRE(origJson.str().size() < 292000);
 
@@ -1072,10 +1072,10 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     // The JSON representation of the new data gatherer should be the same as the
     // original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredDataGatherer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredDataGatherer](core::CJsonStatePersistInserter& inserter) {
+            restoredDataGatherer.acceptPersistInserter(inserter);
+        });
     LOG_DEBUG(<< "newJson length = " << newJson.str().size());
 
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());

@@ -193,11 +193,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         addValue(origEstimator, pScale * 20 + aScale * 19 + cScale * 30, 20, 19, 30);
 
         std::ostringstream origJson;
-        {
-            core::CJsonStatePersistInserter inserter(origJson);
-            origEstimator.acceptPersistInserter(inserter);
-            LOG_DEBUG(<< "origJson = " << origJson.str());
-        }
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind_front(&CMemoryUsageEstimator::acceptPersistInserter,
+                                      &origEstimator));
+        LOG_DEBUG(<< "origJson = " << origJson.str());
 
         // Restore the JSON into a new data gatherer
         // The traverser expects the state json in a embedded document
@@ -212,10 +211,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         // The JSON representation of the new data gatherer should be the same
         // as the original.
         std::ostringstream newJson;
-        {
-            core::CJsonStatePersistInserter inserter(newJson);
-            restoredEstimator.acceptPersistInserter(inserter);
-        }
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind_front(&CMemoryUsageEstimator::acceptPersistInserter,
+                                     &restoredEstimator));
         BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 }

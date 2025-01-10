@@ -1140,10 +1140,10 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        m_Model->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [& m_Model = m_Model](core::CJsonStatePersistInserter & inserter) {
+            m_Model->acceptPersistInserter(inserter);
+        });
 
     LOG_TRACE(<< "origJson = " << origJson.str());
     LOG_DEBUG(<< "origJson size = " << origJson.str().size());
@@ -1161,10 +1161,10 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     // The JSON representation of the new data gatherer should be the same as the
     // original
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredModel->acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+            restoredModel->acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "original checksum = " << m_Model->checksum(false));
     LOG_DEBUG(<< "restored checksum = " << restoredModel->checksum(false));

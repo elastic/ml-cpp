@@ -508,10 +508,11 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500);
 
     std::ostringstream origJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter{origJson};
-        origCategorizer.acceptPersistInserter(inserter);
-    }
+
+    ml::core::CJsonStatePersistInserter::persist(
+        origJson, [&origCategorizer](ml::core::CJsonStatePersistInserter& inserter) {
+            origCategorizer.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "Categorizer JSON representation:\n" << origJson.str());
 
@@ -522,16 +523,18 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         // The traverser expects the state json in a embedded document
         std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
         ml::core::CJsonStateRestoreTraverser traverser{origJsonStrm};
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
-            &TTokenListDataCategorizerKeepsFields::acceptRestoreTraverser, &restoredCategorizer)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+            [&restoredCategorizer](ml::core::CStateRestoreTraverser& traverser) {
+                return restoredCategorizer.acceptRestoreTraverser(traverser);
+            }));
     }
 
     // The JSON representation of the new categorizer should be the same as the original
     std::ostringstream newJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter(newJson);
-        restoredCategorizer.acceptPersistInserter(inserter);
-    }
+    ml::core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredCategorizer](ml::core::CJsonStatePersistInserter& inserter) {
+            restoredCategorizer.acceptPersistInserter(inserter);
+        });
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 
     checkMemoryUsageInstrumentation(origCategorizer);

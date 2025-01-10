@@ -150,10 +150,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        origEqualizer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&origEqualizer](core::CJsonStatePersistInserter& inserter) {
+            origEqualizer.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "equalizer JSON representation:\n" << origJson.str());
 
@@ -172,10 +172,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // The persist and restore should be idempotent.
     std::ostringstream newJson;
-    {
-        core::CJsonStatePersistInserter inserter(newJson);
-        restoredEqualizer.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredEqualizer](core::CJsonStatePersistInserter& inserter) {
+            restoredEqualizer.acceptPersistInserter(inserter);
+        });
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 

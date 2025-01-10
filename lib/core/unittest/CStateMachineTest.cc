@@ -161,10 +161,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         machine[0].s_Alphabet, machine[0].s_States, machine[0].s_TransitionFunction,
         1); // initial state
     std::ostringstream origJson;
-    {
-        core::CJsonStatePersistInserter inserter(origJson);
-        original.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&original](core::CJsonStatePersistInserter& inserter) {
+            original.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "State machine JSON representation:\n" << origJson.str());
 
@@ -181,10 +181,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     BOOST_REQUIRE_EQUAL(original.checksum(), restored.checksum());
     std::ostringstream newJson;
-    {
-        ml::core::CJsonStatePersistInserter inserter(newJson);
-        restored.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restored](core::CJsonStatePersistInserter& inserter) {
+            restored.acceptPersistInserter(inserter);
+        });
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
