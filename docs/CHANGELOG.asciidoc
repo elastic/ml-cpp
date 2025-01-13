@@ -41,6 +41,8 @@
 * Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2798], {ml-pull}2799[#2799].)
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
 
+== {es} version 8.16.4
+
 === Bug Fixes
 
 * Increase the upper limits for the Boost.JSON SAX parser. (See {ml-pull}2809[#2809].)
