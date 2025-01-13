@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.16.4
+
+=== Bug Fixes
+
+* Increase the upper limits for the Boost.JSON SAX parser. (See {ml-pull}2809[#2809].)
+
 == {es} version 8.16.0
 
 === Enhancements
