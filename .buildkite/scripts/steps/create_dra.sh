@@ -26,10 +26,15 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
 fi
 
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
+if [ "$VERSION_QUALIFIER" != "" ] ; then
+    VERSION=${VERSION}-${VERSION_QUALIFIER}
+fi
 if [ "$BUILD_SNAPSHOT" = "true" ] ; then
     VERSION=${VERSION}-SNAPSHOT
 fi
 export VERSION
+
+echo "VERSION = ${VERSION}"
 
 # Download artifacts, either from earlier steps in this build or from the build that triggered this one.
 if [[ -n "${BUILDKITE_TRIGGERED_FROM_BUILD_ID}" ]]; then
