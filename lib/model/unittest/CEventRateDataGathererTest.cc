@@ -9,8 +9,6 @@
  * limitation.
  */
 
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CRegex.h>
 
@@ -29,6 +27,8 @@
 #include <fstream>
 #include <utility>
 #include <vector>
+
+#include "ModelTestHelpers.h"
 
 BOOST_AUTO_TEST_SUITE(CEventRateDataGathererTest)
 
@@ -150,39 +150,6 @@ void addArrival(CDataGatherer& gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
-    // Test persistence. (We check for idempotency.)
-    std::ostringstream origJson;
-    core::CJsonStatePersistInserter::persist(
-        origJson, [&origGatherer](core::CJsonStatePersistInserter& inserter) {
-            origGatherer.acceptPersistInserter(inserter);
-        });
-
-    LOG_DEBUG(<< "gatherer Json size " << origJson.str().size());
-    LOG_TRACE(<< "gatherer Json representation:\n" << origJson.str());
-
-    // Restore the Json into a new filter.
-
-    // The traverser expects the state json in a embedded document
-    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
-    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-
-    CDataGatherer restoredGatherer(model_t::E_EventRate, model_t::E_None, params,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   EMPTY_STRING, EMPTY_STRING, {}, key, traverser);
-
-    BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
-
-    // The Json representation of the new filter should be the
-    // same as the original.
-    std::ostringstream newJson;
-    core::CJsonStatePersistInserter::persist(
-        newJson, [&restoredGatherer](core::CJsonStatePersistInserter& inserter) {
-            restoredGatherer.acceptPersistInserter(inserter);
-        });
-    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
-}
-
 void testInfluencerPerFeature(model_t::EFeature feature,
                               const TTimeVec& data,
                               const TStrVecVec& influencers,
@@ -210,20 +177,7 @@ void testInfluencerPerFeature(model_t::EFeature feature,
         BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
     }
 
-    BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
-    BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
-    BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
-    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-    std::size_t pid;
-    BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
-    BOOST_REQUIRE_EQUAL(0, pid);
-    BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
-
-    BOOST_REQUIRE_EQUAL(0, gatherer.numberActiveAttributes());
-    BOOST_REQUIRE_EQUAL(0, gatherer.numberOverFieldValues());
-
-    BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
-    BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
+    testGathererAttributes(gatherer, startTime, bucketLength);
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0, j = 0; i < data.size(); ++i) {
@@ -240,7 +194,7 @@ void testInfluencerPerFeature(model_t::EFeature feature,
             BOOST_REQUIRE_EQUAL(expected[j],
                                 core::CContainerPrinter::print(featureData[0].second));
 
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_EventRate);
         }
 
         if (j < 5) {
@@ -284,6 +238,134 @@ void importCsvData(CDataGatherer& gatherer,
     ifs.reset();
 }
 
+void testGathererMultipleSeries(const core_t::TTime startTime,
+                                const core_t::TTime bucketLength,
+                                core_t::TTime data1[],
+                                core_t::TTime data2[],
+                                std::string expectedPersonCounts[],
+                                SModelParams params,
+                                core_t::TTime upperLimit,
+                                CDataGatherer& gatherer,
+                                CResourceMonitor& resourceMonitor) {
+
+    BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, resourceMonitor, "p1"));
+    BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, resourceMonitor, "p2"));
+
+    core_t::TTime time = startTime;
+    std::size_t i1 = 0u, i2 = 0u, j = 0;
+    for (;;) {
+        for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + upperLimit;
+             time += bucketLength, ++j) {
+            LOG_DEBUG(<< "Processing bucket [" << time << ", " << time + bucketLength << ")");
+
+            TFeatureSizeFeatureDataPrVecPrVec featureData;
+            gatherer.featureData(time, bucketLength, featureData);
+            LOG_DEBUG(<< "featureData = " << featureData);
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                featureData[0].first);
+            BOOST_REQUIRE_EQUAL(expectedPersonCounts[j],
+                                core::CContainerPrinter::print(featureData[0].second));
+
+            testPersistence(params, gatherer, model_t::E_EventRate);
+        }
+
+        if (j >= 5) {
+            break;
+        }
+
+        if (data1[i1] < data2[i2]) {
+            LOG_DEBUG(<< "Adding arrival for p1 at " << data1[i1]);
+            addArrival(gatherer, resourceMonitor, data1[i1], "p1");
+            ++i1;
+        } else {
+            LOG_DEBUG(<< "Adding arrival for p2 at " << data2[i2]);
+            addArrival(gatherer, resourceMonitor, data2[i2], "p2");
+            ++i2;
+        }
+    }
+
+    TSizeVec peopleToRemove;
+    peopleToRemove.push_back(1);
+    gatherer.recyclePeople(peopleToRemove);
+
+    BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
+    std::size_t pid;
+    BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
+    BOOST_REQUIRE_EQUAL(0, pid);
+    BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
+
+    TFeatureSizeFeatureDataPrVecPrVec featureData;
+    gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
+    LOG_DEBUG(<< "featureData = " << featureData);
+    BOOST_REQUIRE_EQUAL(1, featureData.size());
+    BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                        featureData[0].first);
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
+}
+
+void testGathererMultipleSeries(const core_t::TTime startTime,
+                                const core_t::TTime bucketLength,
+                                SModelParams params,
+                                CDataGatherer& gatherer,
+                                CResourceMonitor& resourceMonitor) {
+    TFeatureVec features;
+    features.push_back(model_t::E_IndividualCountByBucketAndPerson);
+
+    BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, resourceMonitor, "p1"));
+    BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, resourceMonitor, "p2"));
+    BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, resourceMonitor, "p3"));
+    BOOST_REQUIRE_EQUAL(3, addPerson(gatherer, resourceMonitor, "p4"));
+    BOOST_REQUIRE_EQUAL(4, addPerson(gatherer, resourceMonitor, "p5"));
+
+    for (std::size_t i = 0; i < 5; ++i) {
+        addArrival(gatherer, resourceMonitor, startTime, gatherer.personName(i));
+    }
+    addArrival(gatherer, resourceMonitor, startTime + 1, gatherer.personName(2));
+    addArrival(gatherer, resourceMonitor, startTime + 2, gatherer.personName(4));
+    addArrival(gatherer, resourceMonitor, startTime + 3, gatherer.personName(4));
+
+    TSizeUInt64PrVec personCounts;
+
+    TFeatureSizeFeatureDataPrVecPrVec featureData;
+    gatherer.featureData(startTime, bucketLength, featureData);
+    LOG_DEBUG(<< "featureData = " << featureData);
+    BOOST_REQUIRE_EQUAL(1, featureData.size());
+    BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                        featureData[0].first);
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
+
+    TSizeVec peopleToRemove;
+    peopleToRemove.push_back(0);
+    peopleToRemove.push_back(1);
+    peopleToRemove.push_back(3);
+    gatherer.recyclePeople(peopleToRemove);
+
+    BOOST_REQUIRE_EQUAL(2, gatherer.numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
+    BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
+    std::size_t pid;
+    BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
+    BOOST_REQUIRE_EQUAL(2, pid);
+    BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
+    BOOST_REQUIRE_EQUAL(4, pid);
+
+    gatherer.featureData(startTime, bucketLength, featureData);
+    LOG_DEBUG(<< "featureData = " << featureData);
+    BOOST_REQUIRE_EQUAL(1, featureData.size());
+    BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                        featureData[0].first);
+    BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
+}
+
 } // namespace
 
 class CTestFixture {
@@ -312,7 +394,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         importCsvData(gatherer, m_ResourceMonitor,
                       "testfiles/files_users_programs.csv", fields);
 
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
     {
         // Create a gatherer, with influences
@@ -331,7 +413,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         importCsvData(gatherer, m_ResourceMonitor,
                       "testfiles/files_users_programs.csv", fields);
 
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
     {
         // Create a gatherer, no influences
@@ -346,7 +428,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         importCsvData(gatherer, m_ResourceMonitor,
                       "testfiles/files_users_programs.csv", fields);
 
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
     {
         // Create a gatherer, with influences
@@ -364,7 +446,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         importCsvData(gatherer, m_ResourceMonitor,
                       "testfiles/files_users_programs.csv", fields);
 
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
 }
 
@@ -420,20 +502,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualCountByBucketAndPerson));
         BOOST_TEST_REQUIRE(!gatherer.hasFeature(model_t::E_IndividualMinByPerson));
 
-        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
-        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-        std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
-        BOOST_REQUIRE_EQUAL(0, pid);
-        BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
-
-        BOOST_REQUIRE_EQUAL(0, gatherer.numberActiveAttributes());
-        BOOST_REQUIRE_EQUAL(0, gatherer.numberOverFieldValues());
-        BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
-
-        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
+        testGathererAttributes(gatherer, startTime, bucketLength);
 
         core_t::TTime time = startTime;
         for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
@@ -452,7 +521,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
                     expectedPersonCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
-                testPersistence(params, gatherer);
+                testPersistence(params, gatherer, model_t::E_EventRate);
             }
 
             if (j < 5) {
@@ -493,7 +562,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
                     expectedPersonNonZeroCounts[j],
                     core::CContainerPrinter::print(featureData[1].second));
 
-                testPersistence(params, gatherer);
+                testPersistence(params, gatherer, model_t::E_EventRate);
             }
 
             if (j < 5) {
@@ -528,7 +597,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
                     expectedPersonIndicator[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
-                testPersistence(params, gatherer);
+                testPersistence(params, gatherer, model_t::E_EventRate);
             }
 
             if (j < 5) {
@@ -577,127 +646,29 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
+
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
+                               EMPTY_STRING, {}, KEY, features, startTime, 0);
 
-        core_t::TTime time = startTime;
-        std::size_t i1 = 0u, i2 = 0u, j = 0;
-        for (;;) {
-            for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + bucketLength;
-                 time += bucketLength, ++j) {
-                LOG_DEBUG(<< "Processing bucket [" << time << ", "
-                          << time + bucketLength << ")");
+        testGathererMultipleSeries(startTime, bucketLength, data1, data2,
+                                   expectedPersonCounts, params, bucketLength,
+                                   gatherer, m_ResourceMonitor);
 
-                TFeatureSizeFeatureDataPrVecPrVec featureData;
-                gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << featureData);
-                BOOST_REQUIRE_EQUAL(1, featureData.size());
-                BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                                    featureData[0].first);
-                BOOST_REQUIRE_EQUAL(
-                    expectedPersonCounts[j],
-                    core::CContainerPrinter::print(featureData[0].second));
-
-                testPersistence(params, gatherer);
-            }
-
-            if (j >= 5) {
-                break;
-            }
-
-            if (data1[i1] < data2[i2]) {
-                LOG_DEBUG(<< "Adding arrival for p1 at " << data1[i1]);
-                addArrival(gatherer, m_ResourceMonitor, data1[i1], "p1");
-                ++i1;
-            } else {
-                LOG_DEBUG(<< "Adding arrival for p2 at " << data2[i2]);
-                addArrival(gatherer, m_ResourceMonitor, data2[i2], "p2");
-                ++i2;
-            }
-        }
-
-        TSizeVec peopleToRemove;
-        peopleToRemove.push_back(1);
-        gatherer.recyclePeople(peopleToRemove);
-
-        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
-        BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-        std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
-        BOOST_REQUIRE_EQUAL(0, pid);
-        BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
-
-        TFeatureSizeFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << featureData);
-        BOOST_REQUIRE_EQUAL(1, featureData.size());
-        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                            featureData[0].first);
-        BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
-                            core::CContainerPrinter::print(featureData[0].second));
     }
 
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
+
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
-        BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, m_ResourceMonitor, "p3"));
-        BOOST_REQUIRE_EQUAL(3, addPerson(gatherer, m_ResourceMonitor, "p4"));
-        BOOST_REQUIRE_EQUAL(4, addPerson(gatherer, m_ResourceMonitor, "p5"));
 
-        for (std::size_t i = 0; i < 5; ++i) {
-            addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
-        }
-        addArrival(gatherer, m_ResourceMonitor, startTime + 1, gatherer.personName(2));
-        addArrival(gatherer, m_ResourceMonitor, startTime + 2, gatherer.personName(4));
-        addArrival(gatherer, m_ResourceMonitor, startTime + 3, gatherer.personName(4));
+        testGathererMultipleSeries(startTime, bucketLength, params, gatherer, m_ResourceMonitor);
 
-        TSizeUInt64PrVec personCounts;
-
-        TFeatureSizeFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << featureData);
-        BOOST_REQUIRE_EQUAL(1, featureData.size());
-        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                            featureData[0].first);
-        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
-                            core::CContainerPrinter::print(featureData[0].second));
-
-        TSizeVec peopleToRemove;
-        peopleToRemove.push_back(0);
-        peopleToRemove.push_back(1);
-        peopleToRemove.push_back(3);
-        gatherer.recyclePeople(peopleToRemove);
-
-        BOOST_REQUIRE_EQUAL(2, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(2, gatherer.numberByFieldValues());
-        BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
-        BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
-        std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
-        BOOST_REQUIRE_EQUAL(2, pid);
-        BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
-        BOOST_REQUIRE_EQUAL(4, pid);
-
-        gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << featureData);
-        BOOST_REQUIRE_EQUAL(1, featureData.size());
-        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                            featureData[0].first);
-        BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
-                            core::CContainerPrinter::print(featureData[0].second));
     }
 }
 
@@ -880,7 +851,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
                     expectedPersonCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
-                testPersistence(params, gatherer);
+                testPersistence(params, gatherer, model_t::E_EventRate);
             }
 
             if (j < 5) {
@@ -922,7 +893,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
                     expectedPersonNonZeroCounts[j],
                     core::CContainerPrinter::print(featureData[1].second));
 
-                testPersistence(params, gatherer);
+                testPersistence(params, gatherer, model_t::E_EventRate);
             }
 
             if (j < 5) {
@@ -957,7 +928,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
                     expectedPersonIndicator[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
-                testPersistence(params, gatherer);
+                testPersistence(params, gatherer, model_t::E_EventRate);
             }
 
             if (j < 5) {
@@ -1137,122 +1108,20 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
 
-        core_t::TTime time = startTime;
-        std::size_t i1 = 0u, i2 = 0u, j = 0;
-        for (;;) {
-            for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + latencyTime;
-                 time += bucketLength, ++j) {
-                LOG_DEBUG(<< "Processing bucket [" << time << ", "
-                          << time + bucketLength << ")");
-
-                TFeatureSizeFeatureDataPrVecPrVec featureData;
-                gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << featureData);
-                BOOST_REQUIRE_EQUAL(1, featureData.size());
-                BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                                    featureData[0].first);
-                BOOST_REQUIRE_EQUAL(
-                    expectedPersonCounts[j],
-                    core::CContainerPrinter::print(featureData[0].second));
-
-                testPersistence(params, gatherer);
-            }
-
-            if (j >= 5) {
-                break;
-            }
-
-            if (data1[i1] < data2[i2]) {
-                LOG_DEBUG(<< "Adding arrival for p1 at " << data1[i1]);
-                addArrival(gatherer, m_ResourceMonitor, data1[i1], "p1");
-                ++i1;
-            } else {
-                LOG_DEBUG(<< "Adding arrival for p2 at " << data2[i2]);
-                addArrival(gatherer, m_ResourceMonitor, data2[i2], "p2");
-                ++i2;
-            }
-        }
-
-        TSizeVec peopleToRemove;
-        peopleToRemove.push_back(1);
-        gatherer.recyclePeople(peopleToRemove);
-
-        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-        std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
-        BOOST_REQUIRE_EQUAL(0, pid);
-        BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
-
-        TFeatureSizeFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << featureData);
-        BOOST_REQUIRE_EQUAL(1, featureData.size());
-        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                            featureData[0].first);
-        BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
-                            core::CContainerPrinter::print(featureData[0].second));
+        testGathererMultipleSeries(startTime, bucketLength, data1, data2, expectedPersonCounts,
+                                   params, latencyTime, gatherer, m_ResourceMonitor);
     }
 
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
+
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
-        BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, m_ResourceMonitor, "p3"));
-        BOOST_REQUIRE_EQUAL(3, addPerson(gatherer, m_ResourceMonitor, "p4"));
-        BOOST_REQUIRE_EQUAL(4, addPerson(gatherer, m_ResourceMonitor, "p5"));
 
-        for (std::size_t i = 0; i < 5; ++i) {
-            addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
-        }
-        addArrival(gatherer, m_ResourceMonitor, startTime + 1, gatherer.personName(2));
-        addArrival(gatherer, m_ResourceMonitor, startTime + 2, gatherer.personName(4));
-        addArrival(gatherer, m_ResourceMonitor, startTime + 3, gatherer.personName(4));
-
-        TSizeUInt64PrVec personCounts;
-
-        TFeatureSizeFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << featureData);
-        BOOST_REQUIRE_EQUAL(1, featureData.size());
-        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                            featureData[0].first);
-        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
-                            core::CContainerPrinter::print(featureData[0].second));
-
-        TSizeVec peopleToRemove;
-        peopleToRemove.push_back(0);
-        peopleToRemove.push_back(1);
-        peopleToRemove.push_back(3);
-        gatherer.recyclePeople(peopleToRemove);
-
-        BOOST_REQUIRE_EQUAL(2, gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
-        BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
-        std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
-        BOOST_REQUIRE_EQUAL(2, pid);
-        BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
-        BOOST_REQUIRE_EQUAL(4, pid);
-
-        gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << featureData);
-        BOOST_REQUIRE_EQUAL(1, featureData.size());
-        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                            featureData[0].first);
-        BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
-                            core::CContainerPrinter::print(featureData[0].second));
+        testGathererMultipleSeries(startTime, bucketLength, params, gatherer, m_ResourceMonitor);
     }
 }
 
@@ -1794,7 +1663,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         core_t::TTime time = startTime;
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
 
         // Add data, some of which will be out of order
         addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p",
@@ -1807,7 +1676,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
                    "stringFour", "inf1");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringFive", "inf2");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringSix", "inf3");
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
 }
 
@@ -1842,7 +1711,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         core_t::TTime time = startTime;
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
 
         // Add some data, and check that we get the right numbers out of the featureData
         {
@@ -1935,7 +1804,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
     {
         // Check that we can add time-of-week events and gather them correctly
@@ -1964,7 +1833,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         core_t::TTime time = startTime;
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
 
         // Add some data, and check that we get the right numbers out of the featureData
         {
@@ -2057,7 +1926,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
     {
         // Check that we can add time-of-week events and gather them correctly
@@ -2087,7 +1956,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         core_t::TTime time = startTime;
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
 
         // Add some data, and check that we get the right numbers out of the featureData
         {
@@ -2181,7 +2050,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_REQUIRE_EQUAL(1, gatherer.numberActiveAttributes());
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("a"), gatherer.attributeName(0));
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
     {
         // Check that we can add time-of-day events and gather them correctly
@@ -2211,7 +2080,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         core_t::TTime time = startTime;
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
 
         // Add some data, and check that we get the right numbers out of the featureData
         {
@@ -2305,7 +2174,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_REQUIRE_EQUAL(1, gatherer.numberActiveAttributes());
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("a"), gatherer.attributeName(0));
-        testPersistence(params, gatherer);
+        testPersistence(params, gatherer, model_t::E_EventRate);
     }
 }
 

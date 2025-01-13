@@ -31,6 +31,8 @@
 
 #include <optional>
 
+#include "ModelTestHelpers.h"
+
 BOOST_AUTO_TEST_SUITE(CMetricDataGathererTest)
 
 using namespace ml;
@@ -166,38 +168,6 @@ double variance(const TDoubleVec& values, double& mean) {
 
 const CSearchKey KEY;
 const std::string EMPTY_STRING;
-
-void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
-    // Test persistence. (We check for idempotency.)
-    std::ostringstream origJson;
-    core::CJsonStatePersistInserter::persist(
-        origJson, [&origGatherer](core::CJsonStatePersistInserter& inserter) {
-            origGatherer.acceptPersistInserter(inserter);
-        });
-
-    LOG_DEBUG(<< "gatherer JSON size " << origJson.str().size());
-    LOG_TRACE(<< "gatherer JSON representation:\n" << origJson.str());
-
-    // Restore the JSON into a new filter
-    // The traverser expects the state json in a embedded document
-    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
-    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-
-    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   EMPTY_STRING, EMPTY_STRING, {}, KEY, traverser);
-
-    BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
-
-    // The JSON representation of the new filter should be the
-    // same as the original
-    std::ostringstream newJson;
-    core::CJsonStatePersistInserter::persist(
-        newJson, [&restoredGatherer](core::CJsonStatePersistInserter& inserter) {
-            restoredGatherer.acceptPersistInserter(inserter);
-        });
-    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
-}
 }
 
 class CTestFixture {
@@ -304,7 +274,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + bucketLength);
@@ -337,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(600 [6] 1 3)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
     }
 
@@ -548,7 +518,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(
         std::string("[(2400 [21.6] 1 6)]"),
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-    testPersistence(params, gatherer);
+    testPersistence(params, gatherer, model_t::E_Metric);
 
     // Remove person p1.
     TSizeVec peopleToRemove;
@@ -1004,7 +974,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(0 [7.5] 1 5)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + bucketLength);
@@ -1037,7 +1007,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
     }
 }
@@ -1608,7 +1578,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1.55, 1.5] 1 2), (185 [1.2, 1.1] 1 2), (475 [1.75, 1.6] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + bucketLength);
@@ -1629,7 +1599,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
                                 core::CContainerPrinter::print(
                                     featureData[0].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + 2 * bucketLength);
