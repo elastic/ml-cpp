@@ -76,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
         partitionFieldValue, personFieldName, attributeFieldName, EMPTY_STRING,
-        TStrVec{}, key, features, startTime, 0));
+        TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool added = false;
@@ -315,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -431,7 +431,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -509,7 +509,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalDiffAbsCondition, CTestFixture) {
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -617,7 +617,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNoActualValueAvailable, CTestFixture) {
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -656,7 +656,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndIndividualModel, CTestFi
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -706,7 +706,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndPopulationModel, CTestFi
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
         EMPTY_STRING, personFieldName, attributeFieldName, EMPTY_STRING,
-        TStrVec{}, key, features, startTime, 0));
+        TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool added = false;
@@ -771,7 +771,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenMultipleConditions, CTestFixture) {
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -877,7 +877,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenTimeCondition, CTestFixture) {
                    "", personFieldName, EMPTY_STRING, partitionFieldName);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
@@ -919,7 +919,7 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
                    "", personFieldName, EMPTY_STRING, partitionFieldName);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;

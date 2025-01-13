@@ -47,6 +47,9 @@
 
 * Allow the user to force a detector to shift time series state by a specific amount.
   (See {ml-pull}2695[#2695].)
+* Improve variance estimation for anomaly detection when record counts 
+  suddenly drop. (See {ml-pull}2677[#2677].)
+
 
 === Bug Fixes
 
@@ -86,13 +89,6 @@
 === Bug Fixes
 
 * Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
-
-== {es} version 8.14.1
-
-=== Enhancements
-
-* Improve memory allocation management for JSON processing to reduce memory usage.
-  (See {ml-pull}2679[#2679].)
 
 == {es} version 8.14.0
 

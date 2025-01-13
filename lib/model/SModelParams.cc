@@ -48,11 +48,7 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
           CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER),
       s_ExcludeFrequent(model_t::E_XF_None), s_ExcludePersonFrequency(0.1),
       s_ExcludeAttributeFrequency(0.1),
-      s_MaximumUpdatesPerBucket(CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET),
       s_LatencyBuckets(CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS),
-      s_SampleCountFactor(CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY),
-      s_SampleQueueGrowthFactor(CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR),
-      s_SamplingAgeCutoff(SAMPLING_AGE_CUTOFF_DEFAULT),
       s_PruneWindowScaleMinimum(CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM),
       s_PruneWindowScaleMaximum(CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM),
       s_DetectionRules(EMPTY_RULES), s_ScheduledEvents(EMPTY_SCHEDULED_EVENTS),
@@ -63,12 +59,9 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
 
 void SModelParams::configureLatency(core_t::TTime latency, core_t::TTime bucketLength) {
     s_LatencyBuckets = (latency + bucketLength - 1) / bucketLength;
-    if (s_LatencyBuckets > 0) {
-        s_SampleCountFactor = CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY;
-        if (s_LatencyBuckets > 50) {
-            LOG_WARN(<< "There are a large number of buckets in the latency window. "
-                        "Please ensure sufficient resources are available for this job.");
-        }
+    if (s_LatencyBuckets > 50) {
+        LOG_WARN(<< "There are a large number of buckets in the latency window. "
+                    "Please ensure sufficient resources are available for this job.");
     }
 }
 
@@ -101,11 +94,8 @@ std::uint64_t SModelParams::checksum(std::uint64_t seed) const {
     seed = maths::common::CChecksum::calculate(seed, s_ExcludeFrequent);
     seed = maths::common::CChecksum::calculate(seed, s_ExcludePersonFrequency);
     seed = maths::common::CChecksum::calculate(seed, s_ExcludeAttributeFrequency);
-    seed = maths::common::CChecksum::calculate(seed, s_MaximumUpdatesPerBucket);
     seed = maths::common::CChecksum::calculate(seed, s_InfluenceCutoff);
     seed = maths::common::CChecksum::calculate(seed, s_LatencyBuckets);
-    seed = maths::common::CChecksum::calculate(seed, s_SampleCountFactor);
-    seed = maths::common::CChecksum::calculate(seed, s_SampleQueueGrowthFactor);
     seed = maths::common::CChecksum::calculate(seed, s_PruneWindowScaleMinimum);
     seed = maths::common::CChecksum::calculate(seed, s_PruneWindowScaleMaximum);
     seed = maths::common::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
@@ -113,8 +103,7 @@ std::uint64_t SModelParams::checksum(std::uint64_t seed) const {
     seed = maths::common::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
     //seed = maths::common::CChecksum::calculate(seed, s_DetectionRules);
     //seed = maths::common::CChecksum::calculate(seed, s_ScheduledEvents);
-    seed = maths::common::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
-    return maths::common::CChecksum::calculate(seed, s_SamplingAgeCutoff);
+    return maths::common::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
 }
 }
 }

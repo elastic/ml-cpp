@@ -43,7 +43,6 @@ ml_add_library(MlModel SHARED
   CFeatureData.cc
   CForecastDataSink.cc
   CForecastModelPersist.cc
-  CGathererTools.cc
   CHierarchicalResults.cc
   CHierarchicalResultsAggregator.cc
   CHierarchicalResultsNormalizer.cc
@@ -72,7 +71,6 @@ ml_add_library(MlModel SHARED
   CRuleCondition.cc
   CRuleScope.cc
   CSample.cc
-  CSampleCounts.cc
   CSearchKey.cc
   CSimpleCountDetector.cc
   CTokenListCategory.cc

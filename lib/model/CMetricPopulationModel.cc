@@ -27,7 +27,6 @@
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
-#include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CModelFactory.h>
@@ -190,7 +189,8 @@ void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& 
 }
 
 bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0;
+    std::size_t i = 0;
+    std::size_t j = 0;
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
@@ -277,7 +277,7 @@ bool CMetricPopulationModel::bucketStatsAvailable(core_t::TTime time) const {
 void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
                                                     core_t::TTime endTime,
                                                     CResourceMonitor& resourceMonitor) {
-    CDataGatherer& gatherer = this->dataGatherer();
+    const CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.dataAvailable(startTime)) {
         return;
@@ -294,7 +294,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
         this->applyFilter(model_t::E_XF_Over, false, this->personFilter(), personCounts);
 
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(time, bucketLength, featureData);
+        gatherer.featureData(time, featureData);
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
@@ -324,7 +324,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
         gatherer.sampleNow(time);
 
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(time, bucketLength, featureData);
+        gatherer.featureData(time, featureData);
 
         const TTimeVec& preSampleAttributeLastBucketTimes = this->attributeLastBucketTimes();
         TSizeTimeUMap attributeLastBucketTimesMap;
@@ -345,8 +345,6 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
         gatherer.personNonZeroCounts(time, personCounts);
         this->applyFilter(model_t::E_XF_Over, true, this->personFilter(), personCounts);
 
-        const TTimeVec& attributeLastBucketTimes = this->attributeLastBucketTimes();
-
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             std::size_t dimension = model_t::dimension(feature);
@@ -362,8 +360,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 // Set up fuzzy de-duplication.
                 for (const auto& data_ : data) {
                     std::size_t cid = CDataGatherer::extractAttributeId(data_);
-                    const CGathererTools::TSampleVec& samples =
-                        CDataGatherer::extractData(data_).s_Samples;
+                    const auto& samples = CDataGatherer::extractData(data_).s_Samples;
                     for (const auto& sample : samples) {
                         duplicates[cid].add(TDouble2Vec(sample.value(dimension)));
                     }
@@ -408,14 +405,9 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
-                const TOptionalSample& bucket =
-                    CDataGatherer::extractData(data_).s_BucketValue;
-                const CGathererTools::TSampleVec& samples =
-                    CDataGatherer::extractData(data_).s_Samples;
+                const auto& samples = CDataGatherer::extractData(data_).s_Samples;
                 bool isInteger = CDataGatherer::extractData(data_).s_IsInteger;
                 bool isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
-                core_t::TTime cutoff = attributeLastBucketTimes[cid] -
-                                       this->params().s_SamplingAgeCutoff;
                 LOG_TRACE(<< "Adding " << CDataGatherer::extractData(data_)
                           << " for person = " << gatherer.personName(pid)
                           << " and attribute = " << gatherer.attributeName(cid));
@@ -424,29 +416,12 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
                 attribute.s_IsInteger &= isInteger;
                 attribute.s_IsNonNegative &= isNonNegative;
-                if (model_t::isSampled(feature) && bucket) {
-                    attribute.s_BucketValues.emplace_back(
-                        bucket->time(), TDouble2Vec(bucket->value(dimension)), pid);
-                }
-
-                std::size_t n = std::count_if(samples.begin(), samples.end(),
-                                              [cutoff](const CSample& sample) {
-                                                  return sample.time() >= cutoff;
-                                              });
-                double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
                 double countWeight = initialCountWeight *
                                      this->sampleRateWeight(pid, cid) *
-                                     this->learnRate(feature) *
-                                     (updatesPerBucket > 0.0 && n > 0
-                                          ? updatesPerBucket / static_cast<double>(n)
-                                          : 1.0);
+                                     this->learnRate(feature);
                 LOG_TRACE(<< "countWeight = " << countWeight);
 
                 for (const auto& sample : samples) {
-                    if (sample.time() < cutoff) {
-                        continue;
-                    }
-
                     double countVarianceScale = sample.varianceScale();
                     TDouble2Vec value(sample.value(dimension));
                     std::size_t duplicate = duplicates[cid].duplicate(sample.time(), value);
@@ -511,10 +486,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     LOG_TRACE(<< "Model unexpectedly null");
                     return;
                 }
-                if (model->addSamples(params, attribute.second.s_Values) ==
-                    maths::common::CModel::E_Reset) {
-                    gatherer.resetSampleCount(cid);
-                }
+                model->addSamples(params, attribute.second.s_Values);
             }
         }
 
@@ -551,8 +523,7 @@ void CMetricPopulationModel::prune(std::size_t maximumAge) {
 
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(m_CurrentBucketStats.s_StartTime,
-                             gatherer.bucketLength(), featureData);
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime, featureData);
         for (auto& feature : featureData) {
             m_CurrentBucketStats.s_FeatureData[feature.first].swap(feature.second);
         }

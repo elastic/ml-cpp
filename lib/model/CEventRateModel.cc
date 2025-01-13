@@ -233,7 +233,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
-        gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
+        gatherer.featureData(time, m_CurrentBucketStats.s_FeatureData);
 
         const CIndividualModel::TTimeVec& preSampleLastBucketTimes = this->lastBucketTimes();
         CIndividualModel::TSizeTimeUMap lastBucketTimesMap;
@@ -368,9 +368,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                     })
                     .memoryCircuitBreaker(circuitBreaker);
 
-                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
-                    gatherer.resetSampleCount(pid);
-                }
+                model->addSamples(params, values);
             }
         }
 
@@ -609,7 +607,7 @@ void CEventRateModel::clearPrunedResources(const TSizeVec& people, const TSizeVe
     // Stop collecting for these people and add them to the free list.
     gatherer.recyclePeople(people);
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
-        gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(),
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime,
                              m_CurrentBucketStats.s_FeatureData);
     }
 

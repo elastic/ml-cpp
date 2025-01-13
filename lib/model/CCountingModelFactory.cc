@@ -64,7 +64,7 @@ CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initD
     return new CDataGatherer(model_t::E_EventRate, m_SummaryMode, this->modelParams(),
                              m_SummaryCountFieldName, initData.s_PartitionFieldValue,
                              m_PersonFieldName, EMPTY_STRING, EMPTY_STRING, {},
-                             this->searchKey(), m_Features, initData.s_StartTime, 0);
+                             this->searchKey(), m_Features, initData.s_StartTime);
 }
 
 CDataGatherer*

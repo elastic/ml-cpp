@@ -63,7 +63,7 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         gatherer = std::make_shared<model::CDataGatherer>(
             model_t::analysisCategory(features[0]), model_t::E_None, params,
             EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING,
-            TStrVec{}, key, features, 0, 0);
+            TStrVec{}, key, features, 0);
         std::string person11{"p11"};
         std::string person12{"p12"};
         std::string person21{"p21"};

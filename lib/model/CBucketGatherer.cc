@@ -339,7 +339,6 @@ void CBucketGatherer::sampleNow(core_t::TTime sampleBucketStart) {
         sampleBucketStart +
         (m_DataGatherer.params().s_LatencyBuckets + 1) * this->bucketLength() - 1;
     this->timeNow(timeNow);
-    this->sample(sampleBucketStart);
 }
 
 void CBucketGatherer::skipSampleNow(core_t::TTime sampleBucketStart) {

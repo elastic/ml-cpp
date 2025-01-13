@@ -166,9 +166,7 @@ private:
                                        std::size_t byFieldId) const override;
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
     const CAnomalyDetectorModel& base() const override;
-    double countVarianceScale(model_t::EFeature feature,
-                              std::size_t byFieldId,
-                              core_t::TTime time) const override;
+    double countVarianceScale() const override;
 
 private:
     //! The model.
