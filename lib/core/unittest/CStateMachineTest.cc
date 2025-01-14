@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStateMachine.h>
 #include <core/CThread.h>
 
@@ -161,18 +160,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     core::CStateMachine original = core::CStateMachine::create(
         machine[0].s_Alphabet, machine[0].s_States, machine[0].s_TransitionFunction,
         1); // initial state
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        original.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&original](core::CJsonStatePersistInserter& inserter) {
+            original.acceptPersistInserter(inserter);
+        });
 
-    LOG_DEBUG(<< "State machine XML representation:\n" << origXml);
+    LOG_DEBUG(<< "State machine JSON representation:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // The traverser expects the state json in a embedded document
+    std::istringstream is("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(is);
 
     core::CStateMachine restored = core::CStateMachine::create(
         machine[0].s_Alphabet, machine[0].s_States, machine[0].s_TransitionFunction,
@@ -182,13 +180,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     });
 
     BOOST_REQUIRE_EQUAL(original.checksum(), restored.checksum());
-    std::string newXml;
-    {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
-        restored.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restored](core::CJsonStatePersistInserter& inserter) {
+            restored.acceptPersistInserter(inserter);
+        });
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_CASE(testMultithreaded) {

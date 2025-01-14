@@ -102,7 +102,7 @@ public:
         E_NoOp
     };
 
-    //! Enumeration of possible outcomes of restoring from XML.
+    //! Enumeration of possible outcomes of restoring from JSON.
     enum ERestoreOutcome { E_Ok = 0, E_Corrupt = 1, E_Incomplete = 2 };
 
 public:

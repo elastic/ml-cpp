@@ -10,9 +10,8 @@
  */
 
 #include <core/CContainerPrinter.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -292,19 +291,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TChangePointUPtr origChangePoint{
         std::make_unique<maths::time_series::CTimeShift>(500, -1800, 0.01, 10.0)};
 
-    std::string origXml;
+    std::ostringstream origJson;
     {
-        core::CRapidXmlStatePersistInserter inserter{"root"};
+        core::CJsonStatePersistInserter inserter{origJson};
         serializer(*origChangePoint, inserter);
-        inserter.toXml(origXml);
     }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
+    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
 
     TChangePointUPtr restoredChangePoint;
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser{parser};
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser{origJsonStrm};
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
             serializer, std::ref(restoredChangePoint), std::placeholders::_1)));
     }

@@ -33,12 +33,14 @@ namespace core {
 //! Output is streaming rather than building up an in-memory JSON
 //! document.
 //!
-//! Unlike the CRapidXmlStatePersistInserter, there is no possibility
-//! of including attributes on the root node (because JSON does not
-//! have attributes).  This may complicate code that needs to be 100%
-//! JSON/XML agnostic.
-//!
 class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter {
+public:
+    template<class Func>
+    static void persist(std::ostream& oss, const Func& func) {
+        ml::core::CJsonStatePersistInserter inserter(oss);
+        func(inserter);
+    }
+
 public:
     //! Root node has no attributes
     CJsonStatePersistInserter(std::ostream& outputStream);

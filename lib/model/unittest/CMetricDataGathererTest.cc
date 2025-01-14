@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 #include <core/UnwrapRef.h>
@@ -31,6 +30,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <optional>
+
+#include "ModelTestHelpers.h"
 
 BOOST_AUTO_TEST_SUITE(CMetricDataGathererTest)
 
@@ -167,40 +168,6 @@ double variance(const TDoubleVec& values, double& mean) {
 
 const CSearchKey KEY;
 const std::string EMPTY_STRING;
-
-void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
-    // Test persistence. (We check for idempotency.)
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-
-    LOG_DEBUG(<< "gatherer XML size " << origXml.size());
-    LOG_TRACE(<< "gatherer XML representation:\n" << origXml);
-
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   EMPTY_STRING, EMPTY_STRING, {}, KEY, traverser);
-
-    BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
-
-    // The XML representation of the new filter should be the
-    // same as the original
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
-}
 }
 
 class CTestFixture {
@@ -307,7 +274,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + bucketLength);
@@ -340,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(600 [6] 1 3)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
     }
 
@@ -551,7 +518,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(
         std::string("[(2400 [21.6] 1 6)]"),
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-    testPersistence(params, gatherer);
+    testPersistence(params, gatherer, model_t::E_Metric);
 
     // Remove person p1.
     TSizeVec peopleToRemove;
@@ -1007,7 +974,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(0 [7.5] 1 5)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + bucketLength);
@@ -1040,7 +1007,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
     }
 }
@@ -1611,7 +1578,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1.55, 1.5] 1 2), (185 [1.2, 1.1] 1 2), (475 [1.75, 1.6] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + bucketLength);
@@ -1632,7 +1599,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
                                 core::CContainerPrinter::print(
                                     featureData[0].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
+            testPersistence(params, gatherer, model_t::E_Metric);
         }
 
         gatherer.timeNow(startTime + 2 * bucketLength);
@@ -1704,34 +1671,31 @@ BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
     stat.add(TDoubleVec(1, 5.5), 1299196741, 1);
     stat.add(TDoubleVec(1, 0.6), 1299196742, 1);
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        stat.persist(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&stat](core::CJsonStatePersistInserter& inserter) {
+            stat.persist(inserter);
+        });
 
     core_t::TTime origTime = stat.time();
-    std::string restoredXml;
+    std::ostringstream restoredJson;
     std::string restoredPrint;
     core_t::TTime restoredTime;
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         CGathererTools::TMeanGatherer::TMetricPartialStatistic restored(1);
         traverser.traverseSubLevel(
             std::bind(&CGathererTools::TMeanGatherer::TMetricPartialStatistic::restore,
                       std::ref(restored), std::placeholders::_1));
 
         restoredTime = restored.time();
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            restored.persist(inserter);
-            inserter.toXml(restoredXml);
-        }
+        core::CJsonStatePersistInserter::persist(
+            restoredJson, [&restored](core::CJsonStatePersistInserter& inserter) {
+                restored.persist(inserter);
+            });
     }
-    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
     BOOST_REQUIRE_EQUAL(origTime, restoredTime);
 }
 

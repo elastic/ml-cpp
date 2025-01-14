@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/time_series/CDecayRateController.h>
 
@@ -92,24 +92,21 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origController.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_TRACE(<< "Controller XML = " << origXml);
-    LOG_DEBUG(<< "Controller XML size = " << origXml.size());
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CDecayRateController::acceptPersistInserter,
+                                  &origController));
+    LOG_TRACE(<< "Controller JSON = " << origJson.str());
+    LOG_DEBUG(<< "Controller JSON size = " << origJson.str().size());
 
-    // Restore the XML into a new controller.
+    // Restore the JSON into a new controller.
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(is);
         maths::time_series::CDecayRateController restoredController;
-        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
+        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind_front(
                                       &maths::time_series::CDecayRateController::acceptRestoreTraverser,
-                                      &restoredController, std::placeholders::_1)));
+                                      &restoredController)));
 
         LOG_DEBUG(<< "orig checksum = " << origController.checksum()
                   << ", new checksum = " << restoredController.checksum());
@@ -135,21 +132,18 @@ BOOST_AUTO_TEST_CASE(testBehaviourAfterPersistAndRestore) {
         origController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origController.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CDecayRateController::acceptPersistInserter,
+                                  &origController));
 
-    // Restore the XML into a new controller.
+    // Restore the JSON into a new controller.
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind_front(
                                       &maths::time_series::CDecayRateController::acceptRestoreTraverser,
-                                      &restoredController, std::placeholders::_1)));
+                                      &restoredController)));
     }
 
     for (std::size_t i = 500; i < values.size(); ++i) {

@@ -56,9 +56,6 @@ set (SRCS
   CProcessTest.cc
   CProgNameTest.cc
   CProgramCountersTest.cc
-  CRapidXmlParserTest.cc
-  CRapidXmlStatePersistInserterTest.cc
-  CRapidXmlStateRestoreTraverserTest.cc
   CReadWriteLockTest.cc
   CRegexFilterTest.cc
   CRegexTest.cc
@@ -79,8 +76,6 @@ set (SRCS
   CWindowsErrorTest.cc
   CWordDictionaryTest.cc
   CWordExtractorTest.cc
-  CXmlNodeWithChildrenTest.cc
-  CXmlParserTest.cc
   Main.cc
   )
 

@@ -64,7 +64,7 @@ public:
                        std::size_t baseWeight,
                        const TSizeSizeMap& uniqueTokenIds);
 
-    //! Constructor used when restoring from XML
+    //! Constructor used when restoring from JSON
     CTokenListCategory(core::CStateRestoreTraverser& traverser);
 
     //! Add string to this category with a double indicating

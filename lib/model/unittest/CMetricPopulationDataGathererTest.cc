@@ -10,9 +10,8 @@
  */
 
 #include <core/CContainerPrinter.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 #include <core/UnwrapRef.h>
 
@@ -1052,43 +1051,34 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     }
     origDataGatherer.sampleNow(bucketStart);
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origDataGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    //LOG_DEBUG(<< "origXml = " << origXml);
-    LOG_DEBUG(<< "origXml length = " << origXml.length() << ", # tabs "
-              << std::count_if(origXml.begin(), origXml.end(), isSpace));
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&origDataGatherer](core::CJsonStatePersistInserter& inserter) {
+            origDataGatherer.acceptPersistInserter(inserter);
+        });
+    LOG_DEBUG(<< "origJson length = " << origJson.str().size());
+    BOOST_TEST_REQUIRE(origJson.str().size() < 292000);
 
-    std::size_t length = origXml.length() -
-                         std::count_if(origXml.begin(), origXml.end(), isSpace);
-    BOOST_TEST_REQUIRE(length < 645000);
-
-    // Restore the XML into a new data gatherer
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new data gatherer
+    // The traverser expects the state json in a embedded document
+    std::stringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     CDataGatherer restoredDataGatherer(model_t::E_PopulationMetric,
                                        model_t::E_None, params, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, {}, searchKey, traverser);
 
-    // The XML representation of the new data gatherer should be the same as the
+    // The JSON representation of the new data gatherer should be the same as the
     // original
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredDataGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    //LOG_DEBUG(<< "newXml = " << newXml);
-    LOG_DEBUG(<< "newXml length = " << newXml.length() << ", # tabs "
-              << std::count_if(newXml.begin(), newXml.end(), isSpace));
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredDataGatherer](core::CJsonStatePersistInserter& inserter) {
+            restoredDataGatherer.acceptPersistInserter(inserter);
+        });
+    LOG_DEBUG(<< "newJson length = " << newJson.str().size());
 
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testReleaseMemory, CTestFixture) {

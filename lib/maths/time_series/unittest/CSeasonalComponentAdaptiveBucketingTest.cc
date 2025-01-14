@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
@@ -735,20 +735,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::uint64_t checksum = origBucketing.checksum();
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origBucketing.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
+                                  &origBucketing));
 
-    LOG_DEBUG(<< "Bucketing XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Bucketing JSON representation:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
-    // Restore the XML into a new bucketing.
+    // Restore the JSON into a new bucketing.
     maths::time_series::CSeasonalComponentAdaptiveBucketing restoredBucketing(
         decayRate + 0.1, minimumBucketLength, traverser);
 
@@ -756,15 +753,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
               << " restored checksum = " << restoredBucketing.checksum());
     BOOST_REQUIRE_EQUAL(checksum, restoredBucketing.checksum());
 
-    // The XML representation of the new bucketing should be the
+    // The JSON representation of the new bucketing should be the
     // same as the original.
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredBucketing.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::time_series::CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
+                                 &restoredBucketing));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_CASE(testName) {

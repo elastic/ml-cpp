@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CSmallVector.h>
 
 #include <model/CDynamicStringIdRegistry.h>
@@ -87,32 +86,27 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     registry.addName(person1, 0, resourceMonitor, addedPerson);
     registry.addName(person2, 0, resourceMonitor, addedPerson);
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        registry.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_TRACE(<< "Original XML:\n" << origXml);
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CDynamicStringIdRegistry::acceptPersistInserter, &registry));
+    LOG_TRACE(<< "Original JSON:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // The traverser expects the state json in a embedded document
+    std::istringstream is("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(is);
     CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
                                               counter_t::E_TSADNumberNewPeopleNotAllowed,
                                               counter_t::E_TSADNumberNewPeopleRecycled);
-    traverser.traverseSubLevel(std::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
-                                         &restoredRegistry, std::placeholders::_1));
+    traverser.traverseSubLevel(std::bind_front(
+        &CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry));
 
-    std::string restoredXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredRegistry.acceptPersistInserter(inserter);
-        inserter.toXml(restoredXml);
-    }
-    LOG_TRACE(<< "Restored XML:\n" << restoredXml);
+    std::ostringstream restoredJson;
+    core::CJsonStatePersistInserter::persist(
+        restoredJson, std::bind_front(&CDynamicStringIdRegistry::acceptPersistInserter,
+                                      &restoredRegistry));
+    LOG_TRACE(<< "Restored JSON:\n" << restoredJson.str());
 
-    BOOST_REQUIRE_EQUAL(restoredXml, origXml);
+    BOOST_REQUIRE_EQUAL(restoredJson.str(), origJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

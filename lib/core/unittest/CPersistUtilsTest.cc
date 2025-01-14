@@ -162,10 +162,12 @@ template<typename T>
 void testPersistRestore(const T& collection, const T& initial = T()) {
     const std::string tag("baseTag");
     std::stringstream origSs;
-    {
-        core::CJsonStatePersistInserter inserter(origSs);
-        core::CPersistUtils::persist(tag, collection, inserter);
-    }
+
+    core::CJsonStatePersistInserter::persist(
+        origSs, [&tag, &collection](core::CJsonStatePersistInserter& inserter) {
+            core::CPersistUtils::persist(tag, collection, inserter);
+        });
+
     LOG_DEBUG(<< "String data is: " << origSs.str());
     LOG_DEBUG(<< " - doing restore " << typeid(T).name());
     T restored = initial;
@@ -178,8 +180,10 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
     {
         const T& restoredRef = restored;
         LOG_DEBUG(<< "restored container: " << core::CContainerPrinter::print(restored));
-        core::CJsonStatePersistInserter inserter(restoredSs);
-        core::CPersistUtils::persist(tag, restoredRef, inserter);
+        core::CJsonStatePersistInserter::persist(
+            restoredSs, [&tag, &restoredRef](core::CJsonStatePersistInserter& inserter) {
+                core::CPersistUtils::persist(tag, restoredRef, inserter);
+            });
     }
     LOG_DEBUG(<< "Expected string data is: " << origSs.str());
     LOG_DEBUG(<< "Restored string data is: " << restoredSs.str());

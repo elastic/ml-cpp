@@ -517,11 +517,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::stringstream origJsonStream;
-    {
-        core::CJsonStatePersistInserter inserter{origJsonStream};
-        origCache.acceptPersistInserter(inserter);
-        origJsonStream.flush();
-    }
+    core::CJsonStatePersistInserter::persist(
+        origJsonStream,
+        [&origJsonStream, &origCache](core::CJsonStatePersistInserter& inserter) {
+            origCache.acceptPersistInserter(inserter);
+            origJsonStream.flush();
+        });
 
     LOG_DEBUG(<< "JSON representation is: " << origJsonStream.str());
 
@@ -542,11 +543,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     std::stringstream restoredJsonStream;
-    {
-        core::CJsonStatePersistInserter inserter{restoredJsonStream};
-        origCache.acceptPersistInserter(inserter);
-        restoredJsonStream.flush();
-    }
+    core::CJsonStatePersistInserter::persist(
+        restoredJsonStream,
+        [&restoredJsonStream, &restoredCache](core::CJsonStatePersistInserter& inserter) {
+            restoredCache.acceptPersistInserter(inserter);
+            restoredJsonStream.flush();
+        });
 
     BOOST_REQUIRE_EQUAL(origJsonStream.str(), restoredJsonStream.str());
 

@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -66,6 +65,26 @@ struct SRestore {
         return restored.fromDelimited(traverser.value());
     }
 };
+
+template<typename T>
+void testPersistCollection(const T& moments) {
+    std::ostringstream json;
+    core::CJsonStatePersistInserter inserter(json);
+    core::CPersistUtils::persist(TAG, moments, inserter);
+
+    LOG_DEBUG(<< "Moments JSON representation:\n" << json.str());
+
+    std::istringstream jsonStrm{"{\"topLevel\" : " + json.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(jsonStrm);
+    T restored;
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+        std::bind(SRestore(), std::ref(restored), std::placeholders::_1)));
+    LOG_DEBUG(<< "restored = " << restored);
+    BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
+    for (std::size_t i = 0; i < restored.size(); ++i) {
+        BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
+    }
+}
 }
 
 BOOST_AUTO_TEST_CASE(testMean) {
@@ -574,25 +593,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[0].add(2.0);
             moments[0].add(3.0);
 
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                std::string xml;
-                inserter.toXml(xml);
-                LOG_DEBUG(<< "Moments XML representation:\n" << xml);
-
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                TMeanAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
 
             moments.push_back(TMeanAccumulator());
             moments.push_back(TMeanAccumulator());
@@ -602,25 +603,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[2].add(11.0);
             moments[2].add(12.0);
 
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                std::string xml;
-                inserter.toXml(xml);
-                LOG_DEBUG(<< "Moments XML representation:\n" << xml);
-
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                TMeanAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
         }
         LOG_DEBUG(<< "Test means and variances");
         {
@@ -628,25 +611,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[0].add(2.0);
             moments[0].add(3.0);
             moments[0].add(3.5);
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                std::string xml;
-                inserter.toXml(xml);
-                LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                TMeanVarAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
 
             moments.push_back(TMeanVarAccumulator());
             moments.push_back(TMeanVarAccumulator());
@@ -657,25 +623,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[2].add(11.0);
             moments[2].add(12.0);
             moments[2].add(12.0);
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                std::string xml;
-                inserter.toXml(xml);
-                LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                TMeanVarAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
         }
         LOG_DEBUG(<< "Test means, variances and skews");
         {
@@ -683,25 +632,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[0].add(2.0);
             moments[0].add(3.0);
             moments[0].add(3.5);
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                std::string xml;
-                inserter.toXml(xml);
-                LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                TMeanVarSkewAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
 
             moments.push_back(TMeanVarSkewAccumulator());
             moments.push_back(TMeanVarSkewAccumulator());
@@ -712,25 +644,8 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             moments[2].add(11.0);
             moments[2].add(12.0);
             moments[2].add(12.0);
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                core::CPersistUtils::persist(TAG, moments, inserter);
-                std::string xml;
-                inserter.toXml(xml);
-                LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                TMeanVarSkewAccumulatorVec restored;
-                BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-                    SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << restored);
-                BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0; i < restored.size(); ++i) {
-                    BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
-                }
-            }
+            testPersistCollection(moments);
         }
     }
 
@@ -1213,33 +1128,30 @@ BOOST_AUTO_TEST_CASE(testOrderStatistics) {
 
         // Test persist is idempotent.
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             inserter.insertValue(TAG, minValues.toDelimited());
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "Stats XML representation:\n" << origXml);
+        LOG_DEBUG(<< "Stats JSON representation:\n" << origJson.str());
 
-        // Restore the XML into stats object.
+        // Restore the JSON into stats object.
         TMinStatsStack restoredMinValues;
         {
-            core::CRapidXmlParser parser;
-            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
+            std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+            core::CJsonStateRestoreTraverser traverser(origJsonStrm);
             BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                 SRestore(), std::ref(restoredMinValues), std::placeholders::_1)));
         }
 
-        // The XML representation of the new stats object should be unchanged.
-        std::string newXml;
+        // The JSON representation of the new stats object should be unchanged.
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             inserter.insertValue(TAG, restoredMinValues.toDelimited());
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 
     {
@@ -1274,33 +1186,30 @@ BOOST_AUTO_TEST_CASE(testOrderStatistics) {
 
         // Test persist is idempotent.
 
-        std::string origXml;
+        std::ostringstream origJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(origJson);
             inserter.insertValue(TAG, max20Values.toDelimited());
-            inserter.toXml(origXml);
         }
 
-        LOG_DEBUG(<< "Stats XML representation:\n" << origXml);
+        LOG_DEBUG(<< "Stats JSON representation:\n" << origJson.str());
 
-        // Restore the XML into stats object.
+        // Restore the JSON into stats object.
         TMinStatsHeap restoredMaxValues(20);
         {
-            core::CRapidXmlParser parser;
-            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
+            std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+            core::CJsonStateRestoreTraverser traverser(origJsonStrm);
             BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                 SRestore(), std::ref(restoredMaxValues), std::placeholders::_1)));
         }
 
-        // The XML representation of the new stats object should be unchanged.
-        std::string newXml;
+        // The JSON representation of the new stats object should be unchanged.
+        std::ostringstream newJson;
         {
-            core::CRapidXmlStatePersistInserter inserter("root");
+            core::CJsonStatePersistInserter inserter(newJson);
             inserter.insertValue(TAG, restoredMaxValues.toDelimited());
-            inserter.toXml(newXml);
         }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
         // Test we correctly age the minimum value accumulator.

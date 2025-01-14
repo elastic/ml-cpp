@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 
 #include <maths/common/CIntegerTools.h>
@@ -930,30 +929,24 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origComponent.addPoint(samples[i].first, samples[i].second + residuals[i]);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origComponent.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CTestSeasonalComponent::acceptPersistInserter, &origComponent));
 
-    LOG_DEBUG(<< "seasonal component XML representation:\n" << origXml);
+    LOG_DEBUG(<< "seasonal component JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new component.
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new component.
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     maths::time_series::CSeasonalComponent restoredComponent{
         decayRate, minimumBucketLength, traverser};
 
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredComponent.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&CTestSeasonalComponent::acceptPersistInserter,
+                                 &restoredComponent));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 }
 

@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
@@ -782,38 +781,35 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_DEBUG(<< "k-means = " << origKmeans.print());
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origKmeans.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_DEBUG(<< "original k-means XML = " << origXml);
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
+                                  &origKmeans));
+    LOG_DEBUG(<< "original k-means JSON = " << origJson.str());
 
-    // Restore the XML into a new sketch.
+    // Restore the JSON into a new sketch.
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         maths::common::CKMeansOnline<TVector2> restoredKmeans(0);
         maths::common::SDistributionRestoreParams params(
             maths_t::E_ContinuousData, 0.1, maths::common::MINIMUM_CLUSTER_SPLIT_FRACTION,
             maths::common::MINIMUM_CLUSTER_SPLIT_COUNT,
             maths::common::MINIMUM_CATEGORY_COUNT);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
             &maths::common::CKMeansOnline<TVector2>::acceptRestoreTraverser,
-            &restoredKmeans, std::cref(params), std::placeholders::_1)));
+            &restoredKmeans, std::cref(params))));
 
         LOG_DEBUG(<< "orig checksum = " << origKmeans.checksum()
                   << ", new checksum = " << restoredKmeans.checksum());
         BOOST_REQUIRE_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
 
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredKmeans.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
+        std::ostringstream newJson;
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind_front(&maths::common::CKMeansOnline<TVector2>::acceptPersistInserter,
+                                     &restoredKmeans));
 
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
 }
 

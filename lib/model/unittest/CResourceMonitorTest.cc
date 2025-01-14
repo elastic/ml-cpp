@@ -252,8 +252,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
-        mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
-                                          std::placeholders::_1));
+        mon.memoryUsageReporter(std::bind_front(&CTestFixture::reportCallback, this));
         m_ReportedModelSizeStats.s_Usage = 0;
         BOOST_REQUIRE_EQUAL(0, m_ReportedModelSizeStats.s_Usage);
 
@@ -271,8 +270,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
-        mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
-                                          std::placeholders::_1));
+        mon.memoryUsageReporter(std::bind_front(&CTestFixture::reportCallback, this));
         m_ReportedModelSizeStats.s_Usage = 0;
         BOOST_REQUIRE_EQUAL(0, m_ReportedModelSizeStats.s_Usage);
 
@@ -288,8 +286,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
-        mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
-                                          std::placeholders::_1));
+        mon.memoryUsageReporter(std::bind_front(&CTestFixture::reportCallback, this));
         m_ReportedModelSizeStats.s_AllocationFailures = 0;
         BOOST_REQUIRE_EQUAL(0, m_ReportedModelSizeStats.s_AllocationFailures);
 
@@ -363,8 +360,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
     {
         // Test the need to report usage based on a change in levels, up and down
         CResourceMonitor mon;
-        mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
-                                          std::placeholders::_1));
+        mon.memoryUsageReporter(std::bind_front(&CTestFixture::reportCallback, this));
         BOOST_TEST_REQUIRE(!mon.needToSendReport(
             model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
 
@@ -545,8 +541,7 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
 
     CLimits limits;
     CResourceMonitor& monitor = limits.resourceMonitor();
-    monitor.memoryUsageReporter(
-        std::bind(&CTestFixture::reportCallback, this, std::placeholders::_1));
+    monitor.memoryUsageReporter(std::bind_front(&CTestFixture::reportCallback, this));
     std::size_t baseTotalMemory = monitor.totalMemory();
 
     monitor.updateMoments(monitor.totalMemory(), 0, 1);

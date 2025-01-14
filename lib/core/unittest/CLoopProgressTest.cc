@@ -216,10 +216,10 @@ BOOST_AUTO_TEST_CASE(testSerialization) {
     }
 
     std::stringstream persistStream;
-    {
-        core::CJsonStatePersistInserter inserter(persistStream);
-        loopProgress.acceptPersistInserter(inserter);
-    }
+    core::CJsonStatePersistInserter::persist(
+        persistStream, [&loopProgress](core::CJsonStatePersistInserter& inserter) {
+            loopProgress.acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "state = " << persistStream.str());
 

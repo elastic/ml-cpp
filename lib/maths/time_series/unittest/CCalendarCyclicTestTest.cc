@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -568,34 +567,29 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         orig.add(time, 0.0, error[0]);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        orig.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CCalendarCyclicTest::acceptPersistInserter,
+                                  &orig));
 
-    LOG_TRACE(<< "XML representation:\n" << origXml);
-    LOG_TRACE(<< "XML size:" << origXml.size());
+    LOG_TRACE(<< "JSON representation:\n" << origJson.str());
+    LOG_TRACE(<< "JSON size:" << origJson.str().size());
 
     maths::time_series::CCalendarCyclicTest restored(HALF_HOUR);
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
             return restored.acceptRestoreTraverser(traverser_);
         }));
     }
     BOOST_REQUIRE_EQUAL(orig.checksum(), restored.checksum());
 
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restored.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::time_series::CCalendarCyclicTest::acceptPersistInserter,
+                                 &restored));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -40,7 +39,7 @@ using TClusterVec = maths::common::CXMeansOnline1d::TClusterVec;
 using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 bool restore(const maths::common::SDistributionRestoreParams& params,
-             core::CRapidXmlStateRestoreTraverser& traverser,
+             core::CJsonStateRestoreTraverser& traverser,
              maths::common::CXMeansOnline1d::CCluster& result) {
     return traverser.traverseSubLevel(
         std::bind(&maths::common::CXMeansOnline1d::CCluster::acceptRestoreTraverser,
@@ -142,19 +141,16 @@ BOOST_AUTO_TEST_CASE(testCluster) {
         1e-10);
 
     std::uint64_t origChecksum = cluster.checksum(0);
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        cluster.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CXMeansOnline1d::CCluster::acceptPersistInserter,
+                                  &cluster));
 
-    LOG_DEBUG(<< "Cluster XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Cluster JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new filter
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     maths::common::CXMeansOnline1d::CCluster restoredCluster(clusterer);
     maths::common::SDistributionRestoreParams params(
@@ -897,33 +893,28 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         clusterer.propagateForwardsByTime(1.0);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        clusterer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CXMeansOnline1d::acceptPersistInserter,
+                                  &clusterer));
 
-    LOG_DEBUG(<< "Clusterer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Clusterer JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new clusterer.
+    // Restore the JSON into a new clusterer.
     maths::common::SDistributionRestoreParams params(
         maths_t::E_ContinuousData, 0.15, maths::common::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::common::MINIMUM_CLUSTER_SPLIT_COUNT, maths::common::MINIMUM_CATEGORY_COUNT);
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     maths::common::CXMeansOnline1d restoredClusterer(params, traverser);
 
-    // The XML representation of the new filter should be the same
+    // The JSON representation of the new filter should be the same
     // as the original.
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredClusterer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::common::CXMeansOnline1d::acceptPersistInserter,
+                                 &restoredClusterer));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_CASE(testPruneEmptyCluster) {

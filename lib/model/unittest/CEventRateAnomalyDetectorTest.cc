@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CIntegerTools.h>
@@ -254,35 +253,31 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     importData(FIRST_TIME, LAST_TIME, BUCKET_SIZE, writer, files, origDetector);
 
-    std::string origXml;
-    {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
-        origDetector.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    ml::core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&ml::model::CAnomalyDetector::acceptPersistInserter,
+                                  &origDetector));
+    LOG_DEBUG(<< "Event rate detector JSON representation:\n"
+              << origJson.str());
 
-    LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
-
-    // Restore the XML into a new detector
+    // Restore the JSON into a new detector
     ml::model::CAnomalyDetector restoredDetector(limits, modelConfig, "", 0,
                                                  modelConfig.factory(key));
     {
-        ml::core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
+        // The traverser expects the state json in a embedded document
+        std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+        ml::core::CJsonStateRestoreTraverser traverser(origJsonStrm);
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
-    // The XML representation of the new detector should be the same as the original
-    std::string newXml;
-    {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
-        restoredDetector.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    // The JSON representation of the new detector should be the same as the original
+    std::ostringstream newJson;
+    ml::core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&ml::model::CAnomalyDetector::acceptPersistInserter,
+                                 &restoredDetector));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

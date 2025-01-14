@@ -63,9 +63,6 @@ ml_add_library(MlCore SHARED
   CProcessStats.cc
   CProgName.cc
   CProgramCounters.cc
-  CRapidXmlParser.cc
-  CRapidXmlStatePersistInserter.cc
-  CRapidXmlStateRestoreTraverser.cc
   CReadWriteLock.cc
   CRegex.cc
   CRegexFilter.cc
@@ -101,11 +98,6 @@ ml_add_library(MlCore SHARED
   CWindowsError.cc
   CWordDictionary.cc
   CWordExtractor.cc
-  CXmlNode.cc
-  CXmlNodeWithChildren.cc
-  CXmlNodeWithChildrenPool.cc
-  CXmlParser.cc
-  CXmlParserIntf.cc
   CompressUtils.cc
   Concurrency.cc
   )

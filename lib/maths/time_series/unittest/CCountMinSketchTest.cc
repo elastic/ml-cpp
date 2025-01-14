@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 
@@ -181,6 +181,29 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     sketch3.swap(sketch4);
 }
 
+void testPersistSketch(const maths::time_series::CCountMinSketch& origSketch) {
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                                  &origSketch));
+    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
+
+    // Restore the JSON into a new sketch.
+    std::istringstream is{"{\"topLevel\":" + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(is);
+    maths::time_series::CCountMinSketch restoredSketch(traverser);
+
+    LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
+              << ", new checksum = " << restoredSketch.checksum());
+    BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                                 &restoredSketch));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
@@ -192,32 +215,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origSketch.add(static_cast<std::uint32_t>(i), counts[i]);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origSketch.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
-
-    // Restore the XML into a new sketch.
-    {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::time_series::CCountMinSketch restoredSketch(traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
-                  << ", new checksum = " << restoredSketch.checksum());
-        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
-
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSketch.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
-    }
+    testPersistSketch(origSketch);
 
     // Sketch.
     TDoubleVec moreCounts;
@@ -226,32 +224,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origSketch.add(static_cast<std::uint32_t>(counts.size() + i), moreCounts[i]);
     }
 
-    origXml.clear();
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origSketch.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
-
-    // Restore the XML into a new sketch.
-    {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::time_series::CCountMinSketch restoredSketch(traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
-                  << ", new checksum = " << restoredSketch.checksum());
-        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
-
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSketch.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
-    }
+    testPersistSketch(origSketch);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

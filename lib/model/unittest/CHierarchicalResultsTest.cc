@@ -10,10 +10,9 @@
  */
 
 #include <core/CBase64Filter.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
@@ -1838,36 +1837,31 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         BOOST_TEST_REQUIRE(significance > 0.002);
 
-        std::string origXml;
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            aggregator.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
-        }
-
-        LOG_DEBUG(<< "aggregator XML representation:\n" << origXml);
+        std::ostringstream origJson;
+        core::CJsonStatePersistInserter::persist(
+            origJson, std::bind_front(&model::CHierarchicalResultsAggregator::acceptPersistInserter,
+                                      &aggregator));
+        LOG_DEBUG(<< "aggregator JSON representation:\n" << origJson.str());
 
         model::CHierarchicalResultsAggregator restoredAggregator(modelConfig);
         {
-            core::CRapidXmlParser parser;
-            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-            BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
+            // The traverser expects the state json in a embedded document
+            std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+            core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+            BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
                 &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
-                &restoredAggregator, std::placeholders::_1)));
+                &restoredAggregator)));
         }
 
         // Checksums should agree.
         BOOST_REQUIRE_EQUAL(aggregator.checksum(), restoredAggregator.checksum());
 
         // The persist and restore should be idempotent.
-        std::string newXml;
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            restoredAggregator.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
-        }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        std::ostringstream newJson;
+        core::CJsonStatePersistInserter::persist(
+            newJson, std::bind_front(&model::CHierarchicalResultsAggregator::acceptPersistInserter,
+                                     &restoredAggregator));
+        BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     }
     {
         model::CHierarchicalResultsAggregator aggregator(modelConfig);

@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CQDigest.h>
@@ -545,36 +544,29 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origQDigest.add(sample);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origQDigest.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CQDigest::acceptPersistInserter, &origQDigest));
 
-    LOG_DEBUG(<< "q-digest XML representation:\n" << origXml);
+    LOG_DEBUG(<< "q-digest JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new filter
+    // Restore the JSON into a new filter
     CQDigest restoredQDigest(100u);
     {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-            &CQDigest::acceptRestoreTraverser, &restoredQDigest, std::placeholders::_1)));
+        std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+        core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+            std::bind_front(&CQDigest::acceptRestoreTraverser, &restoredQDigest)));
     }
 
     BOOST_TEST_REQUIRE(restoredQDigest.checkInvariants());
     BOOST_REQUIRE_EQUAL(origQDigest.print(), restoredQDigest.print());
 
-    // The XML representation of the new filter should be the same as the original
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredQDigest.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    // The JSON representation of the new filter should be the same as the original
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&CQDigest::acceptPersistInserter, &restoredQDigest));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

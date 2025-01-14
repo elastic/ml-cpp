@@ -38,11 +38,6 @@ namespace core {
 //! Input is streaming rather than building up an in-memory JSON
 //! document.
 //!
-//! Unlike the CRapidXmlStatePersistInserter, there is no possibility
-//! of including attributes on the root node (because JSON does not
-//! have attributes).  This may complicate code that needs to be 100%
-//! JSON/XML agnostic.
-//!
 class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser {
 public:
     CJsonStateRestoreTraverser(std::istream& inputStream);

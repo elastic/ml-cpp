@@ -85,7 +85,7 @@ public:
     using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 public:
-    //! \name XML Tag Names
+    //! \name JSON Tag Names
     //!
     //! These tag the member variables for persistence.
     //@{
@@ -102,7 +102,7 @@ public:
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-    //! Create from an XML node tree.
+    //! Create from an JSON node tree.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     //@}
 
@@ -236,7 +236,7 @@ private:
     //! operations for compression.
     class MATHS_COMMON_EXPORT CNode {
     public:
-        //! \name XML Tag Names
+        //! \name JSON Tag Names
         //!
         //! These tag the member variables for persistence.
         //@{
@@ -307,7 +307,7 @@ private:
         void persistRecursive(const std::string& nodeTag,
                               core::CStatePersistInserter& inserter) const;
 
-        //! Create from an XML node tree.
+        //! Create from an JSON node tree.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Check the node invariants in the q-digest rooted at this node.

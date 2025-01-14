@@ -10,11 +10,10 @@
  */
 
 #include <core/CIEEE754.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -1107,19 +1106,17 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         this->addArrival(message, m_Gatherer);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        m_Model->acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, [& m_Model = m_Model](core::CJsonStatePersistInserter & inserter) {
+            m_Model->acceptPersistInserter(inserter);
+        });
 
-    LOG_TRACE(<< "origXml = " << origXml);
+    LOG_TRACE(<< "origJson = " << origJson.str());
 
-    // Restore the XML into a new data gatherer
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new data gatherer
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     CAnomalyDetectorModel::TModelPtr restoredModel(
         m_Factory->makeModel({m_Gatherer}, traverser));
@@ -1127,19 +1124,18 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     populationModel = dynamic_cast<CMetricPopulationModel*>(restoredModel.get());
     BOOST_TEST_REQUIRE(populationModel);
 
-    // The XML representation of the new data gatherer should be the same as the
+    // The JSON representation of the new data gatherer should be the same as the
     // original
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredModel->acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+            restoredModel->acceptPersistInserter(inserter);
+        });
 
     LOG_DEBUG(<< "original checksum = " << m_Model->checksum(false));
     LOG_DEBUG(<< "restored checksum = " << restoredModel->checksum(false));
     BOOST_REQUIRE_EQUAL(m_Model->checksum(false), restoredModel->checksum(false));
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {

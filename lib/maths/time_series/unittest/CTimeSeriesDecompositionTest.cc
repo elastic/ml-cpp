@@ -9,11 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryCircuitBreaker.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CTimezone.h>
 #include <core/Constants.h>
 
@@ -2527,32 +2526,27 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         origDecomposition.addPoint(times[i], trend[i] + noise[i]);
     }
 
-    std::string origXml;
-    {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
-        origDecomposition.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::time_series::CTimeSeriesDecomposition::acceptPersistInserter,
+                                  &origDecomposition));
 
-    LOG_TRACE(<< "Decomposition XML representation:\n" << origXml);
+    LOG_TRACE(<< "Decomposition Json representation:\n" << origJson.str());
 
-    // Restore the XML into a new decomposition
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the Json into a new decomposition
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     maths::common::STimeSeriesDecompositionRestoreParams params{
         decayRate + 0.1, bucketLength,
         maths::common::SDistributionRestoreParams{maths_t::E_ContinuousData, decayRate + 0.1}};
 
     maths::time_series::CTimeSeriesDecomposition restoredDecomposition(params, traverser);
 
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredDecomposition.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::time_series::CTimeSeriesDecomposition::acceptPersistInserter,
+                                 &restoredDecomposition));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {

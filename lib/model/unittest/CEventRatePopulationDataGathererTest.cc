@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CompressUtils.h>
 
 #include <model/CDataGatherer.h>
@@ -525,11 +524,11 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
             const TStrSet& uniqueValues = iter->second;
 
             core::CDeflator compressor(false);
-            BOOST_REQUIRE_EQUAL(uniqueValues.size(),
-                                static_cast<size_t>(std::count_if(
-                                    uniqueValues.begin(), uniqueValues.end(),
-                                    std::bind(&core::CCompressUtil::addString,
-                                              &compressor, std::placeholders::_1))));
+            BOOST_REQUIRE_EQUAL(
+                uniqueValues.size(),
+                static_cast<size_t>(std::count_if(
+                    uniqueValues.begin(), uniqueValues.end(),
+                    std::bind_front(&core::CCompressUtil::addString, &compressor))));
             std::size_t length(0);
             BOOST_TEST_REQUIRE(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
@@ -781,6 +780,31 @@ bool isSpace(const char x) {
 }
 }
 
+void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
+                             const SModelParams& params) {
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &origDataGatherer));
+    LOG_DEBUG(<< "origJson = " << origJson.str());
+
+    // Restore the Json into a new data gatherer
+    // The traverser expects the state json in a embedded document
+    std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+
+    CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
+                                       model_t::E_None, params, EMPTY_STRING,
+                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                       EMPTY_STRING, {}, searchKey, traverser);
+
+    // The Json representation of the new data gatherer should be the same as the
+    // original
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &restoredDataGatherer));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+}
+
 BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -805,36 +829,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
                        messages[i].s_Attribute, origDataGatherer, m_ResourceMonitor);
         }
 
-        std::string origXml;
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            origDataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
-        }
-
-        LOG_DEBUG(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "length = " << origXml.length() << ", # tabs "
-                  << std::count_if(origXml.begin(), origXml.end(), isSpace));
-
-        // Restore the XML into a new data gatherer
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-        CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
-                                           model_t::E_None, params, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, {}, searchKey, traverser);
-
-        // The XML representation of the new data gatherer should be the same as the
-        // original
-        std::string newXml;
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            restoredDataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
-        }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
+        testPersistDataGatherer(origDataGatherer, params);
     }
     {
         // Check feature data for model_t::E_UniqueValues
@@ -871,37 +866,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
             dataGatherer.timeNow(time + bucketLength);
         }
 
-        std::string origXml;
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            dataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(origXml);
-        }
-
-        LOG_DEBUG(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "length = " << origXml.length() << ", # tabs "
-                  << std::count_if(origXml.begin(), origXml.end(), isSpace));
-
-        // Restore the XML into a new data gatherer
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-        CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
-                                           model_t::E_None, params, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, {}, searchKey, traverser);
-
-        // The XML representation of the new data gatherer should be the same as the
-        // original
-        std::string newXml;
-        {
-            core::CRapidXmlStatePersistInserter inserter("root");
-            restoredDataGatherer.acceptPersistInserter(inserter);
-            inserter.toXml(newXml);
-        }
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
-        BOOST_REQUIRE_EQUAL(dataGatherer.checksum(), restoredDataGatherer.checksum());
+        testPersistDataGatherer(dataGatherer, params);
     }
 }
 

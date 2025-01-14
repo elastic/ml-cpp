@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsCovariances.h>
@@ -987,34 +986,30 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origRegression.add(x, 5.0 + 0.3 * x + 0.5 * x * x);
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origRegression.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CLeastSquaresOnlineRegression<2, double>::acceptPersistInserter,
+                                  &origRegression));
 
-    LOG_DEBUG(<< "Regression XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Regression JSON representation:\n" << origJson.str());
 
-    // Restore the XML into a new regression.
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new regression.
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     maths::common::CLeastSquaresOnlineRegression<2, double> restoredRegression;
-    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind_front(
         &maths::common::CLeastSquaresOnlineRegression<2, double>::acceptRestoreTraverser,
-        &restoredRegression, std::placeholders::_1)));
+        &restoredRegression)));
 
     BOOST_REQUIRE_EQUAL(origRegression.checksum(), restoredRegression.checksum());
 
-    std::string restoredXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredRegression.acceptPersistInserter(inserter);
-        inserter.toXml(restoredXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
+    std::ostringstream restoredJson;
+    core::CJsonStatePersistInserter::persist(
+        restoredJson,
+        std::bind_front(&maths::common::CLeastSquaresOnlineRegression<2, double>::acceptPersistInserter,
+                        &restoredRegression));
+    BOOST_REQUIRE_EQUAL(origJson.str(), restoredJson.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBjkstUniqueValues.h>
@@ -21,6 +21,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <functional>
 #include <set>
 #include <vector>
 
@@ -303,6 +304,30 @@ BOOST_AUTO_TEST_CASE(testSmall) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanRelativeError) < 0.05);
 }
 
+void testPersistSketch(const maths::common::CBjkstUniqueValues& origSketch) {
+    std::ostringstream origJson;
+    ml::core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
+                                  &origSketch));
+    LOG_DEBUG(<< "original sketch JSON = " << origJson.str());
+
+    // Restore the JSON into a new sketch
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+    maths::common::CBjkstUniqueValues restoredSketch(traverser);
+
+    LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
+              << ", new checksum = " << restoredSketch.checksum());
+    BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+
+    std::ostringstream newJson;
+    ml::core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
+                                 &restoredSketch));
+
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
@@ -314,63 +339,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origSketch.add(static_cast<std::uint32_t>(categories[i]));
     }
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origSketch.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
-
-    // Restore the XML into a new sketch.
-    {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::common::CBjkstUniqueValues restoredSketch(traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
-                  << ", new checksum = " << restoredSketch.checksum());
-        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
-
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSketch.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
-    }
+    testPersistSketch(origSketch);
 
     for (std::size_t i = 100; i < categories.size(); ++i) {
         origSketch.add(static_cast<std::uint32_t>(categories[i]));
     }
 
-    origXml.clear();
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origSketch.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_DEBUG(<< "original sketch XML = " << origXml);
-
-    // Restore the XML into a new sketch.
-    {
-        core::CRapidXmlParser parser;
-        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::common::CBjkstUniqueValues restoredSketch(traverser);
-
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
-                  << ", new checksum = " << restoredSketch.checksum());
-        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
-
-        std::string newXml;
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSketch.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-
-        BOOST_REQUIRE_EQUAL(origXml, newXml);
-    }
+    testPersistSketch(origSketch);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

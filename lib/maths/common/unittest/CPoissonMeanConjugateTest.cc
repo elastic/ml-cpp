@@ -9,10 +9,9 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CPoissonMeanConjugate.h>
@@ -921,19 +920,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     double decayRate = origFilter.decayRate();
     std::uint64_t checksum = origFilter.checksum();
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        origFilter.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&maths::common::CPoissonMeanConjugate::acceptPersistInserter,
+                                  &origFilter));
 
-    LOG_DEBUG(<< "Poisson mean conjugate XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Poisson mean conjugate JSON representation:\n"
+              << origJson.str());
 
-    // Restore the XML into a new filter.
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    // Restore the JSON into a new filter.
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     maths::common::SDistributionRestoreParams params(
         maths_t::E_ContinuousData, decayRate + 0.1, maths::common::MINIMUM_CLUSTER_SPLIT_FRACTION,
@@ -944,15 +941,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
               << " restored checksum = " << restoredFilter.checksum());
     BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
-    // The XML representation of the new filter should be the same
+    // The JSON representation of the new filter should be the same
     // as the original.
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredFilter.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, std::bind_front(&maths::common::CPoissonMeanConjugate::acceptPersistInserter,
+                                 &restoredFilter));
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
 BOOST_AUTO_TEST_CASE(testNegativeSample) {

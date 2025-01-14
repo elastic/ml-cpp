@@ -9,12 +9,10 @@
  * limitation.
  */
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
-
-#include <core/CRapidXmlParser.h>
-#include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
@@ -963,22 +961,18 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
     queue.add(2, {3.5}, 2, sampleCount);
     queue.add(30, {8.0}, 1, sampleCount);
 
-    std::string origXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        queue.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-    LOG_DEBUG(<< "XML:\n" << origXml);
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&TTestSampleQueue::acceptPersistInserter, &queue));
+    LOG_DEBUG(<< "JSON:\n" << origJson.str());
 
-    core::CRapidXmlParser parser;
-    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
     TTestSampleQueue restoredQueue(1, sampleCountFactor, latencyBuckets,
                                    growthFactor, bucketLength);
-    traverser.traverseSubLevel(std::bind(&TTestSampleQueue::acceptRestoreTraverser,
-                                         &restoredQueue, std::placeholders::_1));
+    traverser.traverseSubLevel(
+        std::bind_front(&TTestSampleQueue::acceptRestoreTraverser, &restoredQueue));
 
     BOOST_REQUIRE_EQUAL(2, restoredQueue.size());
 

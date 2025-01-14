@@ -183,8 +183,6 @@ bool CJsonStateRestoreTraverser::ascend() {
 
     // This will advance onto the end-of-level marker.  Slightly unintuitively
     // it's then still necessary to call next() to move to the higher level.
-    // This is to match the functionality of the pre-existing XML state
-    // traverser.
     return this->advance();
 }
 
