@@ -13,6 +13,7 @@
 #define INCLUDED_ml_core_CBoostJsonConstants_h
 
 #include <cstddef>
+#include <limits>
 
 namespace ml {
 namespace core {
@@ -21,16 +22,16 @@ namespace boost_json_constants {
 // Constants that set upper limits for Boost.JSON SAX style parsing
 
 // The maximum number of elements allowed in an object
-constexpr std::size_t MAX_OBJECT_SIZE = 1'000'000;
+constexpr std::size_t MAX_OBJECT_SIZE = std::numeric_limits<std::size_t>::max();
 
 // The maximum number of elements allowed in an array
-constexpr std::size_t MAX_ARRAY_SIZE = 1'000'000;
+constexpr std::size_t MAX_ARRAY_SIZE = std::numeric_limits<std::size_t>::max();
 
 // The maximum number of characters allowed in a key
-constexpr std::size_t MAX_KEY_SIZE = 1 << 10;
+constexpr std::size_t MAX_KEY_SIZE = std::numeric_limits<std::size_t>::max();
 
 // The maximum number of characters allowed in a string
-constexpr std::size_t MAX_STRING_SIZE = 1 << 30;
+constexpr std::size_t MAX_STRING_SIZE = std::numeric_limits<std::size_t>::max();
 }
 }
 }
