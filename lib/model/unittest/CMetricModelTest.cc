@@ -74,9 +74,9 @@ using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumula
 
 const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 
-void testIdempotency(CMetricModel& model,
-                     CModelFactory& factory,
-                     ml::model::CModelFactory::TDataGathererPtr& gatherer) {
+void testIdempotency(const CMetricModel& model,
+                     const CModelFactory& factory,
+                     const ml::model::CModelFactory::TDataGathererPtr& gatherer) {
     // Test persistence. (We check for idempotency.)
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
