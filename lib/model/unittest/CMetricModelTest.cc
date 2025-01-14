@@ -73,7 +73,56 @@ using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumula
 using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
 
 const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
+
+void testIdempotency(CMetricModel& model,
+                     CModelFactory& factory,
+                     ml::model::CModelFactory::TDataGathererPtr& gatherer) {
+    // Test persistence. (We check for idempotency.)
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&model](core::CJsonStatePersistInserter& inserter) {
+            model.acceptPersistInserter(inserter);
+        });
+
+    // Restore the JSON into a new filter
+    std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+    CModelFactory::TModelPtr restoredModel(factory.makeModel(gatherer, traverser));
+
+    // The JSON representation of the new filter should be the same as the original
+    std::ostringstream newJson;
+    core::CJsonStatePersistInserter::persist(
+        newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
+            restoredModel->acceptPersistInserter(inserter);
+        });
+
+    std::uint64_t origChecksum = model.checksum(false);
+    LOG_DEBUG(<< "original checksum = " << origChecksum);
+    std::uint64_t restoredChecksum = restoredModel->checksum(false);
+    LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
+    BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
+    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+};
 }
+
+struct STestTimes {
+    core_t::TTime s_StartTime{0};
+    core_t::TTime s_BucketLength{10};
+};
+struct STestBuckets {
+    std::size_t s_NumberOfBuckets{100};
+    std::size_t s_BucketCount{5};
+    std::size_t s_LowMeanBucket{60};
+    std::size_t s_HighMeanBucket{80};
+    std::size_t s_LowSumBucket{60};
+    std::size_t s_HighSumBucket{80};
+};
+struct STestStats {
+    double s_Mean{5.0};
+    double s_Variance{0.00001};
+    double s_LowMean{2.0};
+    double s_HighMean{10.0};
+};
 
 class CTestFixture : public CModelTestFixtureBase {
 public:
@@ -95,6 +144,111 @@ public:
         this->makeModelT<CMetricModelFactory>(params, features, startTime,
                                               model_t::E_MetricOnline,
                                               m_Gatherer, m_Model, sampleCount);
+    }
+
+    void testProbabilityCalculations(const STestTimes& times,
+                                     const STestBuckets& buckets,
+                                     const STestStats& stats,
+                                     model_t::EFeature feature) {
+        SModelParams params(times.s_BucketLength);
+        this->makeModel(params, {feature}, times.s_StartTime);
+        auto& model = static_cast<CMetricModel&>(*(this->m_Model));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", this->m_Gatherer));
+
+        TOptionalDoubleVec probabilities;
+        test::CRandomNumbers rng;
+        core_t::TTime time{times.s_StartTime};
+        for (std::size_t i = 0; i < buckets.s_NumberOfBuckets; ++i) {
+            double meanForBucket = stats.s_Mean;
+            if (i == buckets.s_LowMeanBucket) {
+                meanForBucket = stats.s_LowMean;
+            }
+            if (i == buckets.s_HighMeanBucket) {
+                meanForBucket = stats.s_HighMean;
+            }
+            TDoubleVec values;
+            rng.generateNormalSamples(meanForBucket, stats.s_Variance,
+                                      buckets.s_BucketCount, values);
+            LOG_DEBUG(<< "values = " << values);
+
+            for (std::size_t j = 0; j < values.size(); ++j) {
+                this->addArrival(
+                    SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
+            }
+            model.sample(time, time + times.s_BucketLength, m_ResourceMonitor);
+
+            CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+            SAnnotatedProbability annotatedProbability;
+            BOOST_TEST_REQUIRE(model.computeProbability(
+                0 /*pid*/, time, time + times.s_BucketLength,
+                partitioningFields, 1, annotatedProbability));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            probabilities.push_back(annotatedProbability.s_Probability);
+
+            time += times.s_BucketLength;
+        }
+
+        LOG_DEBUG(<< "probabilities = " << probabilities);
+
+        if (feature == model_t::E_IndividualLowMeanByPerson) {
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_LowMeanBucket] < 0.01);
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_HighMeanBucket] > 0.1);
+        } else {
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_LowMeanBucket] > 0.1);
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_HighMeanBucket] < 0.01);
+        }
+    }
+
+    void testProbabilityCalculationsSums(const STestTimes& times,
+                                         const STestBuckets& buckets,
+                                         const STestStats& stats,
+                                         model_t::EFeature feature) {
+        SModelParams params(times.s_BucketLength);
+        this->makeModel(params, {feature}, times.s_StartTime);
+        auto& model = static_cast<CMetricModel&>(*m_Model);
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
+
+        TOptionalDoubleVec probabilities;
+        test::CRandomNumbers rng;
+        core_t::TTime time{times.s_StartTime};
+        for (std::size_t i = 0; i < buckets.s_NumberOfBuckets; ++i) {
+            double meanForBucket = stats.s_Mean;
+            if (i == buckets.s_LowSumBucket) {
+                meanForBucket = stats.s_LowMean;
+            }
+            if (i == buckets.s_HighSumBucket) {
+                meanForBucket = stats.s_HighMean;
+            }
+            TDoubleVec values;
+            rng.generateNormalSamples(meanForBucket, stats.s_Variance,
+                                      buckets.s_BucketCount, values);
+            LOG_DEBUG(<< "values = " << values);
+
+            for (std::size_t j = 0; j < values.size(); ++j) {
+                this->addArrival(
+                    SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
+            }
+            model.sample(time, time + times.s_BucketLength, m_ResourceMonitor);
+
+            CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+            SAnnotatedProbability annotatedProbability;
+            BOOST_TEST_REQUIRE(model.computeProbability(
+                0 /*pid*/, time, time + times.s_BucketLength,
+                partitioningFields, 1, annotatedProbability));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            probabilities.push_back(annotatedProbability.s_Probability);
+
+            time += times.s_BucketLength;
+        }
+
+        LOG_DEBUG(<< "probabilities = " << probabilities);
+        if (feature == model_t::E_IndividualLowSumByBucketAndPerson) {
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_LowSumBucket] < 0.01);
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_HighSumBucket] > 0.1);
+        } else {
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_LowSumBucket] > 0.1);
+            BOOST_TEST_REQUIRE(*probabilities[buckets.s_HighSumBucket] < 0.01);
+        }
     }
 };
 
@@ -286,32 +440,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                                             ->model(model_t::E_IndividualMaxByPerson, 0)
                                             ->checksum());
 
-                    // Test persistence. (We check for idempotency.)
-                    std::ostringstream origJson;
-                    core::CJsonStatePersistInserter::persist(
-                        origJson, [&model](core::CJsonStatePersistInserter& inserter) {
-                            model.acceptPersistInserter(inserter);
-                        });
-
-                    // Restore the JSON into a new filter
-                    std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
-                    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-                    CModelFactory::TModelPtr restoredModel(
-                        m_Factory->makeModel(m_Gatherer, traverser));
-
-                    // The JSON representation of the new filter should be the same as the original
-                    std::ostringstream newJson;
-                    core::CJsonStatePersistInserter::persist(
-                        newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
-                            restoredModel->acceptPersistInserter(inserter);
-                        });
-
-                    std::uint64_t origChecksum = model.checksum(false);
-                    LOG_DEBUG(<< "original checksum = " << origChecksum);
-                    std::uint64_t restoredChecksum = restoredModel->checksum(false);
-                    LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
-                    BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-                    BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+                    testIdempotency(model, *m_Factory, m_Gatherer);
 
                     expectedCount = 0;
                     expectedMean = TMeanAccumulator();
@@ -470,31 +599,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                                     core::CContainerPrinter::print(featureLatLong));
                 BOOST_REQUIRE_EQUAL(expectedPrior->checksum(), prior.checksum());
 
-                // Test persistence. (We check for idempotency.)
-                std::ostringstream origJson;
-                core::CJsonStatePersistInserter::persist(
-                    origJson, [&model](core::CJsonStatePersistInserter& inserter) {
-                        model.acceptPersistInserter(inserter);
-                    });
-
-                // Restore the JSON into a new filter
-                std::istringstream origJsonStrm{"{\"topLevel\":" + origJson.str() + "}"};
-                core::CJsonStateRestoreTraverser traverser(origJsonStrm);
-                CModelFactory::TModelPtr restoredModel(factory.makeModel(m_Gatherer, traverser));
-
-                // The JSON representation of the new filter should be the same as the original
-                std::ostringstream newJson;
-                core::CJsonStatePersistInserter::persist(
-                    newJson, [&restoredModel](core::CJsonStatePersistInserter& inserter) {
-                        restoredModel->acceptPersistInserter(inserter);
-                    });
-
-                std::uint64_t origChecksum = model.checksum(false);
-                LOG_DEBUG(<< "original checksum = " << origChecksum);
-                std::uint64_t restoredChecksum = restoredModel->checksum(false);
-                LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
-                BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-                BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+                testIdempotency(model, factory, m_Gatherer);
 
                 expectedCount = 0;
                 expectedLatLong = TMean2Accumulator();
@@ -641,217 +746,31 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
-    core_t::TTime startTime{0};
-    core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100};
-    std::size_t bucketCount{5};
-    std::size_t lowMeanBucket{60};
-    std::size_t highMeanBucket{80};
-    double mean{5.0};
-    double variance{0.00001};
-    double lowMean{2.0};
-    double highMean{10.0};
 
-    SModelParams params(bucketLength);
-    this->makeModel(params, {model_t::E_IndividualLowMeanByPerson}, startTime);
-    auto& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
-
-    TOptionalDoubleVec probabilities;
-    test::CRandomNumbers rng;
-    core_t::TTime time{startTime};
-    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
-        double meanForBucket = mean;
-        if (i == lowMeanBucket) {
-            meanForBucket = lowMean;
-        }
-        if (i == highMeanBucket) {
-            meanForBucket = highMean;
-        }
-        TDoubleVec values;
-        rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << values);
-
-        for (std::size_t j = 0; j < values.size(); ++j) {
-            this->addArrival(
-                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
-        }
-        model.sample(time, time + bucketLength, m_ResourceMonitor);
-
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-        SAnnotatedProbability annotatedProbability;
-        BOOST_TEST_REQUIRE(model.computeProbability(
-            0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        probabilities.push_back(annotatedProbability.s_Probability);
-
-        time += bucketLength;
-    }
-
-    LOG_DEBUG(<< "probabilities = " << probabilities);
-
-    BOOST_TEST_REQUIRE(*probabilities[lowMeanBucket] < 0.01);
-    BOOST_TEST_REQUIRE(*probabilities[highMeanBucket] > 0.1);
+    testProbabilityCalculations({0, 10}, {100, 5, 60, 80, 60, 80},
+                                {5.0, 0.00001, 2.0, 10.0},
+                                model_t::E_IndividualLowMeanByPerson);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
-    core_t::TTime startTime{0};
-    core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100};
-    std::size_t bucketCount{5};
-    std::size_t lowMeanBucket{60};
-    std::size_t highMeanBucket{80};
-    double mean{5.0};
-    double variance{0.00001};
-    double lowMean{2.0};
-    double highMean{10.0};
 
-    SModelParams params(bucketLength);
-    this->makeModel(params, {model_t::E_IndividualHighMeanByPerson}, startTime);
-    auto& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
-
-    TOptionalDoubleVec probabilities;
-    test::CRandomNumbers rng;
-    core_t::TTime time{startTime};
-    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
-        double meanForBucket = mean;
-        if (i == lowMeanBucket) {
-            meanForBucket = lowMean;
-        }
-        if (i == highMeanBucket) {
-            meanForBucket = highMean;
-        }
-        TDoubleVec values;
-        rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << values);
-
-        for (std::size_t j = 0; j < values.size(); ++j) {
-            this->addArrival(
-                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
-        }
-        model.sample(time, time + bucketLength, m_ResourceMonitor);
-
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-        SAnnotatedProbability annotatedProbability;
-        BOOST_TEST_REQUIRE(model.computeProbability(
-            0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        probabilities.push_back(annotatedProbability.s_Probability);
-
-        time += bucketLength;
-    }
-
-    LOG_DEBUG(<< "probabilities = " << probabilities);
-
-    BOOST_TEST_REQUIRE(*probabilities[lowMeanBucket] > 0.1);
-    BOOST_TEST_REQUIRE(*probabilities[highMeanBucket] < 0.01);
+    testProbabilityCalculations({0, 10}, {100, 5, 60, 80, 60, 80},
+                                {5.0, 0.00001, 2.0, 10.0},
+                                model_t::E_IndividualHighMeanByPerson);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
-    core_t::TTime startTime{0};
-    core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100};
-    std::size_t bucketCount{5};
-    std::size_t lowSumBucket{60};
-    std::size_t highSumBucket{80};
-    double mean{50.0};
-    double variance{5.0};
-    double lowMean{5.0};
-    double highMean{95.0};
 
-    SModelParams params(bucketLength);
-    this->makeModel(params, {model_t::E_IndividualLowSumByBucketAndPerson}, startTime);
-    auto& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
-
-    TOptionalDoubleVec probabilities;
-    test::CRandomNumbers rng;
-    core_t::TTime time{startTime};
-    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
-        double meanForBucket = mean;
-        if (i == lowSumBucket) {
-            meanForBucket = lowMean;
-        }
-        if (i == highSumBucket) {
-            meanForBucket = highMean;
-        }
-        TDoubleVec values;
-        rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << values);
-
-        for (std::size_t j = 0; j < values.size(); ++j) {
-            this->addArrival(
-                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
-        }
-        model.sample(time, time + bucketLength, m_ResourceMonitor);
-
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-        SAnnotatedProbability annotatedProbability;
-        BOOST_TEST_REQUIRE(model.computeProbability(
-            0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        probabilities.push_back(annotatedProbability.s_Probability);
-
-        time += bucketLength;
-    }
-
-    LOG_DEBUG(<< "probabilities = " << probabilities);
-    BOOST_TEST_REQUIRE(*probabilities[lowSumBucket] < 0.01);
-    BOOST_TEST_REQUIRE(*probabilities[highSumBucket] > 0.1);
+    testProbabilityCalculationsSums({0, 10}, {100, 5, 60, 80, 60, 80},
+                                    {50.0, 5.0, 5.0, 95.0},
+                                    model_t::E_IndividualLowSumByBucketAndPerson);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
-    core_t::TTime startTime{0};
-    core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100};
-    std::size_t bucketCount{5};
-    std::size_t lowSumBucket{60};
-    std::size_t highSumBucket{80};
-    double mean{50.0};
-    double variance{5.0};
-    double lowMean{5.0};
-    double highMean{95.0};
 
-    SModelParams params(bucketLength);
-    this->makeModel(params, {model_t::E_IndividualHighSumByBucketAndPerson}, startTime);
-    auto& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
-
-    TOptionalDoubleVec probabilities;
-    test::CRandomNumbers rng;
-    core_t::TTime time{startTime};
-    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
-        double meanForBucket = mean;
-        if (i == lowSumBucket) {
-            meanForBucket = lowMean;
-        }
-        if (i == highSumBucket) {
-            meanForBucket = highMean;
-        }
-        TDoubleVec values;
-        rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << values);
-
-        for (std::size_t j = 0; j < values.size(); ++j) {
-            this->addArrival(
-                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
-        }
-        model.sample(time, time + bucketLength, m_ResourceMonitor);
-
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-        SAnnotatedProbability annotatedProbability;
-        BOOST_TEST_REQUIRE(model.computeProbability(
-            0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        probabilities.push_back(annotatedProbability.s_Probability);
-
-        time += bucketLength;
-    }
-
-    LOG_DEBUG(<< "probabilities = " << probabilities);
-    BOOST_TEST_REQUIRE(*probabilities[lowSumBucket] > 0.1);
-    BOOST_TEST_REQUIRE(*probabilities[highSumBucket] < 0.01);
+    testProbabilityCalculationsSums({0, 10}, {100, 5, 60, 80, 60, 80},
+                                    {50.0, 5.0, 5.0, 95.0},
+                                    model_t::E_IndividualHighSumByBucketAndPerson);
 }
 
 BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {

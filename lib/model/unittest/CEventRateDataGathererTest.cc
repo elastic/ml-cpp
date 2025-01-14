@@ -238,23 +238,37 @@ void importCsvData(CDataGatherer& gatherer,
     ifs.reset();
 }
 
-void testGathererMultipleSeries(const core_t::TTime startTime,
-                                const core_t::TTime bucketLength,
-                                core_t::TTime data1[],
-                                core_t::TTime data2[],
-                                std::string expectedPersonCounts[],
-                                SModelParams params,
+struct STestTimes {
+    core_t::TTime s_StartTime;
+    core_t::TTime s_BucketLength;
+};
+
+struct STestData {
+    std::vector<core_t::TTime> data1;
+    std::vector<core_t::TTime> data2;
+};
+
+void testGathererMultipleSeries(const STestTimes& testTimes,
+                                const STestData& testData,
+                                std::vector<std::string> expectedPersonCounts,
+                                const SModelParams& params,
                                 core_t::TTime upperLimit,
                                 CDataGatherer& gatherer,
                                 CResourceMonitor& resourceMonitor) {
+
+    const core_t::TTime startTime = testTimes.s_StartTime;
+    const core_t::TTime bucketLength = testTimes.s_BucketLength;
 
     BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, resourceMonitor, "p1"));
     BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, resourceMonitor, "p2"));
 
     core_t::TTime time = startTime;
-    std::size_t i1 = 0u, i2 = 0u, j = 0;
+
+    std::size_t i1 = 0u;
+    std::size_t i2 = 0u;
+    std::size_t j = 0u;
     for (;;) {
-        for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + upperLimit;
+        for (/**/; j < 5 && std::min(testData.data1[i1], testData.data2[i2]) >= time + upperLimit;
              time += bucketLength, ++j) {
             LOG_DEBUG(<< "Processing bucket [" << time << ", " << time + bucketLength << ")");
 
@@ -274,13 +288,13 @@ void testGathererMultipleSeries(const core_t::TTime startTime,
             break;
         }
 
-        if (data1[i1] < data2[i2]) {
-            LOG_DEBUG(<< "Adding arrival for p1 at " << data1[i1]);
-            addArrival(gatherer, resourceMonitor, data1[i1], "p1");
+        if (testData.data1[i1] < testData.data2[i2]) {
+            LOG_DEBUG(<< "Adding arrival for p1 at " << testData.data1[i1]);
+            addArrival(gatherer, resourceMonitor, testData.data1[i1], "p1");
             ++i1;
         } else {
-            LOG_DEBUG(<< "Adding arrival for p2 at " << data2[i2]);
-            addArrival(gatherer, resourceMonitor, data2[i2], "p2");
+            LOG_DEBUG(<< "Adding arrival for p2 at " << testData.data2[i2]);
+            addArrival(gatherer, resourceMonitor, testData.data2[i2], "p2");
             ++i2;
         }
     }
@@ -309,7 +323,6 @@ void testGathererMultipleSeries(const core_t::TTime startTime,
 
 void testGathererMultipleSeries(const core_t::TTime startTime,
                                 const core_t::TTime bucketLength,
-                                SModelParams params,
                                 CDataGatherer& gatherer,
                                 CResourceMonitor& resourceMonitor) {
     TFeatureVec features;
@@ -615,7 +628,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
 
-    core_t::TTime data1[] = {
+    std::vector<core_t::TTime> data1 = {
         1,    15,   180, 190, 400,
         550, // bucket 1
         600,  799,
@@ -627,7 +640,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         2490, // bucket 5
         10000 // sentinel
     };
-    core_t::TTime data2[] = {
+    std::vector<core_t::TTime> data2 = {
         1,    5,    15,   25,   180,  190,  400, 550, // bucket 1
         600,  605,  609,  799,  1199,                 // bucket 2
         1200, 1250, 1255, 1256, 1300, 1400,           // bucket 3
@@ -636,7 +649,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         10000                                         // sentinel
     };
 
-    std::string expectedPersonCounts[] = {
+    std::vector<std::string> expectedPersonCounts = {
         std::string("[(0, 6), (1, 8)]"), std::string("[(0, 3), (1, 5)]"),
         std::string("[(0, 2), (1, 6)]"), std::string("[(0, 1), (1, 2)]"),
         std::string("[(0, 3), (1, 6)]")};
@@ -651,9 +664,9 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime, 0);
 
-        testGathererMultipleSeries(startTime, bucketLength, data1, data2,
-                                   expectedPersonCounts, params, bucketLength,
-                                   gatherer, m_ResourceMonitor);
+        testGathererMultipleSeries(STestTimes{startTime, bucketLength},
+                                   STestData{data1, data2}, expectedPersonCounts,
+                                   params, bucketLength, gatherer, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
     }
@@ -666,7 +679,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
 
-        testGathererMultipleSeries(startTime, bucketLength, params, gatherer, m_ResourceMonitor);
+        testGathererMultipleSeries(startTime, bucketLength, gatherer, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(2, gatherer.numberByFieldValues());
     }
@@ -1076,7 +1089,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data1[] = {
+    std::vector<core_t::TTime> data1 = {
         1,    15,   1200, 190, 400,
         550, // bucket 1, 2 & 3
         600,  1250,
@@ -1088,7 +1101,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         2490, // bucket 4 & 5
         10000 // sentinel
     };
-    core_t::TTime data2[] = {
+    std::vector<core_t::TTime> data2 = {
         1250, 5,    15,   600,  180,  190,  400, 550, // bucket 1, 2 & 3
         25,   605,  609,  799,  1199,                 // bucket 1 & 2
         1200, 1,    1255, 1950, 1400,                 // bucket 1, 3 & 4
@@ -1097,7 +1110,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         10000                                         // sentinel
     };
 
-    std::string expectedPersonCounts[] = {
+    std::vector<std::string> expectedPersonCounts = {
         std::string("[(0, 6), (1, 8)]"), std::string("[(0, 3), (1, 5)]"),
         std::string("[(0, 2), (1, 6)]"), std::string("[(0, 1), (1, 2)]"),
         std::string("[(0, 3), (1, 6)]")};
@@ -1109,7 +1122,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
 
-        testGathererMultipleSeries(startTime, bucketLength, data1, data2, expectedPersonCounts,
+        testGathererMultipleSeries(STestTimes{startTime, bucketLength},
+                                   STestData{data1, data2}, expectedPersonCounts,
                                    params, latencyTime, gatherer, m_ResourceMonitor);
     }
 
@@ -1121,7 +1135,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
 
-        testGathererMultipleSeries(startTime, bucketLength, params, gatherer, m_ResourceMonitor);
+        testGathererMultipleSeries(startTime, bucketLength, gatherer, m_ResourceMonitor);
     }
 }
 
