@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
         std::ostringstream json;
         ml::core::CJsonStatePersistInserter inserter{json};
         feature.acceptPersistInserter(inserter);
-        LOG_TRACE(<< i << ") model JSON representation:\n" << json);
+        LOG_TRACE(<< i << ") model JSON representation:\n" << json.str());
         LOG_DEBUG(<< i << ") model JSON size: " << json.str().size());
 
         // Restore the JSON into a new feature and assert checksums.
