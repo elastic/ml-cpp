@@ -185,7 +185,7 @@ spec:
           cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 8.x
         Daily 9.0:
-          branch: 9.0
+          branch: '9.0'
           cronline: 30 01 * * *
           message: Daily SNAPSHOT build for 9.0
         Daily main:
