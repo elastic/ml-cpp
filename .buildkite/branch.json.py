@@ -12,11 +12,17 @@
 # Builds for this pipeline may be triggered by code, API or UI.
 #
 import json
+import os
 
 from ml_pipeline import (
     step,
     config as buildConfig,
 )
+
+# Ensure VERSION_QUALIFIER is set for 9.0 BC staging builds
+env = {}
+if os.getenv("BUILD_SNAPSHOT") == "false":
+    env |= { "VERSION_QUALIFIER": "beta1" }
 
 def main():
     pipeline = {}
@@ -49,6 +55,8 @@ def main():
                                                        ".buildkite/pipelines/upload_dra_to_gcs.yml.sh"))
 
     pipeline["steps"] = pipeline_steps
+    if env:
+        pipeline["env"] = env
     print(json.dumps(pipeline, indent=2))
 
 
