@@ -12,7 +12,24 @@
 if(TEST_NAME STREQUAL "ml_test_seccomp")
   execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} --logger=HRF,all --report_format=HRF --show_progress=no --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
 else()
-  execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
+  # Turn the TEST_FLAGS environment variable into a CMake list variable
+  if (DEFINED ENV{TEST_FLAGS} AND NOT "$ENV{TEST_FLAGS}" STREQUAL "")
+    string(REPLACE " " ";" TEST_FLAGS $ENV{TEST_FLAGS})
+  endif()
+
+  # Special case for specifying a subset of tests to run (can be regex)
+  if (DEFINED ENV{TESTS} AND NOT "$ENV{TESTS}" STREQUAL "")
+    set(TESTS "--run_test=$ENV{TESTS}")
+  endif()
+
+  # If any special command line args are present run the tests in the foreground
+  if (DEFINED TEST_FLAGS OR DEFINED TESTS)
+    message(STATUS "executing process ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}")
+    execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} RESULT_VARIABLE TEST_SUCCESS)
+  else()
+    execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{TEST_FLAGS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}
+      --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
+  endif()
 endif()
 
 if (NOT TEST_SUCCESS EQUAL 0)
