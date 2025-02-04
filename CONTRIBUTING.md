@@ -61,13 +61,7 @@ Please adhere to the general guideline that you should never force push to a pub
 
 **Repository**: https://github.com/elastic/ml-cpp
 
-1.  Set up a build machine by following the instructions in the [build-setup](build-setup) directory
-1.  Do your changes. 
-1.  If you change code, follow the existing [coding style](STYLEGUIDE.md).
-1.  Write a test, unit tests are located under `lib/{module}/unittest`
-1.  Test your changes (`cmake --build cmake-build-relwithdebinfo -v -t test`)
-
-The build system uses CMake. To build either call `cmake` directly from the top level of the source tree,
+The build system supports using both `CMake` and `Gradle`. To build, either call `cmake` directly from the top level of the source tree,
 for example:
 
 ```
@@ -75,7 +69,7 @@ cmake -B cmake-build-relwithdebinfo
 cmake --build cmake-build-relwithdebinfo -v -j`nproc`
 ```
 
-Or, more simply, use Gradle:
+Or, using Gradle:
 
 ```
 ./gradlew :compile
@@ -83,8 +77,27 @@ Or, more simply, use Gradle:
 
 Note that we configure the build to be of type `RelWithDebInfo` in order to obtain a fully optimized build along with debugging symbols (for Windows native builds this is achieved by adding the flags `--config RelWithDebInfo` to the `cmake --build` command line).
 
+1.  Set up a build machine by following the instructions in the [build-setup](build-setup) directory
+1.  Do your changes. 
+1.  If you change code, follow the existing [coding style](STYLEGUIDE.md).
+    1. You can ensure that the code is formatted correctly by running the `format` target of either `gradle` or `cmake`
+        1. gradle: `./gradlew format`
+        1. cmake: `cmake --build cmake-build-relwithdebinfo -t format`
+1.  Write a test. Unit tests are located under `lib/{module}/unittest` or `bin/{module}/unittest`
+1.  The tests are written using the `Boost.Test` framework - https://www.boost.org/doc/libs/1_86_0/libs/test/doc/html/index.html
+1.  Test your changes. `cmake --build cmake-build-relwithdebinfo -v -t test` will run _all_ tests in the `ml-cpp` repo.
+    1. It also possible to run a subset of tests, or suites of tests, by passing the `TESTS` environment variable to
+       `cmake` (wildcards are permitted), e.g. `TESTS="*/testPersist" cmake --build cmake-build-relwithdebinfo -t test_model` would run all tests
+       named `testPersist` in all test suites for the `test_model` target.
+    1. It is also possible to control the behaviour of the test framework by passing any other arbitrary flags via the
+       `TEST_FLAGS` environment variable , e.g. `TEST_FLAGS="--random" cmake --build cmake-build-relwithdebinfo -t test`
+       (use TEST_FLAGS="--help" to see the full list).
+1. As a convenience, there exists a `precommit` target that both formats the code and runs the entire test suite, e.g.
+    1. `./gradlew precommit`
+    1. `cmake --build cmake-build-relwithdebinfo -j 8 -t precommit`
+
 If you need to test C++ changes in this repo in conjunction with Elasticsearch changes then use
-Gradle's `--include-build` option to tell your Elasticsearch build to build the C++ locally
+Gradle's `--include-build` option to tell your Elasticsearch build to build the C++ code locally
 instead of downloading the latest pre-built bundle. For example, if `elasticsearch` and `ml-cpp`
 are cloned in adjacent directories then you could run this in the `elasticsearch` directory:
 
@@ -97,12 +110,12 @@ it's necessary to run this command in the `elasticsearch` directory to verify th
 used in the C++ build:
 
 ```
-./gradlew --write-verification-metadata sha256 help --include-build ~/ml-cpp
+./gradlew --write-verification-metadata sha256 help --include-build ../ml-cpp
 ```
 
 ## Pull Requests
 
-Every change made to ml-cpp must be held to a high standard, Pull Requests are equally important as they document changes and decissions that have been made. `You Know, for Search` - a descriptive and relevant summary of the change helps people to find your PR later on.
+Every change made to ml-cpp must be held to a high standard, Pull Requests are equally important as they document changes and decisions that have been made. `You Know, for Search` - a descriptive and relevant summary of the change helps people to find your PR later on.
 
 The followings lists some guidelines when authoring pull requests. Note, try to follow this guideline as close as possible but do not feel bad if you are unsure, team members can help you.
 

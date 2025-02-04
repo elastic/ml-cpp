@@ -162,6 +162,12 @@ task format(type: Exec) {
   workingDir "${projectDir}"
 }
 
+task precommit(type: Exec) {
+  commandLine shell
+  workingDir "${projectDir}"
+  dependsOn = ['format', 'check']
+}
+
 task buildZip(type: Zip) {
   dependsOn strip
   archiveClassifier = artifactClassifier

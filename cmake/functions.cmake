@@ -473,3 +473,16 @@ function(ml_doxygen _output)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${_output})
 
 endfunction()
+
+add_custom_target(format
+  COMMENT "Running clang-format on source files"
+  JOB_SERVER_AWARE TRUE
+  COMMAND ${CMAKE_COMMAND} -P cmake/clang-format.cmake
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(precommit
+  COMMENT "Running essential tasks prior to code commit"
+  DEPENDS format test
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
