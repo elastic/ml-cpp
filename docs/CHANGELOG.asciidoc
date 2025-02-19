@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 9.1.0
+
+=== Bug Fixes
+
+* Correct handling of config updates. #2821. (See {ml-pull}2821[#28.09].)
+
 == {es} version 9.0.0
 
 === Enhancements
