@@ -36,9 +36,8 @@
 #include <cstdio>
 #include <fstream>
 #include <map>
+#include <random>
 #include <sstream>
-
-#include <stdlib.h>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(json::array::const_iterator)
 BOOST_TEST_DONT_PRINT_LOG_VALUE(json::object::const_iterator)
@@ -878,9 +877,13 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
     CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
     auto generateRandomAlpha = [](int strLen) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 25);
+
         std::string str;
         for (int i = 0; i < strLen; ++i) {
-            str += char('a' + (::rand() % 26));
+            str += char('a' + dis(gen));
         }
         return str;
     };
@@ -898,7 +901,6 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
 
     // Now send anomalous counts for our filtered IPs plus 333.333.333.333
     auto namedIps = std::vector{"111.111.111.111", "222.222.222.222", "333.333.333.333"};
-    long firstAnomalyTime = timestamp;
     for (int i = 0; i < 10; i++) {
         for (auto& ip : namedIps) {
             data.emplace_back(core::CStringUtils::typeToString(timestamp), ip);
@@ -969,7 +971,6 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
     job.updateConfig(detectorConfig2);
 
     data.clear();
-    long secondAnomalyTime = timestamp;
     // Send another anomalous bucket
     for (int i = 0; i < 10; i++) {
         for (auto& ip : namedIps) {
