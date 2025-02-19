@@ -890,25 +890,27 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
 
     for (int bucket = 0; bucket < 20; bucket++) {
         for (int i = 0; i < 5; i++) {
-            data.emplace_back(core::CStringUtils::typeToString(timestamp), generateRandomAlpha(10));
+            data.emplace_back(core::CStringUtils::typeToString(timestamp),
+                              generateRandomAlpha(10));
         }
-        timestamp += 3600*1000;
+        timestamp += 3600 * 1000;
     }
 
     // Now send anomalous counts for our filtered IPs plus 333.333.333.333
     auto namedIps = std::vector{"111.111.111.111", "222.222.222.222", "333.333.333.333"};
     long firstAnomalyTime = timestamp;
     for (int i = 0; i < 10; i++) {
-        for (auto &ip : namedIps) {
+        for (auto& ip : namedIps) {
             data.emplace_back(core::CStringUtils::typeToString(timestamp), ip);
         }
     }
 
     for (int bucket = 0; bucket < 3; bucket++) {
         for (int i = 0; i < 5; i++) {
-            data.emplace_back(core::CStringUtils::typeToString(timestamp), generateRandomAlpha(10));
+            data.emplace_back(core::CStringUtils::typeToString(timestamp),
+                              generateRandomAlpha(10));
         }
-        timestamp += 3600*1000;
+        timestamp += 3600 * 1000;
     }
 
     CTestAnomalyJob::TStrStrUMap dataRows;
@@ -978,9 +980,10 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
     // Some more normal buckets
     for (int bucket = 0; bucket < 3; bucket++) {
         for (int i = 0; i < 5; i++) {
-            data.emplace_back(core::CStringUtils::typeToString(timestamp), generateRandomAlpha(10));
+            data.emplace_back(core::CStringUtils::typeToString(timestamp),
+                              generateRandomAlpha(10));
         }
-        timestamp += 3600*1000;
+        timestamp += 3600 * 1000;
     }
 
     dataRows.clear();
