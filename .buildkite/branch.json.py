@@ -22,7 +22,7 @@ from ml_pipeline import (
 # Ensure VERSION_QUALIFIER is set for 9.0 BC staging builds
 env = {}
 if os.getenv("BUILD_SNAPSHOT") == "false":
-    env |= { "VERSION_QUALIFIER": "beta1" }
+    env |= { "VERSION_QUALIFIER": "rc1" }
 
 def main():
     pipeline = {}
