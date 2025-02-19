@@ -37,6 +37,8 @@
 
 namespace CAnomalyJobTest {
 struct testParsePersistControlMessageArgs;
+struct testUpdateFilterConfigForOpenedJob;
+struct testConfigUpdate;
 struct testOutputBucketResultsUntilGivenIncompleteInitialBucket;
 }
 
@@ -518,6 +520,8 @@ private:
     core_t::TTime m_InitialLastFinalisedBucketEndTime{0};
 
     // Test case access
+    friend struct CAnomalyJobTest::testUpdateFilterConfigForOpenedJob;
+    friend struct CAnomalyJobTest::testConfigUpdate;
     friend struct CAnomalyJobTest::testParsePersistControlMessageArgs;
 
     friend struct CAnomalyJobTest::testOutputBucketResultsUntilGivenIncompleteInitialBucket;

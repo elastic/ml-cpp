@@ -239,7 +239,18 @@ public:
         }
 
         void initRuleFilters(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
-            m_RuleFilters = ruleFilters;
+            // Update or insert values that are in the new map - we never delete filters at this level.
+            // Note that we can't simply assign "m_RuleFilters = ruleFilters", as that would result in
+            // the pattern set objects being destroyed and, as they are referenced by the anomaly detector models,
+            // this is a bad thing.
+            for (const auto& kv: ruleFilters) {
+                CDetectionRulesJsonParser::TStrPatternSetUMap::iterator itr = m_RuleFilters.find(kv.first);
+                if (itr != m_RuleFilters.end()) {
+                    itr->second = kv.second;
+                } else {
+                    m_RuleFilters.insert(kv);
+                }
+            }
         }
 
         void initScheduledEvents(const TStrDetectionRulePrVec& scheduledEvents) {
@@ -248,19 +259,6 @@ public:
 
         //! Parse a JSON value representing an entire analysis config object.
         void parse(const json::value& json);
-
-        //! Return a JSON string representing the analysis config
-        const std::string& getAnalysisConfig();
-
-        //! Reparse the detector configuration object from within a stored
-        //! string representing the analysis config object.
-        //! This is necessary to correctly reinitialise scoped rule objects
-        //! folowing an update of the fiter rules configuration.
-        bool reparseDetectorsFromStoredConfig(const std::string& analysisConfig);
-
-        void setConfig(const std::string& analysisConfigString) {
-            m_AnalysisConfigString = analysisConfigString;
-        }
 
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
