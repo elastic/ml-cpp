@@ -38,6 +38,8 @@
 #include <map>
 #include <sstream>
 
+#include <stdlib.h>
+
 BOOST_TEST_DONT_PRINT_LOG_VALUE(json::array::const_iterator)
 BOOST_TEST_DONT_PRINT_LOG_VALUE(json::object::const_iterator)
 
@@ -875,157 +877,45 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
 
     CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
-    TStrStrPrVec data{{"VXsGUkmJOX", "1509062400000"},
-                      {"vHliHciBsT", "1509062400000"},
-                      {"PGctBjzAsr", "1509062400000"},
-                      {"dYbngcZJGc", "1509062400000"},
-                      {"ksnywmKETr", "1509062400000"},
-                      {"jhVZrOEoMi", "1509066000000"},
-                      {"TilDhrRIRE", "1509066000000"},
-                      {"MXFOJiprwq", "1509066000000"},
-                      {"UVAQzQoStd", "1509066000000"},
-                      {"EiEmSZxFMX", "1509066000000"},
-                      {"rhLWPtjSwD", "1509069600000"},
-                      {"gMgTXaYrNY", "1509069600000"},
-                      {"XFBsAJgufy", "1509069600000"},
-                      {"henAaVSYYK", "1509069600000"},
-                      {"iKXGjXyPDI", "1509069600000"},
-                      {"kYPPvdITwc", "1509073200000"},
-                      {"rdbuCuvFzn", "1509073200000"},
-                      {"VQbQhShLaq", "1509073200000"},
-                      {"XHuVdAkyZA", "1509073200000"},
-                      {"kncainCDlz", "1509073200000"},
-                      {"kYUywtQYMk", "1509076800000"},
-                      {"lOFNnVYIvv", "1509076800000"},
-                      {"camAyPGjCE", "1509076800000"},
-                      {"eeDvyWWodp", "1509076800000"},
-                      {"odZCmuvxkD", "1509076800000"},
-                      {"UHEBAYLUAr", "1509080400000"},
-                      {"jmixLiXKqm", "1509080400000"},
-                      {"sNtbzOScVS", "1509080400000"},
-                      {"tomMPNVUIJ", "1509080400000"},
-                      {"grzZEPsjNp", "1509080400000"},
-                      {"meyYVEttRG", "1509084000000"},
-                      {"qOsvkFGvDU", "1509084000000"},
-                      {"OaQbgUQiHw", "1509084000000"},
-                      {"topwoSbpQN", "1509084000000"},
-                      {"vLEloJNfuN", "1509084000000"},
-                      {"AILbGpahMW", "1509087600000"},
-                      {"otgTKDGYZW", "1509087600000"},
-                      {"LoRTuVgaDN", "1509087600000"},
-                      {"wsfDYZMNtI", "1509087600000"},
-                      {"tRhQYSsXtP", "1509087600000"},
-                      {"ADCLYChDrE", "1509091200000"},
-                      {"ErKQUVKEBa", "1509091200000"},
-                      {"JFgnkAAqSn", "1509091200000"},
-                      {"kOOIFPbAgQ", "1509091200000"},
-                      {"HsLwNusKGW", "1509091200000"},
-                      {"XTnjNdxSJa", "1509094800000"},
-                      {"yfBsbpVUwq", "1509094800000"},
-                      {"aWHpwMIrhM", "1509094800000"},
-                      {"XAMzOYpWoO", "1509094800000"},
-                      {"EOMCCqonkl", "1509094800000"},
-                      {"rJZSSwhGgn", "1509098400000"},
-                      {"ftPcrUyXEs", "1509098400000"},
-                      {"eMCHwyBPxW", "1509098400000"},
-                      {"UtRfTVJrnZ", "1509098400000"},
-                      {"XZzjgnaVJX", "1509098400000"},
-                      {"nQopvnmqya", "1509102000000"},
-                      {"LBVmGjTKYC", "1509102000000"},
-                      {"mFppanEAVm", "1509102000000"},
-                      {"OzeWGXhSvf", "1509102000000"},
-                      {"pGMAOpHGKh", "1509102000000"},
-                      {"zgXfjyuFKb", "1509105600000"},
-                      {"NuSdZzxCww", "1509105600000"},
-                      {"AaIRTkAxtZ", "1509105600000"},
-                      {"SPKTOqJdaF", "1509105600000"},
-                      {"xovZToSALn", "1509105600000"},
-                      {"ZjBxwEtmMx", "1509109200000"},
-                      {"AZeexwrwKg", "1509109200000"},
-                      {"upFbiAobYO", "1509109200000"},
-                      {"HjhPLcLvWc", "1509109200000"},
-                      {"hVgIvtZDYE", "1509109200000"},
-                      {"ctHaQGyhag", "1509112800000"},
-                      {"RnAyYyHXUZ", "1509112800000"},
-                      {"QVeVItRTrS", "1509112800000"},
-                      {"LlIhmlIbDY", "1509112800000"},
-                      {"HsaWMBDWFg", "1509112800000"},
-                      {"zFEKbmALsj", "1509116400000"},
-                      {"CajTVuyInh", "1509116400000"},
-                      {"xTkzljGooK", "1509116400000"},
-                      {"eoPrAnwaiO", "1509116400000"},
-                      {"ANIFdLnxnA", "1509116400000"},
-                      {"tXdkthZHBq", "1509120000000"},
-                      {"VdRlFiimdG", "1509120000000"},
-                      {"rROhRdUsIh", "1509120000000"},
-                      {"MmGoHDADZy", "1509120000000"},
-                      {"MSSsYVVQkQ", "1509120000000"},
-                      {"pQxtjrZLGt", "1509123600000"},
-                      {"wySkyrVSAn", "1509123600000"},
-                      {"SiastuDlVj", "1509123600000"},
-                      {"ufGOlmHxAU", "1509123600000"},
-                      {"cOiaUCPOPg", "1509123600000"},
-                      {"IAnrntutdp", "1509127200000"},
-                      {"IZAHEyPruR", "1509127200000"},
-                      {"WiVGlNNkUV", "1509127200000"},
-                      {"LXVUMgjpLC", "1509127200000"},
-                      {"wBgcZNLPxU", "1509127200000"},
-                      {"FUABYKZtmK", "1509130800000"},
-                      {"sePjECTUHH", "1509130800000"},
-                      {"buCkCPaldT", "1509130800000"},
-                      {"ZYDcEKvikL", "1509130800000"},
-                      {"AffsotORJK", "1509130800000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"111.111.111.111", "1509134400000"},
-                      {"222.222.222.222", "1509134400000"},
-                      {"333.333.333.333", "1509134400000"},
-                      {"mbgKzPTdre", "1509134400000"},
-                      {"TkAjKcXidq", "1509134400000"},
-                      {"NtbSoMEqvy", "1509134400000"},
-                      {"SckOpIBBpY", "1509134400000"},
-                      {"gNIEKetuQe", "1509134400000"},
-                      {"GTQDmCGfAW", "1509138000000"},
-                      {"WLBgbvEAUL", "1509138000000"},
-                      {"wQRTanyiYX", "1509138000000"},
-                      {"HZwEcscWYf", "1509138000000"},
-                      {"xjHYcPqEVa", "1509138000000"},
-                      {"yiLKWqHdTX", "1509141600000"},
-                      {"iVnWqHkuXh", "1509141600000"},
-                      {"acTvXFvUzQ", "1509141600000"},
-                      {"QRolUONnUy", "1509141600000"},
-                      {"YJQEIVMIBD", "1509141600000"}};
+    auto generateRandomAlpha = [](int strLen) {
+        std::string str;
+        for (int i = 0; i < strLen; ++i) {
+            str += char('a' + (::rand() % 26));
+        }
+        return str;
+    };
+
+    long timestamp = 1509062400000L;
+    TStrStrPrVec data;
+
+    for (int bucket = 0; bucket < 20; bucket++) {
+        for (int i = 0; i < 5; i++) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), generateRandomAlpha(10));
+        }
+        timestamp += 3600*1000;
+    }
+
+    // Now send anomalous counts for our filtered IPs plus 333.333.333.333
+    auto namedIps = std::vector{"111.111.111.111", "222.222.222.222", "333.333.333.333"};
+    long firstAnomalyTime = timestamp;
+    for (int i = 0; i < 10; i++) {
+        for (auto &ip : namedIps) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), ip);
+        }
+    }
+
+    for (int bucket = 0; bucket < 3; bucket++) {
+        for (int i = 0; i < 5; i++) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), generateRandomAlpha(10));
+        }
+        timestamp += 3600*1000;
+    }
 
     CTestAnomalyJob::TStrStrUMap dataRows;
 
-    for (const auto & [ ip, time ] : data) {
-        dataRows["ip"] = ip;
+    for (const auto & [ time, ip ] : data) {
         dataRows["time"] = time;
+        dataRows["ip"] = ip;
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
@@ -1076,56 +966,27 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
 
     job.updateConfig(detectorConfig2);
 
-    TStrStrPrVec data2{{"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"111.111.111.111", "1509145200000"},
-                       {"222.222.222.222", "1509145200000"},
-                       {"333.333.333.333", "1509145200000"},
-                       {"ULqciERPUB", "1509145200000"},
-                       {"hSagdVXbkV", "1509145200000"},
-                       {"noKRUGGfRP", "1509145200000"},
-                       {"stjxxPwDDJ", "1509145200000"},
-                       {"uzaMTalifP", "1509145200000"},
-                       {"SnPZiISlEs", "1509148800000"},
-                       {"rOViKUMbwm", "1509148800000"},
-                       {"lOvdYWegmC", "1509148800000"},
-                       {"MZxNWUNDPl", "1509148800000"},
-                       {"jQJLlvUAHu", "1509148800000"},
-                       {"DBQkoaYhNq", "1509152400000"},
-                       {"RPWGftLqma", "1509152400000"},
-                       {"izxpHyVhwL", "1509152400000"},
-                       {"NxCSzaQzSw", "1509152400000"},
-                       {"FffzfFhWTk", "1509152400000"}};
+    data.clear();
+    long secondAnomalyTime = timestamp;
+    // Send another anomalous bucket
+    for (int i = 0; i < 10; i++) {
+        for (auto& ip : namedIps) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), ip);
+        }
+    }
+
+    // Some more normal buckets
+    for (int bucket = 0; bucket < 3; bucket++) {
+        for (int i = 0; i < 5; i++) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), generateRandomAlpha(10));
+        }
+        timestamp += 3600*1000;
+    }
 
     dataRows.clear();
-    for (const auto & [ ip, time ] : data2) {
-        dataRows["ip"] = ip;
+    for (const auto & [ time, ip ] : data) {
         dataRows["time"] = time;
+        dataRows["ip"] = ip;
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
