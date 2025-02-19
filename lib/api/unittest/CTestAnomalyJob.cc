@@ -51,20 +51,18 @@ CTestAnomalyJob::makeSimpleJobConfig(const std::string& functionName,
     return jobConfig;
 }
 
-ml::api::CAnomalyJobConfig
-CTestAnomalyJob::makeJobConfig(const std::string& detectorsConfig) {
+ml::api::CAnomalyJobConfig CTestAnomalyJob::makeJobConfig(const std::string& detectorsConfig) {
     json::parser p;
     json::error_code ec;
     p.write_some(detectorsConfig, ec);
     if (ec) {
-        LOG_ERROR(<< "An error occurred while parsing JSON: "
-                  << ec.message());
+        LOG_ERROR(<< "An error occurred while parsing JSON: " << ec.message());
         return {};
     }
     json::value doc = p.release();
     if (doc.is_object() == false) {
-        LOG_ERROR(<< "Input error: expected JSON object but input was '" << detectorsConfig
-                  << "'. Please report this problem.");
+        LOG_ERROR(<< "Input error: expected JSON object but input was '"
+                  << detectorsConfig << "'. Please report this problem.");
         return {};
     }
 

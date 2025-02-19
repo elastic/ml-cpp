@@ -243,8 +243,9 @@ public:
             // Note that we can't simply assign "m_RuleFilters = ruleFilters", as that would result in
             // the pattern set objects being destroyed and, as they are referenced by the anomaly detector models,
             // this is a bad thing.
-            for (const auto& kv: ruleFilters) {
-                CDetectionRulesJsonParser::TStrPatternSetUMap::iterator itr = m_RuleFilters.find(kv.first);
+            for (const auto& kv : ruleFilters) {
+                CDetectionRulesJsonParser::TStrPatternSetUMap::iterator itr =
+                    m_RuleFilters.find(kv.first);
                 if (itr != m_RuleFilters.end()) {
                     itr->second = kv.second;
                 } else {
