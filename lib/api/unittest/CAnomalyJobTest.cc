@@ -1023,21 +1023,22 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
 
     CTestAnomalyJob::TStrStrUMap dataRows;
 
-    for (auto& row : data) {
-        dataRows["ip"] = row.first;
-        dataRows["time"] = row.second;
+    for (const auto & [ ip, time ] : data) {
+        dataRows["ip"] = ip;
+        dataRows["time"] = time;
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
     BOOST_REQUIRE_EQUAL(145, job.numRecordsHandled());
 
-    const std::string& detectorConfig1{
-        "{"
-        "\"filters\":[{\"filter_id\":\"safe_ips\", \"items\":[\"111.111.111.111\",\"222.222.222.222\"]}],"
-        "\"events\":[{\"description\":\"event_1\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]}],"
-        "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":false},"
-        "\"detector_rules\":{\"detector_index\":0,\"custom_rules\":[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gte\",\"value\":15.0},{\"applies_to\":\"actual\",\"operator\":\"lte\",\"value\":30.0}]}]}"
-        "}"};
+    const std::string& detectorConfig1{R"(
+        {
+            "filters":[{"filter_id":"safe_ips", "items":["111.111.111.111","222.222.222.222"]}],
+            "events":[{"description":"event_1", "rules":[{"actions":["skip_result","skip_model_update"],"conditions":[{"applies_to":"time","operator":"gte","value": 1.0},{"applies_to":"time","operator":"lt","value": 2.0}]}]}],
+            "model_plot_config":{"enabled":true,"annotations_enabled":false},
+            "detector_rules":{"detector_index":0,"custom_rules":[{"actions":["skip_result"],"conditions":[{"applies_to":"actual","operator":"gte","value":15.0},{"applies_to":"actual","operator":"lte","value":30.0}]}]}
+        }
+    )"};
 
     job.updateConfig(detectorConfig1);
 
@@ -1065,13 +1066,13 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
     BOOST_REQUIRE_EQUAL(true, ruleFilters["safe_ips"].contains("222.222.222.222"));
     BOOST_REQUIRE_EQUAL(false, ruleFilters["safe_ips"].contains("333.333.333.333"));
 
-    const std::string& detectorConfig2{
-        "{"
-        "\"filters\":[{\"filter_id\":\"safe_ips\", \"items\":[\"333.333.333.333\"]}],"
-        "\"events\":[{\"description\":\"event_1\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 2.0},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 3.0}]}]}],"
-        "\"model_plot_config\":{\"enabled\":false,\"annotations_enabled\":true},"
-        "\"detector_rules\":{\"detector_index\":0,\"custom_rules\":[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"typical\",\"operator\":\"gte\",\"value\":10.0},{\"applies_to\":\"typical\",\"operator\":\"lte\",\"value\":50.0}]}]}"
-        "}"};
+    const std::string& detectorConfig2{R"(
+        {
+        "filters":[{"filter_id":"safe_ips", "items":["333.333.333.333"]}],
+        "events":[{"description":"event_1", "rules":[{"actions":["skip_result","skip_model_update"],"conditions":[{"applies_to":"time","operator":"gte","value": 2.0},{"applies_to":"time","operator":"lt","value": 3.0}]}]}],
+        "model_plot_config":{"enabled":false,"annotations_enabled":true},
+        "detector_rules":{"detector_index":0,"custom_rules":[{"actions":["skip_result"],"conditions":[{"applies_to":"typical","operator":"gte","value":10.0},{"applies_to":"typical","operator":"lte","value":50.0}]}]}
+        })"};
 
     job.updateConfig(detectorConfig2);
 
@@ -1122,9 +1123,9 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
                        {"FffzfFhWTk", "1509152400000"}};
 
     dataRows.clear();
-    for (auto& row : data2) {
-        dataRows["ip"] = row.first;
-        dataRows["time"] = row.second;
+    for (const auto & [ ip, time ] : data2) {
+        dataRows["ip"] = ip;
+        dataRows["time"] = time;
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
