@@ -32,8 +32,6 @@
 
 === Bug Fixes
 
-* Correct handling of config updates. #2821. (See {ml-pull}2821[#28.09].)
-
 == {es} version 9.0.0
 
 === Enhancements
@@ -46,6 +44,12 @@
 
 * Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2798], {ml-pull}2799[#2799].)
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
+
+== {es} version 8.16.6
+
+=== Bug Fixes
+
+* Correct handling of config updates. (See {ml-pull}2821[#2821].)
 
 == {es} version 8.16.4
 
