@@ -879,7 +879,7 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
     auto generateRandomAlpha = [](int strLen) {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 25);
+        std::uniform_int_distribution dis(0, 25);
 
         std::string str;
         for (int i = 0; i < strLen; ++i) {
