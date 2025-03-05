@@ -459,8 +459,6 @@ void CAnomalyJob::updateConfig(const std::string& config) {
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }
-    const std::string& analysisConfig = m_JobConfig.analysisConfig().getAnalysisConfig();
-    m_JobConfig.analysisConfig().reparseDetectorsFromStoredConfig(analysisConfig);
 }
 
 void CAnomalyJob::advanceTime(const std::string& time_) {
