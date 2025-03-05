@@ -36,6 +36,12 @@
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
 * Drop support for macOS Intel builds. (See {ml-pull}2795[#2795].)
 
+== {es} version 8.16.6
+
+=== Bug Fixes
+
+* Correct handling of config updates. (See {ml-pull}2821[#2821].)
+
 == {es} version 8.16.4
 
 === Bug Fixes
