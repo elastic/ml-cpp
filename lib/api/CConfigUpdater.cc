@@ -40,42 +40,53 @@ bool CConfigUpdater::update(const std::string& json) {
         return false;
     }
 
-    json::object obj = doc.as_object();
+    for (json::object obj = doc.as_object(); const auto& kv : obj) {
+        if (kv.key() == CAnomalyJobConfig::MODEL_PLOT_CONFIG) {
+            LOG_TRACE(<< "Updating model plot config");
 
-    if (obj.contains(CAnomalyJobConfig::MODEL_PLOT_CONFIG)) {
-        if (obj[CAnomalyJobConfig::MODEL_PLOT_CONFIG].is_object() == false) {
-            LOG_ERROR(<< "Input error: expected " << CAnomalyJobConfig::MODEL_PLOT_CONFIG
-                      << " to be JSON object but input was '" << json
-                      << "'. Please report this problem.");
-            return false;
-        }
-        const json::value& value = obj[CAnomalyJobConfig::MODEL_PLOT_CONFIG];
+            if (kv.value().is_object() == false) {
+                LOG_ERROR(<< "Input error: expected " << CAnomalyJobConfig::MODEL_PLOT_CONFIG
+                          << " to be JSON object but input was '" << json
+                          << "'. Please report this problem.");
+                return false;
+            }
 
-        m_JobConfig.modelPlotConfig().parse(value);
-        const ml::api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig =
-            m_JobConfig.modelPlotConfig();
-        m_ModelConfig.configureModelPlot(modelPlotConfig.enabled(),
-                                         modelPlotConfig.annotationsEnabled(),
-                                         modelPlotConfig.terms());
-    } else if (obj.contains(CAnomalyJobConfig::FILTERS)) {
-        if (m_JobConfig.parseFilterConfig(json) == false) {
-            LOG_ERROR(<< "Failed to parse filter config update: " << json);
+            m_JobConfig.modelPlotConfig().parse(kv.value());
+            const ml::api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig =
+                m_JobConfig.modelPlotConfig();
+            m_ModelConfig.configureModelPlot(modelPlotConfig.enabled(),
+                                             modelPlotConfig.annotationsEnabled(),
+                                             modelPlotConfig.terms());
+        } else if (kv.key() == CAnomalyJobConfig::FILTERS) {
+            LOG_TRACE(<< "Updating filters config");
+
+            if (m_JobConfig.parseFilterConfig(json) == false) {
+                LOG_ERROR(<< "Failed to parse filter config update: " << json);
+                return false;
+            }
+            LOG_TRACE(<< "Calling m_JobConfig.initRuleFilters");
+
+            m_JobConfig.initRuleFilters();
+
+            LOG_TRACE(<< "Done calling m_JobConfig.initRuleFilters");
+
+        } else if (kv.key() == CAnomalyJobConfig::EVENTS) {
+            LOG_TRACE(<< "Updating events config");
+
+            if (m_JobConfig.parseEventConfig(json) == false) {
+                LOG_ERROR(<< "Failed to parse events config update: " << json);
+                return false;
+            }
+            m_JobConfig.initScheduledEvents();
+        } else if (kv.key() == CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES) {
+            LOG_TRACE(<< "Updating detector rules config");
+            return m_JobConfig.analysisConfig().parseRulesUpdate(kv.value());
+        } else {
+            LOG_ERROR(<< "Unexpected JSON update message: " << json);
             return false;
         }
-        m_JobConfig.initRuleFilters();
-    } else if (obj.contains(CAnomalyJobConfig::EVENTS)) {
-        if (m_JobConfig.parseEventConfig(json) == false) {
-            LOG_ERROR(<< "Failed to parse events config update: " << json);
-            return false;
-        }
-        m_JobConfig.initScheduledEvents();
-    } else if (obj.contains(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES)) {
-        return m_JobConfig.analysisConfig().parseRulesUpdate(
-            obj[CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES]);
-    } else {
-        LOG_ERROR(<< "Unexpected JSON update message: " << json);
-        return false;
     }
+
     return true;
 }
 }

@@ -441,7 +441,7 @@ task buildDependencyReport(type: Exec) {
 // This gives us the flexibility to build in different
 // ways and still use the same upload code.
 task upload(type: UploadS3Task) {
-  bucket 'prelert-artifacts'
+  bucket='prelert-artifacts'
   // Only upload the platform-specific artifacts in this task
   def zipFileDir = fileTree("${buildDir}/distributions").matching {
     include "*-aarch64.zip", "*-x86_64.zip"
@@ -453,7 +453,7 @@ task upload(type: UploadS3Task) {
 }
 
 task uploadAll(type: UploadS3Task) {
-  bucket 'prelert-artifacts'
+  bucket='prelert-artifacts'
   // Upload ALL artifacts (including the dependency report) in this task
   def fileDir = fileTree("${buildDir}/distributions").matching {
     include "ml-cpp-${project.version}*.zip", "dependencies-${version}.csv"
@@ -468,7 +468,7 @@ task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads,
                                                 buildDependenciesZipFromDownloads,
                                                 buildNoDependenciesZipFromDownloads,
                                                 buildDependencyReport]) {
-  bucket 'prelert-artifacts'
+  bucket='prelert-artifacts'
   upload buildUberZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZipFromDownloads.outputs.files.singleFile.name}"
   upload buildDependenciesZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependenciesZipFromDownloads.outputs.files.singleFile.name}"
   upload buildNoDependenciesZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildNoDependenciesZipFromDownloads.outputs.files.singleFile.name}"
