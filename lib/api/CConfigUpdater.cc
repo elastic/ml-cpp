@@ -42,7 +42,7 @@ bool CConfigUpdater::update(const std::string& json) {
 
     for (json::object obj = doc.as_object(); const auto& kv : obj) {
         if (kv.key() == CAnomalyJobConfig::MODEL_PLOT_CONFIG) {
-            LOG_DEBUG(<< "Updating model plot config");
+            LOG_TRACE(<< "Updating model plot config");
 
             if (kv.value().is_object() == false) {
                 LOG_ERROR(<< "Input error: expected " << CAnomalyJobConfig::MODEL_PLOT_CONFIG
@@ -58,20 +58,20 @@ bool CConfigUpdater::update(const std::string& json) {
                                              modelPlotConfig.annotationsEnabled(),
                                              modelPlotConfig.terms());
         } else if (kv.key() == CAnomalyJobConfig::FILTERS) {
-            LOG_DEBUG(<< "Updating filters config");
+            LOG_TRACE(<< "Updating filters config");
 
             if (m_JobConfig.parseFilterConfig(json) == false) {
                 LOG_ERROR(<< "Failed to parse filter config update: " << json);
                 return false;
             }
-            LOG_DEBUG(<< "Calling m_JobConfig.initRuleFilters");
+            LOG_TRACE(<< "Calling m_JobConfig.initRuleFilters");
 
             m_JobConfig.initRuleFilters();
 
-            LOG_DEBUG(<< "Done calling m_JobConfig.initRuleFilters");
+            LOG_TRACE(<< "Done calling m_JobConfig.initRuleFilters");
 
         } else if (kv.key() == CAnomalyJobConfig::EVENTS) {
-            LOG_DEBUG(<< "Updating events config");
+            LOG_TRACE(<< "Updating events config");
 
             if (m_JobConfig.parseEventConfig(json) == false) {
                 LOG_ERROR(<< "Failed to parse events config update: " << json);
@@ -79,7 +79,7 @@ bool CConfigUpdater::update(const std::string& json) {
             }
             m_JobConfig.initScheduledEvents();
         } else if (kv.key() == CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES) {
-            LOG_DEBUG(<< "Updating detector rules config");
+            LOG_TRACE(<< "Updating detector rules config");
             return m_JobConfig.analysisConfig().parseRulesUpdate(kv.value());
         } else {
             LOG_ERROR(<< "Unexpected JSON update message: " << json);
