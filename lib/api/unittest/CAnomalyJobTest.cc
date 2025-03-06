@@ -36,6 +36,7 @@
 #include <cstdio>
 #include <fstream>
 #include <map>
+#include <random>
 #include <sstream>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(json::array::const_iterator)
@@ -186,6 +187,9 @@ bool findLine(const std::string& regex, const ml::core::CRegex::TStrVec& lines) 
 }
 
 const ml::core_t::TTime BUCKET_SIZE(3600);
+
+using TStrStrPr = std::pair<std::string, std::string>;
+using TStrStrPrVec = std::vector<TStrStrPr>;
 }
 
 using namespace ml;
@@ -849,6 +853,186 @@ BOOST_AUTO_TEST_CASE(testRestoreFailsWithEmptyStream) {
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
     BOOST_TEST_REQUIRE(job.restoreState(restoreSearcher, completeToTime) == false);
+}
+
+BOOST_AUTO_TEST_CASE(testConfigUpdate) {
+    // This, in part, is essentially replicating the DetectionRulesIT/testScope Java REST test.
+    // It proves useful to have the test here too, as it provides an entrypoint for investigating
+    // any issues related to filters, especially when updating them when already referenced by anomaly detector models.
+    // We simply want to see the job run to completion.
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_REQUIRE_EQUAL(true, jobConfig.initFromFiles("testfiles/count_over_ip_config.json",
+                                                      "testfiles/filterConfig.json",
+                                                      "testfiles/eventConfig.json"));
+
+    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
+        jobConfig.analysisConfig();
+
+    model::CLimits limits;
+
+    model::CAnomalyDetectorModelConfig modelConfig = analysisConfig.makeModelConfig();
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+    auto generateRandomAlpha = [](int strLen) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution dis(0, 25);
+
+        std::string str;
+        for (int i = 0; i < strLen; ++i) {
+            str += char('a' + dis(gen));
+        }
+        return str;
+    };
+
+    long timestamp = 1509062400000L;
+    TStrStrPrVec data;
+
+    for (int bucket = 0; bucket < 20; bucket++) {
+        for (int i = 0; i < 5; i++) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp),
+                              generateRandomAlpha(10));
+        }
+        timestamp += 3600 * 1000;
+    }
+
+    // Now send anomalous counts for our filtered IPs plus 333.333.333.333
+    auto namedIps = std::vector{"111.111.111.111", "222.222.222.222", "333.333.333.333"};
+    for (int i = 0; i < 10; i++) {
+        for (auto& ip : namedIps) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), ip);
+        }
+    }
+
+    for (int bucket = 0; bucket < 3; bucket++) {
+        for (int i = 0; i < 5; i++) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp),
+                              generateRandomAlpha(10));
+        }
+        timestamp += 3600 * 1000;
+    }
+
+    CTestAnomalyJob::TStrStrUMap dataRows;
+
+    for (const auto & [ time, ip ] : data) {
+        dataRows["time"] = time;
+        dataRows["ip"] = ip;
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    }
+
+    BOOST_REQUIRE_EQUAL(145, job.numRecordsHandled());
+
+    const std::string& detectorConfig1{R"(
+        {
+            "filters":[{"filter_id":"safe_ips", "items":["111.111.111.111","222.222.222.222"]}],
+            "events":[{"description":"event_1", "rules":[{"actions":["skip_result","skip_model_update"],"conditions":[{"applies_to":"time","operator":"gte","value": 1.0},{"applies_to":"time","operator":"lt","value": 2.0}]}]}],
+            "model_plot_config":{"enabled":true,"annotations_enabled":false},
+            "detector_rules":{"detector_index":0,"custom_rules":[{"actions":["skip_result"],"conditions":[{"applies_to":"actual","operator":"gte","value":15.0},{"applies_to":"actual","operator":"lte","value":30.0}]}]}
+        }
+    )"};
+
+    job.updateConfig(detectorConfig1);
+
+    BOOST_REQUIRE_EQUAL(1, jobConfig.analysisConfig().detectionRules().size());
+    auto itr = jobConfig.analysisConfig().detectionRules().find(0);
+    BOOST_REQUIRE_EQUAL(1, itr->second.size());
+    std::string rule{itr->second[0].print()};
+    BOOST_REQUIRE_EQUAL(
+        std::string("SKIP_RESULT IF ACTUAL >= 15.000000 AND ACTUAL <= 30.000000"), rule);
+
+    api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+    BOOST_REQUIRE_EQUAL(false, modelPlotConfig.annotationsEnabled());
+    BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+
+    auto events = jobConfig.analysisConfig().scheduledEvents();
+    BOOST_REQUIRE_EQUAL(1, events.size());
+    BOOST_REQUIRE_EQUAL(std::string("event_1"), events[0].first);
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+                        events[0].second.print());
+
+    auto ruleFilters = jobConfig.ruleFilters();
+    BOOST_REQUIRE_EQUAL(1, ruleFilters.size());
+
+    BOOST_REQUIRE_EQUAL(true, ruleFilters["safe_ips"].contains("111.111.111.111"));
+    BOOST_REQUIRE_EQUAL(true, ruleFilters["safe_ips"].contains("222.222.222.222"));
+    BOOST_REQUIRE_EQUAL(false, ruleFilters["safe_ips"].contains("333.333.333.333"));
+
+    const std::string& detectorConfig2{R"(
+        {
+        "filters":[{"filter_id":"safe_ips", "items":["333.333.333.333"]}],
+        "events":[{"description":"event_1", "rules":[{"actions":["skip_result","skip_model_update"],"conditions":[{"applies_to":"time","operator":"gte","value": 2.0},{"applies_to":"time","operator":"lt","value": 3.0}]}]}],
+        "model_plot_config":{"enabled":false,"annotations_enabled":true},
+        "detector_rules":{"detector_index":0,"custom_rules":[{"actions":["skip_result"],"conditions":[{"applies_to":"typical","operator":"gte","value":10.0},{"applies_to":"typical","operator":"lte","value":50.0}]}]}
+        })"};
+
+    job.updateConfig(detectorConfig2);
+
+    data.clear();
+    // Send another anomalous bucket
+    for (int i = 0; i < 10; i++) {
+        for (auto& ip : namedIps) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp), ip);
+        }
+    }
+
+    // Some more normal buckets
+    for (int bucket = 0; bucket < 3; bucket++) {
+        for (int i = 0; i < 5; i++) {
+            data.emplace_back(core::CStringUtils::typeToString(timestamp),
+                              generateRandomAlpha(10));
+        }
+        timestamp += 3600 * 1000;
+    }
+
+    dataRows.clear();
+    for (const auto & [ time, ip ] : data) {
+        dataRows["time"] = time;
+        dataRows["ip"] = ip;
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    }
+
+    BOOST_REQUIRE_EQUAL(190, job.numRecordsHandled());
+
+    BOOST_REQUIRE_EQUAL(1, jobConfig.analysisConfig().detectionRules().size());
+    itr = jobConfig.analysisConfig().detectionRules().find(0);
+    BOOST_REQUIRE_EQUAL(1, itr->second.size());
+    rule = itr->second[0].print();
+    BOOST_REQUIRE_EQUAL(
+        std::string("SKIP_RESULT IF TYPICAL >= 10.000000 AND TYPICAL <= 50.000000"), rule);
+
+    modelPlotConfig = jobConfig.modelPlotConfig();
+    BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    BOOST_REQUIRE_EQUAL(false, modelPlotConfig.enabled());
+
+    events = jobConfig.analysisConfig().scheduledEvents();
+    BOOST_REQUIRE_EQUAL(1, events.size());
+    BOOST_REQUIRE_EQUAL(std::string("event_1"), events[0].first);
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 2.000000 AND TIME < 3.000000"),
+                        events[0].second.print());
+
+    ruleFilters = jobConfig.ruleFilters();
+    BOOST_REQUIRE_EQUAL(1, ruleFilters.size());
+
+    BOOST_REQUIRE_EQUAL(false, ruleFilters["safe_ips"].contains("111.111.111.111"));
+    BOOST_REQUIRE_EQUAL(false, ruleFilters["safe_ips"].contains("222.222.222.222"));
+    BOOST_REQUIRE_EQUAL(true, ruleFilters["safe_ips"].contains("333.333.333.333"));
+
+    job.finalise();
+    wrappedOutputStream.syncFlush();
+
+    std::string output = outputStrm.str();
+    LOG_TRACE(<< "Output has yielded: " << output);
+
+    // check that the quantile state has actually been persisted
+    core::CRegex regex;
+    regex.init("\n");
+    core::CRegex::TStrVec lines;
+    regex.split(output, lines);
+    BOOST_REQUIRE_EQUAL(
+        true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*", lines));
 }
 
 BOOST_AUTO_TEST_CASE(testParsePersistControlMessageArgs) {

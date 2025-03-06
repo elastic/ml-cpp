@@ -589,7 +589,6 @@ bool CAnomalyJobConfig::parse(const std::string& jsonStr) {
 
         auto analysisConfig = parameters[ANALYSIS_CONFIG].jsonObject();
         if (analysisConfig != nullptr) {
-            m_AnalysisConfig.setConfig(toString(*analysisConfig));
             m_AnalysisConfig.parse(*analysisConfig);
         }
 
@@ -722,27 +721,6 @@ void CAnomalyJobConfig::CAnalysisConfig::parseDetectorsConfig(const json::value&
             ++fallbackDetectorIndex;
         }
     }
-}
-
-const std::string& CAnomalyJobConfig::CAnalysisConfig::getAnalysisConfig() {
-    return m_AnalysisConfigString;
-}
-
-bool CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig(const std::string& analysisConfig) {
-    json::value doc;
-    bool ok = core::CBoostJsonParser::parse(analysisConfig, doc);
-    if (ok == false) {
-        LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: \""
-                  << analysisConfig << "\"");
-        return false;
-    }
-
-    auto parameters = ANALYSIS_CONFIG_READER.read(doc);
-    auto detectorsConfig = parameters[DETECTORS].jsonObject();
-    if (detectorsConfig != nullptr) {
-        this->parseDetectorsConfig(*detectorsConfig);
-    }
-    return true;
 }
 
 void CAnomalyJobConfig::CAnalysisConfig::parse(const json::value& analysisConfig) {
