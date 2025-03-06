@@ -40,7 +40,8 @@ bool CConfigUpdater::update(const std::string& json) {
         return false;
     }
 
-    for (json::object obj = doc.as_object(); const auto& kv : obj) {
+    json::object obj = doc.as_object();
+    for (const auto& kv : obj) {
         if (kv.key() == CAnomalyJobConfig::MODEL_PLOT_CONFIG) {
             LOG_TRACE(<< "Updating model plot config");
 
