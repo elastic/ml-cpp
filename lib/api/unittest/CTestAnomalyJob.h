@@ -55,6 +55,8 @@ public:
                         const std::string& partitionFieldName,
                         const TStrVec& influencers = {},
                         const std::string& summaryCountFieldName = "");
+
+    static ml::api::CAnomalyJobConfig makeJobConfig(const std::string& detectorsConfig);
 };
 
 #endif // INCLUDED_CTestAnomalyJob_h
