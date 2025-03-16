@@ -60,7 +60,7 @@ public:
     void refresh(const CAnomalyDetectorModelConfig& modelConfig);
 
     //! Clear all state such that all equalizers restart from scratch.
-    void clear();
+    void clear() override;
 
     //! Compute the aggregate probability for \p node.
     void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;

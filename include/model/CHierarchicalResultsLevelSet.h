@@ -138,7 +138,7 @@ protected:
     TWordTypePrVec& leafSet() { return m_LeafSet; }
 
     //! Clear all the sets.
-    void clear() {
+    virtual void clear() {
         m_BucketElement.clear();
         m_InfluencerBucketSet.clear();
         m_InfluencerSet.clear();

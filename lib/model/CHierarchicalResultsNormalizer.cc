@@ -18,6 +18,7 @@
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
+#include <model/CLimits.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -61,10 +62,70 @@ std::uint64_t SNormalizer::checksum() const {
 }
 }
 
-CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig& modelConfig)
+CHierarchicalResultsNormalizer::TOptionalSize CHierarchicalResultsNormalizer::getSizeOfInfluencerBucketSet() const {
+    if (const auto& influencerBucketSet = this->influencerBucketSet();
+        influencerBucketSet.empty() == false) {
+        std::size_t influencerBucketSetSize = 0;
+        for (const auto& [fst, snd] : influencerBucketSet) {
+            influencerBucketSetSize += sizeof(fst) + sizeof(snd);
+        }
+        return TOptionalSize(influencerBucketSetSize);
+    }
+    return TOptionalSize();
+}
+void CHierarchicalResultsNormalizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    mem->setName(" Hierarchical Results Normalizer Memory Usage");
+
+    mem->addItem("m_Job", sizeof(m_Job));
+    // core::memory_debug::dynamicSize("m_ModelConfig", m_ModelConfig, mem);
+    // core::memory_debug::dynamicSize("m_HasLastUpdateCausedBigChange", m_HasLastUpdateCausedBigChange, mem);
+    // core::memory_debug::dynamicSize("m_BucketElement", this->bucketElement(), mem);
+
+    if (const TOptionalSize influencerBucketSetSize{this->getSizeOfInfluencerBucketSet()};
+        influencerBucketSetSize.has_value()) {
+        mem->addItem("m_InfluencerBucketSet", influencerBucketSetSize.value());
+    }
+    // core::memory_debug::dynamicSize("m_InfluencerSet", this->influencerSet(), mem);
+    // core::memory_debug::dynamicSize("m_PartitionSet", this->partitionSet(), mem);
+    // core::memory_debug::dynamicSize("m_PersonSet", this->personSet(), mem);
+    // core::memory_debug::dynamicSize("m_LeafSet", this->leafSet(), mem);
+}
+
+std::size_t CHierarchicalResultsNormalizer::memoryUsage() const {
+    std::size_t mem = 0;
+
+    // mem += core::memory::dynamicSize(m_ModelConfig);
+    // mem += core::memory::dynamicSize(m_HasLastUpdateCausedBigChange);
+    // mem += core::memory::dynamicSize(this->bucketElement());
+    // mem += core::memory::dynamicSize(this->influencerBucketSet());
+    if (const TOptionalSize influencerBucketSetSize{this->getSizeOfInfluencerBucketSet()};
+        influencerBucketSetSize.has_value()) {
+        mem += influencerBucketSetSize.value();
+    }
+    // mem += core::memory::dynamicSize(this->influencerSet());
+    // mem += core::memory::dynamicSize(this->partitionSet());
+    // mem += core::memory::dynamicSize(this->personSet());
+    // mem += core::memory::dynamicSize(this->leafSet());
+    return mem;
+}
+std::size_t CHierarchicalResultsNormalizer::staticSize() const {
+    return sizeof(*this);
+}
+
+void CHierarchicalResultsNormalizer::updateModelSizeStats(CResourceMonitor::SModelSizeStats& /*modelSizeStats*/) const {
+   // do nothing
+}
+
+CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(CLimits& limits,
+                                                               const CAnomalyDetectorModelConfig& modelConfig)
     : TBase(TNormalizer(std::string(),
                         std::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
-      m_Job(E_NoOp), m_ModelConfig(modelConfig), m_HasLastUpdateCausedBigChange(false) {
+      m_Limits(limits), m_Job(E_NoOp), m_ModelConfig(modelConfig),
+      m_HasLastUpdateCausedBigChange(false) {
+    limits.resourceMonitor().registerComponent(*this);
+}
+CHierarchicalResultsNormalizer::~CHierarchicalResultsNormalizer() {
+    m_Limits.resourceMonitor().unRegisterComponent(*this);
 }
 
 void CHierarchicalResultsNormalizer::setJob(EJob job) {
