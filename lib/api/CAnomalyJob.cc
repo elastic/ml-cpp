@@ -1652,6 +1652,9 @@ void CAnomalyJob::pruneAllModels(std::size_t buckets) const {
         (buckets == 0) ? detector->pruneModels() : detector->pruneModels(buckets);
     }
 }
+const model::CHierarchicalResultsNormalizer& CAnomalyJob::normalizer() const {
+    return m_Normalizer;
+}
 
 CAnomalyJob::TAnomalyDetectorPtr
 CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,

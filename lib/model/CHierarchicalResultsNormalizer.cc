@@ -93,6 +93,7 @@ void CHierarchicalResultsNormalizer::debugMemoryUsage(const core::CMemoryUsage::
 
 std::size_t CHierarchicalResultsNormalizer::memoryUsage() const {
     std::size_t mem = 0;
+    mem += sizeof(m_Job);
 
     // mem += core::memory::dynamicSize(m_ModelConfig);
     // mem += core::memory::dynamicSize(m_HasLastUpdateCausedBigChange);

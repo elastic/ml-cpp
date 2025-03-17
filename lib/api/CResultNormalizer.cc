@@ -37,11 +37,11 @@ const std::string CResultNormalizer::INFLUENCER_LEVEL("infl");
 const std::string CResultNormalizer::ZERO("0");
 
 CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
-                                     CSimpleOutputWriter& outputWriter)
+                                     CSimpleOutputWriter& outputWriter, model::CLimits& limits)
     : m_ModelConfig(modelConfig), m_OutputWriter(outputWriter),
       m_WriteFieldNames(true),
       m_OutputFieldNormalizedScore(m_OutputFields[NORMALIZED_SCORE_NAME]),
-      m_Normalizer(m_ModelConfig) {
+      m_Normalizer(limits, m_ModelConfig) {
 }
 
 bool CResultNormalizer::initNormalizer(const std::string& stateFileName) {

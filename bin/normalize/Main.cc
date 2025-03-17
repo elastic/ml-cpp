@@ -33,7 +33,7 @@
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CNdJsonOutputWriter.h>
 #include <api/CResultNormalizer.h>
-
+#include <api/CAnomalyJobConfig.h>
 #include <seccomp/CSystemCallFilter.h>
 
 #include "CCmdLineParser.h"
@@ -143,6 +143,18 @@ int main(int argc, char** argv) {
                                                   ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
             ioMgr.outputStream());
     }()};
+
+    // Initialize config and memory limits
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.initFromFile(modelConfigFile) == false) {
+        LOG_FATAL(<< "JSON config could not be interpreted");
+        return EXIT_FAILURE;
+    }
+    const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
+        jobConfig.analysisLimits();
+    ml::model::CLimits limits{false};
+    limits.init(analysisLimits.categorizationExamplesLimit(),
+                analysisLimits.modelMemoryLimitMb());
 
     // This object will do the work
     ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter};

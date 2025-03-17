@@ -1183,4 +1183,26 @@ BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testHierarchicalResultsNormalizerShouldIncreaseMemoryUsage) {
+    model::CLimits limits;
+    auto jobConfig = CTestAnomalyJob::makeSimpleJobConfig("metric", "value", "", "", "");
+    auto modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+    CTestAnomalyJob::TStrStrUMap dataRows = {
+        {"time", "12345678"}, {"value", "1.0"}, {"greenhouse", "rhubarb"}};
+
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.normalizer().memoryUsage() > 0);
+
+    // Unregister the normalizer and check that memory usage decreases
+    auto resourceMonitor = limits.resourceMonitor();
+    resourceMonitor.forceRefreshAll();
+    auto memoryUsageBeforeUnregister = resourceMonitor.totalMemory();
+    resourceMonitor.unRegisterComponent(job.normalizer());
+    BOOST_TEST_REQUIRE(resourceMonitor.totalMemory() < memoryUsageBeforeUnregister);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
