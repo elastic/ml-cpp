@@ -30,8 +30,9 @@ set (SRCS
   CForecastModelPersistTest.cc
   CFunctionTypesTest.cc
   CGathererToolsTest.cc
-  CHierarchicalResultsTest.cc
   CHierarchicalResultsLevelSetTest.cc
+  CHierarchicalResultsNormalizerTest.cc
+  CHierarchicalResultsTest.cc
   CInterimBucketCorrectorTest.cc
   CLimitsTest.cc
   CLocalCategoryIdTest.cc

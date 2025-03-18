@@ -1532,7 +1532,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
     model::CHierarchicalResultsProbabilityFinalizer finalizer;
-    model::CHierarchicalResultsNormalizer normalizer(modelConfig);
+    model::CLimits limits;
+    model::CHierarchicalResultsNormalizer   normalizer(limits, modelConfig);
     static const std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 
@@ -1730,7 +1731,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
     LOG_DEBUG(<< "Compressed JSON doc is:\n" << origJson);
 
     {
-        model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
+        model::CLimits limits;
+        model::CHierarchicalResultsNormalizer newNormalizerJson(limits, modelConfig);
         std::stringstream stream(origJson);
         BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
                             newNormalizerJson.fromJsonStream(stream));
@@ -1760,7 +1762,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         } while (filteredInput);
         LOG_DEBUG(<< "Uncompressed JSON doc is:\n" << uncompressedJson);
 
-        model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
+        model::CLimits limits;
+        model::CHierarchicalResultsNormalizer newNormalizerJson(limits, modelConfig);
         std::stringstream stream(uncompressedJson);
         BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
                             newNormalizerJson.fromJsonStream(stream));
