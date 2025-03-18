@@ -21,6 +21,10 @@
 
 #include <cstdint>
 
+namespace CHierarchicalResultsLevelSetTest {
+struct testMemoryUsage;
+}
+
 namespace ml {
 namespace model {
 
@@ -327,6 +331,8 @@ private:
     //! The container for leaves comprising distinct named
     //! (partition, person) field name pairs.
     TWordTypePrVec m_LeafSet;
+
+    friend struct CHierarchicalResultsLevelSetTest::testMemoryUsage;
 };
 
 template<typename T>
