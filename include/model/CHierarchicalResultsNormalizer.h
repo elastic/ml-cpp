@@ -13,6 +13,7 @@
 #define INCLUDED_ml_model_CHierarchicalResultsNormalizer_h
 
 #include <core/CNonCopyable.h>
+#include <core/CMemoryDef.h>
 
 #include <model/CAnomalyScore.h>
 #include <model/CHierarchicalResultsLevelSet.h>
@@ -42,6 +43,21 @@ struct MODEL_EXPORT SNormalizer {
 
     //! Compute a checksum for this object.
     uint64_t checksum() const;
+
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+        mem->setName("SNormalizer Memory Usage");
+         core::memory_debug::dynamicSize("s_Description", s_Description, mem);
+    }
+
+    std::size_t memoryUsage() const {
+        std::size_t mem = 0;
+        mem += core::memory::dynamicSize(s_Description);
+        return mem;
+    }
+
+    std::size_t staticSize() const {
+        return sizeof(*this);
+    }
 
     std::string s_Description;
     TNormalizerPtr s_Normalizer;
@@ -114,7 +130,7 @@ public:
     void setJob(EJob job);
 
     //! Clear all state such that all normalizers restart from scratch.
-    void clear() override;
+    void clear();
 
     //! Reset the hasLastUpdateCausedBigChange() flag
     void resetBigChange();
@@ -191,7 +207,6 @@ private:
         const CAnomalyDetectorModelConfig& m_ModelConfig;
     };
 
-    using TOptionalSize = std::optional<std::size_t>;
 
 private:
     //! Check if there is one such node for each member of any
@@ -224,7 +239,6 @@ private:
     //! Get the persistence cue for a leaf normalizer.
     static std::string leafCue(const TWord& word);
 
-    TOptionalSize getSizeOfInfluencerBucketSet() const;
 
 private:
 
