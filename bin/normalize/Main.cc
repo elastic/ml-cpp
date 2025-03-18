@@ -27,13 +27,14 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
 #include <api/CCsvOutputWriter.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CNdJsonOutputWriter.h>
 #include <api/CResultNormalizer.h>
-#include <api/CAnomalyJobConfig.h>
+
 #include <seccomp/CSystemCallFilter.h>
 
 #include "CCmdLineParser.h"

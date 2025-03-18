@@ -9,9 +9,9 @@
  * limitation.
  */
 
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/CLimits.h>
-#include <model/CAnomalyDetectorModelConfig.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -32,6 +32,5 @@ BOOST_AUTO_TEST_CASE(HierarchicalResultsNormalizerShouldUpdateMemoryUsage) {
     limits.resourceMonitor().forceRefreshAll();
     BOOST_TEST_REQUIRE(normalizer.memoryUsage() > initialMemoryUsage);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

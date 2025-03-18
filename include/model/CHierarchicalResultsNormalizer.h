@@ -12,8 +12,8 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsNormalizer_h
 #define INCLUDED_ml_model_CHierarchicalResultsNormalizer_h
 
-#include <core/CNonCopyable.h>
 #include <core/CMemoryDef.h>
+#include <core/CNonCopyable.h>
 
 #include <model/CAnomalyScore.h>
 #include <model/CHierarchicalResultsLevelSet.h>
@@ -46,7 +46,7 @@ struct MODEL_EXPORT SNormalizer {
 
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("SNormalizer Memory Usage");
-         core::memory_debug::dynamicSize("s_Description", s_Description, mem);
+        core::memory_debug::dynamicSize("s_Description", s_Description, mem);
     }
 
     std::size_t memoryUsage() const {
@@ -55,9 +55,7 @@ struct MODEL_EXPORT SNormalizer {
         return mem;
     }
 
-    std::size_t staticSize() const {
-        return sizeof(*this);
-    }
+    std::size_t staticSize() const { return sizeof(*this); }
 
     std::string s_Description;
     TNormalizerPtr s_Normalizer;
@@ -122,7 +120,8 @@ public:
     enum ERestoreOutcome { E_Ok = 0, E_Corrupt = 1, E_Incomplete = 2 };
 
 public:
-    CHierarchicalResultsNormalizer(CLimits& limits, const CAnomalyDetectorModelConfig& modelConfig);
+    CHierarchicalResultsNormalizer(CLimits& limits,
+                                   const CAnomalyDetectorModelConfig& modelConfig);
 
     ~CHierarchicalResultsNormalizer() override;
 
@@ -183,7 +182,6 @@ public:
                    const std::string& functionName,
                    const std::string& valueFieldName) const;
 
-
     //! Get the memory used by this hierarchical results normalizer.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
@@ -196,6 +194,7 @@ public:
     //! Update the overall model size stats with information from the
     //! hierarchical results normalizer.
     void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
+
 private:
     //! \brief Creates new normalizer instances.
     class CNormalizerFactory {
@@ -206,7 +205,6 @@ private:
     private:
         const CAnomalyDetectorModelConfig& m_ModelConfig;
     };
-
 
 private:
     //! Check if there is one such node for each member of any
@@ -239,9 +237,7 @@ private:
     //! Get the persistence cue for a leaf normalizer.
     static std::string leafCue(const TWord& word);
 
-
 private:
-
     //! Configurable limits
     CLimits& m_Limits;
 

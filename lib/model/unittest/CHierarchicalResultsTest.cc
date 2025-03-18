@@ -1533,7 +1533,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
     model::CHierarchicalResultsProbabilityFinalizer finalizer;
     model::CLimits limits;
-    model::CHierarchicalResultsNormalizer   normalizer(limits, modelConfig);
+    model::CHierarchicalResultsNormalizer normalizer(limits, modelConfig);
     static const std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 

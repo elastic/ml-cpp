@@ -58,13 +58,14 @@ public:
 
     static ml::api::CAnomalyJobConfig makeJobConfig(const std::string& detectorsConfig);
 
-  const ml::model::CHierarchicalResultsNormalizer& normalizer() const {
-      return this->CAnomalyJob::normalizer();
-  }
+    const ml::model::CHierarchicalResultsNormalizer& normalizer() const {
+        return this->CAnomalyJob::normalizer();
+    }
 
     ml::model::CHierarchicalResultsNormalizer& normalizer() {
-    return const_cast<ml::model::CHierarchicalResultsNormalizer&>(this->CAnomalyJob::normalizer());
-  }
+        return const_cast<ml::model::CHierarchicalResultsNormalizer&>(
+            this->CAnomalyJob::normalizer());
+    }
 };
 
 #endif // INCLUDED_CTestAnomalyJob_h

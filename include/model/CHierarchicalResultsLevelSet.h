@@ -253,7 +253,6 @@ protected:
         core::memory_debug::dynamicSize("m_PartitionSet", m_PartitionSet, mem);
         core::memory_debug::dynamicSize("m_PersonSet", m_PersonSet, mem);
         core::memory_debug::dynamicSize("m_LeafSet", m_LeafSet, mem);
-
     }
 
     std::size_t memoryUsage() const {
@@ -266,12 +265,11 @@ protected:
         return mem;
     }
 
-    std::size_t staticSize() const {
-        return sizeof(*this);
-    }
+    std::size_t staticSize() const { return sizeof(*this); }
 
 private:
     using TOptionalSize = std::optional<std::size_t>;
+
 private:
     //! Get an element of \p set by name.
     static const T* element(const TWordTypePrVec& set, const std::string& name) {

@@ -66,7 +66,8 @@ void CHierarchicalResultsNormalizer::debugMemoryUsage(const core::CMemoryUsage::
     mem->setName(" Hierarchical Results Normalizer Memory Usage");
     mem->addItem("m_Job", sizeof(m_Job));
     this->CHierarchicalResultsLevelSet::debugMemoryUsage(mem->addChild());
-    core::memory_debug::dynamicSize("m_HasLastUpdateCausedBigChange", m_HasLastUpdateCausedBigChange, mem);
+    core::memory_debug::dynamicSize("m_HasLastUpdateCausedBigChange",
+                                    m_HasLastUpdateCausedBigChange, mem);
 }
 
 std::size_t CHierarchicalResultsNormalizer::memoryUsage() const {
@@ -79,8 +80,9 @@ std::size_t CHierarchicalResultsNormalizer::staticSize() const {
     return sizeof(*this);
 }
 
-void CHierarchicalResultsNormalizer::updateModelSizeStats(CResourceMonitor::SModelSizeStats& /*modelSizeStats*/) const {
-   // do nothing
+void CHierarchicalResultsNormalizer::updateModelSizeStats(
+    CResourceMonitor::SModelSizeStats& /*modelSizeStats*/) const {
+    // do nothing
 }
 
 CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(CLimits& limits,

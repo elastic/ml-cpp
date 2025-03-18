@@ -28,9 +28,7 @@ struct STestNode {
     std::string print() const { return s_Name; }
     std::string s_Name;
 
-    std::size_t memoryUsage() const {
-        return sizeof(s_Name);
-    }
+    std::size_t memoryUsage() const { return sizeof(s_Name); }
 };
 
 class CConcreteHierarchicalResultsLevelSet
@@ -134,7 +132,6 @@ BOOST_AUTO_TEST_CASE(testElements) {
         BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
                             ml::core::CContainerPrinter::print(result));
     }
-
 }
 
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {
@@ -142,8 +139,10 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     std::size_t memoryUsage = levelSet.memoryUsage();
     BOOST_REQUIRE(memoryUsage > 0);
 
-    auto addAndCheckMemoryUsage = [&memoryUsage, &levelSet](auto& container, const std::string& name) {
-        container.emplace_back(std::make_pair(ml::core::CCompressedDictionary<1>::CWord(), STestNode(name)));
+    auto addAndCheckMemoryUsage = [&memoryUsage, &levelSet](auto& container,
+                                                            const std::string& name) {
+        container.emplace_back(std::make_pair(
+            ml::core::CCompressedDictionary<1>::CWord(), STestNode(name)));
         std::size_t newMemoryUsage = levelSet.memoryUsage();
         BOOST_REQUIRE(newMemoryUsage > memoryUsage);
         memoryUsage = newMemoryUsage;
