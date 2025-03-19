@@ -38,7 +38,6 @@ const std::string INFLUENCER_CUE_PREFIX("infl");
 const std::string PARTITION_CUE_PREFIX("part");
 const std::string PERSON_CUE_PREFIX("per");
 const std::string LEAF_CUE_PREFIX("leaf");
-const std::string EMPTY_STRING;
 }
 
 namespace hierarchical_results_normalizer_detail {

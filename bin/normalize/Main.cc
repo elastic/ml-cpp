@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
                 analysisLimits.modelMemoryLimitMb());
 
     // This object will do the work
-    ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter};
+    ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter, limits};
 
     // Restore state
     if (!quantilesStateFile.empty()) {
