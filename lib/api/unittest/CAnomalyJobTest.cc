@@ -1191,18 +1191,18 @@ BOOST_AUTO_TEST_CASE(testHierarchicalResultsNormalizerShouldIncreaseMemoryUsage)
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
-    CTestAnomalyJob::TStrStrUMap dataRows = {
+    CTestAnomalyJob::TStrStrUMap const dataRows = {
         {"time", "12345678"}, {"value", "1.0"}, {"greenhouse", "rhubarb"}};
 
     BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    auto resourceMonitor = limits.resourceMonitor();
+    resourceMonitor.forceRefreshAll();
     BOOST_TEST_REQUIRE(job.mutableNormalizer().memoryUsage() > 0);
 
     // Unregister the normalizer and check that memory usage decreases
-    auto resourceMonitor = limits.resourceMonitor();
-    resourceMonitor.forceRefreshAll();
     auto memoryUsageBeforeUnregister = resourceMonitor.totalMemory();
     resourceMonitor.unRegisterComponent(job.mutableNormalizer());
+    resourceMonitor.forceRefreshAll();
     BOOST_TEST_REQUIRE(resourceMonitor.totalMemory() < memoryUsageBeforeUnregister);
 }
-
 BOOST_AUTO_TEST_SUITE_END()

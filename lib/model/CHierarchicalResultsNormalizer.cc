@@ -62,16 +62,11 @@ std::uint64_t SNormalizer::checksum() const {
 
 void CHierarchicalResultsNormalizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName(" Hierarchical Results Normalizer Memory Usage");
-    mem->addItem("m_Job", sizeof(m_Job));
     this->CHierarchicalResultsLevelSet::debugMemoryUsage(mem->addChild());
-    core::memory_debug::dynamicSize("m_HasLastUpdateCausedBigChange",
-                                    m_HasLastUpdateCausedBigChange, mem);
 }
 
 std::size_t CHierarchicalResultsNormalizer::memoryUsage() const {
     std::size_t mem = this->CHierarchicalResultsLevelSet::memoryUsage();
-    mem += core::memory::dynamicSize(m_Job);
-    mem += core::memory::dynamicSize(m_HasLastUpdateCausedBigChange);
     return mem;
 }
 std::size_t CHierarchicalResultsNormalizer::staticSize() const {

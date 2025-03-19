@@ -31,8 +31,7 @@ set (SRCS
   CFunctionTypesTest.cc
   CGathererToolsTest.cc
   CHierarchicalResultsLevelSetTest.cc
-  CHierarchicalResultsNormalizerTest.cc
-  CHierarchicalResultsTest.cc
+        CHierarchicalResultsTest.cc
   CInterimBucketCorrectorTest.cc
   CLimitsTest.cc
   CLocalCategoryIdTest.cc

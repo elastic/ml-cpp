@@ -48,15 +48,15 @@ struct MODEL_EXPORT SNormalizer {
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("SNormalizer Memory Usage");
         core::memory_debug::dynamicSize("s_Description", s_Description, mem);
+        core::memory_debug::dynamicSize("s_Normalizer", s_Normalizer, mem);
     }
 
     std::size_t memoryUsage() const {
         std::size_t mem = 0;
         mem += core::memory::dynamicSize(s_Description);
+        mem += core::memory::dynamicSize(s_Normalizer);
         return mem;
     }
-
-    std::size_t staticSize() const { return sizeof(*this); }
 
     std::string s_Description;
     TNormalizerPtr s_Normalizer;

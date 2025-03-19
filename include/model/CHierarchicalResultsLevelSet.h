@@ -264,8 +264,6 @@ protected:
         return mem;
     }
 
-    std::size_t staticSize() const { return sizeof(*this); }
-
 private:
     //! Get an element of \p set by name.
     static const T* element(const TWordTypePrVec& set, const std::string& name) {
