@@ -68,7 +68,7 @@ Write-Host "--- Done Installing libxml2 2.9.14"
 Write-Host "--- Installing boost 1.86.0"
 cd c:\tools
 $Archive="boost_1_86_0.tar.bz2"
-$ZipSource="https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/$Archive"
+$ZipSource="https://archives.boost.io/main/release/1.86.0/source/$Archive"
 $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
 C:\Progra~1\git\bin\bash.exe -c "tar jxvf boost_1_86_0.tar.bz2"

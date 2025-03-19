@@ -22,7 +22,7 @@ unset CPLUS_INCLUDE_PATH
 unset LIBRARY_PATH
 
 # Build and install boost 1.86.0
-curl -L https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar xjf - && \
+curl -L https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar xjf - && \
 cd boost_1_86_0 && \
 ./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
 sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp
