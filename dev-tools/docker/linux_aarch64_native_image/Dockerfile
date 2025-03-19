@@ -83,7 +83,7 @@ RUN \
 # Build Boost
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - https://boostorg.jfrog.io/artifactory/main/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar jxf - && \
   cd boost_1_86_0 && \
   ./bootstrap.sh --without-libraries=context,coroutine,graph_parallel,mpi,python --without-icu && \
   sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp && \
