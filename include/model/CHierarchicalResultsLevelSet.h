@@ -246,7 +246,6 @@ protected:
 
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("Hierarchical Results Level Set Memory Usage");
-
         core::memory_debug::dynamicSize("m_BucketElement", m_BucketElement, mem);
         core::memory_debug::dynamicSize("m_InfluencerBucketSet", m_InfluencerBucketSet, mem);
         core::memory_debug::dynamicSize("m_InfluencerSet", m_InfluencerSet, mem);
@@ -266,9 +265,6 @@ protected:
     }
 
     std::size_t staticSize() const { return sizeof(*this); }
-
-private:
-    using TOptionalSize = std::optional<std::size_t>;
 
 private:
     //! Get an element of \p set by name.

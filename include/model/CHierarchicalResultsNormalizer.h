@@ -17,6 +17,7 @@
 
 #include <model/CAnomalyScore.h>
 #include <model/CHierarchicalResultsLevelSet.h>
+#include <model/CLimits.h>
 #include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
 
