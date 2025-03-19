@@ -59,10 +59,7 @@ public:
     static ml::api::CAnomalyJobConfig makeJobConfig(const std::string& detectorsConfig);
 
     ml::model::CHierarchicalResultsNormalizer& mutableNormalizer() const {
-        // NOSONAR_BEGIN (cpp:S859): const_cast is safe here
-        return const_cast<ml::model::CHierarchicalResultsNormalizer&>(
-            this->normalizer());
-        // NOSONAR_END
+        return const_cast<ml::model::CHierarchicalResultsNormalizer&>(this->normalizer());
     }
 };
 
