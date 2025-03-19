@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 
     auto addAndCheckMemoryUsage = [&memoryUsage, &levelSet](auto& container,
                                                             const std::string& name) {
-        container.emplace_back(std::make_pair(
-            ml::core::CCompressedDictionary<1>::CWord(), STestNode(name)));
+        container.emplace_back(ml::core::CCompressedDictionary<1>::CWord(),
+                               STestNode(name));
         std::size_t newMemoryUsage = levelSet.memoryUsage();
         BOOST_REQUIRE(newMemoryUsage > memoryUsage);
         memoryUsage = newMemoryUsage;

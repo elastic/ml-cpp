@@ -1195,13 +1195,13 @@ BOOST_AUTO_TEST_CASE(testHierarchicalResultsNormalizerShouldIncreaseMemoryUsage)
         {"time", "12345678"}, {"value", "1.0"}, {"greenhouse", "rhubarb"}};
 
     BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-    BOOST_TEST_REQUIRE(job.normalizer().memoryUsage() > 0);
+    BOOST_TEST_REQUIRE(job.mutableNormalizer().memoryUsage() > 0);
 
     // Unregister the normalizer and check that memory usage decreases
     auto resourceMonitor = limits.resourceMonitor();
     resourceMonitor.forceRefreshAll();
     auto memoryUsageBeforeUnregister = resourceMonitor.totalMemory();
-    resourceMonitor.unRegisterComponent(job.normalizer());
+    resourceMonitor.unRegisterComponent(job.mutableNormalizer());
     BOOST_TEST_REQUIRE(resourceMonitor.totalMemory() < memoryUsageBeforeUnregister);
 }
 

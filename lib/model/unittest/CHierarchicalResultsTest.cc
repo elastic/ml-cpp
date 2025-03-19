@@ -1731,8 +1731,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
     LOG_DEBUG(<< "Compressed JSON doc is:\n" << origJson);
 
     {
-        model::CLimits limits;
-        model::CHierarchicalResultsNormalizer newNormalizerJson(limits, modelConfig);
+        model::CLimits l;
+        model::CHierarchicalResultsNormalizer newNormalizerJson(l, modelConfig);
         std::stringstream stream(origJson);
         BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
                             newNormalizerJson.fromJsonStream(stream));
@@ -1762,8 +1762,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         } while (filteredInput);
         LOG_DEBUG(<< "Uncompressed JSON doc is:\n" << uncompressedJson);
 
-        model::CLimits limits;
-        model::CHierarchicalResultsNormalizer newNormalizerJson(limits, modelConfig);
+        model::CLimits l;
+        model::CHierarchicalResultsNormalizer newNormalizerJson(l, modelConfig);
         std::stringstream stream(uncompressedJson);
         BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
                             newNormalizerJson.fromJsonStream(stream));

@@ -22,7 +22,7 @@ namespace {
 constexpr std::size_t BUCKET_SIZE{3600};
 }
 
-BOOST_AUTO_TEST_CASE(HierarchicalResultsNormalizerShouldUpdateMemoryUsage) {
+BOOST_AUTO_TEST_CASE(testHierarchicalResultsNormalizerShouldUpdateMemoryUsage) {
     model::CLimits limits;
     auto modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     model::CHierarchicalResultsNormalizer normalizer(limits, modelConfig);

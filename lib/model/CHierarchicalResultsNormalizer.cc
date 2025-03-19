@@ -89,12 +89,11 @@ CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(CLimits& limits,
                                                                const CAnomalyDetectorModelConfig& modelConfig)
     : TBase(TNormalizer(std::string(),
                         std::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
-      m_Limits(limits), m_Job(E_NoOp), m_ModelConfig(modelConfig),
-      m_HasLastUpdateCausedBigChange(false) {
+      m_Limits(limits), m_ModelConfig(modelConfig) {
     limits.resourceMonitor().registerComponent(*this);
 }
 CHierarchicalResultsNormalizer::~CHierarchicalResultsNormalizer() {
-    m_Limits.resourceMonitor().unRegisterComponent(*this);
+    m_Limits.resourceMonitor().unRegisterComponent(*this); // NOSONAR
 }
 
 void CHierarchicalResultsNormalizer::setJob(EJob job) {
