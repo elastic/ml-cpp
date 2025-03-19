@@ -68,7 +68,7 @@ at the command prompt.
 
 ### Boost 1.83.0
 
-Download version 1.83.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
+Download version 1.83.0 of Boost from <https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
