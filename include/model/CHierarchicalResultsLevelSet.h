@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsLevelSet_h
 #define INCLUDED_ml_model_CHierarchicalResultsLevelSet_h
 
+#include "model/ImportExport.h"
 #include <core/CCompressedDictionary.h>
 
 #include <maths/common/CChecksum.h>
@@ -48,7 +49,7 @@ namespace model {
 //! the level. T must have a clear function and propagateForwardByTime
 //! functions.
 template<typename T>
-class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
+class MODEL_EXPORT CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 protected:
     using Type = T;
     using TTypePtrVec = std::vector<Type*>;
