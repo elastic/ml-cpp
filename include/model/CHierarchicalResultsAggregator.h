@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsAggregator_h
 #define INCLUDED_ml_model_CHierarchicalResultsAggregator_h
 
+#include <core/CMemoryDef.h>
+
 #include <model/CDetectorEqualizer.h>
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/ImportExport.h>
@@ -122,8 +124,8 @@ private:
     //! across detectors.
     double correctProbability(const TNode& node, bool pivot, int detector, double probability);
 
-    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const final;
-    std::size_t memoryUsage() const final;
+    // void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const final;
+    // std::size_t memoryUsage() const final;
 
 private:
     //! The jobs that the aggregator will perform when invoked can be:
