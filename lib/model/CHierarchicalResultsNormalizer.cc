@@ -78,8 +78,7 @@ void CHierarchicalResultsNormalizer::debugMemoryUsage(const core::CMemoryUsage::
 }
 
 std::size_t CHierarchicalResultsNormalizer::memoryUsage() const {
-    std::size_t mem = this->CHierarchicalResultsLevelSet::memoryUsage();
-    return mem;
+    return this->CHierarchicalResultsLevelSet::memoryUsage();
 }
 std::size_t CHierarchicalResultsNormalizer::staticSize() const {
     return sizeof(*this);

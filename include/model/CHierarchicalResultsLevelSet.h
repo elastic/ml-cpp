@@ -49,7 +49,7 @@ namespace model {
 //! the level. T must have a clear function and propagateForwardByTime
 //! functions.
 template<typename T>
-class MODEL_EXPORT CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
+class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 protected:
     using Type = T;
     using TTypePtrVec = std::vector<Type*>;
@@ -245,7 +245,7 @@ protected:
         return maths::common::CChecksum::calculate(seed, m_LeafSet);
     }
 
-    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("Hierarchical Results Level Set Memory Usage");
         core::memory_debug::dynamicSize("m_BucketElement", m_BucketElement, mem);
         core::memory_debug::dynamicSize("m_InfluencerBucketSet", m_InfluencerBucketSet, mem);
@@ -255,7 +255,7 @@ protected:
         core::memory_debug::dynamicSize("m_LeafSet", m_LeafSet, mem);
     }
 
-    std::size_t memoryUsage() const {
+    virtual std::size_t memoryUsage() const {
         std::size_t mem = core::memory::dynamicSize(m_BucketElement);
         mem += core::memory::dynamicSize(m_InfluencerBucketSet);
         mem += core::memory::dynamicSize(m_InfluencerSet);
