@@ -22,7 +22,6 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
-#include <algorithm>
 #include <sstream>
 
 namespace ml {
@@ -57,6 +56,19 @@ void SNormalizer::propagateForwardByTime(double time) {
 std::uint64_t SNormalizer::checksum() const {
     std::uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
     return maths::common::CChecksum::calculate(seed, s_Normalizer);
+}
+
+void SNormalizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    mem->setName("SNormalizer Memory Usage");
+    core::memory_debug::dynamicSize("s_Description", s_Description, mem);
+    core::memory_debug::dynamicSize("s_Normalizer", s_Normalizer, mem);
+}
+
+std::size_t SNormalizer::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::memory::dynamicSize(s_Description);
+    mem += core::memory::dynamicSize(s_Normalizer);
+    return mem;
 }
 }
 

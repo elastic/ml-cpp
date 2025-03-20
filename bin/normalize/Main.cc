@@ -145,17 +145,9 @@ int main(int argc, char** argv) {
             ioMgr.outputStream());
     }()};
 
-    // Initialize config and memory limits
-    ml::api::CAnomalyJobConfig jobConfig;
-    if (jobConfig.initFromFile(modelConfigFile) == false) {
-        LOG_FATAL(<< "JSON config could not be interpreted");
-        return EXIT_FAILURE;
-    }
-    const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
-        jobConfig.analysisLimits();
+    // Initialize memory limits with default values.
+    // This is fine as the normalizer doesn't use the memory limit.
     ml::model::CLimits limits{false};
-    limits.init(analysisLimits.categorizationExamplesLimit(),
-                analysisLimits.modelMemoryLimitMb());
 
     // This object will do the work
     ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter, limits};
