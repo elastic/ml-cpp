@@ -12,6 +12,7 @@
 #include <core/CLogger.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
+#include <model/CLimits.h>
 
 #include <api/CCsvInputParser.h>
 #include <api/CNdJsonOutputWriter.h>
@@ -31,7 +32,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
 
     ml::api::CNdJsonOutputWriter outputWriter;
 
-    ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
+    ml::model::CLimits limits(false);
+    ml::api::CResultNormalizer normalizer(modelConfig, outputWriter, limits);
 
     BOOST_TEST_REQUIRE(normalizer.initNormalizer("testfiles/new_quantilesState.json"));
     LOG_DEBUG(<< "normalizer initialized");
@@ -390,7 +392,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
 
     ml::api::CNdJsonOutputWriter outputWriter;
 
-    ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
+    ml::model::CLimits limits(false);
+    ml::api::CResultNormalizer normalizer(modelConfig, outputWriter, limits);
 
     BOOST_TEST_REQUIRE(normalizer.initNormalizer("testfiles/quantilesState.json"));
 

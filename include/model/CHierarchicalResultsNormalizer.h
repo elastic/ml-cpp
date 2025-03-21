@@ -12,15 +12,16 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsNormalizer_h
 #define INCLUDED_ml_model_CHierarchicalResultsNormalizer_h
 
+#include <core/CMemoryDef.h>
 #include <core/CNonCopyable.h>
 
 #include <model/CAnomalyScore.h>
 #include <model/CHierarchicalResultsLevelSet.h>
+#include <model/CLimits.h>
+#include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
 
-#include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace ml {
@@ -43,6 +44,10 @@ struct MODEL_EXPORT SNormalizer {
 
     //! Compute a checksum for this object.
     uint64_t checksum() const;
+
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+
+    std::size_t memoryUsage() const;
 
     std::string s_Description;
     TNormalizerPtr s_Normalizer;
@@ -84,6 +89,7 @@ struct MODEL_EXPORT SNormalizer {
 //! normalizers is negligible.
 class MODEL_EXPORT CHierarchicalResultsNormalizer
     : public CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>,
+      public CMonitoredResource,
       private core::CNonCopyable {
 public:
     using TBase = CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>;
@@ -106,9 +112,10 @@ public:
     enum ERestoreOutcome { E_Ok = 0, E_Corrupt = 1, E_Incomplete = 2 };
 
 public:
-    CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig& modelConfig);
+    CHierarchicalResultsNormalizer(CLimits& limits,
+                                   const CAnomalyDetectorModelConfig& modelConfig);
 
-    ~CHierarchicalResultsNormalizer() override = default;
+    ~CHierarchicalResultsNormalizer() override;
 
     //! Add a job for the subsequent invocations of the normalizer.
     void setJob(EJob job);
@@ -167,6 +174,19 @@ public:
                    const std::string& functionName,
                    const std::string& valueFieldName) const;
 
+    //! Get the memory used by this hierarchical results normalizer.
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
+
+    //! Return the total memory usage.
+    std::size_t memoryUsage() const override;
+
+    //! Get the static size of this object.
+    std::size_t staticSize() const override;
+
+    //! Update the overall model size stats with information from the
+    //! hierarchical results normalizer.
+    void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
+
 private:
     //! \brief Creates new normalizer instances.
     class CNormalizerFactory {
@@ -210,15 +230,18 @@ private:
     static std::string leafCue(const TWord& word);
 
 private:
+    //! Configurable limits
+    CLimits& m_Limits;
+
     //! The jobs that the normalizer will perform when invoked
     //! can be: update, normalize or update + normalize.
-    EJob m_Job;
+    EJob m_Job{E_NoOp};
 
     //! The model configuration file.
     const CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Whether the last update of the quantiles has caused a big change.
-    bool m_HasLastUpdateCausedBigChange;
+    bool m_HasLastUpdateCausedBigChange{false};
 };
 }
 }

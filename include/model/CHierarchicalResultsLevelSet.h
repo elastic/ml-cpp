@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsLevelSet_h
 #define INCLUDED_ml_model_CHierarchicalResultsLevelSet_h
 
+#include "model/ImportExport.h"
 #include <core/CCompressedDictionary.h>
 
 #include <maths/common/CChecksum.h>
@@ -20,6 +21,10 @@
 #include <model/CHierarchicalResults.h>
 
 #include <cstdint>
+
+namespace CHierarchicalResultsLevelSetTest {
+struct testMemoryUsage;
+}
 
 namespace ml {
 namespace model {
@@ -240,6 +245,26 @@ protected:
         return maths::common::CChecksum::calculate(seed, m_LeafSet);
     }
 
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+        mem->setName("Hierarchical Results Level Set Memory Usage");
+        core::memory_debug::dynamicSize("m_BucketElement", m_BucketElement, mem);
+        core::memory_debug::dynamicSize("m_InfluencerBucketSet", m_InfluencerBucketSet, mem);
+        core::memory_debug::dynamicSize("m_InfluencerSet", m_InfluencerSet, mem);
+        core::memory_debug::dynamicSize("m_PartitionSet", m_PartitionSet, mem);
+        core::memory_debug::dynamicSize("m_PersonSet", m_PersonSet, mem);
+        core::memory_debug::dynamicSize("m_LeafSet", m_LeafSet, mem);
+    }
+
+    std::size_t memoryUsage() const {
+        std::size_t mem = core::memory::dynamicSize(m_BucketElement);
+        mem += core::memory::dynamicSize(m_InfluencerBucketSet);
+        mem += core::memory::dynamicSize(m_InfluencerSet);
+        mem += core::memory::dynamicSize(m_PartitionSet);
+        mem += core::memory::dynamicSize(m_PersonSet);
+        mem += core::memory::dynamicSize(m_LeafSet);
+        return mem;
+    }
+
 private:
     //! Get an element of \p set by name.
     static const T* element(const TWordTypePrVec& set, const std::string& name) {
@@ -299,6 +324,8 @@ private:
     //! The container for leaves comprising distinct named
     //! (partition, person) field name pairs.
     TWordTypePrVec m_LeafSet;
+
+    friend struct CHierarchicalResultsLevelSetTest::testMemoryUsage;
 };
 
 template<typename T>

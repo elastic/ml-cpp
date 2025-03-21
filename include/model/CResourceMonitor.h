@@ -177,6 +177,9 @@ public:
     //! by calling this once per bucket processed until the initially requested memory limit is reached.
     void decreaseMargin(core_t::TTime elapsedTime);
 
+    //! Returns the sum of used memory plus any extra memory
+    std::size_t totalMemory() const;
+
 private:
     using TMonitoredResourcePtrSizeUMap =
         boost::unordered_map<CMonitoredResource*, std::size_t>;
@@ -217,9 +220,6 @@ private:
 
     //! Get the low memory limit with margin applied.
     std::size_t lowLimit() const;
-
-    //! Returns the sum of used memory plus any extra memory
-    std::size_t totalMemory() const;
 
     //! Adjusts the amount of memory reported to take into
     //! account the current value of the byte limit margin and the effects

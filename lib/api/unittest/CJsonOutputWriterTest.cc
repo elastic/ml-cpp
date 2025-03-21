@@ -19,6 +19,7 @@
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
+#include <model/CLimits.h>
 
 #include <api/CGlobalCategoryId.h>
 #include <api/CJsonOutputWriter.h>
@@ -1688,7 +1689,8 @@ BOOST_AUTO_TEST_CASE(testPersistNormalizer) {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
 
-        ml::model::CHierarchicalResultsNormalizer normalizer(modelConfig);
+        ml::model::CLimits limits(false);
+        ml::model::CHierarchicalResultsNormalizer normalizer(limits, modelConfig);
         writer.persistNormalizer(normalizer, persistTime);
         writer.finalise();
     }
