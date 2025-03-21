@@ -30,6 +30,10 @@
 
 == {es} version 9.1.0
 
+=== Enhancements
+
+* Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
+
 === Bug Fixes
 
 == {es} version 9.0.0

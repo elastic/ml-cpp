@@ -425,6 +425,8 @@ protected:
     //! be pruned, i.e. those which are so old as to be effectively dead.
     void pruneAllModels(std::size_t buckets = 0) const;
 
+    const model::CHierarchicalResultsNormalizer& normalizer() const;
+
 private:
     //! The job ID
     std::string m_JobId;

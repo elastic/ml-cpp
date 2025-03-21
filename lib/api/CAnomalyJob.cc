@@ -129,7 +129,7 @@ CAnomalyJob::CAnomalyJob(std::string jobId,
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
       m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
       m_LastNormalizerPersistTime{core::CTimeUtils::now()},
-      m_Aggregator{modelConfig}, m_Normalizer{modelConfig} {
+      m_Aggregator{modelConfig}, m_Normalizer{limits, modelConfig} {
     m_JsonOutputWriter.limitNumberRecords(maxAnomalyRecords);
 
     m_Limits.resourceMonitor().memoryUsageReporter(
@@ -1651,6 +1651,9 @@ void CAnomalyJob::pruneAllModels(std::size_t buckets) const {
         }
         (buckets == 0) ? detector->pruneModels() : detector->pruneModels(buckets);
     }
+}
+const model::CHierarchicalResultsNormalizer& CAnomalyJob::normalizer() const {
+    return m_Normalizer;
 }
 
 CAnomalyJob::TAnomalyDetectorPtr
