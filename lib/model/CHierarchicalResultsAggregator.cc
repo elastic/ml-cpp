@@ -167,14 +167,6 @@ std::uint64_t CHierarchicalResultsAggregator::checksum() const {
     seed = maths::common::CChecksum::calculate(seed, m_MaximumAnomalousProbability);
     return this->TBase::checksum(seed);
 }
-// void CHierarchicalResultsAggregator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-//     mem->setName(" Hierarchical Results Aggregator Memory Usage");
-//     this->TBase::debugMemoryUsage(mem->addChild());
-// }
-//
-// std::size_t CHierarchicalResultsAggregator::memoryUsage() const {
-//     return this->TBase::memoryUsage();
-// }
 
 void CHierarchicalResultsAggregator::aggregateLeaf(const TNode& node) {
     if (isSimpleCount(node)) {
