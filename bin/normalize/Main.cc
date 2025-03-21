@@ -27,6 +27,7 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
 #include <api/CCsvOutputWriter.h>
 #include <api/CIoManager.h>
@@ -144,8 +145,12 @@ int main(int argc, char** argv) {
             ioMgr.outputStream());
     }()};
 
+    // Initialize memory limits with default values.
+    // This is fine as the normalizer doesn't use the memory limit.
+    ml::model::CLimits limits{false};
+
     // This object will do the work
-    ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter};
+    ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter, limits};
 
     // Restore state
     if (!quantilesStateFile.empty()) {

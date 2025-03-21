@@ -57,6 +57,10 @@ public:
                         const std::string& summaryCountFieldName = "");
 
     static ml::api::CAnomalyJobConfig makeJobConfig(const std::string& detectorsConfig);
+
+    ml::model::CHierarchicalResultsNormalizer& mutableNormalizer() const {
+        return const_cast<ml::model::CHierarchicalResultsNormalizer&>(this->normalizer());
+    }
 };
 
 #endif // INCLUDED_CTestAnomalyJob_h

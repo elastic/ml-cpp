@@ -12,6 +12,7 @@
 #include <model/CHierarchicalResultsAggregator.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
