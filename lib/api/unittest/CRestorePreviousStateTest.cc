@@ -269,7 +269,8 @@ BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, ml::test::CProgramCounterClearing
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         ml::api::CCsvOutputWriter outputWriter;
-        ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
+        ml::model::CLimits limits(false);
+        ml::api::CResultNormalizer normalizer(modelConfig, outputWriter, limits);
         BOOST_TEST_REQUIRE(normalizer.initNormalizer(
             "testfiles/state/" + version.s_Version + "/normalizer_state.json"));
     }
