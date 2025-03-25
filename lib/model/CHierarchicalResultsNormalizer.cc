@@ -22,7 +22,6 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
-#include <algorithm>
 #include <sstream>
 
 namespace ml {
@@ -38,7 +37,6 @@ const std::string INFLUENCER_CUE_PREFIX("infl");
 const std::string PARTITION_CUE_PREFIX("part");
 const std::string PERSON_CUE_PREFIX("per");
 const std::string LEAF_CUE_PREFIX("leaf");
-const std::string EMPTY_STRING;
 }
 
 namespace hierarchical_results_normalizer_detail {
@@ -59,12 +57,47 @@ std::uint64_t SNormalizer::checksum() const {
     std::uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
     return maths::common::CChecksum::calculate(seed, s_Normalizer);
 }
+
+void SNormalizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    mem->setName("SNormalizer Memory Usage");
+    core::memory_debug::dynamicSize("s_Description", s_Description, mem);
+    core::memory_debug::dynamicSize("s_Normalizer", s_Normalizer, mem);
 }
 
-CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig& modelConfig)
+std::size_t SNormalizer::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::memory::dynamicSize(s_Description);
+    mem += core::memory::dynamicSize(s_Normalizer);
+    return mem;
+}
+}
+
+void CHierarchicalResultsNormalizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    mem->setName(" Hierarchical Results Normalizer Memory Usage");
+    this->CHierarchicalResultsLevelSet::debugMemoryUsage(mem->addChild());
+}
+
+std::size_t CHierarchicalResultsNormalizer::memoryUsage() const {
+    return this->CHierarchicalResultsLevelSet::memoryUsage();
+}
+std::size_t CHierarchicalResultsNormalizer::staticSize() const {
+    return sizeof(*this);
+}
+
+void CHierarchicalResultsNormalizer::updateModelSizeStats(
+    CResourceMonitor::SModelSizeStats& /*modelSizeStats*/) const {
+    // do nothing
+}
+
+CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(CLimits& limits,
+                                                               const CAnomalyDetectorModelConfig& modelConfig)
     : TBase(TNormalizer(std::string(),
                         std::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
-      m_Job(E_NoOp), m_ModelConfig(modelConfig), m_HasLastUpdateCausedBigChange(false) {
+      m_Limits(limits), m_ModelConfig(modelConfig) {
+    limits.resourceMonitor().registerComponent(*this);
+}
+CHierarchicalResultsNormalizer::~CHierarchicalResultsNormalizer() {
+    m_Limits.resourceMonitor().unRegisterComponent(*this); // NOSONAR
 }
 
 void CHierarchicalResultsNormalizer::setJob(EJob job) {

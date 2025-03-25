@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CHierarchicalResults.h>
@@ -26,6 +27,8 @@ struct STestNode {
     STestNode(const std::string& name) : s_Name(name) {}
     std::string print() const { return s_Name; }
     std::string s_Name;
+
+    std::size_t memoryUsage() const { return sizeof(s_Name); }
 };
 
 class CConcreteHierarchicalResultsLevelSet
@@ -129,6 +132,31 @@ BOOST_AUTO_TEST_CASE(testElements) {
         BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
                             ml::core::CContainerPrinter::print(result));
     }
+}
+
+BOOST_AUTO_TEST_CASE(testMemoryUsage) {
+    CConcreteHierarchicalResultsLevelSet levelSet(STestNode("root"));
+    std::size_t memoryUsage = levelSet.memoryUsage();
+    BOOST_REQUIRE(memoryUsage > 0);
+
+    auto addAndCheckMemoryUsage = [&memoryUsage, &levelSet](auto& container,
+                                                            const std::string& name) {
+        container.emplace_back(ml::core::CCompressedDictionary<1>::CWord(),
+                               STestNode(name));
+        std::size_t newMemoryUsage = levelSet.memoryUsage();
+        BOOST_REQUIRE(newMemoryUsage > memoryUsage);
+        memoryUsage = newMemoryUsage;
+    };
+
+    addAndCheckMemoryUsage(levelSet.m_InfluencerBucketSet, "influencer bucket 1");
+    addAndCheckMemoryUsage(levelSet.m_InfluencerSet, "influencer 1");
+    addAndCheckMemoryUsage(levelSet.m_PartitionSet, "partition 1");
+    addAndCheckMemoryUsage(levelSet.m_PersonSet, "person 1");
+    addAndCheckMemoryUsage(levelSet.m_LeafSet, "leaf 1");
+
+    auto debugMemoryUsage = std::make_shared<ml::core::CMemoryUsage>();
+    levelSet.debugMemoryUsage(debugMemoryUsage);
+    BOOST_REQUIRE(debugMemoryUsage->usage() == memoryUsage);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

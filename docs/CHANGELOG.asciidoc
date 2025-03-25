@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 8.19.0
+
+=== Enhancements
+
+* Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
+
+
 == {es} version 8.18.0
 
 === Enhancements

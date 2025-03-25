@@ -81,7 +81,8 @@ public:
 
 public:
     CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
-                      CSimpleOutputWriter& outputWriter);
+                      CSimpleOutputWriter& outputWriter,
+                      model::CLimits& limits);
 
     //! Initialise the system change normalizer
     bool initNormalizer(const std::string& stateFileName);
