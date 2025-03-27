@@ -689,6 +689,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         gatherer.recyclePeople(peopleToRemove);
 
         CDataGatherer expectedGatherer =
+
             CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
                 .build();
         BOOST_REQUIRE_EQUAL(0, addPerson("p3", expectedGatherer, m_ResourceMonitor));
@@ -721,6 +722,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         gatherer.recyclePeople(peopleToRemove);
 
         CDataGatherer expectedGatherer =
+
             CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
                 .build();
 
@@ -751,6 +753,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         gatherer.recyclePeople(peopleToRemove);
 
         CDataGatherer const expectedGatherer =
+
             CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
                 .build();
 
@@ -1128,7 +1131,10 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric,features, params, KEY, startTime).sampleCountOverride(2U).build();
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .sampleCountOverride(2U)
+            .build();
     addPerson("p1", gatherer, m_ResourceMonitor);
     addPerson("p2", gatherer, m_ResourceMonitor);
     addPerson("p3", gatherer, m_ResourceMonitor);

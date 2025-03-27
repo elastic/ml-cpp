@@ -477,9 +477,9 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
     features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
     SModelParams constparams(bucketLength);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                       features, params, searchKey, startTime)
-                                      .valueFieldName("value")
-                                      .build();
+                                                      features, params, searchKey, startTime)
+                                     .valueFieldName("value")
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -809,6 +809,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         features.push_back(model_t::E_PopulationUniquePersonCountByAttribute);
         SModelParams const params(bucketLength);
         CDataGatherer origDataGatherer =
+
             CDataGathererBuilder(model_t::E_PopulationEventRate, features,
                                  params, searchKey, startTime)
                 .build();
@@ -831,6 +832,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
         SModelParams const params(bucketLength);
         CDataGatherer dataGatherer =
+
             CDataGathererBuilder(model_t::E_PopulationEventRate, features,
                                  params, searchKey, startTime)
                 .valueFieldName("value")

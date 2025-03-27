@@ -998,6 +998,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
     CDataGatherer origDataGatherer =
+
         CDataGathererBuilder(model_t::E_PopulationMetric, features, params, searchKey, startTime)
             .build();
 
@@ -1030,8 +1031,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
     auto bucketInitData = CBucketGatherer::SBucketGathererInitData::emptyData();
     CDataGatherer restoredDataGatherer(model_t::E_PopulationMetric,
-                                       model_t::E_None, params,
-                                       EMPTY_STRING, searchKey, bucketInitData, traverser);
+                                       model_t::E_None, params, EMPTY_STRING,
+                                       searchKey, bucketInitData, traverser);
 
     // The JSON representation of the new data gatherer should be the same as the
     // original
