@@ -20,6 +20,7 @@
 #include <model/SModelParams.h>
 
 #include "Mocks.h"
+#include "ModelTestHelpers.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -47,9 +48,11 @@ BOOST_AUTO_TEST_CASE(testTimeContition) {
 
     model_t::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-        model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
+    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .buildSharedPtr();
 
     CMockModel model(params, gathererPtr, influenceCalculators);
 
