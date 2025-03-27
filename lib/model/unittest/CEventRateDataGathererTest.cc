@@ -63,60 +63,7 @@ namespace {
 const CSearchKey key;
 const std::string EMPTY_STRING;
 
-class CDataGathererBuilder {
-public:
-    CDataGathererBuilder(const TFeatureVec& features, const SModelParams& params, const CSearchKey& searchKey,
-                         const core_t::TTime startTime
-    ): m_Features(features), m_Params(params),  m_StartTime(startTime), m_SearchKey(searchKey) {}
 
-    CDataGatherer build() const {
-        return {m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
-                             m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
-                             m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
-                             m_StartTime, m_SampleCountOverride};
-    }
-
-    CDataGathererBuilder& personFieldName(const std::string& personFieldName) {
-        m_PersonFieldName = personFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& valueFieldName(const std::string& valueFieldName) {
-        m_ValueFieldName = valueFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& influenceFieldNames(const TStrVec& influenceFieldName) {
-        m_InfluenceFieldNames = influenceFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& attributeFieldName(const std::string& attributeFieldName) {
-        m_AttributeFieldName = attributeFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& gathererType(model_t::EAnalysisCategory gathererType) {
-        m_GathererType = gathererType;
-        return *this;
-    }
-
-private:
-    const TFeatureVec& m_Features;
-    const SModelParams& m_Params;
-    core_t::TTime m_StartTime;
-    const CSearchKey& m_SearchKey;
-    model_t::EAnalysisCategory m_GathererType{model_t::E_EventRate};
-    model_t::ESummaryMode m_SummaryMode{model_t::E_None};
-    std::string m_SummaryCountFieldName{EMPTY_STRING};
-    std::string m_PartitionFieldValue{EMPTY_STRING};
-    std::string m_PersonFieldName{EMPTY_STRING};
-    std::string m_AttributeFieldName{EMPTY_STRING};
-    std::string m_ValueFieldName{EMPTY_STRING};
-    TStrVec m_InfluenceFieldNames;
-    int m_SampleCountOverride{0};
-
-};
 
 std::size_t addPerson(CDataGatherer& gatherer,
                       CResourceMonitor& resourceMonitor,
@@ -221,7 +168,7 @@ void testInfluencerPerFeature(const model_t::EFeature feature,
     features.push_back(feature);
     TStrVec influencerFieldNames;
     influencerFieldNames.emplace_back("IF1");
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
                                  .influenceFieldNames(influencerFieldNames)
                                  .valueFieldName(valueField)
                                  .build();

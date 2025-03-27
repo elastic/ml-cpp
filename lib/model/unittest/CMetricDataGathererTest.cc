@@ -1128,10 +1128,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer =
-        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
-            .sampleCountOverride(2U)
-            .build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric,features, params, KEY, startTime).sampleCountOverride(2U).build();
     addPerson("p1", gatherer, m_ResourceMonitor);
     addPerson("p2", gatherer, m_ResourceMonitor);
     addPerson("p3", gatherer, m_ResourceMonitor);
@@ -1604,9 +1601,9 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
-                                                      params, KEY, startTime)
-                                     .build();
+        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, KEY, features, startTime, 0);
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoubleDoubleTupleVecVec buckets;
