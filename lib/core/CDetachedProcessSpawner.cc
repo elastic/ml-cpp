@@ -185,13 +185,22 @@ private:
                         // at a lower level
                         LOG_INFO(<< "Child process with PID " << pid
                                  << " was terminated by signal " << signal);
-                    } else {
+                    } else if (signal == SIGKILL) {
                         // This should never happen if the system is working
                         // normally - possible reasons are the Linux OOM
-                        // killer, manual intervention and bugs that cause
-                        // access violations
+                        // killer or manual intervention. The latter is highly unlikely
+                        // if running in the cloud.
+                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
+                                  << " This is likely due to the OOM killer."
+                                  << " Please check system logs for more details.");
+                    } else {
+                        // This should never happen if the system is working
+                        // normally - possible reasons are bugs that cause
+                        // access violations or manual intervention. The latter is highly unlikely
+                        // if running in the cloud.
                         LOG_ERROR(<< "Child process with PID " << pid
-                                  << " was terminated by signal " << signal);
+                                  << " was terminated by signal " << signal
+                                  << " Please check system logs for more details.");
                     }
                 } else {
                     int exitCode = WEXITSTATUS(status);
