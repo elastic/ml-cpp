@@ -35,6 +35,12 @@
 * Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
 
 
+== {es} version 8.19.0
+
+=== Enhancements
+
+* Better messaging regarding OOM process termination. (See {ml-pull}2841[#2841].)
+
 == {es} version 8.18.0
 
 === Enhancements
