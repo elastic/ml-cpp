@@ -63,60 +63,7 @@ namespace {
 const CSearchKey key;
 const std::string EMPTY_STRING;
 
-class CDataGathererBuilder {
-public:
-    CDataGathererBuilder(const TFeatureVec& features, const SModelParams& params, const CSearchKey& searchKey,
-                         const core_t::TTime startTime
-    ): m_Features(features), m_Params(params),  m_StartTime(startTime), m_SearchKey(searchKey) {}
 
-    CDataGatherer build() const {
-        return {m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
-                             m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
-                             m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
-                             m_StartTime, m_SampleCountOverride};
-    }
-
-    CDataGathererBuilder& personFieldName(const std::string& personFieldName) {
-        m_PersonFieldName = personFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& valueFieldName(const std::string& valueFieldName) {
-        m_ValueFieldName = valueFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& influenceFieldNames(const TStrVec& influenceFieldName) {
-        m_InfluenceFieldNames = influenceFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& attributeFieldName(const std::string& attributeFieldName) {
-        m_AttributeFieldName = attributeFieldName;
-        return *this;
-    }
-
-    CDataGathererBuilder& gathererType(model_t::EAnalysisCategory gathererType) {
-        m_GathererType = gathererType;
-        return *this;
-    }
-
-private:
-    const TFeatureVec& m_Features;
-    const SModelParams& m_Params;
-    core_t::TTime m_StartTime;
-    const CSearchKey& m_SearchKey;
-    model_t::EAnalysisCategory m_GathererType{model_t::E_EventRate};
-    model_t::ESummaryMode m_SummaryMode{model_t::E_None};
-    std::string m_SummaryCountFieldName{EMPTY_STRING};
-    std::string m_PartitionFieldValue{EMPTY_STRING};
-    std::string m_PersonFieldName{EMPTY_STRING};
-    std::string m_AttributeFieldName{EMPTY_STRING};
-    std::string m_ValueFieldName{EMPTY_STRING};
-    TStrVec m_InfluenceFieldNames;
-    int m_SampleCountOverride{0};
-
-};
 
 std::size_t addPerson(CDataGatherer& gatherer,
                       CResourceMonitor& resourceMonitor,
@@ -221,7 +168,7 @@ void testInfluencerPerFeature(const model_t::EFeature feature,
     features.push_back(feature);
     TStrVec influencerFieldNames;
     influencerFieldNames.emplace_back("IF1");
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
                                  .influenceFieldNames(influencerFieldNames)
                                  .valueFieldName(valueField)
                                  .build();
@@ -454,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         // Create a gatherer, no influences
         TFeatureVec features;
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
                                      .personFieldName("program")
                                      .valueFieldName("file")
                                      .build();
@@ -473,7 +420,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         TStrVec influencers;
         influencers.emplace_back("user");
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
                                      .personFieldName("program")
                                      .valueFieldName("file")
                                      .build();
@@ -491,7 +438,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         // Create a gatherer, no influences
         TFeatureVec features;
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
                                      .personFieldName("program")
                                      .build();
         TSizeVec fields;
@@ -508,7 +455,7 @@ BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
         TStrVec influencers;
         influencers.emplace_back("user");
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
                                      .personFieldName("program")
                                      .influenceFieldNames(influencers)
                                      .build();
@@ -563,7 +510,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         features.push_back(model_t::E_IndividualMinByPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
@@ -607,7 +554,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
         features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
@@ -645,7 +592,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualIndicatorOfBucketPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
@@ -715,7 +662,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
 
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         testGathererMultipleSeries(STestTimes{.s_StartTime=startTime, .s_BucketLength=bucketLength},
                                    STestData{.data1=data1, .data2=data2}, expectedPersonCounts,
                                    params, bucketLength, gatherer, m_ResourceMonitor);
@@ -727,7 +674,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
 
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         testGathererMultipleSeries(startTime, bucketLength, gatherer, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(2, gatherer.numberByFieldValues());
@@ -748,7 +695,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     features.push_back(model_t::E_IndividualLowCountsByBucketAndPerson);
     features.push_back(model_t::E_IndividualHighCountsByBucketAndPerson);
     const SModelParams params(bucketLength);
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
     BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
     BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
     BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, m_ResourceMonitor, "p3"));
@@ -772,7 +719,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer expectedGatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         BOOST_REQUIRE_EQUAL(0, addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
         BOOST_REQUIRE_EQUAL(1, addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
         BOOST_REQUIRE_EQUAL(2, addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
@@ -799,7 +746,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         peopleToRemove.push_back(7);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer expectedGatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         BOOST_REQUIRE_EQUAL(0, addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
         BOOST_REQUIRE_EQUAL(1, addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
         BOOST_REQUIRE_EQUAL(2, addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
@@ -823,7 +770,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         peopleToRemove.push_back(6);
         gatherer.recyclePeople(peopleToRemove);
 
-        const CDataGatherer  expectedGatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        const CDataGatherer  expectedGatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
@@ -880,10 +827,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        // CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-        //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        //                        EMPTY_STRING, {}, key, features, startTime, 0);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         addPerson(gatherer, m_ResourceMonitor, "p");
 
         core_t::TTime time = startTime;
@@ -921,7 +865,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         // CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
         //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
         //                        EMPTY_STRING, {}, key, features, startTime, 0);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
         BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
@@ -959,7 +903,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualIndicatorOfBucketPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
         BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
@@ -1011,7 +955,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderInterimResult, CTestFixture) {
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
     addPerson(gatherer, m_ResourceMonitor, "p");
     TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1155,7 +1099,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
             std::string("[(0, 3), (1, 6)]")};
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
         testGathererMultipleSeries(STestTimes{.s_StartTime=startTime, .s_BucketLength=bucketLength},
                                    STestData{.data1=data1, .data2=data2}, expectedPersonCounts,
@@ -1165,7 +1109,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
         testGathererMultipleSeries(startTime, bucketLength, gatherer, m_ResourceMonitor);
     }
@@ -1185,7 +1129,7 @@ BOOST_FIXTURE_TEST_CASE(testArrivalBeforeLatencyWindowIsIgnored, CTestFixture) {
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
     addPerson(gatherer, m_ResourceMonitor, "p");
 
@@ -1227,7 +1171,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
     addPerson(gatherer, m_ResourceMonitor, "p");
 
@@ -1281,7 +1225,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
 
     addPerson(gatherer, m_ResourceMonitor, "p1");
     addPerson(gatherer, m_ResourceMonitor, "p2");
@@ -1331,7 +1275,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenBucketNotAvailable, CTestFixture) {
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime).build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime).build();
     addPerson(gatherer, m_ResourceMonitor, "p");
 
     addArrival(gatherer, m_ResourceMonitor, 1200, "p");
@@ -1645,7 +1589,7 @@ protected:
 
         TFeatureVec features;
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
-        CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
             .personFieldName("P")
             .valueFieldName("V")
             .influenceFieldNames({"INF"})
@@ -1718,7 +1662,7 @@ protected:
                                  core_t::TTime startTime,
                                  bool isPopulation,
                                  bool useAttribute = false) {
-        auto builder = CDataGathererBuilder(features, params, key, startTime);
+        auto builder = CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime);
         if (useAttribute) {
             auto tempBuilder =
                 builder.gathererType(model_t::E_PopulationEventRate).attributeFieldName("att");

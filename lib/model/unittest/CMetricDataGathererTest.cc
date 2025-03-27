@@ -63,7 +63,7 @@ std::size_t addPerson(const std::string& p,
                       std::size_t numInfluencers = 0) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    std::string i("i");
+    std::string const i("i");
     for (std::size_t j = 0; j < numInfluencers; ++j) {
         person.push_back(&i);
     }
@@ -80,7 +80,7 @@ void addArrival(CDataGatherer& gatherer,
                 double value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
-    std::string valueAsString(core::CStringUtils::typeToStringPrecise(
+    const std::string valueAsString(core::CStringUtils::typeToStringPrecise(
         value, core::CIEEE754::E_DoublePrecision));
     fieldValues.push_back(&valueAsString);
 
@@ -122,7 +122,7 @@ void addArrival(CDataGatherer& gatherer,
     fieldValues.push_back(&person);
     fieldValues.push_back(influencer1.empty() ? nullptr : &influencer1);
     fieldValues.push_back(influencer2.empty() ? nullptr : &influencer2);
-    std::string valueAsString(core::CStringUtils::typeToString(value));
+    std::string const valueAsString(core::CStringUtils::typeToString(value));
     fieldValues.push_back(&valueAsString);
 
     CEventData eventData;
@@ -132,7 +132,7 @@ void addArrival(CDataGatherer& gatherer,
 }
 
 double doubleToStringToDouble(double value) {
-    std::string valueAsString(core::CStringUtils::typeToStringPrecise(
+    std::string const valueAsString(core::CStringUtils::typeToStringPrecise(
         value, core::CIEEE754::E_DoublePrecision));
     double result(0.0);
     core::CStringUtils::stringToType(valueAsString, result);
@@ -152,14 +152,14 @@ void addArrivals(CDataGatherer& gatherer,
 
 double variance(const TDoubleVec& values, double& mean) {
     double total = 0.0;
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        total += values[i];
+    for (double const value : values) {
+        total += value;
     }
     mean = total / static_cast<double>(values.size());
 
     total = 0.0;
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        double x = values[i] - mean;
+    for (double const value : values) {
+        double const x = value - mean;
         total += (x * x);
     }
     // Population variance, not sample variance (which is / n - 1)
@@ -199,9 +199,10 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         SModelParams params(bucketLength);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime, 2u);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .sampleCountOverride(2U)
+                                     .build();
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
@@ -246,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime);
-            gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
+            gatherer.featureData((startTime + bucketLength - 1),
                                  bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
@@ -319,9 +320,9 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         features.push_back(model_t::E_IndividualMaxByPerson);
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
         SModelParams params(bucketLength);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime, 0);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .build();
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoublePrVecVec buckets;
@@ -388,9 +389,9 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, KEY, features, startTime, 0);
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .build();
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", gatherer, m_ResourceMonitor));
     BOOST_REQUIRE_EQUAL(1, addPerson("p2", gatherer, m_ResourceMonitor));
 
@@ -429,8 +430,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         TTimeDoublePr(2490, 3.9), TTimeDoublePr(2500, 3.4),
         TTimeDoublePr(2550, 4.1), TTimeDoublePr(2600, 3.8)};
     TTimeDoublePrVecVec buckets2;
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket21), std::end(bucket21)));
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket22), std::end(bucket22)));
+    buckets2.emplace_back(std::begin(bucket21), std::end(bucket21));
+    buckets2.emplace_back(std::begin(bucket22), std::end(bucket22));
     buckets2.push_back(TTimeDoublePrVec(std::begin(bucket23), std::end(bucket23)));
     buckets2.push_back(TTimeDoublePrVec(std::begin(bucket24), std::end(bucket24)));
     buckets2.push_back(TTimeDoublePrVec(std::begin(bucket25), std::end(bucket25)));
@@ -589,10 +590,9 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, KEY, features, startTime, 0);
-
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .build();
     std::size_t pid1 = addPerson("p1", gatherer, m_ResourceMonitor);
     std::size_t pid2 = addPerson("p2", gatherer, m_ResourceMonitor);
 
@@ -655,9 +655,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, KEY, features, startTime, 0);
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .build();
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", gatherer, m_ResourceMonitor));
     BOOST_REQUIRE_EQUAL(1, addPerson("p2", gatherer, m_ResourceMonitor));
     BOOST_REQUIRE_EQUAL(2, addPerson("p3", gatherer, m_ResourceMonitor));
@@ -901,9 +901,10 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
         features.push_back(model_t::E_IndividualMaxByPerson);
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime, 2u);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .sampleCountOverride(2U)
+                                     .build();
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
@@ -1029,9 +1030,10 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, KEY, features, startTime, 2u);
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .sampleCountOverride(2U)
+            .build();
     addPerson("p", gatherer, m_ResourceMonitor);
 
     for (const auto& value : data) {
@@ -1143,9 +1145,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, KEY, features, startTime, 2u);
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric,features, params, KEY, startTime).sampleCountOverride(2U).build();
     addPerson("p1", gatherer, m_ResourceMonitor);
     addPerson("p2", gatherer, m_ResourceMonitor);
     addPerson("p3", gatherer, m_ResourceMonitor);
@@ -1441,10 +1441,9 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           influencerNames, KEY, features, startTime, 2);
-
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric,features, params, KEY, startTime)
+    .influenceFieldNames(influencerNames)
+    .sampleCountOverride(2U).build();
     addPerson("p1", gatherer, m_ResourceMonitor, influencerNames.size());
     addPerson("p2", gatherer, m_ResourceMonitor, influencerNames.size());
 
@@ -1529,9 +1528,11 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
         TStrVec influencerNames;
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               influencerNames, KEY, features, startTime, 2u);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .influenceFieldNames(influencerNames)
+                                     .sampleCountOverride(2U)
+                                     .build();
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
         BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
@@ -1627,9 +1628,12 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime, 0);
+        // CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
+        //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+        //                        EMPTY_STRING, {}, KEY, features, startTime, 0);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .build();
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoubleDoubleTupleVecVec buckets;
@@ -1714,9 +1718,10 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualVarianceByPerson);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime, 2u);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .sampleCountOverride(2U)
+                                     .build();
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson(person, gatherer, m_ResourceMonitor));
 
@@ -1776,9 +1781,11 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
         TStrVec influencerFieldNames;
         influencerFieldNames.push_back("i");
         influencerFieldNames.push_back("j");
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               influencerFieldNames, KEY, features, startTime, 2u);
+        CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
+                                                      params, KEY, startTime)
+                                     .influenceFieldNames(influencerFieldNames)
+                                     .sampleCountOverride(2U)
+                                     .build();
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson(person, gatherer, m_ResourceMonitor,
                                          influencerFieldNames.size()));
