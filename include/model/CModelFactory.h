@@ -378,6 +378,8 @@ public:
 
     void resourceMonitor(const TResourceMonitorCRef& resourceMonitor) const;
 
+    TOptionalResourceMonitorCRef resourceMonitor() const;
+
 protected:
     using TMultivariatePriorUPtrVec = std::vector<TMultivariatePriorUPtr>;
     using TOptionalSearchKey = std::optional<CSearchKey>;

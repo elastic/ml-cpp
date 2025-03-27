@@ -96,7 +96,7 @@ CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationDat
         m_SummaryCountFieldName,       m_PersonFieldName,
         m_AttributeFieldName,          m_ValueFieldName,
         m_InfluenceFieldNames,         initData.s_StartTime,
-        initData.s_SampleOverrideCount};
+        initData.s_SampleOverrideCount,this->resourceMonitor()};
     return new CDataGatherer(model_t::E_PopulationMetric, m_SummaryMode,
                              this->modelParams(), initData.s_PartitionFieldValue,
                              this->searchKey(), m_Features, bucketGathererInitData);
@@ -107,7 +107,7 @@ CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFiel
                                                 core::CStateRestoreTraverser& traverser) const {
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
     m_SummaryCountFieldName, m_PersonFieldName, m_AttributeFieldName, m_ValueFieldName,
-        m_InfluenceFieldNames, 0, 0};
+        m_InfluenceFieldNames, 0, 0, this->resourceMonitor()};
     return new CDataGatherer(model_t::E_PopulationMetric, m_SummaryMode,
                              this->modelParams(),
                              partitionFieldValue, this->searchKey(), bucketGathererInitData, traverser);
