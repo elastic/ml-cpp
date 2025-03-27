@@ -99,7 +99,8 @@ CMetricModelFactory::makeDataGatherer(const SGathererInitializationData& initDat
         m_ValueFieldName,
         m_InfluenceFieldNames,
         initData.s_StartTime,
-        initData.s_SampleOverrideCount};
+        initData.s_SampleOverrideCount,
+    this->resourceMonitor()};
     return new CDataGatherer(model_t::E_Metric, m_SummaryMode, this->modelParams(),
                              initData.s_PartitionFieldValue, this->searchKey(),
                              m_Features, bucketGathererInitData);
@@ -109,7 +110,7 @@ CDataGatherer*
 CMetricModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                       core::CStateRestoreTraverser& traverser) const {
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
-        m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, m_ValueFieldName, m_InfluenceFieldNames, 0, 0};
+        m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, m_ValueFieldName, m_InfluenceFieldNames, 0, 0, this->resourceMonitor()};
     return new CDataGatherer(model_t::E_Metric, m_SummaryMode,
                              this->modelParams(), partitionFieldValue,
                              this->searchKey(), bucketGathererInitData, traverser);
