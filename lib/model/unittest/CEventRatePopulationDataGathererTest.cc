@@ -475,11 +475,11 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
-    SModelParams const params(bucketLength);
+    SModelParams constparams(bucketLength);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                      features, params, searchKey, startTime)
-                                     .valueFieldName("value")
-                                     .build();
+                                                       features, params, searchKey, startTime)
+                                      .valueFieldName("value")
+                                      .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;

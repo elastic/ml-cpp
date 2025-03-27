@@ -1446,12 +1446,13 @@ BOOST_AUTO_TEST_CASE(testWriter) {
         model::SModelParams const params(modelConfig.bucketLength());
         auto interimBucketCorrector =
             std::make_shared<model::CInterimBucketCorrector>(modelConfig.bucketLength());
-        model::CSearchKey const key;
-        auto dataGatherer =
-            model::CDataGathererBuilder(model_t::E_EventRate,
-                                        {model_t::E_IndividualCountByBucketAndPerson},
-                                        params, key, modelConfig.bucketLength())
-                .buildSharedPtr();
+        model::CSearchKey key;
+        model::CAnomalyDetectorModel::TDataGathererPtr dataGatherer(
+            std::make_shared<model::CDataGatherer>(
+                model_t::E_EventRate, model_t::E_None, params, EMPTY_STRING,
+                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec{}, key,
+                model_t::TFeatureVec{model_t::E_IndividualCountByBucketAndPerson},
+                modelConfig.bucketLength(), 0));
         model::CEventData dummy;
         dataGatherer->addArrival(TStrCPtrVec(1, &EMPTY_STRING), dummy, resourceMonitor);
         dummy.clear();

@@ -124,6 +124,18 @@ public:
         return *this;
     }
 
+    std::shared_ptr<CDataGatherer> buildSharedPtr() const {
+        return std::make_shared<CDataGatherer>(m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
+                             m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
+                             m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
+                             m_StartTime, m_SampleCountOverride);
+    }
+
+    CDataGathererBuilder& partitionFieldValue(const std::string& partitionFieldValue) {
+        m_PartitionFieldValue = partitionFieldValue;
+        return *this;
+    }
+
     CDataGathererBuilder& personFieldName(std::string_view personFieldName) {
         m_PersonFieldName = personFieldName;
         return *this;
