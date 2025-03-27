@@ -242,7 +242,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
     //                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                            EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).build();
+                                                      features, params, searchKey, startTime)
+                                     .build();
     BOOST_TEST_REQUIRE(dataGatherer.isPopulation());
 
     BOOST_REQUIRE_EQUAL(startTime, dataGatherer.currentBucketStartTime());
@@ -356,7 +357,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeIndicator, CTestFixture) {
     //                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                            EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).build();
+                                                      features, params, searchKey, startTime)
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -416,7 +418,9 @@ BOOST_FIXTURE_TEST_CASE(testUniqueValueCounts, CTestFixture) {
     //                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                            "value", {}, searchKey, features, startTime, 0);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).valueFieldName("value").build();
+                                                      features, params, searchKey, startTime)
+                                     .valueFieldName("value")
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -482,9 +486,9 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
     features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
     SModelParams params(bucketLength);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                       features, params, searchKey, startTime)
-                                      .valueFieldName("value")
-                                      .build();
+                                                      features, params, searchKey, startTime)
+                                     .valueFieldName("value")
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -574,7 +578,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).build();
+                                                  features, params, searchKey, startTime)
+                                 .build();
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, bucketStart += bucketLength) {
         TMessageVec messages;
@@ -698,7 +703,8 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).build();
+                                                  features, params, searchKey, startTime)
+                                 .build();
     TMessageVec messages;
     generateTestMessages(rng, startTime, bucketLength, messages);
 
@@ -829,8 +835,10 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         //                                params, EMPTY_STRING, EMPTY_STRING,
         //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
         //                                {}, searchKey, features, startTime, 0);
-        CDataGatherer origDataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).build();
+        CDataGatherer origDataGatherer =
+            CDataGathererBuilder(model_t::E_PopulationEventRate, features,
+                                 params, searchKey, startTime)
+                .build();
         TMessageVec messages;
         generateTestMessages(rng, startTime, bucketLength, messages);
 
@@ -853,8 +861,11 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         //                            params, EMPTY_STRING, EMPTY_STRING,
         //                            EMPTY_STRING, EMPTY_STRING, "value", {},
         //                            searchKey, features, startTime, 0);
-        CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
-                                                  features, params, searchKey, startTime).valueFieldName("value").build();
+        CDataGatherer dataGatherer =
+            CDataGathererBuilder(model_t::E_PopulationEventRate, features,
+                                 params, searchKey, startTime)
+                .valueFieldName("value")
+                .build();
         core_t::TTime time = startTime;
         for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
             TMessageVec messages;

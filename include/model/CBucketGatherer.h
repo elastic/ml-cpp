@@ -131,11 +131,18 @@ public:
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
     using TTimeVec = std::vector<core_t::TTime>;
     using TTimeVecCItr = TTimeVec::const_iterator;
-    using TOptionalResourceMonitorCRef = std::optional<std::reference_wrapper<const CResourceMonitor>>;
+    using TOptionalResourceMonitorCRef =
+        std::optional<std::reference_wrapper<const CResourceMonitor>>;
 
     struct SBucketGathererInitData {
         static SBucketGathererInitData emptyData() {
-            return {.s_SummaryCountFieldName="", .s_PersonFieldName="", .s_AttributeFieldName="", .s_ValueFieldName="", .s_InfluenceFieldNames={}, .s_StartTime=0, .s_SampleOverrideCount=0};
+            return {.s_SummaryCountFieldName = "",
+                    .s_PersonFieldName = "",
+                    .s_AttributeFieldName = "",
+                    .s_ValueFieldName = "",
+                    .s_InfluenceFieldNames = {},
+                    .s_StartTime = 0,
+                    .s_SampleOverrideCount = 0};
         }
         const std::string& s_SummaryCountFieldName;
         const std::string& s_PersonFieldName;

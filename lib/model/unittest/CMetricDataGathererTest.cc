@@ -247,8 +247,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime);
-            gatherer.featureData((startTime + bucketLength - 1),
-                                 bucketLength, featureData);
+            gatherer.featureData((startTime + bucketLength - 1), bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -707,7 +706,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
         //                                {}, KEY, features, startTime, 0);
 
-        CDataGatherer expectedGatherer = CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime).build();
+        CDataGatherer expectedGatherer =
+            CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+                .build();
         BOOST_REQUIRE_EQUAL(0, addPerson("p3", expectedGatherer, m_ResourceMonitor));
         BOOST_REQUIRE_EQUAL(1, addPerson("p4", expectedGatherer, m_ResourceMonitor));
         BOOST_REQUIRE_EQUAL(2, addPerson("p5", expectedGatherer, m_ResourceMonitor));
@@ -741,7 +742,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         //                                params, EMPTY_STRING, EMPTY_STRING,
         //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
         //                                {}, KEY, features, startTime, 0);
-        CDataGatherer expectedGatherer = CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime).build();
+        CDataGatherer expectedGatherer =
+            CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+                .build();
 
         BOOST_REQUIRE_EQUAL(0, addPerson("p3", expectedGatherer, m_ResourceMonitor));
         BOOST_REQUIRE_EQUAL(1, addPerson("p6", expectedGatherer, m_ResourceMonitor));
@@ -773,7 +776,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         //                                params, EMPTY_STRING, EMPTY_STRING,
         //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
         //                                {}, KEY, features, startTime, 0);
-        CDataGatherer expectedGatherer = CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime).build();
+        CDataGatherer expectedGatherer =
+            CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+                .build();
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
@@ -805,7 +810,9 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     // CDataGatherer sum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
     //                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                   {}, KEY, sumFeatures, startTime, 0);
-    CDataGatherer sum = CDataGathererBuilder(model_t::E_Metric,sumFeatures, params, KEY, startTime).build();
+    CDataGatherer sum = CDataGathererBuilder(model_t::E_Metric, sumFeatures,
+                                             params, KEY, startTime)
+                            .build();
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", sum, m_ResourceMonitor));
 
     TFeatureVec nonZeroSumFeatures;
@@ -814,7 +821,9 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     // CDataGatherer nonZeroSum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
     //                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                          {}, KEY, nonZeroSumFeatures, startTime, 0);
-    CDataGatherer nonZeroSum = CDataGathererBuilder(model_t::E_Metric,nonZeroSumFeatures, params, KEY, startTime).build();
+    CDataGatherer nonZeroSum = CDataGathererBuilder(model_t::E_Metric, nonZeroSumFeatures,
+                                                    params, KEY, startTime)
+                                   .build();
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", nonZeroSum, m_ResourceMonitor));
 
     core_t::TTime bucketStart = startTime;
@@ -1152,7 +1161,10 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric,features, params, KEY, startTime).sampleCountOverride(2U).build();
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .sampleCountOverride(2U)
+            .build();
     addPerson("p1", gatherer, m_ResourceMonitor);
     addPerson("p2", gatherer, m_ResourceMonitor);
     addPerson("p3", gatherer, m_ResourceMonitor);
@@ -1448,9 +1460,11 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
-    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric,features, params, KEY, startTime)
-    .influenceFieldNames(influencerNames)
-    .sampleCountOverride(2U).build();
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .influenceFieldNames(influencerNames)
+            .sampleCountOverride(2U)
+            .build();
     addPerson("p1", gatherer, m_ResourceMonitor, influencerNames.size());
     addPerson("p2", gatherer, m_ResourceMonitor, influencerNames.size());
 
