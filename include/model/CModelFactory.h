@@ -17,6 +17,7 @@
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
 
+#include <model/CResourceMonitor.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -104,6 +105,8 @@ public:
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
     using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
     using TStrDetectionRulePrVecCRef = std::reference_wrapper<const TStrDetectionRulePrVec>;
+    using TResourceMonitorCRef = std::reference_wrapper<const CResourceMonitor>;
+    using TOptionalResourceMonitorCRef = std::optional<TResourceMonitorCRef>;
 
 public:
     //! Wrapper around the model initialization data.
@@ -373,6 +376,8 @@ public:
     //! Get the minimum seasonal variance scale, specific to the model
     virtual double minimumSeasonalVarianceScale() const = 0;
 
+    void resourceMonitor(const TResourceMonitorCRef& resourceMonitor) const;
+
 protected:
     using TMultivariatePriorUPtrVec = std::vector<TMultivariatePriorUPtr>;
     using TOptionalSearchKey = std::optional<CSearchKey>;
@@ -455,6 +460,8 @@ private:
 
     //! A cache of influence calculators for collections of features.
     mutable TStrFeatureVecPrInfluenceCalculatorCPtrMap m_InfluenceCalculatorCache;
+
+    mutable TOptionalResourceMonitorCRef m_ResourceMonitor;
 };
 }
 }

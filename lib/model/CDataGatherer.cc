@@ -145,16 +145,10 @@ const std::size_t CDataGatherer::ESTIMATED_MEM_USAGE_PER_OVER_FIELD(1000);
 CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              model_t::ESummaryMode summaryMode,
                              const SModelParams& modelParams,
-                             const std::string& summaryCountFieldName,
                              const std::string& partitionFieldValue,
-                             const std::string& personFieldName,
-                             const std::string& attributeFieldName,
-                             const std::string& valueFieldName,
-                             const TStrVec& influenceFieldNames,
                              const CSearchKey& key,
                              const TFeatureVec& features,
-                             core_t::TTime startTime,
-                             int sampleCountOverride)
+                             const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData)
     : m_GathererType(gathererType),
       m_Features(detail::sanitize(features, gathererType)),
       m_SummaryMode(summaryMode), m_Params(modelParams), m_SearchKey(key),
@@ -170,21 +164,20 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
       m_Population(detail::isPopulation(gathererType)), m_UseNull(key.useNull()) {
 
     std::sort(m_Features.begin(), m_Features.end());
-    this->createBucketGatherer(gathererType, summaryCountFieldName,
-                               personFieldName, attributeFieldName, valueFieldName,
-                               influenceFieldNames, startTime, sampleCountOverride);
+    this->createBucketGatherer(gathererType, bucketGathererInitData);
 }
 
 CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              model_t::ESummaryMode summaryMode,
                              const SModelParams& modelParams,
-                             const std::string& summaryCountFieldName,
+                             // const std::string& summaryCountFieldName,
                              const std::string& partitionFieldValue,
-                             const std::string& personFieldName,
-                             const std::string& attributeFieldName,
-                             const std::string& valueFieldName,
-                             const TStrVec& influenceFieldNames,
+                             // const std::string& personFieldName,
+                             // const std::string& attributeFieldName,
+                             // const std::string& valueFieldName,
+                             // const TStrVec& influenceFieldNames,
                              const CSearchKey& key,
+                             const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                              core::CStateRestoreTraverser& traverser)
     : m_GathererType(gathererType), m_SummaryMode(summaryMode), m_Params(modelParams),
       m_SearchKey(key), m_PartitionFieldValue(partitionFieldValue),
@@ -197,10 +190,9 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                            counter_t::E_TSADNumberNewAttributesNotAllowed,
                            counter_t::E_TSADNumberNewAttributesRecycled),
       m_Population(detail::isPopulation(gathererType)), m_UseNull(key.useNull()) {
-    if (traverser.traverseSubLevel(std::bind(
-            &CDataGatherer::acceptRestoreTraverser, this, std::cref(summaryCountFieldName),
-            std::cref(personFieldName), std::cref(attributeFieldName), std::cref(valueFieldName),
-            std::cref(influenceFieldNames), std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel(std::bind(&CDataGatherer::acceptRestoreTraverser,
+                                             this, std::cref(bucketGathererInitData),
+                                             std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to correctly restore data gatherer");
     }
 }
@@ -739,11 +731,12 @@ bool CDataGatherer::checkInvariants() const {
     return true;
 }
 
-bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldName,
+bool CDataGatherer::acceptRestoreTraverser(/*const std::string& summaryCountFieldName,
                                            const std::string& personFieldName,
                                            const std::string& attributeFieldName,
                                            const std::string& valueFieldName,
-                                           const TStrVec& influenceFieldNames,
+                                           const TStrVec& influenceFieldNames,*/
+                                           const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                            core::CStateRestoreTraverser& traverser) {
     this->clear();
     m_Features.clear();
@@ -775,34 +768,31 @@ bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldN
         RESTORE(BUCKET_GATHERER_TAG,
                 traverser.traverseSubLevel(std::bind(
                     &CDataGatherer::restoreBucketGatherer, this,
-                    std::cref(summaryCountFieldName), std::cref(personFieldName),
-                    std::cref(attributeFieldName), std::cref(valueFieldName),
-                    std::cref(influenceFieldNames), std::placeholders::_1)))
+                    std::cref(bucketGathererInitData), std::placeholders::_1)))
     } while (traverser.next());
 
     return true;
 }
 
-bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldName,
+bool CDataGatherer::restoreBucketGatherer(/*const std::string& summaryCountFieldName,
                                           const std::string& personFieldName,
                                           const std::string& attributeFieldName,
                                           const std::string& valueFieldName,
-                                          const TStrVec& influenceFieldNames,
+                                          const TStrVec& influenceFieldNames,*/
+                                          const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                           core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         if (name == CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG) {
             m_BucketGatherer = std::make_unique<CEventRateBucketGatherer>(
-                *this, summaryCountFieldName, personFieldName, attributeFieldName,
-                valueFieldName, influenceFieldNames, traverser);
+                *this, bucketGathererInitData, traverser);
             if (m_BucketGatherer == nullptr) {
                 LOG_ERROR(<< "Failed to create event rate bucket gatherer");
                 return false;
             }
         } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
             m_BucketGatherer = std::make_unique<CMetricBucketGatherer>(
-                *this, summaryCountFieldName, personFieldName, attributeFieldName,
-                valueFieldName, influenceFieldNames, traverser);
+                *this, bucketGathererInitData, traverser);
             if (m_BucketGatherer == nullptr) {
                 LOG_ERROR(<< "Failed to create metric bucket gatherer");
                 return false;
@@ -825,26 +815,16 @@ void CDataGatherer::persistBucketGatherers(core::CStatePersistInserter& inserter
 }
 
 void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType,
-                                         const std::string& summaryCountFieldName,
-                                         const std::string& personFieldName,
-                                         const std::string& attributeFieldName,
-                                         const std::string& valueFieldName,
-                                         const TStrVec& influenceFieldNames,
-                                         core_t::TTime startTime,
-                                         unsigned int sampleCountOverride) {
+                                         const CBucketGatherer::SBucketGathererInitData& initData) {
     switch (gathererType) {
     case model_t::E_EventRate:
     case model_t::E_PopulationEventRate:
-        m_BucketGatherer = std::make_unique<CEventRateBucketGatherer>(
-            *this, summaryCountFieldName, personFieldName, attributeFieldName,
-            valueFieldName, influenceFieldNames, startTime);
+        m_BucketGatherer = std::make_unique<CEventRateBucketGatherer>(*this, initData);
         break;
     case model_t::E_Metric:
     case model_t::E_PopulationMetric:
-        m_SampleCounts = std::make_unique<CSampleCounts>(sampleCountOverride);
-        m_BucketGatherer = std::make_unique<CMetricBucketGatherer>(
-            *this, summaryCountFieldName, personFieldName, attributeFieldName,
-            valueFieldName, influenceFieldNames, startTime);
+        m_SampleCounts = std::make_unique<CSampleCounts>(initData.s_SampleOverrideCount);
+        m_BucketGatherer = std::make_unique<CMetricBucketGatherer>(*this, initData);
         break;
     }
 }

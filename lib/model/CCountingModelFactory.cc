@@ -61,19 +61,26 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData,
 
 CDataGatherer*
 CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
-    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode, this->modelParams(),
-                             m_SummaryCountFieldName, initData.s_PartitionFieldValue,
-                             m_PersonFieldName, EMPTY_STRING, EMPTY_STRING, {},
-                             this->searchKey(), m_Features, initData.s_StartTime, 0);
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{m_SummaryCountFieldName,
+                                                                    m_PersonFieldName,
+                                                                    EMPTY_STRING,
+                                                                    EMPTY_STRING,
+                                                                    {},
+                                                                    initData.s_StartTime,
+                                                                    0};
+    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
+                             this->modelParams(), initData.s_PartitionFieldValue,
+                             this->searchKey(), m_Features, bucketGathererInitData);
 }
 
 CDataGatherer*
 CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                         core::CStateRestoreTraverser& traverser) const {
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
     return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
-                             this->modelParams(), m_SummaryCountFieldName,
-                             partitionFieldValue, m_PersonFieldName, EMPTY_STRING,
-                             EMPTY_STRING, {}, this->searchKey(), traverser);
+                             this->modelParams(), partitionFieldValue,
+                             this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CCountingModelFactory::TPriorPtr

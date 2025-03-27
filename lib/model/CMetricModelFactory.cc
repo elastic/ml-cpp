@@ -92,21 +92,27 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData,
 
 CDataGatherer*
 CMetricModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
-    return new CDataGatherer(model_t::E_Metric, m_SummaryMode,
-                             this->modelParams(), m_SummaryCountFieldName,
-                             initData.s_PartitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING /*AttributeFieldName*/, m_ValueFieldName,
-                             m_InfluenceFieldNames, this->searchKey(), m_Features,
-                             initData.s_StartTime, initData.s_SampleOverrideCount);
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        m_SummaryCountFieldName,
+        m_PersonFieldName,
+        EMPTY_STRING /*AttributeFieldName*/,
+        m_ValueFieldName,
+        m_InfluenceFieldNames,
+        initData.s_StartTime,
+        initData.s_SampleOverrideCount};
+    return new CDataGatherer(model_t::E_Metric, m_SummaryMode, this->modelParams(),
+                             initData.s_PartitionFieldValue, this->searchKey(),
+                             m_Features, bucketGathererInitData);
 }
 
 CDataGatherer*
 CMetricModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                       core::CStateRestoreTraverser& traverser) const {
-    return new CDataGatherer(model_t::E_Metric, m_SummaryMode, this->modelParams(),
-                             m_SummaryCountFieldName, partitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING /*AttributeFieldName*/, m_ValueFieldName,
-                             m_InfluenceFieldNames, this->searchKey(), traverser);
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, m_ValueFieldName, m_InfluenceFieldNames, 0, 0};
+    return new CDataGatherer(model_t::E_Metric, m_SummaryMode,
+                             this->modelParams(), partitionFieldValue,
+                             this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CMetricModelFactory::TPriorPtr

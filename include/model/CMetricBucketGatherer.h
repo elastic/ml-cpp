@@ -66,20 +66,11 @@ public:
     //! \param[in] startTime The start of the time interval for which
     //! to gather data.
     CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                          const std::string& summaryCountFieldName,
-                          const std::string& personFieldName,
-                          const std::string& attributeFieldName,
-                          const std::string& valueFieldName,
-                          const TStrVec& influenceFieldNames,
-                          core_t::TTime startTime);
+                          const CBucketGatherer::SBucketGathererInitData& initData);
 
     //! Construct from a state document.
     CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                          const std::string& summaryCountFieldName,
-                          const std::string& personFieldName,
-                          const std::string& attributeFieldName,
-                          const std::string& valueFieldName,
-                          const TStrVec& influenceFieldNames,
+                          const CBucketGatherer::SBucketGathererInitData& initData,
                           core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -266,9 +257,7 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart1(const std::string& personFieldName,
-                                   const std::string& attributeFieldName,
-                                   const TStrVec& influenceFieldNames);
+    void initializeFieldNamesPart1(const SBucketGathererInitData& initData);
 
     //! Initialize the field names collection.
     //! initializeFieldNamesPart1() must be called before this.
@@ -277,8 +266,7 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart2(const std::string& valueFieldName,
-                                   const std::string& summaryCountFieldName);
+    void initializeFieldNamesPart2(const SBucketGathererInitData& initData);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData();

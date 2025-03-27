@@ -124,20 +124,22 @@ public:
     //! \param[in] startTime The start of the time interval for which
     //! to gather data.
     CEventRateBucketGatherer(CDataGatherer& dataGatherer,
-                             const std::string& summaryCountFieldName,
+                             const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData
+                             /*const std::string& summaryCountFieldName,
                              const std::string& personFieldName,
                              const std::string& attributeFieldName,
                              const std::string& valueFieldName,
                              const TStrVec& influenceFieldNames,
-                             core_t::TTime startTime);
+                             core_t::TTime startTime*/);
 
     //! Construct from a state document.
     CEventRateBucketGatherer(CDataGatherer& dataGatherer,
-                             const std::string& summaryCountFieldName,
+                             const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
+                             /*const std::string& summaryCountFieldName,
                              const std::string& personFieldName,
                              const std::string& attributeFieldName,
                              const std::string& valueFieldName,
-                             const TStrVec& influenceFieldNames,
+                             const TStrVec& influenceFieldNames,*/
                              core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -444,11 +446,7 @@ private:
     void startNewBucket(core_t::TTime time, bool skipUpdates) override;
 
     //! Initialize the field names collection.
-    void initializeFieldNames(const std::string& personFieldName,
-                              const std::string& attributeFieldName,
-                              const std::string& valueFieldName,
-                              const std::string& summaryCountFieldName,
-                              const TStrVec& influenceFieldNames);
+    void initializeFieldNames(const CBucketGatherer::SBucketGathererInitData& initData);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData();

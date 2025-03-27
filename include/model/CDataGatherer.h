@@ -169,28 +169,30 @@ public:
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
-                  const std::string& summaryCountFieldName,
+                  // const std::string& summaryCountFieldName,
                   const std::string& partitionFieldValue,
-                  const std::string& personFieldName,
-                  const std::string& attributeFieldName,
-                  const std::string& valueFieldName,
-                  const TStrVec& influenceFieldNames,
+                  // const std::string& personFieldName,
+                  // const std::string& attributeFieldName,
+                  // const std::string& valueFieldName,
+                  // const TStrVec& influenceFieldNames,
                   const CSearchKey& key,
                   const TFeatureVec& features,
-                  core_t::TTime startTime,
-                  int sampleCountOverride);
+                  // core_t::TTime startTime,
+                  // int sampleCountOverride
+                  const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData);
 
     //! Construct from a state document.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
-                  const std::string& summaryCountFieldName,
+                  // const std::string& summaryCountFieldName,
                   const std::string& partitionFieldValue,
-                  const std::string& personFieldName,
-                  const std::string& attributeFieldName,
-                  const std::string& valueFieldName,
-                  const TStrVec& influenceFieldNames,
+                  // const std::string& personFieldName,
+                  // const std::string& attributeFieldName,
+                  // const std::string& valueFieldName,
+                  // const TStrVec& influenceFieldNames,
                   const CSearchKey& key,
+                  const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                   core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -675,19 +677,21 @@ private:
 
 private:
     //! Restore state from supplied traverser.
-    bool acceptRestoreTraverser(const std::string& summaryCountFieldName,
+    bool acceptRestoreTraverser(/*const std::string& summaryCountFieldName,
                                 const std::string& personFieldName,
                                 const std::string& attributeFieldName,
                                 const std::string& valueFieldName,
-                                const TStrVec& influenceFieldNames,
+                                const TStrVec& influenceFieldNames,*/
+                                const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                 core::CStateRestoreTraverser& traverser);
 
     //! Restore a bucket gatherer from the supplied traverser.
-    bool restoreBucketGatherer(const std::string& summaryCountFieldName,
+    bool restoreBucketGatherer(/*const std::string& summaryCountFieldName,
                                const std::string& personFieldName,
                                const std::string& attributeFieldName,
                                const std::string& valueFieldName,
-                               const TStrVec& influenceFieldNames,
+                               const TStrVec& influenceFieldNames,*/
+                               const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                core::CStateRestoreTraverser& traverser);
 
     //! Persist a bucket gatherer by passing information to the supplied
@@ -696,13 +700,7 @@ private:
 
     //! Create the bucket specific data gatherer.
     void createBucketGatherer(model_t::EAnalysisCategory gathererType,
-                              const std::string& summaryCountFieldName,
-                              const std::string& personFieldName,
-                              const std::string& attributeFieldName,
-                              const std::string& valueFieldName,
-                              const TStrVec& influenceFieldNames,
-                              core_t::TTime startTime,
-                              unsigned int sampleCountOverride);
+                              const CBucketGatherer::SBucketGathererInitData& initData);
 
 private:
     //! The type of the bucket gatherer(s) used.
