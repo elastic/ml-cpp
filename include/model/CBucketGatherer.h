@@ -132,6 +132,19 @@ public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TTimeVecCItr = TTimeVec::const_iterator;
 
+    struct SBucketGathererInitData {
+        static SBucketGathererInitData emptyData() {
+            return {.s_SummaryCountFieldName="", .s_PersonFieldName="", .s_AttributeFieldName="", .s_ValueFieldName="", .s_InfluenceFieldNames={}, .s_StartTime=0, .s_SampleOverrideCount=0};
+        }
+        const std::string& s_SummaryCountFieldName;
+        const std::string& s_PersonFieldName;
+        const std::string& s_AttributeFieldName;
+        const std::string& s_ValueFieldName;
+        const TStrVec& s_InfluenceFieldNames;
+        core_t::TTime s_StartTime;
+        unsigned int s_SampleOverrideCount;
+    };
+
 public:
     static const std::string EVENTRATE_BUCKET_GATHERER_TAG;
     static const std::string METRIC_BUCKET_GATHERER_TAG;

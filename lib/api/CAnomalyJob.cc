@@ -1610,8 +1610,11 @@ CAnomalyJob::detectorForKey(bool isRestoring,
                   << partition << '\'' << ", time " << time);
         LOG_TRACE(<< "Detector count " << m_Detectors.size());
 
-        detector = ml::api::CAnomalyJob::makeDetector(
-            m_ModelConfig, m_Limits, partition, time, m_ModelConfig.factory(key));
+        auto factory = m_ModelConfig.factory(key);
+        factory->resourceMonitor(resourceMonitor);
+
+        detector = ml::api::CAnomalyJob::makeDetector(m_ModelConfig, m_Limits,
+                                                      partition, time, factory);
         if (detector == nullptr) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()
             // contracts to never return NULL

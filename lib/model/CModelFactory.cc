@@ -291,6 +291,10 @@ void CModelFactory::annotationsEnabled(bool enabled) {
     m_ModelParams.s_AnnotationsEnabled = enabled;
 }
 
+void CModelFactory::resourceMonitor(const TResourceMonitorCRef& resourceMonitor) const {
+    m_ResourceMonitor = resourceMonitor;
+}
+
 CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector() const {
     TInterimBucketCorrectorPtr result{m_InterimBucketCorrector.lock()};
     if (result == nullptr) {

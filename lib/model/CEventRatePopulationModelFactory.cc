@@ -93,21 +93,34 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
 
 CDataGatherer*
 CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
+    CBucketGatherer::SBucketGathererInitData const bucketGathererInitData{
+        .s_SummaryCountFieldName=m_SummaryCountFieldName,
+        .s_PersonFieldName=m_PersonFieldName,
+        .s_AttributeFieldName=m_AttributeFieldName,
+        .s_ValueFieldName=m_ValueFieldName,
+        .s_InfluenceFieldNames=m_InfluenceFieldNames,
+        .s_StartTime=initData.s_StartTime,
+        .s_SampleOverrideCount=0};
     return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
-                             this->modelParams(), m_SummaryCountFieldName,
-                             initData.s_PartitionFieldValue, m_PersonFieldName,
-                             m_AttributeFieldName, m_ValueFieldName, m_InfluenceFieldNames,
-                             this->searchKey(), m_Features, initData.s_StartTime, 0);
+                             this->modelParams(),
+                             initData.s_PartitionFieldValue,
+                             this->searchKey(), m_Features, bucketGathererInitData);
 }
 
 CDataGatherer*
 CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                                    core::CStateRestoreTraverser& traverser) const {
+    CBucketGatherer::SBucketGathererInitData const bucketGathererInitData{
+        .s_SummaryCountFieldName=m_SummaryCountFieldName,
+        .s_PersonFieldName=m_PersonFieldName,
+        .s_AttributeFieldName=m_AttributeFieldName,
+        .s_ValueFieldName=m_ValueFieldName,
+        .s_InfluenceFieldNames=m_InfluenceFieldNames,
+        .s_StartTime=0,
+        .s_SampleOverrideCount=0};
     return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
-                             this->modelParams(), m_SummaryCountFieldName,
-                             partitionFieldValue, m_PersonFieldName,
-                             m_AttributeFieldName, m_ValueFieldName,
-                             m_InfluenceFieldNames, this->searchKey(), traverser);
+                             this->modelParams(), partitionFieldValue,
+                             this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CEventRatePopulationModelFactory::TPriorPtr
