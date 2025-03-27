@@ -24,6 +24,8 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include "ModelTestHelpers.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -236,9 +238,12 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
     features.push_back(model_t::E_PopulationCountByBucketPersonAndAttribute);
     features.push_back(model_t::E_PopulationUniquePersonCountByAttribute);
     SModelParams params(bucketLength);
-    CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, searchKey, features, startTime, 0);
+    // CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
+    //                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+    //                            EMPTY_STRING, {}, searchKey, features, startTime, 0);
+    CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
+                                                      features, params, searchKey, startTime)
+                                     .build();
     BOOST_TEST_REQUIRE(dataGatherer.isPopulation());
 
     BOOST_REQUIRE_EQUAL(startTime, dataGatherer.currentBucketStartTime());
@@ -348,10 +353,12 @@ BOOST_FIXTURE_TEST_CASE(testAttributeIndicator, CTestFixture) {
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_PopulationIndicatorOfBucketPersonAndAttribute);
     SModelParams params(bucketLength);
-    CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, searchKey, features, startTime, 0);
-
+    // CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
+    //                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+    //                            EMPTY_STRING, {}, searchKey, features, startTime, 0);
+    CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
+                                                      features, params, searchKey, startTime)
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -407,10 +414,13 @@ BOOST_FIXTURE_TEST_CASE(testUniqueValueCounts, CTestFixture) {
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_PopulationUniqueCountByBucketPersonAndAttribute);
     SModelParams params(bucketLength);
-    CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               "value", {}, searchKey, features, startTime, 0);
-
+    // CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
+    //                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+    //                            "value", {}, searchKey, features, startTime, 0);
+    CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
+                                                      features, params, searchKey, startTime)
+                                     .valueFieldName("value")
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -475,10 +485,10 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
     SModelParams params(bucketLength);
-    CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               "value", {}, searchKey, features, startTime, 0);
-
+    CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
+                                                      features, params, searchKey, startTime)
+                                     .valueFieldName("value")
+                                     .build();
     core_t::TTime time = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
@@ -564,9 +574,12 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_PopulationCountByBucketPersonAndAttribute);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, searchKey, features, startTime, 0);
+    // CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
+    //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+    //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
+                                                  features, params, searchKey, startTime)
+                                 .build();
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0; i < numberBuckets; ++i, bucketStart += bucketLength) {
         TMessageVec messages;
@@ -686,10 +699,12 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     features.push_back(model_t::E_PopulationCountByBucketPersonAndAttribute);
     features.push_back(model_t::E_PopulationUniquePersonCountByAttribute);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, searchKey, features, startTime, 0);
-
+    // CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
+    //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+    //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
+                                                  features, params, searchKey, startTime)
+                                 .build();
     TMessageVec messages;
     generateTestMessages(rng, startTime, bucketLength, messages);
 
@@ -792,10 +807,10 @@ void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
     std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
+    auto bucketGathererInitData = CBucketGatherer::SBucketGathererInitData::emptyData();
     CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
                                        model_t::E_None, params, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, {}, searchKey, traverser);
+                                       searchKey, bucketGathererInitData, traverser);
 
     // The Json representation of the new data gatherer should be the same as the
     // original
@@ -816,11 +831,14 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         features.push_back(model_t::E_PopulationCountByBucketPersonAndAttribute);
         features.push_back(model_t::E_PopulationUniquePersonCountByAttribute);
         SModelParams params(bucketLength);
-        CDataGatherer origDataGatherer(model_t::E_PopulationEventRate, model_t::E_None,
-                                       params, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       {}, searchKey, features, startTime, 0);
-
+        // CDataGatherer origDataGatherer(model_t::E_PopulationEventRate, model_t::E_None,
+        //                                params, EMPTY_STRING, EMPTY_STRING,
+        //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+        //                                {}, searchKey, features, startTime, 0);
+        CDataGatherer origDataGatherer =
+            CDataGathererBuilder(model_t::E_PopulationEventRate, features,
+                                 params, searchKey, startTime)
+                .build();
         TMessageVec messages;
         generateTestMessages(rng, startTime, bucketLength, messages);
 
@@ -839,11 +857,15 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         CDataGatherer::TFeatureVec features;
         features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
         SModelParams params(bucketLength);
-        CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None,
-                                   params, EMPTY_STRING, EMPTY_STRING,
-                                   EMPTY_STRING, EMPTY_STRING, "value", {},
-                                   searchKey, features, startTime, 0);
-
+        // CDataGatherer dataGatherer(model_t::E_PopulationEventRate, model_t::E_None,
+        //                            params, EMPTY_STRING, EMPTY_STRING,
+        //                            EMPTY_STRING, EMPTY_STRING, "value", {},
+        //                            searchKey, features, startTime, 0);
+        CDataGatherer dataGatherer =
+            CDataGathererBuilder(model_t::E_PopulationEventRate, features,
+                                 params, searchKey, startTime)
+                .valueFieldName("value")
+                .build();
         core_t::TTime time = startTime;
         for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
             TMessageVec messages;

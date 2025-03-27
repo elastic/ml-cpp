@@ -23,6 +23,7 @@
 #include <model/CSearchKey.h>
 
 #include "Mocks.h"
+#include "ModelTestHelpers.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -60,10 +61,10 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
     TMockModelPtr model;
 
     auto setupTest = [&]() {
-        gatherer = std::make_shared<model::CDataGatherer>(
-            model_t::analysisCategory(features[0]), model_t::E_None, params,
-            EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING,
-            TStrVec{}, key, features, 0, 0);
+        gatherer = model::CDataGathererBuilder(model_t::analysisCategory(features[0]),
+                                               features, params, key, 0)
+                       .personFieldName("p")
+                       .buildSharedPtr();
         std::string person11{"p11"};
         std::string person12{"p12"};
         std::string person21{"p21"};

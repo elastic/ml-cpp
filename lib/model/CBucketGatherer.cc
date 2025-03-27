@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "model/CResourceMonitor.h"
 #include <model/CBucketGatherer.h>
 
 #include <core/CLogger.h>
@@ -202,21 +203,21 @@ const std::string CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG("a");
 const std::string CBucketGatherer::METRIC_BUCKET_GATHERER_TAG("b");
 
 CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer,
-                                 core_t::TTime startTime,
-                                 std::size_t numberInfluencers)
-    : m_DataGatherer(dataGatherer), m_EarliestTime(startTime), m_BucketStart(startTime),
+                                 const SBucketGathererInitData& initData)
+    : m_DataGatherer(dataGatherer), m_EarliestTime(initData.s_StartTime), m_BucketStart(initData.s_StartTime),
       m_PersonAttributeCounts(dataGatherer.params().s_LatencyBuckets,
                               dataGatherer.params().s_BucketLength,
-                              startTime,
+                              initData.s_StartTime,
                               TSizeSizePrUInt64UMap(1)),
       m_PersonAttributeExplicitNulls(dataGatherer.params().s_LatencyBuckets,
                                      dataGatherer.params().s_BucketLength,
-                                     startTime,
+                                     initData.s_StartTime,
                                      TSizeSizePrUSet(1)),
       m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                          dataGatherer.params().s_BucketLength,
-                         startTime,
-                         TSizeSizePrOptionalStrPrUInt64UMapVec(numberInfluencers)) {
+                         initData.s_StartTime,
+                         TSizeSizePrOptionalStrPrUInt64UMapVec(initData.s_InfluenceFieldNames.size())),
+m_ResourceMonitor(initData.s_ResourceMonitor){
 }
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& other)
@@ -224,7 +225,7 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
       m_EarliestTime(other.m_EarliestTime), m_BucketStart(other.m_BucketStart),
       m_PersonAttributeCounts(other.m_PersonAttributeCounts),
       m_PersonAttributeExplicitNulls(other.m_PersonAttributeExplicitNulls),
-      m_InfluencerCounts(other.m_InfluencerCounts) {
+      m_InfluencerCounts(other.m_InfluencerCounts), m_ResourceMonitor(other.m_ResourceMonitor) {
     if (!isForPersistence) {
         LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
@@ -293,7 +294,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
             if (influence) {
                 const std::string& inf = *influence;
                 canonicalInfluences[i] = inf;
-                if (count > 0) {
+                if (count > 0 && m_ResourceMonitor && m_ResourceMonitor->get().areAllocationsAllowed()) {
                     influencerCounts[i]
                         .emplace(boost::unordered::piecewise_construct,
                                  boost::make_tuple(pidCid, inf),

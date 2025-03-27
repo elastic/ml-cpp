@@ -131,6 +131,28 @@ public:
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
     using TTimeVec = std::vector<core_t::TTime>;
     using TTimeVecCItr = TTimeVec::const_iterator;
+    using TOptionalResourceMonitorCRef =
+        std::optional<std::reference_wrapper<const CResourceMonitor>>;
+
+    struct SBucketGathererInitData {
+        static SBucketGathererInitData emptyData() {
+            return {.s_SummaryCountFieldName = "",
+                    .s_PersonFieldName = "",
+                    .s_AttributeFieldName = "",
+                    .s_ValueFieldName = "",
+                    .s_InfluenceFieldNames = {},
+                    .s_StartTime = 0,
+                    .s_SampleOverrideCount = 0};
+        }
+        const std::string& s_SummaryCountFieldName;
+        const std::string& s_PersonFieldName;
+        const std::string& s_AttributeFieldName;
+        const std::string& s_ValueFieldName;
+        const TStrVec& s_InfluenceFieldNames;
+        core_t::TTime s_StartTime;
+        unsigned int s_SampleOverrideCount;
+        TOptionalResourceMonitorCRef s_ResourceMonitor;
+    };
 
 public:
     static const std::string EVENTRATE_BUCKET_GATHERER_TAG;
@@ -146,7 +168,7 @@ public:
     //! to gather data.
     //! \param[in] numberInfluencers The number of result influencers
     //! for which to gather data.
-    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime, std::size_t numberInfluencers);
+    CBucketGatherer(CDataGatherer& dataGatherer, const SBucketGathererInitData& bucketGathererInitData);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
@@ -452,6 +474,8 @@ private:
 
     //! The influencing field value counts per person and/or attribute.
     TSizeSizePrOptionalStrPrUInt64UMapVecQueue m_InfluencerCounts;
+
+    TOptionalResourceMonitorCRef m_ResourceMonitor;
 };
 }
 }
