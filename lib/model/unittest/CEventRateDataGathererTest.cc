@@ -63,6 +63,61 @@ namespace {
 const CSearchKey key;
 const std::string EMPTY_STRING;
 
+class CDataGathererBuilder {
+public:
+    CDataGathererBuilder(const TFeatureVec& features, const SModelParams& params, const CSearchKey& searchKey,
+                         const core_t::TTime startTime
+    ): m_Features(features), m_Params(params),  m_StartTime(startTime), m_SearchKey(searchKey) {}
+
+    CDataGatherer build() const {
+        return {m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
+                             m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
+                             m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
+                             m_StartTime, m_SampleCountOverride};
+    }
+
+    CDataGathererBuilder& personFieldName(const std::string& personFieldName) {
+        m_PersonFieldName = personFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& valueFieldName(const std::string& valueFieldName) {
+        m_ValueFieldName = valueFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& influenceFieldNames(const TStrVec& influenceFieldName) {
+        m_InfluenceFieldNames = influenceFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& attributeFieldName(const std::string& attributeFieldName) {
+        m_AttributeFieldName = attributeFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& gathererType(model_t::EAnalysisCategory gathererType) {
+        m_GathererType = gathererType;
+        return *this;
+    }
+
+private:
+    const TFeatureVec& m_Features;
+    const SModelParams& m_Params;
+    core_t::TTime m_StartTime;
+    const CSearchKey& m_SearchKey;
+    model_t::EAnalysisCategory m_GathererType{model_t::E_EventRate};
+    model_t::ESummaryMode m_SummaryMode{model_t::E_None};
+    std::string m_SummaryCountFieldName{EMPTY_STRING};
+    std::string m_PartitionFieldValue{EMPTY_STRING};
+    std::string m_PersonFieldName{EMPTY_STRING};
+    std::string m_AttributeFieldName{EMPTY_STRING};
+    std::string m_ValueFieldName{EMPTY_STRING};
+    TStrVec m_InfluenceFieldNames;
+    int m_SampleCountOverride{0};
+
+};
+
 std::size_t addPerson(CDataGatherer& gatherer,
                       CResourceMonitor& resourceMonitor,
                       const std::string& p,
@@ -136,7 +191,7 @@ void addArrival(CDataGatherer& gatherer,
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
-    for (const auto& influencer : influencers) {
+    for (const auto & influencer : influencers) {
         fieldValues.push_back(&influencer);
     }
 
@@ -166,8 +221,7 @@ void testInfluencerPerFeature(const model_t::EFeature feature,
     features.push_back(feature);
     TStrVec influencerFieldNames;
     influencerFieldNames.emplace_back("IF1");
-    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features,
-                                                  params, key, startTime)
+    CDataGatherer gatherer = CDataGathererBuilder(features, params, key, startTime)
                                  .influenceFieldNames(influencerFieldNames)
                                  .valueFieldName(valueField)
                                  .build();
@@ -494,9 +548,9 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         10000 // sentinel
     };
 
-    std::array const expectedPersonCounts{
-        std::string("[(0, 6)]"), std::string("[(0, 3)]"), std::string("[(0, 2)]"),
-        std::string("[(0, 0)]"), std::string("[(0, 3)]")};
+    std::array const expectedPersonCounts{std::string("[(0, 6)]"), std::string("[(0, 3)]"),
+                            std::string("[(0, 2)]"), std::string("[(0, 0)]"),
+                            std::string("[(0, 3)]")};
 
     std::array const expectedPersonNonZeroCounts{
         std::string("[(0, 6)]"), std::string("[(0, 3)]"),
@@ -638,7 +692,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     constexpr core_t::TTime startTime = 0;
     constexpr core_t::TTime bucketLength = 600;
 
-    const std::vector<core_t::TTime> data1 = {
+    const std::vector<core_t::TTime>  data1 = {
         1,    15,   180, 190, 400,
         550, // bucket 1
         600,  799,
@@ -744,7 +798,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         BOOST_REQUIRE_EQUAL(4, addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
         BOOST_REQUIRE_EQUAL(5, addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
 
-        constexpr std::array<core_t::TTime, 6> expectedCounts = {5, 2, 0,
+        constexpr std::array<core_t::TTime, 6>  expectedCounts = {5, 2, 0,
                                                                  5, 7, 10};
         for (std::size_t i = 0; i < std::size(expectedCounts); ++i) {
             for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
@@ -821,7 +875,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    const std::array<core_t::TTime, 15> data = {
+    const std::array<core_t::TTime, 15>  data = {
         1, 180, 1200, 190, 400,
         600, // bucket 1, 2 & 3
         550, 799, 1199,
@@ -834,6 +888,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
     };
 
     const std::array expectedPersonCounts = {
+    constexpr std::array expectedPersonCounts = {
         std::string("[(0, 6)]"), std::string("[(0, 3)]"), std::string("[(0, 2)]"),
         std::string("[(0, 0)]"), std::string("[(0, 3)]")};
 
@@ -968,7 +1023,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderInterimResult, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    constexpr std::array<core_t::TTime, 8> data = {
+    constexpr std::array<core_t::TTime,8> data = {
         1, 1200,
         600, // bucket 1, 3 & 2
         1199,
@@ -1133,9 +1188,9 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
                                      .build();
 
         testGathererMultipleSeries(
-            STestTimes{.s_StartTime = startTime, .s_BucketLength = bucketLength},
-            STestData{.data1 = data1, .data2 = data2}, expectedPersonCounts,
-            params, latencyTime, gatherer, m_ResourceMonitor);
+            STestTimes{.s_StartTime= startTime, .s_BucketLength= bucketLength},
+            STestData{.data1 =data1, .data2=data2}, expectedPersonCounts,
+                                   params, latencyTime, gatherer, m_ResourceMonitor);
     }
 
     {
@@ -1156,7 +1211,7 @@ BOOST_FIXTURE_TEST_CASE(testArrivalBeforeLatencyWindowIsIgnored, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    constexpr std::array<core_t::TTime, 2> data = {
+    constexpr std::array<core_t::TTime,2> data = {
         1800, // Bucket 4, thus bucket 1's values are already out of latency window
         1     // Bucket 1
     };
@@ -1197,7 +1252,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    constexpr std::array<core_t::TTime, 6> data = {
+    constexpr std::array<core_t::TTime,6> data = {
         100,
         300, // Bucket 1
         600, 800,
@@ -1329,7 +1384,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenBucketNotAvailable, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testInfluencerBucketStatistics, CTestFixture) {
-    constexpr std::array<core_t::TTime, 15> data = {
+    constexpr std::array<core_t::TTime,15> data = {
         1, 15, 180, 190, 400,
         550, // bucket 1
         600, 799,
@@ -1406,7 +1461,7 @@ protected:
     // Helper that creates a SEventRateFeatureData object, populates it using the distinct count method,
     // and checks that its print() output matches the expected value.
     static void verifyDistinctCountFeature(const CUniqueStringFeatureData& data,
-                                           const std::string& expected) {
+                                    const std::string& expected) {
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
         BOOST_REQUIRE_EQUAL(expected, featureData.print());
@@ -1414,7 +1469,7 @@ protected:
 
     // Similar helper for the info-content feature data.
     static void verifyInfoContentFeature(const CUniqueStringFeatureData& data,
-                                         const std::string& expected) {
+                                  const std::string& expected) {
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
         BOOST_REQUIRE_EQUAL(expected, featureData.print());
@@ -1457,7 +1512,7 @@ protected:
             data.populateDistinctCountFeatureData(featureData);
             BOOST_REQUIRE_EQUAL(std::max(static_cast<std::uint64_t>(3),
                                          static_cast<std::uint64_t>(i)),
-                                featureData.s_Count);
+                                  featureData.s_Count);
         }
     }
 
@@ -1488,9 +1543,8 @@ protected:
 
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
-        std::sort(featureData.s_InfluenceValues[0].begin(),
-                  featureData.s_InfluenceValues[0].end(),
-                  maths::common::COrderings::SFirstLess());
+        std::ranges::sort(featureData.s_InfluenceValues[0],
+                          maths::common::COrderings::SFirstLess());
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
                             featureData.print());
     }
@@ -1523,9 +1577,8 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::sort(featureData.s_InfluenceValues[i].begin(),
-                      featureData.s_InfluenceValues[i].end(),
-                      maths::common::COrderings::SFirstLess());
+            std::ranges::sort(featureData.s_InfluenceValues[i],
+                              maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
                             featureData.print());
@@ -1551,12 +1604,9 @@ protected:
             data.insert(ss.str(), influencers);
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            BOOST_TEST_REQUIRE((featureData.s_Count - 12) >=
-                               std::max(static_cast<std::uint64_t>(3),
+            BOOST_TEST_REQUIRE((featureData.s_Count - 12) >= std::max(static_cast<std::uint64_t>(3),
                                         static_cast<std::uint64_t>(i)));
-            BOOST_TEST_REQUIRE(
-                (featureData.s_Count - 12) <=
-                std::max(static_cast<std::uint64_t>(3), static_cast<std::uint64_t>(i)) * 3);
+            BOOST_TEST_REQUIRE((featureData.s_Count - 12) <= std::max(static_cast<std::uint64_t>(3), static_cast<std::uint64_t>(i)) * 3);
         }
     }
 
@@ -1620,8 +1670,7 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::sort(featureData.s_InfluenceValues[i].begin(),
-                      featureData.s_InfluenceValues[i].end(),
+            std::ranges::sort(featureData.s_InfluenceValues[i],
                       maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
@@ -1661,14 +1710,10 @@ protected:
         testPersistence(params, gatherer, model_t::E_EventRate);
 
         // Add data (some out-of-order) for distinct strings.
-        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p",
-                   "stringOne", "inf1");
-        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p",
-                   "stringTwo", "inf2");
-        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p",
-                   "stringThree", "inf3");
-        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p",
-                   "stringFour", "inf1");
+        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p", "stringOne", "inf1");
+        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p", "stringTwo", "inf2");
+        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p", "stringThree", "inf3");
+        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p", "stringFour", "inf1");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringFive", "inf2");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringSix", "inf3");
         testPersistence(params, gatherer, model_t::E_EventRate);
@@ -1760,7 +1805,9 @@ protected:
     //  - TFeatureSizeFeatureDataPrVecPrVec for tests by person,
     //  - TFeatureSizeSizePrFeatureDataPrVecPrVec for tests over person.
     template<typename FeatureDataT>
-    void verifyFeatureData(const CDataGatherer& gatherer, core_t::TTime time, std::uint64_t expectedCount) {
+    void verifyFeatureData(const CDataGatherer& gatherer,
+                           core_t::TTime time,
+                           std::uint64_t expectedCount) {
         FeatureDataT featureData;
         gatherer.featureData(time, BUCKET_LENGTH, featureData);
         BOOST_REQUIRE_EQUAL(1, featureData.size());
@@ -1803,7 +1850,8 @@ protected:
 
         // Arrival 6: time + 300, expected additional count of 150.
         addArrivalHelper(gatherer, time + 300, useAttribute);
-        verifyFeatureData<FeatureDataT>(gatherer, time, computeExpected(time, 150, isDay));
+        verifyFeatureData<FeatureDataT>(gatherer, time,
+                                        computeExpected(time, 150, isDay));
 
         // Check latency: go back two buckets.
         time -= BUCKET_LENGTH * 2;
@@ -1812,13 +1860,12 @@ protected:
 
         time += BUCKET_LENGTH;
         addArrivalHelper(gatherer, time + 400, useAttribute);
-        verifyFeatureData<FeatureDataT>(gatherer, time, computeExpected(time, 200, isDay));
+        verifyFeatureData<FeatureDataT>(gatherer, time,
+                                        computeExpected(time, 200, isDay));
     }
 
     // Verify summary information for the gatherer.
-    static void verifyGathererSummary(const CDataGatherer& gatherer,
-                                      bool isPopulation,
-                                      bool useAttribute) {
+    static void verifyGathererSummary(const CDataGatherer& gatherer, bool isPopulation, bool useAttribute) {
         if (isPopulation) {
             if (useAttribute) {
                 BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
@@ -1838,12 +1885,10 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CDiurnalTestFixture) {
         // Test: time_of_day by person
         LOG_DEBUG(<< "Testing time_of_day by person");
         SModelParams const params = createParams();
-        TFeatureVec const features{model_t::E_IndividualTimeOfDayByBucketAndPerson};
+        TFeatureVec const features{ model_t::E_IndividualTimeOfDayByBucketAndPerson };
         CDataGatherer gatherer = createGatherer(features, params, START_TIME, false);
-        verifyGathererFeatures(gatherer, features,
-                               model_t::E_IndividualTimeOfDayByBucketAndPerson, false);
-        runTestSequence<TFeatureSizeFeatureDataPrVecPrVec>(gatherer, /*isDay=*/true,
-                                                           /*useAttribute=*/false);
+        verifyGathererFeatures(gatherer, features, model_t::E_IndividualTimeOfDayByBucketAndPerson, false);
+        runTestSequence<TFeatureSizeFeatureDataPrVecPrVec>(gatherer, /*isDay=*/true, /*useAttribute=*/false);
         verifyGathererSummary(gatherer, false, false);
         testPersistence(params, gatherer, model_t::E_EventRate);
     }
@@ -1851,12 +1896,10 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CDiurnalTestFixture) {
         // Test: time_of_week by person
         LOG_DEBUG(<< "Testing time_of_week by person");
         SModelParams const params = createParams();
-        TFeatureVec const features{model_t::E_IndividualTimeOfWeekByBucketAndPerson};
+        TFeatureVec const features{ model_t::E_IndividualTimeOfWeekByBucketAndPerson };
         CDataGatherer gatherer = createGatherer(features, params, START_TIME, false);
-        verifyGathererFeatures(gatherer, features,
-                               model_t::E_IndividualTimeOfWeekByBucketAndPerson, false);
-        runTestSequence<TFeatureSizeFeatureDataPrVecPrVec>(
-            gatherer, /*isDay=*/false, /*useAttribute=*/false);
+        verifyGathererFeatures(gatherer, features, model_t::E_IndividualTimeOfWeekByBucketAndPerson, false);
+        runTestSequence<TFeatureSizeFeatureDataPrVecPrVec>(gatherer, /*isDay=*/false, /*useAttribute=*/false);
         verifyGathererSummary(gatherer, false, false);
         testPersistence(params, gatherer, model_t::E_EventRate);
     }
@@ -1864,13 +1907,10 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CDiurnalTestFixture) {
         // Test: time_of_week over person (with attribute)
         LOG_DEBUG(<< "Testing time_of_week over person");
         SModelParams const params = createParams();
-        TFeatureVec const features{model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute};
-        CDataGatherer gatherer = createGatherer(features, params, START_TIME,
-                                                true, /*useAttribute=*/true);
-        verifyGathererFeatures(gatherer, features, model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute,
-                               true);
-        runTestSequence<TFeatureSizeSizePrFeatureDataPrVecPrVec>(
-            gatherer, /*isDay=*/false, /*useAttribute=*/true);
+        TFeatureVec const features{ model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute };
+        CDataGatherer gatherer = createGatherer(features, params, START_TIME, true, /*useAttribute=*/true);
+        verifyGathererFeatures(gatherer, features, model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute, true);
+        runTestSequence<TFeatureSizeSizePrFeatureDataPrVecPrVec>(gatherer, /*isDay=*/false, /*useAttribute=*/true);
         verifyGathererSummary(gatherer, true, true);
         testPersistence(params, gatherer, model_t::E_EventRate);
     }
@@ -1878,13 +1918,10 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CDiurnalTestFixture) {
         // Test: time_of_day over person (with attribute)
         LOG_DEBUG(<< "Testing time_of_day over person");
         SModelParams const params = createParams();
-        TFeatureVec const features{model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute};
-        CDataGatherer gatherer = createGatherer(features, params, START_TIME,
-                                                true, /*useAttribute=*/true);
-        verifyGathererFeatures(gatherer, features, model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute,
-                               true);
-        runTestSequence<TFeatureSizeSizePrFeatureDataPrVecPrVec>(
-            gatherer, /*isDay=*/true, /*useAttribute=*/true);
+        TFeatureVec const features{ model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute };
+        CDataGatherer gatherer = createGatherer(features, params, START_TIME, true, /*useAttribute=*/true);
+        verifyGathererFeatures(gatherer, features, model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute, true);
+        runTestSequence<TFeatureSizeSizePrFeatureDataPrVecPrVec>(gatherer, /*isDay=*/true, /*useAttribute=*/true);
         verifyGathererSummary(gatherer, true, true);
         testPersistence(params, gatherer, model_t::E_EventRate);
     }
