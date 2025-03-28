@@ -18,7 +18,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 #include <model/ModelTypes.h>
-#include <model/SModelParams.h>
 
 #include <boost/test/unit_test.hpp>
 
