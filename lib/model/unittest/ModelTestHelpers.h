@@ -88,22 +88,36 @@ public:
     using TStrVec = CDataGatherer::TStrVec;
 
 public:
-    CDataGathererBuilder(model_t::EAnalysisCategory gathererType, const TFeatureVec& features, const SModelParams& params, const CSearchKey& searchKey,
-                         const core_t::TTime startTime
-    ): m_Features(features), m_Params(params),  m_StartTime(startTime), m_SearchKey(searchKey), m_GathererType(gathererType) {}
+    CDataGathererBuilder(model_t::EAnalysisCategory gathererType,
+                         const TFeatureVec& features,
+                         const SModelParams& params,
+                         const CSearchKey& searchKey,
+                         const core_t::TTime startTime)
+        : m_Features(features), m_Params(params), m_StartTime(startTime),
+          m_SearchKey(searchKey), m_GathererType(gathererType) {}
 
     CDataGatherer build() const {
-        return {m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
-                             m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
-                             m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
-                             m_StartTime, m_SampleCountOverride};
+        return {m_GathererType,
+                m_SummaryMode,
+                m_Params,
+                m_SummaryCountFieldName,
+                m_PartitionFieldValue,
+                m_PersonFieldName,
+                m_AttributeFieldName,
+                m_ValueFieldName,
+                m_InfluenceFieldNames,
+                m_SearchKey,
+                m_Features,
+                m_StartTime,
+                m_SampleCountOverride};
     }
 
     std::shared_ptr<CDataGatherer> buildSharedPtr() const {
-        return std::make_shared<CDataGatherer>(m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
-                             m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
-                             m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
-                             m_StartTime, m_SampleCountOverride);
+        return std::make_shared<CDataGatherer>(
+            m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
+            m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
+            m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
+            m_StartTime, m_SampleCountOverride);
     }
 
     CDataGathererBuilder& partitionFieldValue(const std::string& partitionFieldValue) {
@@ -155,9 +169,7 @@ private:
     std::string m_ValueFieldName{EMPTY_STRING};
     TStrVec m_InfluenceFieldNames;
     int m_SampleCountOverride{0};
-
 };
-
 }
 }
 

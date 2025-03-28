@@ -675,8 +675,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
     //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationMetric, features,
-                                                      params, searchKey, startTime)
-                                     .build();
+                                                  params, searchKey, startTime)
+                                 .build();
     TMessageVec messages;
     generateTestMessages(startTime, messages);
 
@@ -987,7 +987,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                                  .influenceFieldNames(influencerNames)
                                  .build();
 
-
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0; i < std::size(data); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
@@ -1047,9 +1046,9 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     //                                params, EMPTY_STRING, EMPTY_STRING,
     //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {},
     //                                searchKey, features, startTime, 0);
-    CDataGatherer origDataGatherer = CDataGathererBuilder(model_t::E_PopulationMetric, features,
-                                                  params, searchKey, startTime)
-                                 .build();
+    CDataGatherer origDataGatherer =
+        CDataGathererBuilder(model_t::E_PopulationMetric, features, params, searchKey, startTime)
+            .build();
 
     TMessageVec messages;
     generateTestMessages(startTime, messages);

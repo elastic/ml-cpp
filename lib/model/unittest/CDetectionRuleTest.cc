@@ -49,8 +49,7 @@ using namespace model;
 namespace {
 
 using TFeatureVec = std::vector<model_t::EFeature>;
-using TStrVec = std::vector<std::string>;
-using TMockModelPtr = std::unique_ptr<model::CMockModel>;
+using TMockModelPtr = std::unique_ptr<CMockModel>;
 
 const std::string EMPTY_STRING;
 }
@@ -61,39 +60,35 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
-    core_t::TTime bucketLength = 100;
-    core_t::TTime startTime = 100;
-    SModelParams params(bucketLength);
-    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    constexpr core_t::TTime bucketLength = 100;
+    constexpr core_t::TTime startTime = 100;
+    const SModelParams params(bucketLength);
+    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    std::string partitionFieldName("partition");
-    std::string partitionFieldValue("par_1");
-    std::string personFieldName("over");
-    std::string attributeFieldName("by");
-    CSearchKey key(0, function_t::E_PopulationMetricMean, false, model_t::E_XF_None,
+    std::string const partitionFieldName("partition");
+    std::string const partitionFieldValue("par_1");
+    std::string const personFieldName("over");
+    std::string const attributeFieldName("by");
+    CSearchKey const key(0, function_t::E_PopulationMetricMean, false, model_t::E_XF_None,
                    "", attributeFieldName, personFieldName, partitionFieldName);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
-    //     partitionFieldValue, personFieldName, attributeFieldName, EMPTY_STRING,
-    // TStrVec{}, key, features, startTime, 0));
-    auto gathererPtr = model::CDataGathererBuilder(model_t::E_PopulationMetric,
-                                                   features, params, key, 0)
+    auto gathererPtr = CDataGathererBuilder(model_t::E_PopulationMetric,
+                                                   features, params, key, startTime)
                            .partitionFieldValue(partitionFieldValue)
                            .personFieldName(personFieldName)
                            .attributeFieldName(attributeFieldName)
                            .buildSharedPtr();
 
-    std::string person1("p1");
+    std::string const person1("p1");
     bool added = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, added);
-    std::string person2("p2");
+    std::string const person2("p2");
     gathererPtr->addPerson(person2, m_ResourceMonitor, added);
-    std::string attr11("a1_1");
-    std::string attr12("a1_2");
-    std::string attr21("a2_1");
-    std::string attr22("a2_2");
+    std::string const attr11("a1_1");
+    std::string const attr12("a1_2");
+    std::string const attr21("a2_1");
+    std::string const attr22("a2_2");
     gathererPtr->addAttribute(attr11, m_ResourceMonitor, added);
     gathererPtr->addAttribute(attr12, m_ResourceMonitor, added);
     gathererPtr->addAttribute(attr21, m_ResourceMonitor, added);
@@ -101,14 +96,14 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
 
     CMockModel model(params, gathererPtr, influenceCalculators);
     model.mockPopulation(true);
-    CAnomalyDetectorModel::TDouble1Vec actual(1, 4.99);
+    CAnomalyDetectorModel::TDouble1Vec const actual(1, 4.99);
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 0, 0, 100, actual);
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 0, 1, 100, actual);
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 1, 2, 100, actual);
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 1, 3, 100, actual);
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"a1_1\",\"a2_2\"]");
+        std::string const filterJson(R"(["a1_1","a2_2"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -120,7 +115,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -137,7 +132,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"a1*\"]");
+        std::string const filterJson("[\"a1*\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -149,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -166,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"*2\"]");
+        std::string const filterJson("[\"*2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -178,7 +173,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -195,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"*1*\"]");
+        std::string const filterJson("[\"*1*\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -207,7 +202,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -224,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"p2\"]");
+        std::string const filterJson("[\"p2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -236,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -253,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"par_1\"]");
+        std::string const filterJson("[\"par_1\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -265,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -282,7 +277,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string filterJson("[\"par_2\"]");
+        std::string const filterJson("[\"par_2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -294,7 +289,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
         }
 
         bool isInclude = filterType == CRuleScope::E_Include;
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_PopulationMeanByPersonAndAttribute,
@@ -312,28 +307,25 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
-    core_t::TTime bucketLength = 100;
-    core_t::TTime startTime = 100;
-    CSearchKey key;
-    SModelParams params(bucketLength);
-    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    constexpr core_t::TTime bucketLength = 100;
+    constexpr core_t::TTime startTime = 100;
+    CSearchKey const key;
+    SModelParams const params(bucketLength);
+    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec const influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
-    CAnomalyDetectorModel::TDataGathererPtr gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0).buildSharedPtr();
+    auto const gathererPtr =
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
 
-    std::string person1("p1");
+    std::string const person1("p1");
     bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
     CMockModel model(params, gathererPtr, influenceCalculators);
-    CAnomalyDetectorModel::TDouble1Vec actual100(1, 4.99);
-    CAnomalyDetectorModel::TDouble1Vec actual200(1, 5.00);
-    CAnomalyDetectorModel::TDouble1Vec actual300(1, 5.01);
+    CAnomalyDetectorModel::TDouble1Vec const actual100(1, 4.99);
+    CAnomalyDetectorModel::TDouble1Vec const actual200(1, 5.00);
+    CAnomalyDetectorModel::TDouble1Vec const actual300(1, 5.01);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, actual100);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 200, actual200);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 300, actual300);
@@ -348,7 +340,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -371,7 +363,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -393,7 +385,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -415,7 +407,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -430,34 +422,31 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
-    core_t::TTime bucketLength = 100;
-    core_t::TTime startTime = 100;
-    CSearchKey key;
-    SModelParams params(bucketLength);
-    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    constexpr core_t::TTime bucketLength = 100;
+    constexpr core_t::TTime startTime = 100;
+    CSearchKey const key;
+    SModelParams const params(bucketLength);
+    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec const influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
     auto gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0).buildSharedPtr();
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
 
-    std::string person1("p1");
+    std::string const person1("p1");
     bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
     CMockModel model(params, gathererPtr, influenceCalculators);
-    CAnomalyDetectorModel::TDouble1Vec actual100(1, 4.99);
-    CAnomalyDetectorModel::TDouble1Vec actual200(1, 5.00);
-    CAnomalyDetectorModel::TDouble1Vec actual300(1, 5.01);
+    CAnomalyDetectorModel::TDouble1Vec const actual100(1, 4.99);
+    CAnomalyDetectorModel::TDouble1Vec const actual200(1, 5.00);
+    CAnomalyDetectorModel::TDouble1Vec const actual300(1, 5.01);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, actual100);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 200, actual200);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 300, actual300);
-    CAnomalyDetectorModel::TDouble1Vec typical100(1, 44.99);
-    CAnomalyDetectorModel::TDouble1Vec typical200(1, 45.00);
-    CAnomalyDetectorModel::TDouble1Vec typical300(1, 45.01);
+    CAnomalyDetectorModel::TDouble1Vec const typical100(1, 44.99);
+    CAnomalyDetectorModel::TDouble1Vec const typical200(1, 45.00);
+    CAnomalyDetectorModel::TDouble1Vec const typical300(1, 45.01);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 100, typical100);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 200, typical200);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 300, typical300);
@@ -472,7 +461,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -495,7 +484,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -510,43 +499,40 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalDiffAbsCondition, CTestFixture) {
-    core_t::TTime bucketLength = 100;
-    core_t::TTime startTime = 100;
-    CSearchKey key;
-    SModelParams params(bucketLength);
-    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    constexpr core_t::TTime bucketLength = 100;
+    constexpr core_t::TTime startTime = 100;
+    CSearchKey const key;
+    SModelParams const params(bucketLength);
+    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec const influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
-    CAnomalyDetectorModel::TDataGathererPtr gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0).buildSharedPtr();
+    auto gathererPtr =
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
 
-    std::string person1("p1");
+    std::string const person1("p1");
     bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
     CMockModel model(params, gathererPtr, influenceCalculators);
-    CAnomalyDetectorModel::TDouble1Vec actual100(1, 8.9);
-    CAnomalyDetectorModel::TDouble1Vec actual200(1, 9.0);
-    CAnomalyDetectorModel::TDouble1Vec actual300(1, 9.1);
-    CAnomalyDetectorModel::TDouble1Vec actual400(1, 10.9);
-    CAnomalyDetectorModel::TDouble1Vec actual500(1, 11.0);
-    CAnomalyDetectorModel::TDouble1Vec actual600(1, 11.1);
+    CAnomalyDetectorModel::TDouble1Vec const actual100(1, 8.9);
+    CAnomalyDetectorModel::TDouble1Vec const actual200(1, 9.0);
+    CAnomalyDetectorModel::TDouble1Vec const actual300(1, 9.1);
+    CAnomalyDetectorModel::TDouble1Vec const actual400(1, 10.9);
+    CAnomalyDetectorModel::TDouble1Vec const actual500(1, 11.0);
+    CAnomalyDetectorModel::TDouble1Vec const actual600(1, 11.1);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, actual100);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 200, actual200);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 300, actual300);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 400, actual400);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 500, actual500);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 600, actual600);
-    CAnomalyDetectorModel::TDouble1Vec typical100(1, 10.0);
-    CAnomalyDetectorModel::TDouble1Vec typical200(1, 10.0);
-    CAnomalyDetectorModel::TDouble1Vec typical300(1, 10.0);
-    CAnomalyDetectorModel::TDouble1Vec typical400(1, 10.0);
-    CAnomalyDetectorModel::TDouble1Vec typical500(1, 10.0);
-    CAnomalyDetectorModel::TDouble1Vec typical600(1, 10.0);
+    CAnomalyDetectorModel::TDouble1Vec const typical100(1, 10.0);
+    CAnomalyDetectorModel::TDouble1Vec const typical200(1, 10.0);
+    CAnomalyDetectorModel::TDouble1Vec const typical300(1, 10.0);
+    CAnomalyDetectorModel::TDouble1Vec const typical400(1, 10.0);
+    CAnomalyDetectorModel::TDouble1Vec const typical500(1, 10.0);
+    CAnomalyDetectorModel::TDouble1Vec const typical600(1, 10.0);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 100, typical100);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 200, typical200);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 300, typical300);
@@ -564,7 +550,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalDiffAbsCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -596,7 +582,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalDiffAbsCondition, CTestFixture) {
         CDetectionRule rule;
         rule.addCondition(condition);
 
-        model_t::CResultType resultType(model_t::CResultType::E_Final);
+        model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
         BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
                                       model_t::E_IndividualMeanByPerson,
@@ -628,11 +614,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNoActualValueAvailable, CTestFixture) {
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0).buildSharedPtr();
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -670,7 +653,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndIndividualModel, CTestFi
     features.push_back(model_t::E_IndividualMeanByPerson);
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0)
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
             .personFieldName(personFieldName)
             .buildSharedPtr();
 
@@ -719,12 +702,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndPopulationModel, CTestFi
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
     std::string personFieldName("over");
     std::string attributeFieldName("by");
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
-    //     EMPTY_STRING, personFieldName, attributeFieldName, EMPTY_STRING,
-    //     TStrVec{}, key, features, startTime, 0));
-    auto gathererPtr = model::CDataGathererBuilder(model_t::E_PopulationMetric,
-                                                   features, params, key, 0)
+    auto gathererPtr = CDataGathererBuilder(model_t::E_PopulationMetric,
+                                                   features, params, key, startTime)
                            .personFieldName(personFieldName)
                            .attributeFieldName(attributeFieldName)
                            .buildSharedPtr();
@@ -789,11 +768,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenMultipleConditions, CTestFixture) {
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     std::string personFieldName("series");
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0)
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
             .personFieldName(personFieldName)
             .buildSharedPtr();
 
@@ -899,11 +875,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenTimeCondition, CTestFixture) {
     std::string personFieldName("series");
     CSearchKey key(0, function_t::E_IndividualMetricMean, false, model_t::E_XF_None,
                    "", personFieldName, EMPTY_STRING, partitionFieldName);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
     auto gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0)
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
             .personFieldName(personFieldName)
             .buildSharedPtr();
     CMockModel model(params, gathererPtr, influenceCalculators);
@@ -944,11 +917,8 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
     std::string personFieldName("series");
     CSearchKey key(0, function_t::E_IndividualMetricMean, false, model_t::E_XF_None,
                    "", personFieldName, EMPTY_STRING, partitionFieldName);
-    // CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
-    //     model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, personFieldName,
-    //     EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
     auto gathererPtr =
-        model::CDataGathererBuilder(model_t::E_Metric, features, params, key, 0)
+        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
             .personFieldName(personFieldName)
             .buildSharedPtr();
     CMockModel model(params, gathererPtr, influenceCalculators);
@@ -975,7 +945,7 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
                                   model_t::E_IndividualMeanByPerson, resultType,
                                   0, 0, 100));
 
-    rule.action(static_cast<CDetectionRule::ERuleAction>(3));
+    rule.action(3);
     BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson,
                                   resultType, 0, 0, 100));
     BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipModelUpdate, model,
@@ -983,20 +953,17 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
                                   0, 0, 100));
 }
 
-TMockModelPtr initializeModel(ml::model::CResourceMonitor& resourceMonitor) {
+static TMockModelPtr initializeModel(CResourceMonitor& resourceMonitor) {
     core_t::TTime bucketLength{600};
-    model::SModelParams params{bucketLength};
-    model::CSearchKey key;
+    SModelParams params{bucketLength};
+    CSearchKey key;
     model_t::TFeatureVec features;
     // Initialize mock model
-    model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
+    CAnomalyDetectorModel::TDataGathererPtr gatherer;
 
     features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
 
-    // gatherer = std::make_shared<model::CDataGatherer>(
-    //     model_t::analysisCategory(features[0]), model_t::E_None, params, EMPTY_STRING,
-    //     EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, 0, 0);
-    gatherer = model::CDataGathererBuilder(model_t::analysisCategory(features[0]),
+    gatherer = CDataGathererBuilder(analysisCategory(features[0]),
                                            features, params, key, 0)
                    .personFieldName("p")
                    .buildSharedPtr();
@@ -1004,7 +971,7 @@ TMockModelPtr initializeModel(ml::model::CResourceMonitor& resourceMonitor) {
     bool addedPerson{false};
     gatherer->addPerson(person, resourceMonitor, addedPerson);
 
-    TMockModelPtr model{new model::CMockModel(
+    TMockModelPtr model{new CMockModel(
         params, gatherer, {/* we don't care about influence */})};
 
     maths::time_series::CTimeSeriesDecomposition trend;
@@ -1012,10 +979,10 @@ TMockModelPtr initializeModel(ml::model::CResourceMonitor& resourceMonitor) {
         maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
     maths::common::CModelParams timeSeriesModelParams{
         bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-    std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> timeSeriesModel =
+    auto timeSeriesModel =
         std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
             timeSeriesModelParams, 0, trend, prior);
-    model::CMockModel::TMathsModelUPtrVec models;
+    CMockModel::TMathsModelUPtrVec models;
     models.emplace_back(std::move(timeSeriesModel));
     model->mockTimeSeriesModels(std::move(models));
     return model;
@@ -1027,7 +994,7 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestF
     test::CRandomNumbers::TDoubleVec timeShifts;
     rng.generateUniformSamples(-3600, 3600, 10, timeShifts);
 
-    for (auto timeShift : timeShifts) {
+    for (const auto timeShift : timeShifts) {
         core_t::TTime timeShiftInSecs{static_cast<core_t::TTime>(timeShift)};
         TMockModelPtr model{initializeModel(m_ResourceMonitor)};
         // Capture state before the rule is applied
@@ -1036,11 +1003,11 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestF
                 static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
                     model->model(0))
                     ->trendModel());
-        core_t::TTime lastValueTime = trendModel.lastValueTime();
+        const core_t::TTime lastValueTime = trendModel.lastValueTime();
         const auto& annotations = model->annotations();
-        std::size_t numAnnotationsBeforeShift = annotations.size();
+        const std::size_t numAnnotationsBeforeShift = annotations.size();
 
-        core_t::TTime timestamp{100};
+        constexpr core_t::TTime timestamp{100};
         CRuleCondition conditionGte;
         conditionGte.appliesTo(CRuleCondition::E_Time);
         conditionGte.op(CRuleCondition::E_GTE);
@@ -1063,9 +1030,9 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestF
 
 BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldNotApplyTwice, CTestFixture) {
     // Test that if a rule has already been applied, it should not be applied again.
-    core_t::TTime timeShift{3600};
+    constexpr core_t::TTime timeShift{3600};
 
-    TMockModelPtr model{initializeModel(m_ResourceMonitor)};
+    const TMockModelPtr model{initializeModel(m_ResourceMonitor)};
     const auto& trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition&>(
         static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(model->model(0))
             ->trendModel());
@@ -1094,10 +1061,10 @@ BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldNotApplyTwice, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testTwoTimeShiftRuleShouldShiftTwice, CTestFixture) {
     // Test that if two rules are applied, the time series model should be shifted twice.
-    core_t::TTime timeShift1{3600};
-    core_t::TTime timeShift2{7200};
+    constexpr core_t::TTime timeShift1{3600};
+    constexpr core_t::TTime timeShift2{7200};
 
-    TMockModelPtr model{initializeModel(m_ResourceMonitor)};
+    const TMockModelPtr model{initializeModel(m_ResourceMonitor)};
     const auto& trendModel = static_cast<const maths::time_series::CTimeSeriesDecomposition&>(
         static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(model->model(0))
             ->trendModel());
@@ -1114,7 +1081,7 @@ BOOST_FIXTURE_TEST_CASE(testTwoTimeShiftRuleShouldShiftTwice, CTestFixture) {
     rule1.addTimeShift(timeShift1);
     rule1.executeCallback(*model, timestamp);
 
-    core_t::TTime lastValueTimeAfterFirstShift = trendModel.lastValueTime();
+    const core_t::TTime lastValueTimeAfterFirstShift = trendModel.lastValueTime();
 
     CDetectionRule rule2;
     rule2.addCondition(conditionGte);
@@ -1187,7 +1154,7 @@ BOOST_FIXTURE_TEST_CASE(testChecksum, CTestFixture) {
     rule2 = rule1;
 
     // Modify the scope of rule2
-    std::string fieldName = "user";
+    const std::string fieldName = "user";
     core::CPatternSet valueFilter;
     valueFilter.initFromPatternList({"admin"});
     rule2.includeScope(fieldName, valueFilter);
