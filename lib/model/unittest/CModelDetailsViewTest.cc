@@ -29,18 +29,13 @@
 
 #include <memory>
 #include <vector>
+#include <ranges>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::model::CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr);
 
 BOOST_AUTO_TEST_SUITE(CModelDetailsViewTest)
 
 using namespace ml;
-
-namespace {
-
-const std::string EMPTY_STRING;
-
-} // unnamed
 
 class CTestFixture {
 protected:
@@ -49,12 +44,11 @@ protected:
 
 BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
     using TDoubleVec = std::vector<double>;
-    using TStrVec = std::vector<std::string>;
     using TMockModelPtr = std::unique_ptr<model::CMockModel>;
 
-    core_t::TTime bucketLength{600};
-    model::CSearchKey key;
-    model::SModelParams params{bucketLength};
+    constexpr core_t::TTime bucketLength{600};
+    const model::CSearchKey key;
+    const model::SModelParams params{bucketLength};
     model_t::TFeatureVec features;
 
     model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
@@ -65,24 +59,24 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
                                                features, params, key, 0)
                        .personFieldName("p")
                        .buildSharedPtr();
-        std::string person11{"p11"};
-        std::string person12{"p12"};
-        std::string person21{"p21"};
-        std::string person22{"p22"};
+        std::string const person11{"p11"};
+        std::string const person12{"p12"};
+        std::string const person21{"p21"};
+        std::string const person22{"p22"};
         bool addedPerson{false};
         gatherer->addPerson(person11, m_ResourceMonitor, addedPerson);
         gatherer->addPerson(person12, m_ResourceMonitor, addedPerson);
         gatherer->addPerson(person21, m_ResourceMonitor, addedPerson);
         gatherer->addPerson(person22, m_ResourceMonitor, addedPerson);
 
-        model.reset(new model::CMockModel{params, gatherer, {/*we don't care about influence*/}});
+        model.reset(new model::CMockModel{params, gatherer, {}});
 
-        maths::time_series::CTimeSeriesDecomposition trend;
-        maths::common::CNormalMeanPrecConjugate prior{
+        maths::time_series::CTimeSeriesDecomposition const trend;
+        maths::common::CNormalMeanPrecConjugate const prior{
             maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-        maths::common::CModelParams timeSeriesModelParams{
+        maths::common::CModelParams const timeSeriesModelParams{
             bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-        maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
+        maths::time_series::CUnivariateTimeSeriesModel const timeSeriesModel{
             timeSeriesModelParams, 0, trend, prior};
         model::CMockModel::TMathsModelUPtrVec models;
         models.emplace_back(timeSeriesModel.clone(0));
@@ -107,13 +101,14 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         model::CModelPlotData plotData;
         model->details()->modelPlot(0, 90.0, {}, plotData);
         BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
-        for (const auto& featureByFieldData : plotData) {
-            BOOST_REQUIRE_EQUAL(values.size(), featureByFieldData.second.size());
-            for (const auto& byFieldData : featureByFieldData.second) {
-                BOOST_TEST_REQUIRE(gatherer->personId(byFieldData.first, pid));
-                BOOST_REQUIRE_EQUAL(1, byFieldData.second.s_ValuesPerOverField.size());
-                for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
-                    BOOST_REQUIRE_EQUAL(values[pid], currentBucketValue.second);
+        for (const auto& plotDataValues : plotData | std::views::values) {
+            BOOST_REQUIRE_EQUAL(values.size(), plotDataValues.size());
+            for (const auto& [fst, snd] : plotDataValues) {
+                BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
+                BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
+                for (const auto& val : snd.s_ValuesPerOverField |
+                                           std::views::values) {
+                    BOOST_REQUIRE_EQUAL(values[pid], val);
                 }
             }
         }
@@ -124,7 +119,7 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         features.assign(1, model_t::E_IndividualCountByBucketAndPerson);
         setupTest();
 
-        TDoubleVec values{0.0, 1.0, 3.0};
+        const TDoubleVec values{0.0, 1.0, 3.0};
         std::size_t pid{0};
         for (auto value : values) {
             model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson,
@@ -134,13 +129,14 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         model::CModelPlotData plotData;
         model->details()->modelPlot(0, 90.0, {}, plotData);
         BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
-        for (const auto& featureByFieldData : plotData) {
-            BOOST_REQUIRE_EQUAL(values.size(), featureByFieldData.second.size());
-            for (const auto& byFieldData : featureByFieldData.second) {
-                BOOST_TEST_REQUIRE(gatherer->personId(byFieldData.first, pid));
-                BOOST_REQUIRE_EQUAL(1, byFieldData.second.s_ValuesPerOverField.size());
-                for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
-                    BOOST_REQUIRE_EQUAL(values[pid], currentBucketValue.second);
+        for (const auto& plotDataValues : plotData | std::views::values) {
+            BOOST_REQUIRE_EQUAL(values.size(), plotDataValues.size());
+            for (const auto& [fst, snd] : plotDataValues) {
+                BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
+                BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
+                for (const auto& val : snd.s_ValuesPerOverField |
+                                           std::views::values) {
+                    BOOST_REQUIRE_EQUAL(values[pid], val);
                 }
             }
         }
