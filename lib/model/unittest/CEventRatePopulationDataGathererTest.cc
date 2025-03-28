@@ -25,10 +25,10 @@
 
 #include "ModelTestHelpers.h"
 
-#include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <set>
 #include <utility>
