@@ -652,9 +652,6 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationSumByBucketPersonAndAttribute);
-    // CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params,
-    //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationMetric, features,
                                                   params, searchKey, startTime)
                                  .build();
@@ -787,9 +784,6 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationSumByBucketPersonAndAttribute);
-    // CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params,
-    //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //                        EMPTY_STRING, {}, searchKey, features, startTime, 0);
     CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationMetric, features,
                                                   params, searchKey, startTime)
                                  .build();
@@ -958,9 +952,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
     TStrVec const influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
-    // CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
-    //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-    //                        influencerNames, searchKey, features, startTime, 2);
     CDataGatherer gatherer = CDataGathererBuilder(model_t::E_PopulationMetric, features,
                                                   params, searchKey, startTime)
                                  .influenceFieldNames(influencerNames)
@@ -1012,10 +1003,6 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
-    // CDataGatherer origDataGatherer(model_t::E_PopulationMetric, model_t::E_None,
-    //                                params, EMPTY_STRING, EMPTY_STRING,
-    //                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {},
-    //                                searchKey, features, startTime, 0);
     CDataGatherer origDataGatherer =
         CDataGathererBuilder(model_t::E_PopulationMetric, features, params, searchKey, startTime)
             .build();
