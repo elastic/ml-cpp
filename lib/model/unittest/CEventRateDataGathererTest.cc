@@ -1586,9 +1586,8 @@ protected:
 
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
-        std::sort(featureData.s_InfluenceValues[0].begin(),
-                  featureData.s_InfluenceValues[0].end(),
-                  maths::common::COrderings::SFirstLess());
+        std::ranges::sort(featureData.s_InfluenceValues[0],
+                          maths::common::COrderings::SFirstLess());
         BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
                             featureData.print());
     }
