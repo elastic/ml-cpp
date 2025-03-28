@@ -437,7 +437,8 @@ BOOST_AUTO_TEST_CASE(testBreadthFirstVisit) {
 
     static const std::string FUNC("min");
 
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMin);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMin);
 
     addResult(1, false, FUNC, function, PART1, part1, PERS, pers1, VAL1, 0.1, results);
     addResult(1, false, FUNC, function, PART1, part1, PERS, pers2, VAL1, 0.1, results);
@@ -500,7 +501,8 @@ BOOST_AUTO_TEST_CASE(testDepthFirstVisit) {
 
     static const std::string FUNC("max");
 
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     addResult(1, false, FUNC, function, PART1, part1, PERS, pers1, VAL1, 0.1, results);
     addResult(1, false, FUNC, function, PART1, part1, PERS, pers2, VAL1, 0.1, results);
@@ -759,7 +761,8 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue
 
 BOOST_AUTO_TEST_CASE(testBasicVisitor) {
     static const std::string FUNC("max");
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     // Test by and over
     {
@@ -981,7 +984,8 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
     double score = 0.0;
     double probability = 1.0;
     static const std::string FUNC("max");
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     // Test by.
     {
@@ -1138,7 +1142,8 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
     std::string const FUNC("max");
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     std::string i2("i2");
     std::string i1("i1");
@@ -1303,7 +1308,8 @@ BOOST_AUTO_TEST_CASE(testScores) {
     CCheckScores checkScores;
     static const std::string MAX("max");
     static const std::string RARE("rare");
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     // Test vanilla by / over.
     {
@@ -1431,7 +1437,8 @@ BOOST_AUTO_TEST_CASE(testWriter) {
     CWriteConsistencyChecker writeConsistencyChecker(limits);
 
     static const std::string FUNC("max");
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     // Test complex.
     {
@@ -1517,21 +1524,21 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
     model::CLimits l;
     model::CHierarchicalResultsNormalizer normalizer(l, modelConfig);
     static const std::string FUNC("max");
-    static constexpr ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
+    static constexpr ml::model::function_t::EFunction function(
+        ml::model::function_t::E_IndividualMetricMax);
 
     // Not using TRUE and FALSE as they clash with Windows macros
 
-    const std::array<std::array<std::string, 7>, 9> fields = {{
-            {"1", FALSE_STR, PNF1, pn11, PF2, p21, EMPTY_STRING},
-            {"1", FALSE_STR, PNF1, pn11, PF2, p22, EMPTY_STRING},
-            {"1", FALSE_STR, PNF1, pn11, PF2, p23, EMPTY_STRING},
-            {"2", TRUE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
-            {"2", TRUE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-            {"2", TRUE_STR, PNF1, pn12, PF1, p13, EMPTY_STRING},
-            {"3", FALSE_STR, PNF2, pn21, PF1, p11, EMPTY_STRING},
-            {"3", FALSE_STR, PNF2, pn22, PF1, p12, EMPTY_STRING},
-            {"3", FALSE_STR, PNF2, pn23, PF1, p13, EMPTY_STRING}
-        }};
+    const std::array<std::array<std::string, 7>, 9> fields = {
+        {{"1", FALSE_STR, PNF1, pn11, PF2, p21, EMPTY_STRING},
+         {"1", FALSE_STR, PNF1, pn11, PF2, p22, EMPTY_STRING},
+         {"1", FALSE_STR, PNF1, pn11, PF2, p23, EMPTY_STRING},
+         {"2", TRUE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
+         {"2", TRUE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
+         {"2", TRUE_STR, PNF1, pn12, PF1, p13, EMPTY_STRING},
+         {"3", FALSE_STR, PNF2, pn21, PF1, p11, EMPTY_STRING},
+         {"3", FALSE_STR, PNF2, pn22, PF1, p12, EMPTY_STRING},
+         {"3", FALSE_STR, PNF2, pn23, PF1, p13, EMPTY_STRING}}};
     TStrNormalizerPtrMap expectedNormalizers;
     expectedNormalizers.emplace(
         "r", std::make_shared<model::CAnomalyScore::CNormalizer>(modelConfig));
@@ -1770,19 +1777,19 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         static constexpr ml::model::function_t::EFunction function(
             ml::model::function_t::E_IndividualMetricMax);
 
-        const std::array<std::array<std::string, 7>, 12> fields = {{
-            {"0", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
-            {"0", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-            {"0", FALSE_STR, PNF1, pn11, PF1, p12, EMPTY_STRING},
-            {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
-            {"1", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-            {"1", FALSE_STR, PNF1, pn11, PF1, p12, EMPTY_STRING},
-            {"2", TRUE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
-            {"2", TRUE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-            {"2", TRUE_STR, PNF1, pn11, PF1, p12, EMPTY_STRING},
-            {"3", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
-            {"3", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-            {"3", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING}}};
+        const std::array<std::array<std::string, 7>, 12> fields = {
+            {{"0", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
+             {"0", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
+             {"0", FALSE_STR, PNF1, pn11, PF1, p12, EMPTY_STRING},
+             {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
+             {"1", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
+             {"1", FALSE_STR, PNF1, pn11, PF1, p12, EMPTY_STRING},
+             {"2", TRUE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
+             {"2", TRUE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
+             {"2", TRUE_STR, PNF1, pn11, PF1, p12, EMPTY_STRING},
+             {"3", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
+             {"3", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
+             {"3", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING}}};
         constexpr std::array scales = {1.9, 2.5, 1.7, 2.9};
 
         for (std::size_t i = 0; i < 300; ++i) {
@@ -1854,10 +1861,9 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         static constexpr ml::model::function_t::EFunction function(
             ml::model::function_t::E_IndividualMetricMax);
 
-        const std::array<std::array<std::string, 7>, 2> fields = {{
-            {"0", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
-            {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING}
-        }};
+        const std::array<std::array<std::string, 7>, 2> fields = {
+            {{"0", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
+             {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING}}};
         constexpr std::array scales = {1.0, 3.5};
 
         for (std::size_t i = 0; i < 500; ++i) {

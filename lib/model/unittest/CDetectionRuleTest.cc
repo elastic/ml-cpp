@@ -63,25 +63,22 @@ TMockModelPtr initializeModel(CResourceMonitor& resourceMonitor) {
 
     features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
 
-    gatherer = CDataGathererBuilder(analysisCategory(features[0]),
-                                           features, params, key, 0)
+    gatherer = CDataGathererBuilder(analysisCategory(features[0]), features, params, key, 0)
                    .personFieldName("p")
                    .buildSharedPtr();
     std::string const person("p1");
     bool addedPerson{false};
     gatherer->addPerson(person, resourceMonitor, addedPerson);
 
-    TMockModelPtr model{new CMockModel(
-        params, gatherer, {/* we don't care about influence */})};
+    TMockModelPtr model{new CMockModel(params, gatherer, {/* we don't care about influence */})};
 
     maths::time_series::CTimeSeriesDecomposition const trend;
     maths::common::CNormalMeanPrecConjugate const prior{
         maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
     maths::common::CModelParams const timeSeriesModelParams{
         bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-    auto timeSeriesModel =
-        std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
-            timeSeriesModelParams, 0, trend, prior);
+    auto timeSeriesModel = std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
+        timeSeriesModelParams, 0, trend, prior);
     CMockModel::TMathsModelUPtrVec models;
     models.emplace_back(std::move(timeSeriesModel));
     model->mockTimeSeriesModels(std::move(models));
@@ -107,9 +104,9 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     std::string const personFieldName("over");
     std::string const attributeFieldName("by");
     CSearchKey const key(0, function_t::E_PopulationMetricMean, false, model_t::E_XF_None,
-                   "", attributeFieldName, personFieldName, partitionFieldName);
+                         "", attributeFieldName, personFieldName, partitionFieldName);
     auto gathererPtr = CDataGathererBuilder(model_t::E_PopulationMetric,
-                                                   features, params, key, startTime)
+                                            features, params, key, startTime)
                            .partitionFieldValue(partitionFieldValue)
                            .personFieldName(personFieldName)
                            .attributeFieldName(attributeFieldName)
@@ -349,7 +346,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
     constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec const features{model_t::E_IndividualMeanByPerson};
-    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .buildSharedPtr();
 
     std::string const person1("p1");
     bool addedPerson = false;
@@ -363,7 +361,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 200, actual200);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 300, actual300);
 
-    auto testRule = [&](CRuleCondition::ERuleConditionOperator op, double value, bool expected100, bool expected200, bool expected300) {
+    auto testRule = [&](CRuleCondition::ERuleConditionOperator op, double value,
+                        bool expected100, bool expected200, bool expected300) {
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Actual);
         condition.op(op);
@@ -373,9 +372,15 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
 
         model_t::CResultType const resultType(model_t::CResultType::E_Final);
 
-        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == expected100);
-        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == expected200);
-        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == expected300);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 100) == expected100);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 200) == expected200);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 300) == expected300);
     };
 
     testRule(CRuleCondition::E_LT, 5.0, true, false, false);
@@ -392,7 +397,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
     constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec const features{model_t::E_IndividualMeanByPerson};
-    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .buildSharedPtr();
 
     const std::string person1("p1");
     bool addedPerson = false;
@@ -412,7 +418,8 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 200, typical200);
     model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 300, typical300);
 
-    auto testRule = [&](CRuleCondition::ERuleConditionOperator op, double value, bool expected100, bool expected200, bool expected300) {
+    auto testRule = [&](CRuleCondition::ERuleConditionOperator op, double value,
+                        bool expected100, bool expected200, bool expected300) {
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Typical);
         condition.op(op);
@@ -422,9 +429,15 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
 
         const model_t::CResultType resultType(model_t::CResultType::E_Final);
 
-        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == expected100);
-        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == expected200);
-        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == expected300);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 100) == expected100);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 200) == expected200);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 300) == expected300);
     };
 
     testRule(CRuleCondition::E_LT, 45.0, true, false, false);
@@ -432,49 +445,53 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalDiffAbsCondition, CTestFixture) {
-            constexpr core_t::TTime bucketLength = 100;
-            constexpr core_t::TTime startTime = 100;
-            const CSearchKey key;
-            const SModelParams params(bucketLength);
-            constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    constexpr core_t::TTime bucketLength = 100;
+    constexpr core_t::TTime startTime = 100;
+    const CSearchKey key;
+    const SModelParams params(bucketLength);
+    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
-            TFeatureVec const features{model_t::E_IndividualMeanByPerson};
-            auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime).buildSharedPtr();
+    TFeatureVec const features{model_t::E_IndividualMeanByPerson};
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .buildSharedPtr();
 
-            const std::string person1("p1");
-            bool addedPerson = false;
-            gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
+    const std::string person1("p1");
+    bool addedPerson = false;
+    gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-            CMockModel model(params, gathererPtr, influenceCalculators);
-            const std::vector<CAnomalyDetectorModel::TDouble1Vec> actuals{
-                {8.9}, {9.0}, {9.1}, {10.9}, {11.0}, {11.1}};
-            const std::vector<CAnomalyDetectorModel::TDouble1Vec> typicals(6, {10.0});
+    CMockModel model(params, gathererPtr, influenceCalculators);
+    const std::vector<CAnomalyDetectorModel::TDouble1Vec> actuals{
+        {8.9}, {9.0}, {9.1}, {10.9}, {11.0}, {11.1}};
+    const std::vector<CAnomalyDetectorModel::TDouble1Vec> typicals(6, {10.0});
 
-            for (size_t i = 0; i < actuals.size(); ++i) {
-                model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100 * (i + 1), actuals[i]);
-                model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0, 100 * (i + 1), typicals[i]);
-            }
+    for (size_t i = 0; i < actuals.size(); ++i) {
+        model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0,
+                                 100 * (i + 1), actuals[i]);
+        model.mockAddBucketBaselineMean(model_t::E_IndividualMeanByPerson, 0, 0,
+                                        100 * (i + 1), typicals[i]);
+    }
 
-            auto testRule = [&](CRuleCondition::ERuleConditionOperator op, double value, const std::vector<bool>& expected) {
-                CRuleCondition condition;
-                condition.appliesTo(CRuleCondition::E_DiffFromTypical);
-                condition.op(op);
-                condition.value(value);
-                CDetectionRule rule;
-                rule.addCondition(condition);
+    auto testRule = [&](CRuleCondition::ERuleConditionOperator op, double value,
+                        const std::vector<bool>& expected) {
+        CRuleCondition condition;
+        condition.appliesTo(CRuleCondition::E_DiffFromTypical);
+        condition.op(op);
+        condition.value(value);
+        CDetectionRule rule;
+        rule.addCondition(condition);
 
-                const model_t::CResultType resultType(model_t::CResultType::E_Final);
+        const model_t::CResultType resultType(model_t::CResultType::E_Final);
 
-                for (size_t i = 0; i < expected.size(); ++i) {
-                    BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
-                                                  model_t::E_IndividualMeanByPerson,
-                                                  resultType, 0, 0, 100 * (i + 1)) == expected[i]);
-                }
-            };
-
-            testRule(CRuleCondition::E_LT, 1.0, {false, false, true, true, false, false});
-            testRule(CRuleCondition::E_GT, 1.0, {true, false, false, false, false, true});
+        for (size_t i = 0; i < expected.size(); ++i) {
+            BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                          model_t::E_IndividualMeanByPerson, resultType,
+                                          0, 0, 100 * (i + 1)) == expected[i]);
         }
+    };
+
+    testRule(CRuleCondition::E_LT, 1.0, {false, false, true, true, false, false});
+    testRule(CRuleCondition::E_GT, 1.0, {true, false, false, false, false, true});
+}
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenNoActualValueAvailable, CTestFixture) {
     constexpr core_t::TTime bucketLength = 100;
@@ -575,7 +592,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndPopulationModel, CTestFi
     std::string const personFieldName("over");
     std::string const attributeFieldName("by");
     auto gathererPtr = CDataGathererBuilder(model_t::E_PopulationMetric,
-                                                   features, params, key, startTime)
+                                            features, params, key, startTime)
                            .personFieldName(personFieldName)
                            .attributeFieldName(attributeFieldName)
                            .buildSharedPtr();
@@ -631,59 +648,62 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndPopulationModel, CTestFi
 }
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenMultipleConditions, CTestFixture) {
-        constexpr core_t::TTime bucketLength = 100;
-        constexpr core_t::TTime startTime = 100;
-        const CSearchKey key;
-        const SModelParams params(bucketLength);
-        constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    constexpr core_t::TTime bucketLength = 100;
+    constexpr core_t::TTime startTime = 100;
+    const CSearchKey key;
+    const SModelParams params(bucketLength);
+    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
-        TFeatureVec const features{model_t::E_IndividualMeanByPerson};
-        const std::string personFieldName("series");
-        auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
-                               .personFieldName(personFieldName)
-                               .buildSharedPtr();
+    TFeatureVec const features{model_t::E_IndividualMeanByPerson};
+    const std::string personFieldName("series");
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .personFieldName(personFieldName)
+                           .buildSharedPtr();
 
-        const std::string person1("p1");
-        bool addedPerson = false;
-        gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
+    const std::string person1("p1");
+    bool addedPerson = false;
+    gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-        CMockModel model(params, gathererPtr, influenceCalculators);
-        const CAnomalyDetectorModel::TDouble1Vec p1Actual{10.0};
-        model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, p1Actual);
+    CMockModel model(params, gathererPtr, influenceCalculators);
+    const CAnomalyDetectorModel::TDouble1Vec p1Actual{10.0};
+    model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, p1Actual);
 
-        auto testRule = [&](const CRuleCondition& condition1, const CRuleCondition& condition2, bool expected) {
-            CDetectionRule rule;
-            rule.addCondition(condition1);
-            rule.addCondition(condition2);
+    auto testRule = [&](const CRuleCondition& condition1,
+                        const CRuleCondition& condition2, bool expected) {
+        CDetectionRule rule;
+        rule.addCondition(condition1);
+        rule.addCondition(condition2);
 
-            const model_t::CResultType resultType(model_t::CResultType::E_Final);
-            BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == expected);
-        };
+        const model_t::CResultType resultType(model_t::CResultType::E_Final);
+        BOOST_TEST_REQUIRE(rule.apply(CDetectionRule::E_SkipResult, model,
+                                      model_t::E_IndividualMeanByPerson,
+                                      resultType, 0, 0, 100) == expected);
+    };
 
-        CRuleCondition condition1;
-        condition1.appliesTo(CRuleCondition::E_Actual);
-        condition1.op(CRuleCondition::E_LT);
-        condition1.value(9.0);
+    CRuleCondition condition1;
+    condition1.appliesTo(CRuleCondition::E_Actual);
+    condition1.op(CRuleCondition::E_LT);
+    condition1.value(9.0);
 
-        CRuleCondition condition2;
-        condition2.appliesTo(CRuleCondition::E_Actual);
-        condition2.op(CRuleCondition::E_LT);
-        condition2.value(9.5);
+    CRuleCondition condition2;
+    condition2.appliesTo(CRuleCondition::E_Actual);
+    condition2.op(CRuleCondition::E_LT);
+    condition2.value(9.5);
 
-        testRule(condition1, condition2, false);
+    testRule(condition1, condition2, false);
 
-        condition1.value(11.0);
-        condition2.value(9.5);
-        testRule(condition1, condition2, false);
+    condition1.value(11.0);
+    condition2.value(9.5);
+    testRule(condition1, condition2, false);
 
-        condition1.value(9.0);
-        condition2.value(10.5);
-        testRule(condition1, condition2, false);
+    condition1.value(9.0);
+    condition2.value(10.5);
+    testRule(condition1, condition2, false);
 
-        condition1.value(12.0);
-        condition2.value(10.5);
-        testRule(condition1, condition2, true);
-    }
+    condition1.value(12.0);
+    condition2.value(10.5);
+    testRule(condition1, condition2, true);
+}
 
 BOOST_FIXTURE_TEST_CASE(testApplyGivenTimeCondition, CTestFixture) {
     constexpr core_t::TTime bucketLength = 100;
@@ -697,10 +717,9 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenTimeCondition, CTestFixture) {
     std::string const personFieldName("series");
     CSearchKey const key(0, function_t::E_IndividualMetricMean, false, model_t::E_XF_None,
                          "", personFieldName, EMPTY_STRING, partitionFieldName);
-    auto gathererPtr =
-        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
-            .personFieldName(personFieldName)
-            .buildSharedPtr();
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .personFieldName(personFieldName)
+                           .buildSharedPtr();
     CMockModel const model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
     conditionGte.appliesTo(CRuleCondition::E_Time);
@@ -739,10 +758,9 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
     std::string const personFieldName("series");
     CSearchKey const key(0, function_t::E_IndividualMetricMean, false, model_t::E_XF_None,
                          "", personFieldName, EMPTY_STRING, partitionFieldName);
-    auto gathererPtr =
-        CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
-            .personFieldName(personFieldName)
-            .buildSharedPtr();
+    auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
+                           .personFieldName(personFieldName)
+                           .buildSharedPtr();
     CMockModel const model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
     conditionGte.appliesTo(CRuleCondition::E_Time);
@@ -774,8 +792,6 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
                                   model_t::E_IndividualMeanByPerson, resultType,
                                   0, 0, 100));
 }
-
-
 
 BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestFixture) {
 

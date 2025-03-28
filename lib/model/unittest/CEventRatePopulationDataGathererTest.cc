@@ -292,8 +292,9 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         BOOST_REQUIRE_EQUAL(expectedAttributePeople.size(), peoplePerAttribute.size());
         TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;
         for (std::size_t j = 0; j < peoplePerAttribute.size(); ++j) {
-            expectedPeoplePerAttribute.emplace_back(std::make_pair(
-                std::make_pair(static_cast<size_t>(0), j), expectedAttributePeople[j].size()));
+            expectedPeoplePerAttribute.emplace_back(
+                std::make_pair(std::make_pair(static_cast<size_t>(0), j),
+                               expectedAttributePeople[j].size()));
         }
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedPeoplePerAttribute),
                             core::CContainerPrinter::print(peoplePerAttribute));
@@ -524,10 +525,10 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
             const TStrSet& uniqueValues = bucketPeopleCategorie.second;
 
             core::CDeflator compressor(false);
-BOOST_REQUIRE_EQUAL(
-                        uniqueValues.size(),
-                        static_cast<size_t>(std::ranges::count_if(
-                            uniqueValues, std::bind_front(&core::CCompressUtil::addString, &compressor))));
+            BOOST_REQUIRE_EQUAL(uniqueValues.size(),
+                                static_cast<size_t>(std::ranges::count_if(
+                                    uniqueValues, std::bind_front(&core::CCompressUtil::addString,
+                                                                  &compressor))));
             std::size_t length(0);
             BOOST_TEST_REQUIRE(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
@@ -768,7 +769,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
 
 namespace {
 void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
-                                    const SModelParams& params) {
+                             const SModelParams& params) {
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
         origJson, std::bind_front(&CDataGatherer::acceptPersistInserter, &origDataGatherer));
@@ -792,8 +793,6 @@ void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 }
-
-
 
 BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     constexpr core_t::TTime startTime = 1367280000;

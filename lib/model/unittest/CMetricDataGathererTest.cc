@@ -389,17 +389,15 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", gatherer, m_ResourceMonitor));
     BOOST_REQUIRE_EQUAL(1, addPerson("p2", gatherer, m_ResourceMonitor));
 
-    std::array bucket11 = {
-        TTimeDoublePr{1, 1.0},   TTimeDoublePr{15, 2.1},
-        TTimeDoublePr{180, 0.9}, TTimeDoublePr{190, 1.5},
-        TTimeDoublePr{400, 1.5}, TTimeDoublePr{550, 2.0}};
-    std::array bucket12 = {
-        TTimeDoublePr{600, 2.0}, TTimeDoublePr{799, 2.2}, TTimeDoublePr{1199, 1.8}};
-    std::array bucket13 = {TTimeDoublePr{1200, 2.1},
-                                             TTimeDoublePr{1250, 2.5}};
+    std::array bucket11 = {TTimeDoublePr{1, 1.0},   TTimeDoublePr{15, 2.1},
+                           TTimeDoublePr{180, 0.9}, TTimeDoublePr{190, 1.5},
+                           TTimeDoublePr{400, 1.5}, TTimeDoublePr{550, 2.0}};
+    std::array bucket12 = {TTimeDoublePr{600, 2.0}, TTimeDoublePr{799, 2.2},
+                           TTimeDoublePr{1199, 1.8}};
+    std::array bucket13 = {TTimeDoublePr{1200, 2.1}, TTimeDoublePr{1250, 2.5}};
     std::array bucket14 = {TTimeDoublePr{1900, 3.5}};
-    std::array bucket15 = {
-        TTimeDoublePr{2420, 3.5}, TTimeDoublePr{2480, 3.2}, TTimeDoublePr{2490, 3.8}};
+    std::array bucket15 = {TTimeDoublePr{2420, 3.5}, TTimeDoublePr{2480, 3.2},
+                           TTimeDoublePr{2490, 3.8}};
     TTimeDoublePrVecVec buckets1;
     buckets1.emplace_back(std::begin(bucket11), std::end(bucket11));
     buckets1.emplace_back(std::begin(bucket12), std::end(bucket12));
@@ -878,8 +876,9 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             TTimeDoublePr(1, 1.0), TTimeDoublePr(15, 2.1), TTimeDoublePr(180, 0.9),
             TTimeDoublePr(400, 1.5), TTimeDoublePr(550, 2.0)};
         constexpr core_t::TTime startTime = 0;
-        constexpr std::array bucket2 = {TTimeDoublePr(600, 2.0), TTimeDoublePr(190, 1.5),
-                                    TTimeDoublePr(799, 2.2), TTimeDoublePr(1199, 1.8)};
+        constexpr std::array bucket2 = {TTimeDoublePr(600, 2.0),
+                                        TTimeDoublePr(190, 1.5), TTimeDoublePr(799, 2.2),
+                                        TTimeDoublePr(1199, 1.8)};
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanByPerson);
         features.push_back(model_t::E_IndividualMinByPerson);
@@ -1373,7 +1372,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     params.s_SampleQueueGrowthFactor = 0.1;
 
     constexpr std::array influencerNames_ = {"i1", "i2"};
-    std::array<std::array<std::string, 3>, 2> influencerValues = {{{"i11", "i12", "i13"}, {"i21", "i22", "i23"}}};
+    std::array<std::array<std::string, 3>, 2> influencerValues = {
+        {{"i11", "i12", "i13"}, {"i21", "i22", "i23"}}};
 
     std::array data = {
         TTimeDoubleStrStrTuple(1, 1.0, influencerValues[0][0], influencerValues[1][0]), // Bucket 1
@@ -1452,11 +1452,9 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                 for (const auto& val : data_ | std::views::values) {
                     TStrDoubleDoublePrPrVec statistics;
                     for (const auto& influenceValue : val.s_InfluenceValues) {
-                        for (const auto & [fst, snd] : influenceValue) {
+                        for (const auto & [ fst, snd ] : influenceValue) {
                             statistics.emplace_back(
-                                fst,
-                                TDoubleDoublePr(snd.first[0],
-                                                snd.second));
+                                fst, TDoubleDoublePr(snd.first[0], snd.second));
                         }
                     }
                     std::ranges::sort(statistics, maths::common::COrderings::SFirstLess());
@@ -1491,20 +1489,20 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
     params.s_MultivariateComponentDelimiter = DELIMITER;
 
     std::array bucket1 = {TTimeDoubleDoubleTuple(1, 1.0, 1.0),
-                                        TTimeDoubleDoubleTuple(15, 2.1, 2.0),
-                                        TTimeDoubleDoubleTuple(180, 0.9, 0.8),
-                                        TTimeDoubleDoubleTuple(190, 1.5, 1.4),
-                                        TTimeDoubleDoubleTuple(400, 1.5, 1.4),
-                                        TTimeDoubleDoubleTuple(550, 2.0, 1.8)};
+                          TTimeDoubleDoubleTuple(15, 2.1, 2.0),
+                          TTimeDoubleDoubleTuple(180, 0.9, 0.8),
+                          TTimeDoubleDoubleTuple(190, 1.5, 1.4),
+                          TTimeDoubleDoubleTuple(400, 1.5, 1.4),
+                          TTimeDoubleDoubleTuple(550, 2.0, 1.8)};
     std::array bucket2 = {TTimeDoubleDoubleTuple(600, 2.0, 1.8),
-                                        TTimeDoubleDoubleTuple(799, 2.2, 2.0),
-                                        TTimeDoubleDoubleTuple(1199, 1.8, 1.6)};
+                          TTimeDoubleDoubleTuple(799, 2.2, 2.0),
+                          TTimeDoubleDoubleTuple(1199, 1.8, 1.6)};
     std::array bucket3 = {TTimeDoubleDoubleTuple(1200, 2.1, 2.0),
-                                        TTimeDoubleDoubleTuple(1250, 2.5, 2.4)};
+                          TTimeDoubleDoubleTuple(1250, 2.5, 2.4)};
     std::array bucket4 = {TTimeDoubleDoubleTuple(1900, 3.5, 3.2)};
     std::array bucket5 = {TTimeDoubleDoubleTuple(2420, 3.5, 3.2),
-                                        TTimeDoubleDoubleTuple(2480, 3.2, 3.0),
-                                        TTimeDoubleDoubleTuple(2490, 3.8, 3.8)};
+                          TTimeDoubleDoubleTuple(2480, 3.2, 3.0),
+                          TTimeDoubleDoubleTuple(2490, 3.8, 3.8)};
 
     {
         TFeatureVec features;

@@ -30,8 +30,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <ranges>
 #include <map>
+#include <ranges>
 #include <string>
 #include <utility>
 #include <vector>
@@ -86,7 +86,8 @@ void generateTestMessages(const core_t::TTime& startTime, TMessageVec& result) {
     constexpr std::size_t numberCategories = 10;
     constexpr std::array locations = {1.0, 2.0,  5.0,  15.0, 3.0,
                                       0.5, 10.0, 17.0, 8.5,  1.5};
-    constexpr std::array scales = {1.0, 1.0, 3.0, 2.0, 0.5, 0.5, 2.0, 3.0, 4.0, 1.0};
+    constexpr std::array scales = {1.0, 1.0, 3.0, 2.0, 0.5,
+                                   0.5, 2.0, 3.0, 4.0, 1.0};
 
     result.clear();
     result.reserve(numberMessages);
@@ -903,7 +904,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     params.s_DecayRate = 0.001;
 
     constexpr std::array influencerNames_ = {"i1", "i2"};
-    std::array<std::array<std::string, 3>, 2> const influencerValues = {{{"i11", "i12", "i13"}, {"i21", "i22", "i23"}}};
+    std::array<std::array<std::string, 3>, 2> const influencerValues = {
+        {{"i11", "i12", "i13"}, {"i21", "i22", "i23"}}};
 
     const std::array data = {
         SMessage(1, "p1", "", 1.0, vec(influencerValues[0][0], influencerValues[1][0])), // Bucket 1

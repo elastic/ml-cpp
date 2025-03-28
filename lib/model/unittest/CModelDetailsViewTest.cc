@@ -28,8 +28,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
-#include <vector>
 #include <ranges>
+#include <vector>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::model::CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr);
 
@@ -103,11 +103,10 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
         for (const auto& plotDataValues : plotData | std::views::values) {
             BOOST_REQUIRE_EQUAL(values.size(), plotDataValues.size());
-            for (const auto& [fst, snd] : plotDataValues) {
+            for (const auto & [ fst, snd ] : plotDataValues) {
                 BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
                 BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
-                for (const auto& val : snd.s_ValuesPerOverField |
-                                           std::views::values) {
+                for (const auto& val : snd.s_ValuesPerOverField | std::views::values) {
                     BOOST_REQUIRE_EQUAL(values[pid], val);
                 }
             }
@@ -131,11 +130,10 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
         for (const auto& plotDataValues : plotData | std::views::values) {
             BOOST_REQUIRE_EQUAL(values.size(), plotDataValues.size());
-            for (const auto& [fst, snd] : plotDataValues) {
+            for (const auto & [ fst, snd ] : plotDataValues) {
                 BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
                 BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
-                for (const auto& val : snd.s_ValuesPerOverField |
-                                           std::views::values) {
+                for (const auto& val : snd.s_ValuesPerOverField | std::views::values) {
                     BOOST_REQUIRE_EQUAL(values[pid], val);
                 }
             }
