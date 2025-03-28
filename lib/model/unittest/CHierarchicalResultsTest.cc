@@ -1854,11 +1854,11 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         static constexpr ml::model::function_t::EFunction function(
             ml::model::function_t::E_IndividualMetricMax);
 
-        constexpr std::array<std::array<std::string, 7>, 2> fields = {{
+        const std::array<std::array<std::string, 7>, 2> fields = {{
             {"0", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING},
             {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING}
         }};
-        constexpr std::array<double, 2> scales = {1.0, 3.5};
+        constexpr std::array scales = {1.0, 3.5};
 
         for (std::size_t i = 0; i < 500; ++i) {
             model::CHierarchicalResults results;
