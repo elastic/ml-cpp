@@ -70,7 +70,8 @@ TMockModelPtr initializeModel(CResourceMonitor& resourceMonitor) {
     bool addedPerson{false};
     gatherer->addPerson(person, resourceMonitor, addedPerson);
 
-    TMockModelPtr model{new CMockModel(params, gatherer, {/* we don't care about influence */})};
+    constexpr CMockModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators; //we don't care about influence
+    auto model = std::make_unique<CMockModel>(params, gatherer, influenceCalculators);
 
     maths::time_series::CTimeSeriesDecomposition const trend;
     maths::common::CNormalMeanPrecConjugate const prior{

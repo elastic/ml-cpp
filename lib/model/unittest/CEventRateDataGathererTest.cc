@@ -211,8 +211,7 @@ void importCsvData(CDataGatherer& gatherer,
                    CResourceMonitor& resourceMonitor,
                    const std::string& filename,
                    const TSizeVec& fields) {
-    using TifstreamPtr = std::shared_ptr<std::ifstream>;
-    TifstreamPtr ifs(new std::ifstream(filename.c_str()));
+    auto ifs(std::make_shared<std::ifstream>(filename.c_str()));
     BOOST_TEST_REQUIRE(ifs->is_open());
 
     core::CRegex regex;
@@ -888,9 +887,6 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
         features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
-        // CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-        //                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        //                        EMPTY_STRING, {}, key, features, startTime, 0);
         CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features,
                                                       params, key, startTime)
                                      .build();

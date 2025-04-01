@@ -96,7 +96,7 @@ void addArrival(CDataGatherer& gatherer,
                 const std::string& person,
                 double lat,
                 double lng,
-                const std::string& delimiter) {
+                std::string_view delimiter) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     std::string latlngAsString;
@@ -167,7 +167,6 @@ double variance(const TDoubleVec& values, double& mean) {
 }
 
 const CSearchKey KEY;
-const std::string EMPTY_STRING;
 }
 
 class CTestFixture {
@@ -799,7 +798,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     core_t::TTime bucketStart = startTime;
     for (const auto count : bucketCounts) {
         TDoubleVec times;
-        rng.generateUniformSamples(0.0, static_cast<double>(bucketLength - 0.1), count, times);
+        rng.generateUniformSamples(0.0, bucketLength - 0.1, count, times);
         std::ranges::sort(times);
 
         TDoubleVec values;
@@ -1444,7 +1443,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, bucketLength, featureData);
-            for (auto& j : featureData) {
+            for (auto const& j : featureData) {
                 model_t::EFeature const feature = j.first;
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
 
