@@ -59,43 +59,35 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
                                                features, params, key, 0)
                        .personFieldName("p")
                        .buildSharedPtr();
-        std::string const person11{"p11"};
-        std::string const person12{"p12"};
-        std::string const person21{"p21"};
-        std::string const person22{"p22"};
-        bool addedPerson{false};
-        gatherer->addPerson(person11, m_ResourceMonitor, addedPerson);
-        gatherer->addPerson(person12, m_ResourceMonitor, addedPerson);
-        gatherer->addPerson(person21, m_ResourceMonitor, addedPerson);
-        gatherer->addPerson(person22, m_ResourceMonitor, addedPerson);
+        const std::vector<std::string> persons{"p11", "p12", "p21", "p22"};
+        for (const auto& person : persons) {
+            bool addedPerson{false};
+            gatherer->addPerson(person, m_ResourceMonitor, addedPerson);
+        }
 
-        model.reset(new model::CMockModel{params, gatherer, {}});
+        const model::CMockModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+        model = std::make_unique<model::CMockModel>(params, gatherer, influenceCalculators);
 
-        maths::time_series::CTimeSeriesDecomposition const trend;
-        maths::common::CNormalMeanPrecConjugate const prior{
+        const maths::time_series::CTimeSeriesDecomposition trend;
+        const maths::common::CNormalMeanPrecConjugate prior{
             maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-        maths::common::CModelParams const timeSeriesModelParams{
+        const maths::common::CModelParams timeSeriesModelParams{
             bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-        maths::time_series::CUnivariateTimeSeriesModel const timeSeriesModel{
+        const maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
             timeSeriesModelParams, 0, trend, prior};
         model::CMockModel::TMathsModelUPtrVec models;
-        models.emplace_back(timeSeriesModel.clone(0));
-        models.emplace_back(timeSeriesModel.clone(1));
-        models.emplace_back(timeSeriesModel.clone(2));
-        models.emplace_back(timeSeriesModel.clone(3));
+        for (int i = 0; i < 4; ++i) {
+            models.emplace_back(timeSeriesModel.clone(i));
+        }
         model->mockTimeSeriesModels(std::move(models));
     };
 
-    LOG_DEBUG(<< "Individual sum");
-    {
-        features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
+    auto testModelPlot = [&](model_t::EFeature feature, const TDoubleVec& values) {
+        features.assign(1, feature);
         setupTest();
-
-        TDoubleVec values{2.0, 3.0, 0.0, 0.0};
         std::size_t pid{0};
         for (auto value : values) {
-            model->mockAddBucketValue(model_t::E_IndividualSumByBucketAndPerson,
-                                      pid++, 0, 0, {value});
+            model->mockAddBucketValue(feature, pid++, 0, 0, {value});
         }
 
         model::CModelPlotData plotData;
@@ -111,34 +103,13 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
                 }
             }
         }
-    }
+    };
+
+    LOG_DEBUG(<< "Individual sum");
+    testModelPlot(model_t::E_IndividualSumByBucketAndPerson, {2.0, 3.0, 0.0, 0.0});
 
     LOG_DEBUG(<< "Individual count");
-    {
-        features.assign(1, model_t::E_IndividualCountByBucketAndPerson);
-        setupTest();
-
-        const TDoubleVec values{0.0, 1.0, 3.0};
-        std::size_t pid{0};
-        for (auto value : values) {
-            model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson,
-                                      pid++, 0, 0, {value});
-        }
-
-        model::CModelPlotData plotData;
-        model->details()->modelPlot(0, 90.0, {}, plotData);
-        BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
-        for (const auto & [ _, plotDataValues ] : plotData) {
-            BOOST_REQUIRE_EQUAL(values.size(), plotDataValues.size());
-            for (const auto & [ fst, snd ] : plotDataValues) {
-                BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
-                BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
-                for (const auto & [ field_name, val ] : snd.s_ValuesPerOverField) {
-                    BOOST_REQUIRE_EQUAL(values[pid], val);
-                }
-            }
-        }
-    }
+    testModelPlot(model_t::E_IndividualCountByBucketAndPerson, {0.0, 1.0, 3.0});
 }
 
 BOOST_AUTO_TEST_SUITE_END()
