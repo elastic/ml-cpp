@@ -833,15 +833,15 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         10000 // sentinel
     };
 
-    constexpr std::array expectedPersonCounts = {
+    const std::array expectedPersonCounts = {
         std::string("[(0, 6)]"), std::string("[(0, 3)]"), std::string("[(0, 2)]"),
         std::string("[(0, 0)]"), std::string("[(0, 3)]")};
 
-    constexpr std::array expectedPersonNonZeroCounts = {
+    const std::array expectedPersonNonZeroCounts = {
         std::string("[(0, 6)]"), std::string("[(0, 3)]"),
         std::string("[(0, 2)]"), std::string("[]"), std::string("[(0, 3)]")};
 
-    constexpr std::array expectedPersonIndicator = {
+    const std::array expectedPersonIndicator = {
         std::string("[(0, 1)]"), std::string("[(0, 1)]"),
         std::string("[(0, 1)]"), std::string("[]"), std::string("[(0, 1)]")};
 
