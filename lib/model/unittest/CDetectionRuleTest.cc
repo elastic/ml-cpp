@@ -70,7 +70,7 @@ TMockModelPtr initializeModel(CResourceMonitor& resourceMonitor) {
     bool addedPerson{false};
     gatherer->addPerson(person, resourceMonitor, addedPerson);
 
-    constexpr CMockModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators; //we don't care about influence
+    const CMockModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators; //we don't care about influence
     auto model = std::make_unique<CMockModel>(params, gatherer, influenceCalculators);
 
     maths::time_series::CTimeSeriesDecomposition const trend;
@@ -96,7 +96,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     constexpr core_t::TTime bucketLength = 100;
     constexpr core_t::TTime startTime = 100;
     const SModelParams params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
@@ -344,7 +344,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalActualCondition, CTestFixture) {
     constexpr core_t::TTime startTime = 100;
     CSearchKey const key;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec const features{model_t::E_IndividualMeanByPerson};
     auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
@@ -395,7 +395,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalTypicalCondition, CTestFixture) {
     constexpr core_t::TTime startTime = 100;
     const CSearchKey key;
     const SModelParams params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec const features{model_t::E_IndividualMeanByPerson};
     auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
@@ -450,7 +450,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNumericalDiffAbsCondition, CTestFixture) {
     constexpr core_t::TTime startTime = 100;
     const CSearchKey key;
     const SModelParams params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec const features{model_t::E_IndividualMeanByPerson};
     auto gathererPtr = CDataGathererBuilder(model_t::E_Metric, features, params, key, startTime)
@@ -499,7 +499,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenNoActualValueAvailable, CTestFixture) {
     constexpr core_t::TTime startTime = 100;
     CSearchKey const key;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
@@ -537,7 +537,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndIndividualModel, CTestFi
     constexpr core_t::TTime startTime = 100;
     CSearchKey const key;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
@@ -586,7 +586,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndPopulationModel, CTestFi
     constexpr core_t::TTime startTime = 100;
     CSearchKey const key;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
@@ -653,7 +653,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenMultipleConditions, CTestFixture) {
     constexpr core_t::TTime startTime = 100;
     const CSearchKey key;
     const SModelParams params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec const features{model_t::E_IndividualMeanByPerson};
     const std::string personFieldName("series");
@@ -710,7 +710,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenTimeCondition, CTestFixture) {
     constexpr core_t::TTime bucketLength = 100;
     constexpr core_t::TTime startTime = 100;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
@@ -751,7 +751,7 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
     constexpr core_t::TTime bucketLength = 100;
     constexpr core_t::TTime startTime = 100;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);

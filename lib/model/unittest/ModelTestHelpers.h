@@ -150,7 +150,7 @@ public:
     }
 
     CDataGathererBuilder& sampleCountOverride(std::size_t sampleCount) {
-        m_SampleCountOverride = sampleCount;
+        m_SampleCountOverride = static_cast<int>(sampleCount);
         return *this;
     }
 

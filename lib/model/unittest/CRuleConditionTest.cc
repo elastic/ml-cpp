@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testTimeContition) {
     constexpr core_t::TTime startTime = 100;
     CSearchKey const key;
     SModelParams const params(bucketLength);
-    constexpr CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
+    const CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     model_t::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);

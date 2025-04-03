@@ -343,7 +343,7 @@ void testGathererMultipleSeries(const core_t::TTime startTime,
     addArrival(gatherer, resourceMonitor, startTime + 2, gatherer.personName(4));
     addArrival(gatherer, resourceMonitor, startTime + 3, gatherer.personName(4));
 
-    constexpr TSizeUInt64PrVec personCounts;
+    const TSizeUInt64PrVec personCounts;
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
     gatherer.featureData(startTime, bucketLength, featureData);
@@ -1423,14 +1423,15 @@ protected:
     // Helper to sort influence values (when needed) using the ordering defined in maths::common.
     static void sortInfluenceValues(SEventRateFeatureData& featureData) {
         for (auto& influenceGroup : featureData.s_InfluenceValues) {
-            std::ranges::sort(influenceGroup, maths::common::COrderings::SFirstLess());
+            std::sort(influenceGroup.begin(), influenceGroup.end(),
+                      maths::common::COrderings::SFirstLess());
         }
     }
 
     // ----- Block 1: Distinct Count with NO influences -----
     static void testDistinctCountNoInfluence() {
         // Create an empty (constexpr) vector of optional strings.
-        constexpr TOptionalStrVec influencers{};
+        const TOptionalStrVec influencers{};
 
         CUniqueStringFeatureData data;
         // Initially, no strings have been inserted.
@@ -1487,8 +1488,9 @@ protected:
 
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
-        std::ranges::sort(featureData.s_InfluenceValues[0],
-                          maths::common::COrderings::SFirstLess());
+        std::sort(featureData.s_InfluenceValues[0].begin(),
+                  featureData.s_InfluenceValues[0].end(),
+                  maths::common::COrderings::SFirstLess());
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
                             featureData.print());
     }
@@ -1521,8 +1523,9 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::ranges::sort(featureData.s_InfluenceValues[i],
-                              maths::common::COrderings::SFirstLess());
+            std::sort(featureData.s_InfluenceValues[i].begin(),
+                      featureData.s_InfluenceValues[i].end(),
+                      maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
                             featureData.print());
@@ -1530,7 +1533,7 @@ protected:
 
     // ----- Block 4: Info Content with NO influences -----
     static void testInfoContentNoInfluence() {
-        constexpr TOptionalStrVec influencers{}; // empty
+        const TOptionalStrVec influencers{}; // empty
         CUniqueStringFeatureData data;
         verifyInfoContentFeature(data, "0");
 
@@ -1582,8 +1585,9 @@ protected:
 
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
-        std::ranges::sort(featureData.s_InfluenceValues[0],
-                          maths::common::COrderings::SFirstLess());
+        std::sort(featureData.s_InfluenceValues[0].begin(),
+                  featureData.s_InfluenceValues[0].end(),
+                  maths::common::COrderings::SFirstLess());
         BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
                             featureData.print());
     }
@@ -1616,8 +1620,9 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::ranges::sort(featureData.s_InfluenceValues[i],
-                              maths::common::COrderings::SFirstLess());
+            std::sort(featureData.s_InfluenceValues[i].begin(),
+                      featureData.s_InfluenceValues[i].end(),
+                      maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
                             featureData.print());
@@ -1714,13 +1719,12 @@ protected:
         auto builder = CDataGathererBuilder(model_t::E_EventRate, features,
                                             params, key, startTime);
         if (useAttribute) {
-            auto tempBuilder =
-                builder.gathererType(model_t::E_PopulationEventRate).attributeFieldName("att");
-            return tempBuilder.build();
+            return builder.gathererType(model_t::E_PopulationEventRate)
+                .attributeFieldName("att")
+                .build();
         }
         if (!isPopulation) {
-            auto tempBuilder = builder.personFieldName("person");
-            return tempBuilder.build();
+            return builder.personFieldName("person").build();
         }
         return builder.build();
     }

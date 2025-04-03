@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <ranges>
 #include <set>
 #include <utility>
 #include <vector>
@@ -115,7 +116,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
 
     TDoubleVec personRange;
     rng.generateUniformSamples(0.0, static_cast<double>(people.size()) - 1e-3, 2U, personRange);
-    std::ranges::sort(personRange);
+    std::sort(personRange.begin(), personRange.end());
     auto const a = static_cast<std::size_t>(personRange[0]);
     std::size_t const b = static_cast<std::size_t>(personRange[1]) + 1;
     TSizeVec bucketPeople;
@@ -136,7 +137,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
         }
     }
 
-    std::ranges::sort(messages, [](const SMessage& lhs, const SMessage& rhs) {
+    std::sort(messages.begin(), messages.end(), [](const SMessage& lhs, const SMessage& rhs) {
         return lhs.s_Time < rhs.s_Time;
     });
     LOG_DEBUG(<< "Generated " << messages.size() << " messages");
@@ -150,7 +151,7 @@ extract(const TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData, model_t::EFe
         }
     }
 
-    static constexpr TSizeSizePrFeatureDataPrVec EMPTY;
+    static const TSizeSizePrFeatureDataPrVec EMPTY;
     return EMPTY;
 }
 
@@ -257,7 +258,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         generateTestMessages(rng, time, bucketLength, messages);
 
         TSizeSizePrUInt64Map expectedAttributeCounts;
-        for (auto& message : messages) {
+        for (const auto& message : messages) {
             addArrival(message.s_Time, message.s_Person, message.s_Attribute,
                        dataGatherer, m_ResourceMonitor);
 
@@ -523,10 +524,11 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
             const TStrSet& uniqueValues = bucketPeopleCategorie.second;
 
             core::CDeflator compressor(false);
-            BOOST_REQUIRE_EQUAL(uniqueValues.size(),
-                                static_cast<size_t>(std::ranges::count_if(
-                                    uniqueValues, std::bind_front(&core::CCompressUtil::addString,
-                                                                  &compressor))));
+            BOOST_REQUIRE_EQUAL(
+                uniqueValues.size(),
+                static_cast<size_t>(std::count_if(
+                    uniqueValues.begin(), uniqueValues.end(),
+                    std::bind_front(&core::CCompressUtil::addString, &compressor))));
             std::size_t length(0);
             BOOST_TEST_REQUIRE(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
@@ -584,7 +586,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrVec expectedPersonNames;
     TSizeVec expectedPersonIds;
     for (std::size_t i = 0; i < numberPeople; ++i) {
-        if (!std::ranges::binary_search(peopleToRemove, i)) {
+        if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(), i)) {
             expectedPersonNames.push_back(gatherer.personName(i));
             expectedPersonIds.push_back(i);
         } else {
@@ -597,9 +599,10 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         TSizeUInt64PrVec nonZeroCounts;
         gatherer.personNonZeroCounts(bucketStart - bucketLength, nonZeroCounts);
         for (auto const& nonZeroCount : nonZeroCounts) {
-            if (!std::ranges::binary_search(peopleToRemove, nonZeroCount.first)) {
+            if (!std::binary_search(peopleToRemove.begin(),
+                                    peopleToRemove.end(), nonZeroCount.first)) {
                 const std::string& name = gatherer.personName(nonZeroCount.first);
-                expectedNonZeroCounts[name] = static_cast<size_t>(nonZeroCount.second);
+                expectedNonZeroCounts[name] = nonZeroCount.second;
             }
         }
     }
@@ -614,7 +617,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         for (auto const& i : featureData) {
             const TSizeSizePrFeatureDataPrVec& data = i.second;
             for (const auto& j : data) {
-                if (!std::ranges::binary_search(peopleToRemove, j.first.first)) {
+                if (!std::binary_search(peopleToRemove.begin(),
+                                        peopleToRemove.end(), j.first.first)) {
                     std::string const key = model_t::print(i.first) + " " +
                                             gatherer.personName(j.first.first) + " " +
                                             gatherer.attributeName(j.first.second);
@@ -640,7 +644,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     gatherer.personNonZeroCounts(bucketStart - bucketLength, nonZeroCounts);
     for (auto const& nonZeroCount : nonZeroCounts) {
         const std::string& name = gatherer.personName(nonZeroCount.first);
-        actualNonZeroCounts[name] = static_cast<size_t>(nonZeroCount.second);
+        actualNonZeroCounts[name] = nonZeroCount.second;
     }
     LOG_DEBUG(<< "actualNonZeroCounts = " << actualNonZeroCounts);
 
@@ -704,7 +708,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     TStrVec expectedAttributeNames;
     TSizeVec expectedAttributeIds;
     for (std::size_t i = 0; i < numberAttributes; ++i) {
-        if (!std::ranges::binary_search(attributesToRemove, i)) {
+        if (!std::binary_search(attributesToRemove.begin(), attributesToRemove.end(), i)) {
             expectedAttributeNames.push_back(gatherer.attributeName(i));
             expectedAttributeIds.push_back(i);
         } else {
@@ -721,7 +725,8 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         for (auto const& i : featureData) {
             const TSizeSizePrFeatureDataPrVec& data = i.second;
             for (const auto& j : data) {
-                if (!std::ranges::binary_search(attributesToRemove, j.first.second)) {
+                if (!std::binary_search(attributesToRemove.begin(),
+                                        attributesToRemove.end(), j.first.second)) {
                     std::string const key = model_t::print(i.first) + " " +
                                             gatherer.personName(j.first.first) + " " +
                                             gatherer.attributeName(j.first.second);

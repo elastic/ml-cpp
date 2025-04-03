@@ -328,12 +328,11 @@ public:
     double test(double minimumSignificance) const {
         maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanSignificance;
 
-        for (const auto& nodeProbabilities : this->leafSet() | std::views::values) {
-            const SNodeProbabilities& probabilities = nodeProbabilities;
+        for (const auto & [ _, probabilities ] : this->leafSet()) {
             LOG_DEBUG(<< "leaf = " << probabilities.s_Name);
 
             std::vector<int> detectors;
-            for (const auto& detector : probabilities.s_Probabilities | std::views::keys) {
+            for (const auto & [ detector, _ ] : probabilities.s_Probabilities) {
                 detectors.push_back(detector);
             }
 
@@ -1542,7 +1541,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         model::CHierarchicalResults results;
         TDoubleVec p;
         rng.generateUniformSamples(0.0, 1.0, std::size(fields), p);
-        constexpr TAttributeProbabilityVec empty;
+        const TAttributeProbabilityVec empty;
         for (std::size_t j = 0; j < std::size(fields); ++j) {
             addResult(boost::lexical_cast<int>(fields[j][0]), fields[j][1] == TRUE_STR,
                       FUNC, function, fields[j][2], fields[j][3], fields[j][4],
@@ -1788,7 +1787,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         for (std::size_t i = 0; i < 300; ++i) {
             model::CHierarchicalResults results;
-            constexpr TAttributeProbabilityVec empty;
+            const TAttributeProbabilityVec empty;
             for (const auto& field : fields) {
                 int const detector = boost::lexical_cast<int>(field[0]);
                 TDoubleVec p;
@@ -1803,7 +1802,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         for (std::size_t i = 0; i < 300; ++i) {
             model::CHierarchicalResults results;
-            constexpr TAttributeProbabilityVec empty;
+            const TAttributeProbabilityVec empty;
             for (const auto& field : fields) {
                 int const detector = boost::lexical_cast<int>(field[0]);
                 TDoubleVec p;
@@ -1862,7 +1861,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         for (std::size_t i = 0; i < 500; ++i) {
             model::CHierarchicalResults results;
-            constexpr TAttributeProbabilityVec empty;
+            const TAttributeProbabilityVec empty;
             for (const auto& field : fields) {
                 int const detector = boost::lexical_cast<int>(field[0]);
                 TDoubleVec p;
@@ -1880,7 +1879,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         for (std::size_t i = 0; i < 100; ++i) {
             model::CHierarchicalResults results;
-            constexpr TAttributeProbabilityVec empty;
+            const TAttributeProbabilityVec empty;
             for (const auto& field : fields) {
                 int const detector = boost::lexical_cast<int>(field[0]);
                 TDoubleVec p;

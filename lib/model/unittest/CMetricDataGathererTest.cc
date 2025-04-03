@@ -429,8 +429,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         LOG_DEBUG(<< "Processing bucket " << i);
         gatherer.timeNow(startTime + (i * bucketLength));
 
-        const TTimeDoublePrVec& bucket1 = buckets1[i];
-        for (const auto& j : bucket1) {
+        for (const TTimeDoublePrVec& bucket1 = buckets1[i]; const auto& j : bucket1) {
             addArrival(gatherer, m_ResourceMonitor, j.first, "p1", j.second);
         }
 
@@ -799,7 +798,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     for (const auto count : bucketCounts) {
         TDoubleVec times;
         rng.generateUniformSamples(0.0, bucketLength - 0.1, count, times);
-        std::ranges::sort(times);
+        std::sort(times.begin(), times.end());
 
         TDoubleVec values;
         rng.generateNormalSamples(5.0, 4.0, count, values);
@@ -1443,12 +1442,10 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, bucketLength, featureData);
-            for (auto const& j : featureData) {
-                model_t::EFeature const feature = j.first;
+            for (auto const & [ feature, data_ ] : featureData) {
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
 
-                const TSizeFeatureDataPrVec& data_ = j.second;
-                for (const auto& val : data_ | std::views::values) {
+                for (const auto & [ _, val ] : data_) {
                     TStrDoubleDoublePrPrVec statistics;
                     for (const auto& influenceValue : val.s_InfluenceValues) {
                         for (const auto & [ fst, snd ] : influenceValue) {
@@ -1456,7 +1453,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                                 fst, TDoubleDoublePr(snd.first[0], snd.second));
                         }
                     }
-                    std::ranges::sort(statistics, maths::common::COrderings::SFirstLess());
+                    std::sort(statistics.begin(), statistics.end(),
+                              maths::common::COrderings::SFirstLess());
 
                     LOG_DEBUG(<< "statistics = " << statistics);
                     LOG_DEBUG(<< "expected   = " << *expected);
@@ -1506,7 +1504,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
-        constexpr TStrVec influencerNames;
+        const TStrVec influencerNames;
         CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
                                                       params, KEY, startTime)
                                      .influenceFieldNames(influencerNames)
@@ -1666,7 +1664,6 @@ BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
         traverser.traverseSubLevel([&restored](auto&& PH1) mutable {
             return restored.restore(std::forward<decltype(PH1)>(PH1));
         });
-
         restoredTime = restored.time();
         core::CJsonStatePersistInserter::persist(
             restoredJson, [&restored](core::CJsonStatePersistInserter& inserter) {

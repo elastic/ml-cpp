@@ -96,7 +96,7 @@ void generateTestMessages(const core_t::TTime& startTime, TMessageVec& result) {
 
     TDoubleVec times;
     rng.generateUniformSamples(0.0, 86399.99, numberMessages, times);
-    std::ranges::sort(times);
+    std::sort(times.begin(), times.end());
 
     TDoubleVec people;
     rng.generateUniformSamples(0.0, static_cast<double>(numberPeople) - 0.01,
@@ -194,9 +194,8 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
             }
 
             TStrStrPrDoubleMap expectedMeans;
-            for (auto& accumulator : accumulators) {
-                expectedMeans[accumulator.first] =
-                    maths::common::CBasicStatistics::mean(accumulator.second);
+            for (const auto & [ fst, snd ] : accumulators) {
+                expectedMeans[fst] = maths::common::CBasicStatistics::mean(snd);
             }
 
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
@@ -562,19 +561,18 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             }
 
             TStrStrPrDoubleMap expectedMeans;
-            for (auto& bucketMeanAccumulator : bucketMeanAccumulators) {
-                expectedMeans[bucketMeanAccumulator.first] =
-                    maths::common::CBasicStatistics::mean(bucketMeanAccumulator.second);
+            for (const auto & [ key, values ] : bucketMeanAccumulators) {
+                expectedMeans[key] = maths::common::CBasicStatistics::mean(values);
             }
 
             TStrStrPrDoubleMap expectedMins;
-            for (auto& bucketMinAccumulator : bucketMinAccumulators) {
-                expectedMins[bucketMinAccumulator.first] = bucketMinAccumulator.second[0];
+            for (const auto & [ key, values ] : bucketMinAccumulators) {
+                expectedMins[key] = values[0];
             }
 
             TStrStrPrDoubleMap expectedMaxs;
-            for (auto& bucketMaxAccumulator : bucketMaxAccumulators) {
-                expectedMaxs[bucketMaxAccumulator.first] = bucketMaxAccumulator.second[0];
+            for (const auto & [ key, values ] : bucketMaxAccumulators) {
+                expectedMaxs[key] = values[0];
             }
 
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
@@ -659,7 +657,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     generateTestMessages(startTime, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (auto& message : messages) {
+    for (const auto& message : messages) {
         if (message.s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -683,7 +681,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrVec expectedPersonNames;
     TSizeVec expectedPersonIds;
     for (std::size_t i = 0; i < numberPeople; ++i) {
-        if (!std::ranges::binary_search(peopleToRemove, i)) {
+        if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(), i)) {
             expectedPersonNames.push_back(gatherer.personName(i));
             expectedPersonIds.push_back(i);
         } else {
@@ -695,8 +693,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TSizeUInt64PrVec nonZeroCounts;
         gatherer.personNonZeroCounts(bucketStart, nonZeroCounts);
-        for (auto& nonZeroCount : nonZeroCounts) {
-            if (!std::ranges::binary_search(peopleToRemove, nonZeroCount.first)) {
+        for (const auto& nonZeroCount : nonZeroCounts) {
+            if (!std::binary_search(peopleToRemove.begin(),
+                                    peopleToRemove.end(), nonZeroCount.first)) {
                 const std::string& name = gatherer.personName(nonZeroCount.first);
                 expectedNonZeroCounts[name] = nonZeroCount.second;
             }
@@ -709,11 +708,11 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (auto& i : featureData) {
-            const TSizeSizePrFeatureDataPrVec& data = i.second;
+        for (const auto & [ featureType, data ] : featureData) {
             for (const auto& j : data) {
-                if (!std::ranges::binary_search(peopleToRemove, j.first.first)) {
-                    std::string const key = model_t::print(i.first) + " " +
+                if (!std::binary_search(peopleToRemove.begin(),
+                                        peopleToRemove.end(), j.first.first)) {
+                    std::string const key = model_t::print(featureType) + " " +
                                             gatherer.personName(j.first.first) + " " +
                                             gatherer.attributeName(j.first.second);
                     expectedFeatureData.emplace_back(key, j.second);
@@ -736,9 +735,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrSizeMap actualNonZeroCounts;
     TSizeUInt64PrVec nonZeroCounts;
     gatherer.personNonZeroCounts(bucketStart, nonZeroCounts);
-    for (auto& nonZeroCount : nonZeroCounts) {
-        const std::string& name = gatherer.personName(nonZeroCount.first);
-        actualNonZeroCounts[name] = nonZeroCount.second;
+    for (const auto & [ id, count ] : nonZeroCounts) {
+        const std::string& name = gatherer.personName(id);
+        actualNonZeroCounts[name] = count;
     }
     LOG_DEBUG(<< "actualNonZeroCounts = " << actualNonZeroCounts);
 
@@ -750,10 +749,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (auto& i : featureData) {
-            const TSizeSizePrFeatureDataPrVec& data = i.second;
+        for (const auto & [ featureType, data ] : featureData) {
             for (const auto& j : data) {
-                std::string const key = model_t::print(i.first) + " " +
+                std::string const key = model_t::print(featureType) + " " +
                                         gatherer.personName(j.first.first) + " " +
                                         gatherer.attributeName(j.first.second);
                 actualFeatureData.emplace_back(key, j.second);
@@ -792,7 +790,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     generateTestMessages(startTime, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (auto& message : messages) {
+    for (const auto& message : messages) {
         if (message.s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -815,7 +813,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     TSizeVec expectedAttributeIds;
     TDoubleVec expectedSampleCounts;
     for (std::size_t i = 0; i < numberAttributes; ++i) {
-        if (!std::ranges::binary_search(attributesToRemove, i)) {
+        if (!std::binary_search(attributesToRemove.begin(), attributesToRemove.end(), i)) {
             expectedAttributeNames.push_back(gatherer.attributeName(i));
             expectedAttributeIds.push_back(i);
             expectedSampleCounts.push_back(gatherer.effectiveSampleCount(i));
@@ -830,11 +828,11 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (auto& i : featureData) {
-            const TSizeSizePrFeatureDataPrVec& data = i.second;
+        for (const auto & [ featureType, data ] : featureData) {
             for (const auto& j : data) {
-                if (!std::ranges::binary_search(attributesToRemove, j.first.second)) {
-                    std::string const key = model_t::print(i.first) + " " +
+                if (!std::binary_search(attributesToRemove.begin(),
+                                        attributesToRemove.end(), j.first.second)) {
+                    std::string const key = model_t::print(featureType) + " " +
                                             gatherer.personName(j.first.first) + " " +
                                             gatherer.attributeName(j.first.second);
                     expected.emplace_back(key, j.second);
@@ -870,10 +868,9 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (auto& i : featureData) {
-            const TSizeSizePrFeatureDataPrVec& data = i.second;
+        for (const auto & [ featureType, data ] : featureData) {
             for (const auto& j : data) {
-                std::string const key = model_t::print(i.first) + " " +
+                std::string const key = model_t::print(featureType) + " " +
                                         gatherer.personName(j.first.first) + " " +
                                         gatherer.attributeName(j.first.second);
                 actual.emplace_back(key, j.second);
@@ -963,21 +960,19 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, bucketLength, featureData);
-            for (auto& j : featureData) {
-                model_t::EFeature const feature = j.first;
+            for (const auto & [ feature, data_ ] : featureData) {
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
-
-                for (const TSizeSizePrFeatureDataPrVec& data_ = j.second;
-                     const auto& val : data_ | std::views::values) {
+                for (std::size_t k = 0; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
-                    for (const auto& s_InfluenceValue : val.s_InfluenceValues) {
+                    for (const auto& s_InfluenceValue : data_[k].second.s_InfluenceValues) {
                         for (const auto& n : s_InfluenceValue) {
                             statistics.emplace_back(
                                 n.first,
                                 TDoubleDoublePr(n.second.first[0], n.second.second));
                         }
                     }
-                    std::ranges::sort(statistics, maths::common::COrderings::SFirstLess());
+                    std::sort(statistics.begin(), statistics.end(),
+                              maths::common::COrderings::SFirstLess());
 
                     LOG_DEBUG(<< "statistics = " << statistics);
                     LOG_DEBUG(<< "expected   = " << *expected);
@@ -1011,7 +1006,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     generateTestMessages(startTime, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (auto& message : messages) {
+    for (const auto& message : messages) {
         if (message.s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
