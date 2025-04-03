@@ -68,13 +68,13 @@ const std::string EMPTY_STRING;
 const TOptionalStr EMPTY_OPTIONAL_STR;
 
 //! \brief Checks that we visit the nodes in decreasing depth order.
-class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
+class CBreadthFirstCheck final : public model::CHierarchicalResultsVisitor {
 public:
     using TNodeCPtrSet = std::set<const TNode*>;
     using TNodeCPtrSetVec = std::vector<TNodeCPtrSet>;
 
 public:
-    CBreadthFirstCheck() : m_Layers(1, TNodeCPtrSet()) {}
+    CBreadthFirstCheck() = default;
 
     void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< "Visiting " << node.print());
@@ -140,7 +140,7 @@ private:
 
 private:
     std::size_t m_Layer = 0;
-    TNodeCPtrSetVec m_Layers;
+    TNodeCPtrSetVec m_Layers{1, TNodeCPtrSet()};
 };
 
 //! \brief Checks that we visit all a nodes children immediately
@@ -244,7 +244,7 @@ public:
 //! \brief Checks that if we write a result for a node, we also write one
 //! for its parent (if there is one) and one for at least one child (if
 //! there are any children).
-class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
+class CWriteConsistencyChecker final : public model::CHierarchicalResultsVisitor {
 public:
     explicit CWriteConsistencyChecker(const model::CLimits& limits)
         : m_Limits(limits) {}

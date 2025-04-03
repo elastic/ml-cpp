@@ -119,17 +119,17 @@ public:
             m_StartTime, m_SampleCountOverride);
     }
 
-    CDataGathererBuilder& partitionFieldValue(const std::string& partitionFieldValue) {
+    CDataGathererBuilder& partitionFieldValue(std::string_view partitionFieldValue) {
         m_PartitionFieldValue = partitionFieldValue;
         return *this;
     }
 
-    CDataGathererBuilder& personFieldName(const std::string& personFieldName) {
+    CDataGathererBuilder& personFieldName(std::string_view personFieldName) {
         m_PersonFieldName = personFieldName;
         return *this;
     }
 
-    CDataGathererBuilder& valueFieldName(const std::string& valueFieldName) {
+    CDataGathererBuilder& valueFieldName(std::string_view valueFieldName) {
         m_ValueFieldName = valueFieldName;
         return *this;
     }
@@ -139,7 +139,7 @@ public:
         return *this;
     }
 
-    CDataGathererBuilder& attributeFieldName(const std::string& attributeFieldName) {
+    CDataGathererBuilder& attributeFieldName(std::string_view attributeFieldName) {
         m_AttributeFieldName = attributeFieldName;
         return *this;
     }
