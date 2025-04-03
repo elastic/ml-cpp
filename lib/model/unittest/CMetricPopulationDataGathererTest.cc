@@ -437,11 +437,10 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
     CDataGatherer& gatherer(*gathererPtr);
 
     std::size_t bucket = 0;
-    for (auto& message : messages) {
-        core_t::TTime const bucketStart =
-            startTime + (static_cast<core_t::TTime>(bucket) * bucketLength);
-
-        if (message.s_Time >= bucketStart + bucketLength) {
+    for (const auto& message : messages) {
+        if (core_t::TTime const bucketStart =
+                startTime + (static_cast<core_t::TTime>(bucket) * bucketLength);
+            message.s_Time >= bucketStart + bucketLength) {
             gatherer.sampleNow(bucketStart);
             LOG_DEBUG(<< gatherer.effectiveSampleCount(0));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedSampleCounts[bucket],

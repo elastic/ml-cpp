@@ -106,7 +106,7 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
             for (const auto & [ fst, snd ] : plotDataValues) {
                 BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
                 BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
-                for (const auto & [ _, val ] : snd.s_ValuesPerOverField) {
+                for (const auto & [ field_name, val ] : snd.s_ValuesPerOverField) {
                     BOOST_REQUIRE_EQUAL(values[pid], val);
                 }
             }
@@ -133,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
             for (const auto & [ fst, snd ] : plotDataValues) {
                 BOOST_TEST_REQUIRE(gatherer->personId(fst, pid));
                 BOOST_REQUIRE_EQUAL(1, snd.s_ValuesPerOverField.size());
-                for (const auto & [ _, val ] : snd.s_ValuesPerOverField) {
+                for (const auto & [ field_name, val ] : snd.s_ValuesPerOverField) {
                     BOOST_REQUIRE_EQUAL(values[pid], val);
                 }
             }

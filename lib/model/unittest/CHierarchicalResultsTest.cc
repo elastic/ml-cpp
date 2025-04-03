@@ -332,7 +332,7 @@ public:
             LOG_DEBUG(<< "leaf = " << probabilities.s_Name);
 
             std::vector<int> detectors;
-            for (const auto & [ detector, _ ] : probabilities.s_Probabilities) {
+            for (const auto & [ detector, p ] : probabilities.s_Probabilities) {
                 detectors.push_back(detector);
             }
 

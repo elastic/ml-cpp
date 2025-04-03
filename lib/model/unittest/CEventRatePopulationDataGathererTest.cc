@@ -292,8 +292,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;
         for (std::size_t j = 0; j < peoplePerAttribute.size(); ++j) {
             expectedPeoplePerAttribute.emplace_back(
-                std::make_pair(std::make_pair(static_cast<size_t>(0), j),
-                               expectedAttributePeople[j].size()));
+                std::make_pair(static_cast<size_t>(0), j),
+                expectedAttributePeople[j].size());
         }
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedPeoplePerAttribute),
                             core::CContainerPrinter::print(peoplePerAttribute));
