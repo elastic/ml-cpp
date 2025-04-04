@@ -33,6 +33,7 @@
 === Enhancements
 
 * Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
+* Report the actual memory usage of the autodetect process. (See {ml-pull}2846[#2846])
 
 === Bug Fixes
 
