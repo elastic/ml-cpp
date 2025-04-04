@@ -54,6 +54,7 @@ public:
         std::size_t s_AdjustedUsage{0};
         std::size_t s_PeakUsage{0};
         std::size_t s_AdjustedPeakUsage{0};
+        std::size_t s_ActualMemoryUsage{0};
         std::size_t s_ByFields{0};
         std::size_t s_PartitionFields{0};
         std::size_t s_OverFields{0};
@@ -179,6 +180,8 @@ public:
 
     //! Returns the sum of used memory plus any extra memory
     std::size_t totalMemory() const;
+
+    std::size_t actualMemoryUsage() const;
 
 private:
     using TMonitoredResourcePtrSizeUMap =

@@ -11,6 +11,7 @@
 #include <core/CProcessStats.h>
 
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 
 #include <errno.h>
@@ -87,7 +88,11 @@ std::size_t CProcessStats::maxResidentSetSize() {
     }
 
     // ru_maxrss is in kilobytes
-    return static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
+    std::size_t maxRSS = static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
+
+    CProgramCounters::counter(counter_t::E_TSADMaxResidentSetSize) = maxRSS;
+
+    return maxRSS;
 }
 }
 }

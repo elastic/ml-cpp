@@ -1728,21 +1728,22 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
         resourceUsage.s_AdjustedUsage = 2;
         resourceUsage.s_PeakUsage = 3;
         resourceUsage.s_AdjustedPeakUsage = 4;
-        resourceUsage.s_ByFields = 5;
-        resourceUsage.s_PartitionFields = 6;
-        resourceUsage.s_OverFields = 7;
-        resourceUsage.s_AllocationFailures = 8;
+        resourceUsage.s_ActualMemoryUsage = 5;
+        resourceUsage.s_ByFields = 6;
+        resourceUsage.s_PartitionFields = 7;
+        resourceUsage.s_OverFields = 8;
+        resourceUsage.s_AllocationFailures = 9;
         resourceUsage.s_MemoryStatus = ml::model_t::E_MemoryStatusHardLimit;
-        resourceUsage.s_AssignmentMemoryBasis = ml::model_t::E_AssignmentBasisCurrentModelBytes;
-        resourceUsage.s_BucketStartTime = 9;
-        resourceUsage.s_BytesExceeded = 10;
-        resourceUsage.s_BytesMemoryLimit = 11;
-        resourceUsage.s_OverallCategorizerStats.s_CategorizedMessages = 12;
-        resourceUsage.s_OverallCategorizerStats.s_TotalCategories = 13;
-        resourceUsage.s_OverallCategorizerStats.s_FrequentCategories = 14;
-        resourceUsage.s_OverallCategorizerStats.s_RareCategories = 15;
-        resourceUsage.s_OverallCategorizerStats.s_DeadCategories = 16;
-        resourceUsage.s_OverallCategorizerStats.s_MemoryCategorizationFailures = 17;
+        resourceUsage.s_AssignmentMemoryBasis = ml::model_t::E_AssignmentBasisActualMemoryUsageBytes;
+        resourceUsage.s_BucketStartTime = 10;
+        resourceUsage.s_BytesExceeded = 11;
+        resourceUsage.s_BytesMemoryLimit = 12;
+        resourceUsage.s_OverallCategorizerStats.s_CategorizedMessages = 13;
+        resourceUsage.s_OverallCategorizerStats.s_TotalCategories = 14;
+        resourceUsage.s_OverallCategorizerStats.s_FrequentCategories = 15;
+        resourceUsage.s_OverallCategorizerStats.s_RareCategories = 16;
+        resourceUsage.s_OverallCategorizerStats.s_DeadCategories = 17;
+        resourceUsage.s_OverallCategorizerStats.s_MemoryCategorizationFailures = 18;
         resourceUsage.s_OverallCategorizerStats.s_CategorizationStatus =
             ml::model_t::E_CategorizationStatusWarn;
 
@@ -1770,44 +1771,46 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_REQUIRE_EQUAL(2, sizeStats.at("model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("peak_model_bytes"));
     BOOST_REQUIRE_EQUAL(4, sizeStats.at("peak_model_bytes").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("actual_memory_usage_bytes"));
+    BOOST_REQUIRE_EQUAL(5, sizeStats.at("actual_memory_usage_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_by_field_count"));
-    BOOST_REQUIRE_EQUAL(5, sizeStats.at("total_by_field_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(6, sizeStats.at("total_by_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_partition_field_count"));
     BOOST_REQUIRE_EQUAL(
-        6, sizeStats.at("total_partition_field_count").to_number<std::int64_t>());
+        7, sizeStats.at("total_partition_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_over_field_count"));
-    BOOST_REQUIRE_EQUAL(7, sizeStats.at("total_over_field_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(8, sizeStats.at("total_over_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("bucket_allocation_failures_count"));
     BOOST_REQUIRE_EQUAL(
-        8, sizeStats.at("bucket_allocation_failures_count").to_number<std::int64_t>());
+        9, sizeStats.at("bucket_allocation_failures_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(9000, sizeStats.at("timestamp").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(10000, sizeStats.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("memory_status"));
     BOOST_REQUIRE_EQUAL("hard_limit", sizeStats.at("memory_status").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("assignment_memory_basis"));
-    BOOST_REQUIRE_EQUAL("current_model_bytes",
+    BOOST_REQUIRE_EQUAL("actual_memory_usage_bytes",
                         sizeStats.at("assignment_memory_basis").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
     BOOST_TEST_REQUIRE(nowMs >= sizeStats.at("log_time").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes_exceeded"));
-    BOOST_REQUIRE_EQUAL(10, sizeStats.at("model_bytes_exceeded").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(11, sizeStats.at("model_bytes_exceeded").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes_memory_limit"));
     BOOST_REQUIRE_EQUAL(
-        11, sizeStats.at("model_bytes_memory_limit").to_number<std::int64_t>());
+        12, sizeStats.at("model_bytes_memory_limit").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(12, sizeStats.at("categorized_doc_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(13, sizeStats.at("categorized_doc_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_category_count"));
-    BOOST_REQUIRE_EQUAL(13, sizeStats.at("total_category_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(14, sizeStats.at("total_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("frequent_category_count"));
     BOOST_REQUIRE_EQUAL(
-        14, sizeStats.at("frequent_category_count").to_number<std::int64_t>());
+        15, sizeStats.at("frequent_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(15, sizeStats.at("rare_category_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(16, sizeStats.at("rare_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(16, sizeStats.at("dead_category_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(17, sizeStats.at("dead_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(17, sizeStats.at("failed_category_count").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(18, sizeStats.at("failed_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("categorization_status"));
     BOOST_REQUIRE_EQUAL("warn", sizeStats.at("categorization_status").as_string());
 }

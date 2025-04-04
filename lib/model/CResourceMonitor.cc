@@ -13,6 +13,7 @@
 
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
+#include <core/CProcessStats.h>
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
@@ -382,6 +383,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     res.s_PeakUsage = static_cast<std::size_t>(
         core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
     res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
+    res.s_ActualMemoryUsage = core::CProcessStats::maxResidentSetSize();
     res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
@@ -489,6 +491,10 @@ std::size_t CResourceMonitor::totalMemory() const {
     return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
            static_cast<size_t>(core::CProgramCounters::counter(
                counter_t::E_TSADOutputMemoryAllocatorUsage));
+}
+
+std::size_t CResourceMonitor::actualMemoryUsage() const {
+    return core::CProcessStats::maxResidentSetSize();
 }
 
 } // model

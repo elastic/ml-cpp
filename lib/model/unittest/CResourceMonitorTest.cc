@@ -536,7 +536,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
-    // Clear the counter so that other test cases do not interfere.
+    // Clear the counters so that other test cases do not interfere.
     core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = 0;
 
     CLimits limits;
@@ -549,12 +549,18 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_PeakUsage);
 
+    BOOST_TEST_REQUIRE(baseTotalMemory <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+
     monitor.addExtraMemory(100);
 
     monitor.updateMoments(monitor.totalMemory(), 0, 1);
     monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
+
+    BOOST_TEST_REQUIRE(baseTotalMemory + 100 <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
 
     monitor.addExtraMemory(-50);
 
@@ -563,12 +569,18 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 50, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
 
+    BOOST_TEST_REQUIRE(baseTotalMemory + 100 <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+
     monitor.addExtraMemory(100);
 
     monitor.updateMoments(monitor.totalMemory(), 0, 1);
     monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_PeakUsage);
+
+    BOOST_TEST_REQUIRE(baseTotalMemory + 150 <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
 }
 
 BOOST_FIXTURE_TEST_CASE(testUpdateMoments, CTestFixture) {
