@@ -41,7 +41,6 @@ std::size_t CProcessStats::maxResidentSetSize() {
 
     std::size_t peakWorkingSetSize = static_cast<std::size_t>(stats.PeakWorkingSetSize);
 
-
     CProgramCounters::counter(counter_t::E_TSADMaxResidentSetSize) = peakWorkingSetSize;
 
     return peakWorkingSetSize;

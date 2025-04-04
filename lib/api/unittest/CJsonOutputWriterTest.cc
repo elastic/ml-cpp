@@ -1772,7 +1772,8 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_TEST_REQUIRE(sizeStats.contains("peak_model_bytes"));
     BOOST_REQUIRE_EQUAL(4, sizeStats.at("peak_model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("actual_memory_usage_bytes"));
-    BOOST_REQUIRE_EQUAL(5, sizeStats.at("actual_memory_usage_bytes").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(
+        5, sizeStats.at("actual_memory_usage_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_by_field_count"));
     BOOST_REQUIRE_EQUAL(6, sizeStats.at("total_by_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_partition_field_count"));

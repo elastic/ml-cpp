@@ -721,7 +721,7 @@ enum EAssignmentMemoryBasis {
     E_AssignmentBasisCurrentModelBytes = 2, //!< Use current actual model size
     E_AssignmentBasisPeakModelBytes = 3, //!< Use highest ever actual model size
     E_AssignmentBasisActualMemoryUsageBytes = 4 //!< Use the actual memory size
-                                                //!< of the process, as reported by the OS
+    //!< of the process, as reported by the OS
 };
 
 //! Get a string description of \p assignmentMemoryBasis.

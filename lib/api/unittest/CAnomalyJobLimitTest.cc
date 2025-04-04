@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             }
             core_t::TTime startOfBucket{
                 maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
-            auto used = limits.resourceMonitor(). createMemoryUsageReport(startOfBucket);
+            auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# by = " << used.s_ByFields);
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
