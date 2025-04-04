@@ -59,8 +59,8 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
                                                features, params, key, 0)
                        .personFieldName("p")
                        .buildSharedPtr();
-        const std::vector<std::string> persons{"p11", "p12", "p21", "p22"};
-        for (const auto& person : persons) {
+        for (const std::vector<std::string> persons{"p11", "p12", "p21", "p22"};
+             const auto& person : persons) {
             bool addedPerson{false};
             gatherer->addPerson(person, m_ResourceMonitor, addedPerson);
         }
