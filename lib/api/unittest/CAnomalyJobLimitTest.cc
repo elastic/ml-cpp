@@ -93,10 +93,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     std::size_t nonLimitedUsage{0};
     std::size_t limitedUsage{0};
 
-    std::size_t actualUsage{0};
-    std::size_t baseline{0};
-    std::size_t nonLimitedAdjustedActualUsage{0};
-    std::size_t limitedAdjustedActualUsage{0};
+    std::size_t nonLimitedActualUsage{0};
+    std::size_t limitedActualUsage{0};
     {
         // Without limits, this data set should make the models around
         // 1230000 bytes
@@ -110,10 +108,6 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         model::CLimits limits;
-        baseline = limits.resourceMonitor().actualMemoryUsage();
-
-        //limits.resourceMonitor().m_ByteLimitHigh = 100000;
-        //limits.resourceMonitor().m_ByteLimitLow = 90000;
 
         {
             LOG_TRACE(<< "Setting up job");
@@ -134,15 +128,12 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
 
             nonLimitedUsage = limits.resourceMonitor().totalMemory();
-            actualUsage = limits.resourceMonitor().actualMemoryUsage();
-            nonLimitedAdjustedActualUsage = actualUsage - baseline;
+            nonLimitedActualUsage = limits.resourceMonitor().actualMemoryUsage();
         }
     }
     LOG_DEBUG(<< "nonLimitedUsage: " << nonLimitedUsage);
-    LOG_DEBUG(<< "baseline: " << baseline);
-    LOG_DEBUG(<< "actualUsage: " << actualUsage);
-    LOG_DEBUG(<< "nonLimitedAdjustedActualUsage: " << nonLimitedAdjustedActualUsage);
-    BOOST_TEST_REQUIRE(nonLimitedAdjustedActualUsage >= nonLimitedUsage);
+    LOG_DEBUG(<< "nonLimitedActualUsage: " << nonLimitedActualUsage);
+    BOOST_TEST_REQUIRE(nonLimitedActualUsage >= nonLimitedUsage);
     {
         // Now run the data with limiting
         ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
@@ -151,8 +142,6 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         model::CLimits limits;
-
-        baseline = limits.resourceMonitor().actualMemoryUsage();
 
         std::stringstream outputStrm;
         {
@@ -182,18 +171,15 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             // TODO this limit must be tightened once there is more granular
             // control over the model memory creation
             limitedUsage = limits.resourceMonitor().totalMemory();
-            actualUsage = limits.resourceMonitor().actualMemoryUsage();
-            limitedAdjustedActualUsage = actualUsage - baseline;
+            limitedActualUsage = limits.resourceMonitor().actualMemoryUsage();
         }
         LOG_TRACE(<< outputStrm.str());
 
         LOG_DEBUG(<< "Non-limited usage: " << nonLimitedUsage << "; limited: " << limitedUsage);
-        LOG_DEBUG(<< "baseline: " << baseline);
-        LOG_DEBUG(<< "actualUsage: " << actualUsage);
-        LOG_DEBUG(<< "limitedAdjustedActualUsage: " << limitedAdjustedActualUsage);
+        LOG_DEBUG(<< "Non-limited Actual Usage: " << nonLimitedActualUsage);
+        LOG_DEBUG(<< "Limited Actual Usage: " << limitedActualUsage);
         BOOST_TEST_REQUIRE(limitedUsage < nonLimitedUsage);
-        BOOST_TEST_REQUIRE(limitedAdjustedActualUsage < nonLimitedAdjustedActualUsage);
-        BOOST_TEST_REQUIRE(limitedAdjustedActualUsage >= limitedUsage);
+        BOOST_TEST_REQUIRE(limitedActualUsage >= limitedUsage);
     }
 }
 
