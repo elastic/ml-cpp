@@ -33,7 +33,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
         LOG_DEBUG(<< "failed to get resource usage(getrusage): " << ::strerror(errno));
         return 0;
     }
-    std::size_t maxRSS = static_cast<std::size_t>(rusage.ru_maxrss);
+    auto maxRSS = static_cast<std::size_t>(rusage.ru_maxrss);
     CProgramCounters::counter(counter_t::E_TSADMaxResidentSetSize) = maxRSS;
     // ru_maxrss is in bytes
     return maxRSS;

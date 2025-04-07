@@ -88,7 +88,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
     }
 
     // ru_maxrss is in kilobytes
-    std::size_t maxRSS = static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
+    auto maxRSS = static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
 
     CProgramCounters::counter(counter_t::E_TSADMaxResidentSetSize) = maxRSS;
 
