@@ -110,15 +110,6 @@ public:
                 m_PartitionFieldValue, m_SearchKey,   m_Features,
                 bucketGathererInitData};
     }
-
-    std::shared_ptr<CDataGatherer> buildSharedPtr() const {
-        return std::make_shared<CDataGatherer>(
-            m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
-            m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
-            m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
-            m_StartTime, m_SampleCountOverride);
-    }
-
     CDataGathererBuilder& partitionFieldValue(std::string_view partitionFieldValue) {
         m_PartitionFieldValue = partitionFieldValue;
         return *this;

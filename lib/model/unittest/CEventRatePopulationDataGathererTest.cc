@@ -475,7 +475,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
-    SModelParams constparams(bucketLength);
+    SModelParams const params(bucketLength);
     CDataGatherer dataGatherer = CDataGathererBuilder(model_t::E_PopulationEventRate,
                                                       features, params, searchKey, startTime)
                                      .valueFieldName("value")

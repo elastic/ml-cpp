@@ -794,40 +794,39 @@ BOOST_FIXTURE_TEST_CASE(testRuleActions, CTestFixture) {
                                   0, 0, 100));
 }
 
-TMockModelPtr initializeModel(ml::model::CResourceMonitor& resourceMonitor) {
-    core_t::TTime bucketLength{600};
-    model::SModelParams params{bucketLength};
-    model::CSearchKey key;
-    model_t::TFeatureVec features;
-    // Initialize mock model
-    model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
-
-    features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
-
-    gatherer = std::make_shared<model::CDataGatherer>(
-        model_t::analysisCategory(features[0]), model_t::E_None, params, EMPTY_STRING,
-        EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, 0, 0);
-
-    std::string person("p1");
-    bool addedPerson{false};
-    gatherer->addPerson(person, resourceMonitor, addedPerson);
-
-    TMockModelPtr model{new model::CMockModel(
-        params, gatherer, {/* we don't care about influence */})};
-
-    maths::time_series::CTimeSeriesDecomposition trend;
-    maths::common::CNormalMeanPrecConjugate prior{
-        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-    maths::common::CModelParams timeSeriesModelParams{
-        bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-    std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> timeSeriesModel =
-        std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
-            timeSeriesModelParams, 0, trend, prior);
-    model::CMockModel::TMathsModelUPtrVec models;
-    models.emplace_back(std::move(timeSeriesModel));
-    model->mockTimeSeriesModels(std::move(models));
-    return model;
-}
+// TMockModelPtr initializeModel(ml::model::CResourceMonitor& resourceMonitor) {
+//     core_t::TTime bucketLength{600};
+//     model::SModelParams params{bucketLength};
+//     model::CSearchKey key;
+//     model_t::TFeatureVec features;
+//     // Initialize mock model
+//     model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
+//
+//     features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
+//
+//     gatherer = CDataGathererBuilder(model_t::analysisCategory(features[0]), features, params, key, 0)
+//                      .personFieldName("p")
+//             .buildSharedPtr();
+//     std::string person("p1");
+//     bool addedPerson{false};
+//     gatherer->addPerson(person, resourceMonitor, addedPerson);
+//
+//     TMockModelPtr model{new model::CMockModel(
+//         params, gatherer, {/* we don't care about influence */})};
+//
+//     maths::time_series::CTimeSeriesDecomposition trend;
+//     maths::common::CNormalMeanPrecConjugate prior{
+//         maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+//     maths::common::CModelParams timeSeriesModelParams{
+//         bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
+//     std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> timeSeriesModel =
+//         std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
+//             timeSeriesModelParams, 0, trend, prior);
+//     model::CMockModel::TMathsModelUPtrVec models;
+//     models.emplace_back(std::move(timeSeriesModel));
+//     model->mockTimeSeriesModels(std::move(models));
+//     return model;
+// }
 
 BOOST_FIXTURE_TEST_CASE(testRuleTimeShiftShouldShiftTimeSeriesModelState, CTestFixture) {
 

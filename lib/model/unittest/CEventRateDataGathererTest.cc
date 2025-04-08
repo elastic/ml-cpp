@@ -834,7 +834,6 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
     };
 
     const std::array expectedPersonCounts = {
-    constexpr std::array expectedPersonCounts = {
         std::string("[(0, 6)]"), std::string("[(0, 3)]"), std::string("[(0, 2)]"),
         std::string("[(0, 0)]"), std::string("[(0, 3)]")};
 
@@ -1489,7 +1488,7 @@ protected:
 
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
-        std::ranges::sort(featureData.s_InfluenceValues[0],
+        std::sort(featureData.s_InfluenceValues[0].begin(), featureData.s_InfluenceValues[0].end(),
                           maths::common::COrderings::SFirstLess());
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
                             featureData.print());
@@ -1523,7 +1522,7 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::ranges::sort(featureData.s_InfluenceValues[i],
+            std::sort(featureData.s_InfluenceValues[i].begin(), featureData.s_InfluenceValues[i].end(),
                               maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
@@ -1619,7 +1618,7 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::ranges::sort(featureData.s_InfluenceValues[i],
+            std::sort(featureData.s_InfluenceValues[i].begin(), featureData.s_InfluenceValues[i].end(),
                               maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
