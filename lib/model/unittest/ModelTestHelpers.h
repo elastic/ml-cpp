@@ -18,7 +18,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 #include <model/ModelTypes.h>
-#include <model/SModelParams.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -81,6 +80,95 @@ static void testGathererAttributes(const CDataGatherer& gatherer,
     BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
     BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 }
+
+class CDataGathererBuilder {
+public:
+    using TFeatureVec = CDataGatherer::TFeatureVec;
+    using TStrVec = CDataGatherer::TStrVec;
+
+public:
+    CDataGathererBuilder(model_t::EAnalysisCategory gathererType,
+                         const TFeatureVec& features,
+                         const SModelParams& params,
+                         const CSearchKey& searchKey,
+                         const core_t::TTime startTime)
+        : m_Features(features), m_Params(params), m_StartTime(startTime),
+          m_SearchKey(searchKey), m_GathererType(gathererType) {}
+
+    CDataGatherer build() const {
+        return {m_GathererType,
+                m_SummaryMode,
+                m_Params,
+                m_SummaryCountFieldName,
+                m_PartitionFieldValue,
+                m_PersonFieldName,
+                m_AttributeFieldName,
+                m_ValueFieldName,
+                m_InfluenceFieldNames,
+                m_SearchKey,
+                m_Features,
+                m_StartTime,
+                m_SampleCountOverride};
+    }
+
+    std::shared_ptr<CDataGatherer> buildSharedPtr() const {
+        return std::make_shared<CDataGatherer>(
+            m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
+            m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
+            m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
+            m_StartTime, m_SampleCountOverride);
+    }
+
+    CDataGathererBuilder& partitionFieldValue(std::string_view partitionFieldValue) {
+        m_PartitionFieldValue = partitionFieldValue;
+        return *this;
+    }
+
+    CDataGathererBuilder& personFieldName(std::string_view personFieldName) {
+        m_PersonFieldName = personFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& valueFieldName(std::string_view valueFieldName) {
+        m_ValueFieldName = valueFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& influenceFieldNames(const TStrVec& influenceFieldName) {
+        m_InfluenceFieldNames = influenceFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& attributeFieldName(std::string_view attributeFieldName) {
+        m_AttributeFieldName = attributeFieldName;
+        return *this;
+    }
+
+    CDataGathererBuilder& gathererType(model_t::EAnalysisCategory gathererType) {
+        m_GathererType = gathererType;
+        return *this;
+    }
+
+    CDataGathererBuilder& sampleCountOverride(std::size_t sampleCount) {
+        m_SampleCountOverride = static_cast<int>(sampleCount);
+        return *this;
+    }
+
+private:
+    const TFeatureVec& m_Features;
+    const SModelParams& m_Params;
+    core_t::TTime m_StartTime;
+    const CSearchKey& m_SearchKey;
+    model_t::EAnalysisCategory m_GathererType;
+    model_t::ESummaryMode m_SummaryMode{model_t::E_None};
+    std::string m_SummaryCountFieldName{EMPTY_STRING};
+    std::string m_PartitionFieldValue{EMPTY_STRING};
+    std::string m_PersonFieldName{EMPTY_STRING};
+    std::string m_AttributeFieldName{EMPTY_STRING};
+    std::string m_ValueFieldName{EMPTY_STRING};
+    TStrVec m_InfluenceFieldNames;
+    int m_SampleCountOverride{0};
+};
 }
 }
 
