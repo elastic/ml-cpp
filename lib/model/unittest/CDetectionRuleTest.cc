@@ -165,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string const filterJson("[\"a1*\"]");
+        std::string const filterJson(R"(["a1*"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -194,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string const filterJson("[\"*2\"]");
+        std::string const filterJson(R"(["*2"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -223,7 +223,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string const filterJson("[\"*1*\"]");
+        std::string const filterJson(R"(["*1*"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string const filterJson("[\"p2\"]");
+        std::string const filterJson(R"(["p2"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -281,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string const filterJson("[\"par_1\"]");
+        std::string const filterJson(R"(["par_1"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -310,7 +310,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenScope, CTestFixture) {
     }
 
     for (auto filterType : {CRuleScope::E_Include, CRuleScope::E_Exclude}) {
-        std::string const filterJson("[\"par_2\"]");
+        std::string const filterJson(R"(["par_2"])");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -561,7 +561,7 @@ BOOST_FIXTURE_TEST_CASE(testApplyGivenDifferentSeriesAndIndividualModel, CTestFi
 
     CDetectionRule rule;
 
-    std::string const filterJson("[\"p1\"]");
+    std::string const filterJson(R"(["p1"])");
     core::CPatternSet valueFilter;
     valueFilter.initFromJson(filterJson);
     rule.includeScope(personFieldName, valueFilter);

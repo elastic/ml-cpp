@@ -316,11 +316,11 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
 
     TStrVec const categories = allCategories();
     TSizeVec attributeIds;
-    for (const auto& categorie : categories) {
+    for (const auto& category : categories) {
         std::size_t cid;
-        BOOST_TEST_REQUIRE(dataGatherer.attributeId(categorie, cid));
+        BOOST_TEST_REQUIRE(dataGatherer.attributeId(category, cid));
         attributeIds.push_back(cid);
-        BOOST_REQUIRE_EQUAL(expectedAttributeOrder[categorie], cid);
+        BOOST_REQUIRE_EQUAL(expectedAttributeOrder[category], cid);
     }
     LOG_DEBUG(<< "attribute ids = " << attributeIds);
     LOG_DEBUG(<< "expected attribute ids = " << expectedAttributeOrder);
