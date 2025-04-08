@@ -926,8 +926,7 @@ public:
 
 CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
                                              const CBucketGatherer::SBucketGathererInitData& initData)
-    : CBucketGatherer(dataGatherer,
-                      initData),
+    : CBucketGatherer(dataGatherer, initData),
       m_ValueFieldName(initData.s_ValueFieldName), m_BeginInfluencingFields(0),
       m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(initData);

@@ -1608,7 +1608,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
         CDataGatherer gatherer = CDataGathererBuilder(model_t::E_Metric, features,
-                                          params, KEY, startTime)
+                                                      params, KEY, startTime)
                                      .build();
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 

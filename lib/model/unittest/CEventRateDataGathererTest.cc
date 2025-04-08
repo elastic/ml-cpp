@@ -1488,8 +1488,9 @@ protected:
 
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
-        std::sort(featureData.s_InfluenceValues[0].begin(), featureData.s_InfluenceValues[0].end(),
-                          maths::common::COrderings::SFirstLess());
+        std::sort(featureData.s_InfluenceValues[0].begin(),
+                  featureData.s_InfluenceValues[0].end(),
+                  maths::common::COrderings::SFirstLess());
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
                             featureData.print());
     }
@@ -1522,8 +1523,9 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateDistinctCountFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::sort(featureData.s_InfluenceValues[i].begin(), featureData.s_InfluenceValues[i].end(),
-                              maths::common::COrderings::SFirstLess());
+            std::sort(featureData.s_InfluenceValues[i].begin(),
+                      featureData.s_InfluenceValues[i].end(),
+                      maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
                             featureData.print());
@@ -1618,8 +1620,9 @@ protected:
         SEventRateFeatureData featureData(0);
         data.populateInfoContentFeatureData(featureData);
         for (std::size_t i = 0; i < 2; i++) {
-            std::sort(featureData.s_InfluenceValues[i].begin(), featureData.s_InfluenceValues[i].end(),
-                              maths::common::COrderings::SFirstLess());
+            std::sort(featureData.s_InfluenceValues[i].begin(),
+                      featureData.s_InfluenceValues[i].end(),
+                      maths::common::COrderings::SFirstLess());
         }
         BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
                             featureData.print());

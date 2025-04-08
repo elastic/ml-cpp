@@ -168,7 +168,8 @@ public:
     //! to gather data.
     //! \param[in] numberInfluencers The number of result influencers
     //! for which to gather data.
-    CBucketGatherer(CDataGatherer& dataGatherer, const SBucketGathererInitData& bucketGathererInitData);
+    CBucketGatherer(CDataGatherer& dataGatherer,
+                    const SBucketGathererInitData& bucketGathererInitData);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a

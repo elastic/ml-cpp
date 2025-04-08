@@ -728,9 +728,8 @@ void registerMemoryCallbacks() {
 
 CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
                                                    const CBucketGatherer::SBucketGathererInitData& initData)
-    : CBucketGatherer(dataGatherer,
-                      initData),
-      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
+    : CBucketGatherer(dataGatherer, initData), m_BeginInfluencingFields(0),
+      m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(initData);
     this->initializeFeatureData();
 }
@@ -738,8 +737,8 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
 CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
                                                    const CBucketGatherer::SBucketGathererInitData& initData,
                                                    core::CStateRestoreTraverser& traverser)
-    : CBucketGatherer(dataGatherer, initData),
-      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
+    : CBucketGatherer(dataGatherer, initData), m_BeginInfluencingFields(0),
+      m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(initData);
     if (traverser.traverseSubLevel(std::bind(&CEventRateBucketGatherer::acceptRestoreTraverser,
                                              this, std::placeholders::_1)) == false) {
