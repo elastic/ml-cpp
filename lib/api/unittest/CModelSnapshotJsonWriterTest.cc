@@ -36,7 +36,8 @@ BOOST_AUTO_TEST_CASE(testWrite) {
             20000,                             // bytes used (adjusted)
             30000,                             // peak bytes used
             60000,                             // peak bytes used (adjusted)
-            409600,                            // Actual memory used (max rss)
+            409600,                            // System memory used (rss)
+            413696,                            // Max system memory used (max rss)
             3,                                 // # by fields
             1,                                 // # partition fields
             150,                               // # over fields
@@ -117,6 +118,10 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(modelSizeStats.contains("peak_model_bytes"));
     BOOST_REQUIRE_EQUAL(
         60000, modelSizeStats.at("peak_model_bytes").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(
+        409600, modelSizeStats.at("system_memory_bytes").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(
+        413696, modelSizeStats.at("max_system_memory_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("total_by_field_count"));
     BOOST_REQUIRE_EQUAL(
         3, modelSizeStats.at("total_by_field_count").to_number<std::int64_t>());

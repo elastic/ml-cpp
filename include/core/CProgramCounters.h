@@ -112,8 +112,11 @@ enum ECounterTypes {
     //! The memory currently used by the allocators to output JSON documents, in bytes.
     E_TSADOutputMemoryAllocatorUsage = 30,
 
+    //! The resident set size of the process, in bytes.
+    E_TSADResidentSetSize = 31,
+
     //! The maximum resident set size of the process, in bytes.
-    E_TSADMaxResidentSetSize = 31,
+    E_TSADMaxResidentSetSize = 32,
 
     // Data Frame Outlier Detection
 
@@ -149,7 +152,7 @@ enum ECounterTypes {
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 32
+    E_LastEnumCounter = 33
 };
 
 static constexpr std::size_t NUM_COUNTERS = static_cast<std::size_t>(E_LastEnumCounter);
@@ -358,6 +361,8 @@ private:
           "Which option is being used to get model memory for node assignment?"},
          {counter_t::E_TSADOutputMemoryAllocatorUsage, "E_TSADOutputMemoryAllocatorUsage",
           "The amount of memory used to output JSON documents, in bytes."},
+         {counter_t::E_TSADResidentSetSize, "E_TSADResidentSetSize",
+          "The resident set size of the process, in bytes"},
          {counter_t::E_TSADMaxResidentSetSize, "E_TSADMaxResidentSetSize",
           "The maximum resident set size of the process, in bytes"},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",

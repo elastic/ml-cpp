@@ -76,6 +76,8 @@ std::size_t CProcessStats::residentSetSize() {
         }
     }
 
+    CProgramCounters::counter(counter_t::E_TSADResidentSetSize) = rss;
+
     return rss;
 }
 

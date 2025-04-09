@@ -25,7 +25,8 @@ const std::string JOB_ID{"job_id"};
 const std::string MODEL_SIZE_STATS{"model_size_stats"};
 const std::string MODEL_BYTES{"model_bytes"};
 const std::string PEAK_MODEL_BYTES{"peak_model_bytes"};
-const std::string ACTUAL_MEMORY_USAGE_BYTES{"actual_memory_usage_bytes"};
+const std::string SYSTEM_MEMORY_BYTES{"system_memory_bytes"};
+const std::string MAX_SYSTEM_MEMORY_BYTES{"max_system_memory_bytes"};
 const std::string MODEL_BYTES_EXCEEDED{"model_bytes_exceeded"};
 const std::string MODEL_BYTES_MEMORY_LIMIT{"model_bytes_memory_limit"};
 const std::string TOTAL_BY_FIELD_COUNT{"total_by_field_count"};
@@ -61,8 +62,11 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
     writer.onKey(PEAK_MODEL_BYTES);
     writer.onUint64(results.s_AdjustedPeakUsage);
 
-    writer.onKey(ACTUAL_MEMORY_USAGE_BYTES);
-    writer.onUint64(results.s_ActualMemoryUsage);
+    writer.onKey(SYSTEM_MEMORY_BYTES);
+    writer.onUint64(results.s_SystemMemoryUsage);
+
+    writer.onKey(MAX_SYSTEM_MEMORY_BYTES);
+    writer.onUint64(results.s_MaxSystemMemoryUsage);
 
     writer.onKey(MODEL_BYTES_EXCEEDED);
     writer.onUint64(results.s_BytesExceeded);

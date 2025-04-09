@@ -549,9 +549,9 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_PeakUsage);
 
-    BOOST_TEST_REQUIRE(baseTotalMemory <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(baseTotalMemory <= m_ReportedModelSizeStats.s_SystemMemoryUsage);
     BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <=
-                       m_ReportedModelSizeStats.s_ActualMemoryUsage);
+                       m_ReportedModelSizeStats.s_SystemMemoryUsage);
 
     monitor.addExtraMemory(100);
 
@@ -560,9 +560,9 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
 
-    BOOST_TEST_REQUIRE(baseTotalMemory + 100 <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(baseTotalMemory + 100 <= m_ReportedModelSizeStats.s_MaxSystemMemoryUsage);
     BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <=
-                       m_ReportedModelSizeStats.s_ActualMemoryUsage);
+                       m_ReportedModelSizeStats.s_MaxSystemMemoryUsage);
 
     monitor.addExtraMemory(-50);
 
@@ -571,9 +571,9 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 50, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
 
-    BOOST_TEST_REQUIRE(baseTotalMemory + 100 <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(baseTotalMemory + 100 <= m_ReportedModelSizeStats.s_MaxSystemMemoryUsage);
     BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <=
-                       m_ReportedModelSizeStats.s_ActualMemoryUsage);
+                       m_ReportedModelSizeStats.s_MaxSystemMemoryUsage);
 
     monitor.addExtraMemory(100);
 
@@ -582,9 +582,9 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_PeakUsage);
 
-    BOOST_TEST_REQUIRE(baseTotalMemory + 150 <= m_ReportedModelSizeStats.s_ActualMemoryUsage);
+    BOOST_TEST_REQUIRE(baseTotalMemory + 150 <= m_ReportedModelSizeStats.s_MaxSystemMemoryUsage);
     BOOST_TEST_REQUIRE(m_ReportedModelSizeStats.s_PeakUsage <=
-                       m_ReportedModelSizeStats.s_ActualMemoryUsage);
+                       m_ReportedModelSizeStats.s_MaxSystemMemoryUsage);
 }
 
 BOOST_FIXTURE_TEST_CASE(testUpdateMoments, CTestFixture) {

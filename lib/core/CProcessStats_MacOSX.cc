@@ -23,6 +23,7 @@ namespace core {
 
 std::size_t CProcessStats::residentSetSize() {
     // not supported on osx
+    CProgramCounters::counter(counter_t::E_TSADResidentSetSize) = 0;
     return 0;
 }
 

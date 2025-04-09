@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberPrunedItems,
         ml::counter_t::E_TSADAssignmentMemoryBasis,
         ml::counter_t::E_TSADOutputMemoryAllocatorUsage,
+        ml::counter_t::E_TSADResidentSetSize,
         ml::counter_t::E_TSADMaxResidentSetSize};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);

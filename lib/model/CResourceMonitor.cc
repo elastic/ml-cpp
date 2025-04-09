@@ -383,7 +383,8 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     res.s_PeakUsage = static_cast<std::size_t>(
         core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
     res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
-    res.s_ActualMemoryUsage = core::CProcessStats::maxResidentSetSize();
+    res.s_SystemMemoryUsage = core::CProcessStats::residentSetSize();
+    res.s_MaxSystemMemoryUsage = core::CProcessStats::maxResidentSetSize();
     res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
@@ -493,9 +494,12 @@ std::size_t CResourceMonitor::totalMemory() const {
                counter_t::E_TSADOutputMemoryAllocatorUsage));
 }
 
-std::size_t CResourceMonitor::actualMemoryUsage() const {
-    return core::CProcessStats::maxResidentSetSize();
+std::size_t CResourceMonitor::systemMemory() const {
+    return core::CProcessStats::residentSetSize();
 }
 
+std::size_t CResourceMonitor::maxSystemMemory() const {
+    return core::CProcessStats::maxResidentSetSize();
+}
 } // model
 } // ml
