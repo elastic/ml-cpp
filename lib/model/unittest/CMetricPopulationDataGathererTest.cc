@@ -998,7 +998,6 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
     CDataGatherer origDataGatherer =
-
         CDataGathererBuilder(model_t::E_PopulationMetric, features, params, searchKey, startTime)
             .build();
 
