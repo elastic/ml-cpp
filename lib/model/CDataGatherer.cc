@@ -185,9 +185,10 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                            counter_t::E_TSADNumberNewAttributesNotAllowed,
                            counter_t::E_TSADNumberNewAttributesRecycled),
       m_Population(detail::isPopulation(gathererType)), m_UseNull(key.useNull()) {
-    if (traverser.traverseSubLevel(std::bind(&CDataGatherer::acceptRestoreTraverser,
-                                             this, std::cref(bucketGathererInitData),
-                                             std::placeholders::_1)) == false) {
+    auto func = [this, &bucketGathererInitData](core::CStateRestoreTraverser& traverser_) {
+        return acceptRestoreTraverser(bucketGathererInitData, traverser_);
+    };
+    if (traverser.traverseSubLevel(func) == false) {
         LOG_ERROR(<< "Failed to correctly restore data gatherer");
     }
 }

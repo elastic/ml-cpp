@@ -925,20 +925,19 @@ public:
 } // unnamed::
 
 CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                                             const CBucketGatherer::SBucketGathererInitData& initData)
+                                             const SBucketGathererInitData& initData)
     : CBucketGatherer(dataGatherer, initData),
-      m_ValueFieldName(initData.s_ValueFieldName), m_BeginInfluencingFields(0),
-      m_BeginValueFields(0) {
+      m_ValueFieldName(initData.s_ValueFieldName) {
     this->initializeFieldNamesPart1(initData);
     this->initializeFieldNamesPart2(initData);
     this->initializeFeatureData();
 }
 
 CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                                             const CBucketGatherer::SBucketGathererInitData& initData,
+                                             const SBucketGathererInitData& initData,
                                              core::CStateRestoreTraverser& traverser)
     : CBucketGatherer(dataGatherer, initData),
-      m_ValueFieldName(initData.s_ValueFieldName), m_BeginValueFields(0) {
+      m_ValueFieldName(initData.s_ValueFieldName) {
     this->initializeFieldNamesPart1(initData);
     if (traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
                                              this, std::placeholders::_1)) == false) {

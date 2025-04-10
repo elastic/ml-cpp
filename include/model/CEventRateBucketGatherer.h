@@ -457,13 +457,13 @@ private:
     TStrVec m_FieldNames;
 
     //! The position of the first influencer field
-    std::size_t m_BeginInfluencingFields;
+    std::size_t m_BeginInfluencingFields{0};
 
     //! The position of the first count/value field.
-    std::size_t m_BeginValueField;
+    std::size_t m_BeginValueField{0};
 
     //! The position of the field holding the summarised count.
-    std::size_t m_BeginSummaryFields;
+    std::size_t m_BeginSummaryFields{0};
 
     //! The data features we are gathering.
     TCategoryAnyMap m_FeatureData;

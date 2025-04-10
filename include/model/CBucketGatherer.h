@@ -32,7 +32,6 @@
 #include <map>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace ml {
@@ -98,7 +97,7 @@ public:
     //! \brief Hashes a ((size_t, size_t), string*) pair.
     struct MODEL_EXPORT SSizeSizePrOptionalStrPrHash {
         std::size_t operator()(const TSizeSizePrOptionalStrPr& key) const {
-            std::uint64_t seed = core::CHashing::hashCombine(
+            std::uint64_t const seed = core::CHashing::hashCombine(
                 static_cast<std::uint64_t>(key.first.first),
                 static_cast<std::uint64_t>(key.first.second));
             return core::CHashing::hashCombine(seed, s_Hasher(key.second));

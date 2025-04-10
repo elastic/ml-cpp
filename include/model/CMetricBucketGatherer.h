@@ -284,10 +284,10 @@ private:
     TStrVec m_FieldNames;
 
     //! The position of the first influencing field.
-    std::size_t m_BeginInfluencingFields;
+    std::size_t m_BeginInfluencingFields{0};
 
     //! The position of the first count/value field.
-    std::size_t m_BeginValueFields;
+    std::size_t m_BeginValueFields{0};
 
     //! For summarized values, this stores the metric categories
     //! corresponding to the summarized field names in m_FieldNames;
