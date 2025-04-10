@@ -154,7 +154,7 @@ public:
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
-                  const std::string& partitionFieldValue,
+                  std::string partitionFieldValue,
                   const CSearchKey& key,
                   const TFeatureVec& features,
                   const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData);
@@ -163,7 +163,7 @@ public:
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
-                  const std::string& partitionFieldValue,
+                  std::string partitionFieldValue,
                   const CSearchKey& key,
                   const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                   core::CStateRestoreTraverser& traverser);
@@ -624,9 +624,9 @@ public:
 
     //! Helper to avoid code duplication when getting a count from a
     //! field.  Logs different errors for missing value and invalid value.
-    bool extractCountFromField(const std::string& fieldName,
-                               const std::string* fieldValue,
-                               std::size_t& count) const;
+    static bool extractCountFromField(const std::string& fieldName,
+                                      const std::string* fieldValue,
+                                      std::size_t& count);
 
     //! Helper to avoid code duplication when getting a metric value from a
     //! field.  Logs different errors for missing value and invalid value.

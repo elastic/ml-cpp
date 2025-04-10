@@ -28,6 +28,7 @@
 #include <model/CSearchKey.h>
 
 #include <algorithm>
+#include <utility>
 
 namespace ml {
 namespace model {
@@ -145,14 +146,14 @@ const std::size_t CDataGatherer::ESTIMATED_MEM_USAGE_PER_OVER_FIELD(1000);
 CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              model_t::ESummaryMode summaryMode,
                              const SModelParams& modelParams,
-                             const std::string& partitionFieldValue,
+                             std::string partitionFieldValue,
                              const CSearchKey& key,
                              const TFeatureVec& features,
                              const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData)
     : m_GathererType(gathererType),
       m_Features(detail::sanitize(features, gathererType)),
       m_SummaryMode(summaryMode), m_Params(modelParams), m_SearchKey(key),
-      m_PartitionFieldValue(partitionFieldValue),
+      m_PartitionFieldValue(std::move(partitionFieldValue)),
       m_PeopleRegistry(PERSON,
                        counter_t::E_TSADNumberNewPeople,
                        counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -170,12 +171,12 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
 CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              model_t::ESummaryMode summaryMode,
                              const SModelParams& modelParams,
-                             const std::string& partitionFieldValue,
+                             std::string partitionFieldValue,
                              const CSearchKey& key,
                              const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                              core::CStateRestoreTraverser& traverser)
     : m_GathererType(gathererType), m_SummaryMode(summaryMode), m_Params(modelParams),
-      m_SearchKey(key), m_PartitionFieldValue(partitionFieldValue),
+      m_SearchKey(key), m_PartitionFieldValue(std::move(partitionFieldValue)),
       m_PeopleRegistry(PERSON,
                        counter_t::E_TSADNumberNewPeople,
                        counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -210,8 +211,7 @@ CDataGatherer::CDataGatherer(bool isForPersistence, const CDataGatherer& other)
     }
 }
 
-CDataGatherer::~CDataGatherer() {
-}
+CDataGatherer::~CDataGatherer() = default;
 
 CDataGatherer* CDataGatherer::cloneForPersistence() const {
     return new CDataGatherer(true, *this);
@@ -296,7 +296,7 @@ bool CDataGatherer::addArrival(const TStrCPtrVec& fieldValues,
     // the number of partitions created.
     m_BucketGatherer->processFields(fieldValues, data, resourceMonitor);
 
-    core_t::TTime time = data.time();
+    core_t::TTime const time = data.time();
     if (time < m_BucketGatherer->earliestBucketStartTime()) {
         // Ignore records that are out of the latency window.
         // Records in an incomplete first bucket will end up here,
@@ -356,7 +356,7 @@ const std::string& CDataGatherer::personName(std::size_t pid, const std::string&
 }
 
 void CDataGatherer::personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec& result) const {
-    return m_BucketGatherer->personNonZeroCounts(time, result);
+    m_BucketGatherer->personNonZeroCounts(time, result);
 }
 
 void CDataGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
@@ -474,19 +474,17 @@ std::size_t CDataGatherer::addAttribute(const std::string& attribute,
 double CDataGatherer::sampleCount(std::size_t id) const {
     if (m_SampleCounts) {
         return static_cast<double>(m_SampleCounts->count(id));
-    } else {
-        LOG_ERROR(<< "Sample count for non-metric gatherer");
-        return 0.0;
     }
+    LOG_ERROR(<< "Sample count for non-metric gatherer");
+    return 0.0;
 }
 
 double CDataGatherer::effectiveSampleCount(std::size_t id) const {
     if (m_SampleCounts) {
         return m_SampleCounts->effectiveSampleCount(id);
-    } else {
-        LOG_ERROR(<< "Effective sample count for non-metric gatherer");
-        return 0.0;
     }
+    LOG_ERROR(<< "Effective sample count for non-metric gatherer");
+    return 0.0;
 }
 
 void CDataGatherer::resetSampleCount(std::size_t id) {
@@ -596,24 +594,25 @@ const SModelParams& CDataGatherer::params() const {
 }
 
 void CDataGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    for (std::size_t i = 0; i < m_Features.size(); ++i) {
-        inserter.insertValue(FEATURE_TAG, static_cast<int>(m_Features[i]));
+    for (auto m_Feature : m_Features) {
+        inserter.insertValue(FEATURE_TAG, static_cast<int>(m_Feature));
     }
-    inserter.insertLevel(PEOPLE_REGISTRY_TAG,
-                         std::bind(&CDynamicStringIdRegistry::acceptPersistInserter,
-                                   m_PeopleRegistry, std::placeholders::_1));
-    inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG,
-                         std::bind(&CDynamicStringIdRegistry::acceptPersistInserter,
-                                   m_AttributesRegistry, std::placeholders::_1));
+    inserter.insertLevel(PEOPLE_REGISTRY_TAG, [this](auto&& PH1) {
+        m_PeopleRegistry.acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+    });
+    inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG, [this](auto&& PH1) {
+        m_AttributesRegistry.acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+    });
 
     if (m_SampleCounts) {
-        inserter.insertLevel(SAMPLE_COUNTS_TAG,
-                             std::bind(&CSampleCounts::acceptPersistInserter,
-                                       m_SampleCounts.get(), std::placeholders::_1));
+        inserter.insertLevel(SAMPLE_COUNTS_TAG, [capture0 = m_SampleCounts.get()](auto&& PH1) {
+            capture0->acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+        });
     }
 
-    inserter.insertLevel(BUCKET_GATHERER_TAG, std::bind(&CDataGatherer::persistBucketGatherers,
-                                                        this, std::placeholders::_1));
+    inserter.insertLevel(BUCKET_GATHERER_TAG, [this](auto&& inserter_) {
+        persistBucketGatherers(std::forward<decltype(inserter_)>(inserter_));
+    });
 }
 
 bool CDataGatherer::determineMetricCategory(TMetricCategoryVec& fieldMetricCategories) const {
@@ -642,7 +641,7 @@ bool CDataGatherer::determineMetricCategory(TMetricCategoryVec& fieldMetricCateg
 
 bool CDataGatherer::extractCountFromField(const std::string& fieldName,
                                           const std::string* fieldValue,
-                                          std::size_t& count) const {
+                                          std::size_t& count) {
     if (fieldValue == nullptr) {
         // Treat not present as explicit null
         count = EXPLICIT_NULL_SUMMARY_COUNT;
@@ -683,13 +682,13 @@ bool CDataGatherer::extractMetricFromField(const std::string& fieldName,
     // Split the string up by the delimiter and parse each token separately.
     std::size_t first = 0;
     do {
-        std::size_t last = fieldValue.find(delimiter, first);
+        std::size_t const last = fieldValue.find(delimiter, first);
         double value;
         // Avoid a string duplication in the (common) case of only one value
-        bool convertedOk = (first == 0 && last == std::string::npos)
-                               ? core::CStringUtils::stringToType(fieldValue, value)
-                               : core::CStringUtils::stringToType(
-                                     fieldValue.substr(first, last - first), value);
+        bool const convertedOk = (first == 0 && last == std::string::npos)
+                                     ? core::CStringUtils::stringToType(fieldValue, value)
+                                     : core::CStringUtils::stringToType(
+                                           fieldValue.substr(first, last - first), value);
         if (!convertedOk) {
             LOG_ERROR(<< "Unable to extract " << fieldName << " from " << fieldValue);
             result.clear();
@@ -795,9 +794,10 @@ bool CDataGatherer::restoreBucketGatherer(const CBucketGatherer::SBucketGatherer
 }
 
 void CDataGatherer::persistBucketGatherers(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(m_BucketGatherer->persistenceTag(),
-                         std::bind(&CBucketGatherer::acceptPersistInserter,
-                                   m_BucketGatherer.get(), std::placeholders::_1));
+    inserter.insertLevel(
+        m_BucketGatherer->persistenceTag(), [capture0 = m_BucketGatherer.get()](auto&& PH1) {
+            capture0->acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+        });
 }
 
 void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType,
