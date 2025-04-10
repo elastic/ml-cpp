@@ -91,7 +91,7 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }
 
-CDataGatherer*
+CModelFactory::TDataGathererPtr
 CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     CBucketGatherer::SBucketGathererInitData const bucketGathererInitData{
         .s_SummaryCountFieldName = m_SummaryCountFieldName,
@@ -101,12 +101,12 @@ CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitialization
         .s_InfluenceFieldNames = m_InfluenceFieldNames,
         .s_StartTime = initData.s_StartTime,
         .s_SampleOverrideCount = 0};
-    return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
+    return std::make_shared<CDataGatherer>(model_t::E_PopulationEventRate, m_SummaryMode,
                              this->modelParams(), initData.s_PartitionFieldValue,
                              this->searchKey(), m_Features, bucketGathererInitData);
 }
 
-CDataGatherer*
+CModelFactory::TDataGathererPtr
 CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                                    core::CStateRestoreTraverser& traverser) const {
     CBucketGatherer::SBucketGathererInitData const bucketGathererInitData{
@@ -117,7 +117,7 @@ CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionF
         .s_InfluenceFieldNames = m_InfluenceFieldNames,
         .s_StartTime = 0,
         .s_SampleOverrideCount = 0};
-    return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
+    return std::make_shared<CDataGatherer>(model_t::E_PopulationEventRate, m_SummaryMode,
                              this->modelParams(), partitionFieldValue,
                              this->searchKey(), bucketGathererInitData, traverser);
 }

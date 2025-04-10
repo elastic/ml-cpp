@@ -243,7 +243,7 @@ protected:
         if (sampleCount) {
             initData.s_SampleOverrideCount = *sampleCount;
         }
-        gatherer.reset(m_Factory->makeDataGatherer(initData));
+        gatherer = m_Factory->makeDataGatherer(initData);
         model.reset(m_Factory->makeModel({gatherer}));
 
         BOOST_TEST_REQUIRE(model);

@@ -292,7 +292,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         factory->features(features);
 
-        gatherer.reset(factory->makeDataGatherer(firstTime));
+        gatherer = factory->makeDataGatherer(firstTime);
 
         const maths::common::CMultinomialConjugate conjugate;
         std::shared_ptr<CMockEventRateModel> model_ = std::make_shared<CMockEventRateModel>(
@@ -323,7 +323,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
         features.push_back(model_t::E_IndividualMaxByPerson);
         factory->features(features);
 
-        gatherer.reset(factory->makeDataGatherer(firstTime));
+        gatherer = factory->makeDataGatherer(firstTime);
 
         std::shared_ptr<CMockMetricModel> model_ = std::make_shared<CMockMetricModel>(
             factory->modelParams(), gatherer,

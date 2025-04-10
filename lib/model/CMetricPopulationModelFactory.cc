@@ -90,19 +90,19 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }
 
-CDataGatherer*
+CModelFactory::TDataGathererPtr
 CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
         m_SummaryCountFieldName,       m_PersonFieldName,
         m_AttributeFieldName,          m_ValueFieldName,
         m_InfluenceFieldNames,         initData.s_StartTime,
         initData.s_SampleOverrideCount};
-    return new CDataGatherer(model_t::E_PopulationMetric, m_SummaryMode,
+    return std::make_shared<CDataGatherer>(model_t::E_PopulationMetric, m_SummaryMode,
                              this->modelParams(), initData.s_PartitionFieldValue,
                              this->searchKey(), m_Features, bucketGathererInitData);
 }
 
-CDataGatherer*
+CModelFactory::TDataGathererPtr
 CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                                 core::CStateRestoreTraverser& traverser) const {
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
@@ -113,7 +113,7 @@ CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFiel
         m_InfluenceFieldNames,
         0,
         0};
-    return new CDataGatherer(model_t::E_PopulationMetric, m_SummaryMode,
+    return std::make_shared<CDataGatherer>(model_t::E_PopulationMetric, m_SummaryMode,
                              this->modelParams(), partitionFieldValue,
                              this->searchKey(), bucketGathererInitData, traverser);
 }
