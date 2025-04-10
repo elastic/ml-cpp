@@ -25,7 +25,6 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <utility>
 #include <vector>
 
 namespace ml {
@@ -376,10 +375,6 @@ public:
     //! Get the minimum seasonal variance scale, specific to the model
     virtual double minimumSeasonalVarianceScale() const = 0;
 
-    void resourceMonitor(const TResourceMonitorCRef& resourceMonitor) const;
-
-    TOptionalResourceMonitorCRef resourceMonitor() const;
-
 protected:
     using TMultivariatePriorUPtrVec = std::vector<TMultivariatePriorUPtr>;
     using TOptionalSearchKey = std::optional<CSearchKey>;
@@ -462,8 +457,6 @@ private:
 
     //! A cache of influence calculators for collections of features.
     mutable TStrFeatureVecPrInfluenceCalculatorCPtrMap m_InfluenceCalculatorCache;
-
-    mutable TOptionalResourceMonitorCRef m_ResourceMonitor;
 };
 }
 }

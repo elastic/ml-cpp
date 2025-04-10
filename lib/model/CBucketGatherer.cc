@@ -23,7 +23,6 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
-#include <model/CResourceMonitor.h>
 
 #include <boost/tuple/tuple.hpp>
 
@@ -232,7 +231,7 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
     }
 }
 
-bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& resourceMonitor) {
+bool CBucketGatherer::addEventData(CEventData& data) {
     core_t::TTime time = data.time();
 
     if (time < this->earliestBucketStartTime()) {
@@ -295,7 +294,7 @@ bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& res
             if (influence) {
                 const std::string& inf = *influence;
                 canonicalInfluences[i] = inf;
-                if (count > 0 && resourceMonitor.areAllocationsAllowed()) {
+                if (count > 0) {
                     influencerCounts[i]
                         .emplace(boost::unordered::piecewise_construct,
                                  boost::make_tuple(pidCid, inf),
