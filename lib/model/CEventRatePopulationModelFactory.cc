@@ -100,8 +100,7 @@ CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitialization
         .s_ValueFieldName = m_ValueFieldName,
         .s_InfluenceFieldNames = m_InfluenceFieldNames,
         .s_StartTime = initData.s_StartTime,
-        .s_SampleOverrideCount = 0,
-        this->resourceMonitor()};
+        .s_SampleOverrideCount = 0};
     return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
                              this->modelParams(), initData.s_PartitionFieldValue,
                              this->searchKey(), m_Features, bucketGathererInitData);
@@ -117,8 +116,7 @@ CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionF
         .s_ValueFieldName = m_ValueFieldName,
         .s_InfluenceFieldNames = m_InfluenceFieldNames,
         .s_StartTime = 0,
-        .s_SampleOverrideCount = 0,
-        this->resourceMonitor()};
+        .s_SampleOverrideCount = 0};
     return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
                              this->modelParams(), partitionFieldValue,
                              this->searchKey(), bucketGathererInitData, traverser);

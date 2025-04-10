@@ -783,7 +783,9 @@ void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
     std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
-    auto bucketGathererInitData = CBucketGatherer::SBucketGathererInitData::emptyData();
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
+
     CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
                                        model_t::E_None, params, EMPTY_STRING,
                                        searchKey, bucketGathererInitData, traverser);

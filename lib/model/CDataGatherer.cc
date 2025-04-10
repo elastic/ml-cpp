@@ -170,12 +170,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
 CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              model_t::ESummaryMode summaryMode,
                              const SModelParams& modelParams,
-                             // const std::string& summaryCountFieldName,
                              const std::string& partitionFieldValue,
-                             // const std::string& personFieldName,
-                             // const std::string& attributeFieldName,
-                             // const std::string& valueFieldName,
-                             // const TStrVec& influenceFieldNames,
                              const CSearchKey& key,
                              const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                              core::CStateRestoreTraverser& traverser)
@@ -308,7 +303,7 @@ bool CDataGatherer::addArrival(const TStrCPtrVec& fieldValues,
         return false;
     }
 
-    return m_BucketGatherer->addEventData(data);
+    return m_BucketGatherer->addEventData(data, resourceMonitor);
 }
 
 void CDataGatherer::sampleNow(core_t::TTime sampleBucketStart) {
@@ -731,12 +726,7 @@ bool CDataGatherer::checkInvariants() const {
     return true;
 }
 
-bool CDataGatherer::acceptRestoreTraverser(/*const std::string& summaryCountFieldName,
-                                           const std::string& personFieldName,
-                                           const std::string& attributeFieldName,
-                                           const std::string& valueFieldName,
-                                           const TStrVec& influenceFieldNames,*/
-                                           const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
+bool CDataGatherer::acceptRestoreTraverser(const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                            core::CStateRestoreTraverser& traverser) {
     this->clear();
     m_Features.clear();
@@ -774,12 +764,7 @@ bool CDataGatherer::acceptRestoreTraverser(/*const std::string& summaryCountFiel
     return true;
 }
 
-bool CDataGatherer::restoreBucketGatherer(/*const std::string& summaryCountFieldName,
-                                          const std::string& personFieldName,
-                                          const std::string& attributeFieldName,
-                                          const std::string& valueFieldName,
-                                          const TStrVec& influenceFieldNames,*/
-                                          const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
+bool CDataGatherer::restoreBucketGatherer(const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                           core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();

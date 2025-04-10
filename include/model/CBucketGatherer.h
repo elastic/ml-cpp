@@ -131,27 +131,25 @@ public:
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
     using TTimeVec = std::vector<core_t::TTime>;
     using TTimeVecCItr = TTimeVec::const_iterator;
-    using TOptionalResourceMonitorCRef =
-        std::optional<std::reference_wrapper<const CResourceMonitor>>;
 
     struct SBucketGathererInitData {
-        static SBucketGathererInitData emptyData() {
-            return {.s_SummaryCountFieldName = "",
-                    .s_PersonFieldName = "",
-                    .s_AttributeFieldName = "",
-                    .s_ValueFieldName = "",
-                    .s_InfluenceFieldNames = {},
-                    .s_StartTime = 0,
-                    .s_SampleOverrideCount = 0};
-        }
+        // The name of the field holding the summary count.
         const std::string& s_SummaryCountFieldName;
+        // The name of the field which identifies people.
         const std::string& s_PersonFieldName;
+        // The name of the field which defines the person attributes.
         const std::string& s_AttributeFieldName;
+        // The name of the field which contains the metric values.
         const std::string& s_ValueFieldName;
+        // The field names for which we will compute influences.
         const TStrVec& s_InfluenceFieldNames;
+        // The start of the time interval for which to gather data.
         core_t::TTime s_StartTime;
+        // Override for the number of measurements
+        // in a statistic. (Note that this is intended for testing only.)
+        // A zero value means that the data gatherer class will determine
+        // an appropriate value for the bucket length and data rate.
         unsigned int s_SampleOverrideCount;
-        TOptionalResourceMonitorCRef s_ResourceMonitor;
     };
 
 public:
@@ -164,10 +162,8 @@ public:
     //! Create a new data series gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] startTime The start of the time interval for which
-    //! to gather data.
-    //! \param[in] numberInfluencers The number of result influencers
-    //! for which to gather data.
+    //! \param[in] bucketGathererInitData The parameter initialization object
+    //! for the bucket gatherer.
     CBucketGatherer(CDataGatherer& dataGatherer,
                     const SBucketGathererInitData& bucketGathererInitData);
 
@@ -243,7 +239,7 @@ public:
                                CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
-    bool addEventData(CEventData& data);
+    bool addEventData(CEventData& data, const CResourceMonitor& resourceMonitor);
 
     //! Roll time forwards to \p time.
     void timeNow(core_t::TTime time);
@@ -475,8 +471,6 @@ private:
 
     //! The influencing field value counts per person and/or attribute.
     TSizeSizePrOptionalStrPrUInt64UMapVecQueue m_InfluencerCounts;
-
-    TOptionalResourceMonitorCRef m_ResourceMonitor;
 };
 }
 }

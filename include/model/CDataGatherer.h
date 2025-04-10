@@ -146,51 +146,24 @@ public:
     //! \param[in] summaryMode Indicates whether the data being gathered
     //! are already summarized by an external aggregation process.
     //! \param[in] modelParams The global configuration parameters.
-    //! \param[in] summaryCountFieldName If \p summaryMode is E_Manual
-    //! then this is the name of the field holding the summary count.
     //! \param[in] partitionFieldValue The value of the field which splits
     //! the data.
-    //! \param[in] personFieldName The name of the field which identifies
-    //! people.
-    //! \param[in] attributeFieldName The name of the field which defines
-    //! the person attributes.
-    //! \param[in] valueFieldName The name of the field which contains
-    //! the metric values.
-    //! \param[in] influenceFieldNames The field names for which we will
-    //! compute influences.
     //! \param[in] key The key of the search for which to gatherer data.
     //! \param[in] features The features of the data to model.
-    //! \param[in] startTime The start of the time interval for which
-    //! to gather data.
-    //! \param[in] sampleCountOverride for the number of measurements
-    //! in a statistic. (Note that this is intended for testing only.)
-    //! A zero value means that the data gatherer class will determine
-    //! an appropriate value for the bucket length and data rate.
+    //! \param[in] bucketGathererInitData The parameter initialization object for the bucket gatherer.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
-                  // const std::string& summaryCountFieldName,
                   const std::string& partitionFieldValue,
-                  // const std::string& personFieldName,
-                  // const std::string& attributeFieldName,
-                  // const std::string& valueFieldName,
-                  // const TStrVec& influenceFieldNames,
                   const CSearchKey& key,
                   const TFeatureVec& features,
-                  // core_t::TTime startTime,
-                  // int sampleCountOverride
                   const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData);
 
     //! Construct from a state document.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
-                  // const std::string& summaryCountFieldName,
                   const std::string& partitionFieldValue,
-                  // const std::string& personFieldName,
-                  // const std::string& attributeFieldName,
-                  // const std::string& valueFieldName,
-                  // const TStrVec& influenceFieldNames,
                   const CSearchKey& key,
                   const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                   core::CStateRestoreTraverser& traverser);
@@ -332,6 +305,7 @@ public:
     //! containing \p time.
     //!
     //! \param[in] time The time of interest.
+    //! \param[in] bucketLength The length of the bucketing interval.
     //! \param[out] result Filled in with the feature data at \p time.
     //! \tparam T The type of the feature data.
     template<typename T>
@@ -677,21 +651,11 @@ private:
 
 private:
     //! Restore state from supplied traverser.
-    bool acceptRestoreTraverser(/*const std::string& summaryCountFieldName,
-                                const std::string& personFieldName,
-                                const std::string& attributeFieldName,
-                                const std::string& valueFieldName,
-                                const TStrVec& influenceFieldNames,*/
-                                const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
+    bool acceptRestoreTraverser(const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                 core::CStateRestoreTraverser& traverser);
 
     //! Restore a bucket gatherer from the supplied traverser.
-    bool restoreBucketGatherer(/*const std::string& summaryCountFieldName,
-                               const std::string& personFieldName,
-                               const std::string& attributeFieldName,
-                               const std::string& valueFieldName,
-                               const TStrVec& influenceFieldNames,*/
-                               const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
+    bool restoreBucketGatherer(const CBucketGatherer::SBucketGathererInitData& bucketGathererInitData,
                                core::CStateRestoreTraverser& traverser);
 
     //! Persist a bucket gatherer by passing information to the supplied

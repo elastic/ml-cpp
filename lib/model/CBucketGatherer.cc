@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CResourceMonitor.h"
 #include <model/CBucketGatherer.h>
 
 #include <core/CLogger.h>
@@ -24,6 +23,7 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
+#include <model/CResourceMonitor.h>
 
 #include <boost/tuple/tuple.hpp>
 
@@ -218,8 +218,7 @@ CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer,
                          dataGatherer.params().s_BucketLength,
                          initData.s_StartTime,
                          TSizeSizePrOptionalStrPrUInt64UMapVec(
-                             initData.s_InfluenceFieldNames.size())),
-      m_ResourceMonitor(initData.s_ResourceMonitor) {
+                             initData.s_InfluenceFieldNames.size())) {
 }
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& other)
@@ -227,14 +226,13 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
       m_EarliestTime(other.m_EarliestTime), m_BucketStart(other.m_BucketStart),
       m_PersonAttributeCounts(other.m_PersonAttributeCounts),
       m_PersonAttributeExplicitNulls(other.m_PersonAttributeExplicitNulls),
-      m_InfluencerCounts(other.m_InfluencerCounts),
-      m_ResourceMonitor(other.m_ResourceMonitor) {
+      m_InfluencerCounts(other.m_InfluencerCounts) {
     if (!isForPersistence) {
         LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
-bool CBucketGatherer::addEventData(CEventData& data) {
+bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& resourceMonitor) {
     core_t::TTime time = data.time();
 
     if (time < this->earliestBucketStartTime()) {
@@ -297,8 +295,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
             if (influence) {
                 const std::string& inf = *influence;
                 canonicalInfluences[i] = inf;
-                if (count > 0 && m_ResourceMonitor &&
-                    m_ResourceMonitor->get().areAllocationsAllowed()) {
+                if (count > 0 && resourceMonitor.areAllocationsAllowed()) {
                     influencerCounts[i]
                         .emplace(boost::unordered::piecewise_construct,
                                  boost::make_tuple(pidCid, inf),

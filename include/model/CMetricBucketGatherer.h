@@ -53,24 +53,13 @@ public:
     //! Create a new population metric data gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] summaryCountFieldName If \p summaryMode is E_Manual
-    //! then this is the name of the field holding the summary count.
-    //! \param[in] personFieldName The name of the field which identifies
-    //! people.
-    //! \param[in] attributeFieldName The name of the field which defines
-    //! the person attributes.
-    //! \param[in] valueFieldName The name of the field which contains
-    //! the metric values.
-    //! \param[in] influenceFieldNames The field names for which we will
-    //! compute influences.
-    //! \param[in] startTime The start of the time interval for which
-    //! to gather data.
-    CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                          const CBucketGatherer::SBucketGathererInitData& initData);
+    //! \param[in] initData The parameter initialization object for the bucket
+    //! gatherer.
+    CMetricBucketGatherer(CDataGatherer& dataGatherer, const SBucketGathererInitData& initData);
 
     //! Construct from a state document.
     CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                          const CBucketGatherer::SBucketGathererInitData& initData,
+                          const SBucketGathererInitData& initData,
                           core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
