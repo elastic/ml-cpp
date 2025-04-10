@@ -182,7 +182,7 @@ public:
     //! Returns the sum of used memory plus any extra memory
     std::size_t totalMemory() const;
 
-    //! Returns the current physical memory of the process as reported by the system
+    //! Returns the current physical memory of the process (rss) as reported by the system
     std::size_t systemMemory() const;
 
     //! Returns the maximum physical memory of the processs as reported by the system
