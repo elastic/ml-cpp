@@ -101,9 +101,10 @@ CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitialization
         .s_InfluenceFieldNames = m_InfluenceFieldNames,
         .s_StartTime = initData.s_StartTime,
         .s_SampleOverrideCount = 0};
-    return std::make_shared<CDataGatherer>(model_t::E_PopulationEventRate, m_SummaryMode,
-                             this->modelParams(), initData.s_PartitionFieldValue,
-                             this->searchKey(), m_Features, bucketGathererInitData);
+    return std::make_shared<CDataGatherer>(
+        model_t::E_PopulationEventRate, m_SummaryMode, this->modelParams(),
+        initData.s_PartitionFieldValue, this->searchKey(), m_Features,
+        bucketGathererInitData);
 }
 
 CModelFactory::TDataGathererPtr
@@ -117,9 +118,9 @@ CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionF
         .s_InfluenceFieldNames = m_InfluenceFieldNames,
         .s_StartTime = 0,
         .s_SampleOverrideCount = 0};
-    return std::make_shared<CDataGatherer>(model_t::E_PopulationEventRate, m_SummaryMode,
-                             this->modelParams(), partitionFieldValue,
-                             this->searchKey(), bucketGathererInitData, traverser);
+    return std::make_shared<CDataGatherer>(
+        model_t::E_PopulationEventRate, m_SummaryMode, this->modelParams(),
+        partitionFieldValue, this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CEventRatePopulationModelFactory::TPriorPtr

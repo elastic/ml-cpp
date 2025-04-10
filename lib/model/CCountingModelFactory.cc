@@ -69,9 +69,9 @@ CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initD
         {},
         initData.s_StartTime,
         0};
-    return std::make_shared<CDataGatherer>(model_t::E_EventRate, m_SummaryMode,
-                             this->modelParams(), initData.s_PartitionFieldValue,
-                             this->searchKey(), m_Features, bucketGathererInitData);
+    return std::make_shared<CDataGatherer>(
+        model_t::E_EventRate, m_SummaryMode, this->modelParams(), initData.s_PartitionFieldValue,
+        this->searchKey(), m_Features, bucketGathererInitData);
 }
 
 CModelFactory::TDataGathererPtr
@@ -79,9 +79,9 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                         core::CStateRestoreTraverser& traverser) const {
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
         m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
-    return std::make_shared<CDataGatherer>(model_t::E_EventRate, m_SummaryMode,
-                             this->modelParams(), partitionFieldValue,
-                             this->searchKey(), bucketGathererInitData, traverser);
+    return std::make_shared<CDataGatherer>(
+        model_t::E_EventRate, m_SummaryMode, this->modelParams(),
+        partitionFieldValue, this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CCountingModelFactory::TPriorPtr

@@ -100,9 +100,9 @@ CMetricModelFactory::makeDataGatherer(const SGathererInitializationData& initDat
         m_InfluenceFieldNames,
         initData.s_StartTime,
         initData.s_SampleOverrideCount};
-    return std::make_shared<CDataGatherer>(model_t::E_Metric, m_SummaryMode, this->modelParams(),
-                             initData.s_PartitionFieldValue, this->searchKey(),
-                             m_Features, bucketGathererInitData);
+    return std::make_shared<CDataGatherer>(
+        model_t::E_Metric, m_SummaryMode, this->modelParams(), initData.s_PartitionFieldValue,
+        this->searchKey(), m_Features, bucketGathererInitData);
 }
 
 CModelFactory::TDataGathererPtr
@@ -110,9 +110,9 @@ CMetricModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                       core::CStateRestoreTraverser& traverser) const {
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
         m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, m_ValueFieldName, m_InfluenceFieldNames, 0, 0};
-    return std::make_shared<CDataGatherer>(model_t::E_Metric, m_SummaryMode,
-                             this->modelParams(), partitionFieldValue,
-                             this->searchKey(), bucketGathererInitData, traverser);
+    return std::make_shared<CDataGatherer>(
+        model_t::E_Metric, m_SummaryMode, this->modelParams(), partitionFieldValue,
+        this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CMetricModelFactory::TPriorPtr
