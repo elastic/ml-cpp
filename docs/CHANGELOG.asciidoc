@@ -33,6 +33,7 @@
 === Enhancements
 
 * Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
+* Improve adherence to memory limits in the hard_limit state. (See {ml-pull}2844[#2844].)
 
 === Bug Fixes
 
