@@ -185,7 +185,7 @@ public:
     //! Returns the current physical memory of the process (rss) as reported by the system
     std::size_t systemMemory() const;
 
-    //! Returns the maximum physical memory of the processs as reported by the system
+    //! Returns the maximum physical memory of the process (max rss) as reported by the system
     std::size_t maxSystemMemory() const;
 
 private:
