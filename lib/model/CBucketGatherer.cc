@@ -138,10 +138,9 @@ struct SBucketCountsPersister {
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end());
         for (std::size_t i = 0; i < personAttributeCounts.size(); ++i) {
             inserter.insertLevel(
-                PERSON_ATTRIBUTE_COUNT_TAG, [capture0 = std::cref(
-                                                 personAttributeCounts[i])](auto&& PH1) {
-                    insertPersonAttributeCounts(capture0,
-                                                std::forward<decltype(PH1)>(PH1));
+                PERSON_ATTRIBUTE_COUNT_TAG, [tuple = std::cref(personAttributeCounts[i])](
+                                                core::CStatePersistInserter & inserter_) {
+                    insertPersonAttributeCounts(tuple, inserter_);
                 });
         }
     }
@@ -154,9 +153,8 @@ struct SBucketCountsPersister {
             if (!traverser.hasSubLevel()) {
                 continue;
             }
-            if (traverser.traverseSubLevel([&key, &count](auto&& PH1) {
-                    return restorePersonAttributeCounts(
-                        std::forward<decltype(PH1)>(PH1), key, count);
+            if (traverser.traverseSubLevel([&key, &count](core::CStateRestoreTraverser& traverser_) {
+                    return restorePersonAttributeCounts(traverser_, key, count);
                 }) == false) {
                 LOG_ERROR(<< "Invalid person attribute count");
                 continue;
@@ -175,11 +173,10 @@ struct SInfluencerCountsPersister {
                     core::CStatePersistInserter& inserter) {
         for (std::size_t i = 0; i < data.size(); ++i) {
             inserter.insertValue(INFLUENCE_COUNT_TAG, i);
-            inserter.insertLevel(
-                INFLUENCE_ITEM_TAG, [capture0 = std::cref(data[i])](auto&& PH1) {
-                    insertInfluencerPersonAttributeCounts(
-                        capture0, std::forward<decltype(PH1)>(PH1));
-                });
+            inserter.insertLevel(INFLUENCE_ITEM_TAG, [map = std::cref(data[i])](
+                                                         core::CStatePersistInserter & inserter_) {
+                insertInfluencerPersonAttributeCounts(map, inserter_);
+            });
         }
     }
 

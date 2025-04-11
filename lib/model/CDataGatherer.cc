@@ -296,8 +296,8 @@ bool CDataGatherer::addArrival(const TStrCPtrVec& fieldValues,
     // the number of partitions created.
     m_BucketGatherer->processFields(fieldValues, data, resourceMonitor);
 
-    core_t::TTime const time = data.time();
-    if (time < m_BucketGatherer->earliestBucketStartTime()) {
+    if (core_t::TTime const time = data.time();
+        time < m_BucketGatherer->earliestBucketStartTime()) {
         // Ignore records that are out of the latency window.
         // Records in an incomplete first bucket will end up here,
         // but we don't want to model these.
@@ -597,21 +597,22 @@ void CDataGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter)
     for (auto m_Feature : m_Features) {
         inserter.insertValue(FEATURE_TAG, static_cast<int>(m_Feature));
     }
-    inserter.insertLevel(PEOPLE_REGISTRY_TAG, [this](auto&& PH1) {
-        m_PeopleRegistry.acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+    inserter.insertLevel(PEOPLE_REGISTRY_TAG, [this](core::CStatePersistInserter& inserter_) {
+        m_PeopleRegistry.acceptPersistInserter(inserter_);
     });
-    inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG, [this](auto&& PH1) {
-        m_AttributesRegistry.acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+    inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG, [this](core::CStatePersistInserter& inserter_) {
+        m_AttributesRegistry.acceptPersistInserter(inserter_);
     });
 
     if (m_SampleCounts) {
-        inserter.insertLevel(SAMPLE_COUNTS_TAG, [capture0 = m_SampleCounts.get()](auto&& PH1) {
-            capture0->acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+        inserter.insertLevel(SAMPLE_COUNTS_TAG, [sampleCounts = m_SampleCounts.get()](
+                                                    core::CStatePersistInserter & inserter_) {
+            sampleCounts->acceptPersistInserter(inserter_);
         });
     }
 
-    inserter.insertLevel(BUCKET_GATHERER_TAG, [this](auto&& inserter_) {
-        persistBucketGatherers(std::forward<decltype(inserter_)>(inserter_));
+    inserter.insertLevel(BUCKET_GATHERER_TAG, [this](core::CStatePersistInserter& inserter_) {
+        persistBucketGatherers(inserter_);
     });
 }
 
@@ -795,8 +796,9 @@ bool CDataGatherer::restoreBucketGatherer(const CBucketGatherer::SBucketGatherer
 
 void CDataGatherer::persistBucketGatherers(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(
-        m_BucketGatherer->persistenceTag(), [capture0 = m_BucketGatherer.get()](auto&& PH1) {
-            capture0->acceptPersistInserter(std::forward<decltype(PH1)>(PH1));
+        m_BucketGatherer->persistenceTag(), [capture0 = m_BucketGatherer.get()](
+                                                core::CStatePersistInserter & inserter_) {
+            capture0->acceptPersistInserter(inserter_);
         });
 }
 
