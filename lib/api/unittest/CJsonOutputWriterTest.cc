@@ -1717,7 +1717,7 @@ BOOST_AUTO_TEST_CASE(testPersistNormalizer) {
     BOOST_TEST_REQUIRE(quantileState.contains("timestamp"));
 }
 
-BOOST_AUTO_TEST_CASE(testReportMemoryUsage)  {
+BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     std::ostringstream sstream;
     {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
@@ -1773,8 +1773,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage)  {
     BOOST_TEST_REQUIRE(sizeStats.contains("peak_model_bytes"));
     BOOST_REQUIRE_EQUAL(4, sizeStats.at("peak_model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("system_memory_bytes"));
-    BOOST_REQUIRE_EQUAL(
-        5, sizeStats.at("system_memory_bytes").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(5, sizeStats.at("system_memory_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("max_system_memory_bytes"));
     BOOST_REQUIRE_EQUAL(
         6, sizeStats.at("max_system_memory_bytes").to_number<std::int64_t>());
