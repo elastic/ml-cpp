@@ -154,8 +154,8 @@ int main(int argc, char** argv) {
     }
     cancellerThread.stop();
 
+    LOG_DEBUG(<< "Max Resident Set Size: " << ml::core::CProcessStats::maxResidentSetSize());
     LOG_DEBUG(<< "Resident Set Size: " << ml::core::CProcessStats::residentSetSize());
-
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
