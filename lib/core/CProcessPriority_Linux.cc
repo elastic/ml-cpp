@@ -55,7 +55,7 @@ void increaseOomKillerAdj() {
     // we log the failure at a level that won't be seen by default.
     if (writeToSystemFile("/proc/self/oom_score_adj", "667\n") == false &&
         writeToSystemFile("/proc/self/oom_adj", "10\n") == false) {
-        LOG_DEBUG(<< "Could not increase OOM killer adjustment using "
+        LOG_WARN(<< "Could not increase OOM killer adjustment using "
                      "/proc/self/oom_score_adj or /proc/self/oom_adj: "
                   << ::strerror(errno));
     }
