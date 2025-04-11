@@ -33,6 +33,7 @@
 === Enhancements
 
 * Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
+* Improve adherence to memory limits for the bucket gatherer. (See {ml-pull}2831[#2831].)
 
 === Bug Fixes
 

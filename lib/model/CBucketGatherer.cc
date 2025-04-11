@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <map>
+#include <model/CResourceMonitor.h>
 
 namespace ml {
 namespace model {
@@ -230,7 +231,7 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
     }
 }
 
-bool CBucketGatherer::addEventData(CEventData& data) {
+bool CBucketGatherer::addEventData(CEventData& data, CResourceMonitor& resourceMonitor) {
     core_t::TTime time = data.time();
 
     if (time < this->earliestBucketStartTime()) {
@@ -293,7 +294,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
             if (influence) {
                 const std::string& inf = *influence;
                 canonicalInfluences[i] = inf;
-                if (count > 0) {
+                if (count > 0 && resourceMonitor.areAllocationsAllowed()) {
                     influencerCounts[i]
                         .emplace(boost::unordered::piecewise_construct,
                                  boost::make_tuple(pidCid, inf),

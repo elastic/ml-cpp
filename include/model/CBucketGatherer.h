@@ -220,7 +220,7 @@ public:
                                CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
-    bool addEventData(CEventData& data);
+    bool addEventData(CEventData& data, CResourceMonitor& resourceMonitor);
 
     //! Roll time forwards to \p time.
     void timeNow(core_t::TTime time);
