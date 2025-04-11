@@ -719,9 +719,7 @@ enum EAssignmentMemoryBasis {
     E_AssignmentBasisUnknown = 0,           //!< Decision made in Java code
     E_AssignmentBasisModelMemoryLimit = 1,  //!< Use model memory limit
     E_AssignmentBasisCurrentModelBytes = 2, //!< Use current actual model size
-    E_AssignmentBasisPeakModelBytes = 3, //!< Use highest ever actual model size
-    E_AssignmentBasisSystemMemoryBytes = 4, //!< Use the current system memory size
-    E_AssignmentBasisMaxSystemMemoryBytes = 5 //!< Use the highest ever system memory size
+    E_AssignmentBasisPeakModelBytes = 3
 };
 
 //! Get a string description of \p assignmentMemoryBasis.

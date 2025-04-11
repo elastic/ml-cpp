@@ -113,10 +113,10 @@ enum ECounterTypes {
     E_TSADOutputMemoryAllocatorUsage = 30,
 
     //! The resident set size of the process, in bytes.
-    E_TSADResidentSetSize = 31,
+    E_TSADSystemMemoryUsage = 31,
 
     //! The maximum resident set size of the process, in bytes.
-    E_TSADMaxResidentSetSize = 32,
+    E_TSADMaxSystemMemoryUsage = 32,
 
     // Data Frame Outlier Detection
 
@@ -361,9 +361,9 @@ private:
           "Which option is being used to get model memory for node assignment?"},
          {counter_t::E_TSADOutputMemoryAllocatorUsage, "E_TSADOutputMemoryAllocatorUsage",
           "The amount of memory used to output JSON documents, in bytes."},
-         {counter_t::E_TSADResidentSetSize, "E_TSADResidentSetSize",
+         {counter_t::E_TSADSystemMemoryUsage, "E_TSADResidentSetSize",
           "The resident set size of the process, in bytes"},
-         {counter_t::E_TSADMaxResidentSetSize, "E_TSADMaxResidentSetSize",
+         {counter_t::E_TSADMaxSystemMemoryUsage, "E_TSADMaxResidentSetSize",
           "The maximum resident set size of the process, in bytes"},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
           "The upfront estimate of the peak memory outlier detection would use"},

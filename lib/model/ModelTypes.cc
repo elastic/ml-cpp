@@ -1733,10 +1733,6 @@ std::string print(EAssignmentMemoryBasis assignmentMemoryBasis) {
         return "current_model_bytes";
     case E_AssignmentBasisPeakModelBytes:
         return "peak_model_bytes";
-    case E_AssignmentBasisSystemMemoryBytes:
-        return "system_memory_bytes";
-    case E_AssignmentBasisMaxSystemMemoryBytes:
-        return "max_system_memory_bytes";
     }
     return "-";
 }

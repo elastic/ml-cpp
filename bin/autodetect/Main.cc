@@ -85,8 +85,8 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberPrunedItems,
         ml::counter_t::E_TSADAssignmentMemoryBasis,
         ml::counter_t::E_TSADOutputMemoryAllocatorUsage,
-        ml::counter_t::E_TSADResidentSetSize,
-        ml::counter_t::E_TSADMaxResidentSetSize};
+        ml::counter_t::E_TSADSystemMemoryUsage,
+        ml::counter_t::E_TSADMaxSystemMemoryUsage};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
     }
     cancellerThread.stop();
 
-    LOG_DEBUG(<< "Max Resident Set Size: " << ml::core::CProcessStats::maxResidentSetSize());
+    LOG_DEBUG(<< "Resident Set Size: " << ml::core::CProcessStats::residentSetSize());
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program

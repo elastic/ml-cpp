@@ -23,7 +23,7 @@ namespace core {
 
 std::size_t CProcessStats::residentSetSize() {
     // not supported on osx
-    CProgramCounters::counter(counter_t::E_TSADResidentSetSize) = 0;
+    CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) = 0;
     return 0;
 }
 
@@ -35,7 +35,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
         return 0;
     }
     auto maxRSS = static_cast<std::size_t>(rusage.ru_maxrss);
-    CProgramCounters::counter(counter_t::E_TSADMaxResidentSetSize) = maxRSS;
+    CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) = maxRSS;
     // ru_maxrss is in bytes
     return maxRSS;
 }
