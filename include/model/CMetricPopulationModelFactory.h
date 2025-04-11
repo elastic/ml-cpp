@@ -69,7 +69,7 @@ public:
     //! \param[in] initData The parameters needed to initialize the data
     //! gatherer.
     //! \warning It is owned by the calling code.
-    CDataGatherer* makeDataGatherer(const SGathererInitializationData& initData) const override;
+    TDataGathererPtr makeDataGatherer(const SGathererInitializationData& initData) const override;
 
     //! Make a new metric population data gatherer from part of a state
     //! document.
@@ -77,8 +77,8 @@ public:
     //! \param[in] partitionFieldValue The partition field value.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
-                                    core::CStateRestoreTraverser& traverser) const override;
+    TDataGathererPtr makeDataGatherer(const std::string& partitionFieldValue,
+                                      core::CStateRestoreTraverser& traverser) const override;
     //@}
 
     //! \name Defaults

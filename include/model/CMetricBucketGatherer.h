@@ -53,33 +53,13 @@ public:
     //! Create a new population metric data gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] summaryCountFieldName If \p summaryMode is E_Manual
-    //! then this is the name of the field holding the summary count.
-    //! \param[in] personFieldName The name of the field which identifies
-    //! people.
-    //! \param[in] attributeFieldName The name of the field which defines
-    //! the person attributes.
-    //! \param[in] valueFieldName The name of the field which contains
-    //! the metric values.
-    //! \param[in] influenceFieldNames The field names for which we will
-    //! compute influences.
-    //! \param[in] startTime The start of the time interval for which
-    //! to gather data.
-    CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                          const std::string& summaryCountFieldName,
-                          const std::string& personFieldName,
-                          const std::string& attributeFieldName,
-                          const std::string& valueFieldName,
-                          const TStrVec& influenceFieldNames,
-                          core_t::TTime startTime);
+    //! \param[in] initData The parameter initialization object for the bucket
+    //! gatherer.
+    CMetricBucketGatherer(CDataGatherer& dataGatherer, const SBucketGathererInitData& initData);
 
     //! Construct from a state document.
     CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                          const std::string& summaryCountFieldName,
-                          const std::string& personFieldName,
-                          const std::string& attributeFieldName,
-                          const std::string& valueFieldName,
-                          const TStrVec& influenceFieldNames,
+                          const SBucketGathererInitData& initData,
                           core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -266,9 +246,7 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart1(const std::string& personFieldName,
-                                   const std::string& attributeFieldName,
-                                   const TStrVec& influenceFieldNames);
+    void initializeFieldNamesPart1(const SBucketGathererInitData& initData);
 
     //! Initialize the field names collection.
     //! initializeFieldNamesPart1() must be called before this.
@@ -277,8 +255,7 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart2(const std::string& valueFieldName,
-                                   const std::string& summaryCountFieldName);
+    void initializeFieldNamesPart2(const SBucketGathererInitData& initData);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData();
@@ -307,10 +284,10 @@ private:
     TStrVec m_FieldNames;
 
     //! The position of the first influencing field.
-    std::size_t m_BeginInfluencingFields;
+    std::size_t m_BeginInfluencingFields{0};
 
     //! The position of the first count/value field.
-    std::size_t m_BeginValueFields;
+    std::size_t m_BeginValueFields{0};
 
     //! For summarized values, this stores the metric categories
     //! corresponding to the summarized field names in m_FieldNames;

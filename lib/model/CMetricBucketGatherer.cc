@@ -925,35 +925,25 @@ public:
 } // unnamed::
 
 CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                                             const std::string& summaryCountFieldName,
-                                             const std::string& personFieldName,
-                                             const std::string& attributeFieldName,
-                                             const std::string& valueFieldName,
-                                             const TStrVec& influenceFieldNames,
-                                             core_t::TTime startTime)
-    : CBucketGatherer(dataGatherer, startTime, influenceFieldNames.size()),
-      m_ValueFieldName(valueFieldName), m_BeginInfluencingFields(0),
-      m_BeginValueFields(0) {
-    this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
-    this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+                                             const SBucketGathererInitData& initData)
+    : CBucketGatherer(dataGatherer, initData),
+      m_ValueFieldName(initData.s_ValueFieldName) {
+    this->initializeFieldNamesPart1(initData);
+    this->initializeFieldNamesPart2(initData);
     this->initializeFeatureData();
 }
 
 CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
-                                             const std::string& summaryCountFieldName,
-                                             const std::string& personFieldName,
-                                             const std::string& attributeFieldName,
-                                             const std::string& valueFieldName,
-                                             const TStrVec& influenceFieldNames,
+                                             const SBucketGathererInitData& initData,
                                              core::CStateRestoreTraverser& traverser)
-    : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
-      m_ValueFieldName(valueFieldName), m_BeginValueFields(0) {
-    this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
+    : CBucketGatherer(dataGatherer, initData),
+      m_ValueFieldName(initData.s_ValueFieldName) {
+    this->initializeFieldNamesPart1(initData);
     if (traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
                                              this, std::placeholders::_1)) == false) {
         traverser.setBadState();
     } else {
-        this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+        this->initializeFieldNamesPart2(initData);
     }
 }
 
@@ -1505,44 +1495,41 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
               });
 }
 
-void CMetricBucketGatherer::initializeFieldNamesPart1(const std::string& personFieldName,
-                                                      const std::string& attributeFieldName,
-                                                      const TStrVec& influenceFieldNames) {
+void CMetricBucketGatherer::initializeFieldNamesPart1(const SBucketGathererInitData& initData) {
     switch (m_DataGatherer.summaryMode()) {
     case model_t::E_None:
         m_FieldNames.reserve(2 + static_cast<std::size_t>(m_DataGatherer.isPopulation()) +
-                             influenceFieldNames.size());
-        m_FieldNames.push_back(personFieldName);
+                             initData.s_InfluenceFieldNames.size());
+        m_FieldNames.push_back(initData.s_PersonFieldName);
         if (m_DataGatherer.isPopulation())
-            m_FieldNames.push_back(attributeFieldName);
+            m_FieldNames.push_back(initData.s_AttributeFieldName);
         m_BeginInfluencingFields = m_FieldNames.size();
-        m_FieldNames.insert(m_FieldNames.end(), influenceFieldNames.begin(),
-                            influenceFieldNames.end());
+        m_FieldNames.insert(m_FieldNames.end(), initData.s_InfluenceFieldNames.begin(),
+                            initData.s_InfluenceFieldNames.end());
         m_BeginValueFields = m_FieldNames.size();
         break;
     case model_t::E_Manual:
         m_FieldNames.reserve(3 + static_cast<std::size_t>(m_DataGatherer.isPopulation()) +
-                             influenceFieldNames.size());
-        m_FieldNames.push_back(personFieldName);
+                             initData.s_InfluenceFieldNames.size());
+        m_FieldNames.push_back(initData.s_PersonFieldName);
         if (m_DataGatherer.isPopulation())
-            m_FieldNames.push_back(attributeFieldName);
+            m_FieldNames.push_back(initData.s_AttributeFieldName);
         m_BeginInfluencingFields = m_FieldNames.size();
-        m_FieldNames.insert(m_FieldNames.end(), influenceFieldNames.begin(),
-                            influenceFieldNames.end());
+        m_FieldNames.insert(m_FieldNames.end(), initData.s_InfluenceFieldNames.begin(),
+                            initData.s_InfluenceFieldNames.end());
         m_BeginValueFields = m_FieldNames.size();
         break;
-    };
+    }
 }
 
-void CMetricBucketGatherer::initializeFieldNamesPart2(const std::string& valueFieldName,
-                                                      const std::string& summaryCountFieldName) {
+void CMetricBucketGatherer::initializeFieldNamesPart2(const SBucketGathererInitData& initData) {
     switch (m_DataGatherer.summaryMode()) {
     case model_t::E_None:
-        m_FieldNames.push_back(valueFieldName);
+        m_FieldNames.push_back(initData.s_ValueFieldName);
         break;
     case model_t::E_Manual:
-        m_FieldNames.push_back(summaryCountFieldName);
-        m_FieldNames.push_back(valueFieldName);
+        m_FieldNames.push_back(initData.s_SummaryCountFieldName);
+        m_FieldNames.push_back(initData.s_ValueFieldName);
         m_DataGatherer.determineMetricCategory(m_FieldMetricCategories);
         break;
     };

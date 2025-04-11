@@ -24,7 +24,6 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <utility>
 #include <vector>
 
 namespace ml {
@@ -175,7 +174,7 @@ public:
     //! \param[in] initData The parameters needed to initialize the
     //! data gatherer.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer*
+    virtual TDataGathererPtr
     makeDataGatherer(const SGathererInitializationData& initData) const = 0;
 
     //! Make a new data gatherer from part of a state document.
@@ -183,8 +182,9 @@ public:
     //! \param[in,out] traverser A state document traverser.
     //! \param[in] partitionFieldValue The partition field value.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
-                                            core::CStateRestoreTraverser& traverser) const = 0;
+    virtual TDataGathererPtr
+    makeDataGatherer(const std::string& partitionFieldValue,
+                     core::CStateRestoreTraverser& traverser) const = 0;
     //@}
 
     //! \name Defaults

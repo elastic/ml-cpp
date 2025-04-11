@@ -1028,11 +1028,12 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     // The traverser expects the state json in a embedded document
     std::stringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
 
-    CDataGatherer restoredDataGatherer(model_t::E_PopulationMetric,
-                                       model_t::E_None, params, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, {}, searchKey, traverser);
+    CDataGatherer restoredDataGatherer(model_t::E_PopulationMetric, model_t::E_None,
+                                       params, EMPTY_STRING, searchKey,
+                                       bucketGathererInitData, traverser);
 
     // The JSON representation of the new data gatherer should be the same as the
     // original
