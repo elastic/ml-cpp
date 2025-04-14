@@ -1723,6 +1723,7 @@ protected:
                 .attributeFieldName("att")
                 .build();
         }
+
         if (!isPopulation) {
             return builder.personFieldName("person").build();
         }

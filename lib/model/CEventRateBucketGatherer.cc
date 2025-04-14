@@ -727,30 +727,17 @@ void registerMemoryCallbacks() {
 } // unnamed::
 
 CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
-                                                   const std::string& summaryCountFieldName,
-                                                   const std::string& personFieldName,
-                                                   const std::string& attributeFieldName,
-                                                   const std::string& valueFieldName,
-                                                   const TStrVec& influenceFieldNames,
-                                                   core_t::TTime startTime)
-    : CBucketGatherer(dataGatherer, startTime, influenceFieldNames.size()),
-      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
-    this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
-                               summaryCountFieldName, influenceFieldNames);
+                                                   const SBucketGathererInitData& initData)
+    : CBucketGatherer(dataGatherer, initData) {
+    this->initializeFieldNames(initData);
     this->initializeFeatureData();
 }
 
 CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
-                                                   const std::string& summaryCountFieldName,
-                                                   const std::string& personFieldName,
-                                                   const std::string& attributeFieldName,
-                                                   const std::string& valueFieldName,
-                                                   const TStrVec& influenceFieldNames,
+                                                   const SBucketGathererInitData& initData,
                                                    core::CStateRestoreTraverser& traverser)
-    : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
-      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
-    this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
-                               summaryCountFieldName, influenceFieldNames);
+    : CBucketGatherer(dataGatherer, initData) {
+    this->initializeFieldNames(initData);
     if (traverser.traverseSubLevel(std::bind(&CEventRateBucketGatherer::acceptRestoreTraverser,
                                              this, std::placeholders::_1)) == false) {
         traverser.setBadState();
@@ -1501,23 +1488,19 @@ void CEventRateBucketGatherer::startNewBucket(core_t::TTime time, bool /*skipUpd
     });
 }
 
-void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFieldName,
-                                                    const std::string& attributeFieldName,
-                                                    const std::string& valueFieldName,
-                                                    const std::string& summaryCountFieldName,
-                                                    const TStrVec& influenceFieldNames) {
-    m_FieldNames.push_back(personFieldName);
+void CEventRateBucketGatherer::initializeFieldNames(const CBucketGatherer::SBucketGathererInitData& initData) {
+    m_FieldNames.push_back(initData.s_PersonFieldName);
     if (m_DataGatherer.isPopulation()) {
-        m_FieldNames.push_back(attributeFieldName);
+        m_FieldNames.push_back(initData.s_AttributeFieldName);
     }
 
     m_BeginInfluencingFields = m_FieldNames.size();
-    m_FieldNames.insert(m_FieldNames.end(), influenceFieldNames.begin(),
-                        influenceFieldNames.end());
+    m_FieldNames.insert(m_FieldNames.end(), initData.s_InfluenceFieldNames.begin(),
+                        initData.s_InfluenceFieldNames.end());
 
     m_BeginValueField = m_FieldNames.size();
-    if (!valueFieldName.empty()) {
-        m_FieldNames.push_back(valueFieldName);
+    if (!initData.s_ValueFieldName.empty()) {
+        m_FieldNames.push_back(initData.s_ValueFieldName);
     }
 
     m_BeginSummaryFields = m_FieldNames.size();
@@ -1525,7 +1508,7 @@ void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFie
     case model_t::E_None:
         break;
     case model_t::E_Manual:
-        m_FieldNames.push_back(summaryCountFieldName);
+        m_FieldNames.push_back(initData.s_SummaryCountFieldName);
         break;
     }
 

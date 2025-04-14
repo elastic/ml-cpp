@@ -32,7 +32,6 @@
 #include <map>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace ml {
@@ -98,7 +97,7 @@ public:
     //! \brief Hashes a ((size_t, size_t), string*) pair.
     struct MODEL_EXPORT SSizeSizePrOptionalStrPrHash {
         std::size_t operator()(const TSizeSizePrOptionalStrPr& key) const {
-            std::uint64_t seed = core::CHashing::hashCombine(
+            std::uint64_t const seed = core::CHashing::hashCombine(
                 static_cast<std::uint64_t>(key.first.first),
                 static_cast<std::uint64_t>(key.first.second));
             return core::CHashing::hashCombine(seed, s_Hasher(key.second));
@@ -132,6 +131,26 @@ public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TTimeVecCItr = TTimeVec::const_iterator;
 
+    struct SBucketGathererInitData {
+        // The name of the field holding the summary count.
+        const std::string& s_SummaryCountFieldName;
+        // The name of the field which identifies people.
+        const std::string& s_PersonFieldName;
+        // The name of the field which defines the person attributes.
+        const std::string& s_AttributeFieldName;
+        // The name of the field which contains the metric values.
+        const std::string& s_ValueFieldName;
+        // The field names for which we will compute influences.
+        const TStrVec& s_InfluenceFieldNames;
+        // The start of the time interval for which to gather data.
+        core_t::TTime s_StartTime;
+        // Override for the number of measurements
+        // in a statistic. (Note that this is intended for testing only.)
+        // A zero value means that the data gatherer class will determine
+        // an appropriate value for the bucket length and data rate.
+        unsigned int s_SampleOverrideCount;
+    };
+
 public:
     static const std::string EVENTRATE_BUCKET_GATHERER_TAG;
     static const std::string METRIC_BUCKET_GATHERER_TAG;
@@ -142,11 +161,10 @@ public:
     //! Create a new data series gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] startTime The start of the time interval for which
-    //! to gather data.
-    //! \param[in] numberInfluencers The number of result influencers
-    //! for which to gather data.
-    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime, std::size_t numberInfluencers);
+    //! \param[in] bucketGathererInitData The parameter initialization object
+    //! for the bucket gatherer.
+    CBucketGatherer(CDataGatherer& dataGatherer,
+                    const SBucketGathererInitData& bucketGathererInitData);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a

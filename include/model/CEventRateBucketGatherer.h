@@ -111,33 +111,13 @@ public:
     //! Create an event rate bucket gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] summaryCountFieldName If summaryMode is E_Manual
-    //! then this is the name of the field holding the summary count.
-    //! \param[in] personFieldName The name of the field which identifies
-    //! people.
-    //! \param[in] attributeFieldName The name of the field which defines
-    //! the person attributes.
-    //! \param[in] valueFieldName The name of the field which contains
-    //! the metric values.
-    //! \param[in] influenceFieldNames The field names for which we will
-    //! compute influences.
-    //! \param[in] startTime The start of the time interval for which
-    //! to gather data.
+    //! \param[in] bucketGathererInitData The parameter initialization object.
     CEventRateBucketGatherer(CDataGatherer& dataGatherer,
-                             const std::string& summaryCountFieldName,
-                             const std::string& personFieldName,
-                             const std::string& attributeFieldName,
-                             const std::string& valueFieldName,
-                             const TStrVec& influenceFieldNames,
-                             core_t::TTime startTime);
+                             const SBucketGathererInitData& bucketGathererInitData);
 
     //! Construct from a state document.
     CEventRateBucketGatherer(CDataGatherer& dataGatherer,
-                             const std::string& summaryCountFieldName,
-                             const std::string& personFieldName,
-                             const std::string& attributeFieldName,
-                             const std::string& valueFieldName,
-                             const TStrVec& influenceFieldNames,
+                             const SBucketGathererInitData& bucketGathererInitData,
                              core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -444,11 +424,7 @@ private:
     void startNewBucket(core_t::TTime time, bool skipUpdates) override;
 
     //! Initialize the field names collection.
-    void initializeFieldNames(const std::string& personFieldName,
-                              const std::string& attributeFieldName,
-                              const std::string& valueFieldName,
-                              const std::string& summaryCountFieldName,
-                              const TStrVec& influenceFieldNames);
+    void initializeFieldNames(const CBucketGatherer::SBucketGathererInitData& initData);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData();
@@ -481,13 +457,13 @@ private:
     TStrVec m_FieldNames;
 
     //! The position of the first influencer field
-    std::size_t m_BeginInfluencingFields;
+    std::size_t m_BeginInfluencingFields{0};
 
     //! The position of the first count/value field.
-    std::size_t m_BeginValueField;
+    std::size_t m_BeginValueField{0};
 
     //! The position of the field holding the summarised count.
-    std::size_t m_BeginSummaryFields;
+    std::size_t m_BeginSummaryFields{0};
 
     //! The data features we are gathering.
     TCategoryAnyMap m_FeatureData;

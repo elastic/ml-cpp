@@ -783,10 +783,12 @@ void testPersistDataGatherer(const CDataGatherer& origDataGatherer,
     std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
+
     CDataGatherer restoredDataGatherer(model_t::E_PopulationEventRate,
                                        model_t::E_None, params, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, {}, searchKey, traverser);
+                                       searchKey, bucketGathererInitData, traverser);
 
     // The Json representation of the new data gatherer should be the same as the
     // original
@@ -809,6 +811,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         features.push_back(model_t::E_PopulationUniquePersonCountByAttribute);
         SModelParams const params(bucketLength);
         CDataGatherer origDataGatherer =
+
             CDataGathererBuilder(model_t::E_PopulationEventRate, features,
                                  params, searchKey, startTime)
                 .build();
@@ -831,6 +834,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         features.push_back(model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
         SModelParams const params(bucketLength);
         CDataGatherer dataGatherer =
+
             CDataGathererBuilder(model_t::E_PopulationEventRate, features,
                                  params, searchKey, startTime)
                 .valueFieldName("value")

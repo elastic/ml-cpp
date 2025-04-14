@@ -1446,7 +1446,7 @@ BOOST_AUTO_TEST_CASE(testWriter) {
         model::SModelParams const params(modelConfig.bucketLength());
         auto interimBucketCorrector =
             std::make_shared<model::CInterimBucketCorrector>(modelConfig.bucketLength());
-        model::CSearchKey const key;
+        model::CSearchKey key;
         auto dataGatherer =
             model::CDataGathererBuilder(model_t::E_EventRate,
                                         {model_t::E_IndividualCountByBucketAndPerson},

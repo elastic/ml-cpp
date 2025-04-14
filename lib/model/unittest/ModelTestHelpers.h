@@ -45,9 +45,11 @@ static void testPersistence(const SModelParams& params,
     std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser(origJsonStrm);
 
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
+
     CDataGatherer restoredGatherer(category, model_t::E_None, params, EMPTY_STRING,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   EMPTY_STRING, {}, KEY, traverser);
+                                   KEY, bucketGathererInitData, traverser);
 
     BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
 
@@ -96,27 +98,31 @@ public:
           m_SearchKey(searchKey), m_GathererType(gathererType) {}
 
     CDataGatherer build() const {
-        return {m_GathererType,
-                m_SummaryMode,
-                m_Params,
-                m_SummaryCountFieldName,
-                m_PartitionFieldValue,
-                m_PersonFieldName,
-                m_AttributeFieldName,
-                m_ValueFieldName,
-                m_InfluenceFieldNames,
-                m_SearchKey,
-                m_Features,
-                m_StartTime,
-                m_SampleCountOverride};
+        CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+            m_SummaryCountFieldName,
+            m_PersonFieldName,
+            m_AttributeFieldName,
+            m_ValueFieldName,
+            m_InfluenceFieldNames,
+            m_StartTime,
+            static_cast<unsigned int>(m_SampleCountOverride)};
+        return {m_GathererType,        m_SummaryMode, m_Params,
+                m_PartitionFieldValue, m_SearchKey,   m_Features,
+                bucketGathererInitData};
     }
 
     std::shared_ptr<CDataGatherer> buildSharedPtr() const {
-        return std::make_shared<CDataGatherer>(
-            m_GathererType, m_SummaryMode, m_Params, m_SummaryCountFieldName,
-            m_PartitionFieldValue, m_PersonFieldName, m_AttributeFieldName,
-            m_ValueFieldName, m_InfluenceFieldNames, m_SearchKey, m_Features,
-            m_StartTime, m_SampleCountOverride);
+        CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+            m_SummaryCountFieldName,
+            m_PersonFieldName,
+            m_AttributeFieldName,
+            m_ValueFieldName,
+            m_InfluenceFieldNames,
+            m_StartTime,
+            static_cast<unsigned int>(m_SampleCountOverride)};
+        return std::make_shared<CDataGatherer>(m_GathererType, m_SummaryMode, m_Params,
+                                               m_PartitionFieldValue, m_SearchKey,
+                                               m_Features, bucketGathererInitData);
     }
 
     CDataGathererBuilder& partitionFieldValue(std::string_view partitionFieldValue) {

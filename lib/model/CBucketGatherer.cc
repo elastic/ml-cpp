@@ -23,12 +23,12 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
+#include <model/CResourceMonitor.h>
 
 #include <boost/tuple/tuple.hpp>
 
 #include <algorithm>
 #include <map>
-#include <model/CResourceMonitor.h>
 
 namespace ml {
 namespace model {
@@ -109,10 +109,10 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser& traver
                                             TSizeSizePrOptionalStrPrUInt64UMap& map) {
     std::size_t person = 0;
     std::size_t attribute = 0;
-    std::string influence = "";
+    std::string influence;
     std::uint64_t count = 0;
     do {
-        const std::string name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(PERSON_UID_TAG, person)
         RESTORE_BUILT_IN(ATTRIBUTE_UID_TAG, attribute)
         RESTORE_NO_ERROR(INFLUENCER_TAG, influence = traverser.value())
@@ -138,10 +138,11 @@ struct SBucketCountsPersister {
         personAttributeCounts.assign(bucketCounts.begin(), bucketCounts.end());
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end());
         for (std::size_t i = 0; i < personAttributeCounts.size(); ++i) {
-            inserter.insertLevel(PERSON_ATTRIBUTE_COUNT_TAG,
-                                 std::bind(&insertPersonAttributeCounts,
-                                           std::cref(personAttributeCounts[i]),
-                                           std::placeholders::_1));
+            inserter.insertLevel(
+                PERSON_ATTRIBUTE_COUNT_TAG, [tuple = std::cref(personAttributeCounts[i])](
+                                                core::CStatePersistInserter & inserter_) {
+                    insertPersonAttributeCounts(tuple, inserter_);
+                });
         }
     }
 
@@ -149,13 +150,13 @@ struct SBucketCountsPersister {
                     core::CStateRestoreTraverser& traverser) {
         do {
             TSizeSizePr key;
-            std::uint64_t count{0u};
+            std::uint64_t count{0U};
             if (!traverser.hasSubLevel()) {
                 continue;
             }
-            if (traverser.traverseSubLevel(
-                    std::bind(&restorePersonAttributeCounts, std::placeholders::_1,
-                              std::ref(key), std::ref(count))) == false) {
+            if (traverser.traverseSubLevel([&key, &count](core::CStateRestoreTraverser& traverser_) {
+                    return restorePersonAttributeCounts(traverser_, key, count);
+                }) == false) {
                 LOG_ERROR(<< "Invalid person attribute count");
                 continue;
             }
@@ -173,9 +174,10 @@ struct SInfluencerCountsPersister {
                     core::CStatePersistInserter& inserter) {
         for (std::size_t i = 0; i < data.size(); ++i) {
             inserter.insertValue(INFLUENCE_COUNT_TAG, i);
-            inserter.insertLevel(INFLUENCE_ITEM_TAG,
-                                 std::bind(&insertInfluencerPersonAttributeCounts,
-                                           std::cref(data[i]), std::placeholders::_1));
+            inserter.insertLevel(INFLUENCE_ITEM_TAG, [map = std::cref(data[i])](
+                                                         core::CStatePersistInserter & inserter_) {
+                insertInfluencerPersonAttributeCounts(map, inserter_);
+            });
         }
     }
 
@@ -203,21 +205,22 @@ const std::string CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG("a");
 const std::string CBucketGatherer::METRIC_BUCKET_GATHERER_TAG("b");
 
 CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer,
-                                 core_t::TTime startTime,
-                                 std::size_t numberInfluencers)
-    : m_DataGatherer(dataGatherer), m_EarliestTime(startTime), m_BucketStart(startTime),
+                                 const SBucketGathererInitData& initData)
+    : m_DataGatherer(dataGatherer), m_EarliestTime(initData.s_StartTime),
+      m_BucketStart(initData.s_StartTime),
       m_PersonAttributeCounts(dataGatherer.params().s_LatencyBuckets,
                               dataGatherer.params().s_BucketLength,
-                              startTime,
+                              initData.s_StartTime,
                               TSizeSizePrUInt64UMap(1)),
       m_PersonAttributeExplicitNulls(dataGatherer.params().s_LatencyBuckets,
                                      dataGatherer.params().s_BucketLength,
-                                     startTime,
+                                     initData.s_StartTime,
                                      TSizeSizePrUSet(1)),
       m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                          dataGatherer.params().s_BucketLength,
-                         startTime,
-                         TSizeSizePrOptionalStrPrUInt64UMapVec(numberInfluencers)) {
+                         initData.s_StartTime,
+                         TSizeSizePrOptionalStrPrUInt64UMapVec(
+                             initData.s_InfluenceFieldNames.size())) {
 }
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& other)
@@ -235,7 +238,7 @@ bool CBucketGatherer::isRecordIncomplete(CEventData& data) {
     return !data.personId() || !data.attributeId() || !data.count();
 }
 bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& resourceMonitor) {
-    core_t::TTime time = data.time();
+    core_t::TTime const time = data.time();
 
     if (time < this->earliestBucketStartTime()) {
         // Ignore records that are out of the latency window
@@ -251,9 +254,9 @@ bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& res
         return false;
     }
 
-    std::size_t pid = *data.personId();
-    std::size_t cid = *data.attributeId();
-    std::size_t count = *data.count();
+    std::size_t const pid = *data.personId();
+    std::size_t const cid = *data.attributeId();
+    std::size_t const count = *data.count();
     if ((pid != CDynamicStringIdRegistry::INVALID_ID) &&
         (cid != CDynamicStringIdRegistry::INVALID_ID)) {
         // Has the person/attribute been deleted from the gatherer?
@@ -266,7 +269,7 @@ bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& res
             return false;
         }
 
-        TSizeSizePr pidCid = std::make_pair(pid, cid);
+        TSizeSizePr const pidCid = std::make_pair(pid, cid);
 
         // If record is explicit null just note that a null record has been seen
         // for the given (pid, cid) pair.
@@ -301,7 +304,7 @@ bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& res
                     influencerCounts[i]
                         .emplace(boost::unordered::piecewise_construct,
                                  boost::make_tuple(pidCid, inf),
-                                 boost::make_tuple(std::uint64_t(0)))
+                                 boost::make_tuple(static_cast<std::uint64_t>(0)))
                         .first->second += count;
                 }
             }
@@ -319,7 +322,7 @@ void CBucketGatherer::timeNow(core_t::TTime time) {
 
 void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
     m_EarliestTime = std::min(m_EarliestTime, time);
-    core_t::TTime n = (time - m_BucketStart) / this->bucketLength();
+    core_t::TTime const n = (time - m_BucketStart) / this->bucketLength();
     core_t::TTime newBucketStart = m_BucketStart;
     for (core_t::TTime i = 0; i < n; ++i) {
         newBucketStart += this->bucketLength();
@@ -328,7 +331,8 @@ void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
         // the gatherers may finalise the earliest bucket within
         // the latency window, thus we push a new count bucket only
         // after startNewBucket has been called.
-        std::ptrdiff_t numberInfluences{this->endInfluencers() - this->beginInfluencers()};
+        std::ptrdiff_t const numberInfluences{this->endInfluencers() -
+                                              this->beginInfluencers()};
         this->startNewBucket(newBucketStart, skipUpdates);
         m_PersonAttributeCounts.push(TSizeSizePrUInt64UMap(1), newBucketStart);
         m_PersonAttributeExplicitNulls.push(TSizeSizePrUSet(1), newBucketStart);
@@ -339,17 +343,17 @@ void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
 }
 
 void CBucketGatherer::sampleNow(core_t::TTime sampleBucketStart) {
-    core_t::TTime timeNow =
+    core_t::TTime const timeNow =
         sampleBucketStart +
-        (m_DataGatherer.params().s_LatencyBuckets + 1) * this->bucketLength() - 1;
+        ((m_DataGatherer.params().s_LatencyBuckets + 1) * this->bucketLength()) - 1;
     this->timeNow(timeNow);
     this->sample(sampleBucketStart);
 }
 
 void CBucketGatherer::skipSampleNow(core_t::TTime sampleBucketStart) {
-    core_t::TTime timeNow =
+    core_t::TTime const timeNow =
         sampleBucketStart +
-        (m_DataGatherer.params().s_LatencyBuckets + 1) * this->bucketLength() - 1;
+        ((m_DataGatherer.params().s_LatencyBuckets + 1) * this->bucketLength()) - 1;
     this->hiddenTimeNow(timeNow, true);
 }
 
@@ -384,7 +388,7 @@ void CBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
 void CBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
     if (lowestPersonToRemove < m_DataGatherer.numberPeople()) {
         TSizeVec peopleToRemove;
-        std::size_t maxPersonId = m_DataGatherer.numberPeople();
+        std::size_t const maxPersonId = m_DataGatherer.numberPeople();
         peopleToRemove.reserve(maxPersonId - lowestPersonToRemove);
         for (std::size_t pid = lowestPersonToRemove; pid < maxPersonId; ++pid) {
             peopleToRemove.push_back(pid);
@@ -497,7 +501,7 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
         return false;
     }
     const TSizeSizePrUInt64UMap& bucketCounts = m_PersonAttributeCounts.get(time);
-    TSizeSizePr pidCid = std::make_pair(pid, cid);
+    TSizeSizePr const pidCid = std::make_pair(pid, cid);
     return bucketExplicitNulls.find(pidCid) != bucketExplicitNulls.end() &&
            bucketCounts.find(pidCid) == bucketCounts.end();
 }
@@ -517,10 +521,10 @@ std::uint64_t CBucketGatherer::checksum() const {
         TStrCRefStrCRefPrUInt64PrVec personAttributeCounts;
         personAttributeCounts.reserve(bucketCounts.size());
         for (const auto& count : bucketCounts) {
-            std::size_t pid = CDataGatherer::extractPersonId(count);
-            std::size_t cid = CDataGatherer::extractAttributeId(count);
-            TStrCRefStrCRefPr key(TStrCRef(m_DataGatherer.personName(pid)),
-                                  TStrCRef(m_DataGatherer.attributeName(cid)));
+            std::size_t const pid = CDataGatherer::extractPersonId(count);
+            std::size_t const cid = CDataGatherer::extractAttributeId(count);
+            TStrCRefStrCRefPr const key(TStrCRef(m_DataGatherer.personName(pid)),
+                                        TStrCRef(m_DataGatherer.attributeName(cid)));
             personAttributeCounts.emplace_back(key, CDataGatherer::extractData(count));
         }
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end(),
@@ -534,10 +538,10 @@ std::uint64_t CBucketGatherer::checksum() const {
         TStrCRefStrCRefPrVec personAttributeExplicitNulls;
         personAttributeExplicitNulls.reserve(bucketExplicitNulls.size());
         for (const auto& nulls : bucketExplicitNulls) {
-            std::size_t pid = CDataGatherer::extractPersonId(nulls);
-            std::size_t cid = CDataGatherer::extractAttributeId(nulls);
-            TStrCRefStrCRefPr key(TStrCRef(m_DataGatherer.personName(pid)),
-                                  TStrCRef(m_DataGatherer.attributeName(cid)));
+            std::size_t const pid = CDataGatherer::extractPersonId(nulls);
+            std::size_t const cid = CDataGatherer::extractAttributeId(nulls);
+            TStrCRefStrCRefPr const key(TStrCRef(m_DataGatherer.personName(pid)),
+                                        TStrCRef(m_DataGatherer.attributeName(cid)));
             personAttributeExplicitNulls.push_back(key);
         }
         std::sort(personAttributeExplicitNulls.begin(),
@@ -586,7 +590,7 @@ bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     }
 
     LOG_TRACE(<< "Resetting bucket starting at " << bucketStart);
-    std::ptrdiff_t numberInfluences{this->endInfluencers() - this->beginInfluencers()};
+    std::ptrdiff_t const numberInfluences{this->endInfluencers() - this->beginInfluencers()};
     m_PersonAttributeCounts.get(bucketStart).clear();
     m_PersonAttributeExplicitNulls.get(bucketStart).clear();
     m_InfluencerCounts.get(bucketStart) = TSizeSizePrOptionalStrPrUInt64UMapVec(numberInfluences);
@@ -600,7 +604,7 @@ void CBucketGatherer::baseAcceptPersistInserter(core::CStatePersistInserter& ins
         std::bind<void>(TSizeSizePrUInt64UMapQueue::CSerializer<detail::SBucketCountsPersister>(),
                         std::cref(m_PersonAttributeCounts), std::placeholders::_1));
     // Clear any empty collections before persist these are resized on restore.
-    TSizeSizePrOptionalStrPrUInt64UMapVecQueue influencerCounts{m_InfluencerCounts};
+    TSizeSizePrOptionalStrPrUInt64UMapVecQueue const influencerCounts{m_InfluencerCounts};
     inserter.insertLevel(
         INFLUENCERS_COUNT_TAG,
         std::bind<void>(TSizeSizePrOptionalStrPrUInt64UMapVecQueue::CSerializer<detail::SInfluencerCountsPersister>(),
