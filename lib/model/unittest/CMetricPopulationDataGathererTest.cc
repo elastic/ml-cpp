@@ -716,7 +716,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                                             gatherer.attributeName(j.first.second);
                     expectedFeatureData.emplace_back(key, j.second);
                     LOG_TRACE(<< "  " << key);
-                    LOG_TRACE(<< "  " << data[j].second.print());
+                    LOG_TRACE(<< "  " << j.second.print());
                 }
             }
         }
@@ -755,7 +755,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                                         gatherer.attributeName(j.first.second);
                 actualFeatureData.emplace_back(key, j.second);
                 LOG_TRACE(<< "  " << key);
-                LOG_TRACE(<< "    " << data[j].second.print());
+                LOG_TRACE(<< "    " << j.second.print());
             }
         }
     }
@@ -836,7 +836,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
                                             gatherer.attributeName(j.first.second);
                     expected.emplace_back(key, j.second);
                     LOG_TRACE(<< "  " << key);
-                    LOG_TRACE(<< "    " << data[j].second.print());
+                    LOG_TRACE(<< "    " << j.second.print());
                 }
             }
         }
@@ -874,7 +874,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
                                         gatherer.attributeName(j.first.second);
                 actual.emplace_back(key, j.second);
                 LOG_TRACE(<< "  " << key);
-                LOG_TRACE(<< "    " << data[j].second.print());
+                LOG_TRACE(<< "    " << j.second.print());
             }
         }
         actualFeatureData = core::CContainerPrinter::print(actual);
