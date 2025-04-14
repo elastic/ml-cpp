@@ -231,7 +231,10 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
     }
 }
 
-bool CBucketGatherer::addEventData(CEventData& data, CResourceMonitor& resourceMonitor) {
+bool CBucketGatherer::isRecordIncomplete(CEventData& data) {
+    return !data.personId() || !data.attributeId() || !data.count();
+}
+bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& resourceMonitor) {
     core_t::TTime time = data.time();
 
     if (time < this->earliestBucketStartTime()) {
@@ -243,7 +246,7 @@ bool CBucketGatherer::addEventData(CEventData& data, CResourceMonitor& resourceM
 
     this->timeNow(time);
 
-    if (!data.personId() || !data.attributeId() || !data.count()) {
+    if (isRecordIncomplete(data)) {
         // The record was incomplete.
         return false;
     }
