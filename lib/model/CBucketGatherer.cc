@@ -234,10 +234,36 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
     }
 }
 
-bool CBucketGatherer::isRecordIncomplete(CEventData& data) {
+bool CBucketGatherer::isRecordIncomplete(const CEventData& data) {
     return !data.personId() || !data.attributeId() || !data.count();
 }
-bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& resourceMonitor) {
+bool CBucketGatherer::hasValidPersonAndAttributeIds(std::size_t const pid,
+                                                    std::size_t const cid) const {
+    // Has the person/attribute been deleted from the gatherer?
+    if (!m_DataGatherer.isPersonActive(pid)) {
+        LOG_DEBUG(<< "Not adding value for deleted person " << pid);
+        return false;
+    }
+    if (m_DataGatherer.isPopulation() && !m_DataGatherer.isAttributeActive(cid)) {
+        LOG_DEBUG(<< "Not adding value for deleted attribute " << cid);
+        return false;
+    }
+    return true;
+}
+bool CBucketGatherer::handleExplicitNull(const CEventData& data,
+                                         core_t::TTime const time,
+                                         CBucketGatherer::TSizeSizePr const pidCid) {
+    // If record is explicit null just note that a null record has been seen
+    // for the given (pid, cid) pair.
+    if (data.isExplicitNull()) {
+        TSizeSizePrUSet& bucketExplicitNulls = m_PersonAttributeExplicitNulls.get(time);
+        bucketExplicitNulls.insert(pidCid);
+        return true;
+    }
+    return false;
+}
+bool CBucketGatherer::addEventData(const CEventData& data,
+                                   const CResourceMonitor& resourceMonitor) {
     core_t::TTime const time = data.time();
 
     if (time < this->earliestBucketStartTime()) {
@@ -250,69 +276,61 @@ bool CBucketGatherer::addEventData(CEventData& data, const CResourceMonitor& res
     this->timeNow(time);
 
     if (isRecordIncomplete(data)) {
-        // The record was incomplete.
         return false;
     }
 
     std::size_t const pid = *data.personId();
     std::size_t const cid = *data.attributeId();
     std::size_t const count = *data.count();
-    if ((pid != CDynamicStringIdRegistry::INVALID_ID) &&
-        (cid != CDynamicStringIdRegistry::INVALID_ID)) {
-        // Has the person/attribute been deleted from the gatherer?
-        if (!m_DataGatherer.isPersonActive(pid)) {
-            LOG_DEBUG(<< "Not adding value for deleted person " << pid);
-            return false;
-        }
-        if (m_DataGatherer.isPopulation() && !m_DataGatherer.isAttributeActive(cid)) {
-            LOG_DEBUG(<< "Not adding value for deleted attribute " << cid);
-            return false;
-        }
 
-        TSizeSizePr const pidCid = std::make_pair(pid, cid);
+    if ((pid == CDynamicStringIdRegistry::INVALID_ID) ||
+        (cid == CDynamicStringIdRegistry::INVALID_ID)) {
+        return true;
+    }
 
-        // If record is explicit null just note that a null record has been seen
-        // for the given (pid, cid) pair.
-        if (data.isExplicitNull()) {
-            TSizeSizePrUSet& bucketExplicitNulls =
-                m_PersonAttributeExplicitNulls.get(time);
-            bucketExplicitNulls.insert(pidCid);
-            return true;
-        }
+    if (hasValidPersonAndAttributeIds(pid, cid) == false) {
+        return false;
+    }
 
-        TSizeSizePrUInt64UMap& bucketCounts = m_PersonAttributeCounts.get(time);
-        if (count > 0) {
-            bucketCounts[pidCid] += count;
-        }
+    TSizeSizePr const pidCid = std::make_pair(pid, cid);
 
-        const CEventData::TOptionalStrVec& influences = data.influences();
-        auto& influencerCounts = m_InfluencerCounts.get(time);
-        if (influences.size() != influencerCounts.size()) {
-            LOG_ERROR(<< "Unexpected influences: " << influences << " expected "
-                      << core::CContainerPrinter::print(this->beginInfluencers(),
-                                                        this->endInfluencers()));
-            return false;
-        }
+    if (handleExplicitNull(data, time, pidCid)) {
+        return true;
+    }
 
-        TOptionalStrVec canonicalInfluences(influencerCounts.size());
-        for (std::size_t i = 0; i < influences.size(); ++i) {
-            const CEventData::TOptionalStr& influence = influences[i];
-            if (influence) {
-                const std::string& inf = *influence;
-                canonicalInfluences[i] = inf;
-                if (count > 0 && resourceMonitor.areAllocationsAllowed()) {
-                    influencerCounts[i]
-                        .emplace(boost::unordered::piecewise_construct,
-                                 boost::make_tuple(pidCid, inf),
-                                 boost::make_tuple(static_cast<std::uint64_t>(0)))
-                        .first->second += count;
-                }
+    TSizeSizePrUInt64UMap& bucketCounts = m_PersonAttributeCounts.get(time);
+    if (count > 0) {
+        bucketCounts[pidCid] += count;
+    }
+
+    const CEventData::TOptionalStrVec& influences = data.influences();
+    auto& influencerCounts = m_InfluencerCounts.get(time);
+    if (influences.size() != influencerCounts.size()) {
+        LOG_ERROR(<< "Unexpected influences: " << influences << " expected "
+                  << core::CContainerPrinter::print(this->beginInfluencers(),
+                                                    this->endInfluencers()));
+        return false;
+    }
+
+    TOptionalStrVec canonicalInfluences(influencerCounts.size());
+    auto updateInfluencer = [&](std::size_t i) {
+        if (const CEventData::TOptionalStr& influence = influences[i]) {
+            const std::string& inf = *influence;
+            canonicalInfluences[i] = inf;
+            if (count > 0 && resourceMonitor.areAllocationsAllowed()) {
+                influencerCounts[i]
+                    .emplace(boost::unordered::piecewise_construct,
+                             boost::make_tuple(pidCid, inf),
+                             boost::make_tuple(static_cast<std::uint64_t>(0)))
+                    .first->second += count;
             }
         }
-
-        this->addValue(pid, cid, time, data.values(), count, data.stringValue(),
-                       canonicalInfluences);
+    };
+    for (std::size_t i = 0; i < influences.size(); ++i) {
+        updateInfluencer(i);
     }
+
+    this->addValue(pid, cid, time, data.values(), count, data.stringValue(), canonicalInfluences);
     return true;
 }
 

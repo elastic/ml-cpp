@@ -172,7 +172,9 @@ public:
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
     CBucketGatherer(bool isForPersistence, const CBucketGatherer& other);
-    bool isRecordIncomplete(CEventData& data);
+    static bool isRecordIncomplete(const CEventData& data);
+    bool hasValidPersonAndAttributeIds(std::size_t pid, std::size_t cid) const;
+    bool handleExplicitNull(const CEventData& data, core_t::TTime time, TSizeSizePr pidCid);
 
     virtual ~CBucketGatherer() = default;
     //@}
@@ -239,7 +241,7 @@ public:
                                CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
-    bool addEventData(CEventData& data, const CResourceMonitor& resourceMonitor);
+    bool addEventData(const CEventData& data, const CResourceMonitor& resourceMonitor);
 
     //! Roll time forwards to \p time.
     void timeNow(core_t::TTime time);
