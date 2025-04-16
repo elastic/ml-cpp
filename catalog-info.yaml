@@ -166,7 +166,7 @@ spec:
       schedules:
         Daily 7_17:
           branch: '7.17'
-          cronline: 30 06 * * *
+          cronline: 30 05 * * *
           message: Daily SNAPSHOT build for 7.17
         Daily 8_17:
           branch: '8.17'
