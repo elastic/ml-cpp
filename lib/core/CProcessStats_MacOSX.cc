@@ -8,8 +8,10 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CLogger.h>
 #include <core/CProcessStats.h>
+
+#include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -21,6 +23,7 @@ namespace core {
 
 std::size_t CProcessStats::residentSetSize() {
     // not supported on osx
+    CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) = 0;
     return 0;
 }
 
@@ -31,9 +34,10 @@ std::size_t CProcessStats::maxResidentSetSize() {
         LOG_DEBUG(<< "failed to get resource usage(getrusage): " << ::strerror(errno));
         return 0;
     }
-
+    auto maxRSS = static_cast<std::size_t>(rusage.ru_maxrss);
+    CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) = maxRSS;
     // ru_maxrss is in bytes
-    return static_cast<std::size_t>(rusage.ru_maxrss);
+    return maxRSS;
 }
 }
 }

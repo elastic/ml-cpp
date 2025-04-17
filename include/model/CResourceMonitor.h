@@ -54,6 +54,8 @@ public:
         std::size_t s_AdjustedUsage{0};
         std::size_t s_PeakUsage{0};
         std::size_t s_AdjustedPeakUsage{0};
+        std::size_t s_SystemMemoryUsage{0};
+        std::size_t s_MaxSystemMemoryUsage{0};
         std::size_t s_ByFields{0};
         std::size_t s_PartitionFields{0};
         std::size_t s_OverFields{0};
@@ -179,6 +181,12 @@ public:
 
     //! Returns the sum of used memory plus any extra memory
     std::size_t totalMemory() const;
+
+    //! Returns the current physical memory of the process (rss) as reported by the system
+    std::size_t systemMemory() const;
+
+    //! Returns the maximum physical memory of the process (max rss) as reported by the system
+    std::size_t maxSystemMemory() const;
 
 private:
     using TMonitoredResourcePtrSizeUMap =

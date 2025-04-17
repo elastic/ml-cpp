@@ -9,6 +9,7 @@
  * limitation.
  */
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CProcessStats.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CIntegerTools.h>
@@ -92,6 +93,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     std::size_t nonLimitedUsage{0};
     std::size_t limitedUsage{0};
 
+    std::size_t nonLimitedMaxSystemUsage{0};
+    std::size_t limitedMaxSystemUsage{0};
     {
         // Without limits, this data set should make the models around
         // 1230000 bytes
@@ -105,8 +108,6 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         model::CLimits limits;
-        //limits.resourceMonitor().m_ByteLimitHigh = 100000;
-        //limits.resourceMonitor().m_ByteLimitLow = 90000;
 
         {
             LOG_TRACE(<< "Setting up job");
@@ -127,8 +128,12 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
 
             nonLimitedUsage = limits.resourceMonitor().totalMemory();
+            nonLimitedMaxSystemUsage = limits.resourceMonitor().maxSystemMemory();
         }
     }
+    LOG_DEBUG(<< "nonLimitedUsage: " << nonLimitedUsage);
+    LOG_DEBUG(<< "nonLimitedMaxSystemUsage: " << nonLimitedMaxSystemUsage);
+    BOOST_TEST_REQUIRE(nonLimitedMaxSystemUsage >= nonLimitedUsage);
     {
         // Now run the data with limiting
         ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
@@ -166,11 +171,15 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             // TODO this limit must be tightened once there is more granular
             // control over the model memory creation
             limitedUsage = limits.resourceMonitor().totalMemory();
+            limitedMaxSystemUsage = limits.resourceMonitor().maxSystemMemory();
         }
         LOG_TRACE(<< outputStrm.str());
 
         LOG_DEBUG(<< "Non-limited usage: " << nonLimitedUsage << "; limited: " << limitedUsage);
+        LOG_DEBUG(<< "Non-limited System Usage: " << nonLimitedMaxSystemUsage);
+        LOG_DEBUG(<< "Limited System Usage: " << limitedMaxSystemUsage);
         BOOST_TEST_REQUIRE(limitedUsage < nonLimitedUsage);
+        BOOST_TEST_REQUIRE(limitedMaxSystemUsage >= limitedUsage);
     }
 }
 
@@ -375,6 +384,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
+            LOG_DEBUG(<< "System memory usage bytes = " << used.s_SystemMemoryUsage);
+            LOG_DEBUG(<< "Max system memory usage bytes = " << used.s_MaxSystemMemoryUsage);
             LOG_DEBUG(<< "Memory limit bytes = "
                       << memoryLimit * core::constants::BYTES_IN_MEGABYTES);
             BOOST_TEST_REQUIRE(used.s_ByFields > testParam.s_ExpectedByFields);
@@ -384,6 +395,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES /
                     testParam.s_ExpectedByMemoryUsageRelativeErrorDivisor);
+            BOOST_TEST_REQUIRE(used.s_Usage <= used.s_MaxSystemMemoryUsage);
         }
 
         LOG_DEBUG(<< "**** Test partition with bucketLength = " << testParam.s_BucketLength
@@ -428,6 +440,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            LOG_DEBUG(<< "System memory usage = " << used.s_SystemMemoryUsage);
+            LOG_DEBUG(<< "Max system memory usage = " << used.s_MaxSystemMemoryUsage);
             LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_PartitionFields >= testParam.s_ExpectedPartitionFields);
             BOOST_TEST_REQUIRE(used.s_PartitionFields < 450);
@@ -437,6 +451,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES /
                     testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);
+            BOOST_TEST_REQUIRE(used.s_Usage <= used.s_MaxSystemMemoryUsage);
         }
 
         LOG_DEBUG(<< "**** Test over with bucketLength = " << testParam.s_BucketLength
@@ -479,6 +494,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            LOG_DEBUG(<< "System memory usage = " << used.s_SystemMemoryUsage);
+            LOG_DEBUG(<< "Max system memory usage = " << used.s_MaxSystemMemoryUsage);
             LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_OverFields > testParam.s_ExpectedOverFields);
             BOOST_TEST_REQUIRE(used.s_OverFields <= 9000);
@@ -486,6 +503,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES /
                     testParam.s_ExpectedOverUsageRelativeErrorDivisor);
+            BOOST_TEST_REQUIRE(used.s_Usage <= used.s_MaxSystemMemoryUsage);
         }
     }
 }

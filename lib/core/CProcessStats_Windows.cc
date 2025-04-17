@@ -8,8 +8,10 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CLogger.h>
 #include <core/CProcessStats.h>
+
+#include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CWindowsError.h>
 
 #include <core/WindowsSafe.h>
@@ -27,7 +29,11 @@ std::size_t CProcessStats::residentSetSize() {
         return 0;
     }
 
-    return static_cast<std::size_t>(stats.WorkingSetSize);
+    auto workingSetSize = static_cast<std::size_t>(stats.WorkingSetSize);
+
+    CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) = workingSetSize;
+
+    return workingSetSize;
 }
 
 std::size_t CProcessStats::maxResidentSetSize() {
@@ -36,7 +42,12 @@ std::size_t CProcessStats::maxResidentSetSize() {
         LOG_DEBUG(<< "Failed to retrieve memory info " << CWindowsError());
         return 0;
     }
-    return static_cast<std::size_t>(stats.PeakWorkingSetSize);
+
+    auto peakWorkingSetSize = static_cast<std::size_t>(stats.PeakWorkingSetSize);
+
+    CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) = peakWorkingSetSize;
+
+    return peakWorkingSetSize;
 }
 }
 }
