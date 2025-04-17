@@ -304,7 +304,7 @@ bool CDataGatherer::addArrival(const TStrCPtrVec& fieldValues,
         return false;
     }
 
-    return m_BucketGatherer->addEventData(data);
+    return m_BucketGatherer->addEventData(data, resourceMonitor);
 }
 
 void CDataGatherer::sampleNow(core_t::TTime sampleBucketStart) {
