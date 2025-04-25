@@ -166,13 +166,13 @@ const struct sock_filter PYTORCH_FILTER[] = {
     // kernels for recent architectures, but in a few cases different sys calls
     // are used on different architectures
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 48, 0),
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 55, 0),
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 55, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 47, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 46, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 45, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 44, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 43, 0),
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 49, 0),
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 49, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 42, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 41, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 40, 0), // for forecast temp storage
@@ -202,13 +202,13 @@ const struct sock_filter PYTORCH_FILTER[] = {
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 34, 0), // for unique_path
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 33, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 32, 0),
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 37, 0),
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 37, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 31, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpriority, 30, 0), // for nice
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setpriority, 29, 0), // for nice
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 33, 0),
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 32, 0),
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 31, 0),
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 33, 0),
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 32, 0),
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 31, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 28, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 27, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 26, 0),
@@ -220,8 +220,8 @@ const struct sock_filter PYTORCH_FILTER[] = {
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 20, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdirat, 19, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlinkat, 18, 0), // for forecast temp storage
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 19, 0), // for forecast temp storage
-//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 18, 0), // for forecast temp storage
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 19, 0), // for forecast temp storage
+    //    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 18, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_tgkill, 17, 0), // for the crash handler
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigaction, 16, 0), // for the crash handler
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 15, 0),
@@ -307,7 +307,5 @@ void CSystemCallFilter::installSystemCallFilter() {
 void CSystemCallFilter::installSystemCallFilterForPyTorch() {
     installSystemCallFilterSpecific(PYTORCH_FILTER);
 }
-
-
 }
 }
