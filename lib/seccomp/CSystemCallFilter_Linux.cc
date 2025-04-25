@@ -275,8 +275,11 @@ void installSystemCallFilterSpecific(const sock_filter* filter) {
             return;
         }
 
+        const unsigned short filter_len = (filter == FILTER) ? 
+            static_cast<unsigned short>(sizeof(FILTER) / sizeof(FILTER[0])) :
+            static_cast<unsigned short>(sizeof(PYTORCH_FILTER) / sizeof(PYTORCH_FILTER[0]));
         struct sock_fprog prog = {
-            .len = static_cast<unsigned short>(sizeof(filter) / sizeof(filter[0])),
+            .len = filter_len,
             .filter = const_cast<sock_filter*>(filter)};
 
         // Install the filter.
