@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
-    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+    ml::seccomp::CSystemCallFilter::installSystemCallFilterForPyTorch();
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
