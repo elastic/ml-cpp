@@ -27,10 +27,6 @@ struct SCheckedHandle {
 };
 }
 
-void CSystemCallFilter::installSystemCallFilterForPyTorch() {
-    installSystemCallFilter();
-}
-
 void CSystemCallFilter::installSystemCallFilter() {
     HANDLE job = CreateJobObject(nullptr, nullptr);
     if (job == nullptr) {

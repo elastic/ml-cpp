@@ -41,7 +41,6 @@ namespace seccomp {
 class CSystemCallFilter : private core::CNonInstantiatable {
 public:
     static void installSystemCallFilter();
-    static void installSystemCallFilterForPyTorch();
 };
 }
 }

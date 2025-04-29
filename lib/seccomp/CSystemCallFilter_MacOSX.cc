@@ -110,8 +110,5 @@ void CSystemCallFilter::installSystemCallFilter() {
     std::remove(profileFilename.c_str());
 }
 
-void CSystemCallFilter::installSystemCallFilterForPyTorch() {
-    installSystemCallFilter();
-}
 }
 }
