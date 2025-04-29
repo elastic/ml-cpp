@@ -109,6 +109,5 @@ void CSystemCallFilter::installSystemCallFilter() {
 
     std::remove(profileFilename.c_str());
 }
-
 }
 }
