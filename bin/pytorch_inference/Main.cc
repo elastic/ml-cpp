@@ -43,9 +43,7 @@
 
 // Add more forbidden ops here if needed
 static const std::unordered_set<std::string> FORBIDDEN_OPERATIONS = {
-    "aten::from_file",
-    "aten::save"
-};
+    "aten::from_file", "aten::save"};
 
 void verifySafeModel(const torch::jit::script::Module& module) {
     try {
@@ -59,7 +57,8 @@ void verifySafeModel(const torch::jit::script::Module& module) {
     for (const auto& node : graph->nodes()) {
         const std::string opName = node->kind().toQualString();
         if (FORBIDDEN_OPERATIONS.find(opName) != FORBIDDEN_OPERATIONS.end()) {
-            HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: " << opName);
+            HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: "
+                         << opName);
         }
     }
 
