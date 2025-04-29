@@ -43,7 +43,8 @@
 
 namespace {
 // Add more forbidden ops here if needed
-const std::unordered_set<std::string> FORBIDDEN_OPERATIONS = {"aten::from_file", "aten::save"};
+const std::unordered_set<std::string_view> FORBIDDEN_OPERATIONS = {
+    "aten::from_file", "aten::save"};
 
 void verifySafeModel(const torch::jit::script::Module& module_) {
     try {
