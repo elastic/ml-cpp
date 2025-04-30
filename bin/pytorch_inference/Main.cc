@@ -43,14 +43,15 @@
 
 namespace {
 // Add more forbidden ops here if needed
-const std::unordered_set<std::string_view> FORBIDDEN_OPERATIONS = {"aten::from_file", "aten::save"};
+const std::unordered_set<std::string> FORBIDDEN_OPERATIONS = {"aten::from_file", "aten::save"};
 
 void verifySafeModel(const torch::jit::script::Module& module_) {
     try {
         const auto method = module_.get_method("forward");
-        for (const auto graph = method.graph(); const auto& node : graph->nodes()) {
-            if (const std::string opName = node->kind().toQualString();
-                FORBIDDEN_OPERATIONS.contains(opName)) {
+        const auto graph = method.graph();
+        for (const auto& node : graph->nodes()) {
+            const std::string opName = node->kind().toQualString();
+            if (FORBIDDEN_OPERATIONS.find(opName) != FORBIDDEN_OPERATIONS.end()) {
                 HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: "
                              << opName);
             }
