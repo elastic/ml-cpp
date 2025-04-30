@@ -1,0 +1,9 @@
+{
+  "upstream" : "elastic/ml-cpp",
+  "targetBranchChoices" : [ "main", "9.0", "8.19", "8.18", "8.17", "7.17" ],
+  "targetPRLabels" : [ "backport" ],
+  "branchLabelMapping" : {
+    "^v8.17.0$" : "main",
+    "^v(\\d+).(\\d+).\\d+(?:-(?:alpha|beta|rc)\\d+)?$" : "$1.$2"
+  }
+}
