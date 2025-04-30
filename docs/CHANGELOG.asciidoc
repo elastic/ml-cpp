@@ -55,6 +55,11 @@
 * Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2798], {ml-pull}2799[#2799].)
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
 
+== {es} version 8.17.7
+
+=== Enhancements
+* Restrict file system access for PyTorch models (See {ml-pull}2851[#2851].)
+
 == {es} version 8.16.6
 
 === Bug Fixes
