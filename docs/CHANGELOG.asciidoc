@@ -28,33 +28,6 @@
 
 //=== Regressions
 
-== {es} version 9.1.0
-
-=== Enhancements
-
-* Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
-
-=== Bug Fixes
-
-== {es} version 9.0.0
-
-=== Enhancements
-
-* Update Linux build images to Rocky Linux 8 with gcc 13.3. (See {ml-pull}2773[#2773].)
-
-== {es} version 8.19.0
-
-=== Enhancements
-
-* Better messaging regarding OOM process termination. (See {ml-pull}2841[#2841].)
-
-== {es} version 8.18.0
-
-=== Enhancements
-
-* Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2798], {ml-pull}2799[#2799].)
-* Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
-
 == {es} version 8.17.7
 
 === Enhancements
