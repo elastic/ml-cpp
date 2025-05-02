@@ -41,6 +41,29 @@
 #include <optional>
 #include <string>
 
+namespace {
+// Add more forbidden ops here if needed
+const std::unordered_set<std::string> FORBIDDEN_OPERATIONS = {"aten::from_file", "aten::save"};
+
+void verifySafeModel(const torch::jit::script::Module& module_) {
+    try {
+        const auto method = module_.get_method("forward");
+        const auto graph = method.graph();
+        for (const auto& node : graph->nodes()) {
+            const std::string opName = node->kind().toQualString();
+            if (FORBIDDEN_OPERATIONS.find(opName) != FORBIDDEN_OPERATIONS.end()) {
+                HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: "
+                             << opName);
+            }
+        }
+    } catch (const c10::Error& e) {
+        LOG_FATAL(<< "Failed to get forward method: " << e.what());
+    }
+
+    LOG_DEBUG(<< "Model verified: no forbidden operations detected.");
+}
+}
+
 torch::Tensor infer(torch::jit::script::Module& module_,
                     ml::torch::CCommandParser::SRequest& request) {
 
@@ -280,6 +303,7 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         module_ = torch::jit::load(std::move(readAdapter));
+        verifySafeModel(module_);
         module_.eval();
 
         LOG_DEBUG(<< "model loaded");

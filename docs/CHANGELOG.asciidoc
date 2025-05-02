@@ -49,6 +49,11 @@
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
 * Drop support for macOS Intel builds. (See {ml-pull}2795[#2795].)
 
+== {es} version 8.17.7
+
+=== Enhancements
+* Restrict file system access for PyTorch models (See {ml-pull}2851[#2851].)
+
 == {es} version 8.16.6
 
 === Bug Fixes
