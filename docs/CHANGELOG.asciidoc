@@ -28,6 +28,11 @@
 
 //=== Regressions
 
+== {es} version 8.17.7
+
+=== Enhancements
+* Restrict file system access for PyTorch models (See {ml-pull}2851[#2851].)
+
 == {es} version 8.16.6
 
 === Bug Fixes
