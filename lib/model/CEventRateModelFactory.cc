@@ -90,24 +90,29 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }
 
-CDataGatherer*
+CModelFactory::TDataGathererPtr
 CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
-    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
-                             this->modelParams(), m_SummaryCountFieldName,
-                             initData.s_PartitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING /*AttributeFieldName*/, m_ValueFieldName,
-                             m_InfluenceFieldNames, this->searchKey(), m_Features,
-                             initData.s_StartTime, initData.s_SampleOverrideCount);
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        m_SummaryCountFieldName,
+        m_PersonFieldName,
+        EMPTY_STRING,
+        m_ValueFieldName,
+        m_InfluenceFieldNames,
+        initData.s_StartTime,
+        initData.s_SampleOverrideCount};
+    return std::make_shared<CDataGatherer>(
+        model_t::E_EventRate, m_SummaryMode, this->modelParams(), initData.s_PartitionFieldValue,
+        this->searchKey(), m_Features, bucketGathererInitData);
 }
 
-CDataGatherer*
+CModelFactory::TDataGathererPtr
 CEventRateModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                          core::CStateRestoreTraverser& traverser) const {
-    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
-                             this->modelParams(), m_SummaryCountFieldName,
-                             partitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING /*AttributeFieldName*/, m_ValueFieldName,
-                             m_InfluenceFieldNames, this->searchKey(), traverser);
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        m_SummaryCountFieldName, m_PersonFieldName, EMPTY_STRING, m_ValueFieldName, m_InfluenceFieldNames, 0, 0};
+    return std::make_shared<CDataGatherer>(
+        model_t::E_EventRate, m_SummaryMode, this->modelParams(),
+        partitionFieldValue, this->searchKey(), bucketGathererInitData, traverser);
 }
 
 CEventRateModelFactory::TPriorPtr
