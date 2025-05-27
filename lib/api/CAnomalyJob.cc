@@ -205,8 +205,10 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
     }
 
     ++core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled);
-    core::CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) = model::CResourceMonitor::systemMemory();
-    core::CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) = model::CResourceMonitor::maxSystemMemory();
+    core::CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) =
+        model::CResourceMonitor::systemMemory();
+    core::CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) =
+        model::CResourceMonitor::maxSystemMemory();
 
     ++m_NumRecordsHandled;
     m_LatestRecordTime = std::max(m_LatestRecordTime, *time);

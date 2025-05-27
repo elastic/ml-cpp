@@ -35,7 +35,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
     }
 
     // ru_maxrss is in bytes
-    return static_cast<std::size_t>(rusage.ru_maxrss);;
+    return static_cast<std::size_t>(rusage.ru_maxrss);
 }
 }
 }
