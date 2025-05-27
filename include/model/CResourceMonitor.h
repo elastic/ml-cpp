@@ -183,10 +183,10 @@ public:
     std::size_t totalMemory() const;
 
     //! Returns the current physical memory of the process (rss) as reported by the system
-    std::size_t systemMemory() const;
+    static std::size_t systemMemory() ;
 
     //! Returns the maximum physical memory of the process (max rss) as reported by the system
-    std::size_t maxSystemMemory() const;
+    static std::size_t maxSystemMemory();
 
 private:
     using TMonitoredResourcePtrSizeUMap =

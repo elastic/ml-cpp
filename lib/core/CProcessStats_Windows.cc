@@ -29,11 +29,7 @@ std::size_t CProcessStats::residentSetSize() {
         return 0;
     }
 
-    auto workingSetSize = static_cast<std::size_t>(stats.WorkingSetSize);
-
-    CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) = workingSetSize;
-
-    return workingSetSize;
+    return static_cast<std::size_t>(stats.WorkingSetSize);
 }
 
 std::size_t CProcessStats::maxResidentSetSize() {
@@ -43,11 +39,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
         return 0;
     }
 
-    auto peakWorkingSetSize = static_cast<std::size_t>(stats.PeakWorkingSetSize);
-
-    CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) = peakWorkingSetSize;
-
-    return peakWorkingSetSize;
+    return static_cast<std::size_t>(stats.PeakWorkingSetSize);
 }
 }
 }

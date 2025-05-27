@@ -494,11 +494,11 @@ std::size_t CResourceMonitor::totalMemory() const {
                counter_t::E_TSADOutputMemoryAllocatorUsage));
 }
 
-std::size_t CResourceMonitor::systemMemory() const {
+std::size_t CResourceMonitor::systemMemory() {
     return core::CProcessStats::residentSetSize();
 }
 
-std::size_t CResourceMonitor::maxSystemMemory() const {
+std::size_t CResourceMonitor::maxSystemMemory() {
     return core::CProcessStats::maxResidentSetSize();
 }
 } // model

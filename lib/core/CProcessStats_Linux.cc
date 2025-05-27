@@ -76,8 +76,6 @@ std::size_t CProcessStats::residentSetSize() {
         }
     }
 
-    CProgramCounters::counter(counter_t::E_TSADSystemMemoryUsage) = rss;
-
     return rss;
 }
 
@@ -90,11 +88,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
     }
 
     // ru_maxrss is in kilobytes
-    auto maxRSS = static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
-
-    CProgramCounters::counter(counter_t::E_TSADMaxSystemMemoryUsage) = maxRSS;
-
-    return maxRSS;
+    return static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
 }
 }
 }
