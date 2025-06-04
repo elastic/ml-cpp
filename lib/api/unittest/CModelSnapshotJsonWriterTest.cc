@@ -118,10 +118,6 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(modelSizeStats.contains("peak_model_bytes"));
     BOOST_REQUIRE_EQUAL(
         60000, modelSizeStats.at("peak_model_bytes").to_number<std::int64_t>());
-    BOOST_REQUIRE_EQUAL(
-        409600, modelSizeStats.at("system_memory_bytes").to_number<std::int64_t>());
-    BOOST_REQUIRE_EQUAL(
-        413696, modelSizeStats.at("max_system_memory_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("total_by_field_count"));
     BOOST_REQUIRE_EQUAL(
         3, modelSizeStats.at("total_by_field_count").to_number<std::int64_t>());

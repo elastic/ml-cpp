@@ -21,6 +21,7 @@
 #include <maths/common/CTools.h>
 
 #include <model/CMonitoredResource.h>
+#include <model/CSystemMemoryUsage.h>
 
 #include <algorithm>
 #include <cmath>
@@ -378,11 +379,12 @@ void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime,
 CResourceMonitor::SModelSizeStats
 CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
+    CSystemMemoryUsage systemMemoryUsage;
     res.s_Usage = this->totalMemory();
-    res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
+    res.s_AdjustedUsage = systemMemoryUsage(this->adjustedUsage(res.s_Usage));
     res.s_PeakUsage = static_cast<std::size_t>(
         core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
-    res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
+    res.s_AdjustedPeakUsage = systemMemoryUsage(this->adjustedUsage(res.s_PeakUsage));
     res.s_SystemMemoryUsage = core::CProcessStats::residentSetSize();
     res.s_MaxSystemMemoryUsage = core::CProcessStats::maxResidentSetSize();
     res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;

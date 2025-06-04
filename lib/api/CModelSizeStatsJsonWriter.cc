@@ -62,12 +62,6 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
     writer.onKey(PEAK_MODEL_BYTES);
     writer.onUint64(results.s_AdjustedPeakUsage);
 
-    writer.onKey(SYSTEM_MEMORY_BYTES);
-    writer.onUint64(results.s_SystemMemoryUsage);
-
-    writer.onKey(MAX_SYSTEM_MEMORY_BYTES);
-    writer.onUint64(results.s_MaxSystemMemoryUsage);
-
     writer.onKey(MODEL_BYTES_EXCEEDED);
     writer.onUint64(results.s_BytesExceeded);
 
