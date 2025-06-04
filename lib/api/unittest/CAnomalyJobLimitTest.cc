@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
 
             nonLimitedUsage = limits.resourceMonitor().totalMemory();
-            nonLimitedMaxSystemUsage = limits.resourceMonitor().maxSystemMemory();
+            nonLimitedMaxSystemUsage = model::CResourceMonitor::maxSystemMemory();
         }
     }
     LOG_DEBUG(<< "nonLimitedUsage: " << nonLimitedUsage);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             // TODO this limit must be tightened once there is more granular
             // control over the model memory creation
             limitedUsage = limits.resourceMonitor().totalMemory();
-            limitedMaxSystemUsage = limits.resourceMonitor().maxSystemMemory();
+            limitedMaxSystemUsage = model::CResourceMonitor::maxSystemMemory();
         }
         LOG_TRACE(<< outputStrm.str());
 
