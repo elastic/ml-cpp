@@ -405,22 +405,23 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
 }
 
 std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
-    const std::size_t persistenceMemoryIncreaseFactor = this->persistenceMemoryIncreaseFactor();
+    const std::size_t persistenceMemoryIncreaseFactor =
+        this->persistenceMemoryIncreaseFactor();
 
-    return CSystemMemoryUsage::maybeAdjustUsage(
-        usage, [&byteLimitMargin=m_ByteLimitMargin, &persistenceMemoryIncreaseFactor](std::size_t usage_) {
-            // On platforms that estimate the memory usage, it is scaled by the inverse of the byte limit margin.
-            // This gives the user a fairer indication of how close the job is to hitting
-            // the model memory limit in a concise manner (as the limit is scaled down by
-            // the margin during the beginning period of the job's existence).
-            std::size_t adjustedUsage{
-                static_cast<std::size_t>(static_cast<double>(usage_) / byteLimitMargin)
-            };
+    return CSystemMemoryUsage::maybeAdjustUsage(usage, [
+        &byteLimitMargin = m_ByteLimitMargin, &persistenceMemoryIncreaseFactor
+    ](std::size_t usage_) {
+        // On platforms that estimate the memory usage, it is scaled by the inverse of the byte limit margin.
+        // This gives the user a fairer indication of how close the job is to hitting
+        // the model memory limit in a concise manner (as the limit is scaled down by
+        // the margin during the beginning period of the job's existence).
+        std::size_t adjustedUsage{
+            static_cast<std::size_t>(static_cast<double>(usage_) / byteLimitMargin)};
 
-            adjustedUsage *= persistenceMemoryIncreaseFactor;
+        adjustedUsage *= persistenceMemoryIncreaseFactor;
 
-            return adjustedUsage;
-        });
+        return adjustedUsage;
+    });
 }
 
 std::size_t CResourceMonitor::persistenceMemoryIncreaseFactor() const {
@@ -498,8 +499,8 @@ std::size_t CResourceMonitor::lowLimit() const {
 std::size_t CResourceMonitor::totalMemory() const {
     CSystemMemoryUsage systemMemoryUsage;
     return systemMemoryUsage(m_MonitoredResourceCurrentMemory + m_ExtraMemory +
-           static_cast<size_t>(core::CProgramCounters::counter(
-               counter_t::E_TSADOutputMemoryAllocatorUsage)));
+                             static_cast<size_t>(core::CProgramCounters::counter(
+                                 counter_t::E_TSADOutputMemoryAllocatorUsage)));
 }
 
 std::size_t CResourceMonitor::systemMemory() {

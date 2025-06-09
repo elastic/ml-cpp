@@ -26,6 +26,7 @@ namespace model {
 class MODEL_EXPORT CSystemMemoryUsage {
 public:
     using TMemoryAdjuster = std::function<std::size_t(std::size_t)>;
+
 public:
     CSystemMemoryUsage() = default;
     ~CSystemMemoryUsage() = default;

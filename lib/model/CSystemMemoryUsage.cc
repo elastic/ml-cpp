@@ -19,7 +19,8 @@ std::size_t CSystemMemoryUsage::operator()(std::size_t memSize) const {
 }
 
 // On platforms other than Linux the system memory is estimated. It must be adjusted before being reported
-std::size_t CSystemMemoryUsage::maybeAdjustUsage(std::size_t usage, const TMemoryAdjuster& memAdjuster) {
+std::size_t CSystemMemoryUsage::maybeAdjustUsage(std::size_t usage,
+                                                 const TMemoryAdjuster& memAdjuster) {
     return memAdjuster(usage);
 }
 }
