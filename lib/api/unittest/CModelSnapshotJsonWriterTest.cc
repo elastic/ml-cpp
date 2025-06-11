@@ -36,8 +36,6 @@ BOOST_AUTO_TEST_CASE(testWrite) {
             20000,                             // bytes used (adjusted)
             30000,                             // peak bytes used
             60000,                             // peak bytes used (adjusted)
-            409600,                            // System memory used (rss)
-            413696,                            // Max system memory used (max rss)
             3,                                 // # by fields
             1,                                 // # partition fields
             150,                               // # over fields

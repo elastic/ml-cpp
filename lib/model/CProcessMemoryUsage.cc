@@ -9,19 +9,13 @@
  * limitation.
  */
 
-#include <model/CSystemMemoryUsage.h>
+#include <model/CProcessMemoryUsage.h>
 
 namespace ml {
 namespace model {
-// On platforms other than Linux the system memory usage is that provided - the estimated size of the models.
-std::size_t CSystemMemoryUsage::operator()(std::size_t memSize) const {
-    return memSize;
-}
-
-// On platforms other than Linux the system memory is estimated. It must be adjusted before being reported
-std::size_t CSystemMemoryUsage::maybeAdjustUsage(std::size_t usage,
-                                                 const TMemoryAdjuster& memAdjuster) {
-    return memAdjuster(usage);
+// On platforms other than Linux the process memory usage is the estimated size of the models.
+CProcessMemoryUsage::EMemoryStrategy CProcessMemoryUsage::memoryStrategy() {
+    return EMemoryStrategy::E_Estimated;
 }
 }
 }

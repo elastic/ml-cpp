@@ -21,7 +21,7 @@
 #include <maths/common/CTools.h>
 
 #include <model/CMonitoredResource.h>
-#include <model/CSystemMemoryUsage.h>
+#include <model/CProcessMemoryUsage.h>
 
 #include <algorithm>
 #include <cmath>
@@ -380,13 +380,11 @@ CResourceMonitor::SModelSizeStats
 CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
     res.s_Usage = this->totalMemory();
-    res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
+    res.s_AdjustedUsage = this->applyMemoryStrategy(res.s_Usage);
     res.s_PeakUsage = static_cast<std::size_t>(
         core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
-    res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
-    res.s_SystemMemoryUsage = core::CProcessStats::residentSetSize();
-    res.s_MaxSystemMemoryUsage = core::CProcessStats::maxResidentSetSize();
-    res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
+    res.s_AdjustedPeakUsage = this->applyMemoryStrategy(res.s_PeakUsage);
+    res.s_BytesMemoryLimit = this->getBytesMemoryLimit();
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
     std::uint64_t assignmentMemoryBasis{
@@ -404,24 +402,33 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     return res;
 }
 
+std::size_t CResourceMonitor::applyMemoryStrategy(std::size_t usage) const {
+    std::size_t modifiedUsage{0};
+    switch (CProcessMemoryUsage::memoryStrategy()) {
+    case CProcessMemoryUsage::EMemoryStrategy::E_Estimated: {
+        modifiedUsage = this->adjustedUsage(usage);
+        break;
+    }
+    case CProcessMemoryUsage::EMemoryStrategy::E_System: {
+        modifiedUsage = core::CProcessStats::maxResidentSetSize();
+        break;
+    }
+    default: { LOG_WARN(<< "Unknown memory strategy"); }
+    }
+    return modifiedUsage;
+}
+
 std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
-    const std::size_t persistenceMemoryIncreaseFactor =
-        this->persistenceMemoryIncreaseFactor();
+    // We scale the reported memory usage by the inverse of the byte limit margin.
+    // This gives the user a fairer indication of how close the job is to hitting
+    // the model memory limit in a concise manner (as the limit is scaled down by
+    // the margin during the beginning period of the job's existence).
+    std::size_t adjustedUsage{
+        static_cast<std::size_t>(static_cast<double>(usage) / m_ByteLimitMargin)};
 
-    return CSystemMemoryUsage::maybeAdjustUsage(usage, [
-        &byteLimitMargin = m_ByteLimitMargin, &persistenceMemoryIncreaseFactor
-    ](std::size_t usage_) {
-        // On platforms that estimate the memory usage, it is scaled by the inverse of the byte limit margin.
-        // This gives the user a fairer indication of how close the job is to hitting
-        // the model memory limit in a concise manner (as the limit is scaled down by
-        // the margin during the beginning period of the job's existence).
-        std::size_t adjustedUsage{
-            static_cast<std::size_t>(static_cast<double>(usage_) / byteLimitMargin)};
+    adjustedUsage *= this->persistenceMemoryIncreaseFactor();
 
-        adjustedUsage *= persistenceMemoryIncreaseFactor;
-
-        return adjustedUsage;
-    });
+    return adjustedUsage;
 }
 
 std::size_t CResourceMonitor::persistenceMemoryIncreaseFactor() const {
@@ -497,10 +504,9 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    CSystemMemoryUsage systemMemoryUsage;
-    return systemMemoryUsage(m_MonitoredResourceCurrentMemory + m_ExtraMemory +
-                             static_cast<size_t>(core::CProgramCounters::counter(
-                                 counter_t::E_TSADOutputMemoryAllocatorUsage)));
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
+           static_cast<size_t>(core::CProgramCounters::counter(
+               counter_t::E_TSADOutputMemoryAllocatorUsage));
 }
 
 std::size_t CResourceMonitor::systemMemory() {

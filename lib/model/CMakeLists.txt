@@ -75,7 +75,7 @@ ml_add_library(MlModel SHARED
   CSampleCounts.cc
   CSearchKey.cc
   CSimpleCountDetector.cc
-  CSystemMemoryUsage.cc
+  CProcessMemoryUsage.cc
   CTokenListCategory.cc
   CTokenListDataCategorizerBase.cc
   CTokenListReverseSearchCreator.cc

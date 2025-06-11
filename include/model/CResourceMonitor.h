@@ -54,8 +54,6 @@ public:
         std::size_t s_AdjustedUsage{0};
         std::size_t s_PeakUsage{0};
         std::size_t s_AdjustedPeakUsage{0};
-        std::size_t s_SystemMemoryUsage{0};
-        std::size_t s_MaxSystemMemoryUsage{0};
         std::size_t s_ByFields{0};
         std::size_t s_PartitionFields{0};
         std::size_t s_OverFields{0};
@@ -236,6 +234,9 @@ private:
 
     //! Returns the amount by which reported memory usage is scaled depending on the type of persistence in use
     std::size_t persistenceMemoryIncreaseFactor() const;
+
+    //! Modify the supplied usage value depending on a platform dependent strategy.
+    std::size_t applyMemoryStrategy(std::size_t usage) const;
 
 private:
     //! The registered collection of components

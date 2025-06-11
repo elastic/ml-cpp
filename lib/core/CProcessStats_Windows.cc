@@ -11,7 +11,6 @@
 #include <core/CProcessStats.h>
 
 #include <core/CLogger.h>
-#include <core/CProgramCounters.h>
 #include <core/CWindowsError.h>
 
 #include <core/WindowsSafe.h>
