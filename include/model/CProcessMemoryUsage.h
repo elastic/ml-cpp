@@ -29,18 +29,10 @@ class MODEL_EXPORT CProcessMemoryUsage {
 public:
     enum class EMemoryStrategy { E_Estimated, E_System };
 
+    static const EMemoryStrategy MEMORY_STRATEGY;
+
 public:
-    CProcessMemoryUsage() = default;
-    ~CProcessMemoryUsage() = default;
-
-    CProcessMemoryUsage(const CProcessMemoryUsage&) = delete;
-    CProcessMemoryUsage(CProcessMemoryUsage&&) = delete;
-    CProcessMemoryUsage& operator=(const CProcessMemoryUsage&) = delete;
-    CProcessMemoryUsage& operator=(CProcessMemoryUsage&&) = delete;
-
-    //! Return the strategy used to calculate the memory used by the current process.
-    //! \return Strategy used to calculate the process memory based on the current OS.
-    static EMemoryStrategy memoryStrategy();
+    CProcessMemoryUsage() = delete;
 };
 }
 }

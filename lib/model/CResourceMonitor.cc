@@ -404,7 +404,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
 
 std::size_t CResourceMonitor::applyMemoryStrategy(std::size_t usage) const {
     std::size_t modifiedUsage{0};
-    switch (CProcessMemoryUsage::memoryStrategy()) {
+    switch (CProcessMemoryUsage::MEMORY_STRATEGY) {
     case CProcessMemoryUsage::EMemoryStrategy::E_Estimated: {
         modifiedUsage = this->adjustedUsage(usage);
         break;

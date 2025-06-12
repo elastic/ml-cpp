@@ -13,9 +13,8 @@
 
 namespace ml {
 namespace model {
+
 // On Linux the process memory usage is determined by the OS.
-CProcessMemoryUsage::EMemoryStrategy CProcessMemoryUsage::memoryStrategy() {
-    return EMemoryStrategy::E_System;
-}
+const CProcessMemoryUsage::EMemoryStrategy CProcessMemoryUsage::MEMORY_STRATEGY{EMemoryStrategy::E_System};
 }
 }
