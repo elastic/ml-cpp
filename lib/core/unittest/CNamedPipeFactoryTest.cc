@@ -158,36 +158,36 @@ BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
     BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
-// BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
-//     ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, TEST_PIPE_NAME};
-//     BOOST_TEST_REQUIRE(threadReader.start());
-//
-//     std::atomic_bool dummy{false};
-//     ml::core::CNamedPipeFactory::TFileP file{
-//         ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME, dummy)};
-//     BOOST_TEST_REQUIRE(file);
-//
-//     sleep(1);
-//     std::size_t charsLeft{TEST_SIZE};
-//     std::size_t blockSize{7};
-//     while (charsLeft > 0) {
-//         if (blockSize > charsLeft) {
-//             blockSize = charsLeft;
-//         }
-//         BOOST_TEST_REQUIRE(std::fputs(std::string(blockSize, TEST_CHAR).c_str(),
-//                                       file.get()) >= 0);
-//         charsLeft -= blockSize;
-//     }
-//
-//     file.reset();
-//
-//     BOOST_TEST_REQUIRE(threadReader.waitForFinish());
-//     BOOST_TEST_REQUIRE(threadReader.attemptsTaken() <= MAX_ATTEMPTS);
-//     BOOST_TEST_REQUIRE(threadReader.streamWentBad() == false);
-//
-//     BOOST_REQUIRE_EQUAL(TEST_SIZE, threadReader.data().length());
-//     BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
-// }
+BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
+    ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, TEST_PIPE_NAME};
+    BOOST_TEST_REQUIRE(threadReader.start());
+
+    std::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TFileP file{
+        ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME, dummy)};
+    BOOST_TEST_REQUIRE(file);
+
+    sleep(1);
+    std::size_t charsLeft{TEST_SIZE};
+    std::size_t blockSize{7};
+    while (charsLeft > 0) {
+        if (blockSize > charsLeft) {
+            blockSize = charsLeft;
+        }
+        BOOST_TEST_REQUIRE(std::fputs(std::string(blockSize, TEST_CHAR).c_str(),
+                                      file.get()) >= 0);
+        charsLeft -= blockSize;
+    }
+
+    file.reset();
+
+    BOOST_TEST_REQUIRE(threadReader.waitForFinish());
+    BOOST_TEST_REQUIRE(threadReader.attemptsTaken() <= MAX_ATTEMPTS);
+    BOOST_TEST_REQUIRE(threadReader.streamWentBad() == false);
+
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, threadReader.data().length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+}
 
 BOOST_AUTO_TEST_CASE(testCancelBlock) {
     CThreadBlockCanceller cancellerThread{ml::core::CThread::currentThreadId()};

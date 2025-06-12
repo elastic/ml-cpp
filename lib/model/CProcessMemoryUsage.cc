@@ -14,6 +14,7 @@
 namespace ml {
 namespace model {
 // On platforms other than Linux the process memory usage is the estimated size of the models.
-const CProcessMemoryUsage::EMemoryStrategy CProcessMemoryUsage::MEMORY_STRATEGY{EMemoryStrategy::E_Estimated};
+const CProcessMemoryUsage::EMemoryStrategy CProcessMemoryUsage::MEMORY_STRATEGY{
+    EMemoryStrategy::E_Estimated};
 }
 }
