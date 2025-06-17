@@ -380,10 +380,10 @@ CResourceMonitor::SModelSizeStats
 CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
     res.s_Usage = this->totalMemory();
-    res.s_AdjustedUsage = this->applyMemoryStrategy(res.s_Usage);
+    res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
     res.s_PeakUsage = static_cast<std::size_t>(
         core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
-    res.s_AdjustedPeakUsage = this->applyMemoryStrategy(res.s_PeakUsage);
+    res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
     res.s_BytesMemoryLimit = this->getBytesMemoryLimit();
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
@@ -406,7 +406,7 @@ std::size_t CResourceMonitor::applyMemoryStrategy(std::size_t usage) const {
     std::size_t modifiedUsage{0};
     switch (CProcessMemoryUsage::MEMORY_STRATEGY) {
     case CProcessMemoryUsage::EMemoryStrategy::E_Estimated: {
-        modifiedUsage = this->adjustedUsage(usage);
+        modifiedUsage = usage;
         break;
     }
     case CProcessMemoryUsage::EMemoryStrategy::E_System: {
@@ -504,9 +504,9 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
-           static_cast<size_t>(core::CProgramCounters::counter(
-               counter_t::E_TSADOutputMemoryAllocatorUsage));
+    return this->applyMemoryStrategy(m_MonitoredResourceCurrentMemory + m_ExtraMemory +
+                                     static_cast<size_t>(core::CProgramCounters::counter(
+                                         counter_t::E_TSADOutputMemoryAllocatorUsage)));
 }
 
 std::size_t CResourceMonitor::systemMemory() {
