@@ -166,24 +166,28 @@ spec:
       schedules:
         Daily 7_17:
           branch: '7.17'
-          cronline: 30 05 * * *
+          cronline: 30 06 * * *
           message: Daily SNAPSHOT build for 7.17
         Daily 8_17:
           branch: '8.17'
-          cronline: 30 04 * * *
+          cronline: 30 05 * * *
           message: Daily SNAPSHOT build for 8.17
         Daily 8_18:
           branch: '8.18'
-          cronline: 30 03 * * *
+          cronline: 30 04 * * *
           message: Daily SNAPSHOT build for 8.18
         Daily 8_19:
           branch: '8.19'
-          cronline: 30 02 * * *
+          cronline: 30 03 * * *
           message: Daily SNAPSHOT build for 8.19
         Daily 9.0:
           branch: '9.0'
-          cronline: 30 01 * * *
+          cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 9.0
+        Daily 9.1:
+          branch: '9.1'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 9.1
         Daily main:
           branch: main
           cronline: 30 00 * * *
