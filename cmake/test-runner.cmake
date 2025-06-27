@@ -9,6 +9,13 @@
 # limitation.
 #
 
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${TEST_DIR}/*.out)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${TEST_DIR}/*.failed)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f boost_test_results*.xml)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f boost_test_results*.junit)
+
+set(INDIVIDUAL_TEST "CAnnotationJsonWriterTest/testWrite")
+
 if(TEST_NAME STREQUAL "ml_test_seccomp")
   execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} --logger=HRF,all --report_format=HRF --show_progress=no --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
 else()
@@ -17,22 +24,50 @@ else()
     string(REPLACE " " ";" TEST_FLAGS $ENV{TEST_FLAGS})
   endif()
 
+
+  set(SAFE_TEST_NAME "")
+  set(OUTPUT_FILE "${TEST_DIR}/${TEST_NAME}.out")
+  set(FAILED_FILE "${TEST_DIR}/${TEST_NAME}.failed")
   # Special case for specifying a subset of tests to run (can be regex)
   if (DEFINED ENV{TESTS} AND NOT "$ENV{TESTS}" STREQUAL "")
     set(TESTS "--run_test=$ENV{TESTS}")
+    string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" SAFE_TEST_NAME "$ENV{TESTS}")
+    set(SAFE_TEST_NAME "_${SAFE_TEST_NAME}")
   endif()
 
-  # If any special command line args are present run the tests in the foreground
+  # If env var RUN_BOOST_TESTS_IN_BACKGROUND is defined run the tests in the background
+  message(STATUS "RUN_BOOST_TESTS_IN_BACKGROUND=$ENV{RUN_BOOST_TESTS_IN_BACKGROUND}")
+
   if (DEFINED TEST_FLAGS OR DEFINED TESTS)
-    message(STATUS "executing process ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}")
-    execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} RESULT_VARIABLE TEST_SUCCESS)
+    string(REPLACE "boost_test_results" "boost_test_results${SAFE_TEST_NAME}" BOOST_TEST_OUTPUT_FORMAT_FLAGS "$ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}")
+    set(OUTPUT_FILE "${TEST_DIR}/${TEST_NAME}${SAFE_TEST_NAME}.out")
+    set(FAILED_FILE "${TEST_DIR}/${TEST_NAME}${SAFE_TEST_NAME}.failed")
+
+    if(DEFINED ENV{RUN_BOOST_TESTS_IN_BACKGROUND})
+      message(STATUS "executing process ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} ${BOOST_TEST_OUTPUT_FORMAT_FLAGS} --no_color_output")
+      execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} ${BOOST_TEST_OUTPUT_FORMAT_FLAGS} --no_color_output  OUTPUT_FILE ${OUTPUT_FILE} ERROR_FILE ${OUTPUT_FILE}  RESULT_VARIABLE TEST_SUCCESS)
+      message(STATUS "TESTS EXITED WITH SUCCESS ${TEST_SUCCESS}")
+    else()
+      message(STATUS "executing process ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} ${BOOST_TEST_OUTPUT_FORMAT_FLAGS}")
+      execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} ${BOOST_TEST_OUTPUT_FORMAT_FLAGS}  RESULT_VARIABLE TEST_SUCCESS)
+      message(STATUS "TESTS EXITED WITH SUCCESS ${TEST_SUCCESS}")
+    endif()
   else()
-    execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{TEST_FLAGS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}
-      --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
+    if(DEFINED ENV{RUN_BOOST_TESTS_IN_BACKGROUND})
+      execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{TEST_FLAGS} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS}
+        --no_color_output  OUTPUT_FILE ${OUTPUT_FILE} ERROR_FILE ${OUTPUT_FILE} RESULT_VARIABLE TEST_SUCCESS)
+    else()
+      execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} ${BOOST_TEST_OUTPUT_FORMAT_FLAGS}  RESULT_VARIABLE TEST_SUCCESS)
+    endif()
   endif()
+
+  if (NOT TEST_SUCCESS EQUAL 0)
+    if (EXISTS ${TEST_DIR}/${TEST_NAME})
+      execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${OUTPUT_FILE})
+      file(WRITE "${TEST_DIR}/${FAILED_FILE}" "")
+    endif()
+    message(FATAL_ERROR "Exiting with status ${TEST_SUCCESS}")
+  endif()
+
 endif()
 
-if (NOT TEST_SUCCESS EQUAL 0)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${TEST_DIR}/${TEST_NAME}.out)
-  file(WRITE "${TEST_DIR}/${TEST_NAME}.failed" "")
-endif()
