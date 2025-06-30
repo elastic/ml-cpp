@@ -57,9 +57,28 @@ fi
 rm -rf "$LOG_DIR"
 mkdir -p "$LOG_DIR"
 
+function get_qualified_test_names() {
+    executable_path=$1
+
+    output_lines=$($executable_path --list_content 2>&1)
+
+    while IFS= read -r line; do
+      match=$(grep -w '^[ ]*C.*Test' <<< "$line");
+      if [ $? -eq 0 ]; then
+        suite=$match
+        continue
+      fi
+      match=$(grep -w 'test.*\*$' <<< "$line");
+      if [ $? -eq 0 ]; then
+        case=$(sed 's/[ \*]//g' <<< "$suite/$match")
+        echo "$case"
+      fi
+    done <<< "$output_lines"
+}
+
+# get the fully qualified test names
 echo "Discovering tests..."
-# Use the Python script to get the fully qualified test names
-ALL_TEST_NAMES=$(python3 ${CPP_SRC_HOME}/generate_test_names.py "$TEST_EXECUTABLE")
+ALL_TEST_NAMES=$(get_qualified_test_names "$TEST_EXECUTABLE")
 
 if [ -z "$ALL_TEST_NAMES" ]; then
     echo "No tests found to run or error in test discovery."
