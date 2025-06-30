@@ -72,10 +72,9 @@ def main(args):
                   "RUN_TESTS": "true",
                   "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
                 },
-                "artifact_paths": "*/**/unittest/boost_test_results.junit",
                 "plugins": {
                   "test-collector#v1.2.0": {                                                              
-                    "files": "*/*/unittest/boost_test_results.junit",
+                    "files": "*/*/unittest/boost_test_results_*.junit",
                     "format": "junit"
                   }
                 },
