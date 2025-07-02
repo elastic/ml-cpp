@@ -20,7 +20,7 @@
 #
 # It should be called with 3 parameters
 # cmake_build_dir: The directory that cmake is using for build outputs, i.e. that passed to cmake's --build argument
-# cmake_current_binary_dir: The directory containing the current test suite executable e.g. <cmake_build_dir>/test/lib/api/unittest
+# unit_test_dir: The relative directory containing the current test suite e.g. lib/api/unittest
 # test_suite: The name of the test suite to run, minus any leading "ml_", e.g. "test_api"
 #
 # In addition to the required parameters there are several environment variables that control the script's behaviour
@@ -32,16 +32,16 @@
 
 if [ $# -lt 3 ]; then
   echo "Usage: $0 <cmake_build_dir> <cmake_current_binary_dir> <test_suite>"
-  echo "e.g.: $0 ${CPP_SRC_HOME}/cmake-build-relwithdebinfo-local ${CPP_SRC_HOME}/cmake-build-relwithdebinfo-local/test/lib/api/unittest test_api"
+  echo "e.g.: $0 ${CPP_SRC_HOME}/cmake-build-relwithdebinfo-local lib/api/unittest test_api"
   exit
 fi
 
 export BUILD_DIR=$1
-export BINARY_DIR=$2
+export TEST_DIR=$2
 export TEST_SUITE=$3
 
-export TEST_EXECUTABLE="$2/ml_$3"
-export LOG_DIR="$2/test_logs"
+export TEST_EXECUTABLE="$1/test/$2/ml_$3"
+export LOG_DIR="$1/test/$2/test_logs"
 
 MAX_ARGS=2
 MAX_PROCS=4
@@ -124,9 +124,11 @@ echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "
 
 echo "--------------------------------------------------"
 if [ $EXIT_CODE -eq 0 ]; then
-    echo "All individual tests PASSED."
+    echo "$TEST_SUITE: All individual tests PASSED."
 else
-    echo "Some individual tests FAILED. Check logs in '$LOG_DIR'."
+    echo "$TEST_SUITE: Some individual tests FAILED. Check logs in '$LOG_DIR'."
 fi
+
+./merge_results.sh $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
 
 exit $EXIT_CODE
