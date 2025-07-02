@@ -74,7 +74,7 @@ def main(args):
                 },
                 "plugins": {
                   "test-collector#v1.2.0": {                                                              
-                    "files": "*/*/unittest/boost_test_results_*.junit",
+                    "files": "*/*/unittest/boost_test_results.junit",
                     "format": "junit"
                   }
                 },

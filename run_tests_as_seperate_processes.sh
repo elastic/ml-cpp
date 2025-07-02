@@ -126,9 +126,9 @@ echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "
 
 echo "--------------------------------------------------"
 if [ $EXIT_CODE -eq 0 ]; then
-    echo "All individual tests PASSED."
+    echo "$TEST_SUITE: All individual tests PASSED."
 else
-    echo "Some individual tests FAILED. Check logs in '$LOG_DIR'."
+    echo "$TEST_SUITE: Some individual tests FAILED. Check logs in '$LOG_DIR'."
 fi
 
 ./merge_results.sh $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
