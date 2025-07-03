@@ -29,6 +29,9 @@
 # BOOST_TEST_MIXED_MODE: If set to "true" then rather than iterating over each individual test passed to a sub-shell
 #                        run them all in the same BOOST test executable process.
 #
+# Design decisions: The script relies upon the simplest tools available on most unix like platforms - bash, sed and
+# awk (the awk script does not use any GNU extensions for maximum portability). This is to keep the number of dependencies
+# required by CI build images to a minimum (so e.g. no python etc.)
 
 if [ $# -lt 3 ]; then
   echo "Usage: $0 <cmake_build_dir> <cmake_current_binary_dir> <test_suite>"
@@ -40,7 +43,7 @@ export BUILD_DIR=$1
 export BINARY_DIR=$2
 export TEST_SUITE=$3
 
-TEST_DIR=$(echo $BINARY_DIR | sed "s|$BUILD_DIR/test/||")
+TEST_DIR=${CPP_SRC_HOME}/$(echo $BINARY_DIR | sed "s|$BUILD_DIR/test/||")
 
 export TEST_EXECUTABLE="$2/ml_$3"
 export LOG_DIR="$2/test_logs"
@@ -131,6 +134,37 @@ else
     echo "$TEST_SUITE: Some individual tests FAILED. Check logs in '$LOG_DIR'."
 fi
 
-./merge_results.sh $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
+function merge_junit_results() {
+  JUNIT_FILES="$@"
+  echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+  cat $JUNIT_FILES | \
+    awk '
+    BEGIN{tests=0; skipped=0; errors=0; failures=0; id=""; time=0.0; name=""}
+    $0 ~ /<testsuite.*/ {
+      match($2, "[0-9]+")
+      { tests+=substr($2, RSTART, RLENGTH) }
+      match($3, "[0-9]+")
+      { skipped=substr($3, RSTART, RLENGTH) }
+      match($4, "[0-9]+")
+      { errors+=substr($4, RSTART, RLENGTH) }
+      match($5, "[0-9]+")
+      { failures+=substr($5, RSTART, RLENGTH) }
+      match($6, "[0-9]+")
+      { id=substr($6, RSTART, RLENGTH) }
+      match($7, "\"[a-zA-Z.]+\"")
+      { name=substr($7, RSTART+1, RLENGTH-2) }
+      match($8, "[0-9]+.[0-9]+")
+      { time+=substr($8, RSTART, RLENGTH) }
+    }
+    END{print "<testsuite", "tests=\""tests"\"", "skipped=\"0\"", "errors=\""errors"\"", "failures=\""failures"\"", "id=\""id"\"", "name=\""name"\"", "time=\""time"\"" ">"}'
+
+  cat $JUNIT_FILES | sed -e '/xml/d' -e '/testsuite/d' -e '/<testcase/i\
+' -e '/<\/testcase/a\
+' | sed -e '/<testcase/,/testcase>/{H;d;};x;/skipped/d' | grep '.'
+echo "</testsuite>"
+echo
+}
+
+merge_junit_results $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
 
 exit $EXIT_CODE
