@@ -38,9 +38,9 @@ const std::size_t MAX_ATTEMPTS{100};
 const std::size_t TEST_SIZE{10000};
 const char TEST_CHAR{'a'};
 #ifdef Windows
-const char* const TEST_PIPE_NAME{"\\\\.\\pipe\\testpipe"};
+static const std::string TEST_PIPE_NAME{"\\\\.\\pipe\\testpipe"};
 #else
-const char* const TEST_PIPE_NAME{"testfiles/testpipe"};
+static const std::string TEST_PIPE_NAME{"testfiles/testpipe"};
 #endif
 
 class CThreadBlockCanceller : public ml::core::CThread {
@@ -71,13 +71,14 @@ private:
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
-    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, TEST_PIPE_NAME,
+    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCppReader";
+    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName,
                                              TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
 
     std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
-        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME, dummy)};
+        ml::core::CNamedPipeFactory::openPipeStreamRead(pipeName, dummy)};
     BOOST_TEST_REQUIRE(strm);
 
     static const std::streamsize BUF_SIZE{512};
@@ -100,13 +101,15 @@ BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCReader) {
-    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, TEST_PIPE_NAME,
+    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCReader";
+
+    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName,
                                              TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
 
     std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TFileP file{
-        ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME, dummy)};
+        ml::core::CNamedPipeFactory::openPipeFileRead(pipeName, dummy)};
     BOOST_TEST_REQUIRE(file);
 
     static const std::size_t BUF_SIZE{512};
@@ -129,12 +132,14 @@ BOOST_AUTO_TEST_CASE(testServerIsCReader) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
-    ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, TEST_PIPE_NAME};
+    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCppWriter";
+
+    ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, pipeName};
     BOOST_TEST_REQUIRE(threadReader.start());
 
     std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TOStreamP strm{
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME, dummy)};
+        ml::core::CNamedPipeFactory::openPipeStreamWrite(pipeName, dummy)};
     BOOST_TEST_REQUIRE(strm);
 
     std::size_t charsLeft{TEST_SIZE};
@@ -159,12 +164,14 @@ BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
-    ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, TEST_PIPE_NAME};
+    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCWriter";
+
+    ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, pipeName};
     BOOST_TEST_REQUIRE(threadReader.start());
 
     std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TFileP file{
-        ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME, dummy)};
+        ml::core::CNamedPipeFactory::openPipeFileWrite(pipeName, dummy)};
     BOOST_TEST_REQUIRE(file);
 
     std::size_t charsLeft{TEST_SIZE};
@@ -200,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
 }
 
 BOOST_AUTO_TEST_CASE(testErrorIfRegularFile) {
-    std::atomic_bool dummy{false};
+    const std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc", dummy)};
     BOOST_TEST_REQUIRE(strm == nullptr);
@@ -215,23 +222,23 @@ BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
     // Suppress the error about no assertions in this case
     BOOST_REQUIRE(BOOST_IS_DEFINED(Windows));
 #else
-    static const char* const TEST_SYMLINK_NAME{"test_symlink"};
+    const std::string TEST_SYMLINK_NAME{"test_symlink"};
 
     // Remove any files left behind by a previous failed test, but don't check
     // the return codes as these calls will usually fail
-    ::unlink(TEST_SYMLINK_NAME);
-    ::unlink(TEST_PIPE_NAME);
+    ::unlink(TEST_SYMLINK_NAME.c_str());
+    ::unlink(TEST_PIPE_NAME.c_str());
 
-    BOOST_REQUIRE_EQUAL(0, ::mkfifo(TEST_PIPE_NAME, S_IRUSR | S_IWUSR));
-    BOOST_REQUIRE_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::mkfifo(TEST_PIPE_NAME.c_str(), S_IRUSR | S_IWUSR));
+    BOOST_REQUIRE_EQUAL(0, ::symlink(TEST_PIPE_NAME.c_str(), TEST_SYMLINK_NAME.c_str()));
 
     std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME, dummy)};
     BOOST_TEST_REQUIRE(strm == nullptr);
 
-    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_SYMLINK_NAME));
-    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_PIPE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_SYMLINK_NAME.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_PIPE_NAME.c_str()));
 #endif
 }
 
