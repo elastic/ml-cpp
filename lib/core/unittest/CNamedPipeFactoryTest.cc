@@ -38,9 +38,9 @@ const std::size_t MAX_ATTEMPTS{100};
 const std::size_t TEST_SIZE{10000};
 const char TEST_CHAR{'a'};
 #ifdef Windows
-static const std::string TEST_PIPE_NAME{"\\\\.\\pipe\\testpipe"};
+const std::string TEST_PIPE_NAME{"\\\\.\\pipe\\testpipe"};
 #else
-static const std::string TEST_PIPE_NAME{"testfiles/testpipe"};
+const std::string TEST_PIPE_NAME{"testfiles/testpipe"};
 #endif
 
 class CThreadBlockCanceller : public ml::core::CThread {
@@ -71,9 +71,8 @@ private:
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
-    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCppReader";
-    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName,
-                                             TEST_CHAR, TEST_SIZE};
+    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCppReader";
+    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName, TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
 
     std::atomic_bool dummy{false};
@@ -101,10 +100,9 @@ BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCReader) {
-    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCReader";
+    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCReader";
 
-    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName,
-                                             TEST_CHAR, TEST_SIZE};
+    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName, TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
 
     std::atomic_bool dummy{false};
@@ -132,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testServerIsCReader) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
-    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCppWriter";
+    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCppWriter";
 
     ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, pipeName};
     BOOST_TEST_REQUIRE(threadReader.start());
@@ -164,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
-    const std::string pipeName=TEST_PIPE_NAME+"testServerIsCWriter";
+    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCWriter";
 
     ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, pipeName};
     BOOST_TEST_REQUIRE(threadReader.start());
