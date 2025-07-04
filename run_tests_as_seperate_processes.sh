@@ -91,7 +91,6 @@ if [ -z "$ALL_TEST_NAMES" ]; then
 fi
 
 EXIT_CODE=0
-export RUN_BOOST_TESTS_IN_BACKGROUND=1
 
 function execute_tests() {
 
