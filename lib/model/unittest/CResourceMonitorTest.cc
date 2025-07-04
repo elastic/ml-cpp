@@ -536,7 +536,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
-    // Clear the counter so that other test cases do not interfere.
+    // Clear the counters so that other test cases do not interfere.
     core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = 0;
 
     CLimits limits;

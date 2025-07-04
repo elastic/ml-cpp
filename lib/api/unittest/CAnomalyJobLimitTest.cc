@@ -9,6 +9,7 @@
  * limitation.
  */
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CProcessStats.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CIntegerTools.h>
@@ -105,8 +106,6 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         model::CLimits limits;
-        //limits.resourceMonitor().m_ByteLimitHigh = 100000;
-        //limits.resourceMonitor().m_ByteLimitLow = 90000;
 
         {
             LOG_TRACE(<< "Setting up job");
@@ -129,6 +128,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             nonLimitedUsage = limits.resourceMonitor().totalMemory();
         }
     }
+    LOG_DEBUG(<< "nonLimitedUsage: " << nonLimitedUsage);
     {
         // Now run the data with limiting
         ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(

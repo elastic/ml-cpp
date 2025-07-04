@@ -1733,7 +1733,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
         resourceUsage.s_OverFields = 7;
         resourceUsage.s_AllocationFailures = 8;
         resourceUsage.s_MemoryStatus = ml::model_t::E_MemoryStatusHardLimit;
-        resourceUsage.s_AssignmentMemoryBasis = ml::model_t::E_AssignmentBasisCurrentModelBytes;
+        resourceUsage.s_AssignmentMemoryBasis = ml::model_t::E_AssignmentBasisPeakModelBytes;
         resourceUsage.s_BucketStartTime = 9;
         resourceUsage.s_BytesExceeded = 10;
         resourceUsage.s_BytesMemoryLimit = 11;
@@ -1785,7 +1785,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_TEST_REQUIRE(sizeStats.contains("memory_status"));
     BOOST_REQUIRE_EQUAL("hard_limit", sizeStats.at("memory_status").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("assignment_memory_basis"));
-    BOOST_REQUIRE_EQUAL("current_model_bytes",
+    BOOST_REQUIRE_EQUAL("peak_model_bytes",
                         sizeStats.at("assignment_memory_basis").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
