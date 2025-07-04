@@ -106,7 +106,7 @@ fi
 if [[ -z "$CPP_CROSS_COMPILE" ]] ; then 
   OS=$(uname -s | tr "A-Z" "a-z")
   TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
-  find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
+  find . \( -path "*/**/ml_test_*.out" -o -path "*/**/*.junit" \) -print0 | tar czf ${TEST_RESULTS_ARCHIVE} --null -T -
   buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
 fi
 

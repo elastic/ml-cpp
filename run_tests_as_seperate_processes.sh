@@ -164,6 +164,8 @@ echo "</testsuite>"
 echo
 }
 
-merge_junit_results $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
+if [ "$TEST_SUITE" != "test_seccomp" ]; then
+  merge_junit_results $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
+fi
 
 exit $EXIT_CODE
