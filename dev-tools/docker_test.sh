@@ -92,7 +92,7 @@ do
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . \( $EXTRACT_FIND \) -print0 |  tar cf - $EXTRACT_EXPLICIT --null -T - && sleep 60" | tar xf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . \( $EXTRACT_FIND \) -print0 |  tar cf - $EXTRACT_EXPLICIT --null -T - | tar xvf -
     if [ $? != 0 ]; then
       echo "Copying build and test artifacts from docker container failed"
     fi
