@@ -61,6 +61,7 @@ RUN \
   export PYTORCH_BUILD_VERSION && \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
+  /usr/local/bin/python3.12 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org -r requirements.txt && \
   /usr/local/bin/python3.12 setup.py install && \
   mkdir -p /usr/local/gcc133/include/pytorch && \
   /bin/cp -rf torch/include/* /usr/local/gcc133/include/pytorch/ && \
