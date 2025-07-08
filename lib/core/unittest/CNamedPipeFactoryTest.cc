@@ -71,7 +71,7 @@ private:
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
-    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCppReader";
+    const std::string pipeName = TEST_PIPE_NAME + "_testServerIsCppReader";
     ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName, TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCReader) {
-    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCReader";
+    const std::string pipeName = TEST_PIPE_NAME + "_testServerIsCReader";
 
     ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, pipeName, TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testServerIsCReader) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
-    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCppWriter";
+    const std::string pipeName = TEST_PIPE_NAME + "_testServerIsCppWriter";
 
     ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, pipeName};
     BOOST_TEST_REQUIRE(threadReader.start());
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
-    const std::string pipeName = TEST_PIPE_NAME + "testServerIsCWriter";
+    const std::string pipeName = TEST_PIPE_NAME + "_testServerIsCWriter";
 
     ml::test::CThreadDataReader threadReader{PAUSE_TIME_MS, MAX_ATTEMPTS, pipeName};
     BOOST_TEST_REQUIRE(threadReader.start());
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
     BOOST_TEST_REQUIRE(cancellerThread.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm{ml::core::CNamedPipeFactory::openPipeStreamWrite(
-        TEST_PIPE_NAME, cancellerThread.hasCancelledBlockingCall())};
+        TEST_PIPE_NAME+"_testCancelBlock", cancellerThread.hasCancelledBlockingCall())};
     BOOST_TEST_REQUIRE(strm == nullptr);
 
     BOOST_TEST_REQUIRE(cancellerThread.stop());
@@ -220,15 +220,16 @@ BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
     // Suppress the error about no assertions in this case
     BOOST_REQUIRE(BOOST_IS_DEFINED(Windows));
 #else
-    const std::string TEST_SYMLINK_NAME{"test_symlink"};
+    const std::string TEST_SYMLINK_NAME{"test_symlink_testErrorIfSymlink"};
+    const std::string testPipeName{TEST_PIPE_NAME+"_test_symlink_testErrorIfSymlink"};
 
     // Remove any files left behind by a previous failed test, but don't check
     // the return codes as these calls will usually fail
     ::unlink(TEST_SYMLINK_NAME.c_str());
-    ::unlink(TEST_PIPE_NAME.c_str());
+    ::unlink(testPipeName.c_str());
 
-    BOOST_REQUIRE_EQUAL(0, ::mkfifo(TEST_PIPE_NAME.c_str(), S_IRUSR | S_IWUSR));
-    BOOST_REQUIRE_EQUAL(0, ::symlink(TEST_PIPE_NAME.c_str(), TEST_SYMLINK_NAME.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::mkfifo(testPipeName.c_str(), S_IRUSR | S_IWUSR));
+    BOOST_REQUIRE_EQUAL(0, ::symlink(testPipeName.c_str(), TEST_SYMLINK_NAME.c_str()));
 
     std::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
@@ -236,7 +237,7 @@ BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
     BOOST_TEST_REQUIRE(strm == nullptr);
 
     BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_SYMLINK_NAME.c_str()));
-    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_PIPE_NAME.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::unlink(testPipeName.c_str()));
 #endif
 }
 

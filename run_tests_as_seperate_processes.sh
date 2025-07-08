@@ -48,9 +48,6 @@ TEST_DIR=${CPP_SRC_HOME}/$(echo $BINARY_DIR | sed "s|$BUILD_DIR/test/||")
 export TEST_EXECUTABLE="$2/ml_$3"
 export LOG_DIR="$2/test_logs"
 
-MAX_ARGS=2
-MAX_PROCS=4
-
 if [[ -n "$BOOST_TEST_MAX_ARGS" ]]; then
   MAX_ARGS=$BOOST_TEST_MAX_ARGS
 fi
@@ -61,6 +58,17 @@ fi
 
 rm -rf "$LOG_DIR"
 mkdir -p "$LOG_DIR"
+
+function num_procs() {
+  if [ `uname` = "Darwin" ]; then
+    sysctl -n hw.logicalcpu
+  else
+    nproc
+  fi
+}
+
+MAX_ARGS=1
+MAX_PROCS=$(num_procs)
 
 function get_qualified_test_names() {
     executable_path=$1
@@ -90,8 +98,6 @@ if [ -z "$ALL_TEST_NAMES" ]; then
     exit 1
 fi
 
-EXIT_CODE=0
-
 function execute_tests() {
 
   if [[ "$BOOST_TEST_MIXED_MODE" == "true" ]]; then
@@ -117,7 +123,8 @@ function execute_tests() {
             echo "Test '$TEST_NAME' PASSED."
         else
             echo "Test '$TEST_NAME' FAILED with exit code $TEST_STATUS. Check '$LOG_FILE' for details."
-            EXIT_CODE=1 # Indicate overall failure if any test fails
+            echo "touch $SAFE_TEST_LOG_FILENAME.failed"
+            touch $SAFE_TEST_LOG_FILENAME.failed
         fi
     done
 }
@@ -125,12 +132,15 @@ function execute_tests() {
 export -f execute_tests
 
 echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "$@"' _
-
+ 
 echo "--------------------------------------------------"
-if [ $EXIT_CODE -eq 0 ]; then
-    echo "$TEST_SUITE: All individual tests PASSED."
-else
+
+if test -n "$(find . -maxdepth 1 -name '*.failed' -print -quit)"
+then
     echo "$TEST_SUITE: Some individual tests FAILED. Check logs in '$LOG_DIR'."
+    echo found
+else
+    echo "$TEST_SUITE: All individual tests PASSED."
 fi
 
 function merge_junit_results() {
@@ -168,4 +178,3 @@ if [ "$TEST_SUITE" != "test_seccomp" ]; then
   merge_junit_results $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
 fi
 
-exit $EXIT_CODE
