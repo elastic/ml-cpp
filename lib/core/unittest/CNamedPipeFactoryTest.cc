@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
     BOOST_TEST_REQUIRE(cancellerThread.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm{ml::core::CNamedPipeFactory::openPipeStreamWrite(
-        TEST_PIPE_NAME+"_testCancelBlock", cancellerThread.hasCancelledBlockingCall())};
+        TEST_PIPE_NAME + "_testCancelBlock", cancellerThread.hasCancelledBlockingCall())};
     BOOST_TEST_REQUIRE(strm == nullptr);
 
     BOOST_TEST_REQUIRE(cancellerThread.stop());
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
     BOOST_REQUIRE(BOOST_IS_DEFINED(Windows));
 #else
     const std::string TEST_SYMLINK_NAME{"test_symlink_testErrorIfSymlink"};
-    const std::string testPipeName{TEST_PIPE_NAME+"_test_symlink_testErrorIfSymlink"};
+    const std::string testPipeName{TEST_PIPE_NAME + "_test_symlink_testErrorIfSymlink"};
 
     // Remove any files left behind by a previous failed test, but don't check
     // the return codes as these calls will usually fail

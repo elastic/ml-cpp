@@ -205,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
                      "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
-    const std::string& pipeName = std::string{TEST_PIPE_NAME}+"_testNonAsciiJsonLogging";
+    const std::string& pipeName = std::string{TEST_PIPE_NAME} + "_testNonAsciiJsonLogging";
     std::thread reader(makeReader(loggedData, pipeName));
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();
@@ -227,7 +227,7 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testWarnAndErrorThrottling, CTestFixture) {
 
     std::ostringstream loggedData;
-    const std::string& pipeName = std::string{TEST_PIPE_NAME}+"_testWarnAndErrorThrottling";
+    const std::string& pipeName = std::string{TEST_PIPE_NAME} + "_testWarnAndErrorThrottling";
 
     std::thread reader{makeReader(loggedData, pipeName)};
 
