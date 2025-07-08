@@ -102,7 +102,16 @@ void detectorPersistHelper(const std::string& configFileName,
 
     // Persist the detector state to file(s)
 
-    std::string baseOrigOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/orig");
+    // Create a random number to use to generate a unique file name for each test
+    // this allows tests to be run successfully in parallel
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(1, 100);
+    std::ostringstream oss;
+    oss << distrib(gen);
+
+    std::string baseOrigOutputFilename(ml::test::CTestTmpDir::tmpDir() +
+                                       "/orig_" + oss.str());
     {
         // Clean up any leftovers of previous failures
         boost::filesystem::path origDir(baseOrigOutputFilename);
@@ -114,18 +123,10 @@ void detectorPersistHelper(const std::string& configFileName,
 
     std::string origBaseDocId(JOB_ID + '_' + CTestAnomalyJob::STATE_TYPE + '_' + origSnapshotId);
 
-    // Create a random number to use to generate a unique file name for each test
-    // this allows tests to be run successfully in parallel
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(1, 100);
-    std::ostringstream oss;
-    oss << distrib(gen);
-
     std::string temp;
     TStrVec origFileContents(numOrigDocs);
     for (size_t index = 0; index < numOrigDocs; ++index) {
-        std::string expectedOrigFilename(baseOrigOutputFilename + "_" + oss.str() + "_");
+        std::string expectedOrigFilename(baseOrigOutputFilename);
         expectedOrigFilename += "/_index/";
         expectedOrigFilename +=
             ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
@@ -257,10 +258,6 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
     BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(workDir));
 }
 
-#ifndef Linux // These disabled tests all fail when run as part of a full ml_test_api run on Linux, due to hard memory limits being hit.
-// This is due to the ResourceMonitor.totalMemory() returning max_rss on that platform
-// which means, as it never decreases for the lifetime of the ml_test_api process, that
-// prior test cases can affect latter ones.
 BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
     detectorPersistHelper("testfiles/new_mlfields.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
@@ -285,6 +282,5 @@ BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
     detectorPersistHelper("testfiles/new_persist_count.json",
                           "testfiles/files_users_programs.csv", 5);
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
