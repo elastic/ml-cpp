@@ -37,8 +37,8 @@
 #include <ios>
 #include <iterator>
 #include <memory>
-#include <sstream>
 #include <random> // For random number generation facilities
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -125,7 +125,7 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string temp;
     TStrVec origFileContents(numOrigDocs);
     for (size_t index = 0; index < numOrigDocs; ++index) {
-        std::string expectedOrigFilename(baseOrigOutputFilename+"_"+oss.str()+"_");
+        std::string expectedOrigFilename(baseOrigOutputFilename + "_" + oss.str() + "_");
         expectedOrigFilename += "/_index/";
         expectedOrigFilename +=
             ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
