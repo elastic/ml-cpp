@@ -48,17 +48,6 @@ TEST_DIR=${CPP_SRC_HOME}/$(echo $BINARY_DIR | sed "s|$BUILD_DIR/test/||")
 export TEST_EXECUTABLE="$2/ml_$3"
 export LOG_DIR="$2/test_logs"
 
-if [[ -n "$BOOST_TEST_MAX_ARGS" ]]; then
-  MAX_ARGS=$BOOST_TEST_MAX_ARGS
-fi
-
-if [[ -n "$BOOST_TEST_MAX_PROCS" ]]; then
-  MAX_PROCS=$BOOST_TEST_MAX_PROCS
-fi
-
-rm -rf "$LOG_DIR"
-mkdir -p "$LOG_DIR"
-
 function num_procs() {
   if [ `uname` = "Darwin" ]; then
     sysctl -n hw.logicalcpu
@@ -69,6 +58,17 @@ function num_procs() {
 
 MAX_ARGS=1
 MAX_PROCS=$(num_procs)
+
+if [[ -n "$BOOST_TEST_MAX_ARGS" ]]; then
+  MAX_ARGS=$BOOST_TEST_MAX_ARGS
+fi
+
+if [[ -n "$BOOST_TEST_MAX_PROCS" ]]; then
+  MAX_PROCS=$BOOST_TEST_MAX_PROCS
+fi
+
+rm -rf "$LOG_DIR"
+mkdir -p "$LOG_DIR"
 
 function get_qualified_test_names() {
     executable_path=$1
@@ -123,7 +123,6 @@ function execute_tests() {
             echo "Test '$TEST_NAME' PASSED."
         else
             echo "Test '$TEST_NAME' FAILED with exit code $TEST_STATUS. Check '$LOG_FILE' for details."
-            echo "touch $SAFE_TEST_LOG_FILENAME.failed"
             touch $SAFE_TEST_LOG_FILENAME.failed
         fi
     done
