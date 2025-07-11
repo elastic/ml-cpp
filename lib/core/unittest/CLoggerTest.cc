@@ -49,12 +49,13 @@ public:
     }
 };
 
-std::function<void()> makeReader(std::ostringstream& loggedData) {
-    return [&loggedData] {
+std::function<void()> makeReader(std::ostringstream& loggedData, const std::string& pipeName) {
+    return [&loggedData, &pipeName]() {
+
         for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
             // wait a bit so that pipe has been created
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            std::ifstream strm(TEST_PIPE_NAME);
+            std::ifstream strm(pipeName);
             if (strm.is_open()) {
                 std::copy(std::istreambuf_iterator<char>(strm),
                           std::istreambuf_iterator<char>(),
@@ -62,7 +63,7 @@ std::function<void()> makeReader(std::ostringstream& loggedData) {
                 return;
             }
         }
-        BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
+        BOOST_FAIL("Failed to connect to logging pipe " + pipeName + " within a reasonable time");
     };
 }
 
@@ -204,12 +205,13 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
                      "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
-    std::thread reader(makeReader(loggedData));
+    const std::string& pipeName = std::string{TEST_PIPE_NAME} + "_testNonAsciiJsonLogging";
+    std::thread reader(makeReader(loggedData, pipeName));
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();
     // logger might have been reconfigured in previous tests, so reset and reconfigure it
     logger.reset();
-    logger.reconfigure(TEST_PIPE_NAME, "");
+    logger.reconfigure(pipeName, "");
 
     for (const auto& m : messages) {
         LOG_INFO(<< m);
@@ -225,14 +227,16 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testWarnAndErrorThrottling, CTestFixture) {
 
     std::ostringstream loggedData;
-    std::thread reader{makeReader(loggedData)};
+    const std::string& pipeName = std::string{TEST_PIPE_NAME} + "_testWarnAndErrorThrottling";
+
+    std::thread reader{makeReader(loggedData, pipeName)};
 
     TStrVec messages{"Warn should only be seen once", "Error should only be seen once"};
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();
     // logger might have been reconfigured in previous tests, so reset and reconfigure it
     logger.reset();
-    logger.reconfigure(TEST_PIPE_NAME, "");
+    logger.reconfigure(pipeName, "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         LOG_WARN(<< messages[0]);

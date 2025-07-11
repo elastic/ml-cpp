@@ -16,7 +16,7 @@ set(CMAKE_RANLIB  "ranlib")
 set(CMAKE_STRIP  "strip")
 
 
-list(APPEND ML_C_FLAGS 
+list(APPEND ML_C_FLAGS
   ${CROSS_FLAGS}
   ${ARCHCFLAGS}
   "-fstack-protector"
