@@ -39,11 +39,11 @@ if [ $# -lt 3 ]; then
   exit
 fi
 
-export BUILD_DIR=$1
-export BINARY_DIR=$2
+export BUILD_DIR=$( echo $1 | sed 's|/$||' )
+export BINARY_DIR=$( echo $2 | sed 's|/$||' )
 export TEST_SUITE=$3
 
-TEST_DIR=${CPP_SRC_HOME}/$(echo $BINARY_DIR | sed "s|$BUILD_DIR/test/||")
+TEST_DIR=${CPP_SRC_HOME}/$(echo $BINARY_DIR | sed -e "s|$BUILD_DIR/test/||" -e 's|unittest.*|unittest|')
 
 export TEST_EXECUTABLE="$2/ml_$3"
 export LOG_DIR="$2/test_logs"
@@ -123,18 +123,18 @@ function execute_tests() {
             echo "Test '$TEST_NAME' PASSED."
         else
             echo "Test '$TEST_NAME' FAILED with exit code $TEST_STATUS. Check '$LOG_FILE' for details."
-            touch $SAFE_TEST_LOG_FILENAME.failed
         fi
     done
 }
 
 export -f execute_tests
 
-echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "$@"' _
+RESULTS=$(echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "$@"' _)
  
 echo "--------------------------------------------------"
 
-if test -n "$(find . -maxdepth 1 -name '*.failed' -print -quit)"
+grep 'FAILED with exit code' <<< $RESULT
+if [ $? -eq 0 ]
 then
     echo "$TEST_SUITE: Some individual tests FAILED. Check logs in '$LOG_DIR'."
     echo found
@@ -173,7 +173,7 @@ echo "</testsuite>"
 echo
 }
 
-if [ "$TEST_SUITE" != "test_seccomp" ]; then
+if [[ $BOOST_TEST_OUTPUT_FORMAT_FLAGS =~ junit ]]; then
   merge_junit_results $TEST_DIR/boost_test_results_C*.junit > $TEST_DIR/boost_test_results.junit
 fi
 
