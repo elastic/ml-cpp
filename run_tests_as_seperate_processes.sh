@@ -129,7 +129,7 @@ function execute_tests() {
 
 export -f execute_tests
 
-RESULTS=$(echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "$@"' _)
+RESULT=$(echo $ALL_TEST_NAMES | xargs -n $MAX_ARGS -P $MAX_PROCS bash -c 'execute_tests "$@"' _)
  
 echo "--------------------------------------------------"
 
