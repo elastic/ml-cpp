@@ -378,7 +378,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
         return;
     }
 
-    auto seasonal = [this, confidence](core_t::TTime time) -> TVector2x1 {
+    auto getComponentPrediction = [this, confidence](core_t::TTime time) -> TVector2x1 {
         TVector2x1 prediction{0.0};
         for (const auto& component : m_Components.seasonal()) {
             if (component.initialized() && component.time().inWindow(time)) {
@@ -397,14 +397,14 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     endTime += m_TimeShift;
     endTime = startTime + common::CIntegerTools::ceil(endTime - startTime, step);
 
-    auto forecastSeasonal = [&](core_t::TTime time) -> TDouble3Vec {
+    auto getSeasonalForecastBounds = [&](core_t::TTime time) -> TDouble3Vec {
         m_Components.interpolateForForecast(time);
 
-        TVector2x1 bounds{seasonal(time)};
+        TVector2x1 bounds{getComponentPrediction(time)};
 
         // Decompose the smoothing into shift plus stretch and ensure that the
         // smoothed interval between the prediction bounds remains positive length.
-        TVector2x1 smoothing{this->smooth(seasonal, time, E_Seasonal)};
+        TVector2x1 smoothing{this->smooth(getComponentPrediction, time, E_Seasonal)};
         double shift{smoothing.mean()};
         double stretch{std::max(smoothing(1) - smoothing(0), bounds(0) - bounds(1))};
         bounds += TVector2x1{{shift - stretch / 2.0, shift + stretch / 2.0}};
@@ -419,7 +419,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     };
 
     m_Components.trend().forecast(startTime, endTime, step, confidence,
-                                  isNonNegative, forecastSeasonal, writer);
+                                  isNonNegative, getSeasonalForecastBounds, writer);
 }
 
 double CTimeSeriesDecomposition::detrend(core_t::TTime time,

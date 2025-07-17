@@ -931,7 +931,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
-        origJson, std::bind_front(&CTestSeasonalComponent::acceptPersistInserter, &origComponent));
+        origJson, std::bind(&CTestSeasonalComponent::acceptPersistInserter, &origComponent, std::placeholders::_1));
 
     LOG_DEBUG(<< "seasonal component JSON representation:\n" << origJson.str());
 
@@ -944,8 +944,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     std::ostringstream newJson;
     core::CJsonStatePersistInserter::persist(
-        newJson, std::bind_front(&CTestSeasonalComponent::acceptPersistInserter,
-                                 &restoredComponent));
+        newJson, std::bind(&CTestSeasonalComponent::acceptPersistInserter,
+                          &restoredComponent, std::placeholders::_1));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
     BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 }
