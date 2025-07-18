@@ -270,8 +270,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
 
         std::ostringstream origJson;
         core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&maths::time_series::CExpandingWindow::acceptPersistInserter,
-                                      &origWindow));
+            origJson, std::bind(&maths::time_series::CExpandingWindow::acceptPersistInserter,
+                                &origWindow, std::placeholders::_1));
         LOG_TRACE(<< "Window JSON = " << origJson.str());
         LOG_DEBUG(<< "Window JSON size = " << origJson.str().size());
 
@@ -281,9 +281,9 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
             core::CJsonStateRestoreTraverser traverser(origJsonStrm);
             maths::time_series::CExpandingWindow restoredWindow{
                 bucketLength, TTimeCRng{BUCKET_LENGTHS, 0, 4}, size, decayRate, compressed};
-            BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind_front(
+            BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
                                           &maths::time_series::CExpandingWindow::acceptRestoreTraverser,
-                                          &restoredWindow)));
+                                          &restoredWindow, std::placeholders::_1)));
 
             LOG_DEBUG(<< "orig checksum = " << origWindow.checksum()
                       << ", new checksum = " << restoredWindow.checksum());
