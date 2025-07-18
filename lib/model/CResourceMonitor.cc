@@ -13,6 +13,7 @@
 
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
+#include <core/CProcessStats.h>
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
@@ -20,6 +21,7 @@
 #include <maths/common/CTools.h>
 
 #include <model/CMonitoredResource.h>
+#include <model/CProcessMemoryUsage.h>
 
 #include <algorithm>
 #include <cmath>
@@ -382,7 +384,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     res.s_PeakUsage = static_cast<std::size_t>(
         core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
     res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
-    res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
+    res.s_BytesMemoryLimit = this->getBytesMemoryLimit();
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
     std::uint64_t assignmentMemoryBasis{
@@ -398,6 +400,22 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
         core::CProgramCounters::counter(counter_t::E_TSADOutputMemoryAllocatorUsage));
     res.s_OverallCategorizerStats.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
     return res;
+}
+
+std::size_t CResourceMonitor::applyMemoryStrategy(std::size_t usage) const {
+    std::size_t modifiedUsage{0};
+    switch (CProcessMemoryUsage::MEMORY_STRATEGY) {
+    case CProcessMemoryUsage::EMemoryStrategy::E_Estimated: {
+        modifiedUsage = usage;
+        break;
+    }
+    case CProcessMemoryUsage::EMemoryStrategy::E_System: {
+        modifiedUsage = core::CProcessStats::maxResidentSetSize();
+        break;
+    }
+    default: { LOG_WARN(<< "Unknown memory strategy"); }
+    }
+    return modifiedUsage;
 }
 
 std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
@@ -486,10 +504,17 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
-           static_cast<size_t>(core::CProgramCounters::counter(
-               counter_t::E_TSADOutputMemoryAllocatorUsage));
+    return this->applyMemoryStrategy(m_MonitoredResourceCurrentMemory + m_ExtraMemory +
+                                     static_cast<size_t>(core::CProgramCounters::counter(
+                                         counter_t::E_TSADOutputMemoryAllocatorUsage)));
 }
 
+std::size_t CResourceMonitor::systemMemory() {
+    return core::CProcessStats::residentSetSize();
+}
+
+std::size_t CResourceMonitor::maxSystemMemory() {
+    return core::CProcessStats::maxResidentSetSize();
+}
 } // model
 } // ml

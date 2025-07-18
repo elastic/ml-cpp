@@ -62,7 +62,7 @@ std::function<void()> makeReader(std::ostringstream& loggedData) {
                 return;
             }
         }
-        BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
+        BOOST_TEST_CHECK(false, "Failed to connect to logging pipe within a reasonable time");
     };
 }
 
