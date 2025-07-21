@@ -18,6 +18,8 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/time_series/CTimeSeriesPredictor.h>
+
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
@@ -28,6 +30,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -55,8 +58,9 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,
     : m_TimeShift{0}, m_LastValueTime{0}, m_LastPropagationTime{0},
       m_ChangePointTest{decayRate, bucketLength}, m_SeasonalityTest{decayRate, bucketLength},
       m_CalendarCyclicTest{decayRate, bucketLength}, m_Components{decayRate, bucketLength,
-                                                                  seasonalComponentSize} {
+                                                                   seasonalComponentSize} {
     this->initializeMediator();
+    this->initializePredictor();
 }
 
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDecompositionRestoreParams& params,
@@ -73,6 +77,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDeco
         return;
     }
     this->initializeMediator();
+    this->initializePredictor();
 }
 
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecomposition& other,
@@ -82,8 +87,9 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecompositio
       m_ChangePointTest{other.m_ChangePointTest, isForForecast},
       m_SeasonalityTest{other.m_SeasonalityTest, isForForecast},
       m_CalendarCyclicTest{other.m_CalendarCyclicTest, isForForecast}, m_Components{
-                                                                           other.m_Components} {
+                                                                            other.m_Components} {
     this->initializeMediator();
+    this->initializePredictor();
 }
 
 bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
@@ -266,45 +272,8 @@ double CTimeSeriesDecomposition::meanValue(core_t::TTime time) const {
 
 CTimeSeriesDecomposition::TVector2x1
 CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, int components, bool smooth) const {
-
-    TVector2x1 result{0.0};
-
-    time += m_TimeShift;
-
-    if ((components & E_TrendForced) != 0) {
-        result += m_Components.trend().value(time, confidence);
-    } else if ((components & E_Trend) != 0) {
-        if (m_Components.usingTrendForPrediction()) {
-            result += m_Components.trend().value(time, confidence);
-        }
-    }
-
-    if ((components & E_Seasonal) != 0) {
-        for (const auto& component : m_Components.seasonal()) {
-            if (component.initialized() && component.time().inWindow(time)) {
-                result += component.value(time, confidence);
-            }
-        }
-    }
-
-    if ((components & E_Calendar) != 0) {
-        for (const auto& component : m_Components.calendar()) {
-            if (component.initialized() && component.feature().inWindow(time)) {
-                result += component.value(time, confidence);
-            }
-        }
-    }
-
-    if (smooth) {
-        result += this->smooth(
-            [&](core_t::TTime time_) {
-                return this->value(time_ - m_TimeShift, confidence,
-                                   components & E_Seasonal, false);
-            },
-            time, components);
-    }
-
-    return result;
+    // Delegate to the predictor object
+    return m_Predictor->value(time, confidence, components, smooth);
 }
 
 CTimeSeriesDecomposition::TVector2x1
@@ -315,47 +284,8 @@ CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, bool isNo
 
 CTimeSeriesDecomposition::TFilteredPredictor
 CTimeSeriesDecomposition::predictor(int components) const {
-
-    auto trend_ = (((components & E_TrendForced) != 0) || ((components & E_Trend) != 0))
-                      ? m_Components.trend().predictor()
-                      : [](core_t::TTime) { return 0.0; };
-
-    return [ components, trend = std::move(trend_),
-             this ](core_t::TTime time, const TBoolVec& removedSeasonalMask) {
-
-        double result{0.0};
-
-        time += m_TimeShift;
-
-        if ((components & E_TrendForced) != 0) {
-            result += trend(time);
-        } else if ((components & E_Trend) != 0) {
-            if (m_Components.usingTrendForPrediction()) {
-                result += trend(time);
-            }
-        }
-
-        if ((components & E_Seasonal) != 0) {
-            const auto& seasonal = m_Components.seasonal();
-            for (std::size_t i = 0; i < seasonal.size(); ++i) {
-                if (seasonal[i].initialized() &&
-                    (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
-                    seasonal[i].time().inWindow(time)) {
-                    result += seasonal[i].value(time, 0.0).mean();
-                }
-            }
-        }
-
-        if ((components & E_Calendar) != 0) {
-            for (const auto& component : m_Components.calendar()) {
-                if (component.initialized() && component.feature().inWindow(time)) {
-                    result += component.value(time, 0.0).mean();
-                }
-            }
-        }
-
-        return result;
-    };
+    // Delegate to the predictor object
+    return m_Predictor->predictor(components);
 }
 
 core_t::TTime CTimeSeriesDecomposition::maximumForecastInterval() const {
@@ -601,6 +531,44 @@ void CTimeSeriesDecomposition::initializeMediator() {
     m_Mediator->registerHandler(m_SeasonalityTest);
     m_Mediator->registerHandler(m_CalendarCyclicTest);
     m_Mediator->registerHandler(m_Components);
+}
+
+void CTimeSeriesDecomposition::initializePredictor() {
+    // Create function bindings for the components
+    // auto trendValueFunc = [this](core_t::TTime time, double confidence) {
+    //     return m_Components.trend().value(time, confidence);
+    // };
+    
+    // auto trendPredictorFunc = [this]() {
+    //     return m_Components.trend().predictor();
+    // };
+    
+    // auto usingTrendForPredictionFunc = [this]() {
+    //     return m_Components.usingTrendForPrediction();
+    // };
+    
+    // auto seasonalComponentsFunc = [this]() -> const maths_t::TSeasonalComponentVec& {
+    //     return m_Components.seasonal();
+    // };
+    
+    // auto calendarComponentsFunc = [this]() -> const maths_t::TCalendarComponentVec& {
+    //     return m_Components.calendar();
+    // };
+
+    m_Predictor = std::make_unique<CTimeSeriesPredictor>(
+        m_TimeShift, m_Smoother, m_Components
+    );
+    
+    // Create the predictor with the function bindings
+    // m_Predictor = std::make_unique<CTimeSeriesPredictor>(
+    //     m_TimeShift,
+    //     m_Smoother,
+    //     std::move(trendValueFunc),
+    //     std::move(trendPredictorFunc),
+    //     std::move(usingTrendForPredictionFunc),
+    //     std::move(seasonalComponentsFunc),
+    //     std::move(calendarComponentsFunc)
+    // );
 }
 
 template<typename F>
