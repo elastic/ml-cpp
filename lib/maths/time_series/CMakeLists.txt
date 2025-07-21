@@ -38,6 +38,7 @@ ml_add_library(MlMathsTimeSeries SHARED
   CTimeSeriesModel.cc
   CTimeSeriesMultibucketFeatureSerialiser.cc
   CTimeSeriesSegmentation.cc
+  CTimeSeriesSmoothing.cc
   CTimeSeriesTestForChange.cc
   CTimeSeriesTestForSeasonality.cc
   CTrendComponent.cc

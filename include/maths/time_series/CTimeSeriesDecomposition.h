@@ -21,6 +21,7 @@
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 #include <maths/time_series/ImportExport.h>
+#include <maths/time_series/CTimeSeriesSmoothing.h>
 
 #include <memory>
 
@@ -266,9 +267,10 @@ private:
         -> decltype(f(time));
 
 private:
-    //! The time over which discontinuities between weekdays
-    //! and weekends are smoothed out.
-    static const core_t::TTime SMOOTHING_INTERVAL;
+
+
+    //! The smoother object used to smooth discontinuities.
+    CTimeSeriesSmoothing m_Smoother;
 
 private:
     //! Any time shift to supplied times.

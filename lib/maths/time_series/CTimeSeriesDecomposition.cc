@@ -606,49 +606,11 @@ void CTimeSeriesDecomposition::initializeMediator() {
 template<typename F>
 auto CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const
     -> decltype(f(time)) {
-
-    using TResultType = decltype(f(time));
-
-    if ((components & E_Seasonal) != E_Seasonal) {
-        return TResultType{0.0};
-    }
-
-    auto offset = [&f, time](core_t::TTime discontinuity) {
-        auto baselineMinusEps = f(discontinuity - 1);
-        auto baselinePlusEps = f(discontinuity + 1);
-        return 0.5 *
-               std::max((1.0 - static_cast<double>(std::abs(time - discontinuity)) /
-                                   static_cast<double>(SMOOTHING_INTERVAL)),
-                        0.0) *
-               (baselinePlusEps - baselineMinusEps);
-    };
-
-    for (const auto& component : m_Components.seasonal()) {
-        if (component.initialized() == false ||
-            component.time().windowRepeat() <= SMOOTHING_INTERVAL) {
-            continue;
-        }
-
-        const CSeasonalTime& times{component.time()};
-
-        bool timeInWindow{times.inWindow(time)};
-        bool inWindowBefore{times.inWindow(time - SMOOTHING_INTERVAL)};
-        bool inWindowAfter{times.inWindow(time + SMOOTHING_INTERVAL)};
-        if (timeInWindow == false && inWindowBefore) {
-            core_t::TTime discontinuity{times.startOfWindow(time - SMOOTHING_INTERVAL) +
-                                        times.windowLength()};
-            return -offset(discontinuity);
-        }
-        if (timeInWindow == false && inWindowAfter) {
-            core_t::TTime discontinuity{component.time().startOfWindow(time + SMOOTHING_INTERVAL)};
-            return offset(discontinuity);
-        }
-    }
-
-    return TResultType{0.0};
+    // Delegate to the smoother object
+    return m_Smoother.smooth(f, time, components, m_Components.seasonal());
 }
 
-const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{14400};
+
 }
 }
 }
