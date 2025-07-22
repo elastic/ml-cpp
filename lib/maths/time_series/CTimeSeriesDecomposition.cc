@@ -61,7 +61,6 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,
                                                                    seasonalComponentSize} {
     this->initializeMediator();
     this->initializePredictor();
-    this->initializeForecaster();
 }
 
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDecompositionRestoreParams& params,
@@ -79,7 +78,6 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDeco
     }
     this->initializeMediator();
     this->initializePredictor();
-    this->initializeForecaster();
 }
 
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecomposition& other,
@@ -92,7 +90,6 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecompositio
                                                                             other.m_Components} {
     this->initializeMediator();
     this->initializePredictor();
-    this->initializeForecaster();
 }
 
 bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
@@ -292,19 +289,19 @@ CTimeSeriesDecomposition::predictor(int components) const {
 }
 
 core_t::TTime CTimeSeriesDecomposition::maximumForecastInterval() const {
-    // Delegate to the forecaster object
-    return m_Forecaster->maximumForecastInterval();
+    // Delegate to the predictor object
+    return m_Predictor->maximumForecastInterval();
 }
 
 void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        core_t::TTime step,
-                                        double confidence,
-                                        double minimumScale,
-                                        bool isNonNegative,
-                                        const TWriteForecastResult& writer) {
-    // Delegate to the forecaster object
-    m_Forecaster->forecast(startTime, endTime, step, confidence, minimumScale, 
+                                         core_t::TTime endTime,
+                                         core_t::TTime step,
+                                         double confidence,
+                                         double minimumScale,
+                                         bool isNonNegative,
+                                         const TWriteForecastResult& writer) {
+    // Delegate to the predictor object
+    m_Predictor->forecast(startTime, endTime, step, confidence, minimumScale, 
                          isNonNegative, writer);
 }
 
@@ -493,15 +490,10 @@ void CTimeSeriesDecomposition::initializePredictor() {
     // Create a CTimeSeriesSmoothing instance with the default smoothing interval
     static const CTimeSeriesSmoothing s_Smoother;
     m_Predictor = std::make_unique<CTimeSeriesPredictor>(
-        m_TimeShift, s_Smoother, m_Components);
-}
-
-void CTimeSeriesDecomposition::initializeForecaster() {
-    // Create a CTimeSeriesSmoothing instance with the default smoothing interval
-    static const CTimeSeriesSmoothing s_Smoother;
-    m_Forecaster = std::make_unique<CTimeSeriesForecasting>(
         m_TimeShift, s_Smoother, m_Components, m_Components.meanVarianceScale());
 }
+
+
 
 template<typename F>
 auto CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const

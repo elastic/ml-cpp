@@ -28,7 +28,6 @@ set (SRCS
   CSeasonalTimeTest.cc
   CSignalTest.cc
   CTimeSeriesDecompositionTest.cc
-  CTimeSeriesForecastingTest.cc
   CTimeSeriesModelTest.cc
   CTimeSeriesMultibucketFeaturesTest.cc
   CTimeSeriesPredictorTest.cc

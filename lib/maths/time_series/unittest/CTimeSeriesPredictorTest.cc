@@ -166,4 +166,61 @@ BOOST_AUTO_TEST_CASE(testSmoothing) {
     // rather than a specific test of the internal smoothing functionality
 }
 
+// Test cases migrated from CTimeSeriesForecastingTest after merging CTimeSeriesPredictor and CTimeSeriesForecasting
+
+// Simple test case to verify integration with CTimeSeriesDecomposition
+BOOST_AUTO_TEST_CASE(testForecastingMaximumInterval) {
+    using namespace ml;
+    
+    CTestFixture fixture("testForecastingMaximumInterval");
+    
+    // Create a decomposition object which will internally use the merged CTimeSeriesPredictor
+    maths::time_series::CTimeSeriesDecomposition decomp(0.01, 24 * 3600);
+    
+    // Verify that the object is properly initialized
+    BOOST_REQUIRE_EQUAL(decomp.initialized(), false);
+    
+    // Check that maximumForecastInterval returns a valid value
+    // This now calls through to CTimeSeriesPredictor instead of CTimeSeriesForecasting
+    core_t::TTime interval = decomp.maximumForecastInterval();
+    
+    // Simple verification that the interval is reasonable
+    BOOST_REQUIRE_GT(interval, 0);
+    
+    LOG_DEBUG(<< "Maximum forecast interval: " << interval);
+}
+
+BOOST_AUTO_TEST_CASE(testForecastingMethod) {
+    using namespace ml;
+    
+    CTestFixture fixture("testForecastingMethod");
+    
+    // This test verifies that the forecast method can be called without errors
+    // Using the merged CTimeSeriesPredictor functionality
+    maths::time_series::CTimeSeriesDecomposition decomp(0.01, 24 * 3600);
+    
+    // Add a simple data point
+    decomp.addPoint(0, 10.0, core::CMemoryCircuitBreakerStub::instance(), maths_t::CUnitWeights::UNIT);
+    
+    // Define simple forecast parameters
+    core_t::TTime startTime = 3600;
+    core_t::TTime endTime = 7200;
+    core_t::TTime step = 3600;
+    
+    // Create a simple writer that just counts points
+    int forecastPointCount = 0;
+    auto writer = [&forecastPointCount](core_t::TTime, 
+                                     const maths::time_series::CTimeSeriesDecomposition::TDouble3Vec&) {
+        ++forecastPointCount;
+    };
+    
+    // Call the forecast method
+    decomp.forecast(startTime, endTime, step, 95.0, 0.1, false, writer);
+    
+    // We should get at least one forecast point
+    BOOST_REQUIRE_GT(forecastPointCount, 0);
+    
+    LOG_DEBUG(<< "Generated " << forecastPointCount << " forecast points");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

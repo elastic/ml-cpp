@@ -38,7 +38,6 @@ ml_add_library(MlMathsTimeSeries SHARED
   CTimeSeriesModel.cc
   CTimeSeriesMultibucketFeatureSerialiser.cc
   CTimeSeriesPredictor.cc
-  CTimeSeriesForecasting.cc
   CTimeSeriesSegmentation.cc
   CTimeSeriesSmoothing.cc
   CTimeSeriesTestForChange.cc

@@ -78,6 +78,8 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<common::CFloatStorage>;
     using TBoolVec = std::vector<bool>;
     using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
+    using TDouble3Vec = core::CSmallVector<double, 3>;
+    using TWriteForecastResult = std::function<void(core_t::TTime, const TDouble3Vec&)>;
     
 public:
     //! Constructor for prediction functionality.
@@ -103,10 +105,12 @@ public:
     //! \param[in] timeShift The time shift to apply to predictions (used to align components).
     //! \param[in] smoother The smoothing object to use at boundaries to reduce discontinuities.
     //! \param[in] components Reference to the decomposition components used for predictions.
+    //! \param[in] meanVarianceScale Optional scale factor for the mean variance used in forecasting (default: 1.0).
     CTimeSeriesPredictor(
         core_t::TTime timeShift,
         const CTimeSeriesSmoothing& smoother,
-        const CTimeSeriesDecompositionDetail::CComponents& components
+        const CTimeSeriesDecompositionDetail::CComponents& components,
+        double meanVarianceScale = 1.0
     );
 
     //! Get the predicted value of the time series at \p time.
@@ -138,6 +142,37 @@ public:
     //! \return A function object that generates predictions for given time points.
     //! \warning This can only be used as long as the component models aren't updated.
     TFilteredPredictor predictor(int components) const;
+    
+    //! Get the maximum interval for which the time series can be forecast.
+    //!
+    //! This method determines the maximum forecast interval based on the components
+    //! in the decomposition. This is typically limited by the longest seasonal period
+    //! or by trend extrapolation constraints.
+    //!
+    //! \return The maximum forecast interval in seconds.
+    core_t::TTime maximumForecastInterval() const;
+    
+    //! Forecast from \p start to \p end at \p dt intervals.
+    //!
+    //! This method generates a forecast for the time series from the specified
+    //! start time to end time, at regular intervals defined by the step parameter.
+    //! It combines predictions from all relevant components (trend, seasonal, calendar)
+    //! and applies appropriate scaling and smoothing.
+    //!
+    //! \param[in] startTime The start of the forecast period.
+    //! \param[in] endTime The end of the forecast period.
+    //! \param[in] step The time increment between forecast points.
+    //! \param[in] confidence The forecast confidence interval as a percentage.
+    //! \param[in] minimumScale The minimum permitted seasonal scale factor.
+    //! \param[in] isNonNegative True if the data being modelled are known to be non-negative.
+    //! \param[in] writer Callback function to receive forecast results.
+    void forecast(core_t::TTime startTime,
+                  core_t::TTime endTime,
+                  core_t::TTime step,
+                  double confidence,
+                  double minimumScale,
+                  bool isNonNegative,
+                  const TWriteForecastResult& writer) const;
 
 private:
     //! Apply smoothing to the prediction at periodic boundaries.
@@ -152,6 +187,29 @@ private:
     //! \return A smoothed prediction vector (value and variance).
     template<typename F>
     TVector2x1 smooth(const F& f, core_t::TTime time, int components) const;
+    
+    //! Calculate the variance scale weight for predictions.
+    //!
+    //! This method computes the scaling factor to apply to prediction variances,
+    //! which helps determine the width of confidence intervals.
+    //!
+    //! \param[in] time The time for which to compute the scale weight.
+    //! \param[in] variance The baseline variance value to scale.
+    //! \param[in] confidence The confidence level as a percentage.
+    //! \param[in] smooth Whether to apply smoothing to the scale weights.
+    //! \return A 2D vector containing the lower and upper scale weights.
+    TVector2x1 varianceScaleWeight(core_t::TTime time,
+                                   double variance,
+                                   double confidence,
+                                   bool smooth) const;
+    
+    //! Get the mean variance of the baseline.
+    //!
+    //! This method returns the mean variance value used for scaling predictions.
+    //! It represents the typical variability in the time series.
+    //!
+    //! \return The mean variance value for the time series.
+    double meanVariance() const;
 
 private:
     //! The time shift to apply
@@ -160,7 +218,11 @@ private:
     //! The smoothing object
     const CTimeSeriesSmoothing& m_Smoother;
 
+    //! Reference to the decomposition components
     const CTimeSeriesDecompositionDetail::CComponents& m_Components;
+    
+    //! Scale factor for the mean variance (used in forecasting)
+    double m_MeanVarianceScale;
     
     // //! Function to get trend component value
     // std::function<TVector2x1(core_t::TTime, double)> m_TrendValueFunc;
