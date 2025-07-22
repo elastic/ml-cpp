@@ -20,9 +20,9 @@
 
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
-#include <maths/time_series/ImportExport.h>
-#include <maths/time_series/CTimeSeriesSmoothing.h>
+#include <maths/time_series/CSeasonalTime.h>
 #include <maths/time_series/CTimeSeriesPredictor.h>
+#include <maths/time_series/CTimeSeriesForecasting.h>
 
 #include <memory>
 
@@ -246,6 +246,7 @@ public:
 private:
     using TMediatorPtr = std::unique_ptr<CMediator>;
     using TTimeSeriesPredictorPtr = std::unique_ptr<CTimeSeriesPredictor>;
+    using TTimeSeriesForecastingPtr = std::unique_ptr<CTimeSeriesForecasting>;
 
 private:
     //! Set up the communication mediator.
@@ -253,6 +254,9 @@ private:
     
     //! Initialize the predictor object.
     void initializePredictor();
+    
+    //! Initialize the forecaster object.
+    void initializeForecaster();
 
     //! Create from part of a state document.
     bool acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
@@ -304,6 +308,9 @@ private:
     
     //! The predictor object for making time series predictions.
     TTimeSeriesPredictorPtr m_Predictor;
+    
+    //! The forecasting object for making time series forecasts.
+    TTimeSeriesForecastingPtr m_Forecaster;
 
     //! Befriend a helper class used by the unit tests
     friend class CTimeSeriesDecompositionTest::CNanInjector;
