@@ -180,6 +180,12 @@ public:
     //! Returns the sum of used memory plus any extra memory
     std::size_t totalMemory() const;
 
+    //! Returns the current physical memory of the process (rss) as reported by the system
+    static std::size_t systemMemory();
+
+    //! Returns the maximum physical memory of the process (max rss) as reported by the system
+    static std::size_t maxSystemMemory();
+
 private:
     using TMonitoredResourcePtrSizeUMap =
         boost::unordered_map<CMonitoredResource*, std::size_t>;
@@ -228,6 +234,9 @@ private:
 
     //! Returns the amount by which reported memory usage is scaled depending on the type of persistence in use
     std::size_t persistenceMemoryIncreaseFactor() const;
+
+    //! Modify the supplied usage value depending on a platform dependent strategy.
+    std::size_t applyMemoryStrategy(std::size_t usage) const;
 
 private:
     //! The registered collection of components
