@@ -392,6 +392,13 @@ function(ml_add_test_executable _target)
       COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
+
+    add_custom_target(test_${_target}_individually
+      DEPENDS ml_test_${_target}
+      COMMAND ${CMAKE_SOURCE_DIR}/run_tests_as_seperate_processes.sh ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} test_${_target}
+      COMMENT "Running test: ml_test_${_target}_individually"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
   endif()
 endfunction()
 
@@ -420,8 +427,10 @@ function(ml_add_test _directory _target)
   add_subdirectory(../${_directory} ${_directory})
   list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target})
   list(APPEND ML_TEST_DEPENDS test_${_target})
+  list(APPEND ML_TEST_INDIVIDUALLY_DEPENDS test_${_target}_individually)
   set(ML_BUILD_TEST_DEPENDS ${ML_BUILD_TEST_DEPENDS} PARENT_SCOPE)
   set(ML_TEST_DEPENDS ${ML_TEST_DEPENDS} PARENT_SCOPE)
+  set(ML_TEST_INDIVIDUALLY_DEPENDS ${ML_TEST_INDIVIDUALLY_DEPENDS} PARENT_SCOPE)
 endfunction()
 
 
