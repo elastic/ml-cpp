@@ -163,7 +163,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     // Finally, persist the new detector state to a file
 
-    std::string baseRestoredOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/restored");
+    std::string baseRestoredOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/restored_" + oss.str());
     {
         // Clean up any leftovers of previous failures
         boost::filesystem::path restoredDir(baseRestoredOutputFilename);
