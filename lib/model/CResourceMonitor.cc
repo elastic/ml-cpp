@@ -381,7 +381,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
     res.s_Usage = this->totalMemory();
     res.s_PeakUsage = static_cast<std::size_t>(
-            core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
+        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
     // On Linux both adjusted usage and adjusted peak usage are set to system memory usage (max resident set size)
     // These are the values reported back to the Java process, they are not used for any other purpose.
     res.s_AdjustedUsage = this->applyMemoryStrategy(this->adjustedUsage(res.s_Usage));
