@@ -380,10 +380,12 @@ CResourceMonitor::SModelSizeStats
 CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
     res.s_Usage = this->totalMemory();
-    res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
     res.s_PeakUsage = static_cast<std::size_t>(
-        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
-    res.s_AdjustedPeakUsage = this->adjustedUsage(res.s_PeakUsage);
+            core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
+    // On Linux both adjusted usage and adjusted peak usage are set to system memory usage (max resident set size)
+    // These are the values reported back to the Java process, they are not used for any other purpose.
+    res.s_AdjustedUsage = this->applyMemoryStrategy(this->adjustedUsage(res.s_Usage));
+    res.s_AdjustedPeakUsage = this->applyMemoryStrategy(this->adjustedUsage(res.s_PeakUsage));
     res.s_BytesMemoryLimit = this->getBytesMemoryLimit();
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
@@ -504,9 +506,9 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return this->applyMemoryStrategy(m_MonitoredResourceCurrentMemory + m_ExtraMemory +
-                                     static_cast<size_t>(core::CProgramCounters::counter(
-                                         counter_t::E_TSADOutputMemoryAllocatorUsage)));
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
+           static_cast<size_t>(core::CProgramCounters::counter(
+               counter_t::E_TSADOutputMemoryAllocatorUsage));
 }
 
 std::size_t CResourceMonitor::systemMemory() {
