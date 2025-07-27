@@ -167,7 +167,6 @@ BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
         ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME, dummy)};
     BOOST_TEST_REQUIRE(file);
 
-    sleep(1);
     std::size_t charsLeft{TEST_SIZE};
     std::size_t blockSize{7};
     while (charsLeft > 0) {
