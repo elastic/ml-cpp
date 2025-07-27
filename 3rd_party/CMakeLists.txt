@@ -22,7 +22,7 @@ add_custom_target(licenses ALL
 # as part of the CMake configuration step - avoiding
 # the need for it to be done on every build
 execute_process(
-    COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=${INSTALL_DIR} -DCMAKE_CXX_COMPILER_VERSION_MAJOR=${CMAKE_CXX_COMPILER_VERSION_MAJOR} -P ./3rd_party.cmake
+    COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=${INSTALL_DIR} -P ./3rd_party.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
