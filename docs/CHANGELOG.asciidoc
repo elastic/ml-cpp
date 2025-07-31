@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 9.2.0
+
+=== Enhancements
+
+* Report the actual memory usage of the autodetect process. (See {ml-pull}2846[#2846])
+
 == {es} version 9.1.0
 
 === Enhancements

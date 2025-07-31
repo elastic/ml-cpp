@@ -24,6 +24,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CProcessStats.h>
 #include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
@@ -83,7 +84,9 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberMemoryLimitModelCreationFailures,
         ml::counter_t::E_TSADNumberPrunedItems,
         ml::counter_t::E_TSADAssignmentMemoryBasis,
-        ml::counter_t::E_TSADOutputMemoryAllocatorUsage};
+        ml::counter_t::E_TSADOutputMemoryAllocatorUsage,
+        ml::counter_t::E_TSADSystemMemoryUsage,
+        ml::counter_t::E_TSADMaxSystemMemoryUsage};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
@@ -151,6 +154,8 @@ int main(int argc, char** argv) {
     }
     cancellerThread.stop();
 
+    LOG_DEBUG(<< "Max Resident Set Size: " << ml::core::CProcessStats::maxResidentSetSize());
+    LOG_DEBUG(<< "Resident Set Size: " << ml::core::CProcessStats::residentSetSize());
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.

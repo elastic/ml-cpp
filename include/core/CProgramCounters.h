@@ -112,6 +112,12 @@ enum ECounterTypes {
     //! The memory currently used by the allocators to output JSON documents, in bytes.
     E_TSADOutputMemoryAllocatorUsage = 30,
 
+    //! The resident set size of the process, in bytes.
+    E_TSADSystemMemoryUsage = 31,
+
+    //! The maximum resident set size of the process, in bytes.
+    E_TSADMaxSystemMemoryUsage = 32,
+
     // Data Frame Outlier Detection
 
     //! The estimated peak memory usage for outlier detection in bytes
@@ -146,7 +152,7 @@ enum ECounterTypes {
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 31
+    E_LastEnumCounter = 33
 };
 
 static constexpr std::size_t NUM_COUNTERS = static_cast<std::size_t>(E_LastEnumCounter);
@@ -355,6 +361,10 @@ private:
           "Which option is being used to get model memory for node assignment?"},
          {counter_t::E_TSADOutputMemoryAllocatorUsage, "E_TSADOutputMemoryAllocatorUsage",
           "The amount of memory used to output JSON documents, in bytes."},
+         {counter_t::E_TSADSystemMemoryUsage, "E_TSADSystemMemoryUsage",
+          "The amount of system memory used by the process, in bytes"},
+         {counter_t::E_TSADMaxSystemMemoryUsage, "E_TSADMaxSystemMemoryUsage",
+          "The maximum amount of system memory used by the process, in bytes"},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
           "The upfront estimate of the peak memory outlier detection would use"},
          {counter_t::E_DFOPeakMemoryUsage, "E_DFOPeakMemoryUsage", "The peak memory outlier detection used"},
