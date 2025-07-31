@@ -92,6 +92,17 @@ Note that we configure the build to be of type `RelWithDebInfo` in order to obta
     1. It is also possible to control the behaviour of the test framework by passing any other arbitrary flags via the
        `TEST_FLAGS` environment variable , e.g. `TEST_FLAGS="--random" cmake --build cmake-build-relwithdebinfo -t test`
        (use TEST_FLAGS="--help" to see the full list).
+1. On Linux and maOS it is possible to run individual tests within a Boost Test suite in separate processes.
+   1. This is convenient for several reasons:
+      1. Isolation: Prevent one test's failures (e.g., memory corruption, unhandled exceptions) from affecting subsequent tests.
+      1. Resource Management: Clean up of resources (memory, file handles, network connections) between tests more effectively.
+      1. Stability: Improve the robustness of test suites, especially for long-running or complex tests.
+      1. Parallelization: A means to run individual test cases in parallel has been provided:
+         1. For all tests associated with a library or executable, e.g.
+         `cmake --build cmake-build-relwithdebinfo -j 8 -t test_api_individually`
+         1. For all tests in the `ml-cpp` repo:
+         `cmake --build cmake-build-relwithdebinfo -j 8 -t test_individually`
+   1. **Care should be taken that tests don't modify common resources.**
 1. As a convenience, there exists a `precommit` target that both formats the code and runs the entire test suite, e.g.
     1. `./gradlew precommit`
     1. `cmake --build cmake-build-relwithdebinfo -j 8 -t precommit`
