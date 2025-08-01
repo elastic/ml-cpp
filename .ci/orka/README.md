@@ -9,7 +9,7 @@
 ## Files
 
 - `install.sh` The script that does the software installs on the image
-- `orka-macos-12-arm.pkr.hcl` The packer definition for a MacOS 12 ARM builder image
+- `orka-macos-13-arm.pkr.hcl` The packer definition for a MacOS 13 ARM builder image
 
 
 ## Set Up Packer
@@ -26,7 +26,7 @@ Make sure you are connected to the Orka VM.
 
 Packer requires access to secrets in vault, where VAULT_ADDR=https://vault-ci-prod.elastic.dev and VAULT_TOKEN must be set appropriately in the environment.
 
-Run the following to create the image (MacOS 12 ARM in this example):
+Run the following to create the image (MacOS 13 ARM in this example):
 
 ```
 packer build orka-macos-13-arm.pkr.hcl
@@ -63,7 +63,7 @@ The ML packer scripts do the following:
  * Install JDK `11.0.25`
  * Install CMake `3.30.5`
  * Install Boost `1.86.0` from source
- * Install PyTorch `2.5.1` from source
+ * Install PyTorch `2.7.1` from source
 
 ## Caveats
 
