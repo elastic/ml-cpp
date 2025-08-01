@@ -333,7 +333,7 @@ Then copy the shared libraries to the system directory:
 (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc133 && sudo tar xvf -)
 ```
 
-### PyTorch 2.5.1
+### PyTorch 2.7.1
 
 (This step requires a reasonable amount of memory. It failed on a machine with 8GB of RAM. It succeeded on a 16GB machine. You can specify the number of parallel jobs using environment variable MAX_JOBS. Lower number of jobs will reduce memory usage.)
 
@@ -352,7 +352,7 @@ sudo /usr/local/gcc133/bin/python3.12 -m pip install numpy pyyaml setuptools cff
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.5.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.7.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -386,7 +386,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.5.1
+export PYTORCH_BUILD_VERSION=2.7.1
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc133/bin/python3.12 setup.py install
 ```

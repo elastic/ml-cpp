@@ -27,6 +27,11 @@
 //=== Bug Fixes
 
 //=== Regressions
+== {es} version 9.2.0
+
+=== Enhancements
+
+* Update the PyTorch library to version 2.7.1. (See {ml-pull}2863[#2863].)
 
 == {es} version 9.2.0
 

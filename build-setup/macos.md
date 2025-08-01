@@ -133,18 +133,18 @@ Download the graphical installer for Python 3.10.10 from <https://www.python.org
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 2.5.1
+### PyTorch 2.7.1
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
 ```
-sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /Library/Frameworks/Python.framework/Versions/3.12/bin/pip3.12 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.5.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.7.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -188,9 +188,9 @@ export DNNL_TARGET_ARCH=AARCH64
 export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.5.1
+export PYTORCH_BUILD_VERSION=2.7.1
 export PYTORCH_BUILD_NUMBER=1
-/Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 setup.py install
+/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12 setup.py install
 ```
 
 Once built copy headers and libraries to system directories:
