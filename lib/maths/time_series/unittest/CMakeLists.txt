@@ -30,7 +30,9 @@ set (SRCS
   CTimeSeriesDecompositionTest.cc
   CTimeSeriesModelTest.cc
   CTimeSeriesMultibucketFeaturesTest.cc
+  CTimeSeriesPredictorTest.cc
   CTimeSeriesSegmentationTest.cc
+  CTimeSeriesSmoothingTest.cc
   CTimeSeriesTestForChangeTest.cc
   CTimeSeriesTestForSeasonalityTest.cc
   CTrendComponentTest.cc
