@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ostream>
 #include <vector>
 
 namespace ml {
@@ -103,6 +104,15 @@ public:
 
         //! Get the cluster checksum.
         std::uint64_t checksum() const { return m_Checksum; }
+
+        //! \brief Stream insertion operator for CCluster.
+        //! This is defined here for use in Boost unit tests to print clusters
+        //! when a test fails.
+        friend std::ostream& operator<<(std::ostream& strm, const CCluster& cluster) {
+            return strm << "Cluster{ cost: " << cluster.cost()
+                        << ", centre: " << cluster.centre().toDelimited()
+                        << ", points checksum: " << cluster.checksum() << " }";
+        }
 
     private:
         //! The information criterion cost of this cluster.
