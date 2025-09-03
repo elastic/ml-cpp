@@ -27,6 +27,17 @@
 //=== Bug Fixes
 
 //=== Regressions
+== {es} version 9.2.0
+
+=== Enhancements
+
+* Update the PyTorch library to version 2.7.1. (See {ml-pull}2863[#2863].)
+
+== {es} version 9.2.0
+
+=== Enhancements
+
+* Report the actual memory usage of the autodetect process. (See {ml-pull}2846[#2846])
 
 == {es} version 9.1.0
 
@@ -55,6 +66,11 @@
 
 * Update the PyTorch library to version 2.5.1. (See {ml-pull}2783[#2798], {ml-pull}2799[#2799].)
 * Upgrade Boost libraries to version 1.86. (See {ml-pull}2780[#2780], {ml-pull}2779[#2779].)
+
+== {es} version 8.17.7
+
+=== Enhancements
+* Restrict file system access for PyTorch models (See {ml-pull}2851[#2851].)
 
 == {es} version 8.16.6
 

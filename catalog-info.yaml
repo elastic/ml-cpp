@@ -156,7 +156,7 @@ spec:
         build_branches: true
         build_pull_request_forks: false
         cancel_deleted_branch_builds: true
-        filter_condition: build.branch == "main" || build.branch == "9.0" || build.branch == "8.x" || build.branch == "8.18" || build.branch == "8.17" || build.branch == "8.16" ||  build.branch == "7.17"
+        filter_condition: build.branch == "main" || build.branch == "9.1" || build.branch == "9.0" || build.branch == "8.19" || build.branch == "8.18" || build.branch == "8.17" || build.branch == "7.17"
         filter_enabled: true
         publish_blocked_as_pending: true
         publish_commit_status: false
@@ -168,26 +168,26 @@ spec:
           branch: '7.17'
           cronline: 30 06 * * *
           message: Daily SNAPSHOT build for 7.17
-        Daily 8_16:
-          branch: '8.16'
-          cronline: 30 05 * * *
-          message: Daily SNAPSHOT build for 8.16
         Daily 8_17:
           branch: '8.17'
-          cronline: 30 04 * * *
+          cronline: 30 05 * * *
           message: Daily SNAPSHOT build for 8.17
         Daily 8_18:
           branch: '8.18'
-          cronline: 30 03 * * *
+          cronline: 30 04 * * *
           message: Daily SNAPSHOT build for 8.18
-        Daily 8_x:
-          branch: '8.x'
-          cronline: 30 02 * * *
-          message: Daily SNAPSHOT build for 8.x
+        Daily 8_19:
+          branch: '8.19'
+          cronline: 30 03 * * *
+          message: Daily SNAPSHOT build for 8.19
         Daily 9.0:
           branch: '9.0'
-          cronline: 30 01 * * *
+          cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 9.0
+        Daily 9.1:
+          branch: '9.1'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 9.1
         Daily main:
           branch: main
           cronline: 30 00 * * *

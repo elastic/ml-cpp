@@ -36,7 +36,7 @@ agents = {
       "cpu": "6",
       "ephemeralStorage": "20G",
       "memory": "64G",
-      "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:33")
+      "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:34")
    },
    "aarch64": {
       "provider": "aws",
@@ -72,7 +72,6 @@ def main(args):
                   "RUN_TESTS": "true",
                   "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
                 },
-                "artifact_paths": "*/**/unittest/boost_test_results.junit",
                 "plugins": {
                   "test-collector#v1.2.0": {                                                              
                     "files": "*/*/unittest/boost_test_results.junit",
@@ -101,7 +100,7 @@ def main(args):
               "cpu": "6",
               "ephemeralStorage": "20G",
               "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:16"
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:17"
             },
             "commands": [
               ".buildkite/scripts/steps/build_and_test.sh"

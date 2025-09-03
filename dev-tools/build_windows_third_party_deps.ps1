@@ -68,7 +68,7 @@ Write-Host "--- Done Installing libxml2 2.9.14"
 Write-Host "--- Installing boost 1.86.0"
 cd c:\tools
 $Archive="boost_1_86_0.tar.bz2"
-$ZipSource="https://archives.boost.io/main/release/1.86.0/source/$Archive"
+$ZipSource="https://archives.boost.io/release/1.86.0/source/$Archive"
 $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
 C:\Progra~1\git\bin\bash.exe -c "tar jxvf boost_1_86_0.tar.bz2"
@@ -117,7 +117,7 @@ mv "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\$f\
 # Build and install PyTorch (this may take a while)
 Write-Host "--- Installing PyTorch locally"
 cd c:\tools
-git clone --depth=1 --branch=v2.5.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.7.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -131,7 +131,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.5.1
+set PYTORCH_BUILD_VERSION=2.7.1
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 Write-Host "--- Done Installing PyTorch locally"

@@ -88,11 +88,14 @@ do
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
     prefetch_docker_base_image "$DOCKERFILE"
-    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg BOOST_TEST_OUTPUT_FORMAT_FLAGS=$BOOST_TEST_OUTPUT_FORMAT_FLAGS --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
+    docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg BOOST_TEST_OUTPUT_FORMAT_FLAGS=$BOOST_TEST_OUTPUT_FORMAT_FLAGS --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . $EXTRACT_FIND | xargs tar cf - $EXTRACT_EXPLICIT && sleep 30" | tar xvf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . \( $EXTRACT_FIND \) -print0 |  tar cf - $EXTRACT_EXPLICIT --null -T -" | tar xvf -
+    if [ $? != 0 ]; then
+      echo "Copying build and test artifacts from docker container failed"
+    fi
     docker rmi --force $TEMP_TAG
     # The image build is set to return zero (i.e. succeed as far as Docker is
     # concerned) when the only problem is that the unit tests fail, as this

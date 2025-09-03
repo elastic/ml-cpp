@@ -32,41 +32,6 @@ using TVector2 = ml::maths::common::CVectorNx1<double, 2>;
 using TVector4 = ml::maths::common::CVectorNx1<double, 4>;
 using TVector4Vec = std::vector<TVector4>;
 
-// TODO boost test: replace these output operators
-// with a more generic way of printing clusters in
-// the production code
-namespace ml {
-namespace maths {
-namespace common {
-
-std::ostream& operator<<(std::ostream& strm,
-                         const typename CXMeans<TVector2>::CCluster& cluster) {
-    return strm << "Cluster{ cost: " << cluster.cost()
-                << ", centre: " << cluster.centre().toDelimited()
-                << ", points checksum: " << cluster.checksum() << " }";
-}
-
-std::ostream& operator<<(std::ostream& strm,
-                         const typename CXMeans<TVector4>::CCluster& cluster) {
-    return strm << "Cluster{ cost: " << cluster.cost()
-                << ", centre: " << cluster.centre().toDelimited()
-                << ", points checksum: " << cluster.checksum() << " }";
-}
-
-std::ostream& operator<<(std::ostream& strm,
-                         const typename CXMeans<TVector4Vec>::CCluster& cluster) {
-    strm << "Cluster{ cost: " << cluster.cost() << ", centre: ";
-    const char* delim{"("};
-    for (const auto& element : cluster.centre()) {
-        strm << delim << element.toDelimited() << ')';
-        delim = ", (";
-    }
-    return strm << ", points checksum: " << cluster.checksum() << " }";
-}
-}
-}
-}
-
 BOOST_AUTO_TEST_SUITE(CXMeansTest)
 
 using namespace ml;
