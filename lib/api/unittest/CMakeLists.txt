@@ -57,6 +57,7 @@ set (SRCS
   CStateRestoreStreamFilterTest.cc
   CTestAnomalyJob.cc
   CTestFieldDataCategorizer.cc
+  MyForecastTest.cc
   )
 
 set(ML_LINK_LIBRARIES
