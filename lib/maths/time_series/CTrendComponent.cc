@@ -518,7 +518,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
                                core_t::TTime step,
                                double confidence,
                                bool isNonNegative,
-                               const TSeasonalForecast& seasonal,
+                               const TSeasonalForecast& getSeasonalForecastBounds,
                                const TWriteForecastResult& writer) const {
     if (endTime < startTime) {
         LOG_ERROR(<< "Bad forecast range: [" << startTime << "," << endTime << "]");
@@ -600,7 +600,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         TVector2x1 trend{confidenceInterval(
             this->value(modelWeights, models, scaleTime(time, m_RegressionOrigin)),
             variance, confidence)};
-        TDouble3Vec seasonal_(seasonal(time));
+        TDouble3Vec seasonal_(getSeasonalForecastBounds(time));
         TDouble3Vec level_(level.forecast(time, seasonal_[1] + trend.mean(), confidence));
 
         TDouble3Vec forecast{level_[0] + trend(0) + seasonal_[0],
