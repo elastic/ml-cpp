@@ -9,9 +9,11 @@
  * limitation.
  */
 
+#include "test/BoostTestCloseAbsolute.h"
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -21,6 +23,7 @@
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTrendComponent.h>
+#include <maths/time_series/CTimeSeriesTestForSeasonality.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -465,6 +468,181 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         newJson, std::bind_front(&maths::time_series::CTrendComponent::acceptPersistInserter,
                                  &restoredComponent));
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
+}
+
+BOOST_AUTO_TEST_CASE(testModelBoundsWithFlatDataAndNoise) {
+    // Test that model bounds don't narrow indefinitely with flat data + noise
+    // and that prediction error variance doesn't drop below a reasonable floor.
+    // This addresses the issue where model bounds continue to get narrower 
+    // in the presence of only random noise, leading to false seasonal detection.
+
+    test::CRandomNumbers rng;
+
+    const double FLAT_VALUE = 10.0;
+    const double NOISE_STD = 1.0;
+    const core_t::TTime DURATION = 30 * core::constants::DAY; // 30 days of data
+    
+    maths::time_series::CTrendComponent component{0.01};
+    TDoubleVec boundsWidths;
+    TDoubleVec variances;
+    TDoubleVec predictionErrors;
+
+    LOG_DEBUG(<< "Testing model bounds behavior with flat data + noise");
+    LOG_DEBUG(<< "Flat value: " << FLAT_VALUE << ", Noise std: " << NOISE_STD);
+    LOG_DEBUG(<< "Duration: " << DURATION / core::constants::DAY << " days");
+
+    for (core_t::TTime time = 0; time < DURATION; time += BUCKET_LENGTH) {
+        TDoubleVec noise;
+        rng.generateNormalSamples(FLAT_VALUE, NOISE_STD, 1, noise);
+        
+        double prediction = component.value(time, 0.0).mean();
+        double predictionError = noise[0] - prediction;
+        predictionErrors.push_back(predictionError);
+        
+        component.add(time, noise[0]);
+        
+        // Record model bounds width
+        auto bounds = component.value(time, 95.0);
+        double boundsWidth = bounds(1) - bounds(0);
+        boundsWidths.push_back(boundsWidth);
+        
+        // Record prediction error variance
+        auto variance = component.variance(0.0);
+        variances.push_back(variance.mean());
+        
+        if (time % (7 * core::constants::DAY) == 0) {
+            LOG_DEBUG(<< "Day " << time / core::constants::DAY 
+                      << ": bounds width = " << boundsWidth 
+                      << ", variance = " << variance.mean());
+        }
+    }
+
+    // Prediction error variance should converge to the noise variance
+    double expectedMinVariance = NOISE_STD * NOISE_STD;
+    double meanLast10Variance = std::accumulate(variances.end() - 10, variances.end(), 0.0) / 10.0;
+
+    LOG_DEBUG(<< "Expected minimum variance: " << expectedMinVariance);
+    LOG_DEBUG(<< "Mean of last 10 variances: " << meanLast10Variance);
+    
+    BOOST_TEST_REQUIRE(meanLast10Variance > expectedMinVariance);
+    BOOST_TEST_REQUIRE(meanLast10Variance < expectedMinVariance * 1.10);
+
+    // Model bounds should not narrow below one standard deviation of noise
+    double meanLast10BoundsWidth = std::accumulate(boundsWidths.end() - 10, boundsWidths.end(), 0.0) / 10.0;
+    double expectedMinBounds = 2* 1.96 * NOISE_STD; // Statistical 95% confidence interval for a normal distribution
+    
+    LOG_DEBUG(<< "Expected minimum bounds: " << expectedMinBounds);
+    LOG_DEBUG(<< "Mean of last 10 bounds widths: " << meanLast10BoundsWidth);
+    
+    BOOST_TEST_REQUIRE(meanLast10BoundsWidth > expectedMinBounds);
+    
+    // Prediction errors should be approximately normally distributed
+    TMeanVarAccumulator errorMoments;
+
+    int testCounter = 0;
+    for (double error : predictionErrors) {
+        errorMoments.add(error);
+        testCounter++;
+        if (testCounter %100 ==0) {
+            LOG_DEBUG(<<"Error moments: mean = " << maths::common::CBasicStatistics::mean(errorMoments) 
+            << ", variance = " << maths::common::CBasicStatistics::variance(errorMoments));
+        }
+    }
+    
+    double errorMean = maths::common::CBasicStatistics::mean(errorMoments);
+    double errorStd = std::sqrt(maths::common::CBasicStatistics::variance(errorMoments));
+    
+    LOG_DEBUG(<< "Prediction error mean: " << errorMean);
+    LOG_DEBUG(<< "Prediction error std: " << errorStd);
+    
+    // Error mean should be close to zero (unbiased)
+    BOOST_TEST_REQUIRE(std::fabs(errorMean) < 0.05 * NOISE_STD);
+    
+    // Error std should be close to noise std
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(errorStd, NOISE_STD, 0.15 * NOISE_STD);
+}
+
+BOOST_AUTO_TEST_CASE(testNoFalseSeasonalDetectionWithNoise) {
+    // Test that pure noise doesn't trigger seasonal detection.
+    // This addresses the false positive seasonal component detection
+    // that occurs when model bounds become too narrow.
+
+    test::CRandomNumbers rng;
+
+    const core_t::TTime DURATION = 30 * core::constants::DAY; // 30 days
+    const double NOISE_STD = 1.0;
+    const double FLAT_VALUE = 10.0;
+
+    LOG_DEBUG(<< "Testing false seasonal detection with pure noise");
+    LOG_DEBUG(<< "Duration: " << DURATION / core::constants::DAY << " days");
+    LOG_DEBUG(<< "Noise std: " << NOISE_STD);
+
+    maths::time_series::CTrendComponent::TFloatMeanAccumulatorVec values;
+    TDoubleVec noise;
+    rng.generateNormalSamples(FLAT_VALUE, NOISE_STD, DURATION / BUCKET_LENGTH, noise);
+
+    for (std::size_t i = 0; i < noise.size(); ++i) {
+        values.emplace_back();
+        values.back().add(noise[i]);
+    }
+
+    LOG_DEBUG(<< "Generated " << values.size() << " data points");
+    LOG_DEBUG(<< "Data mean: " << FLAT_VALUE << ", Data std: " << NOISE_STD);
+
+    // Test seasonal detection with pure noise
+    maths::time_series::CTimeSeriesTestForSeasonality seasonality{
+        0, 0, BUCKET_LENGTH, BUCKET_LENGTH, values};
+
+    auto result = seasonality.decompose();
+    
+    LOG_DEBUG(<< "Seasonal detection result: " << result.print());
+    LOG_DEBUG(<< "Number of seasonal components detected: " << result.seasonal().size());
+    
+    // Should detect no seasonality in pure noise
+    BOOST_TEST_REQUIRE(result.seasonal().empty());
+}
+
+BOOST_AUTO_TEST_CASE(testModelBoundsStabilityWithDifferentNoiseLevels) {
+    // Test model bounds stability across different noise levels
+    // to ensure the algorithm doesn't become overconfident with varying noise.
+
+    test::CRandomNumbers rng;
+
+    const core_t::TTime DURATION = 30 * core::constants::DAY;
+    const double FLAT_VALUE = 10.0;
+    const TDoubleVec NOISE_LEVELS = {0.5, 1.0, 2.0, 5.0};
+
+    for (double noiseStd : NOISE_LEVELS) {
+        LOG_DEBUG(<< "Testing with noise std: " << noiseStd);
+        
+        maths::time_series::CTrendComponent component{0.01};
+        TDoubleVec boundsWidths;
+
+        for (core_t::TTime time = 0; time < DURATION; time += BUCKET_LENGTH) {
+            TDoubleVec noise;
+            rng.generateNormalSamples(FLAT_VALUE, noiseStd, 1, noise);
+            component.add(time, noise[0]);
+            
+            auto bounds = component.value(time, 95.0);
+            boundsWidths.push_back(bounds(1) - bounds(0));
+
+            if (time % (7 * core::constants::DAY) == 0) {
+                LOG_DEBUG(<< "Day " << time / core::constants::DAY 
+                          << ": bounds width = " << boundsWidths.back());
+            }
+        }
+
+        double meanLast10BoundsWidth = std::accumulate(boundsWidths.end() - 10, boundsWidths.end(), 0.0) / 10.0;
+        double expectedMinBounds = 2.0 * 1.96 * noiseStd; // Statistical 95% confidence interval for a normal distribution
+        
+        LOG_DEBUG(<< "Noise std: " << noiseStd 
+                  << ", Mean of last 10 bounds widths: " << meanLast10BoundsWidth 
+                  << ", Expected min: " << expectedMinBounds);
+        
+        // Bounds should scale appropriately with noise level
+        BOOST_TEST_REQUIRE(meanLast10BoundsWidth > expectedMinBounds);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(meanLast10BoundsWidth, expectedMinBounds, 0.15 * expectedMinBounds);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
