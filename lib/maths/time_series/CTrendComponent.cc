@@ -29,6 +29,7 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
+
 #include <maths/time_series/CSignal.h>
 
 #include <boost/math/distributions/chi_squared.hpp>
@@ -120,7 +121,7 @@ TVector2x1 confidenceIntervalT(double prediction, double variance, double confid
             double t_critical = boost::math::quantile(t, (100.0 + confidence) / 200.0);
             double margin = t_critical * std::sqrt(variance);
             
-            LOG_DEBUG(<< "T-Distribution Debug: df=" << df << ", t_critical=" << t_critical 
+            LOG_TRACE(<< "T-Distribution Debug: df=" << df << ", t_critical=" << t_critical 
                       << ", margin=" << margin << ", bounds=[" << (prediction - margin) 
                       << ", " << (prediction + margin) << "]");
             
@@ -490,16 +491,9 @@ CTrendComponent::TVector2x1 CTrendComponent::value(core_t::TTime time, double co
         // double minVariance = std::max(variance, dataVariance * 0.5); // Ensure at least 50% of data variance
         // variance = minVariance;
         
-        // Debug: Log the prediction error variance to understand overfitting
-        LOG_DEBUG(<< "Prediction Error Variance: " << m_PredictionErrorVariance 
-                  << " (should be similar to noise variance)");
-        
-        LOG_DEBUG(<< "Variance Debug: m_PredictionErrorVariance=" << m_PredictionErrorVariance 
-                  << ", n_eff=" << n_eff << ", variance=" << variance << ", a=" << a << ", b=" << b);
-        
         // Use t-distribution when we have autocorrelation (n_eff < n) to get wider confidence intervals
         double n_raw = this->count();
-        LOG_DEBUG(<< "Confidence Debug: n_raw=" << n_raw << ", n_eff=" << n_eff << ", using_t_dist=" << (n_eff < n_raw));
+        
         if (n_eff < n_raw) {
             return confidenceIntervalT(prediction, variance, confidence, n_eff);
         } else {
@@ -558,23 +552,16 @@ core_t::TTime CTrendComponent::maximumForecastInterval() const {
 
 CTrendComponent::TVector2x1 CTrendComponent::variance(double confidence) const {
 
-    LOG_DEBUG(<< "Variance Debug: called with confidence=" << confidence);
-
     if (this->initialized() == false) {
-        LOG_DEBUG(<< "Variance Debug: not initialized");
         return TVector2x1{0.0};
     }
 
     double variance{m_PredictionErrorVariance};
-    LOG_DEBUG(<< "Variance Debug: prediction_error_variance=" << variance);
 
     if (confidence > 0.0 && variance > 0.0) {
         // Use effective sample size to account for autocorrelation
         double n_eff = calculateEffectiveSampleSize();
         double df{std::max(n_eff, 2.0) - 1.0}; // Degrees of freedom based on effective sample size
-        
-        LOG_DEBUG(<< "Variance Debug: confidence=" << confidence << ", variance=" << variance 
-                  << ", n_eff=" << n_eff << ", df=" << df);
         
         try {
             boost::math::chi_squared chi{df};
@@ -583,11 +570,6 @@ CTrendComponent::TVector2x1 CTrendComponent::variance(double confidence) const {
             
             double lower_bound = ql * variance / df;
             double upper_bound = qu * variance / df;
-            
-            LOG_DEBUG(<< "Variance Debug: ql=" << ql << ", qu=" << qu 
-                      << ", lower_bound=" << lower_bound << ", upper_bound=" << upper_bound
-                      << ", bounds_width=" << (upper_bound - lower_bound));
-            
             return TVector2x1{{lower_bound, upper_bound}};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
@@ -897,19 +879,7 @@ double CTrendComponent::calculateEffectiveSampleSize() const {
             autocorr_sum += std::abs(autocorrs[k]);
         }
         
-        // Debug: Print autocorrelation coefficients
-        LOG_DEBUG(<< "Autocorrelation coefficients (first 10):");
-        for (std::size_t k = 0; k < std::min(autocorrs.size(), std::size_t(10)); ++k) {
-            LOG_DEBUG(<< "  rho[" << k << "] = " << autocorrs[k]);
-        }
-        
         double n_eff = n / (1.0 + 2.0 * autocorr_sum);
-        
-        // Don't cap n_eff - let it be calculated properly based on actual autocorrelation
-        
-        LOG_DEBUG(<< "Autocorrelation Debug: n=" << n << ", autocorr_sum=" << autocorr_sum 
-                  << ", n_eff=" << n_eff << ", reduction_factor=" << (n_eff / n));
-        
         // Ensure n_eff is reasonable
         return std::max(1.0, std::min(n, n_eff));
         

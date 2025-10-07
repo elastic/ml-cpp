@@ -9,25 +9,25 @@
  * limitation.
  */
 
-#include "test/BoostTestCloseAbsolute.h"
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
-#include <core/CLogger.h>
-#include <core/Constants.h>
-#include <core/CoreTypes.h>
-
-#include <maths/common/CBasicStatistics.h>
-#include <maths/common/CLeastSquaresOnlineRegression.h>
-#include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
-#include <maths/common/CRestoreParams.h>
-
-#include <maths/time_series/CDecayRateController.h>
-#include <maths/time_series/CTrendComponent.h>
-#include <maths/time_series/CTimeSeriesTestForSeasonality.h>
-
-#include <test/CRandomNumbers.h>
-
-#include <boost/test/unit_test.hpp>
+ #include <core/CJsonStatePersistInserter.h>
+ #include <core/CJsonStateRestoreTraverser.h>
+ #include <core/CLogger.h>
+ #include <core/Constants.h>
+ #include <core/CoreTypes.h>
+ 
+ #include <maths/common/CBasicStatistics.h>
+ #include <maths/common/CLeastSquaresOnlineRegression.h>
+ #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
+ #include <maths/common/CRestoreParams.h>
+ 
+ #include <maths/time_series/CDecayRateController.h>
+ #include <maths/time_series/CTrendComponent.h>
+ #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
+ 
+ #include <test/CRandomNumbers.h>
+ #include <test/BoostTestCloseAbsolute.h>
+ 
+ #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -509,12 +509,6 @@ BOOST_AUTO_TEST_CASE(testModelBoundsWithFlatDataAndNoise) {
         // Record prediction error variance
         auto variance = component.variance(0.0);
         variances.push_back(variance.mean());
-        
-        if (time % (7 * core::constants::DAY) == 0) {
-            LOG_DEBUG(<< "Day " << time / core::constants::DAY 
-                      << ": bounds width = " << boundsWidth 
-                      << ", variance = " << variance.mean());
-        }
     }
 
     // Prediction error variance should converge to the noise variance
@@ -581,9 +575,9 @@ BOOST_AUTO_TEST_CASE(testNoFalseSeasonalDetectionWithNoise) {
     TDoubleVec noise;
     rng.generateNormalSamples(FLAT_VALUE, NOISE_STD*NOISE_STD, DURATION / BUCKET_LENGTH, noise);
 
-    for (std::size_t i = 0; i < noise.size(); ++i) {
+    for (double i : noise) {
         values.emplace_back();
-        values.back().add(noise[i]);
+        values.back().add(i);
     }
 
     LOG_DEBUG(<< "Generated " << values.size() << " data points");

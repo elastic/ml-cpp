@@ -24,17 +24,15 @@
 
 #include <maths/time_series/CSignal.h>
 
+#include <boost/math/distributions/fisher_f.hpp>
+
 #include <algorithm>
 #include <limits>
 #include <numeric>
-#include <boost/math/distributions/fisher_f.hpp>
 
-namespace ml {
-namespace maths {
-namespace time_series {
-
+namespace {
 // Helper function to calculate Kish effective sample size
-double calculateKishESS(const CTimeSeriesSegmentation::TFloatMeanAccumulatorVec& values, 
+double calculateKishESS(const ml::maths::time_series::CTimeSeriesSegmentation::TFloatMeanAccumulatorVec& values, 
                        std::size_t begin, std::size_t end) {
     // Bounds checking to prevent memory access violations
     if (begin >= values.size() || end > values.size() || begin >= end) {
@@ -45,13 +43,18 @@ double calculateKishESS(const CTimeSeriesSegmentation::TFloatMeanAccumulatorVec&
     double sumSquaredWeights = 0.0;
     
     for (std::size_t i = begin; i < end; ++i) {
-        double weight = common::CBasicStatistics::count(values[i]);
+        double weight = ml::maths::common::CBasicStatistics::count(values[i]);
         sumWeights += weight;
         sumSquaredWeights += weight * weight;
     }
     
     return sumWeights > 0.0 ? (sumWeights * sumWeights) / sumSquaredWeights : 0.0;
 }
+}
+
+namespace ml {
+namespace maths {
+namespace time_series {
 
 CTimeSeriesSegmentation::TSizeVec
 CTimeSeriesSegmentation::piecewiseLinear(const TFloatMeanAccumulatorVec& values,
