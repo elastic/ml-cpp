@@ -24,33 +24,9 @@
 
 #include <maths/time_series/CSignal.h>
 
-#include <boost/math/distributions/fisher_f.hpp>
-
 #include <algorithm>
 #include <limits>
 #include <numeric>
-
-namespace {
-// Helper function to calculate Kish effective sample size
-double calculateKishESS(const ml::maths::time_series::CTimeSeriesSegmentation::TFloatMeanAccumulatorVec& values, 
-                       std::size_t begin, std::size_t end) {
-    // Bounds checking to prevent memory access violations
-    if (begin >= values.size() || end > values.size() || begin >= end) {
-        return 0.0;
-    }
-    
-    double sumWeights = 0.0;
-    double sumSquaredWeights = 0.0;
-    
-    for (std::size_t i = begin; i < end; ++i) {
-        double weight = ml::maths::common::CBasicStatistics::count(values[i]);
-        sumWeights += weight;
-        sumSquaredWeights += weight * weight;
-    }
-    
-    return sumWeights > 0.0 ? (sumWeights * sumWeights) / sumSquaredWeights : 0.0;
-}
-}
 
 namespace ml {
 namespace maths {
@@ -445,46 +421,17 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
                   << ", left moments = " << leftResidualMoments << ", right moments = "
                   << rightResidualMoments << ", mean abs = " << meanAbsValues);
 
-        // Calculate RSS-based F-test with Kish ESS
-        double RSS0 = common::CBasicStatistics::count(residualMoments) * 
-                      common::CBasicStatistics::maximumLikelihoodVariance(residualMoments);
-        double RSSL = common::CBasicStatistics::count(leftResidualMoments) * 
-                      common::CBasicStatistics::maximumLikelihoodVariance(leftResidualMoments);
-        double RSSR = common::CBasicStatistics::count(rightResidualMoments) * 
-                      common::CBasicStatistics::maximumLikelihoodVariance(rightResidualMoments);
-        double RSS1 = RSSL + RSSR;
-        
-        // Calculate Kish ESS for effective degrees of freedom
-        double n0 = calculateKishESS(reweighted, 0, reweighted.size());
-        double nL = calculateKishESS(reweighted, 0, splitOffset);
-        double nR = calculateKishESS(reweighted, splitOffset, reweighted.size());
-        double n1 = nL + nR;
-        
-        // Canonical F-test: F = ((RSS0 - RSS1)/(p1 - p0)) / (RSS1/(n1 - p1))
-        int p0 = 2;  // single line: intercept + slope
-        int p1 = 4;  // two lines: 2 parameters each
-        int df1 = p1 - p0;
-        int df2 = std::max(1, static_cast<int>(std::round(n1)) - p1);
-        
-        double F = ((RSS0 - RSS1) / df1) / (RSS1 / df2);
-        double pValue = 1.0;
-        
-        // Handle edge cases where F-test is not applicable
-        if (F <= 0.0 || RSS1 <= 0.0 || df2 <= 0) {
-            LOG_TRACE(<< "  F-test not applicable: F=" << F << ", RSS1=" << RSS1 << ", df2=" << df2);
-            pValue = 1.0; // Don't split if F-test is not applicable
-        } else {
-            try {
-                boost::math::fisher_f f_dist(df1, df2);
-                pValue = 1.0 - boost::math::cdf(f_dist, F);
-            } catch (const std::exception& e) {
-                LOG_ERROR(<< "F-test calculation failed: " << e.what() << ", F=" << F << ", df1=" << df1 << ", df2=" << df2);
-                pValue = 1.0; // Conservative: don't split if we can't calculate p-value
-            }
-        }
-        
-        LOG_TRACE(<< "  RSS0=" << RSS0 << ", RSS1=" << RSS1 << ", n0=" << n0 << ", n1=" << n1 
-                  << ", F=" << F << ", p-value=" << pValue);
+        double v[]{common::CBasicStatistics::maximumLikelihoodVariance(residualMoments),
+                   common::CBasicStatistics::maximumLikelihoodVariance(
+                       leftResidualMoments + rightResidualMoments) +
+                       common::MINIMUM_COEFFICIENT_OF_VARIATION *
+                           common::CBasicStatistics::mean(meanAbsValues)};
+        double df[]{4.0 - 2.0, static_cast<double>(range - 4)};
+        double pValue{common::CTools::oneMinusPowOneMinusX(
+            common::CStatisticalTests::rightTailFTest(std::max(v[0] - v[1], 0.0),
+                                                      v[1], df[0], df[1]),
+            static_cast<double>(reweighted.size() / initialStep))};
+        LOG_TRACE(<< "  p-value = " << pValue);
 
         if (pValue < pValueToSegment) {
             fitTopDownPiecewiseLinear(begin, begin + splitOffset, depth + 1, offset,
