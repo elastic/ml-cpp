@@ -485,10 +485,14 @@ CTrendComponent::TVector2x1 CTrendComponent::value(core_t::TTime time, double co
         double variance{a * m_PredictionErrorVariance +
                         b * common::CBasicStatistics::variance(m_ValueMoments) /
                             std::max(common::CBasicStatistics::count(m_ValueMoments), 1.0)};
+        // Add minimum variance floor to ensure confidence intervals are wide enough for pure noise data
+        // double dataVariance = common::CBasicStatistics::variance(m_ValueMoments);
+        // double minVariance = std::max(variance, dataVariance * 0.5); // Ensure at least 50% of data variance
+        // variance = minVariance;
         
         // Debug: Log the prediction error variance to understand overfitting
         LOG_DEBUG(<< "Prediction Error Variance: " << m_PredictionErrorVariance 
-                  << " (should be ~1.0 for pure noise with std=1.0)");
+                  << " (should be similar to noise variance)");
         
         LOG_DEBUG(<< "Variance Debug: m_PredictionErrorVariance=" << m_PredictionErrorVariance 
                   << ", n_eff=" << n_eff << ", variance=" << variance << ", a=" << a << ", b=" << b);

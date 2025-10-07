@@ -579,7 +579,7 @@ BOOST_AUTO_TEST_CASE(testNoFalseSeasonalDetectionWithNoise) {
 
     maths::time_series::CTrendComponent::TFloatMeanAccumulatorVec values;
     TDoubleVec noise;
-    rng.generateNormalSamples(FLAT_VALUE, NOISE_STD, DURATION / BUCKET_LENGTH, noise);
+    rng.generateNormalSamples(FLAT_VALUE, NOISE_STD*NOISE_STD, DURATION / BUCKET_LENGTH, noise);
 
     for (std::size_t i = 0; i < noise.size(); ++i) {
         values.emplace_back();
@@ -620,7 +620,7 @@ BOOST_AUTO_TEST_CASE(testModelBoundsStabilityWithDifferentNoiseLevels) {
 
         for (core_t::TTime time = 0; time < DURATION; time += BUCKET_LENGTH) {
             TDoubleVec noise;
-            rng.generateNormalSamples(FLAT_VALUE, noiseStd, 1, noise);
+            rng.generateNormalSamples(FLAT_VALUE, noiseStd*noiseStd, 1, noise);
             component.add(time, noise[0]);
             
             auto bounds = component.value(time, 95.0);

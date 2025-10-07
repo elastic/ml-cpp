@@ -668,4 +668,93 @@ BOOST_AUTO_TEST_CASE(testMeanScale) {
         1e-4);
 }
 
+BOOST_AUTO_TEST_CASE(testPiecewiseLinearNoiseOverfitting) {
+    // Test that piecewise linear decomposition doesn't overfit on noisy data
+    // Similar to CTrendComponentTest/testModelBoundsWithFlatDataAndNoise
+    // but for segmentation instead of trend component
+    
+    test::CRandomNumbers rng;
+    
+    const core_t::TTime DURATION = 30 * core::constants::DAY;
+    const core_t::TTime BUCKET_LENGTH = core::constants::HOUR;
+    const double FLAT_VALUE = 10.0;
+    const TDoubleVec NOISE_LEVELS = {0.5, 1.0, 2.0, 5.0};
+    
+    for (double noiseStd : NOISE_LEVELS) {
+        LOG_DEBUG(<< "Testing piecewise linear with noise std: " << noiseStd);
+        
+        // Generate flat data with noise (similar to trend component test)
+        TFloatMeanAccumulatorVec values(DURATION / BUCKET_LENGTH);
+        TMeanVarAccumulator noiseMoments;
+        
+        for (core_t::TTime time = 0; time < DURATION; time += BUCKET_LENGTH) {
+            TDoubleVec noise;
+            rng.generateNormalSamples(FLAT_VALUE, noiseStd, 1, noise);
+            noiseMoments.add(noise[0]);
+            values[time / BUCKET_LENGTH].add(noise[0]);
+        }
+        
+        LOG_DEBUG(<< "Generated " << values.size() << " data points with noise std " << noiseStd);
+        LOG_DEBUG(<< "Noise moments: " << noiseMoments);
+        
+        // Test with different p-values to ensure robustness
+        const TDoubleVec P_VALUES = {1e-3, 1e-4, 1e-5};
+        
+        for (double pValue : P_VALUES) {
+            LOG_DEBUG(<< "Testing with p-value: " << pValue);
+            
+            // Perform piecewise linear segmentation
+            TSizeVec segmentation{TSegmentation::piecewiseLinear(values, pValue, 0.0)};
+            
+            LOG_DEBUG(<< "Segmentation result: " << segmentation);
+            
+            // For pure noise data, we should get minimal segmentation
+            // The segmentation should be close to just the endpoints
+            std::size_t expectedSegments = 2; // Just start and end
+            std::size_t actualSegments = segmentation.size();
+            
+            LOG_DEBUG(<< "Expected segments: " << expectedSegments 
+                      << ", Actual segments: " << actualSegments);
+            
+            // Should not overfit - segmentation should be minimal for pure noise
+            // Allow some tolerance for statistical variation
+            BOOST_TEST_REQUIRE(actualSegments <= expectedSegments + 2, 
+                              "Too many segments detected in pure noise data. "
+                              "Expected <= " << (expectedSegments + 2) << 
+                              ", got " << actualSegments);
+            
+            // If we do get segments, verify they don't create artificial patterns
+            if (actualSegments > 2) {
+                // Check that the residual variance is not significantly reduced
+                // (which would indicate overfitting)
+                TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinear(
+                    values, segmentation, 0.0)};
+                
+                TMeanVarAccumulator residualMoments;
+                for (const auto& residual : residuals) {
+                    residualMoments.add(maths::common::CBasicStatistics::mean(residual));
+                }
+                
+                double originalVariance = maths::common::CBasicStatistics::maximumLikelihoodVariance(noiseMoments);
+                double residualVariance = maths::common::CBasicStatistics::maximumLikelihoodVariance(residualMoments);
+                
+                LOG_DEBUG(<< "Original variance: " << originalVariance 
+                          << ", Residual variance: " << residualVariance);
+                
+                // Residual variance should not be significantly lower than original
+                // (indicating overfitting to noise)
+                double varianceReduction = (originalVariance - residualVariance) / originalVariance;
+                
+                LOG_DEBUG(<< "Variance reduction: " << varianceReduction);
+                
+                // Variance reduction should be minimal for pure noise
+                // Allow up to 20% reduction as statistical tolerance
+                BOOST_TEST_REQUIRE(varianceReduction < 0.2, 
+                                  "Excessive variance reduction indicates overfitting. "
+                                  "Reduction: " << varianceReduction);
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
