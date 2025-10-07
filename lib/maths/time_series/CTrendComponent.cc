@@ -57,8 +57,8 @@ const std::size_t LEVEL_CHANGE_LABEL{1};
 // BIC penalty multipliers for different polynomial orders
 // Higher penalties make the model more conservative in selecting higher orders
 const double BIC_PENALTY_ORDER_1{1.0};  // Linear model (baseline)
-const double BIC_PENALTY_ORDER_2{50.0};  // Quadratic model (very strong penalty to prevent overfitting)
-const double BIC_PENALTY_ORDER_3{500.0};  // Cubic model (extremely strong penalty to prevent overfitting)
+const double BIC_PENALTY_ORDER_2{10.0};  // Quadratic model (very strong penalty to prevent overfitting)
+const double BIC_PENALTY_ORDER_3{100.0};  // Cubic model (extremely strong penalty to prevent overfitting)
 
 class CChangeForecastFeatureWeight : public common::CNaiveBayesFeatureWeight {
 public:
@@ -389,14 +389,14 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
         double residual = value - prediction;
         m_RecentResiduals.push_back(residual);
         
-        // Keep only the most recent residuals (e.g., last 100 points)
-        const std::size_t MAX_RESIDUALS = 100;
+        // Keep only the most recent residuals (e.g., last 30 points)
+        const std::size_t MAX_RESIDUALS = 30;
         if (m_RecentResiduals.size() > MAX_RESIDUALS) {
             m_RecentResiduals.erase(m_RecentResiduals.begin());
         }
         
-        LOG_DEBUG(<< "Residual Debug: value=" << value << ", prediction=" << prediction 
-                  << ", residual=" << residual << ", residuals_count=" << m_RecentResiduals.size());
+        // LOG_DEBUG(<< "Residual Debug: value=" << value << ", prediction=" << prediction 
+        //           << ", residual=" << residual << ", residuals_count=" << m_RecentResiduals.size());
     }
 
     double count{this->count()};
@@ -853,33 +853,33 @@ double CTrendComponent::calculateEffectiveSampleSize() const {
             return n;
         }
         
-        // Convert residuals to TFloatMeanAccumulatorVec format for CSignal::autocorrelations
-        maths::time_series::CSignal::TFloatMeanAccumulatorVec residualAccumulators;
-        residualAccumulators.reserve(m_RecentResiduals.size());
-        
+        // Calculate rho_1 using the standard estimator
+        // rho_1 = sum((x_t - mean)(x_{t-1} - mean)) / sum((x_t - mean)^2)
+        double mean = 0.0;
         for (double residual : m_RecentResiduals) {
-            maths::time_series::CSignal::TFloatMeanAccumulator accumulator;
-            accumulator.add(residual);
-            residualAccumulators.push_back(accumulator);
+            mean += residual;
+        }
+        mean /= m_RecentResiduals.size();
+        
+        double numerator = 0.0;
+        double denominator = 0.0;
+        
+        for (std::size_t i = 1; i < m_RecentResiduals.size(); ++i) {
+            double diff_i = m_RecentResiduals[i] - mean;
+            double diff_prev = m_RecentResiduals[i-1] - mean;
+            numerator += diff_i * diff_prev;
+            denominator += diff_i * diff_i;
         }
         
-        // Calculate autocorrelations using CSignal::autocorrelations
-        maths::time_series::CSignal::TComplexVec f;
-        maths::time_series::CSignal::TDoubleVec autocorrs;
-        maths::time_series::CSignal::autocorrelations(residualAccumulators, f, autocorrs);
-        
-        if (autocorrs.empty()) {
-            return n;
+        // Add the last term for denominator
+        if (m_RecentResiduals.size() > 0) {
+            double diff_0 = m_RecentResiduals[0] - mean;
+            denominator += diff_0 * diff_0;
         }
         
-        // Calculate effective sample size using the autocorrelation function
-        // n_eff = n / (1 + 2 * sum(rho_k)) where rho_k are the autocorrelation coefficients
-        double autocorr_sum = 0.0;
-        for (std::size_t k = 0; k < std::min(autocorrs.size(), std::size_t(10)); ++k) {
-            autocorr_sum += std::abs(autocorrs[k]);
-        }
+        double rho_1 = (denominator > 0.0) ? std::abs(numerator / denominator) : 0.0;
         
-        double n_eff = n / (1.0 + 2.0 * autocorr_sum);
+        double n_eff = n * (1.0 - rho_1) / (1.0 + rho_1);
         // Ensure n_eff is reasonable
         return std::max(1.0, std::min(n, n_eff));
         
