@@ -29,9 +29,11 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
+#include <maths/time_series/CSignal.h>
 
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/math/distributions/students_t.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -51,6 +53,11 @@ const double MAX_CONDITION{1e12};
 const core_t::TTime UNSET_TIME{0};
 const std::size_t NO_CHANGE_LABEL{0};
 const std::size_t LEVEL_CHANGE_LABEL{1};
+// BIC penalty multipliers for different polynomial orders
+// Higher penalties make the model more conservative in selecting higher orders
+const double BIC_PENALTY_ORDER_1{1.0};  // Linear model (baseline)
+const double BIC_PENALTY_ORDER_2{50.0};  // Quadratic model (very strong penalty to prevent overfitting)
+const double BIC_PENALTY_ORDER_3{500.0};  // Cubic model (extremely strong penalty to prevent overfitting)
 
 class CChangeForecastFeatureWeight : public common::CNaiveBayesFeatureWeight {
 public:
@@ -99,6 +106,29 @@ TVector2x1 confidenceInterval(double prediction, double variance, double confide
             LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
                       << ", prediction = " << prediction << ", variance = " << variance
                       << ", confidence = " << confidence);
+        }
+    }
+    return TVector2x1{prediction};
+}
+
+TVector2x1 confidenceIntervalT(double prediction, double variance, double confidence, double n_eff) {
+    if (variance > 0.0 && n_eff > 0.0) {
+        try {
+            // Use t-distribution for small effective sample sizes
+            double df = std::max(n_eff - 1.0, 1.0); // Degrees of freedom
+            boost::math::students_t t{df};
+            double t_critical = boost::math::quantile(t, (100.0 + confidence) / 200.0);
+            double margin = t_critical * std::sqrt(variance);
+            
+            LOG_DEBUG(<< "T-Distribution Debug: df=" << df << ", t_critical=" << t_critical 
+                      << ", margin=" << margin << ", bounds=[" << (prediction - margin) 
+                      << ", " << (prediction + margin) << "]");
+            
+            return TVector2x1{{prediction - margin, prediction + margin}};
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed calculating t-confidence interval: " << e.what()
+                      << ", prediction = " << prediction << ", variance = " << variance
+                      << ", confidence = " << confidence << ", n_eff = " << n_eff);
         }
     }
     return TVector2x1{prediction};
@@ -353,6 +383,21 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     double prediction{this->value(time, 0.0).mean()};
 
+    // Track residuals for autocorrelation calculation
+    if (this->initialized()) {
+        double residual = value - prediction;
+        m_RecentResiduals.push_back(residual);
+        
+        // Keep only the most recent residuals (e.g., last 100 points)
+        const std::size_t MAX_RESIDUALS = 100;
+        if (m_RecentResiduals.size() > MAX_RESIDUALS) {
+            m_RecentResiduals.erase(m_RecentResiduals.begin());
+        }
+        
+        LOG_DEBUG(<< "Residual Debug: value=" << value << ", prediction=" << prediction 
+                  << ", residual=" << residual << ", residuals_count=" << m_RecentResiduals.size());
+    }
+
     double count{this->count()};
     if (count > 0.0) {
         TMeanVarAccumulator moments{common::CBasicStatistics::momentsAccumulator(
@@ -434,10 +479,28 @@ CTrendComponent::TVector2x1 CTrendComponent::value(core_t::TTime time, double co
                       b * common::CBasicStatistics::mean(m_ValueMoments)};
 
     if (confidence > 0.0 && m_PredictionErrorVariance > 0.0) {
-        double variance{a * m_PredictionErrorVariance / std::max(this->count(), 1.0) +
+        // Use effective sample size to account for autocorrelation
+        double n_eff = calculateEffectiveSampleSize();
+        // Don't scale variance by n_eff - use n_eff only for degrees of freedom
+        double variance{a * m_PredictionErrorVariance +
                         b * common::CBasicStatistics::variance(m_ValueMoments) /
                             std::max(common::CBasicStatistics::count(m_ValueMoments), 1.0)};
-        return confidenceInterval(prediction, variance, confidence);
+        
+        // Debug: Log the prediction error variance to understand overfitting
+        LOG_DEBUG(<< "Prediction Error Variance: " << m_PredictionErrorVariance 
+                  << " (should be ~1.0 for pure noise with std=1.0)");
+        
+        LOG_DEBUG(<< "Variance Debug: m_PredictionErrorVariance=" << m_PredictionErrorVariance 
+                  << ", n_eff=" << n_eff << ", variance=" << variance << ", a=" << a << ", b=" << b);
+        
+        // Use t-distribution when we have autocorrelation (n_eff < n) to get wider confidence intervals
+        double n_raw = this->count();
+        LOG_DEBUG(<< "Confidence Debug: n_raw=" << n_raw << ", n_eff=" << n_eff << ", using_t_dist=" << (n_eff < n_raw));
+        if (n_eff < n_raw) {
+            return confidenceIntervalT(prediction, variance, confidence, n_eff);
+        } else {
+            return confidenceInterval(prediction, variance, confidence);
+        }
     }
 
     return TVector2x1{prediction};
@@ -491,19 +554,37 @@ core_t::TTime CTrendComponent::maximumForecastInterval() const {
 
 CTrendComponent::TVector2x1 CTrendComponent::variance(double confidence) const {
 
+    LOG_DEBUG(<< "Variance Debug: called with confidence=" << confidence);
+
     if (this->initialized() == false) {
+        LOG_DEBUG(<< "Variance Debug: not initialized");
         return TVector2x1{0.0};
     }
 
     double variance{m_PredictionErrorVariance};
+    LOG_DEBUG(<< "Variance Debug: prediction_error_variance=" << variance);
 
-    if (confidence > 0.0 && m_PredictionErrorVariance > 0.0) {
-        double df{std::max(this->count(), 2.0) - 1.0};
+    if (confidence > 0.0 && variance > 0.0) {
+        // Use effective sample size to account for autocorrelation
+        double n_eff = calculateEffectiveSampleSize();
+        double df{std::max(n_eff, 2.0) - 1.0}; // Degrees of freedom based on effective sample size
+        
+        LOG_DEBUG(<< "Variance Debug: confidence=" << confidence << ", variance=" << variance 
+                  << ", n_eff=" << n_eff << ", df=" << df);
+        
         try {
             boost::math::chi_squared chi{df};
             double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
-            return TVector2x1{{ql * variance / df, qu * variance / df}};
+            
+            double lower_bound = ql * variance / df;
+            double upper_bound = qu * variance / df;
+            
+            LOG_DEBUG(<< "Variance Debug: ql=" << ql << ", qu=" << qu 
+                      << ", lower_bound=" << lower_bound << ", upper_bound=" << upper_bound
+                      << ", bounds_width=" << (upper_bound - lower_bound));
+            
+            return TVector2x1{{lower_bound, upper_bound}};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
                       << ", df = " << df << ", confidence = " << confidence);
@@ -660,34 +741,96 @@ void CTrendComponent::smoothingFactors(core_t::TTime interval, TDoubleVec& resul
 }
 
 CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() const {
-    // We test the models in order of increasing complexity and require
-    // reasonable evidence to select a more complex model.
-
+    // Use BIC (Bayesian Information Criterion) to select model order with F-test fallback
+    // BIC = n * log(MSE) + penalty * k * log(n)
+    // Lower BIC is better
+    
     TSizeVec result(NUMBER_MODELS, 1);
-
+    
+    // Penalty multipliers for different orders
+    const double penalties[]{BIC_PENALTY_ORDER_1, BIC_PENALTY_ORDER_2, BIC_PENALTY_ORDER_3};
+    
     for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
-
         const SModel& model{m_TrendModels[i]};
-
         double n{common::CBasicStatistics::count(model.s_Mse)};
-        double mse0{common::CBasicStatistics::mean(model.s_Mse)(0)};
-        double df0{n - 1.0};
-
-        for (std::size_t order = 2; mse0 > 0.0 && order <= TRegression::N; ++order) {
-
-            double mse1{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
-            double df1{n - static_cast<double>(order)};
-            if (df1 < 0.0) {
+        
+        if (n < 2.0) {
+            continue;
+        }
+        
+        double logN{std::log(n)};
+        double minBIC{std::numeric_limits<double>::max()};
+        std::size_t bestOrder{1};
+        
+        // Let BIC criteria handle model selection without explicit noise detection
+        
+        // First pass: Use BIC to select model order
+        LOG_DEBUG(<< "BIC Model Selection Debug: n=" << n << ", logN=" << logN);
+        for (std::size_t order = 1; order <= TRegression::N; ++order) {
+            double mse{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
+            
+            // Skip if MSE is invalid or we don't have enough data
+            if (mse <= 0.0 || n < static_cast<double>(order + 1)) {
+                LOG_DEBUG(<< "BIC Debug: Skipping order " << order << " (mse=" << mse << ", n=" << n << ")");
                 break;
             }
-
-            double p{common::CStatisticalTests::leftTailFTest(mse1, mse0, df1, df0)};
-            if (p < MODEL_MSE_DECREASE_SIGNFICANT) {
-                result[i] = order;
+            
+            
+            // BIC = n * log(MSE) + penalty * k * log(n)
+            // k = order + 1 (number of parameters for polynomial of given order)
+            double k{static_cast<double>(order + 1)};
+            double penalty{penalties[order - 1]};
+            double bic{n * std::log(mse) + penalty * k * logN};
+            double logMSE = std::log(mse);
+            double penaltyTerm = penalty * k * logN;
+            
+            LOG_DEBUG(<< "BIC Debug: order=" << order << ", mse=" << mse << ", logMSE=" << logMSE 
+                      << ", k=" << k << ", penalty=" << penalty << ", penaltyTerm=" << penaltyTerm 
+                      << ", bic=" << bic << ", minBIC=" << minBIC);
+            
+            if (bic < minBIC) {
+                minBIC = bic;
+                bestOrder = order;
+                LOG_DEBUG(<< "BIC Debug: New best order=" << order << " with BIC=" << bic);
+            }
+        }
+        
+        // Second pass: Use F-test as fallback to verify the BIC selection
+        // Only upgrade to higher order if F-test also supports it
+        LOG_DEBUG(<< "BIC Final Selection: bestOrder=" << bestOrder << " before F-test verification");
+        if (bestOrder > 1) {
+            double mse0{common::CBasicStatistics::mean(model.s_Mse)(0)};
+            double df0{n - 1.0};
+            LOG_DEBUG(<< "F-test Debug: Starting F-test verification, mse0=" << mse0 << ", df0=" << df0);
+            
+            for (std::size_t order = 2; order <= bestOrder; ++order) {
+                double mse1{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
+                double df1{n - static_cast<double>(order)};
+                
+                if (df1 < 0.0) {
+                    LOG_DEBUG(<< "F-test Debug: df1 < 0, reducing bestOrder from " << bestOrder << " to " << (order - 1));
+                    bestOrder = order - 1;
+                    break;
+                }
+                
+                double p{common::CStatisticalTests::leftTailFTest(mse1, mse0, df1, df0)};
+                LOG_DEBUG(<< "F-test Debug: order=" << order << ", mse1=" << mse1 << ", df1=" << df1 
+                          << ", p=" << p << ", threshold=" << MODEL_MSE_DECREASE_SIGNFICANT);
+                
+                if (p >= MODEL_MSE_DECREASE_SIGNFICANT) {
+                    // F-test doesn't support this order, use previous order
+                    LOG_DEBUG(<< "F-test Debug: F-test rejects order " << order << ", reducing bestOrder to " << (order - 1));
+                    bestOrder = order - 1;
+                    break;
+                }
+                
                 mse0 = mse1;
                 df0 = df1;
             }
         }
+        LOG_DEBUG(<< "Final Model Selection: bestOrder=" << bestOrder);
+        
+        result[i] = bestOrder;
     }
 
     return result;
@@ -709,6 +852,69 @@ double CTrendComponent::count() const {
                    common::CBasicStatistics::mean(model.s_Weight));
     }
     return std::exp(common::CBasicStatistics::mean(result));
+}
+
+double CTrendComponent::calculateEffectiveSampleSize() const {
+    if (!this->initialized()) {
+        return 0.0;
+    }
+    
+    try {
+        double n = this->count();
+        
+        // If we don't have enough data for autocorrelation analysis, return the raw count
+        if (n < 10 || m_RecentResiduals.size() < 10) {
+            return n;
+        }
+        
+        // Convert residuals to TFloatMeanAccumulatorVec format for CSignal::autocorrelations
+        maths::time_series::CSignal::TFloatMeanAccumulatorVec residualAccumulators;
+        residualAccumulators.reserve(m_RecentResiduals.size());
+        
+        for (double residual : m_RecentResiduals) {
+            maths::time_series::CSignal::TFloatMeanAccumulator accumulator;
+            accumulator.add(residual);
+            residualAccumulators.push_back(accumulator);
+        }
+        
+        // Calculate autocorrelations using CSignal::autocorrelations
+        maths::time_series::CSignal::TComplexVec f;
+        maths::time_series::CSignal::TDoubleVec autocorrs;
+        maths::time_series::CSignal::autocorrelations(residualAccumulators, f, autocorrs);
+        
+        if (autocorrs.empty()) {
+            return n;
+        }
+        
+        // Calculate effective sample size using the autocorrelation function
+        // n_eff = n / (1 + 2 * sum(rho_k)) where rho_k are the autocorrelation coefficients
+        double autocorr_sum = 0.0;
+        for (std::size_t k = 0; k < std::min(autocorrs.size(), std::size_t(10)); ++k) {
+            autocorr_sum += std::abs(autocorrs[k]);
+        }
+        
+        // Debug: Print autocorrelation coefficients
+        LOG_DEBUG(<< "Autocorrelation coefficients (first 10):");
+        for (std::size_t k = 0; k < std::min(autocorrs.size(), std::size_t(10)); ++k) {
+            LOG_DEBUG(<< "  rho[" << k << "] = " << autocorrs[k]);
+        }
+        
+        double n_eff = n / (1.0 + 2.0 * autocorr_sum);
+        
+        // Don't cap n_eff - let it be calculated properly based on actual autocorrelation
+        
+        LOG_DEBUG(<< "Autocorrelation Debug: n=" << n << ", autocorr_sum=" << autocorr_sum 
+                  << ", n_eff=" << n_eff << ", reduction_factor=" << (n_eff / n));
+        
+        // Ensure n_eff is reasonable
+        return std::max(1.0, std::min(n, n_eff));
+        
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to calculate effective sample size using autocorrelations: " << e.what());
+        // Fall back to a conservative estimate
+        double n = this->count();
+        return std::max(2.0, n * 0.5);
+    }
 }
 
 double CTrendComponent::value(const TDoubleVec& weights,

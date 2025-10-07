@@ -273,6 +273,10 @@ private:
     //! Abort on failure.
     void checkRestoredInvariants() const;
 
+    //! Calculate effective sample size accounting for autocorrelation.
+    //! Uses variance ratio as an indicator of autocorrelation to prevent overconfidence.
+    double calculateEffectiveSampleSize() const;
+
 private:
     //! The default rate at which information is aged out of the trend models.
     double m_DefaultDecayRate;
@@ -293,6 +297,8 @@ private:
     double m_PredictionErrorVariance;
     //! The mean and variance of the values added to the trend component.
     TMeanVarAccumulator m_ValueMoments;
+    //! Recent residuals for autocorrelation calculation.
+    TDoubleVec m_RecentResiduals;
 
     //! The time of the last level change.
     core_t::TTime m_TimeOfLastLevelChange;
