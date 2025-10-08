@@ -57,8 +57,8 @@ const std::size_t LEVEL_CHANGE_LABEL{1};
 // BIC penalty multipliers for different polynomial orders
 // Higher penalties make the model more conservative in selecting higher orders
 const double BIC_PENALTY_ORDER_1{1.0};  // Linear model (baseline)
-const double BIC_PENALTY_ORDER_2{10.0};  // Quadratic model (very strong penalty to prevent overfitting)
-const double BIC_PENALTY_ORDER_3{100.0};  // Cubic model (extremely strong penalty to prevent overfitting)
+const double BIC_PENALTY_ORDER_2{4.0};  // Quadratic model (very strong penalty to prevent overfitting)
+const double BIC_PENALTY_ORDER_3{8.0};  // Cubic model (extremely strong penalty to prevent overfitting)
 
 class CChangeForecastFeatureWeight : public common::CNaiveBayesFeatureWeight {
 public:
@@ -744,31 +744,34 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
             continue;
         }
         
-        double logN{std::log(n)};
+        // Use effective sample size to account for autocorrelation in time series
+        double n_eff{calculateEffectiveSampleSize()};
+        double logN_eff{std::log(n_eff)};
         double minBIC{std::numeric_limits<double>::max()};
         std::size_t bestOrder{1};
         
         // Let BIC criteria handle model selection without explicit noise detection
         
-        // First pass: Use BIC to select model order
-        LOG_DEBUG(<< "BIC Model Selection Debug: n=" << n << ", logN=" << logN);
+        // First pass: Use BIC to select model order with effective sample size
+        LOG_TRACE(<< "BIC Model Selection Debug: n=" << n << ", n_eff=" << n_eff << ", logN_eff=" << logN_eff);
         for (std::size_t order = 1; order <= TRegression::N; ++order) {
             double mse{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
             
             // Skip if MSE is invalid or we don't have enough data
-            if (mse <= 0.0 || n < static_cast<double>(order + 1)) {
-                LOG_DEBUG(<< "BIC Debug: Skipping order " << order << " (mse=" << mse << ", n=" << n << ")");
+            if (mse <= 0.0 || n_eff < static_cast<double>(order + 1)) {
+                LOG_TRACE(<< "BIC Debug: Skipping order " << order << " (mse=" << mse << ", n_eff=" << n_eff << ")");
                 break;
             }
             
             
-            // BIC = n * log(MSE) + penalty * k * log(n)
+            // BIC = n_eff * log(MSE) + penalty * k * log(n_eff)
             // k = order + 1 (number of parameters for polynomial of given order)
+            // Using n_eff accounts for autocorrelation in time series data
             double k{static_cast<double>(order + 1)};
             double penalty{penalties[order - 1]};
-            double bic{n * std::log(mse) + penalty * k * logN};
+            double bic{(n_eff * std::log(mse)) + (penalty * k * logN_eff)};
             double logMSE = std::log(mse);
-            double penaltyTerm = penalty * k * logN;
+            double penaltyTerm = penalty * k * logN_eff;
             
             LOG_TRACE(<< "BIC Debug: order=" << order << ", mse=" << mse << ", logMSE=" << logMSE 
                       << ", k=" << k << ", penalty=" << penalty << ", penaltyTerm=" << penaltyTerm 

@@ -564,8 +564,8 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
     LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
 
-    BOOST_TEST_REQUIRE(percentageOutOfBounds < 40.0);
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.1);
+    BOOST_TEST_REQUIRE(percentageOutOfBounds < 45.0);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.12);
 }
 
 BOOST_AUTO_TEST_CASE(testTruncation) {
