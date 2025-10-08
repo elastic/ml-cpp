@@ -54,11 +54,11 @@ const double MAX_CONDITION{1e12};
 const core_t::TTime UNSET_TIME{0};
 const std::size_t NO_CHANGE_LABEL{0};
 const std::size_t LEVEL_CHANGE_LABEL{1};
-// BIC penalty multipliers for different polynomial orders
-// Higher penalties make the model more conservative in selecting higher orders
-const double BIC_PENALTY_ORDER_1{1.0};  // Linear model (baseline)
-const double BIC_PENALTY_ORDER_2{4.0};  // Quadratic model (very strong penalty to prevent overfitting)
-const double BIC_PENALTY_ORDER_3{8.0};  // Cubic model (extremely strong penalty to prevent overfitting)
+// Adaptive BIC penalty calculation based on data characteristics
+// These are base penalties that get adjusted by calculateAdaptiveBICPenalty()
+const double BIC_PENALTY_ORDER_1{1.0}; // Linear model (baseline)
+const double BIC_PENALTY_ORDER_2{2.0}; // Quadratic model
+const double BIC_PENALTY_ORDER_3{3.0}; // Cubic model and higher orders
 
 class CChangeForecastFeatureWeight : public common::CNaiveBayesFeatureWeight {
 public:
@@ -120,11 +120,11 @@ TVector2x1 confidenceIntervalT(double prediction, double variance, double confid
             boost::math::students_t t{df};
             double t_critical = boost::math::quantile(t, (100.0 + confidence) / 200.0);
             double margin = t_critical * std::sqrt(variance);
-            
-            LOG_TRACE(<< "T-Distribution Debug: df=" << df << ", t_critical=" << t_critical 
-                      << ", margin=" << margin << ", bounds=[" << (prediction - margin) 
+
+            LOG_TRACE(<< "T-Distribution Debug: df=" << df << ", t_critical=" << t_critical
+                      << ", margin=" << margin << ", bounds=[" << (prediction - margin)
                       << ", " << (prediction + margin) << "]");
-            
+
             return TVector2x1{{prediction - margin, prediction + margin}};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed calculating t-confidence interval: " << e.what()
@@ -388,14 +388,14 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
     if (this->initialized()) {
         double residual = value - prediction;
         m_RecentResiduals.push_back(residual);
-        
+
         // Keep only the most recent residuals (e.g., last 30 points)
         const std::size_t MAX_RESIDUALS = 30;
         if (m_RecentResiduals.size() > MAX_RESIDUALS) {
             m_RecentResiduals.erase(m_RecentResiduals.begin());
         }
-        
-        // LOG_DEBUG(<< "Residual Debug: value=" << value << ", prediction=" << prediction 
+
+        // LOG_DEBUG(<< "Residual Debug: value=" << value << ", prediction=" << prediction
         //           << ", residual=" << residual << ", residuals_count=" << m_RecentResiduals.size());
     }
 
@@ -490,10 +490,10 @@ CTrendComponent::TVector2x1 CTrendComponent::value(core_t::TTime time, double co
         // double dataVariance = common::CBasicStatistics::variance(m_ValueMoments);
         // double minVariance = std::max(variance, dataVariance * 0.5); // Ensure at least 50% of data variance
         // variance = minVariance;
-        
+
         // Use t-distribution when we have autocorrelation (n_eff < n) to get wider confidence intervals
         double n_raw = this->count();
-        
+
         if (n_eff < n_raw) {
             return confidenceIntervalT(prediction, variance, confidence, n_eff);
         } else {
@@ -562,12 +562,12 @@ CTrendComponent::TVector2x1 CTrendComponent::variance(double confidence) const {
         // Use effective sample size to account for autocorrelation
         double n_eff = calculateEffectiveSampleSize();
         double df{std::max(n_eff, 2.0) - 1.0}; // Degrees of freedom based on effective sample size
-        
+
         try {
             boost::math::chi_squared chi{df};
             double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
-            
+
             double lower_bound = ql * variance / df;
             double upper_bound = qu * variance / df;
             return TVector2x1{{lower_bound, upper_bound}};
@@ -730,95 +730,115 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
     // Use BIC (Bayesian Information Criterion) to select model order with F-test fallback
     // BIC = n * log(MSE) + penalty * k * log(n)
     // Lower BIC is better
-    
+
     TSizeVec result(NUMBER_MODELS, 1);
-    
-    // Penalty multipliers for different orders
-    const double penalties[]{BIC_PENALTY_ORDER_1, BIC_PENALTY_ORDER_2, BIC_PENALTY_ORDER_3};
-    
+
+    // Calculate adaptive penalties based on data characteristics
+    double n_eff{calculateEffectiveSampleSize()};
+
+    // Calculate residual moments once for reuse
+    common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator residual_moments;
+    double noise_variance{1.0}; // Default noise variance estimate
+
+    if (m_RecentResiduals.size() >= 10) {
+        for (double residual : m_RecentResiduals) {
+            residual_moments.add(residual);
+        }
+        noise_variance = common::CBasicStatistics::variance(residual_moments);
+    }
+
     for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         const SModel& model{m_TrendModels[i]};
         double n{common::CBasicStatistics::count(model.s_Mse)};
-        
+
         if (n < 2.0) {
             continue;
         }
-        
+
         // Use effective sample size to account for autocorrelation in time series
-        double n_eff{calculateEffectiveSampleSize()};
         double logN_eff{std::log(n_eff)};
         double minBIC{std::numeric_limits<double>::max()};
         std::size_t bestOrder{1};
-        
+
         // Let BIC criteria handle model selection without explicit noise detection
-        
-        // First pass: Use BIC to select model order with effective sample size
-        LOG_TRACE(<< "BIC Model Selection Debug: n=" << n << ", n_eff=" << n_eff << ", logN_eff=" << logN_eff);
+
+        // First pass: Use adaptive BIC to select model order with effective sample size
+        LOG_TRACE(<< "Adaptive BIC Model Selection Debug: n=" << n << ", n_eff=" << n_eff
+                  << ", logN_eff=" << logN_eff << ", noise_variance=" << noise_variance);
         for (std::size_t order = 1; order <= TRegression::N; ++order) {
             double mse{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
-            
+
             // Skip if MSE is invalid or we don't have enough data
             if (mse <= 0.0 || n_eff < static_cast<double>(order + 1)) {
-                LOG_TRACE(<< "BIC Debug: Skipping order " << order << " (mse=" << mse << ", n_eff=" << n_eff << ")");
+                LOG_TRACE(<< "BIC Debug: Skipping order " << order
+                          << " (mse=" << mse << ", n_eff=" << n_eff << ")");
                 break;
             }
-            
-            
-            // BIC = n_eff * log(MSE) + penalty * k * log(n_eff)
+
+            // Calculate adaptive penalty based on data characteristics
+            double adaptive_penalty{calculateAdaptiveBICPenalty(order, n_eff)};
+
+            // BIC = n_eff * log(MSE) + adaptive_penalty * k * log(n_eff)
             // k = order + 1 (number of parameters for polynomial of given order)
             // Using n_eff accounts for autocorrelation in time series data
             double k{static_cast<double>(order + 1)};
-            double penalty{penalties[order - 1]};
-            double bic{(n_eff * std::log(mse)) + (penalty * k * logN_eff)};
+            double bic{(n_eff * std::log(mse)) + (adaptive_penalty * k * logN_eff)};
             double logMSE = std::log(mse);
-            double penaltyTerm = penalty * k * logN_eff;
-            
-            LOG_TRACE(<< "BIC Debug: order=" << order << ", mse=" << mse << ", logMSE=" << logMSE 
-                      << ", k=" << k << ", penalty=" << penalty << ", penaltyTerm=" << penaltyTerm 
+            double penaltyTerm = adaptive_penalty * k * logN_eff;
+
+            LOG_TRACE(<< "Adaptive BIC Debug: order=" << order << ", mse=" << mse
+                      << ", logMSE=" << logMSE << ", k=" << k << ", adaptive_penalty="
+                      << adaptive_penalty << ", penaltyTerm=" << penaltyTerm
                       << ", bic=" << bic << ", minBIC=" << minBIC);
-            
+
             if (bic < minBIC) {
                 minBIC = bic;
                 bestOrder = order;
-                LOG_TRACE(<< "BIC Debug: New best order=" << order << " with BIC=" << bic);
+                LOG_TRACE(<< "Adaptive BIC Debug: New best order=" << order
+                          << " with BIC=" << bic);
             }
         }
-        
+
         // Second pass: Use F-test as fallback to verify the BIC selection
         // Only upgrade to higher order if F-test also supports it
-        LOG_TRACE(<< "BIC Final Selection: bestOrder=" << bestOrder << " before F-test verification");
+        LOG_TRACE(<< "BIC Final Selection: bestOrder=" << bestOrder
+                  << " before F-test verification");
         if (bestOrder > 1) {
             double mse0{common::CBasicStatistics::mean(model.s_Mse)(0)};
             double df0{n - 1.0};
-            LOG_TRACE(<< "F-test Debug: Starting F-test verification, mse0=" << mse0 << ", df0=" << df0);
-            
+            LOG_TRACE(<< "F-test Debug: Starting F-test verification, mse0=" << mse0
+                      << ", df0=" << df0);
+
             for (std::size_t order = 2; order <= bestOrder; ++order) {
                 double mse1{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
                 double df1{n - static_cast<double>(order)};
-                
+
                 if (df1 < 0.0) {
-                    LOG_TRACE(<< "F-test Debug: df1 < 0, reducing bestOrder from " << bestOrder << " to " << (order - 1));
+                    LOG_TRACE(<< "F-test Debug: df1 < 0, reducing bestOrder from "
+                              << bestOrder << " to " << (order - 1));
                     bestOrder = order - 1;
                     break;
                 }
-                
+
                 double p{common::CStatisticalTests::leftTailFTest(mse1, mse0, df1, df0)};
-                LOG_TRACE(<< "F-test Debug: order=" << order << ", mse1=" << mse1 << ", df1=" << df1 
-                          << ", p=" << p << ", threshold=" << MODEL_MSE_DECREASE_SIGNFICANT);
-                
+                LOG_TRACE(<< "F-test Debug: order=" << order
+                          << ", mse1=" << mse1 << ", df1=" << df1 << ", p=" << p
+                          << ", threshold=" << MODEL_MSE_DECREASE_SIGNFICANT);
+
                 if (p >= MODEL_MSE_DECREASE_SIGNFICANT) {
                     // F-test doesn't support this order, use previous order
-                    LOG_TRACE(<< "F-test Debug: F-test rejects order " << order << ", reducing bestOrder to " << (order - 1));
+                    LOG_TRACE(<< "F-test Debug: F-test rejects order " << order
+                              << ", reducing bestOrder to " << (order - 1));
                     bestOrder = order - 1;
                     break;
                 }
-                
+
                 mse0 = mse1;
                 df0 = df1;
             }
         }
         LOG_DEBUG(<< "Final Model Selection: bestOrder=" << bestOrder);
-        
+
         result[i] = bestOrder;
     }
 
@@ -847,15 +867,15 @@ double CTrendComponent::calculateEffectiveSampleSize() const {
     if (!this->initialized()) {
         return 0.0;
     }
-    
+
     try {
         double n = this->count();
-        
+
         // If we don't have enough data for autocorrelation analysis, return the raw count
         if (n < 10 || m_RecentResiduals.size() < 10) {
             return n;
         }
-        
+
         // Calculate rho_1 using the standard estimator
         // rho_1 = sum((x_t - mean)(x_{t-1} - mean)) / sum((x_t - mean)^2)
         double mean = 0.0;
@@ -863,35 +883,99 @@ double CTrendComponent::calculateEffectiveSampleSize() const {
             mean += residual;
         }
         mean /= m_RecentResiduals.size();
-        
+
         double numerator = 0.0;
         double denominator = 0.0;
-        
+
         for (std::size_t i = 1; i < m_RecentResiduals.size(); ++i) {
             double diff_i = m_RecentResiduals[i] - mean;
-            double diff_prev = m_RecentResiduals[i-1] - mean;
+            double diff_prev = m_RecentResiduals[i - 1] - mean;
             numerator += diff_i * diff_prev;
             denominator += diff_i * diff_i;
         }
-        
+
         // Add the last term for denominator
         if (m_RecentResiduals.size() > 0) {
             double diff_0 = m_RecentResiduals[0] - mean;
             denominator += diff_0 * diff_0;
         }
-        
+
         double rho_1 = (denominator > 0.0) ? std::abs(numerator / denominator) : 0.0;
-        
+
         double n_eff = n * (1.0 - rho_1) / (1.0 + rho_1);
         // Ensure n_eff is reasonable
         return std::max(1.0, std::min(n, n_eff));
-        
+
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to calculate effective sample size using autocorrelations: " << e.what());
+        LOG_ERROR(<< "Failed to calculate effective sample size using autocorrelations: "
+                  << e.what());
         // Fall back to a conservative estimate
         double n = this->count();
         return std::max(2.0, n * 0.5);
     }
+}
+
+double CTrendComponent::calculateAdaptiveBICPenalty(std::size_t order, double n_eff) const {
+    // Base penalty from constants
+    double base_penalty;
+    switch (order) {
+    case 1:
+        base_penalty = BIC_PENALTY_ORDER_1;
+        break;
+    case 2:
+        base_penalty = BIC_PENALTY_ORDER_2;
+        break;
+    case 3:
+        base_penalty = BIC_PENALTY_ORDER_3;
+        break;
+    default:
+        base_penalty = static_cast<double>(order);
+        break;
+    }
+
+    // Adaptive adjustments based on data characteristics
+
+    // Sample size adjustment: More data allows for higher order models
+    // For small samples, be more conservative
+    double sample_size_factor = 1.0;
+    if (n_eff < 50) {
+        sample_size_factor = 1.5; // More conservative for small samples
+    } else if (n_eff > 200) {
+        sample_size_factor = 0.8; // Less conservative for large samples
+    }
+
+    // Trend complexity adjustment: If we detect strong trends, allow higher orders
+    double trend_factor = 1.0;
+    if (m_RecentResiduals.size() >= 20) {
+        // Calculate trend strength from recent data
+        double trend_strength = 0.0;
+        for (std::size_t i = 1; i < m_RecentResiduals.size(); ++i) {
+            trend_strength += std::abs(m_RecentResiduals[i] - m_RecentResiduals[i - 1]);
+        }
+        trend_strength /= static_cast<double>(m_RecentResiduals.size() - 1);
+
+        // If trend is strong, be less conservative
+        if (trend_strength > 0.1) {
+            trend_factor = 0.8; // Allow higher orders for strong trends
+        }
+    }
+
+    // Order-specific adjustments: Higher orders need more justification
+    double order_factor = 1.0;
+    if (order >= 3) {
+        order_factor = 1.2; // Extra penalty for cubic and higher
+    }
+
+    double adaptive_penalty = base_penalty * sample_size_factor * trend_factor * order_factor;
+
+    // Ensure penalty is reasonable (not too extreme)
+    adaptive_penalty = std::max(0.5, std::min(10.0, adaptive_penalty));
+
+    LOG_TRACE(<< "Adaptive BIC penalty for order " << order << ": base=" << base_penalty
+              << ", sample_factor=" << sample_size_factor << ", trend_factor=" << trend_factor
+              << ", order_factor=" << order_factor << ", final=" << adaptive_penalty);
+
+    return adaptive_penalty;
 }
 
 double CTrendComponent::value(const TDoubleVec& weights,

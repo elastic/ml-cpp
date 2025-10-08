@@ -277,6 +277,10 @@ private:
     //! Uses variance ratio as an indicator of autocorrelation to prevent overconfidence.
     double calculateEffectiveSampleSize() const;
 
+    //! Calculate adaptive BIC penalty based on data characteristics.
+    //! Adjusts penalties based on sample size, noise level, and trend complexity.
+    double calculateAdaptiveBICPenalty(std::size_t order, double n_eff) const;
+
 private:
     //! The default rate at which information is aged out of the trend models.
     double m_DefaultDecayRate;
