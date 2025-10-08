@@ -770,42 +770,42 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
             double logMSE = std::log(mse);
             double penaltyTerm = penalty * k * logN;
             
-            LOG_DEBUG(<< "BIC Debug: order=" << order << ", mse=" << mse << ", logMSE=" << logMSE 
+            LOG_TRACE(<< "BIC Debug: order=" << order << ", mse=" << mse << ", logMSE=" << logMSE 
                       << ", k=" << k << ", penalty=" << penalty << ", penaltyTerm=" << penaltyTerm 
                       << ", bic=" << bic << ", minBIC=" << minBIC);
             
             if (bic < minBIC) {
                 minBIC = bic;
                 bestOrder = order;
-                LOG_DEBUG(<< "BIC Debug: New best order=" << order << " with BIC=" << bic);
+                LOG_TRACE(<< "BIC Debug: New best order=" << order << " with BIC=" << bic);
             }
         }
         
         // Second pass: Use F-test as fallback to verify the BIC selection
         // Only upgrade to higher order if F-test also supports it
-        LOG_DEBUG(<< "BIC Final Selection: bestOrder=" << bestOrder << " before F-test verification");
+        LOG_TRACE(<< "BIC Final Selection: bestOrder=" << bestOrder << " before F-test verification");
         if (bestOrder > 1) {
             double mse0{common::CBasicStatistics::mean(model.s_Mse)(0)};
             double df0{n - 1.0};
-            LOG_DEBUG(<< "F-test Debug: Starting F-test verification, mse0=" << mse0 << ", df0=" << df0);
+            LOG_TRACE(<< "F-test Debug: Starting F-test verification, mse0=" << mse0 << ", df0=" << df0);
             
             for (std::size_t order = 2; order <= bestOrder; ++order) {
                 double mse1{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
                 double df1{n - static_cast<double>(order)};
                 
                 if (df1 < 0.0) {
-                    LOG_DEBUG(<< "F-test Debug: df1 < 0, reducing bestOrder from " << bestOrder << " to " << (order - 1));
+                    LOG_TRACE(<< "F-test Debug: df1 < 0, reducing bestOrder from " << bestOrder << " to " << (order - 1));
                     bestOrder = order - 1;
                     break;
                 }
                 
                 double p{common::CStatisticalTests::leftTailFTest(mse1, mse0, df1, df0)};
-                LOG_DEBUG(<< "F-test Debug: order=" << order << ", mse1=" << mse1 << ", df1=" << df1 
+                LOG_TRACE(<< "F-test Debug: order=" << order << ", mse1=" << mse1 << ", df1=" << df1 
                           << ", p=" << p << ", threshold=" << MODEL_MSE_DECREASE_SIGNFICANT);
                 
                 if (p >= MODEL_MSE_DECREASE_SIGNFICANT) {
                     // F-test doesn't support this order, use previous order
-                    LOG_DEBUG(<< "F-test Debug: F-test rejects order " << order << ", reducing bestOrder to " << (order - 1));
+                    LOG_TRACE(<< "F-test Debug: F-test rejects order " << order << ", reducing bestOrder to " << (order - 1));
                     bestOrder = order - 1;
                     break;
                 }
