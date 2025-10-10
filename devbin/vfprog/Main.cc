@@ -101,6 +101,7 @@ TSizeUInt64Pr benchmark(char testId) {
 }
 
 int main(int argc, char** argv) {
+    // SAFE: argv is always NULL-terminated by OS, strlen is safe here
     if (argc != 2 || ::strlen(argv[1]) != 1 || argv[1][0] < '1' || argv[1][0] > '9') {
         std::cerr << "Usage: " << argv[0] << " <1-9>" << std::endl;
         return EXIT_FAILURE;
