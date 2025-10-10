@@ -276,7 +276,7 @@ std::string CStringUtils::_typeToString(const unsigned long long& i) {
     char buf[4 * sizeof(unsigned long long)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%llu", i);
+    ::snprintf(buf, sizeof(buf), "%llu", i);
 
     return buf;
 }
@@ -285,7 +285,7 @@ std::string CStringUtils::_typeToString(const unsigned long& i) {
     char buf[4 * sizeof(unsigned long)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%lu", i);
+    ::snprintf(buf, sizeof(buf), "%lu", i);
 
     return buf;
 }
@@ -294,7 +294,7 @@ std::string CStringUtils::_typeToString(const unsigned int& i) {
     char buf[4 * sizeof(unsigned int)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%u", i);
+    ::snprintf(buf, sizeof(buf), "%u", i);
 
     return buf;
 }
@@ -303,7 +303,7 @@ std::string CStringUtils::_typeToString(const unsigned short& i) {
     char buf[4 * sizeof(unsigned short)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%hu", i);
+    ::snprintf(buf, sizeof(buf), "%hu", i);
 
     return buf;
 }
@@ -312,7 +312,7 @@ std::string CStringUtils::_typeToString(const long long& i) {
     char buf[4 * sizeof(long long)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%lld", i);
+    ::snprintf(buf, sizeof(buf), "%lld", i);
 
     return buf;
 }
@@ -321,7 +321,7 @@ std::string CStringUtils::_typeToString(const long& i) {
     char buf[4 * sizeof(long)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%ld", i);
+    ::snprintf(buf, sizeof(buf), "%ld", i);
 
     return buf;
 }
@@ -330,7 +330,7 @@ std::string CStringUtils::_typeToString(const int& i) {
     char buf[4 * sizeof(int)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%d", i);
+    ::snprintf(buf, sizeof(buf), "%d", i);
 
     return buf;
 }
@@ -339,7 +339,7 @@ std::string CStringUtils::_typeToString(const short& i) {
     char buf[4 * sizeof(short)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%hd", i);
+    ::snprintf(buf, sizeof(buf), "%hd", i);
 
     return buf;
 }
@@ -355,7 +355,7 @@ std::string CStringUtils::_typeToString(const double& i) {
     char buf[64 * sizeof(double)];
     ::memset(buf, 0, sizeof(buf));
 
-    ::sprintf(buf, "%f", i);
+    ::snprintf(buf, sizeof(buf), "%f", i);
 
     return buf;
 }
@@ -383,7 +383,7 @@ std::string CStringUtils::typeToStringPretty(double d) {
 
     char buf[16];
     ::memset(buf, 0, sizeof(buf));
-    ::sprintf(buf, "%.7g", d);
+    ::snprintf(buf, sizeof(buf), "%.7g", d);
     return buf;
 }
 
@@ -403,15 +403,15 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = ::sprintf(buf, "%.5g",
+        ret = ::snprintf(buf, sizeof(buf), "%.5g",
                         clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
     case CIEEE754::E_SinglePrecision:
-        ret = ::sprintf(buf, "%.9g",
+        ret = ::snprintf(buf, sizeof(buf), "%.9g",
                         clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
     case CIEEE754::E_DoublePrecision:
-        ret = ::sprintf(buf, "%.17g", clampToReadable(d));
+        ret = ::snprintf(buf, sizeof(buf), "%.17g", clampToReadable(d));
         break;
     }
 
