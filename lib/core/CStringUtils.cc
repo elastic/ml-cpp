@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <format>
 
 namespace {
 //! In order to avoid a failure on read we need to account for the rounding
@@ -273,75 +274,35 @@ void CStringUtils::unEscape(char escape, std::string& str) {
 }
 
 std::string CStringUtils::_typeToString(const unsigned long long& i) {
-    char buf[4 * sizeof(unsigned long long)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%llu", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const unsigned long& i) {
-    char buf[4 * sizeof(unsigned long)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%lu", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const unsigned int& i) {
-    char buf[4 * sizeof(unsigned int)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%u", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const unsigned short& i) {
-    char buf[4 * sizeof(unsigned short)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%hu", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const long long& i) {
-    char buf[4 * sizeof(long long)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%lld", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const long& i) {
-    char buf[4 * sizeof(long)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%ld", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const int& i) {
-    char buf[4 * sizeof(int)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%d", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const short& i) {
-    char buf[4 * sizeof(short)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%hd", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const bool& b) {
@@ -349,15 +310,7 @@ std::string CStringUtils::_typeToString(const bool& b) {
 }
 
 std::string CStringUtils::_typeToString(const double& i) {
-    // Note the extra large buffer here, which is because the format string is
-    // "%f" rather than "%g", which means we could be printing a 308 digit
-    // number without resorting to scientific notation
-    char buf[64 * sizeof(double)];
-    ::memset(buf, 0, sizeof(buf));
-
-    ::snprintf(buf, sizeof(buf), "%f", i);
-
-    return buf;
+    return std::format("{}", i);
 }
 
 std::string CStringUtils::_typeToString(const char* str) {
@@ -374,44 +327,28 @@ const std::string& CStringUtils::_typeToString(const std::string& str) {
 }
 
 std::string CStringUtils::typeToStringPretty(double d) {
-    // Maximum size =   1  (for sign)
-    //                + 7  (for # s.f.)
-    //                + 1  (for decimal point)
-    //                + 5  (for w.c. e+308)
-    //                + 1  (for terminating character)
-    //              =  16
-
-    char buf[16];
-    ::memset(buf, 0, sizeof(buf));
-    ::snprintf(buf, sizeof(buf), "%.7g", d);
-    return buf;
+    return std::format("{:.7g}", d);
 }
 
 std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision precision) {
-    // Just use a large enough buffer to hold maximum precision.
-    char buf[4 * sizeof(double)];
-    ::memset(buf, 0, sizeof(buf));
-
     // Floats need higher precision to precisely round trip to decimal than
     // considering their effective precision base 10. There's a good discussion
     // at https://randomascii.wordpress.com/2012/03/08/float-precisionfrom-zero-to-100-digits-2/.
     // We use g format since it is the most efficient. Note also that when
     // printing to limited precision we must round the value before printing
-    // because printing just truncates, i.e. snprintf(buf, sizeof(buf), "%.6e", 0.49999998)
+    // because printing just truncates, i.e. std::format("{:.6e}", 0.49999998)
     // gives 4.999999e-1 rather than the correctly rounded value 0.5.
 
-    int ret = 0;
+    std::string result;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = ::snprintf(buf, sizeof(buf), "%.5g",
-                         clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        result = std::format("{:.5g}", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
     case CIEEE754::E_SinglePrecision:
-        ret = ::snprintf(buf, sizeof(buf), "%.9g",
-                         clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        result = std::format("{:.9g}", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
     case CIEEE754::E_DoublePrecision:
-        ret = ::snprintf(buf, sizeof(buf), "%.17g", clampToReadable(d));
+        result = std::format("{:.17g}", clampToReadable(d));
         break;
     }
 
@@ -419,18 +356,18 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     // 123.45e010 with 123.45e10 and 123.45e-010 with 123.45e-10.
     // Also it is inefficient to output trailing zeros, i.e.
     // 1.23456000000000e-11 so we strip these off in the following.
-    if (ret > 2) {
+    if (result.length() > 2) {
         // Look for an 'e'
-        char* ptr(static_cast<char*>(::memchr(buf, 'e', ret - 1)));
-        if (ptr != nullptr) {
+        size_t ePos = result.find('e');
+        if (ePos != std::string::npos) {
             bool edit = false;
             bool minus = false;
 
             // Strip off any trailing zeros and a trailing point.
-            char* bwd = ptr;
-            for (;;) {
+            size_t bwd = ePos;
+            while (bwd > 0) {
                 --bwd;
-                if (*bwd == '0' || *bwd == '.') {
+                if (result[bwd] == '0' || result[bwd] == '.') {
                     edit = true;
                 } else {
                     break;
@@ -438,34 +375,34 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
             }
 
             // Strip off any leading zeros in the exponent.
-            char* fwd = ptr;
-            for (;;) {
-                ++fwd;
-                if (*fwd == '-') {
+            size_t fwd = ePos + 1;
+            while (fwd < result.length()) {
+                if (result[fwd] == '-') {
                     minus = true;
-                } else if (*fwd == '+' || *fwd == '0') {
+                } else if (result[fwd] == '+' || result[fwd] == '0') {
                     edit = true;
                 } else {
                     break;
                 }
+                ++fwd;
             }
 
             if (edit) {
                 std::string adjResult;
-                adjResult.reserve(ret - 1);
+                adjResult.reserve(result.length());
                 // mantissa
-                adjResult.assign(buf, bwd + 1);
-                if (::isdigit(static_cast<unsigned char>(*fwd))) {
+                adjResult.assign(result, 0, bwd + 1);
+                if (fwd < result.length() && ::isdigit(static_cast<unsigned char>(result[fwd]))) {
                     adjResult.append(minus ? "e-" : "e");
                     // exponent
-                    adjResult.append(fwd);
+                    adjResult.append(result, fwd);
                 }
                 return adjResult;
             }
         }
     }
 
-    return buf;
+    return result;
 }
 
 CStringUtils::TSizeBoolPr
