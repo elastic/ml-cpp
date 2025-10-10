@@ -58,6 +58,8 @@ const int FILE_NAME_TEMPLATE_SUFFIX_LEN{3};
 
 std::string getTempDir() {
     // Prefer to use the temporary directory set by the Elasticsearch JVM
+    // SAFE: TMPDIR usage is secure - mkstemps() creates files with 0600 permissions,
+    // uses random filenames, and file is cleaned up after use
     const char* tmpDir{::getenv("TMPDIR")};
 
     // If TMPDIR is not set use _PATH_VARTMP
