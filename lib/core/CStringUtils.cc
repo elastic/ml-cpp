@@ -397,18 +397,18 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     // at https://randomascii.wordpress.com/2012/03/08/float-precisionfrom-zero-to-100-digits-2/.
     // We use g format since it is the most efficient. Note also that when
     // printing to limited precision we must round the value before printing
-    // because printing just truncates, i.e. sprintf(buf, "%.6e", 0.49999998)
+    // because printing just truncates, i.e. snprintf(buf, sizeof(buf), "%.6e", 0.49999998)
     // gives 4.999999e-1 rather than the correctly rounded value 0.5.
 
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
         ret = ::snprintf(buf, sizeof(buf), "%.5g",
-                        clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+                         clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
     case CIEEE754::E_SinglePrecision:
         ret = ::snprintf(buf, sizeof(buf), "%.9g",
-                        clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+                         clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
     case CIEEE754::E_DoublePrecision:
         ret = ::snprintf(buf, sizeof(buf), "%.17g", clampToReadable(d));
