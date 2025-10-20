@@ -314,7 +314,60 @@ bool CJsonStateRestoreTraverser::start() {
             return false;
         }
 
-        LOG_ERROR(<< "JSON state must be object at root" << m_Handler.s_Type);
+        // Enhanced error logging with comprehensive debugging information
+        std::string tokenTypeName;
+        switch (m_Handler.s_Type) {
+        case SBoostJsonHandler::E_TokenNull:
+            tokenTypeName = "null";
+            break;
+        case SBoostJsonHandler::E_TokenKey:
+            tokenTypeName = "key";
+            break;
+        case SBoostJsonHandler::E_TokenBool:
+            tokenTypeName = "boolean";
+            break;
+        case SBoostJsonHandler::E_TokenInt64:
+            tokenTypeName = "int64";
+            break;
+        case SBoostJsonHandler::E_TokenUInt64:
+            tokenTypeName = "uint64";
+            break;
+        case SBoostJsonHandler::E_TokenDouble:
+            tokenTypeName = "double";
+            break;
+        case SBoostJsonHandler::E_TokenString:
+            tokenTypeName = "string";
+            break;
+        case SBoostJsonHandler::E_TokenObjectStart:
+            tokenTypeName = "object_start";
+            break;
+        case SBoostJsonHandler::E_TokenObjectEnd:
+            tokenTypeName = "object_end";
+            break;
+        case SBoostJsonHandler::E_TokenArrayStart:
+            tokenTypeName = "array_start";
+            break;
+        case SBoostJsonHandler::E_TokenArrayEnd:
+            tokenTypeName = "array_end";
+            break;
+        case SBoostJsonHandler::E_TokenKeyPart:
+            tokenTypeName = "key_part";
+            break;
+        case SBoostJsonHandler::E_TokenStringPart:
+            tokenTypeName = "string_part";
+            break;
+        default:
+            tokenTypeName = "unknown";
+            break;
+        }
+
+        LOG_ERROR(<< "JSON state must be object at root. Found token type: " << tokenTypeName
+                  << " (value: " << m_Handler.s_Type << "), isArrayOfObjects: " << m_IsArrayOfObjects
+                  << ", isEof: " << this->isEof() << ", stream state - bad: "
+                  << m_ReadStream.bad() << ", fail: " << m_ReadStream.fail()
+                  << ", eof: " << m_ReadStream.eof()
+                  << ", bytes remaining: " << m_BytesRemaining << ", buffer position: "
+                  << (m_BufferPtr ? (m_BufferPtr - m_Buffer) : -1));
         return false;
     }
 
@@ -349,7 +402,13 @@ bool CJsonStateRestoreTraverser::advance() {
 }
 
 void CJsonStateRestoreTraverser::logError() {
-    LOG_ERROR(<< "Error parsing JSON: " << m_Reader.last_error());
+    LOG_ERROR(<< "Error parsing JSON: " << m_Reader.last_error() << ", stream state - bad: "
+              << m_ReadStream.bad() << ", fail: " << m_ReadStream.fail()
+              << ", eof: " << m_ReadStream.eof() << ", bytes remaining: " << m_BytesRemaining
+              << ", buffer position: " << (m_BufferPtr ? (m_BufferPtr - m_Buffer) : -1)
+              << ", current token type: " << m_Handler.s_Type
+              << ", isArrayOfObjects: " << m_IsArrayOfObjects << ", started: " << m_Started
+              << ", desired level: " << m_DesiredLevel);
     this->setBadState();
 }
 
