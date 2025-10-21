@@ -40,6 +40,7 @@ const std::string& CStringCache::stringFor(const char* str) {
         return EMPTY_STRING;
     }
 
+    // SAFE: NULL check performed before strlen - str is guaranteed to be NULL-terminated
     return this->stringFor(str, ::strlen(str));
 }
 

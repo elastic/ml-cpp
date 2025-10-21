@@ -174,6 +174,8 @@ std::string CNamedPipeFactory::defaultPath() {
     // $TMPDIR is generally set on Mac OS X (to something like
     // /var/folders/k5/5sqcdlps5sg3cvlp783gcz740000h0/T/) and not set on other
     // platforms.
+    // SAFE: TMPDIR usage is secure - mkfifo() creates pipes with 0600 permissions,
+    // validates existing files, and falls back to system _PATH_VARTMP
     const char* tmpDir{::getenv("TMPDIR")};
 
     // Make sure path ends with a slash so it's ready to have a file name

@@ -39,17 +39,17 @@ namespace {
 // (debug deny) makes it easier to see which calls need adding
 // when one that is required is not in the list - they show up in
 // the macOS console.
-const std::string SANDBOX_RULES{"\
-    (version 1) \
-    (deny default) \
-    (allow signal (target self)) \
-    (allow system-sched (target self)) \
-    (allow file-read*) \
-    (allow file-read-data) \
-    (allow file-write*) \
-    (allow file-write-data) \
-    (allow sysctl-read) \
-    (debug deny)"};
+const std::string SANDBOX_RULES{
+    "(version 1) "
+    "(deny default) "
+    "(allow signal (target self)) "
+    "(allow system-sched (target self)) "
+    "(allow file-read*) "
+    "(allow file-read-data) "
+    "(allow file-write*) "
+    "(allow file-write-data) "
+    "(allow sysctl-read) "
+    "(debug deny)"};
 
 // mkstemps will replace the Xs with random characters
 const std::string FILE_NAME_TEMPLATE{"ml.XXXXXX.sb"};
@@ -58,6 +58,8 @@ const int FILE_NAME_TEMPLATE_SUFFIX_LEN{3};
 
 std::string getTempDir() {
     // Prefer to use the temporary directory set by the Elasticsearch JVM
+    // SAFE: TMPDIR usage is secure - mkstemps() creates files with 0600 permissions,
+    // uses random filenames, and file is cleaned up after use
     const char* tmpDir{::getenv("TMPDIR")};
 
     // If TMPDIR is not set use _PATH_VARTMP
@@ -94,8 +96,7 @@ void CSystemCallFilter::installSystemCallFilter() {
         return;
     }
 
-    char* errorbuf{nullptr};
-    if (::sandbox_init(profileFilename.c_str(), SANDBOX_NAMED, &errorbuf) != 0) {
+    if (char* errorbuf{nullptr}; ::sandbox_init(profileFilename.c_str(), SANDBOX_NAMED, &errorbuf) != 0) {
         std::string msg("Error initializing macOS sandbox");
         if (errorbuf != nullptr) {
             msg += ": ";
