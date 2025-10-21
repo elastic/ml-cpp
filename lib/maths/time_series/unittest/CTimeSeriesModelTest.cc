@@ -1754,8 +1754,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         std::ostringstream origJson;
         core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&maths::time_series::CUnivariateTimeSeriesModel::acceptPersistInserter,
-                                      &origModel));
+            origJson, std::bind(&maths::time_series::CUnivariateTimeSeriesModel::acceptPersistInserter, &origModel, std::placeholders::_1));
 
         LOG_TRACE(<< "model JSON representation:\n" << origJson.str());
         LOG_DEBUG(<< "model JSON size: " << origJson.str().size());
@@ -1798,8 +1797,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         std::ostringstream origJson;
         core::CJsonStatePersistInserter::persist(
-            origJson, std::bind_front(&maths::time_series::CMultivariateTimeSeriesModel::acceptPersistInserter,
-                                      &origModel));
+            origJson, std::bind(&maths::time_series::CMultivariateTimeSeriesModel::acceptPersistInserter,
+                              &origModel, std::placeholders::_1));
 
         LOG_TRACE(<< "model JSON representation:\n" << origJson.str());
         LOG_DEBUG(<< "model JSON size: " << origJson.str().size());
