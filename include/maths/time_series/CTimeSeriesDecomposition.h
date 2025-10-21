@@ -20,7 +20,8 @@
 
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
-#include <maths/time_series/ImportExport.h>
+#include <maths/time_series/CSeasonalTime.h>
+#include <maths/time_series/CTimeSeriesPredictor.h>
 
 #include <memory>
 
@@ -243,10 +244,16 @@ public:
 
 private:
     using TMediatorPtr = std::unique_ptr<CMediator>;
+    using TTimeSeriesPredictorPtr = std::unique_ptr<CTimeSeriesPredictor>;
 
 private:
     //! Set up the communication mediator.
     void initializeMediator();
+    
+    //! Initialize the predictor object.
+    void initializePredictor();
+    
+
 
     //! Create from part of a state document.
     bool acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
@@ -266,9 +273,10 @@ private:
         -> decltype(f(time));
 
 private:
-    //! The time over which discontinuities between weekdays
-    //! and weekends are smoothed out.
-    static const core_t::TTime SMOOTHING_INTERVAL;
+
+
+    //! The smoother object used to smooth discontinuities.
+    CTimeSeriesSmoothing m_Smoother;
 
 private:
     //! Any time shift to supplied times.
@@ -294,6 +302,12 @@ private:
 
     //! The state for modeling the components of the decomposition.
     CComponents m_Components;
+    
+    //! The predictor object for making time series predictions.
+    TTimeSeriesPredictorPtr m_Predictor;
+    
+    //! The forecasting object for making time series forecasts.
+
 
     //! Befriend a helper class used by the unit tests
     friend class CTimeSeriesDecompositionTest::CNanInjector;
