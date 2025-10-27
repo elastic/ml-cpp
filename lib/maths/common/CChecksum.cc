@@ -32,7 +32,7 @@ std::uint64_t CChecksumImpl<BasicChecksum>::dispatch(std::uint64_t seed, double 
     target = core::CIEEE754::round(target, core::CIEEE754::E_SinglePrecision);
     char buf[4 * sizeof(double)];
     std::memset(buf, 0, sizeof(buf));
-    std::sprintf(buf, "%.7g", target);
+    std::snprintf(buf, sizeof(buf), "%.7g", target);
     return core::CHashing::safeMurmurHash64(&buf[0], 4 * sizeof(double), seed);
 }
 
