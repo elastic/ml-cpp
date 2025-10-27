@@ -172,14 +172,14 @@ public:
     //! \param[in] confidence The confidence interval to calculate.
     //! \param[in] isNonNegative True if the data being modelled are known to be
     //! non-negative.
-    //! \param[in] seasonal Forecasts seasonal components.
+    //! \param[in] getSeasonalForecastBounds Forecasts seasonal components.
     //! \param[in] writer Writes out forecast results.
     void forecast(core_t::TTime startTime,
                   core_t::TTime endTime,
                   core_t::TTime step,
                   double confidence,
                   bool isNonNegative,
-                  const TSeasonalForecast& seasonal,
+                  const TSeasonalForecast& getSeasonalForecastBounds,
                   const TWriteForecastResult& writer) const;
 
     //! Get the interval which has been observed so far.
