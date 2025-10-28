@@ -268,23 +268,25 @@ bool ml::core::CDetachedProcessSpawner::spawn(const std::string& processPath,
                                              const std::vector<std::string>& args,
                                              ml::core::CProcess::TPid& childPid) {
 #ifdef __linux__
-#ifndef SANDBOX2_DISABLED
-    // Use Sandbox2 for pytorch_inference on Linux
     if (detail::isPytorchInference(processPath)) {
-        if (detail::spawnWithSandbox2(processPath, args, childPid)) {
-            // Note: PID tracking will be handled by the base implementation
-            // when this function returns true, the base implementation
-            // will call m_TrackerThread->addPid(childPid)
-            return true;
-        } else {
-            LOG_ERROR(<< "Sandbox2 spawn failed for '" << processPath << "', falling back to posix_spawn");
-            // Fall through to posix_spawn
+#ifdef SANDBOX2_DISABLED
+        HANDLE_FATAL(<< "Sandbox2 is disabled but required for pytorch_inference process: " << processPath);
+        return false;
+#elif !defined(SANDBOX2_AVAILABLE)
+        HANDLE_FATAL(<< "Sandbox2 is not available but required for pytorch_inference process: " << processPath);
+        return false;
+#else
+        // Sandbox2 is available and enabled
+        if (!detail::spawnWithSandbox2(processPath, args, childPid)) {
+            HANDLE_FATAL(<< "Failed to spawn pytorch_inference with Sandbox2: " << processPath);
+            return false;
         }
+        return true;
+#endif
     }
-#endif // SANDBOX2_DISABLED
 #endif // __linux__
 
-    // Fall back to standard posix_spawn implementation
+    // For non-pytorch_inference processes, use standard posix_spawn
     // This will call the base implementation from CDetachedProcessSpawner.cc
-    return false; // Indicates to use base implementation
+    return false; 
 }
