@@ -57,6 +57,40 @@
 #ifndef __NR_umount2
 #define __NR_umount2 166
 #endif
+
+// Additional syscall numbers for ML process filtering
+#ifndef __NR_connect
+#define __NR_connect 42  // x86_64
+#endif
+#ifdef __x86_64__
+#ifndef __NR_mkdir
+#define __NR_mkdir 83
+#endif
+#ifndef __NR_rmdir
+#define __NR_rmdir 84
+#endif
+#ifndef __NR_unlink
+#define __NR_unlink 87
+#endif
+#ifndef __NR_mknod
+#define __NR_mknod 133
+#endif
+#ifndef __NR_getdents
+#define __NR_getdents 78
+#endif
+#endif // __x86_64__
+#ifndef __NR_mkdirat
+#define __NR_mkdirat 258
+#endif
+#ifndef __NR_unlinkat
+#define __NR_unlinkat 263
+#endif
+#ifndef __NR_mknodat
+#define __NR_mknodat 259
+#endif
+#ifndef __NR_getdents64
+#define __NR_getdents64 217
+#endif
 #endif // SANDBOX2_AVAILABLE
 
 namespace ml {
@@ -136,6 +170,67 @@ std::string calculatePytorchLibDir(const std::string& processPath) {
     return parentDir + "/lib";
 }
 
+#ifndef SANDBOX2_DISABLED
+#ifdef SANDBOX2_AVAILABLE
+//! Apply standard ML process syscall restrictions to a Sandbox2 PolicyBuilder.
+//!
+//! This function implements the same security policy as CSystemCallFilter_Linux.cc
+//! but using Sandbox2's PolicyBuilder API. The goal is to provide a consistent
+//! syscall filtering policy that can be applied to all ML processes.
+//!
+//! DESIGN RATIONALE:
+//! - Mirrors the whitelist approach from the seccomp filter for consistency
+//! - Blocks dangerous syscalls: mount/umount, network (connect), file creation
+//! - Allows essential syscalls: file I/O, memory management, threading, signals
+//! - Parameterized to support different ML process needs (forecast temp storage)
+//!
+//! FUTURE MIGRATION PATH:
+//! When other ML processes (autodetect, categorize, data_frame_analyzer, normalize)
+//! are migrated to Sandbox2, they can use this same function with appropriate
+//! parameters. For example:
+//!   - autodetect: allowForecastTempStorage=true (needs mkdir/rmdir)
+//!   - categorize: allowForecastTempStorage=false
+//!   - data_frame_analyzer: allowForecastTempStorage=true
+//!   - normalize: allowForecastTempStorage=false
+//!
+//! @param builder The PolicyBuilder to configure (modified in place)
+//! @param allowForecastTempStorage If true, allow mkdir/rmdir/unlink for forecast temp storage
+//! @param allowNetworkConnect If true, allow connect syscall (currently unused)
+//! @return Reference to the builder for method chaining
+sandbox2::PolicyBuilder& applyMlSyscallPolicy(sandbox2::PolicyBuilder& builder,
+                                              bool allowForecastTempStorage = false,
+                                              bool allowNetworkConnect = false) {
+    // Block dangerous syscalls that no ML process should use
+    builder.BlockSyscall(__NR_mount)
+           .BlockSyscall(__NR_umount)
+           .BlockSyscall(__NR_umount2);
+    
+    // Network access - currently no ML process needs this
+    if (!allowNetworkConnect) {
+        builder.BlockSyscall(__NR_connect);
+    }
+    
+    // File/directory creation - only needed for forecast temp storage
+    if (!allowForecastTempStorage) {
+        #ifdef __x86_64__
+        builder.BlockSyscall(__NR_mkdir)
+               .BlockSyscall(__NR_rmdir)
+               .BlockSyscall(__NR_unlink)
+               .BlockSyscall(__NR_mknod)
+               .BlockSyscall(__NR_getdents);
+        #endif
+        builder.BlockSyscall(__NR_mkdirat)
+               .BlockSyscall(__NR_unlinkat)
+               .BlockSyscall(__NR_mknodat)
+               .BlockSyscall(__NR_getdents64);
+    }
+    
+    // All other syscalls from the seccomp whitelist are implicitly allowed
+    // by Sandbox2's default policy (read, write, mmap, futex, etc.)
+    
+    return builder;
+}
+
 //! Look up UID/GID for nobody user and nogroup
 bool lookupNobodyUser(uid_t& uid, gid_t& gid) {
     struct passwd* pwd = getpwnam("nobody");
@@ -155,19 +250,11 @@ bool lookupNobodyUser(uid_t& uid, gid_t& gid) {
     LOG_DEBUG(<< "Found nobody user: UID=" << uid << ", GID=" << gid);
     return true;
 }
-
-#ifndef SANDBOX2_DISABLED
-#ifdef SANDBOX2_AVAILABLE
 //! Build Sandbox2 policy for pytorch_inference
 std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, uid_t uid, gid_t gid) {
     auto builder = sandbox2::PolicyBuilder()
         // Drop privileges to nobody:nogroup
         .SetUserAndGroup(uid, gid)
-        
-        // Filesystem isolation - deny by default
-        .BlockSyscall(__NR_mount)
-        .BlockSyscall(__NR_umount)
-        .BlockSyscall(__NR_umount2)
         
         // Allow essential system libraries (read-only)
         .AddDirectoryAt("/lib", "/lib", true)
@@ -177,6 +264,12 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, 
         
         // Allow minimal /tmp (private tmpfs)
         .AddTmpfs("/tmp");
+    
+    // Apply standard ML syscall restrictions
+    // pytorch_inference doesn't need forecast temp storage or network
+    applyMlSyscallPolicy(builder, 
+                        /*allowForecastTempStorage=*/false,
+                        /*allowNetworkConnect=*/false);
     
     // Allow PyTorch libraries (read-only)
     if (!paths.pytorchLibDir.empty()) {
@@ -258,6 +351,38 @@ bool spawnWithSandbox2(const std::string& processPath,
 }
 #endif // SANDBOX2_AVAILABLE
 #endif // SANDBOX2_DISABLED
+
+//! FUTURE MIGRATION PLAN:
+//! 
+//! Currently only pytorch_inference is spawned via Sandbox2. The long-term plan
+//! is to migrate all ML processes to use Sandbox2 for consistent security:
+//!
+//! 1. pytorch_inference (CURRENT) - Spawned via CDetachedProcessSpawner
+//!    - Uses: applyMlSyscallPolicy(builder, false, false)
+//!    - No temp storage, no network
+//!
+//! 2. autodetect (FUTURE) - Will be spawned via CDetachedProcessSpawner
+//!    - Uses: applyMlSyscallPolicy(builder, true, false)
+//!    - Needs temp storage for forecasting
+//!
+//! 3. categorize (FUTURE) - Will be spawned via CDetachedProcessSpawner
+//!    - Uses: applyMlSyscallPolicy(builder, false, false)
+//!    - No temp storage, no network
+//!
+//! 4. data_frame_analyzer (FUTURE) - Will be spawned via CDetachedProcessSpawner
+//!    - Uses: applyMlSyscallPolicy(builder, true, false)
+//!    - Needs temp storage for forecasting
+//!
+//! 5. normalize (FUTURE) - Will be spawned via CDetachedProcessSpawner
+//!    - Uses: applyMlSyscallPolicy(builder, false, false)
+//!    - No temp storage, no network
+//!
+//! When migrating a process:
+//! 1. Update CDetachedProcessSpawner::spawn() to detect the process type
+//! 2. Create a process-specific buildSandboxPolicy() function
+//! 3. Call applyMlSyscallPolicy() with appropriate parameters
+//! 4. Conditionally disable seccomp in the process's Main.cc (like pytorch_inference)
+//! 5. Update the process spawning code to use CDetachedProcessSpawner
 
 } // namespace detail
 } // namespace core

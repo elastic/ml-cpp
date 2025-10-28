@@ -259,7 +259,16 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
+
+#if defined(__linux__) && !defined(SANDBOX2_DISABLED) && defined(SANDBOX2_AVAILABLE)
+    // When running under Sandbox2, syscall filtering is enforced at spawn time
+    // by the parent process. Installing seccomp here would be redundant.
+    LOG_DEBUG(<< "Skipping seccomp filter installation (using Sandbox2 policy)");
+#else
+    // For non-Linux platforms or when Sandbox2 is not available,
+    // fall back to seccomp filtering
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+#endif
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
