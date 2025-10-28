@@ -123,6 +123,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(STRPTIME_LIB "${ML_BASE_PATH}/lib/strptime${ML_LIBEXT}")
 endif()
 
+# Sandbox2 libraries for Linux only
+# Temporarily disabled due to PIE compatibility issues
+# TODO: Fix PIE compatibility with Sandbox2
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(SANDBOX2_LIBRARIES "")
+else()
+  set(SANDBOX2_LIBRARIES "")
+endif()
+
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)

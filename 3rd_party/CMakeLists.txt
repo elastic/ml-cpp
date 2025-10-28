@@ -39,3 +39,90 @@ execute_process(
     COMMAND ${CMAKE_COMMAND} -P ./pull-valijson.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Build Abseil and Sandbox2 on Linux only
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  # Include FetchContent module
+  include(FetchContent)
+  
+  # Save and disable BUILD_TESTING to prevent CTest from enabling tests
+  set(_saved_BUILD_TESTING ${BUILD_TESTING})
+  set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+  
+  # Disable Google Test-related options to avoid dependency issues
+  # Set as regular variables first to ensure they're available during FetchContent
+  set(ABSL_PROPAGATE_CXX_STD ON)
+  set(ABSL_USE_EXTERNAL_GOOGLETEST OFF)
+  set(ABSL_FIND_GOOGLETEST OFF)
+  set(ABSL_ENABLE_INSTALL OFF)
+  set(ABSL_BUILD_TESTING OFF)
+  set(ABSL_BUILD_TEST_HELPERS OFF)
+  
+  # Sandboxed API options
+  set(SAPI_ENABLE_EXAMPLES OFF)
+  set(SAPI_ENABLE_TESTS OFF)
+  
+  # Also cache them to ensure they persist
+  set(ABSL_PROPAGATE_CXX_STD ON CACHE INTERNAL "" FORCE)
+  set(ABSL_USE_EXTERNAL_GOOGLETEST OFF CACHE INTERNAL "" FORCE)
+  set(ABSL_FIND_GOOGLETEST OFF CACHE INTERNAL "" FORCE)
+  set(ABSL_ENABLE_INSTALL OFF CACHE INTERNAL "" FORCE)
+  set(ABSL_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
+  set(ABSL_BUILD_TEST_HELPERS OFF CACHE INTERNAL "" FORCE)
+  set(SAPI_ENABLE_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+  set(SAPI_ENABLE_TESTS OFF CACHE INTERNAL "" FORCE)
+  
+  # Declare Sandboxed API dependency
+  FetchContent_Declare(
+    sandboxed-api
+    GIT_REPOSITORY https://github.com/google/sandboxed-api.git
+    GIT_TAG v20241008
+    GIT_SHALLOW TRUE
+  )
+  
+  # Get the source directory before making it available
+  FetchContent_GetProperties(sandboxed-api)
+  if(NOT sandboxed-api_POPULATED)
+    FetchContent_Populate(sandboxed-api)
+    
+    # Override the abseil-cpp.cmake file to disable Google Test
+    file(WRITE ${sandboxed-api_SOURCE_DIR}/cmake/abseil-cpp.cmake
+"# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the \"License\");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an \"AS IS\" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FetchContent_Declare(absl
+  URL https://github.com/abseil/abseil-cpp/archive/61e47a454c81eb07147b0315485f476513cc1230.zip  # 2024-04-05
+  URL_HASH SHA256=9ba0e97acf7026f7479e24967866ba9560cf3256304b6c8932d2b1ab7d0dfcd2
+)
+set(ABSL_CXX_STANDARD \${SAPI_CXX_STANDARD} CACHE STRING \"\" FORCE)
+set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL \"\" FORCE)
+set(ABSL_RUN_TESTS OFF CACHE BOOL \"\" FORCE)
+set(ABSL_BUILD_TEST_HELPERS OFF CACHE BOOL \"\" FORCE)
+set(ABSL_USE_EXTERNAL_GOOGLETEST OFF)
+set(ABSL_FIND_GOOGLETEST OFF)
+set(ABSL_USE_GOOGLETEST_HEAD OFF CACHE BOOL \"\" FORCE)
+
+FetchContent_MakeAvailable(absl)
+")
+  endif()
+  
+  # Now add the subdirectory
+  add_subdirectory(${sandboxed-api_SOURCE_DIR} ${sandboxed-api_BINARY_DIR} EXCLUDE_FROM_ALL)
+  
+  # Restore BUILD_TESTING if it was set
+  if(_saved_BUILD_TESTING)
+    set(BUILD_TESTING ${_saved_BUILD_TESTING} CACHE BOOL "" FORCE)
+  endif()
+endif()

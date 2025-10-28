@@ -133,8 +133,6 @@ function(ml_add_non_distributed_library _target _type)
 
   add_library(${_target} ${_type} EXCLUDE_FROM_ALL ${PLATFORM_SRCS})
 
-  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
-
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
   endif()

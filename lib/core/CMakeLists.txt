@@ -34,6 +34,7 @@ ml_add_library(MlCore SHARED
   CDataFrameRowSlice.cc
   CDataSearcher.cc
   CDetachedProcessSpawner.cc
+  CDetachedProcessSpawner_Linux.cc
   CDualThreadStreamBuf.cc
   CFastMutex.cc
   CFlatPrefixTree.cc
