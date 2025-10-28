@@ -66,14 +66,74 @@ namespace detail {
 //! Structure to hold process paths for Sandbox2 policy
 struct ProcessPaths {
     std::string pytorchLibDir;
-    std::string modelDir;
+    std::string modelPath;      // renamed from modelDir
     std::string inputPipe;
     std::string outputPipe;
+    std::string logPipe;        // new: --logPipe
+    std::string logProperties;  // new: --logProperties (config file)
 };
 
 //! Check if the process path is pytorch_inference
 bool isPytorchInference(const std::string& processPath) {
     return processPath.find("pytorch_inference") != std::string::npos;
+}
+
+//! Parse command line arguments to extract file paths for sandbox policy
+ProcessPaths parseProcessPaths(const std::vector<std::string>& args) {
+    ProcessPaths paths;
+    
+    for (size_t i = 0; i < args.size(); ++i) {
+        const std::string& arg = args[i];
+        
+        // Handle --arg=value format
+        if (arg.find("--input=") == 0) {
+            paths.inputPipe = arg.substr(8); // Skip "--input="
+        } else if (arg.find("--output=") == 0) {
+            paths.outputPipe = arg.substr(9); // Skip "--output="
+        } else if (arg.find("--restore=") == 0) {
+            paths.modelPath = arg.substr(10); // Skip "--restore="
+        } else if (arg.find("--logPipe=") == 0) {
+            paths.logPipe = arg.substr(10); // Skip "--logPipe="
+        } else if (arg.find("--logProperties=") == 0) {
+            paths.logProperties = arg.substr(16); // Skip "--logProperties="
+        }
+        // Handle --arg value format
+        else if (arg == "--input" && i + 1 < args.size()) {
+            paths.inputPipe = args[++i];
+        } else if (arg == "--output" && i + 1 < args.size()) {
+            paths.outputPipe = args[++i];
+        } else if (arg == "--restore" && i + 1 < args.size()) {
+            paths.modelPath = args[++i];
+        } else if (arg == "--logPipe" && i + 1 < args.size()) {
+            paths.logPipe = args[++i];
+        } else if (arg == "--logProperties" && i + 1 < args.size()) {
+            paths.logProperties = args[++i];
+        }
+    }
+    
+    return paths;
+}
+
+//! Calculate PyTorch library directory from executable path
+std::string calculatePytorchLibDir(const std::string& processPath) {
+    // Find the last directory separator
+    size_t lastSlash = processPath.find_last_of('/');
+    if (lastSlash == std::string::npos) {
+        return ""; // Invalid path
+    }
+    
+    // Get the directory containing the executable
+    std::string exeDir = processPath.substr(0, lastSlash);
+    
+    // The lib directory is at ../lib relative to the executable
+    // (since executables are typically in bin/ and libraries in lib/)
+    size_t lastDirSlash = exeDir.find_last_of('/');
+    if (lastDirSlash == std::string::npos) {
+        return ""; // Invalid path
+    }
+    
+    std::string parentDir = exeDir.substr(0, lastDirSlash);
+    return parentDir + "/lib";
 }
 
 //! Look up UID/GID for nobody user and nogroup
@@ -123,9 +183,9 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, 
         builder.AddDirectoryAt(paths.pytorchLibDir, paths.pytorchLibDir, true);
     }
     
-    // Allow model directory (read-only)
-    if (!paths.modelDir.empty()) {
-        builder.AddDirectoryAt(paths.modelDir, paths.modelDir, true);
+    // Allow model file (read-only)
+    if (!paths.modelPath.empty()) {
+        builder.AddFileAt(paths.modelPath, paths.modelPath, true, false);
     }
     
     // Allow named pipes (read-write)
@@ -134,6 +194,14 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, 
     }
     if (!paths.outputPipe.empty()) {
         builder.AddFileAt(paths.outputPipe, paths.outputPipe, true, true);
+    }
+    if (!paths.logPipe.empty()) {
+        builder.AddFileAt(paths.logPipe, paths.logPipe, true, true);
+    }
+    
+    // Allow log properties file (read-only)
+    if (!paths.logProperties.empty()) {
+        builder.AddFileAt(paths.logProperties, paths.logProperties, true, false);
     }
     
     // Build the policy
@@ -155,12 +223,11 @@ bool spawnWithSandbox2(const std::string& processPath,
         return false;
     }
     
-    // Build process paths (these would be passed from the main spawner)
-    ProcessPaths paths;
-    paths.pytorchLibDir = "/usr/local/lib/python3.x/site-packages/torch/lib";
-    paths.modelDir = "/opt/models";
-    paths.inputPipe = "/tmp/input_pipe";
-    paths.outputPipe = "/tmp/output_pipe";
+    // Parse process paths from command line arguments
+    ProcessPaths paths = parseProcessPaths(args);
+    
+    // Calculate PyTorch library directory from executable path
+    paths.pytorchLibDir = calculatePytorchLibDir(processPath);
     
     // Build Sandbox2 policy
     auto policy = buildSandboxPolicy(paths, uid, gid);
