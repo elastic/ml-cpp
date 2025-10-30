@@ -9,7 +9,7 @@
 ## Files
 
 - `install.sh` The script that does the software installs on the image
-- `orka-macos-13-arm.pkr.hcl` The packer definition for a MacOS 13 ARM builder image
+- `orka-macos-14-arm.pkr.hcl` The packer definition for a MacOS 14 ARM builder image
 
 
 ## Set Up Packer
@@ -17,7 +17,7 @@
 If you haven't run these before, run the following once so packer downloads the `vault` integration:
 
 ```
-packer init orka-macos-13-arm.pkr.hcl
+packer init orka-macos-14-arm.pkr.hcl
 ```
 
 ## Build
@@ -26,10 +26,10 @@ Make sure you are connected to the Orka VM.
 
 Packer requires access to secrets in vault, where VAULT_ADDR=https://vault-ci-prod.elastic.dev and VAULT_TOKEN must be set appropriately in the environment.
 
-Run the following to create the image (MacOS 13 ARM in this example):
+Run the following to create the image (MacOS 14 ARM in this example):
 
 ```
-packer build orka-macos-13-arm.pkr.hcl
+packer build orka-macos-14-arm.pkr.hcl
 ```
 
 ## Versioning
@@ -38,7 +38,7 @@ The name of the resulting images are hard-coded (currently), and end in a sequen
 
 ## Source Images
 
-We make use of an image - `generic-13-ventura-arm-002.orkasi` - that is configured such that it:
+We make use of an image - `generic-14-sonoma-arm-001.orkasi` - that is configured such that it:
 
     * Adds passwordless `sudo` for the default `admin` user
     * Configures `the admin` user to be automatically logged in
