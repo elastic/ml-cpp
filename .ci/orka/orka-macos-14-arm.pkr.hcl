@@ -18,7 +18,7 @@ locals {
 
 source "macstadium-orka" "image" {
   source_image     = "generic-14-sonoma-arm-001.orkasi"
-  image_name       = "ml-macos-14-arm-001.orkasi"
+  image_name       = "ml-macos-14-arm-003.orkasi"
   orka_endpoint    = local.orka_endpoint
   orka_user        = local.orka_user
   orka_password    = local.orka_password
