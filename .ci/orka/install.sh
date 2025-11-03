@@ -26,7 +26,8 @@ export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 if ! command -v vault 2> /dev/null ; then
     echo "install vault"
-    brew install vault
+    brew tap hashicorp/tap
+    brew install hashicorp/tap/vault
 fi
 
 if ! command -v jq 2> /dev/null ; then
