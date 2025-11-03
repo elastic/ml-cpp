@@ -46,20 +46,20 @@ We make use of an image - `generic-14-sonoma-arm-001.orkasi` - that is configure
 
 The generic image has the following packages installed:
 
- * brew `4.0.28`
  * Google Cloud SDK into `~admin/google-cloud-sdk/`
- * `gobld-bootstrap.sh` script to run at system startup
-    * This script pulls down and runs another script from a static location to do the following:
-      * Unseal one-time vault token from gobld
-      * Install and run the latest `buildkite-agent`
 
 ## Packer Install Steps
 
 The ML packer scripts do the following:
+ * brew `4.0.28`
  * vault `1.14.0`
  * python3 `3.10.8`
  * jq `1.6`
  * orka-vm-tools
+ * `gobld-bootstrap.sh` script to run at system startup
+    * This script pulls down and runs another script from a static location to do the following:
+      * Unseal one-time vault token from gobld
+      * Install and run the latest `buildkite-agent`
  * Install JDK `11.0.25`
  * Install CMake `3.30.5`
  * Install Boost `1.86.0` from source
