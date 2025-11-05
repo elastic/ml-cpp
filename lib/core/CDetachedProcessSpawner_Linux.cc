@@ -13,19 +13,21 @@
 #include <core/CCondition.h>
 #include <core/CLogger.h>
 #include <core/CMutex.h>
+#include <core/COsFileFuncs.h>
 #include <core/CScopedLock.h>
 #include <core/CThread.h>
-#include <core/COsFileFuncs.h>
 
 #include <algorithm>
-#include <set>
-#include <vector>
-#include <string>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 #include <errno.h>
 #include <fcntl.h>
+#include <grp.h>
+#include <pwd.h>
 #include <signal.h>
 #include <spawn.h>
 #include <stdlib.h>
@@ -34,18 +36,16 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <pwd.h>
-#include <grp.h>
 
 // Sandbox2 integration - use conditional compilation to avoid linking issues
 #ifdef SANDBOX2_AVAILABLE
+#include <absl/status/status.h>
+#include <absl/status/statusor.h>
 #include <sandboxed_api/sandbox2/policy.h>
 #include <sandboxed_api/sandbox2/policybuilder.h>
 #include <sandboxed_api/sandbox2/result.h>
 #include <sandboxed_api/sandbox2/sandbox2.h>
 #include <sandboxed_api/sandbox2/util/bpf_helper.h>
-#include <absl/status/status.h>
-#include <absl/status/statusor.h>
 
 // Define syscall numbers for x86_64
 #ifndef __NR_mount
@@ -60,7 +60,7 @@
 
 // Additional syscall numbers for ML process filtering
 #ifndef __NR_connect
-#define __NR_connect 42  // x86_64
+#define __NR_connect 42 // x86_64
 #endif
 #ifdef __x86_64__
 #ifndef __NR_mkdir
@@ -100,11 +100,11 @@ namespace detail {
 //! Structure to hold process paths for Sandbox2 policy
 struct ProcessPaths {
     std::string pytorchLibDir;
-    std::string modelPath;      // renamed from modelDir
+    std::string modelPath; // renamed from modelDir
     std::string inputPipe;
     std::string outputPipe;
-    std::string logPipe;        // new: --logPipe
-    std::string logProperties;  // new: --logProperties (config file)
+    std::string logPipe;       // new: --logPipe
+    std::string logProperties; // new: --logProperties (config file)
 };
 
 //! Check if the process path is pytorch_inference
@@ -115,10 +115,10 @@ bool isPytorchInference(const std::string& processPath) {
 //! Parse command line arguments to extract file paths for sandbox policy
 ProcessPaths parseProcessPaths(const std::vector<std::string>& args) {
     ProcessPaths paths;
-    
+
     for (size_t i = 0; i < args.size(); ++i) {
         const std::string& arg = args[i];
-        
+
         // Handle --arg=value format
         if (arg.find("--input=") == 0) {
             paths.inputPipe = arg.substr(8); // Skip "--input="
@@ -144,7 +144,7 @@ ProcessPaths parseProcessPaths(const std::vector<std::string>& args) {
             paths.logProperties = args[++i];
         }
     }
-    
+
     return paths;
 }
 
@@ -155,17 +155,17 @@ std::string calculatePytorchLibDir(const std::string& processPath) {
     if (lastSlash == std::string::npos) {
         return ""; // Invalid path
     }
-    
+
     // Get the directory containing the executable
     std::string exeDir = processPath.substr(0, lastSlash);
-    
+
     // The lib directory is at ../lib relative to the executable
     // (since executables are typically in bin/ and libraries in lib/)
     size_t lastDirSlash = exeDir.find_last_of('/');
     if (lastDirSlash == std::string::npos) {
         return ""; // Invalid path
     }
-    
+
     std::string parentDir = exeDir.substr(0, lastDirSlash);
     return parentDir + "/lib";
 }
@@ -201,33 +201,31 @@ sandbox2::PolicyBuilder& applyMlSyscallPolicy(sandbox2::PolicyBuilder& builder,
                                               bool allowForecastTempStorage = false,
                                               bool allowNetworkConnect = false) {
     // Block dangerous syscalls that no ML process should use
-    builder.BlockSyscall(__NR_mount)
-           .BlockSyscall(__NR_umount)
-           .BlockSyscall(__NR_umount2);
-    
+    builder.BlockSyscall(__NR_mount).BlockSyscall(__NR_umount).BlockSyscall(__NR_umount2);
+
     // Network access - currently no ML process needs this
     if (!allowNetworkConnect) {
         builder.BlockSyscall(__NR_connect);
     }
-    
+
     // File/directory creation - only needed for forecast temp storage
     if (!allowForecastTempStorage) {
-        #ifdef __x86_64__
+#ifdef __x86_64__
         builder.BlockSyscall(__NR_mkdir)
-               .BlockSyscall(__NR_rmdir)
-               .BlockSyscall(__NR_unlink)
-               .BlockSyscall(__NR_mknod)
-               .BlockSyscall(__NR_getdents);
-        #endif
+            .BlockSyscall(__NR_rmdir)
+            .BlockSyscall(__NR_unlink)
+            .BlockSyscall(__NR_mknod)
+            .BlockSyscall(__NR_getdents);
+#endif
         builder.BlockSyscall(__NR_mkdirat)
-               .BlockSyscall(__NR_unlinkat)
-               .BlockSyscall(__NR_mknodat)
-               .BlockSyscall(__NR_getdents64);
+            .BlockSyscall(__NR_unlinkat)
+            .BlockSyscall(__NR_mknodat)
+            .BlockSyscall(__NR_getdents64);
     }
-    
+
     // All other syscalls from the seccomp whitelist are implicitly allowed
     // by Sandbox2's default policy (read, write, mmap, futex, etc.)
-    
+
     return builder;
 }
 
@@ -239,48 +237,49 @@ bool lookupNobodyUser(uid_t& uid, gid_t& gid) {
         return false;
     }
     uid = pwd->pw_uid;
-    
+
     struct group* grp = getgrnam("nogroup");
     if (!grp) {
         LOG_ERROR(<< "Failed to lookup nogroup");
         return false;
     }
     gid = grp->gr_gid;
-    
+
     LOG_DEBUG(<< "Found nobody user: UID=" << uid << ", GID=" << gid);
     return true;
 }
 //! Build Sandbox2 policy for pytorch_inference
-std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, uid_t uid, gid_t gid) {
+std::unique_ptr<sandbox2::Policy>
+buildSandboxPolicy(const ProcessPaths& paths, uid_t uid, gid_t gid) {
     auto builder = sandbox2::PolicyBuilder()
-        // Drop privileges to nobody:nogroup
-        .SetUserAndGroup(uid, gid)
-        
-        // Allow essential system libraries (read-only)
-        .AddDirectoryAt("/lib", "/lib", true)
-        .AddDirectoryAt("/usr/lib", "/usr/lib", true)
-        .AddDirectoryAt("/lib64", "/lib64", true)
-        .AddDirectoryAt("/usr/lib64", "/usr/lib64", true)
-        
-        // Allow minimal /tmp (private tmpfs)
-        .AddTmpfs("/tmp");
-    
+                       // Drop privileges to nobody:nogroup
+                       .SetUserAndGroup(uid, gid)
+
+                       // Allow essential system libraries (read-only)
+                       .AddDirectoryAt("/lib", "/lib", true)
+                       .AddDirectoryAt("/usr/lib", "/usr/lib", true)
+                       .AddDirectoryAt("/lib64", "/lib64", true)
+                       .AddDirectoryAt("/usr/lib64", "/usr/lib64", true)
+
+                       // Allow minimal /tmp (private tmpfs)
+                       .AddTmpfs("/tmp");
+
     // Apply standard ML syscall restrictions
     // pytorch_inference doesn't need forecast temp storage or network
-    applyMlSyscallPolicy(builder, 
-                        /*allowForecastTempStorage=*/false,
-                        /*allowNetworkConnect=*/false);
-    
+    applyMlSyscallPolicy(builder,
+                         /*allowForecastTempStorage=*/false,
+                         /*allowNetworkConnect=*/false);
+
     // Allow PyTorch libraries (read-only)
     if (!paths.pytorchLibDir.empty()) {
         builder.AddDirectoryAt(paths.pytorchLibDir, paths.pytorchLibDir, true);
     }
-    
+
     // Allow model file (read-only)
     if (!paths.modelPath.empty()) {
         builder.AddFileAt(paths.modelPath, paths.modelPath, true, false);
     }
-    
+
     // Allow named pipes (read-write)
     if (!paths.inputPipe.empty()) {
         builder.AddFileAt(paths.inputPipe, paths.inputPipe, true, true);
@@ -291,12 +290,12 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, 
     if (!paths.logPipe.empty()) {
         builder.AddFileAt(paths.logPipe, paths.logPipe, true, true);
     }
-    
+
     // Allow log properties file (read-only)
     if (!paths.logProperties.empty()) {
         builder.AddFileAt(paths.logProperties, paths.logProperties, true, false);
     }
-    
+
     // Build the policy
     return builder.BuildOrDie();
 }
@@ -306,54 +305,56 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths, 
 #ifndef SANDBOX2_DISABLED
 #ifdef SANDBOX2_AVAILABLE
 //! Spawn process with Sandbox2
-bool spawnWithSandbox2(const std::string& processPath, 
-                      const std::vector<std::string>& args,
-                      ml::core::CProcess::TPid& childPid) {
+bool spawnWithSandbox2(const std::string& processPath,
+                       const std::vector<std::string>& args,
+                       ml::core::CProcess::TPid& childPid) {
     // Look up nobody user
     uid_t uid;
     gid_t gid;
     if (!lookupNobodyUser(uid, gid)) {
         return false;
     }
-    
+
     // Parse process paths from command line arguments
     ProcessPaths paths = parseProcessPaths(args);
-    
+
     // Calculate PyTorch library directory from executable path
     paths.pytorchLibDir = calculatePytorchLibDir(processPath);
-    
+
     // Build Sandbox2 policy
     auto policy = buildSandboxPolicy(paths, uid, gid);
-    
+
     // Create executor
-    sandbox2::Sandbox2 sandbox(std::move(policy), std::make_unique<sandbox2::Executor>(processPath, args));
-    
+    sandbox2::Sandbox2 sandbox(
+        std::move(policy), std::make_unique<sandbox2::Executor>(processPath, args));
+
     // Launch sandboxed process
     auto result = sandbox.Run();
     if (!result.ok()) {
         LOG_ERROR(<< "Sandbox2 execution failed: " << result.status().message());
         return false;
     }
-    
+
     // Get the PID from the result
     childPid = result->pid();
-    
+
     LOG_DEBUG(<< "Spawned sandboxed '" << processPath << "' with PID " << childPid);
     return true;
 }
 #else
 //! Fallback implementation when Sandbox2 is not available
-bool spawnWithSandbox2(const std::string& processPath, 
-                      const std::vector<std::string>& args,
-                      ml::core::CProcess::TPid& childPid) {
-    LOG_DEBUG(<< "Sandbox2 not available, falling back to standard spawn for '" << processPath << "'");
+bool spawnWithSandbox2(const std::string& processPath,
+                       const std::vector<std::string>& args,
+                       ml::core::CProcess::TPid& childPid) {
+    LOG_DEBUG(<< "Sandbox2 not available, falling back to standard spawn for '"
+              << processPath << "'");
     return false; // Indicates to use base implementation
 }
 #endif // SANDBOX2_AVAILABLE
 #endif // SANDBOX2_DISABLED
 
 //! FUTURE MIGRATION PLAN:
-//! 
+//!
 //! Currently only pytorch_inference is spawned via Sandbox2. The long-term plan
 //! is to migrate all ML processes to use Sandbox2 for consistent security:
 //!
@@ -390,15 +391,17 @@ bool spawnWithSandbox2(const std::string& processPath,
 
 //! Linux-specific implementation of CDetachedProcessSpawner::spawn
 bool ml::core::CDetachedProcessSpawner::spawn(const std::string& processPath,
-                                             const std::vector<std::string>& args,
-                                             ml::core::CProcess::TPid& childPid) {
+                                              const std::vector<std::string>& args,
+                                              ml::core::CProcess::TPid& childPid) {
 #ifdef __linux__
     if (detail::isPytorchInference(processPath)) {
 #ifdef SANDBOX2_DISABLED
-        HANDLE_FATAL(<< "Sandbox2 is disabled but required for pytorch_inference process: " << processPath);
+        HANDLE_FATAL(<< "Sandbox2 is disabled but required for pytorch_inference process: "
+                     << processPath);
         return false;
 #elif !defined(SANDBOX2_AVAILABLE)
-        HANDLE_FATAL(<< "Sandbox2 is not available but required for pytorch_inference process: " << processPath);
+        HANDLE_FATAL(<< "Sandbox2 is not available but required for pytorch_inference process: "
+                     << processPath);
         return false;
 #else
         // Sandbox2 is available and enabled
@@ -413,5 +416,5 @@ bool ml::core::CDetachedProcessSpawner::spawn(const std::string& processPath,
 
     // For non-pytorch_inference processes, use standard posix_spawn
     // This will call the base implementation from CDetachedProcessSpawner.cc
-    return false; 
+    return false;
 }
