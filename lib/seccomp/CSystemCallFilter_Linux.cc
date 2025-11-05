@@ -7,7 +7,9 @@
  * use of machine learning features. You may not use this file except in
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
- * 
+ */ 
+
+ /*
  * NOTE: This seccomp filter is being gradually replaced by Sandbox2 policies
  * for processes that are spawned via CDetachedProcessSpawner. See
  * CDetachedProcessSpawner_Linux.cc::applyMlSyscallPolicy() for the Sandbox2
