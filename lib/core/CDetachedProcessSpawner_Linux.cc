@@ -51,225 +51,38 @@ extern char** environ;
 #include <sandboxed_api/sandbox2/notify.h>
 #include <sandboxed_api/sandbox2/allow_all_syscalls.h>
 #include <sandboxed_api/sandbox2/util/bpf_helper.h>
+#include <sys/syscall.h>
 
-// Define syscall numbers for x86_64
-// These match the syscall numbers used in CSystemCallFilter_Linux.cc
-#ifndef __NR_mount
-#define __NR_mount 165
-#endif
-#ifndef __NR_umount
-#define __NR_umount 166
-#endif
-#ifndef __NR_umount2
-#define __NR_umount2 166
-#endif
-#ifndef __NR_connect
-#define __NR_connect 42
-#endif
-#ifdef __x86_64__
-#ifndef __NR_mkdir
-#define __NR_mkdir 83
-#endif
-#ifndef __NR_rmdir
-#define __NR_rmdir 84
-#endif
-#ifndef __NR_unlink
-#define __NR_unlink 87
-#endif
-#ifndef __NR_mknod
-#define __NR_mknod 133
-#endif
-#ifndef __NR_getdents
-#define __NR_getdents 78
-#endif
-#ifndef __NR_access
-#define __NR_access 21
-#endif
-#ifndef __NR_open
-#define __NR_open 2
-#endif
-#ifndef __NR_dup2
-#define __NR_dup2 33
-#endif
-#ifndef __NR_stat
-#define __NR_stat 4
-#endif
-#ifndef __NR_lstat
-#define __NR_lstat 6
-#endif
-#ifndef __NR_time
-#define __NR_time 201
-#endif
-#ifndef __NR_readlink
-#define __NR_readlink 89
-#endif
+// Fallback definitions for newer syscalls that may not be in RHEL8 headers
+// These are only defined if not already present in sys/syscall.h
 #ifndef __NR_statx
+#ifdef __x86_64__
 #define __NR_statx 332
+#elif defined(__aarch64__)
+#define __NR_statx 291
 #endif
+#endif
+
 #ifndef __NR_rseq
+#ifdef __x86_64__
 #define __NR_rseq 334
+#elif defined(__aarch64__)
+#define __NR_rseq 293
 #endif
+#endif
+
 #ifndef __NR_clone3
 #define __NR_clone3 435
 #endif
-#ifndef __NR_arch_prctl
-#define __NR_arch_prctl 158
-#endif
-#endif // __x86_64__
-#ifndef __NR_mkdirat
-#define __NR_mkdirat 258
-#endif
-#ifndef __NR_unlinkat
-#define __NR_unlinkat 263
-#endif
-#ifndef __NR_mknodat
-#define __NR_mknodat 259
-#endif
-#ifndef __NR_getdents64
-#define __NR_getdents64 217
-#endif
-// Common syscall numbers (all architectures)
-#ifndef __NR_fcntl
-#define __NR_fcntl 72
-#endif
-#ifndef __NR_getrusage
-#define __NR_getrusage 98
-#endif
-#ifndef __NR_getpid
-#define __NR_getpid 39
-#endif
-#ifndef __NR_getrandom
-#define __NR_getrandom 318
-#endif
-#ifndef __NR_newfstatat
-#define __NR_newfstatat 262
-#endif
-#ifndef __NR_readlinkat
-#define __NR_readlinkat 267
-#endif
-#ifndef __NR_dup3
-#define __NR_dup3 292
-#endif
-#ifndef __NR_getpriority
-#define __NR_getpriority 140
-#endif
-#ifndef __NR_setpriority
-#define __NR_setpriority 141
-#endif
-#ifndef __NR_read
-#define __NR_read 0
-#endif
-#ifndef __NR_write
-#define __NR_write 1
-#endif
-#ifndef __NR_pread64
-#define __NR_pread64 17
-#endif
-#ifndef __NR_pwrite64
-#define __NR_pwrite64 18
-#endif
-#ifndef __NR_writev
-#define __NR_writev 20
-#endif
-#ifndef __NR_lseek
-#define __NR_lseek 8
-#endif
-#ifndef __NR_clock_gettime
-#define __NR_clock_gettime 228
-#endif
-#ifndef __NR_gettimeofday
-#define __NR_gettimeofday 96
-#endif
-#ifndef __NR_fstat
-#define __NR_fstat 5
-#endif
-#ifndef __NR_close
-#define __NR_close 3
-#endif
-#ifndef __NR_clone
-#define __NR_clone 56
-#endif
-#ifndef __NR_statfs
-#define __NR_statfs 137
-#endif
-#ifndef __NR_openat
-#define __NR_openat 257
-#endif
-#ifndef __NR_tgkill
-#define __NR_tgkill 234
-#endif
-#ifndef __NR_rt_sigaction
-#define __NR_rt_sigaction 13
-#endif
-#ifndef __NR_rt_sigreturn
-#define __NR_rt_sigreturn 15
-#endif
-#ifndef __NR_rt_sigprocmask
-#define __NR_rt_sigprocmask 14
-#endif
-#ifndef __NR_futex
-#define __NR_futex 202
-#endif
+
 #ifndef __NR_futex_waitv
-#define __NR_futex_waitv 302
+#ifdef __x86_64__
+#define __NR_futex_waitv 449
+#elif defined(__aarch64__)
+#define __NR_futex_waitv 449
 #endif
-#ifndef __NR_uname
-#define __NR_uname 63
 #endif
-#ifndef __NR_sched_getaffinity
-#define __NR_sched_getaffinity 204
-#endif
-#ifndef __NR_sched_setaffinity
-#define __NR_sched_setaffinity 203
-#endif
-#ifndef __NR_getcpu
-#define __NR_getcpu 309
-#endif
-#ifndef __NR_getcwd
-#define __NR_getcwd 79
-#endif
-#ifndef __NR_prlimit64
-#define __NR_prlimit64 302  // Note: prlimit64 is 302 on x86_64, but we already have futex_waitv at 302
-#endif
-#ifndef __NR_prctl
-#define __NR_prctl 157
-#endif
-#ifndef __NR_madvise
-#define __NR_madvise 28
-#endif
-#ifndef __NR_nanosleep
-#define __NR_nanosleep 35
-#endif
-#ifndef __NR_set_robust_list
-#define __NR_set_robust_list 273
-#endif
-#ifndef __NR_set_tid_address
-#define __NR_set_tid_address 218
-#endif
-#ifndef __NR_mprotect
-#define __NR_mprotect 10
-#endif
-#ifndef __NR_mremap
-#define __NR_mremap 25
-#endif
-#ifndef __NR_munmap
-#define __NR_munmap 11
-#endif
-#ifndef __NR_mmap
-#define __NR_mmap 9
-#endif
-#ifndef __NR_getuid
-#define __NR_getuid 102
-#endif
-#ifndef __NR_exit_group
-#define __NR_exit_group 231
-#endif
-#ifndef __NR_brk
-#define __NR_brk 12
-#endif
-#ifndef __NR_exit
-#define __NR_exit 60
-#endif
+
 #endif // SANDBOX2_AVAILABLE
 
 namespace {
@@ -613,7 +426,7 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     // Add pipes with read-write access
     if (!paths.inputPipe.empty()) {
         LOG_DEBUG(<< "Adding input pipe: " << paths.inputPipe);
-        builder.AddFileAt(paths.inputPipe, paths.inputPipe, false);  // is_ro=false allows read and write
+        builder.AddFileAt(paths.inputPipe, paths.inputPipe, true); 
     }
     if (!paths.outputPipe.empty()) {
         LOG_DEBUG(<< "Adding output pipe: " << paths.outputPipe);
