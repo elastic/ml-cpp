@@ -133,7 +133,8 @@ BOOST_AUTO_TEST_CASE(testSandbox2PolicyBuilder) {
     gid = nogroup_grp->gr_gid;
 
     // Test basic policy building
-    auto builder = sandbox2::PolicyBuilder().SetUserAndGroup(uid, gid).AddTmpfs("/tmp");
+    // Note: SetUserAndGroup was removed in newer sandboxed-api versions
+    auto builder = sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024);
 
     // This should not throw
     BOOST_REQUIRE_NO_THROW(builder.BuildOrDie());
@@ -185,13 +186,14 @@ int main() {
     uid = nobody_pwd->pw_uid;
     gid = nogroup_grp->gr_gid;
 
+    // Note: SetUserAndGroup was removed in newer sandboxed-api versions
     auto policy =
-        sandbox2::PolicyBuilder().SetUserAndGroup(uid, gid).AddTmpfs("/tmp").BuildOrDie();
+        sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024).BuildOrDie();
 
     // Run the test program in sandbox
     std::vector<std::string> args;
-    sandbox2::Sandbox2 sandbox(
-        std::move(policy), std::make_unique<sandbox2::Executor>(test_program, args));
+    auto executor = std::make_unique<sandbox2::Executor>(test_program, args);
+    sandbox2::Sandbox2 sandbox(std::move(executor), std::move(policy));
 
     auto result = sandbox.Run();
 
@@ -247,13 +249,14 @@ int main() {
     uid = nobody_pwd->pw_uid;
     gid = nogroup_grp->gr_gid;
 
+    // Note: SetUserAndGroup was removed in newer sandboxed-api versions
     auto policy =
-        sandbox2::PolicyBuilder().SetUserAndGroup(uid, gid).AddTmpfs("/tmp").BuildOrDie();
+        sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024).BuildOrDie();
 
     // Run the test program in sandbox
     std::vector<std::string> args;
-    sandbox2::Sandbox2 sandbox(
-        std::move(policy), std::make_unique<sandbox2::Executor>(test_program, args));
+    auto executor = std::make_unique<sandbox2::Executor>(test_program, args);
+    sandbox2::Sandbox2 sandbox(std::move(executor), std::move(policy));
 
     auto result = sandbox.Run();
 
@@ -306,18 +309,18 @@ int main() {
     uid = nobody_pwd->pw_uid;
     gid = nogroup_grp->gr_gid;
 
+    // Note: SetUserAndGroup was removed in newer sandboxed-api versions
     auto policy = sandbox2::PolicyBuilder()
-                      .SetUserAndGroup(uid, gid)
-                      .BlockSyscall(__NR_mount)
-                      .BlockSyscall(__NR_umount)
-                      .BlockSyscall(__NR_umount2)
-                      .AddTmpfs("/tmp")
+                      .BlockSyscallWithErrno(__NR_mount, EPERM)
+                      .BlockSyscallWithErrno(__NR_umount, EPERM)
+                      .BlockSyscallWithErrno(__NR_umount2, EPERM)
+                      .AddTmpfs("/tmp", 64 * 1024 * 1024)
                       .BuildOrDie();
 
     // Run the test program in sandbox
     std::vector<std::string> args;
-    sandbox2::Sandbox2 sandbox(
-        std::move(policy), std::make_unique<sandbox2::Executor>(test_program, args));
+    auto executor = std::make_unique<sandbox2::Executor>(test_program, args);
+    sandbox2::Sandbox2 sandbox(std::move(executor), std::move(policy));
 
     auto result = sandbox.Run();
 
