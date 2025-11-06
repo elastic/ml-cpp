@@ -17,11 +17,11 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <ctime>
 #include <fstream>
 #include <map>
 #include <set>
 #include <string>
-#include <ctime>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -44,12 +44,12 @@ extern char** environ;
 #ifdef SANDBOX2_AVAILABLE
 #include <absl/status/status.h>
 #include <absl/status/statusor.h>
+#include <sandboxed_api/sandbox2/allow_all_syscalls.h>
+#include <sandboxed_api/sandbox2/notify.h>
 #include <sandboxed_api/sandbox2/policy.h>
 #include <sandboxed_api/sandbox2/policybuilder.h>
 #include <sandboxed_api/sandbox2/result.h>
 #include <sandboxed_api/sandbox2/sandbox2.h>
-#include <sandboxed_api/sandbox2/notify.h>
-#include <sandboxed_api/sandbox2/allow_all_syscalls.h>
 #include <sandboxed_api/sandbox2/util/bpf_helper.h>
 #include <sys/syscall.h>
 
@@ -147,11 +147,12 @@ public:
     void EventFinished(const sandbox2::Result& result) override {
         sandbox2::Result::StatusEnum status = result.final_status();
         uintptr_t reason_code = result.reason_code();
-        
+
         if (status == sandbox2::Result::OK) {
             LOG_DEBUG(<< "Sandbox2 process finished successfully (OK)");
         } else if (status == sandbox2::Result::VIOLATION) {
-            LOG_ERROR(<< "Sandbox2 process finished with VIOLATION (reason_code: " << reason_code << ")");
+            LOG_ERROR(<< "Sandbox2 process finished with VIOLATION (reason_code: " << reason_code
+                      << ")");
         } else if (status == sandbox2::Result::SIGNALED) {
             LOG_ERROR(<< "Sandbox2 process was SIGNALED (signal: " << reason_code << ")");
         } else if (status == sandbox2::Result::SETUP_ERROR) {
@@ -163,9 +164,10 @@ public:
         } else if (status == sandbox2::Result::INTERNAL_ERROR) {
             LOG_ERROR(<< "Sandbox2 process INTERNAL_ERROR");
         } else {
-            LOG_ERROR(<< "Sandbox2 process finished with status: " << static_cast<int>(status) << " (reason_code: " << reason_code << ")");
+            LOG_ERROR(<< "Sandbox2 process finished with status: " << static_cast<int>(status)
+                      << " (reason_code: " << reason_code << ")");
         }
-        
+
         // Log exit code if available (from reason_code for OK status)
         if (status == sandbox2::Result::OK) {
             int exit_code = static_cast<int>(reason_code);
@@ -180,7 +182,8 @@ public:
         LOG_ERROR(<< "Sandbox2 syscall violation detected:");
         LOG_ERROR(<< "  PID: " << syscall.pid());
         LOG_ERROR(<< "  Syscall: " << syscall.GetDescription());
-        LOG_ERROR(<< "  Violation type: " << (type == sandbox2::ViolationType::kSyscall ? "kSyscall" : "kArchitectureSwitch"));
+        LOG_ERROR(<< "  Violation type: "
+                  << (type == sandbox2::ViolationType::kSyscall ? "kSyscall" : "kArchitectureSwitch"));
         LOG_ERROR(<< "  This violation may have caused the process to exit");
     }
 
@@ -224,12 +227,14 @@ ProcessPaths parseProcessPaths(const std::vector<std::string>& args) {
 //! Calculate PyTorch library directory from executable path
 std::string calculatePytorchLibDir(const std::string& processPath) {
     size_t lastSlash = processPath.find_last_of('/');
-    if (lastSlash == std::string::npos) return "";
-    
+    if (lastSlash == std::string::npos)
+        return "";
+
     std::string exeDir = processPath.substr(0, lastSlash);
     size_t lastDirSlash = exeDir.find_last_of('/');
-    if (lastDirSlash == std::string::npos) return "";
-    
+    if (lastDirSlash == std::string::npos)
+        return "";
+
     return exeDir.substr(0, lastDirSlash) + "/lib";
 }
 
@@ -258,38 +263,40 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     LOG_DEBUG(<< "Building Sandbox2 policy (maximally permissive mode)");
     LOG_DEBUG(<< "  Model path: " << (paths.modelPath.empty() ? "<none>" : paths.modelPath));
     LOG_DEBUG(<< "  Input pipe: " << (paths.inputPipe.empty() ? "<none>" : paths.inputPipe));
-    LOG_DEBUG(<< "  Output pipe: " << (paths.outputPipe.empty() ? "<none>" : paths.outputPipe));
+    LOG_DEBUG(<< "  Output pipe: "
+              << (paths.outputPipe.empty() ? "<none>" : paths.outputPipe));
     LOG_DEBUG(<< "  Log pipe: " << (paths.logPipe.empty() ? "<none>" : paths.logPipe));
-    LOG_DEBUG(<< "  PyTorch lib dir: " << (paths.pytorchLibDir.empty() ? "<none>" : paths.pytorchLibDir));
-    
+    LOG_DEBUG(<< "  PyTorch lib dir: "
+              << (paths.pytorchLibDir.empty() ? "<none>" : paths.pytorchLibDir));
+
     // Start with most permissive policy - add all common directories
     // Note: Cannot add root "/" directly, so we add all common paths
     auto builder = sandbox2::PolicyBuilder()
                        // Add tmpfs for /tmp with large size (this already provides /tmp access)
                        .AddTmpfs("/tmp", 256 * 1024 * 1024)
                        // Allow /proc, /sys, /dev for process/system access (read-only)
-                       .AddDirectoryAt("/proc", "/proc", true)  // read-only
+                       .AddDirectoryAt("/proc", "/proc", true) // read-only
                        .AddDirectoryAt("/sys", "/sys", true)   // read-only
                        .AddDirectoryAt("/dev", "/dev", true)   // read-only
                        // Standard library directories (read-only)
-                       .AddDirectoryAt("/lib", "/lib", true)   // read-only
-                       .AddDirectoryAt("/lib64", "/lib64", true)  // read-only
-                       .AddDirectoryAt("/usr", "/usr", true)   // read-only
-                       .AddDirectoryAt("/usr/lib", "/usr/lib", true)  // read-only
-                       .AddDirectoryAt("/usr/lib64", "/usr/lib64", true)  // read-only
-                       .AddDirectoryAt("/usr/local", "/usr/local", true)  // read-only
-                       .AddDirectoryAt("/usr/local/lib", "/usr/local/lib", true)  // read-only
+                       .AddDirectoryAt("/lib", "/lib", true)     // read-only
+                       .AddDirectoryAt("/lib64", "/lib64", true) // read-only
+                       .AddDirectoryAt("/usr", "/usr", true)     // read-only
+                       .AddDirectoryAt("/usr/lib", "/usr/lib", true) // read-only
+                       .AddDirectoryAt("/usr/lib64", "/usr/lib64", true) // read-only
+                       .AddDirectoryAt("/usr/local", "/usr/local", true) // read-only
+                       .AddDirectoryAt("/usr/local/lib", "/usr/local/lib", true) // read-only
                        // Allow /etc for configuration files (read-only)
-                       .AddDirectoryAt("/etc", "/etc", true)   // read-only
+                       .AddDirectoryAt("/etc", "/etc", true) // read-only
                        // Allow /bin and /sbin for executables (read-only)
-                       .AddDirectoryAt("/bin", "/bin", true)    // read-only
-                       .AddDirectoryAt("/sbin", "/sbin", true)  // read-only
-                       .AddDirectoryAt("/usr/bin", "/usr/bin", true)  // read-only
-                       .AddDirectoryAt("/usr/sbin", "/usr/sbin", true);  // read-only
-                       // Note: /tmp is writable via AddTmpfs above
-                       // Note: Removed /var, /run, /usr/local/gcc133, /usr/share as they may not be needed
-                       // If test fails, we'll add them back one by one
-    
+                       .AddDirectoryAt("/bin", "/bin", true)   // read-only
+                       .AddDirectoryAt("/sbin", "/sbin", true) // read-only
+                       .AddDirectoryAt("/usr/bin", "/usr/bin", true) // read-only
+                       .AddDirectoryAt("/usr/sbin", "/usr/sbin", true); // read-only
+    // Note: /tmp is writable via AddTmpfs above
+    // Note: Removed /var, /run, /usr/local/gcc133, /usr/share as they may not be needed
+    // If test fails, we'll add them back one by one
+
     // Add executable's directory to policy
     if (!paths.executableDir.empty()) {
         LOG_DEBUG(<< "Adding executable directory: " << paths.executableDir);
@@ -303,7 +310,7 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
 
     // Replace AllowAllSyscalls() with explicit syscall allowlist matching seccomp filter
     // This provides the same security level as the seccomp filter while using Sandbox2
-    
+
     // Basic process control
     builder.AllowSyscall(__NR_exit);
     builder.AllowSyscall(__NR_exit_group);
@@ -315,22 +322,22 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_setpriority);
     builder.AllowSyscall(__NR_prctl);
     builder.AllowSyscall(__NR_uname);
-    
+
     // CPU/scheduling operations
     builder.AllowSyscall(__NR_sched_getaffinity);
     builder.AllowSyscall(__NR_sched_setaffinity);
     builder.AllowSyscall(__NR_getcpu);
-    
+
     // Directory operations
     builder.AllowSyscall(__NR_getcwd);
-    
+
     // Memory management
     builder.AllowSyscall(__NR_mmap);
     builder.AllowSyscall(__NR_munmap);
     builder.AllowSyscall(__NR_mremap);
     builder.AllowSyscall(__NR_mprotect);
     builder.AllowSyscall(__NR_madvise);
-    
+
     // File operations - basic
     builder.AllowSyscall(__NR_read);
     builder.AllowSyscall(__NR_write);
@@ -342,7 +349,7 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_fcntl);
     builder.AllowSyscall(__NR_fstat);
     builder.AllowSyscall(__NR_statfs);
-    
+
     // File operations - x86_64 specific
 #ifdef __x86_64__
     builder.AllowSyscall(__NR_access);
@@ -357,7 +364,7 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_getdents);
     builder.AllowSyscall(__NR_time);
 #endif
-    
+
     // File operations - modern (all architectures)
     builder.AllowSyscall(__NR_openat);
     builder.AllowSyscall(__NR_newfstatat);
@@ -367,16 +374,16 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_mknodat);
     builder.AllowSyscall(__NR_getdents64);
     builder.AllowSyscall(__NR_statx);
-    
+
     // File descriptor operations
     builder.AllowSyscall(__NR_dup2);
     builder.AllowSyscall(__NR_dup3);
-    
+
     // Time operations
     builder.AllowSyscall(__NR_clock_gettime);
     builder.AllowSyscall(__NR_gettimeofday);
     builder.AllowSyscall(__NR_nanosleep);
-    
+
     // Process/thread operations
     builder.AllowSyscall(__NR_clone);
     builder.AllowSyscall(__NR_clone3);
@@ -389,16 +396,16 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     // x86_64-specific: arch_prctl for thread-local storage
     builder.AllowSyscall(__NR_arch_prctl);
 #endif
-    
+
     // Signal operations
     builder.AllowSyscall(__NR_rt_sigaction);
     builder.AllowSyscall(__NR_rt_sigreturn);
     builder.AllowSyscall(__NR_rt_sigprocmask);
     builder.AllowSyscall(__NR_tgkill);
-    
+
     // Random number generation
     builder.AllowSyscall(__NR_getrandom);
-    
+
     // Network operations (for named pipes)
     builder.AllowSyscall(__NR_connect);
 
@@ -422,11 +429,11 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
             }
         }
     }
-    
+
     // Add pipes with read-write access
     if (!paths.inputPipe.empty()) {
         LOG_DEBUG(<< "Adding input pipe: " << paths.inputPipe);
-        builder.AddFileAt(paths.inputPipe, paths.inputPipe, true); 
+        builder.AddFileAt(paths.inputPipe, paths.inputPipe, true);
     }
     if (!paths.outputPipe.empty()) {
         LOG_DEBUG(<< "Adding output pipe: " << paths.outputPipe);
@@ -452,8 +459,6 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
 }
 
 #endif // SANDBOX2_AVAILABLE
-
-
 
 class CTrackerThread : public CThread {
 public:
@@ -598,8 +603,8 @@ private:
 //! This is necessary because destroying the Sandbox2 object would kill the sandboxed process
 #ifdef SANDBOX2_AVAILABLE
 namespace {
-    std::map<CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap;
-    CMutex g_SandboxMapMutex;
+std::map<CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap;
+CMutex g_SandboxMapMutex;
 }
 #endif // SANDBOX2_AVAILABLE
 
@@ -746,10 +751,10 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
     for (size_t i = 0; i < args.size(); ++i) {
         LOG_DEBUG(<< "  Arg[" << i << "]: " << args[i]);
     }
-    
+
     // Parse command line arguments
     detail::ProcessPaths paths = detail::parseProcessPaths(args);
-    
+
     // Convert processPath to absolute path (Sandbox2 requires absolute paths)
     std::string absoluteProcessPath = processPath;
     if (processPath[0] != '/') {
@@ -757,7 +762,8 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
         char resolved_path[PATH_MAX];
         if (realpath(processPath.c_str(), resolved_path) != nullptr) {
             absoluteProcessPath = resolved_path;
-            LOG_DEBUG(<< "Resolved relative path '" << processPath << "' to absolute path '" << absoluteProcessPath << "'");
+            LOG_DEBUG(<< "Resolved relative path '" << processPath
+                      << "' to absolute path '" << absoluteProcessPath << "'");
         } else {
             // If realpath fails, try to make it absolute based on current working directory
             char cwd[PATH_MAX];
@@ -769,12 +775,13 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
                 }
                 LOG_DEBUG(<< "Made path absolute using CWD: '" << absoluteProcessPath << "'");
             } else {
-                LOG_ERROR(<< "Failed to get current working directory and realpath failed for: " << processPath);
+                LOG_ERROR(<< "Failed to get current working directory and realpath failed for: "
+                          << processPath);
                 return false;
             }
         }
     }
-    
+
     paths.executablePath = absoluteProcessPath;
     // Extract executable directory
     size_t lastSlash = absoluteProcessPath.find_last_of('/');
@@ -788,7 +795,7 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
     LOG_DEBUG(<< "  Executable path: " << paths.executablePath);
     LOG_DEBUG(<< "  Executable dir: " << paths.executableDir);
     LOG_DEBUG(<< "  PyTorch lib dir: " << paths.pytorchLibDir);
-    
+
     // Log full command line for debugging (use absolute path)
     std::string full_command = absoluteProcessPath;
     for (const auto& arg : args) {
@@ -817,49 +824,52 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
     // Create executor and sandbox
     LOG_DEBUG(<< "Creating Sandbox2 executor for: " << processPath);
     LOG_DEBUG(<< "Executor will run with " << args.size() << " arguments");
-    
+
     // Create temporary files to capture stderr/stdout if possible
     // Note: Sandbox2 Executor may handle this internally, but we'll try to capture what we can
-    std::string stderr_file = "/tmp/sandbox2_stderr_" + std::to_string(getpid()) + "_" + std::to_string(time(nullptr)) + ".log";
-    std::string stdout_file = "/tmp/sandbox2_stdout_" + std::to_string(getpid()) + "_" + std::to_string(time(nullptr)) + ".log";
+    std::string stderr_file = "/tmp/sandbox2_stderr_" + std::to_string(getpid()) +
+                              "_" + std::to_string(time(nullptr)) + ".log";
+    std::string stdout_file = "/tmp/sandbox2_stdout_" + std::to_string(getpid()) +
+                              "_" + std::to_string(time(nullptr)) + ".log";
     LOG_DEBUG(<< "Will attempt to capture stderr to: " << stderr_file);
     LOG_DEBUG(<< "Will attempt to capture stdout to: " << stdout_file);
-    
+
     // Use absolute path for Executor (Sandbox2 requires absolute paths)
     auto executor = std::make_unique<sandbox2::Executor>(absoluteProcessPath, args);
     LOG_DEBUG(<< "Sandbox2 executor created");
-    
+
     // Create custom Notify object to capture violations
     auto notify = std::make_unique<detail::Sandbox2LoggingNotify>();
     LOG_DEBUG(<< "Created Sandbox2 logging notify handler");
-    
+
     LOG_DEBUG(<< "Creating Sandbox2 instance with policy and notify handler...");
-    auto sandbox = std::make_unique<sandbox2::Sandbox2>(std::move(executor), std::move(policy), std::move(notify));
+    auto sandbox = std::make_unique<sandbox2::Sandbox2>(
+        std::move(executor), std::move(policy), std::move(notify));
     LOG_DEBUG(<< "Sandbox2 instance created successfully");
 
     // DIAGNOSTIC MODE: Try synchronous execution first to get immediate result
     // This will give us the exit code and any violations directly
     // Set to true for diagnostics, false for production (async)
     // NOTE: pytorch_inference is a long-running process, so async mode is required
-    const bool USE_SYNC_FOR_DIAGNOSTICS = false;  // Use async mode for long-running processes
-    
+    const bool USE_SYNC_FOR_DIAGNOSTICS = false; // Use async mode for long-running processes
+
     if (USE_SYNC_FOR_DIAGNOSTICS) {
         LOG_DEBUG(<< "DIAGNOSTIC MODE: Using synchronous execution to capture exit code immediately");
         LOG_DEBUG(<< "Launching sandboxed process synchronously...");
-        
+
         // Run synchronously - this will block until process completes
         // Run() returns Result directly (not StatusOr)
         sandbox2::Result result = sandbox->Run();
-        
+
         sandbox2::Result::StatusEnum status = result.final_status();
         uintptr_t reason_code = result.reason_code();
         childPid = sandbox->pid();
-        
+
         LOG_DEBUG(<< "Sandbox2 process completed synchronously");
         LOG_DEBUG(<< "  PID: " << childPid);
         LOG_DEBUG(<< "  Status: " << static_cast<int>(status));
         LOG_DEBUG(<< "  Reason code: " << reason_code);
-        
+
         // Extract exit code from reason_code if status is OK
         // For non-OK statuses, reason_code contains the error code
         int exit_code = -1;
@@ -870,68 +880,71 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
             // For SIGNALED, reason_code is the signal number
             LOG_ERROR(<< "Process was killed by signal " << reason_code);
         } else if (status == sandbox2::Result::VIOLATION) {
-            LOG_ERROR(<< "Process violated Sandbox2 policy (reason_code: " << reason_code << ")");
+            LOG_ERROR(<< "Process violated Sandbox2 policy (reason_code: " << reason_code
+                      << ")");
         }
-        
+
         if (status != sandbox2::Result::OK || exit_code != 0) {
             LOG_ERROR(<< "Process exited with status " << static_cast<int>(status));
             if (exit_code >= 0) {
                 LOG_ERROR(<< "  Exit code: " << exit_code);
             }
             LOG_ERROR(<< "Command that was executed: " << full_command);
-            
+
             // The Notify handler should have logged any violations
             // Return false to indicate failure
             return false;
         } else {
             LOG_DEBUG(<< "Process completed successfully (exit code 0)");
         }
-        
+
         // In sync mode, process is already done, so skip monitoring
         // Store sandbox object and return
         {
             CScopedLock lock(g_SandboxMapMutex);
             g_SandboxMap[childPid] = std::move(sandbox);
         }
-        
-        LOG_DEBUG(<< "Spawned sandboxed '" << absoluteProcessPath << "' with PID " << childPid << " (sync mode)");
+
+        LOG_DEBUG(<< "Spawned sandboxed '" << absoluteProcessPath
+                  << "' with PID " << childPid << " (sync mode)");
         return true;
     } else {
         // Production mode: Launch sandboxed process asynchronously
         LOG_DEBUG(<< "Launching sandboxed process asynchronously...");
         sandbox->RunAsync();
         LOG_DEBUG(<< "RunAsync() called, polling for PID...");
-        
+
         // Poll for PID with timeout (monitor initializes asynchronously)
-        const int timeout_ms = 5000;  // Increased timeout for better diagnostics
+        const int timeout_ms = 5000; // Increased timeout for better diagnostics
         const int poll_interval_us = 10000; // 10ms for less CPU usage
         int elapsed_ms = 0;
-        
+
         childPid = -1;
         while (elapsed_ms < timeout_ms) {
             childPid = sandbox->pid();
             if (childPid > 0) {
-                LOG_DEBUG(<< "Got PID from Sandbox2: " << childPid << " after " << elapsed_ms << "ms");
+                LOG_DEBUG(<< "Got PID from Sandbox2: " << childPid << " after "
+                          << elapsed_ms << "ms");
                 break;
             }
             usleep(poll_interval_us);
             elapsed_ms += 10;
         }
-        
+
         if (childPid <= 0) {
             LOG_ERROR(<< "Failed to get PID from Sandbox2 after " << timeout_ms << "ms");
             LOG_ERROR(<< "This may indicate the process failed to start or crashed immediately");
             return false;
         }
     }
-    
+
     // Monitor the process for a short time to detect early exits (async mode only)
     LOG_DEBUG(<< "Monitoring process " << childPid << " for early exits...");
-    const int monitor_duration_ms = 3000;  // Increased to catch slower exits
-    const int monitor_interval_ms = 50;    // Check more frequently (every 50ms)
+    const int monitor_duration_ms = 3000; // Increased to catch slower exits
+    const int monitor_interval_ms = 50;   // Check more frequently (every 50ms)
     int monitor_elapsed_ms = 0;
     bool process_still_running = true;
-    
+
     while (monitor_elapsed_ms < monitor_duration_ms && process_still_running) {
         // Check process status from /proc before checking if it exists
         // This gives us a better chance to catch the exit code
@@ -945,7 +958,8 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
                     state = line;
                     // Check if process is in zombie state (exited but not reaped)
                     if (line.find("State:\tZ") == 0) {
-                        LOG_WARN(<< "Process " << childPid << " is in zombie state (exited but not reaped)");
+                        LOG_WARN(<< "Process " << childPid
+                                 << " is in zombie state (exited but not reaped)");
                         process_still_running = false;
                         // Try to reap it immediately
                         int status = 0;
@@ -953,11 +967,15 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
                         if (waited_pid == childPid) {
                             if (WIFEXITED(status)) {
                                 int exit_code = WEXITSTATUS(status);
-                                LOG_ERROR(<< "Process " << childPid << " exited with code " << exit_code << " (within " << monitor_elapsed_ms << "ms)");
+                                LOG_ERROR(<< "Process " << childPid << " exited with code "
+                                          << exit_code << " (within "
+                                          << monitor_elapsed_ms << "ms)");
                                 LOG_ERROR(<< "Command that caused exit: " << full_command);
                             } else if (WIFSIGNALED(status)) {
                                 int signal = WTERMSIG(status);
-                                LOG_ERROR(<< "Process " << childPid << " was killed by signal " << signal << " (within " << monitor_elapsed_ms << "ms)");
+                                LOG_ERROR(<< "Process " << childPid << " was killed by signal "
+                                          << signal << " (within "
+                                          << monitor_elapsed_ms << "ms)");
                                 LOG_ERROR(<< "Command that was running: " << full_command);
                             }
                         }
@@ -967,26 +985,31 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
             }
         } else {
             // Process directory doesn't exist - process has exited and been reaped
-            LOG_WARN(<< "Process " << childPid << " exited early (within " << monitor_elapsed_ms << "ms) - already reaped");
+            LOG_WARN(<< "Process " << childPid << " exited early (within "
+                     << monitor_elapsed_ms << "ms) - already reaped");
             process_still_running = false;
-            
+
             // Try to get process exit status (may fail if already reaped)
             int status = 0;
             pid_t waited_pid = ::waitpid(childPid, &status, WNOHANG);
             if (waited_pid == childPid) {
                 if (WIFEXITED(status)) {
                     int exit_code = WEXITSTATUS(status);
-                    LOG_ERROR(<< "Process " << childPid << " exited with code " << exit_code << " (within " << monitor_elapsed_ms << "ms)");
+                    LOG_ERROR(<< "Process " << childPid << " exited with code " << exit_code
+                              << " (within " << monitor_elapsed_ms << "ms)");
                     LOG_ERROR(<< "Command that caused exit: " << full_command);
                 } else if (WIFSIGNALED(status)) {
                     int signal = WTERMSIG(status);
-                    LOG_ERROR(<< "Process " << childPid << " was killed by signal " << signal << " (within " << monitor_elapsed_ms << "ms)");
+                    LOG_ERROR(<< "Process " << childPid << " was killed by signal "
+                              << signal << " (within " << monitor_elapsed_ms << "ms)");
                     LOG_ERROR(<< "Command that was running: " << full_command);
                 }
             } else {
-                LOG_ERROR(<< "Process " << childPid << " exited but waitpid returned " << waited_pid << " (errno: " << errno << " - already reaped by another process)");
+                LOG_ERROR(<< "Process " << childPid << " exited but waitpid returned "
+                          << waited_pid << " (errno: " << errno
+                          << " - already reaped by another process)");
                 LOG_ERROR(<< "Command that was running: " << full_command);
-                
+
                 // Try to read cmdline from a backup location or check if CTrackerThread logged it
                 LOG_ERROR(<< "Note: Exit code may be logged by CTrackerThread in controller logs");
             }
@@ -995,18 +1018,19 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
         usleep(monitor_interval_ms * 1000);
         monitor_elapsed_ms += monitor_interval_ms;
     }
-    
+
     if (process_still_running) {
-        LOG_DEBUG(<< "Process " << childPid << " is still running after " << monitor_duration_ms << "ms");
+        LOG_DEBUG(<< "Process " << childPid << " is still running after "
+                  << monitor_duration_ms << "ms");
     }
-    
+
     // Store sandbox object in static map to keep it alive for the lifetime of the process
     // This is necessary because destroying the Sandbox2 object would kill the sandboxed process
     {
         CScopedLock lock(g_SandboxMapMutex);
         g_SandboxMap[childPid] = std::move(sandbox);
     }
-    
+
     LOG_DEBUG(<< "Spawned sandboxed '" << processPath << "' with PID " << childPid);
     return true;
 #else
