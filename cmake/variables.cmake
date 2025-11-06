@@ -124,11 +124,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Sandbox2 libraries for Linux only
-# Temporarily disabled due to PIE compatibility issues
-# TODO: Fix PIE compatibility with Sandbox2
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(SANDBOX2_LIBRARIES "")
-else()
+# Set in 3rd_party/CMakeLists.txt after sandboxed-api is fetched and configured
+# If not set, default to empty (Sandbox2 not available)
+if (NOT DEFINED SANDBOX2_LIBRARIES)
   set(SANDBOX2_LIBRARIES "")
 endif()
 

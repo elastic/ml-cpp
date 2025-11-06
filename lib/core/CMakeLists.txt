@@ -34,7 +34,6 @@ ml_add_library(MlCore SHARED
   CDataFrameRowSlice.cc
   CDataSearcher.cc
   CDetachedProcessSpawner.cc
-  CDetachedProcessSpawner_Linux.cc
   CDualThreadStreamBuf.cc
   CFastMutex.cc
   CFlatPrefixTree.cc
@@ -106,6 +105,13 @@ ml_add_library(MlCore SHARED
 if (WIN32)
   target_link_libraries(MlCore PUBLIC -ignore:4217 AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/date_time_zonespec.csv DESTINATION ${ML_RESOURCES_DIR})
+endif()
+
+# Enable Sandbox2 integration if available
+if(TARGET sandbox2::sandbox2)
+  target_compile_definitions(MlCore PRIVATE SANDBOX2_AVAILABLE)
+  target_link_libraries(MlCore PRIVATE sandbox2::sandbox2)
+  message(STATUS "MlCore: Sandbox2 enabled and linked")
 endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ml-en.dict DESTINATION ${ML_RESOURCES_DIR})

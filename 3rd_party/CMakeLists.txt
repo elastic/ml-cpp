@@ -118,8 +118,27 @@ FetchContent_MakeAvailable(absl)
 ")
   endif()
   
+  # Patch sandboxed-api CMakeLists.txt to remove -fno-exceptions PUBLIC flag
+  # This prevents it from propagating to our codebase
+  file(READ ${sandboxed-api_SOURCE_DIR}/CMakeLists.txt _sapi_cmake_content)
+  string(REPLACE 
+    "target_compile_options(sapi_base PUBLIC\n  -fno-exceptions\n)"
+    "# target_compile_options(sapi_base PUBLIC\n#   -fno-exceptions\n# )"
+    _sapi_cmake_content "${_sapi_cmake_content}")
+  file(WRITE ${sandboxed-api_SOURCE_DIR}/CMakeLists.txt "${_sapi_cmake_content}")
+  
   # Now add the subdirectory
   add_subdirectory(${sandboxed-api_SOURCE_DIR} ${sandboxed-api_BINARY_DIR} EXCLUDE_FROM_ALL)
+  
+  # Set SANDBOX2_LIBRARIES after sandboxed-api is available
+  # Check if sandbox2::sandbox2 target exists (it should if sandboxed-api built successfully)
+  if(TARGET sandbox2::sandbox2)
+    set(SANDBOX2_LIBRARIES sandbox2::sandbox2 CACHE INTERNAL "Sandbox2 libraries")
+    message(STATUS "Sandbox2 enabled: using sandbox2::sandbox2")
+  else()
+    set(SANDBOX2_LIBRARIES "" CACHE INTERNAL "Sandbox2 libraries not available")
+    message(WARNING "Sandbox2 target not found - Sandbox2 will be disabled")
+  endif()
   
   # Restore BUILD_TESTING if it was set
   if(_saved_BUILD_TESTING)
