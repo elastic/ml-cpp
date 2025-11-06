@@ -27,6 +27,12 @@
 //=== Bug Fixes
 
 //=== Regressions
+== {es} version 9.3.0
+
+=== Enhancements
+
+* Use Sandbox2 to enhance PyTorch inference security. (See {ml-pull}2873[#2873].)
+
 == {es} version 9.2.0
 
 === Enhancements
