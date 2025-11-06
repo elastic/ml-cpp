@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
     std::string commandPipe;
     std::string outputPipe;
     std::string propertiesFile;
-    if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe,
-                                              commandPipe, outputPipe, propertiesFile) == false) {
+    if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe, commandPipe,
+                                              outputPipe, propertiesFile) == false) {
         return EXIT_FAILURE;
     }
 

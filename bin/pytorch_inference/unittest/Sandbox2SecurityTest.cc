@@ -187,8 +187,7 @@ int main() {
     gid = nogroup_grp->gr_gid;
 
     // Note: SetUserAndGroup was removed in newer sandboxed-api versions
-    auto policy =
-        sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024).BuildOrDie();
+    auto policy = sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024).BuildOrDie();
 
     // Run the test program in sandbox
     std::vector<std::string> args;
@@ -250,8 +249,7 @@ int main() {
     gid = nogroup_grp->gr_gid;
 
     // Note: SetUserAndGroup was removed in newer sandboxed-api versions
-    auto policy =
-        sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024).BuildOrDie();
+    auto policy = sandbox2::PolicyBuilder().AddTmpfs("/tmp", 64 * 1024 * 1024).BuildOrDie();
 
     // Run the test program in sandbox
     std::vector<std::string> args;
