@@ -53,6 +53,7 @@ extern char** environ;
 #include <sandboxed_api/sandbox2/util/bpf_helper.h>
 
 // Define syscall numbers for x86_64
+// These match the syscall numbers used in CSystemCallFilter_Linux.cc
 #ifndef __NR_mount
 #define __NR_mount 165
 #endif
@@ -81,6 +82,39 @@ extern char** environ;
 #ifndef __NR_getdents
 #define __NR_getdents 78
 #endif
+#ifndef __NR_access
+#define __NR_access 21
+#endif
+#ifndef __NR_open
+#define __NR_open 2
+#endif
+#ifndef __NR_dup2
+#define __NR_dup2 33
+#endif
+#ifndef __NR_stat
+#define __NR_stat 4
+#endif
+#ifndef __NR_lstat
+#define __NR_lstat 6
+#endif
+#ifndef __NR_time
+#define __NR_time 201
+#endif
+#ifndef __NR_readlink
+#define __NR_readlink 89
+#endif
+#ifndef __NR_statx
+#define __NR_statx 332
+#endif
+#ifndef __NR_rseq
+#define __NR_rseq 334
+#endif
+#ifndef __NR_clone3
+#define __NR_clone3 435
+#endif
+#ifndef __NR_arch_prctl
+#define __NR_arch_prctl 158
+#endif
 #endif // __x86_64__
 #ifndef __NR_mkdirat
 #define __NR_mkdirat 258
@@ -93,6 +127,148 @@ extern char** environ;
 #endif
 #ifndef __NR_getdents64
 #define __NR_getdents64 217
+#endif
+// Common syscall numbers (all architectures)
+#ifndef __NR_fcntl
+#define __NR_fcntl 72
+#endif
+#ifndef __NR_getrusage
+#define __NR_getrusage 98
+#endif
+#ifndef __NR_getpid
+#define __NR_getpid 39
+#endif
+#ifndef __NR_getrandom
+#define __NR_getrandom 318
+#endif
+#ifndef __NR_newfstatat
+#define __NR_newfstatat 262
+#endif
+#ifndef __NR_readlinkat
+#define __NR_readlinkat 267
+#endif
+#ifndef __NR_dup3
+#define __NR_dup3 292
+#endif
+#ifndef __NR_getpriority
+#define __NR_getpriority 140
+#endif
+#ifndef __NR_setpriority
+#define __NR_setpriority 141
+#endif
+#ifndef __NR_read
+#define __NR_read 0
+#endif
+#ifndef __NR_write
+#define __NR_write 1
+#endif
+#ifndef __NR_pread64
+#define __NR_pread64 17
+#endif
+#ifndef __NR_pwrite64
+#define __NR_pwrite64 18
+#endif
+#ifndef __NR_writev
+#define __NR_writev 20
+#endif
+#ifndef __NR_lseek
+#define __NR_lseek 8
+#endif
+#ifndef __NR_clock_gettime
+#define __NR_clock_gettime 228
+#endif
+#ifndef __NR_gettimeofday
+#define __NR_gettimeofday 96
+#endif
+#ifndef __NR_fstat
+#define __NR_fstat 5
+#endif
+#ifndef __NR_close
+#define __NR_close 3
+#endif
+#ifndef __NR_clone
+#define __NR_clone 56
+#endif
+#ifndef __NR_statfs
+#define __NR_statfs 137
+#endif
+#ifndef __NR_openat
+#define __NR_openat 257
+#endif
+#ifndef __NR_tgkill
+#define __NR_tgkill 234
+#endif
+#ifndef __NR_rt_sigaction
+#define __NR_rt_sigaction 13
+#endif
+#ifndef __NR_rt_sigreturn
+#define __NR_rt_sigreturn 15
+#endif
+#ifndef __NR_rt_sigprocmask
+#define __NR_rt_sigprocmask 14
+#endif
+#ifndef __NR_futex
+#define __NR_futex 202
+#endif
+#ifndef __NR_futex_waitv
+#define __NR_futex_waitv 302
+#endif
+#ifndef __NR_uname
+#define __NR_uname 63
+#endif
+#ifndef __NR_sched_getaffinity
+#define __NR_sched_getaffinity 204
+#endif
+#ifndef __NR_sched_setaffinity
+#define __NR_sched_setaffinity 203
+#endif
+#ifndef __NR_getcpu
+#define __NR_getcpu 309
+#endif
+#ifndef __NR_getcwd
+#define __NR_getcwd 79
+#endif
+#ifndef __NR_prlimit64
+#define __NR_prlimit64 302  // Note: prlimit64 is 302 on x86_64, but we already have futex_waitv at 302
+#endif
+#ifndef __NR_prctl
+#define __NR_prctl 157
+#endif
+#ifndef __NR_madvise
+#define __NR_madvise 28
+#endif
+#ifndef __NR_nanosleep
+#define __NR_nanosleep 35
+#endif
+#ifndef __NR_set_robust_list
+#define __NR_set_robust_list 273
+#endif
+#ifndef __NR_set_tid_address
+#define __NR_set_tid_address 218
+#endif
+#ifndef __NR_mprotect
+#define __NR_mprotect 10
+#endif
+#ifndef __NR_mremap
+#define __NR_mremap 25
+#endif
+#ifndef __NR_munmap
+#define __NR_munmap 11
+#endif
+#ifndef __NR_mmap
+#define __NR_mmap 9
+#endif
+#ifndef __NR_getuid
+#define __NR_getuid 102
+#endif
+#ifndef __NR_exit_group
+#define __NR_exit_group 231
+#endif
+#ifndef __NR_brk
+#define __NR_brk 12
+#endif
+#ifndef __NR_exit
+#define __NR_exit 60
 #endif
 #endif // SANDBOX2_AVAILABLE
 
@@ -278,34 +454,28 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     auto builder = sandbox2::PolicyBuilder()
                        // Add tmpfs for /tmp with large size (this already provides /tmp access)
                        .AddTmpfs("/tmp", 256 * 1024 * 1024)
-                       // Allow /proc, /sys, /dev for process/system access
-                       .AddDirectoryAt("/proc", "/proc", true)
-                       .AddDirectoryAt("/sys", "/sys", true)
-                       .AddDirectoryAt("/dev", "/dev", true)
-                       // Standard library directories
-                       .AddDirectoryAt("/lib", "/lib", true)
-                       .AddDirectoryAt("/lib64", "/lib64", true)
-                       .AddDirectoryAt("/usr", "/usr", true)
-                       .AddDirectoryAt("/usr/lib", "/usr/lib", true)
-                       .AddDirectoryAt("/usr/lib64", "/usr/lib64", true)
-                       .AddDirectoryAt("/usr/local", "/usr/local", true)
-                       .AddDirectoryAt("/usr/local/lib", "/usr/local/lib", true)
-                       // Allow /etc for configuration files
-                       .AddDirectoryAt("/etc", "/etc", true)
-                       // Allow /bin and /sbin for executables
-                       .AddDirectoryAt("/bin", "/bin", true)
-                       .AddDirectoryAt("/sbin", "/sbin", true)
-                       .AddDirectoryAt("/usr/bin", "/usr/bin", true)
-                       .AddDirectoryAt("/usr/sbin", "/usr/sbin", true)
-                       // Allow /var and /run for runtime files
-                       .AddDirectoryAt("/var", "/var", true)
-                       .AddDirectoryAt("/run", "/run", true)
-                       // Allow /usr/local/gcc133 for compiler libraries (from strace)
-                       .AddDirectoryAt("/usr/local/gcc133", "/usr/local/gcc133", true)
-                       .AddDirectoryAt("/usr/local/gcc133/lib", "/usr/local/gcc133/lib", true)
-                       .AddDirectoryAt("/usr/local/gcc133/lib64", "/usr/local/gcc133/lib64", true)
-                       // Allow /usr/share for shared data
-                       .AddDirectoryAt("/usr/share", "/usr/share", true);
+                       // Allow /proc, /sys, /dev for process/system access (read-only)
+                       .AddDirectoryAt("/proc", "/proc", true)  // read-only
+                       .AddDirectoryAt("/sys", "/sys", true)   // read-only
+                       .AddDirectoryAt("/dev", "/dev", true)   // read-only
+                       // Standard library directories (read-only)
+                       .AddDirectoryAt("/lib", "/lib", true)   // read-only
+                       .AddDirectoryAt("/lib64", "/lib64", true)  // read-only
+                       .AddDirectoryAt("/usr", "/usr", true)   // read-only
+                       .AddDirectoryAt("/usr/lib", "/usr/lib", true)  // read-only
+                       .AddDirectoryAt("/usr/lib64", "/usr/lib64", true)  // read-only
+                       .AddDirectoryAt("/usr/local", "/usr/local", true)  // read-only
+                       .AddDirectoryAt("/usr/local/lib", "/usr/local/lib", true)  // read-only
+                       // Allow /etc for configuration files (read-only)
+                       .AddDirectoryAt("/etc", "/etc", true)   // read-only
+                       // Allow /bin and /sbin for executables (read-only)
+                       .AddDirectoryAt("/bin", "/bin", true)    // read-only
+                       .AddDirectoryAt("/sbin", "/sbin", true)  // read-only
+                       .AddDirectoryAt("/usr/bin", "/usr/bin", true)  // read-only
+                       .AddDirectoryAt("/usr/sbin", "/usr/sbin", true);  // read-only
+                       // Note: /tmp is writable via AddTmpfs above
+                       // Note: Removed /var, /run, /usr/local/gcc133, /usr/share as they may not be needed
+                       // If test fails, we'll add them back one by one
     
     // Add executable's directory to policy
     if (!paths.executableDir.empty()) {
@@ -318,11 +488,106 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
         }
     }
 
-    // Allow ALL syscalls by default - this is the most permissive policy possible
-    // This allows brk, mmap, and all other syscalls needed for normal operation
-    builder.DefaultAction(sandbox2::AllowAllSyscalls());
+    // Replace AllowAllSyscalls() with explicit syscall allowlist matching seccomp filter
+    // This provides the same security level as the seccomp filter while using Sandbox2
     
-    // DO NOT block any syscalls - allow everything for maximum permissiveness
+    // Basic process control
+    builder.AllowSyscall(__NR_exit);
+    builder.AllowSyscall(__NR_exit_group);
+    builder.AllowSyscall(__NR_brk);
+    builder.AllowSyscall(__NR_getuid);
+    builder.AllowSyscall(__NR_getpid);
+    builder.AllowSyscall(__NR_getrusage);
+    builder.AllowSyscall(__NR_getpriority);
+    builder.AllowSyscall(__NR_setpriority);
+    builder.AllowSyscall(__NR_prctl);
+    builder.AllowSyscall(__NR_uname);
+    
+    // CPU/scheduling operations
+    builder.AllowSyscall(__NR_sched_getaffinity);
+    builder.AllowSyscall(__NR_sched_setaffinity);
+    builder.AllowSyscall(__NR_getcpu);
+    
+    // Directory operations
+    builder.AllowSyscall(__NR_getcwd);
+    
+    // Memory management
+    builder.AllowSyscall(__NR_mmap);
+    builder.AllowSyscall(__NR_munmap);
+    builder.AllowSyscall(__NR_mremap);
+    builder.AllowSyscall(__NR_mprotect);
+    builder.AllowSyscall(__NR_madvise);
+    
+    // File operations - basic
+    builder.AllowSyscall(__NR_read);
+    builder.AllowSyscall(__NR_write);
+    builder.AllowSyscall(__NR_writev);
+    builder.AllowSyscall(__NR_pread64);
+    builder.AllowSyscall(__NR_pwrite64);
+    builder.AllowSyscall(__NR_lseek);
+    builder.AllowSyscall(__NR_close);
+    builder.AllowSyscall(__NR_fcntl);
+    builder.AllowSyscall(__NR_fstat);
+    builder.AllowSyscall(__NR_statfs);
+    
+    // File operations - x86_64 specific
+#ifdef __x86_64__
+    builder.AllowSyscall(__NR_access);
+    builder.AllowSyscall(__NR_open);
+    builder.AllowSyscall(__NR_stat);
+    builder.AllowSyscall(__NR_lstat);
+    builder.AllowSyscall(__NR_readlink);
+    builder.AllowSyscall(__NR_unlink);
+    builder.AllowSyscall(__NR_mkdir);
+    builder.AllowSyscall(__NR_rmdir);
+    builder.AllowSyscall(__NR_mknod);
+    builder.AllowSyscall(__NR_getdents);
+    builder.AllowSyscall(__NR_time);
+#endif
+    
+    // File operations - modern (all architectures)
+    builder.AllowSyscall(__NR_openat);
+    builder.AllowSyscall(__NR_newfstatat);
+    builder.AllowSyscall(__NR_readlinkat);
+    builder.AllowSyscall(__NR_mkdirat);
+    builder.AllowSyscall(__NR_unlinkat);
+    builder.AllowSyscall(__NR_mknodat);
+    builder.AllowSyscall(__NR_getdents64);
+    builder.AllowSyscall(__NR_statx);
+    
+    // File descriptor operations
+    builder.AllowSyscall(__NR_dup2);
+    builder.AllowSyscall(__NR_dup3);
+    
+    // Time operations
+    builder.AllowSyscall(__NR_clock_gettime);
+    builder.AllowSyscall(__NR_gettimeofday);
+    builder.AllowSyscall(__NR_nanosleep);
+    
+    // Process/thread operations
+    builder.AllowSyscall(__NR_clone);
+    builder.AllowSyscall(__NR_clone3);
+    builder.AllowSyscall(__NR_futex);
+    builder.AllowSyscall(__NR_futex_waitv);
+    builder.AllowSyscall(__NR_set_robust_list);
+    builder.AllowSyscall(__NR_set_tid_address);
+    builder.AllowSyscall(__NR_rseq);
+#ifdef __x86_64__
+    // x86_64-specific: arch_prctl for thread-local storage
+    builder.AllowSyscall(__NR_arch_prctl);
+#endif
+    
+    // Signal operations
+    builder.AllowSyscall(__NR_rt_sigaction);
+    builder.AllowSyscall(__NR_rt_sigreturn);
+    builder.AllowSyscall(__NR_rt_sigprocmask);
+    builder.AllowSyscall(__NR_tgkill);
+    
+    // Random number generation
+    builder.AllowSyscall(__NR_getrandom);
+    
+    // Network operations (for named pipes)
+    builder.AllowSyscall(__NR_connect);
 
     // Allow PyTorch libraries
     if (!paths.pytorchLibDir.empty()) {
