@@ -27,7 +27,8 @@ bool CCmdLineParser::parse(int argc,
                            std::string& jvmPidStr,
                            std::string& logPipe,
                            std::string& commandPipe,
-                           std::string& outputPipe) {
+                           std::string& outputPipe,
+                           std::string& propertiesFile) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -42,6 +43,8 @@ bool CCmdLineParser::parse(int argc,
                     "Named pipe to accept commands from - default is controller_command_<JVM PID>")
             ("outputPipe", boost::program_options::value<std::string>(),
                     "Named pipe to output responses to - default is controller_output_<JVM PID>")
+            ("propertiesFile", boost::program_options::value<std::string>(),
+                    "Properties file for logger configuration")
         ;
         // clang-format on
 
@@ -69,6 +72,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("outputPipe") > 0) {
             outputPipe = vm["outputPipe"].as<std::string>();
+        }
+        if (vm.count("propertiesFile") > 0) {
+            propertiesFile = vm["propertiesFile"].as<std::string>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

@@ -73,8 +73,9 @@ int main(int argc, char** argv) {
     std::string logPipe;
     std::string commandPipe;
     std::string outputPipe;
+    std::string propertiesFile;
     if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe,
-                                              commandPipe, outputPipe) == false) {
+                                              commandPipe, outputPipe, propertiesFile) == false) {
         return EXIT_FAILURE;
     }
 
@@ -106,8 +107,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
-            logPipe, cancellerThread.hasCancelledBlockingCall()) == false) {
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, propertiesFile, cancellerThread.hasCancelledBlockingCall()) == false) {
         if (cancellerThread.hasCancelledBlockingCall().load()) {
             LOG_INFO(<< "Parent process died - ML controller exiting");
         } else {

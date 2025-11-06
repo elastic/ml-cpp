@@ -25,6 +25,7 @@ import signal
 import json
 import fcntl
 import queue
+import re
 from pathlib import Path
 
 
@@ -435,7 +436,7 @@ class ControllerProcess:
         """Parse controller logs and extract error/warning messages.
         
         Returns:
-            dict: Contains 'errors', 'warnings', 'debug_info', and 'recent_lines'
+            dict: Contains 'errors', 'warnings', 'debug_info', 'recent_lines', 'exit_codes', and 'sandbox2_messages'
         """
         log_file = self.test_dir / 'controller_log_output.txt'
         result = {
@@ -443,7 +444,8 @@ class ControllerProcess:
             'warnings': [],
             'debug_info': [],
             'recent_lines': [],
-            'sandbox2_messages': []
+            'sandbox2_messages': [],
+            'exit_codes': []  # List of exit codes found in logs
         }
         
         if not log_file.exists():
@@ -488,6 +490,27 @@ class ControllerProcess:
                     # Check for Sandbox2-related messages
                     if 'sandbox2' in message.lower() or 'sandbox' in message.lower():
                         result['sandbox2_messages'].append(message)
+                    
+                    # Extract exit codes from log messages
+                    # Look for patterns like "exited with exit code 31" or "exited with code 31"
+                    exit_code_patterns = [
+                        r'exited with exit code (\d+)',
+                        r'exited with code (\d+)',
+                        r'exit code (\d+)',
+                        r'exit_code[:\s]+(\d+)'
+                    ]
+                    for pattern in exit_code_patterns:
+                        matches = re.findall(pattern, message, re.IGNORECASE)
+                        for match in matches:
+                            try:
+                                exit_code = int(match)
+                                result['exit_codes'].append({
+                                    'code': exit_code,
+                                    'message': message,
+                                    'timestamp': log_obj.get('timestamp', 0)
+                                })
+                            except ValueError:
+                                pass
                         
                 except json.JSONDecodeError:
                     # Not a JSON line, might be raw text
@@ -533,6 +556,14 @@ class ControllerProcess:
             for info in analysis['debug_info'][-5:]:
                 print(f"  - {info}")
             print("--- End Debug Info ---\n")
+            sys.stdout.flush()
+        
+        # Display exit codes if found
+        if analysis['exit_codes']:
+            print("\n--- Process Exit Codes ---")
+            for exit_info in analysis['exit_codes']:
+                print(f"  Exit code {exit_info['code']}: {exit_info['message']}")
+            print("--- End Exit Codes ---\n")
             sys.stdout.flush()
         
         return not has_errors
