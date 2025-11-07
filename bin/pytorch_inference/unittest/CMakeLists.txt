@@ -16,7 +16,6 @@ set (SRCS
   CCommandParserTest.cc
   CResultWriterTest.cc
   CThreadSettingsTest.cc
-  Sandbox2SecurityTest.cc
   )
 
 set(ML_LINK_LIBRARIES
@@ -31,7 +30,6 @@ set(ML_LINK_LIBRARIES
   MlVer
   ${TORCH_LIB}
   ${C10_LIB}
-  ${SANDBOX2_LIBRARIES}
 )
 
 ml_add_test_executable(pytorch_inference ${SRCS})
