@@ -133,61 +133,46 @@ FetchContent_MakeAvailable(absl)
   if(EXISTS ${sandboxed-api_SOURCE_DIR}/cmake/SapiDeps.cmake)
     file(READ ${sandboxed-api_SOURCE_DIR}/cmake/SapiDeps.cmake _sapi_deps_content)
     
-    # Step 1: Make find_package(Python3) non-REQUIRED by adding QUIET
-    # This prevents CMake from erroring if Python3 is not found
-    string(REPLACE
-      "find_package(Python3 REQUIRED"
-      "find_package(Python3 QUIET"
-      _sapi_deps_content "${_sapi_deps_content}")
-    string(REPLACE
-      "find_package(Python3 COMPONENTS Interpreter"
-      "find_package(Python3 QUIET COMPONENTS Interpreter"
-      _sapi_deps_content "${_sapi_deps_content}")
-    string(REPLACE
-      "find_package(Python3\n"
-      "find_package(Python3 QUIET\n"
-      _sapi_deps_content "${_sapi_deps_content}")
+    # Strategy: Insert a safety block at the beginning to ensure Python3_EXECUTABLE is defined,
+    # make find_package(Python3) QUIET, and wrap find_package_handle_standard_args in a conditional.
     
-    # Step 2: Make find_package_handle_standard_args safe
-    # The issue is that find_package_handle_standard_args with REQUIRED_VARS will fail
-    # if Python3_EXECUTABLE is not set. Instead of trying to match complex multiline
-    # patterns (which is fragile), we use a simpler approach:
-    # 1. Ensure Python3_EXECUTABLE is always defined (even if empty) before any checks
-    # 2. Remove REQUIRED flag from find_package_handle_standard_args calls
-    # 3. Wrap the call in a conditional that only runs if Python3_EXECUTABLE is set
-    #
-    # This approach is more robust because it doesn't depend on exact pattern matching
-    # for closing parentheses or multiline structures.
-    
-    # Ensure Python3_EXECUTABLE is defined before any find_package_handle_standard_args calls
-    # Insert this right after the find_package(Python3) call
+    # Step 1: Insert safety block at the very beginning of the file
+    # This ensures Python3_EXECUTABLE is always defined before any checks
     string(REGEX REPLACE
-      "(find_package\\(Python3[^\n]*\\))"
-      "\\1\n# Ensure Python3_EXECUTABLE is defined to prevent REQUIRED_VARS from failing\nif(NOT DEFINED Python3_EXECUTABLE)\n  set(Python3_EXECUTABLE \"\")\nendif()"
+      "^([^#])"
+      "# Python3 optional patch (inserted by ml-cpp)\n# Ensure Python3_EXECUTABLE is defined to prevent REQUIRED_VARS errors\nif(NOT DEFINED Python3_EXECUTABLE)\n  set(Python3_EXECUTABLE \"\")\nendif()\n\\1"
       _sapi_deps_content "${_sapi_deps_content}")
     
-    # Remove REQUIRED flag from find_package_handle_standard_args calls
+    # Step 2: Make all find_package(Python3) calls QUIET
     string(REGEX REPLACE
-      "find_package_handle_standard_args\\(Python3[^)]*\\bREQUIRED\\b[^)]*\\)"
-      "find_package_handle_standard_args(Python3)"
+      "find_package\\(Python3[^)]*\\)"
+      "find_package(Python3 QUIET COMPONENTS Interpreter)"
       _sapi_deps_content "${_sapi_deps_content}")
     
-    # Wrap find_package_handle_standard_args calls that use REQUIRED_VARS in a conditional
-    # This prevents the fatal error when Python3_EXECUTABLE is empty
-    # Handle multiline patterns by matching across newlines using (.|\n) pattern
-    # First, handle the common multiline pattern with Interpreter
+    # Step 3: Wrap find_package_handle_standard_args in a conditional
+    # Insert if block before the call
     string(REGEX REPLACE
-      "([ \t]*)find_package_handle_standard_args\\(Python3([^)]*REQUIRED_VARS[^)]*Python3_EXECUTABLE[^)]*Interpreter[^)]*)\\)"
-      "\\1# Python3 check (made optional)\n\\1if(Python3_EXECUTABLE)\n\\1  find_package_handle_standard_args(Python3\\2)\n\\1else()\n\\1  set(Python3_FOUND FALSE)\n\\1  message(STATUS \"Python3 not found - continuing without it (protobuf code generation may be disabled)\")\n\\1endif()"
+      "([^\n]*)find_package_handle_standard_args\\(Python3"
+      "\\1# Python3 optional check (ml-cpp patch)\n\\1if(Python3_EXECUTABLE)\n\\1  find_package_handle_standard_args(Python3"
       _sapi_deps_content "${_sapi_deps_content}")
     
-    # Handle case with just Python3_EXECUTABLE (no Interpreter)
+    # Step 4: Add else/endif after find_package_handle_standard_args calls
+    # Match the closing pattern and add the else block
     string(REGEX REPLACE
-      "([ \t]*)find_package_handle_standard_args\\(Python3([^)]*REQUIRED_VARS[^)]*Python3_EXECUTABLE[^)]*)\\)"
-      "\\1# Python3 check (made optional)\n\\1if(Python3_EXECUTABLE)\n\\1  find_package_handle_standard_args(Python3\\2)\n\\1else()\n\\1  set(Python3_FOUND FALSE)\n\\1  message(STATUS \"Python3 not found - continuing without it (protobuf code generation may be disabled)\")\n\\1endif()"
+      "(find_package_handle_standard_args\\(Python3[^)]*REQUIRED_VARS[^)]*Python3_EXECUTABLE[^)]*\\))"
+      "\\1\n  else()\n    set(Python3_FOUND FALSE)\n    message(STATUS \"Python3 not found - continuing without it (protobuf code generation may be disabled)\")\n  endif()"
       _sapi_deps_content "${_sapi_deps_content}")
     
     file(WRITE ${sandboxed-api_SOURCE_DIR}/cmake/SapiDeps.cmake "${_sapi_deps_content}")
+  endif()
+  
+  # Pre-set Python3 variables before SapiDeps.cmake is included
+  # This prevents "variable not defined" errors
+  if(NOT DEFINED Python3_EXECUTABLE)
+    set(Python3_EXECUTABLE "" CACHE INTERNAL "Python3 executable")
+  endif()
+  if(NOT DEFINED Python3_FOUND)
+    set(Python3_FOUND FALSE CACHE INTERNAL "Python3 found flag")
   endif()
   
   # Now add the subdirectory
