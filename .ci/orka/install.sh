@@ -15,6 +15,31 @@ else
     exit 1
 fi
 
+if ! command -v brew 2> /dev/null ; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+eval "$(brew shellenv)"
+echo 'export PATH="$HOMEBREW_PREFIX/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOMEBREW_PREFIX/bin:$PATH"' >> ~/.bash_profile
+export PATH="$HOMEBREW_PREFIX/bin:$PATH"
+
+if ! command -v vault 2> /dev/null ; then
+    echo "install vault"
+    brew tap hashicorp/tap
+    brew install hashicorp/tap/vault
+fi
+
+if ! command -v jq 2> /dev/null ; then
+    echo "install jq"
+    brew install jq
+fi
+
+if ! command -v orka-vm-tools 2> /dev/null ; then
+    echo "install orka-vm-tools"
+    brew install orka-vm-tools
+fi
+
 echo "export PATH=$PATH" >> .zshrc
 
 if ! java --version 2> /dev/null ; then
@@ -30,6 +55,14 @@ fi
 echo "Install CMake"
 curl -v -L https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-macos-universal.tar.gz | tar xvzf - --strip-components 1 -C /Applications
 sudo ln -sf /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
+
+# Install the gobld-bootstrap.sh
+sudo mkdir -p /usr/local/bin
+sudo cp /tmp/gobld-bootstrap.sh /usr/local/bin/gobld-bootstrap.sh
+sudo chmod +x /usr/local/bin/gobld-bootstrap.sh
+sudo cp /tmp/gobld-bootstrap.plist /Library/LaunchDaemons/gobld-bootstrap.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/gobld-bootstrap.plist
+sudo cp /tmp/gobld-bootstrap.plist /Users/admin
 
 # Make sure all changes are written to disk
 sync
