@@ -9,7 +9,9 @@
 # limitation.
 #
 $ErrorActionPreference="Stop"
-$Archive="usr-x86_64-windows-2016-16.zip"
+# TODO: Fix the windows build and use the latest archive
+# $Archive="usr-x86_64-windows-2016-16.zip"
+$Archive="usr-x86_64-windows-2016-15.zip"
 $Destination="C:\"
 # If PyTorch is not version 2.7.1 then we need the latest download
 if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h") -Or
