@@ -35,7 +35,7 @@ ARG build_dir=/usr/src
 # Build gcc 10.3
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz | tar zxf - && \
+  wget --quiet -O - https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-10.3.0/gcc-10.3.0.tar.gz | tar zxf - && \
   cd gcc-10.3.0 && \
   contrib/download_prerequisites && \
   sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
