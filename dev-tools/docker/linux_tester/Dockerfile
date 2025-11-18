@@ -10,7 +10,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-build:33
+FROM docker.elastic.co/ml-dev/ml-linux-build:34
 
 LABEL maintainer="Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>"
 
