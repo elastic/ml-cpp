@@ -31,13 +31,13 @@
 
 === Enhancements
 
-* Update the PyTorch library to version 2.7.1. (See {ml-pull}2863[#2863].)
-
 == {es} version 9.1.0
 
 === Enhancements
 
 * Track memory used in the hierarchical results normalizer. (See {ml-pull}2831[#2831].)
+* Update the PyTorch library to version 2.7.1. (See {ml-pull}2879[#2879].)
+
 
 === Bug Fixes
 
