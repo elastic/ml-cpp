@@ -36,7 +36,7 @@ required to build the machine learning C++ code dependencies:
 2. Change the Dockerfile and build a new image to be used for subsequent builds on this branch.
 3. Update the version to be used for builds in docker files that refer to it.
 
-### Depends on: ml-linux-build:32
+### Depends on: ml-linux-build:32a
 
 ### Build script: dev-tools/docker/build_linux_dependency_builder_image.sh
 
@@ -44,7 +44,7 @@ required to build the machine learning C++ code dependencies:
 
 ## Repository: ml-linux-build
 
-### Latest version: 32
+### Latest version: 32a
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -63,7 +63,7 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-cross-build
 
-### Latest version: 15
+### Latest version: 15a
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -82,7 +82,7 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-native-build
 
-### Latest version: 15
+### Latest version: 15a
 
 ### Comments
 A Docker image that can be used to compile the machine learning

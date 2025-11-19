@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.19.8
+
+=== Enhancements
+
+* Update the PyTorch library to version 2.7.1. (See {ml-pull}2882[#2882].)
+
 == {es} version 8.19.0
 
 === Enhancements
