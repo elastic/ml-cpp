@@ -321,6 +321,7 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_getpriority);
     builder.AllowSyscall(__NR_setpriority);
     builder.AllowSyscall(__NR_prctl);
+    builder.AllowSyscall(__NR_prlimit64);
     builder.AllowSyscall(__NR_uname);
 
     // CPU/scheduling operations
