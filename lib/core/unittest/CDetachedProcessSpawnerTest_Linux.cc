@@ -18,9 +18,9 @@
  */
 
 #include <core/CDetachedProcessSpawner.h>
+#include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
 #include <core/CStringUtils.h>
-#include <core/CLogger.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -207,14 +207,14 @@ BOOST_AUTO_TEST_CASE(testSandbox2IntegrationFileAccessRestriction) {
     // binary for testing, we validate that:
     // 1. The integration code exists and is accessible
     // 2. The environment supports Sandbox2 requirements
-    
+
     // Verify that Sandbox2 integration functions exist in the implementation
     // This is a compile-time check - if the code compiles, the integration exists
-    
+
     // Test that the spawner can be instantiated (basic functionality)
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
-    
+
     // Verify that processes with "pytorch_inference" in the path would trigger Sandbox2
     // (We can't fully test this without a real pytorch_inference binary, but we verify
     // the environment is set up correctly)
@@ -229,20 +229,20 @@ BOOST_AUTO_TEST_CASE(testSandbox2IntegrationTmpAccess) {
 
     // This test validates that /tmp is accessible for sandboxed processes
     // The actual Sandbox2 policy allows /tmp access via tmpfs
-    
+
     // Verify /tmp is accessible
     BOOST_REQUIRE_EQUAL(access("/tmp", R_OK | W_OK), 0);
-    
+
     // Test that we can create files in /tmp (this would be allowed in Sandbox2)
     std::string test_file = "/tmp/sandbox2_test_" + std::to_string(getpid());
     TestCleanup cleanup;
     cleanup.addCleanupPath(test_file);
-    
+
     std::ofstream ofs(test_file);
     BOOST_REQUIRE(ofs.is_open());
     ofs << "test";
     ofs.close();
-    
+
     // Verify file was created
     BOOST_REQUIRE_EQUAL(access(test_file.c_str(), F_OK), 0);
 }
@@ -301,4 +301,3 @@ BOOST_AUTO_TEST_CASE(testSandbox2NotAvailable) {
 #endif // SANDBOX2_AVAILABLE
 
 BOOST_AUTO_TEST_SUITE_END() // CDetachedProcessSpawnerTest
-
