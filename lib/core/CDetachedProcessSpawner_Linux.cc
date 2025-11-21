@@ -83,6 +83,16 @@ extern char** environ;
 #endif
 #endif
 
+#ifndef __NR_dup2
+// dup2 syscall number is 33 on both x86_64 and aarch64
+#define __NR_dup2 33
+#endif
+
+#ifndef __NR_dup3
+// dup3 syscall number is 24 on both x86_64 and aarch64
+#define __NR_dup3 24
+#endif
+
 #endif // SANDBOX2_AVAILABLE
 
 namespace {
@@ -364,6 +374,9 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_mknod);
     builder.AllowSyscall(__NR_getdents);
     builder.AllowSyscall(__NR_time);
+#elif defined(__aarch64__)
+    // ARM64 uses faccessat instead of access
+    builder.AllowSyscall(__NR_faccessat);
 #endif
 
     // File operations - modern (all architectures)

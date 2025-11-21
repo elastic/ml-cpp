@@ -175,6 +175,33 @@ FetchContent_MakeAvailable(absl)
     set(Python3_FOUND FALSE CACHE INTERNAL "Python3 found flag")
   endif()
   
+  # Patch sandbox2 CMakeLists.txt to link zlib to forkserver_bin
+  # This is needed because libunwind (a dependency of sandboxed-api) requires uncompress from zlib
+  # On aarch64, the linker is stricter about missing symbols than on x86_64
+  if(EXISTS ${sandboxed-api_SOURCE_DIR}/sandboxed_api/sandbox2/CMakeLists.txt)
+    file(READ ${sandboxed-api_SOURCE_DIR}/sandboxed_api/sandbox2/CMakeLists.txt _sandbox2_cmake_content)
+    
+    # Check if zlib is already linked to forkserver_bin
+    if(NOT _sandbox2_cmake_content MATCHES "forkserver_bin.*[^a-zA-Z_]z[^a-zA-Z_]")
+      # Find the add_executable line for forkserver_bin and add zlib linking after it
+      # The target is named sandbox2_forkserver_bin based on the error message
+      if(_sandbox2_cmake_content MATCHES "add_executable\\(sandbox2_forkserver_bin")
+        # Add zlib linking right after the add_executable statement
+        # Use a pattern that matches the add_executable call (handles both single and multi-line)
+        string(REGEX REPLACE
+          "(add_executable\\(sandbox2_forkserver_bin[^)]*\\))"
+          "\\1\ntarget_link_libraries(sandbox2_forkserver_bin PRIVATE z)"
+          _sandbox2_cmake_content "${_sandbox2_cmake_content}")
+        file(WRITE ${sandboxed-api_SOURCE_DIR}/sandboxed_api/sandbox2/CMakeLists.txt "${_sandbox2_cmake_content}")
+        message(STATUS "Patched sandbox2 CMakeLists.txt to link zlib to forkserver_bin (required for libunwind on aarch64)")
+      else()
+        message(WARNING "Could not find sandbox2_forkserver_bin target in sandbox2 CMakeLists.txt to patch for zlib linking")
+      endif()
+    else()
+      message(STATUS "forkserver_bin already links zlib, skipping patch")
+    endif()
+  endif()
+  
   # Now add the subdirectory
   add_subdirectory(${sandboxed-api_SOURCE_DIR} ${sandboxed-api_BINARY_DIR} EXCLUDE_FROM_ALL)
   

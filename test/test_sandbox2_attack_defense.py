@@ -611,10 +611,28 @@ class ControllerProcess:
 
 def find_binaries():
     """Find controller and pytorch_inference binaries."""
+    import platform
+    
     script_dir = Path(__file__).parent
     project_root = script_dir.parent.absolute()
     
-    # Try distribution directory first
+    # Detect architecture
+    machine = platform.machine()
+    if machine == 'aarch64' or machine == 'arm64':
+        arch = 'linux-aarch64'
+    elif machine == 'x86_64' or machine == 'amd64':
+        arch = 'linux-x86_64'
+    else:
+        arch = f'linux-{machine}'
+    
+    # Try distribution directory first with detected architecture
+    dist_path = project_root / 'build' / 'distribution' / 'platform' / arch / 'bin'
+    controller_path = dist_path / 'controller'
+    pytorch_path = dist_path / 'pytorch_inference'
+    if controller_path.exists():
+        return str(controller_path.absolute()), str(pytorch_path.absolute())
+    
+    # Try distribution directory with x86_64 (fallback)
     dist_path = project_root / 'build' / 'distribution' / 'platform' / 'linux-x86_64' / 'bin'
     controller_path = dist_path / 'controller'
     pytorch_path = dist_path / 'pytorch_inference'
