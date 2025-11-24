@@ -9,8 +9,6 @@
 # limitation.
 #
 $ErrorActionPreference="Stop"
-# TODO: Fix the windows build and use the latest archive
-# $Archive="usr-x86_64-windows-2016-16.zip"
 $Archive="usr-x86_64-windows-2016-16.zip"
 $Destination="C:\"
 # If PyTorch is not version 2.7.1 then we need the latest download
