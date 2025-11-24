@@ -32,7 +32,7 @@
 
 === Enhancements
 
-* Update the PyTorch library to version 2.7.1. (See {ml-pull}2882[#2882].)
+* Update the PyTorch library to version 2.7.1. (See {ml-pull}2882[#2882], {ml-pull}2883[#2883].)
 
 == {es} version 8.19.0
 
