@@ -90,7 +90,7 @@ else # Darwin (macOS)
   fi
 fi
 
-if [[ $TEST_OUTCOME -eq 0 ]] ; then
+if [[ $TEST_OUTCOME -eq 0 && "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
   buildkite-agent artifact upload "build/distributions/*.zip"
 fi
 

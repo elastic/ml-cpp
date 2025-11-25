@@ -87,6 +87,41 @@ def main(args):
                 ],
             })
 
+    # Add a debug build step for PR builds to detect compilation errors with optimization disabled
+    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
+            os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
+        pipeline_steps.append({
+            "label": "Build & test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
+            "timeout_in_minutes": "240",
+            "agents": agents["x86_64"],
+            "commands": [
+              ".buildkite/scripts/steps/build_and_test.sh"
+            ],
+            "depends_on": "check_style",
+            "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
+            "env": {
+              "ML_DEBUG": "1",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
+              "CPP_CROSS_COMPILE": "",
+              "RUN_TESTS": "true",
+              "SKIP_ARTIFACT_UPLOAD": "true",
+              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+            },
+            "plugins": {
+              "test-collector#v1.2.0": {                                                              
+                "files": "*/*/unittest/boost_test_results.junit",
+                "format": "junit"
+              }
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": "Build and test on Linux x86_64 RelWithDebInfo (debug)",
+                },
+              },
+            ],
+        })
+
     pipeline = {
         "steps": pipeline_steps,
     }
