@@ -55,8 +55,8 @@ if (cppCrossCompile == null) {
     cppCrossCompile = ''
   }
 }
-if (cppCrossCompile != '' && cppCrossCompile != 'macosx' && cppCrossCompile != 'aarch64') {
-  throw new GradleException("CPP_CROSS_COMPILE property must be empty, 'macosx' or 'aarch64'")
+if (cppCrossCompile != '' && cppCrossCompile != 'macosx') {
+  throw new GradleException("CPP_CROSS_COMPILE property must be empty or 'macosx'")
 }
 
 String osArch = System.properties['os.arch']

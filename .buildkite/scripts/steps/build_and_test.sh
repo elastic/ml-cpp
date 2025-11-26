@@ -61,13 +61,6 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]
   fi
 fi
 
-# If this is a PR build then it's redundant to cross compile aarch64 (as
-# we build and test aarch64 natively for PR builds) but there's a benefit
-# to building one platform with debug enabled to detect code that only
-# compiles with optimisation
-if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && "$CPP_CROSS_COMPILE" = "aarch64" ]] ; then
-    export ML_DEBUG=1
-fi
 
 # For now, re-use our existing CI scripts based on Docker
 # Don't perform these steps for native linux aarch64 builds as
@@ -97,9 +90,7 @@ else # Darwin (macOS)
   fi
 fi
 
-# We don't upload artifacts from the cross compiled aarch64 build as it has been built with full debug
-# and assertions enabled
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then
+if [[ $TEST_OUTCOME -eq 0 && "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
   buildkite-agent artifact upload "build/distributions/*.zip"
 fi
 

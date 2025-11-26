@@ -87,36 +87,36 @@ def main(args):
                 ],
             })
 
-    # Never cross-compile for linux-aarch64 in the nightly debug build.
+    # Add a debug build step for PR builds to detect compilation errors with optimization disabled
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
             os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
-        # Always cross compile for aarch64 with full debug and assertions
-        # enabled for PR builds only. This is to detect any compilation errors
-        # as early as possible.
         pipeline_steps.append({
-            "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
+            "label": "Build & test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
             "timeout_in_minutes": "240",
-            "agents": {
-              "cpu": "6",
-              "ephemeralStorage": "20G",
-              "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:17"
-            },
+            "agents": agents["x86_64"],
             "commands": [
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
-            "key": "build_linux_aarch64_cross-RelWithDebInfo",
+            "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
             "env": {
-              "CPP_CROSS_COMPILE": "aarch64",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
-              "RUN_TESTS": "false",
-              "ML_DEBUG": "1"
+              "ML_DEBUG": "1",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
+              "CPP_CROSS_COMPILE": "",
+              "RUN_TESTS": "true",
+              "SKIP_ARTIFACT_UPLOAD": "true",
+              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+            },
+            "plugins": {
+              "test-collector#v1.2.0": {                                                              
+                "files": "*/*/unittest/boost_test_results.junit",
+                "format": "junit"
+              }
             },
             "notify": [
               {
                 "github_commit_status": {
-                  "context": "Cross compile for Linux aarch64 RelWithDebInfo",
+                  "context": "Build and test on Linux x86_64 RelWithDebInfo (debug)",
                 },
               },
             ],
