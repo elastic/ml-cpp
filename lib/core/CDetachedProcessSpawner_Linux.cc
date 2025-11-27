@@ -17,6 +17,7 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <atomic>
 #include <ctime>
 #include <fstream>
 #include <map>
@@ -73,6 +74,22 @@ extern char** environ;
 
 #ifndef __NR_clone3
 #define __NR_clone3 435
+#endif
+
+#ifndef __NR_execve
+#ifdef __x86_64__
+#define __NR_execve 59
+#elif defined(__aarch64__)
+#define __NR_execve 221
+#endif
+#endif
+
+#ifndef __NR_execveat
+#ifdef __x86_64__
+#define __NR_execveat 322
+#elif defined(__aarch64__)
+#define __NR_execveat 281
+#endif
 #endif
 
 #ifndef __NR_futex_waitv
@@ -154,9 +171,22 @@ namespace detail {
 //! Custom Notify class to capture Sandbox2 violations and events
 class Sandbox2LoggingNotify : public sandbox2::Notify {
 public:
+    Sandbox2LoggingNotify() : m_Condition(m_Mutex), m_Failed(false), m_Status(sandbox2::Result::OK), m_ReasonCode(0) {}
+
     void EventFinished(const sandbox2::Result& result) override {
         sandbox2::Result::StatusEnum status = result.final_status();
         uintptr_t reason_code = result.reason_code();
+
+        // Store failure state for main thread to check
+        {
+            core::CScopedLock lock(m_Mutex);
+            m_Status = status;
+            m_ReasonCode = reason_code;
+            if (status != sandbox2::Result::OK) {
+                m_Failed = true;
+            }
+        }
+        m_Condition.broadcast();
 
         if (status == sandbox2::Result::OK) {
             LOG_DEBUG(<< "Sandbox2 process finished successfully (OK)");
@@ -187,6 +217,31 @@ public:
         }
     }
 
+    // Check if process has failed (non-blocking)
+    bool hasFailed() const {
+        core::CScopedLock lock(m_Mutex);
+        return m_Failed;
+    }
+
+    // Get failure status and reason code
+    void getFailureInfo(sandbox2::Result::StatusEnum& status, uintptr_t& reasonCode) const {
+        core::CScopedLock lock(m_Mutex);
+        status = m_Status;
+        reasonCode = m_ReasonCode;
+    }
+
+    // Wait for failure or success with timeout (returns true if failure detected, false on timeout)
+    bool waitForFailure(std::uint32_t timeoutMs) {
+        core::CScopedLock lock(m_Mutex);
+        if (m_Failed) {
+            return true;
+        }
+        // Wait for failure notification or timeout
+        // wait() unlocks mutex, waits, then re-locks mutex
+        m_Condition.wait(timeoutMs);
+        return m_Failed;
+    }
+
     void EventSyscallViolation(const sandbox2::Syscall& syscall,
                                sandbox2::ViolationType type) override {
         LOG_ERROR(<< "Sandbox2 syscall violation detected:");
@@ -200,6 +255,13 @@ public:
     void EventSignal(pid_t pid, int sig_no) override {
         LOG_WARN(<< "Sandbox2 process " << pid << " received signal " << sig_no);
     }
+
+private:
+    mutable core::CMutex m_Mutex;
+    core::CCondition m_Condition;
+    std::atomic<bool> m_Failed;
+    sandbox2::Result::StatusEnum m_Status;
+    uintptr_t m_ReasonCode;
 };
 
 //! Structure to hold process paths for Sandbox2 policy
@@ -211,12 +273,23 @@ struct ProcessPaths {
     std::string inputPipe;
     std::string outputPipe;
     std::string logPipe;
+    std::string restorePipe;
     std::string logProperties;
+    bool isRestorePipe = false;
 };
 
 //! Parse command line arguments to extract file paths
 ProcessPaths parseProcessPaths(const std::vector<std::string>& args) {
     ProcessPaths paths;
+    // First pass: find --restoreIsPipe flag
+    for (size_t i = 0; i < args.size(); ++i) {
+        if (args[i] == "--restoreIsPipe") {
+            paths.isRestorePipe = true;
+            LOG_DEBUG(<< "Found --restoreIsPipe flag at position " << i);
+            break;
+        }
+    }
+    // Second pass: extract paths
     for (size_t i = 0; i < args.size(); ++i) {
         const std::string& arg = args[i];
         if (arg.find("--input=") == 0) {
@@ -225,12 +298,20 @@ ProcessPaths parseProcessPaths(const std::vector<std::string>& args) {
             paths.outputPipe = arg.substr(9);
         } else if (arg.find("--restore=") == 0) {
             paths.modelPath = arg.substr(10);
+            LOG_DEBUG(<< "Found --restore= argument: " << paths.modelPath << ", isRestorePipe=" << paths.isRestorePipe);
+            if (paths.isRestorePipe) {
+                paths.restorePipe = paths.modelPath;
+                LOG_DEBUG(<< "Set restorePipe to: " << paths.restorePipe);
+            }
         } else if (arg.find("--logPipe=") == 0) {
             paths.logPipe = arg.substr(10);
         } else if (arg.find("--logProperties=") == 0) {
             paths.logProperties = arg.substr(16);
         }
     }
+    LOG_DEBUG(<< "parseProcessPaths result: isRestorePipe=" << paths.isRestorePipe 
+              << ", restorePipe=" << (paths.restorePipe.empty() ? "<empty>" : paths.restorePipe)
+              << ", modelPath=" << (paths.modelPath.empty() ? "<empty>" : paths.modelPath));
     return paths;
 }
 
@@ -276,6 +357,8 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     LOG_DEBUG(<< "  Output pipe: "
               << (paths.outputPipe.empty() ? "<none>" : paths.outputPipe));
     LOG_DEBUG(<< "  Log pipe: " << (paths.logPipe.empty() ? "<none>" : paths.logPipe));
+    LOG_DEBUG(<< "  Restore pipe: " << (paths.restorePipe.empty() ? "<none>" : paths.restorePipe));
+    LOG_DEBUG(<< "  Is restore pipe: " << (paths.isRestorePipe ? "true" : "false"));
     LOG_DEBUG(<< "  PyTorch lib dir: "
               << (paths.pytorchLibDir.empty() ? "<none>" : paths.pytorchLibDir));
 
@@ -307,14 +390,33 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     // Note: Removed /var, /run, /usr/local/gcc133, /usr/share as they may not be needed
     // If test fails, we'll add them back one by one
 
-    // Add executable's directory to policy
+    // Add executable's directory and all parent directories to policy
+    // Sandbox2 requires all parent directories in the path to be accessible
     if (!paths.executableDir.empty()) {
+        // Add all parent directories up to root
+        std::string currentPath = paths.executableDir;
+        while (!currentPath.empty() && currentPath != "/") {
+            LOG_DEBUG(<< "Adding parent directory: " << currentPath);
+            builder.AddDirectoryAt(currentPath, currentPath, true);
+            size_t lastSlash = currentPath.find_last_of('/');
+            if (lastSlash == 0) {
+                // Reached root
+                break;
+            } else if (lastSlash != std::string::npos) {
+                currentPath = currentPath.substr(0, lastSlash);
+            } else {
+                break;
+            }
+        }
+        // Also add the executable directory itself (explicitly, in case it wasn't added above)
         LOG_DEBUG(<< "Adding executable directory: " << paths.executableDir);
         builder.AddDirectoryAt(paths.executableDir, paths.executableDir, true);
         // Also add the executable file itself
+        // Note: false means read-write, but for executables we need execute permission
+        // Sandbox2 will respect the file's actual permissions, so we use false to allow execution
         if (!paths.executablePath.empty()) {
             LOG_DEBUG(<< "Adding executable file: " << paths.executablePath);
-            builder.AddFileAt(paths.executablePath, paths.executablePath, true);
+            builder.AddFileAt(paths.executablePath, paths.executablePath, false);
         }
     }
 
@@ -390,6 +492,7 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     builder.AllowSyscall(__NR_statx);
 
     // File descriptor operations
+    builder.AllowSyscall(__NR_dup);
     builder.AllowSyscall(__NR_dup2);
     builder.AllowSyscall(__NR_dup3);
 
@@ -401,6 +504,8 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     // Process/thread operations
     builder.AllowSyscall(__NR_clone);
     builder.AllowSyscall(__NR_clone3);
+    builder.AllowSyscall(__NR_execve);
+    builder.AllowSyscall(__NR_execveat);
     builder.AllowSyscall(__NR_futex);
     builder.AllowSyscall(__NR_futex_waitv);
     builder.AllowSyscall(__NR_set_robust_list);
@@ -423,43 +528,261 @@ std::unique_ptr<sandbox2::Policy> buildSandboxPolicy(const ProcessPaths& paths) 
     // Network operations (for named pipes)
     builder.AllowSyscall(__NR_connect);
 
-    // Allow PyTorch libraries
+    // Allow PyTorch libraries (and all parent directories)
     if (!paths.pytorchLibDir.empty()) {
+        // Add all parent directories up to root
+        std::string currentPath = paths.pytorchLibDir;
+        while (!currentPath.empty() && currentPath != "/") {
+            LOG_DEBUG(<< "Adding PyTorch lib parent directory: " << currentPath);
+            builder.AddDirectoryAt(currentPath, currentPath, true);
+            size_t lastSlash = currentPath.find_last_of('/');
+            if (lastSlash == 0) {
+                // Reached root
+                break;
+            } else if (lastSlash != std::string::npos) {
+                currentPath = currentPath.substr(0, lastSlash);
+            } else {
+                break;
+            }
+        }
+        // Also add the PyTorch lib directory itself explicitly
         LOG_DEBUG(<< "Adding PyTorch lib directory: " << paths.pytorchLibDir);
         builder.AddDirectoryAt(paths.pytorchLibDir, paths.pytorchLibDir, true);
     }
 
-    // Allow model file and its directory
-    if (!paths.modelPath.empty()) {
+    // Allow model file and its directory (and all parent directories)
+    // Skip if it's a restore pipe (handled separately above)
+    if (!paths.modelPath.empty() && !paths.isRestorePipe) {
         LOG_DEBUG(<< "Adding model file: " << paths.modelPath);
         builder.AddFileAt(paths.modelPath, paths.modelPath, true);
-        // Also add the directory containing the model file
+        // Also add the directory containing the model file and all parent directories
         size_t lastSlash = paths.modelPath.find_last_of('/');
         if (lastSlash != std::string::npos) {
             std::string modelDir = paths.modelPath.substr(0, lastSlash);
             if (!modelDir.empty()) {
-                LOG_DEBUG(<< "Adding model directory: " << modelDir);
-                builder.AddDirectoryAt(modelDir, modelDir, true);
+                // Add all parent directories up to root (Sandbox2 requires all parent directories)
+                std::string currentPath = modelDir;
+                while (!currentPath.empty() && currentPath != "/") {
+                    // Skip /tmp since it's already added as tmpfs
+                    if (currentPath == "/tmp") {
+                        LOG_DEBUG(<< "Skipping /tmp (already added as tmpfs)");
+                        break;
+                    }
+                    LOG_DEBUG(<< "Adding model parent directory: " << currentPath);
+                    builder.AddDirectoryAt(currentPath, currentPath, true);
+                    size_t dirLastSlash = currentPath.find_last_of('/');
+                    if (dirLastSlash == 0) {
+                        // Reached root
+                        break;
+                    } else if (dirLastSlash != std::string::npos) {
+                        currentPath = currentPath.substr(0, dirLastSlash);
+                    } else {
+                        break;
+                    }
+                }
+                // Also add the model directory itself explicitly (unless it's /tmp)
+                if (modelDir != "/tmp") {
+                    LOG_DEBUG(<< "Adding model directory: " << modelDir);
+                    builder.AddDirectoryAt(modelDir, modelDir, true);
+                } else {
+                    LOG_DEBUG(<< "Skipping /tmp directory (already added as tmpfs)");
+                }
             }
         }
     }
 
     // Add pipes with read-write access
+    // Helper lambda to add a file and its parent directories
+    // For named pipes, we need to allow both read and write access to the file
+    // even if we only use it in one direction, because the open() syscall needs
+    // to be able to access the file
+    auto addFileWithParents = [&builder](const std::string& filePath, bool readOnly) {
+        LOG_DEBUG(<< "Adding file: " << filePath << " (readOnly=" << readOnly << ")");
+        // For named pipes, always allow read-write access to the file itself
+        // The readOnly parameter is just for documentation - named pipes need
+        // both read and write access to be opened
+        builder.AddFileAt(filePath, filePath, false); // false = read-write access
+        // Also add parent directories
+        size_t lastSlash = filePath.find_last_of('/');
+        if (lastSlash != std::string::npos) {
+            std::string fileDir = filePath.substr(0, lastSlash);
+            if (!fileDir.empty()) {
+                // Add all parent directories up to root
+                std::string currentPath = fileDir;
+                while (!currentPath.empty() && currentPath != "/") {
+                    // Skip /tmp since it's already added as tmpfs
+                    if (currentPath == "/tmp") {
+                        LOG_DEBUG(<< "Skipping /tmp (already added as tmpfs)");
+                        break;
+                    }
+                    LOG_DEBUG(<< "Adding parent directory: " << currentPath);
+                    // Directories need read access for traversal and stat operations
+                    builder.AddDirectoryAt(currentPath, currentPath, true);
+                    size_t dirLastSlash = currentPath.find_last_of('/');
+                    if (dirLastSlash == 0) {
+                        break;
+                    } else if (dirLastSlash != std::string::npos) {
+                        currentPath = currentPath.substr(0, dirLastSlash);
+                    } else {
+                        break;
+                    }
+                }
+                // Also add the file directory itself explicitly (unless it's /tmp)
+                if (fileDir != "/tmp") {
+                    LOG_DEBUG(<< "Adding file directory: " << fileDir);
+                    builder.AddDirectoryAt(fileDir, fileDir, true);
+                } else {
+                    LOG_DEBUG(<< "Skipping /tmp directory (already added as tmpfs)");
+                }
+            }
+        }
+    };
+    
+    // Helper function to add a pipe directory (for pipes that will be created by the process)
+    // This is needed because Sandbox2 validates file paths during policy building,
+    // but pipes created with mkfifo() don't exist yet at that time.
+    auto addPipeDirectory = [&builder](const std::string& pipePath) {
+        if (pipePath.empty()) {
+            return;
+        }
+        
+        size_t lastSlash = pipePath.find_last_of('/');
+        if (lastSlash == std::string::npos) {
+            LOG_WARN(<< "Pipe path has no directory component: " << pipePath);
+            return;
+        }
+        
+        std::string pipeDir = pipePath.substr(0, lastSlash);
+        if (pipeDir.empty()) {
+            LOG_WARN(<< "Pipe directory is empty for path: " << pipePath);
+            return;
+        }
+        
+        // Check if directory exists and is accessible (for debugging)
+        struct stat dirStat;
+        int statResult = ::stat(pipeDir.c_str(), &dirStat);
+        if (statResult == 0) {
+            LOG_DEBUG(<< "Pipe directory exists: " << pipeDir);
+            if (::access(pipeDir.c_str(), W_OK) == 0) {
+                LOG_DEBUG(<< "Pipe directory is writable: " << pipeDir);
+            } else {
+                LOG_WARN(<< "Pipe directory is NOT writable (errno: " << errno << "): " << pipeDir);
+            }
+        } else {
+            LOG_DEBUG(<< "Pipe directory does not exist yet (will be created): " << pipeDir << " (errno: " << errno << ")");
+        }
+        
+        LOG_DEBUG(<< "Adding writable pipe directory: " << pipeDir << " for pipe: " << pipePath);
+        
+        // CRITICAL: Add the pipe directory as writable so the process can create the pipe
+        builder.AddDirectoryAt(pipeDir, pipeDir, false); // false = writable
+        
+        // Add parent directories (read-only for traversal) but limit depth and skip system directories
+        // This avoids validation issues with excessive parent directory additions
+        std::string currentPath = pipeDir;
+        int depth = 0;
+        const int MAX_PARENT_DEPTH = 5; // Limit to 5 levels up to avoid adding too many system dirs
+        
+        while (!currentPath.empty() && currentPath != "/" && depth < MAX_PARENT_DEPTH) {
+            // Skip /tmp since it's already added as tmpfs (which is writable)
+            if (currentPath == "/tmp") {
+                LOG_DEBUG(<< "Skipping /tmp (already added as writable tmpfs)");
+                break;
+            }
+            
+            // Skip system directories that are already in the policy
+            // These are typically read-only system directories that don't need to be added again
+            if (currentPath == "/home" || currentPath == "/usr" || currentPath == "/lib" || 
+                currentPath == "/lib64" || currentPath == "/bin" || currentPath == "/sbin" ||
+                currentPath == "/etc" || currentPath == "/proc" || currentPath == "/sys" ||
+                currentPath == "/dev") {
+                LOG_DEBUG(<< "Skipping system directory (already in policy): " << currentPath);
+                break;
+            }
+            
+            LOG_DEBUG(<< "Adding pipe directory parent: " << currentPath);
+            builder.AddDirectoryAt(currentPath, currentPath, true); // true = read-only
+            
+            size_t dirLastSlash = currentPath.find_last_of('/');
+            if (dirLastSlash == 0) {
+                break;
+            } else if (dirLastSlash != std::string::npos) {
+                currentPath = currentPath.substr(0, dirLastSlash);
+                depth++;
+            } else {
+                break;
+            }
+        }
+    };
+    
+    // For pipes that may be created by the process, add the directory as writable
+    // Also add the pipe file path for when it exists (for opening)
     if (!paths.inputPipe.empty()) {
-        LOG_DEBUG(<< "Adding input pipe: " << paths.inputPipe);
-        builder.AddFileAt(paths.inputPipe, paths.inputPipe, true);
+        addPipeDirectory(paths.inputPipe);
+        addFileWithParents(paths.inputPipe, true);
     }
     if (!paths.outputPipe.empty()) {
-        LOG_DEBUG(<< "Adding output pipe: " << paths.outputPipe);
-        builder.AddFileAt(paths.outputPipe, paths.outputPipe, false);
+        addPipeDirectory(paths.outputPipe);
+        addFileWithParents(paths.outputPipe, false);
     }
     if (!paths.logPipe.empty()) {
-        LOG_DEBUG(<< "Adding log pipe: " << paths.logPipe);
-        builder.AddFileAt(paths.logPipe, paths.logPipe, false);
+        addPipeDirectory(paths.logPipe);
+        addFileWithParents(paths.logPipe, false);
+    }
+    // Handle restore pipe separately when it's a pipe (not a regular file)
+    // For restore pipes that don't exist yet, we need to allow the directory to be writable
+    // so the process can create the pipe using mkfifo()
+    if (paths.isRestorePipe && paths.restorePipe.empty() == false) {
+        LOG_INFO(<< "Adding restore pipe directory to Sandbox2 policy (pipe will be created by process): " << paths.restorePipe);
+        
+        // Add the pipe directory as writable so the process can create the pipe
+        addPipeDirectory(paths.restorePipe);
+        
+        // Note: We don't add the pipe file itself because it doesn't exist yet.
+        // The process will create it using mkfifo(), which is already allowed via __NR_mknod/__NR_mknodat.
+        // Once created, the directory permissions will allow access to the pipe.
+        LOG_INFO(<< "Restore pipe directory added to policy successfully");
+    } else if (paths.isRestorePipe) {
+        LOG_ERROR(<< "Restore pipe flag is set but restore pipe path is empty! Model path: " << paths.modelPath);
+    } else if (!paths.restorePipe.empty()) {
+        LOG_WARN(<< "Restore pipe path is set but isRestorePipe flag is false: " << paths.restorePipe);
     }
     if (!paths.logProperties.empty()) {
         LOG_DEBUG(<< "Adding log properties file: " << paths.logProperties);
         builder.AddFileAt(paths.logProperties, paths.logProperties, true);
+        // Also add parent directories for log properties file
+        size_t lastSlash = paths.logProperties.find_last_of('/');
+        if (lastSlash != std::string::npos) {
+            std::string logPropsDir = paths.logProperties.substr(0, lastSlash);
+            if (!logPropsDir.empty()) {
+                // Add all parent directories up to root
+                std::string currentPath = logPropsDir;
+                while (!currentPath.empty() && currentPath != "/") {
+                    // Skip /tmp since it's already added as tmpfs
+                    if (currentPath == "/tmp") {
+                        LOG_DEBUG(<< "Skipping /tmp (already added as tmpfs)");
+                        break;
+                    }
+                    LOG_DEBUG(<< "Adding log properties parent directory: " << currentPath);
+                    builder.AddDirectoryAt(currentPath, currentPath, true);
+                    size_t dirLastSlash = currentPath.find_last_of('/');
+                    if (dirLastSlash == 0) {
+                        break;
+                    } else if (dirLastSlash != std::string::npos) {
+                        currentPath = currentPath.substr(0, dirLastSlash);
+                    } else {
+                        break;
+                    }
+                }
+                // Also add the log properties directory itself explicitly (unless it's /tmp)
+                if (logPropsDir != "/tmp") {
+                    LOG_DEBUG(<< "Adding log properties directory: " << logPropsDir);
+                    builder.AddDirectoryAt(logPropsDir, logPropsDir, true);
+                } else {
+                    LOG_DEBUG(<< "Skipping /tmp directory (already added as tmpfs)");
+                }
+            }
+        }
     }
 
     LOG_DEBUG(<< "Building Sandbox2 policy...");
@@ -617,8 +940,8 @@ private:
 //! This is necessary because destroying the Sandbox2 object would kill the sandboxed process
 #ifdef SANDBOX2_AVAILABLE
 namespace {
-std::map<CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap;
-CMutex g_SandboxMapMutex;
+std::map<core::CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap;
+core::CMutex g_SandboxMapMutex;
 }
 #endif // SANDBOX2_AVAILABLE
 
@@ -854,6 +1177,8 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
 
     // Create custom Notify object to capture violations
     auto notify = std::make_unique<detail::Sandbox2LoggingNotify>();
+    // Keep raw pointer to check for failures (notify is moved into sandbox but remains valid)
+    detail::Sandbox2LoggingNotify* notifyPtr = notify.get();
     LOG_DEBUG(<< "Created Sandbox2 logging notify handler");
 
     LOG_DEBUG(<< "Creating Sandbox2 instance with policy and notify handler...");
@@ -915,7 +1240,7 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
         // In sync mode, process is already done, so skip monitoring
         // Store sandbox object and return
         {
-            CScopedLock lock(g_SandboxMapMutex);
+            core::CScopedLock lock(g_SandboxMapMutex);
             g_SandboxMap[childPid] = std::move(sandbox);
         }
 
@@ -926,15 +1251,59 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
         // Production mode: Launch sandboxed process asynchronously
         LOG_DEBUG(<< "Launching sandboxed process asynchronously...");
         sandbox->RunAsync();
-        LOG_DEBUG(<< "RunAsync() called, polling for PID...");
+        LOG_DEBUG(<< "RunAsync() called, polling for PID and checking for failures...");
 
         // Poll for PID with timeout (monitor initializes asynchronously)
+        // Also check for Sandbox2 failures during polling
         const int timeout_ms = 5000; // Increased timeout for better diagnostics
         const int poll_interval_us = 10000; // 10ms for less CPU usage
         int elapsed_ms = 0;
 
         childPid = -1;
         while (elapsed_ms < timeout_ms) {
+            // Check for Sandbox2 failure first (non-blocking check)
+            if (notifyPtr->hasFailed()) {
+                sandbox2::Result::StatusEnum status;
+                uintptr_t reason_code;
+                notifyPtr->getFailureInfo(status, reason_code);
+                
+                std::string statusStr;
+                switch (status) {
+                    case sandbox2::Result::OK:
+                        statusStr = "OK";
+                        break;
+                    case sandbox2::Result::SETUP_ERROR:
+                        statusStr = "SETUP_ERROR";
+                        break;
+                    case sandbox2::Result::VIOLATION:
+                        statusStr = "VIOLATION";
+                        break;
+                    case sandbox2::Result::SIGNALED:
+                        statusStr = "SIGNALED";
+                        break;
+                    case sandbox2::Result::TIMEOUT:
+                        statusStr = "TIMEOUT";
+                        break;
+                    case sandbox2::Result::EXTERNAL_KILL:
+                        statusStr = "EXTERNAL_KILL";
+                        break;
+                    case sandbox2::Result::INTERNAL_ERROR:
+                        statusStr = "INTERNAL_ERROR";
+                        break;
+                    default:
+                        statusStr = "UNKNOWN(" + std::to_string(static_cast<int>(status)) + ")";
+                        break;
+                }
+                
+                LOG_ERROR(<< "Sandbox2 process failed to start with status: " << statusStr
+                          << " (reason_code: " << reason_code << ")");
+                LOG_ERROR(<< "Command that failed: " << full_command);
+                if (status == sandbox2::Result::SETUP_ERROR) {
+                    LOG_ERROR(<< "SETUP_ERROR typically indicates a policy violation or resource issue during process setup");
+                }
+                return false;
+            }
+            
             childPid = sandbox->pid();
             if (childPid > 0) {
                 LOG_DEBUG(<< "Got PID from Sandbox2: " << childPid << " after "
@@ -945,9 +1314,53 @@ bool ml_core_spawnWithSandbox2Linux(const std::string& processPath,
             elapsed_ms += 10;
         }
 
+        // Check for failure one more time after timeout
         if (childPid <= 0) {
-            LOG_ERROR(<< "Failed to get PID from Sandbox2 after " << timeout_ms << "ms");
-            LOG_ERROR(<< "This may indicate the process failed to start or crashed immediately");
+            if (notifyPtr->hasFailed()) {
+                sandbox2::Result::StatusEnum status;
+                uintptr_t reason_code;
+                notifyPtr->getFailureInfo(status, reason_code);
+                
+                std::string statusStr;
+                switch (status) {
+                    case sandbox2::Result::OK:
+                        statusStr = "OK";
+                        break;
+                    case sandbox2::Result::SETUP_ERROR:
+                        statusStr = "SETUP_ERROR";
+                        break;
+                    case sandbox2::Result::VIOLATION:
+                        statusStr = "VIOLATION";
+                        break;
+                    case sandbox2::Result::SIGNALED:
+                        statusStr = "SIGNALED";
+                        break;
+                    case sandbox2::Result::TIMEOUT:
+                        statusStr = "TIMEOUT";
+                        break;
+                    case sandbox2::Result::EXTERNAL_KILL:
+                        statusStr = "EXTERNAL_KILL";
+                        break;
+                    case sandbox2::Result::INTERNAL_ERROR:
+                        statusStr = "INTERNAL_ERROR";
+                        break;
+                    default:
+                        statusStr = "UNKNOWN(" + std::to_string(static_cast<int>(status)) + ")";
+                        break;
+                }
+                
+                LOG_ERROR(<< "Failed to get PID from Sandbox2 after " << timeout_ms << "ms");
+                LOG_ERROR(<< "Sandbox2 process failed with status: " << statusStr
+                          << " (reason_code: " << reason_code << ")");
+                LOG_ERROR(<< "Command that failed: " << full_command);
+                if (status == sandbox2::Result::SETUP_ERROR) {
+                    LOG_ERROR(<< "SETUP_ERROR typically indicates a policy violation or resource issue during process setup");
+                }
+            } else {
+                LOG_ERROR(<< "Failed to get PID from Sandbox2 after " << timeout_ms << "ms");
+                LOG_ERROR(<< "This may indicate the process failed to start or crashed immediately");
+                LOG_ERROR(<< "Command that was attempted: " << full_command);
+            }
             return false;
         }
     }

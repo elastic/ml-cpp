@@ -5,7 +5,6 @@ description = 'Builds the Machine Learning native binaries'
 import org.elastic.gradle.UploadS3Task
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
-import org.gradle.util.DistributionLocator
 import org.gradle.util.GradleVersion
 
 import java.util.zip.ZipFile
@@ -169,7 +168,7 @@ task precommit(type: Exec) {
 }
 
 task buildZip(type: Zip) {
-  dependsOn strip
+  // dependsOn strip
   archiveClassifier = artifactClassifier
   from("${buildDir}/distribution") {
     // Don't copy Windows import libraries
@@ -188,7 +187,7 @@ task buildZip(type: Zip) {
 }
 
 task buildZipSymbols(type: Zip) {
-  dependsOn strip
+  // dependsOn strip
   archiveClassifier = "debug-${artifactClassifier}"
   from("${buildDir}/distribution") {
     // only take debug files
@@ -200,7 +199,7 @@ task buildZipSymbols(type: Zip) {
 }
 
 task buildUberZip(type: Zip) {
-  dependsOn strip
+  // dependsOn strip
 
   with buildZip
   // We might also have binaries for other platforms (e.g. if they've been built in Docker)
@@ -211,7 +210,7 @@ task buildUberZip(type: Zip) {
   }
   for (zipFile in localZips) {
     from(zipTree(zipFile)) {
-      duplicatesStrategy 'exclude'
+      duplicatesStrategy = 'exclude'
     }
   }
   reproducibleFileOrder = true
@@ -479,9 +478,9 @@ task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads,
 wrapper {
   distributionType = 'ALL'
   doLast {
-    final DistributionLocator locator = new DistributionLocator()
     final GradleVersion version = GradleVersion.version(wrapper.gradleVersion)
-    final URI distributionUri = locator.getDistributionFor(version, wrapper.distributionType.name().toLowerCase(Locale.ENGLISH))
+    final String distributionType = wrapper.distributionType.name().toLowerCase(Locale.ENGLISH)
+    final URI distributionUri = new URI("https://services.gradle.org/distributions/gradle-${version.version}-${distributionType}.zip")
     final URI sha256Uri = new URI(distributionUri.toString() + ".sha256")
     final String sha256Sum = new String(sha256Uri.toURL().bytes)
     wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"

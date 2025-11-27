@@ -58,7 +58,7 @@ const struct sock_filter FILTER[] = {
 #define __NR_clone3 435
 #endif
     // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 56, 0),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 57, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
@@ -67,18 +67,18 @@ const struct sock_filter FILTER[] = {
     // Some of these are not used in latest glibc, and not supported in Linux
     // kernels for recent architectures, but in a few cases different sys calls
     // are used on different architectures
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 56, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 55, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 54, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 53, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 52, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 51, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 50, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 49, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 48, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 47, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 46, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 45, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 57, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 56, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 55, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 54, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 53, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 52, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 51, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 50, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 49, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 48, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 47, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 46, 0),
 #elif defined(__aarch64__)
 // The statx, rseq and clone3 syscalls won't be defined on a RHEL/CentOS 7 build
 // machine, but might exist on the kernel we run on
@@ -91,21 +91,22 @@ const struct sock_filter FILTER[] = {
 #ifndef __NR_clone3
 #define __NR_clone3 435
 #endif
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 45, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 46, 0),
 #else
 #error Unsupported hardware architecture
 #endif
 
     // Allowed sys calls for all architectures, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fcntl, 44, 0), // for fdopendir
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrusage, 43, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpid, 42, 0), // for pthread_kill
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statx, 41, 0), // for create_directories
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 40, 0), // for unique_path
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 39, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 38, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 37, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 36, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fcntl, 45, 0), // for fdopendir
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrusage, 44, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpid, 43, 0), // for pthread_kill
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statx, 42, 0), // for create_directories
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 41, 0), // for unique_path
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 40, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 39, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 38, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 37, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup, 36, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpriority, 35, 0), // for nice
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setpriority, 34, 0), // for nice
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 33, 0),
