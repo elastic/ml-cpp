@@ -70,7 +70,8 @@ bool CCmdLineParser::parse(int argc,
                         "Optionaly set number of allocations to parallelize model forwarding - default is 1")
             ("cacheMemorylimitBytes", boost::program_options::value<std::size_t>(),
                         "Optional memory in bytes that the inference cache can use - default is 0 which disables caching")
-            ("validElasticLicenseKeyConfirmed", "Confirmation that a valid Elastic license key is in use.")
+            ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>()->implicit_value(true),
+                        "Confirmation that a valid Elastic license key is in use.")
             ("lowPriority", "Execute process in low priority")
             ("useImmediateExecutor", "Execute requests on the main thread. This mode should only used for "
             "benchmarking purposes to ensure requests are processed in order)")
@@ -149,7 +150,7 @@ bool CCmdLineParser::parse(int argc,
             cacheMemorylimitBytes = vm["cacheMemorylimitBytes"].as<std::size_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
-            validElasticLicenseKeyConfirmed = true;
+            validElasticLicenseKeyConfirmed = vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
         if (vm.count("lowPriority") > 0) {
             lowPriority = true;
