@@ -176,8 +176,7 @@ private:
                         LOG_INFO(<< "Child process with PID " << pid
                                  << " was terminated by signal " << signal);
                     } else if (signal == SIGKILL) {
-                        LOG_ERROR(<< "Child process with PID " << pid
-                                  << " was terminated by signal 9 (SIGKILL)."
+                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
                                   << " This is likely due to the OOM killer.");
                     } else {
                         LOG_ERROR(<< "Child process with PID " << pid
@@ -290,7 +289,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         std::set<std::string> argDirs;
         for (const auto& arg : args) {
             size_t eqPos = arg.find('=');
-            if (eqPos != std::string::npos && eqPos + 1 < arg.size() && arg[eqPos + 1] == '/') {
+            if (eqPos != std::string::npos && eqPos + 1 < arg.size() &&
+                arg[eqPos + 1] == '/') {
                 std::string path = arg.substr(eqPos + 1);
                 size_t lastSlash = path.rfind('/');
                 if (lastSlash != std::string::npos && lastSlash > 0) {
@@ -307,8 +307,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         // Build sandbox policy
         sandbox2::PolicyBuilder policyBuilder;
-        policyBuilder
-            .AllowDynamicStartup()
+        policyBuilder.AllowDynamicStartup()
             .AllowOpen()
             .AllowRead()
             .AllowWrite()

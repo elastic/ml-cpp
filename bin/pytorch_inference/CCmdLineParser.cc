@@ -150,7 +150,8 @@ bool CCmdLineParser::parse(int argc,
             cacheMemorylimitBytes = vm["cacheMemorylimitBytes"].as<std::size_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
-            validElasticLicenseKeyConfirmed = vm["validElasticLicenseKeyConfirmed"].as<bool>();
+            validElasticLicenseKeyConfirmed =
+                vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
         if (vm.count("lowPriority") > 0) {
             lowPriority = true;

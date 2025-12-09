@@ -129,7 +129,7 @@ CIoManager::~CIoManager() {
 
 bool CIoManager::initIo() {
     LOG_DEBUG(<< "Initializing IO streams...");
-    LOG_DEBUG(<< "  Input: " << (m_InputFileName.empty() ? "<none>" : m_InputFileName) 
+    LOG_DEBUG(<< "  Input: " << (m_InputFileName.empty() ? "<none>" : m_InputFileName)
               << (m_IsInputFileNamedPipe ? " (named pipe)" : " (file)"));
     LOG_DEBUG(<< "  Output: " << (m_OutputFileName.empty() ? "<none>" : m_OutputFileName)
               << (m_IsOutputFileNamedPipe ? " (named pipe)" : " (file)"));
@@ -137,7 +137,7 @@ bool CIoManager::initIo() {
               << (m_IsRestoreFileNamedPipe ? " (named pipe)" : " (file)"));
     LOG_DEBUG(<< "  Persist: " << (m_PersistFileName.empty() ? "<none>" : m_PersistFileName)
               << (m_IsPersistFileNamedPipe ? " (named pipe)" : " (file)"));
-    
+
     if (!setUpIStream(m_InputFileName, m_IsInputFileNamedPipe,
                       m_CancellerThread, m_InputStream, "input")) {
         LOG_ERROR(<< "Failed to set up input stream");
@@ -145,7 +145,7 @@ bool CIoManager::initIo() {
         return false;
     }
     LOG_DEBUG(<< "Input stream set up successfully");
-    
+
     if (!setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe,
                       m_CancellerThread, m_OutputStream, "output")) {
         LOG_ERROR(<< "Failed to set up output stream");
@@ -153,7 +153,7 @@ bool CIoManager::initIo() {
         return false;
     }
     LOG_DEBUG(<< "Output stream set up successfully");
-    
+
     if (!setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe,
                       m_CancellerThread, m_RestoreStream, "restore")) {
         LOG_ERROR(<< "Failed to set up restore stream");
@@ -161,7 +161,7 @@ bool CIoManager::initIo() {
         return false;
     }
     LOG_DEBUG(<< "Restore stream set up successfully");
-    
+
     if (!setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe,
                       m_CancellerThread, m_PersistStream, "persist")) {
         LOG_ERROR(<< "Failed to set up persist stream");
@@ -169,7 +169,7 @@ bool CIoManager::initIo() {
         return false;
     }
     LOG_DEBUG(<< "Persist stream set up successfully");
-    
+
     m_IoInitialised = true;
     LOG_DEBUG(<< "All IO streams initialized successfully");
     return true;
