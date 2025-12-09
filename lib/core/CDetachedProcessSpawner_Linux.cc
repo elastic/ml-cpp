@@ -329,10 +329,14 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             .AllowSyscall(__NR_sched_getparam)
             .AllowSyscall(__NR_sched_getscheduler)
             .AllowSyscall(__NR_clone)
+#ifdef __NR_clone3
             .AllowSyscall(__NR_clone3)
+#endif
             .AllowSyscall(__NR_set_tid_address)
             .AllowSyscall(__NR_set_robust_list)
+#ifdef __NR_rseq
             .AllowSyscall(__NR_rseq)
+#endif
             // Time operations
             .AllowSyscall(__NR_clock_gettime)
             .AllowSyscall(__NR_clock_getres)
@@ -343,34 +347,25 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             // I/O multiplexing
             .AllowSyscall(__NR_epoll_create1)
             .AllowSyscall(__NR_epoll_ctl)
-            .AllowSyscall(__NR_epoll_wait)
+            .AllowSyscall(__NR_epoll_pwait)
             .AllowSyscall(__NR_eventfd2)
-            .AllowSyscall(__NR_poll)
-            .AllowSyscall(__NR_select)
+            .AllowSyscall(__NR_ppoll)
             .AllowSyscall(__NR_pselect6)
             // File operations
             .AllowSyscall(__NR_ioctl)
             .AllowSyscall(__NR_fcntl)
             .AllowSyscall(__NR_pipe2)
             .AllowSyscall(__NR_dup)
-            .AllowSyscall(__NR_dup2)
             .AllowSyscall(__NR_dup3)
             .AllowSyscall(__NR_lseek)
             .AllowSyscall(__NR_ftruncate)
-            .AllowSyscall(__NR_readlink)
             .AllowSyscall(__NR_readlinkat)
-            .AllowSyscall(__NR_access)
             .AllowSyscall(__NR_faccessat)
             .AllowSyscall(__NR_getdents64)
-            .AllowSyscall(__NR_getdents)
             .AllowSyscall(__NR_getcwd)
-            .AllowSyscall(__NR_unlink)
             .AllowSyscall(__NR_unlinkat)
-            .AllowSyscall(__NR_rename)
             .AllowSyscall(__NR_renameat)
-            .AllowSyscall(__NR_mkdir)
             .AllowSyscall(__NR_mkdirat)
-            .AllowSyscall(__NR_mknod)
             .AllowSyscall(__NR_mknodat)
             // Memory management
             .AllowSyscall(__NR_mprotect)
@@ -381,12 +376,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             // System info
             .AllowSyscall(__NR_sysinfo)
             .AllowSyscall(__NR_uname)
-            .AllowSyscall(__NR_getrlimit)
             .AllowSyscall(__NR_prlimit64)
             .AllowSyscall(__NR_getrusage)
             // Process control
             .AllowSyscall(__NR_prctl)
+#ifdef __NR_arch_prctl
             .AllowSyscall(__NR_arch_prctl)
+#endif
             .AllowSyscall(__NR_wait4)
             .AllowSyscall(__NR_exit)
             // User/group IDs
