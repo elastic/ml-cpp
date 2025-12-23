@@ -280,8 +280,8 @@ double CTools::SMinusLogCdfComplement::operator()(const students_t& students, do
     return safeMinusLogCdf(safeCdfComplement(students, x));
 }
 
-double CTools::SMinusLogCdfComplement::
-operator()(const negative_binomial& negativeBinomial, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const negative_binomial& negativeBinomial,
+                                                  double x) const {
     return safeMinusLogCdf(safeCdfComplement(negativeBinomial, x));
 }
 
@@ -308,15 +308,17 @@ CTools::CProbabilityOfLessLikelySample::CProbabilityOfLessLikelySample(maths_t::
     : m_Calculation(calculation) {
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const SImproperDistribution&,
+                                                          double,
+                                                          maths_t::ETail& tail) const {
     // For any finite sample this is one.
     tail = maths_t::E_MixedOrNeitherTail;
     return 1.0;
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const normal& normal_, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const normal& normal_,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(normal_);
@@ -356,8 +358,9 @@ operator()(const normal& normal_, double x, maths_t::ETail& tail) const {
     return px;
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const students_t& students, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const students_t& students,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(students);
@@ -396,8 +399,9 @@ operator()(const students_t& students, double x, maths_t::ETail& tail) const {
     return px;
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomial& negativeBinomial,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     x = std::floor(x);
 
     double px = 0.0;
@@ -570,8 +574,9 @@ operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& 
     return truncate(px + py + fx, 0.0, 1.0);
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const lognormal& logNormal,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(logNormal);
@@ -619,8 +624,9 @@ operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
     return px;
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistribution& logt,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = maths::common::support(logt);
@@ -833,8 +839,9 @@ operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const 
     return truncate(px + cdfComplement(logt, y), 0.0, 1.0);
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(gamma_);
@@ -1011,8 +1018,8 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
             y[i % 2] = b;
         } else {
             LOG_WARN(<< "Failed in bracketed solver: " << e.what()
-                      << ", x = " << x << ", bracket = (" << a << ", " << b << ")"
-                      << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
+                     << ", x = " << x << ", bracket = (" << a << ", " << b << ")"
+                     << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
             return truncate(px, 0.0, 1.0);
         }
     }
@@ -1025,8 +1032,9 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
     return truncate(px + py, 0.0, 1.0);
 }
 
-double CTools::CProbabilityOfLessLikelySample::
-operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_,
+                                                          double x,
+                                                          maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support(0.0, 1.0);
@@ -1239,7 +1247,7 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
             y[i % 2] = bracket.second;
         } else {
             LOG_WARN(<< "Failed in bracketed solver: " << e.what() << ", x = " << x
-                      << ", bracket " << bracket << ", f(bracket) = " << fBracket);
+                     << ", bracket " << bracket << ", f(bracket) = " << fBracket);
             return 1.0;
         }
     }
@@ -1392,8 +1400,7 @@ double CTools::SIntervalExpectation::operator()(const normal& normal_, double a,
                     -POS_INF, POS_INF);
 }
 
-double CTools::SIntervalExpectation::
-operator()(const lognormal& logNormal, double a, double b) const {
+double CTools::SIntervalExpectation::operator()(const lognormal& logNormal, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }

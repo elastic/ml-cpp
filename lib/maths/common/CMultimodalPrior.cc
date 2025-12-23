@@ -1049,7 +1049,7 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             maths_t::EFloatingPointErrorStatus status =
                 this->jointLogMarginalLikelihood({x}, weight, fx);
             if ((status & maths_t::E_FpFailed) != 0) {
-                LOG_ERROR(<< "Unable to compute likelihood for " << x);
+                LOG_WARN(<< "Unable to compute likelihood for " << x);
                 return false;
             }
             if ((status & maths_t::E_FpOverflowed) != 0) {
