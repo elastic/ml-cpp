@@ -121,21 +121,19 @@ CAnomalyJob::CAnomalyJob(std::string jobId,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
                          size_t maxAnomalyRecords)
-    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)},
-      m_Limits{limits}, m_OutputStream{outputStream},
-      m_ForecastRunner{m_JobId, m_OutputStream, limits.resourceMonitor()},
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)}, m_Limits{limits},
+      m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
+                                                     limits.resourceMonitor()},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
-      m_ModelConfig{modelConfig},
-      m_PersistCompleteFunc{std::move(persistCompleteFunc)},
+      m_ModelConfig{modelConfig}, m_PersistCompleteFunc{std::move(persistCompleteFunc)},
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
-      m_PersistenceManager{persistenceManager},
-      m_MaxQuantileInterval{maxQuantileInterval},
+      m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
       m_LastNormalizerPersistTime{core::CTimeUtils::now()},
       m_Aggregator{modelConfig}, m_Normalizer{limits, modelConfig} {
     m_JsonOutputWriter.limitNumberRecords(maxAnomalyRecords);
 
     m_Limits.resourceMonitor().memoryUsageReporter(
-        [ObjectPtr = &m_JsonOutputWriter]<typename T>(T&& PH1) {
+        [ObjectPtr = &m_JsonOutputWriter]<typename T>(T && PH1) {
             ObjectPtr->reportMemoryUsage(std::forward<T>(PH1));
         });
 }
@@ -774,11 +772,11 @@ void CAnomalyJob::writeOutResults(bool interim,
 
         api::CHierarchicalResultsWriter writer(
             m_Limits,
-            [ObjectPtr = &m_JsonOutputWriter]<typename T>(T&& PH1) {
+            [ObjectPtr = &m_JsonOutputWriter]<typename T>(T && PH1) {
                 return ObjectPtr->acceptResult(std::forward<T>(PH1));
             },
             [ObjectPtr = &m_JsonOutputWriter]<typename T, typename U, typename V>(
-                T&& PH1, U&& PH2, V&& PH3) {
+                T && PH1, U && PH2, V && PH3) {
                 return ObjectPtr->acceptInfluencer(
                     std::forward<T>(PH1), std::forward<U>(PH2), std::forward<V>(PH3));
             });
@@ -961,7 +959,7 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
             auto interimBucketCorrector = std::make_shared<model::CInterimBucketCorrector>(
                 m_ModelConfig.bucketLength());
             if (traverser.traverseSubLevel(
-                    [capture0 = interimBucketCorrector.get()]<typename T>(T&& PH1) {
+                    [capture0 = interimBucketCorrector.get()]<typename T>(T && PH1) {
                         return capture0->acceptRestoreTraverser(std::forward<T>(PH1));
                     }) == false) {
                 LOG_ERROR(<< "Cannot restore interim bucket corrector");
@@ -969,7 +967,7 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
             }
             m_ModelConfig.interimBucketCorrector(interimBucketCorrector);
         } else if (name == TOP_LEVEL_DETECTOR_TAG) {
-            if (traverser.traverseSubLevel([this]<typename T>(T&& PH1) {
+            if (traverser.traverseSubLevel([this]<typename T>(T && PH1) {
                     return restoreSingleDetector(std::forward<T>(PH1));
                 }) == false) {
                 LOG_ERROR(<< "Cannot restore anomaly detector");
@@ -977,7 +975,7 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
             }
             ++numDetectors;
         } else if (name == RESULTS_AGGREGATOR_TAG) {
-            if (traverser.traverseSubLevel([ObjectPtr = &m_Aggregator]<typename T>(T&& PH1) {
+            if (traverser.traverseSubLevel([ObjectPtr = &m_Aggregator]<typename T>(T && PH1) {
                     return ObjectPtr->acceptRestoreTraverser(std::forward<T>(PH1));
                 }) == false) {
                 LOG_ERROR(<< "Cannot restore results aggregator");
@@ -1008,7 +1006,7 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
     }
 
     model::CSearchKey key;
-    if (traverser.traverseSubLevel([&key]<typename T>(T&& PH1) {
+    if (traverser.traverseSubLevel([&key]<typename T>(T && PH1) {
             return model::CAnomalyDetector::keyAcceptRestoreTraverser(
                 std::forward<T>(PH1), key);
         }) == false) {
@@ -1035,7 +1033,7 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
     }
 
     std::string partitionFieldValue;
-    if (traverser.traverseSubLevel([&partitionFieldValue]<typename T>(T&& PH1) {
+    if (traverser.traverseSubLevel([&partitionFieldValue]<typename T>(T && PH1) {
             return model::CAnomalyDetector::partitionFieldAcceptRestoreTraverser(
                 std::forward<T>(PH1), partitionFieldValue);
         }) == false) {
@@ -1092,11 +1090,11 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     LOG_DEBUG(<< "Restoring state for detector with key '" << key.debug() << '/'
               << partitionFieldValue << '\'');
 
-    if (traverser.traverseSubLevel(
-            [capture0 = detector.get(),
-             capture1 = std::cref(partitionFieldValue)]<typename T>(T&& PH1) {
-                return capture0->acceptRestoreTraverser(capture1, std::forward<T>(PH1));
-            }) == false) {
+    if (traverser.traverseSubLevel([
+            capture0 = detector.get(), capture1 = std::cref(partitionFieldValue)
+        ]<typename T>(T && PH1) {
+            return capture0->acceptRestoreTraverser(capture1, std::forward<T>(PH1));
+        }) == false) {
         LOG_ERROR(<< "Error restoring anomaly detector for key '" << key.debug()
                   << '/' << partitionFieldValue << '\'');
         return false;
@@ -1209,7 +1207,7 @@ bool CAnomalyJob::backgroundPersistState() {
     std::sort(copiedDetectors.begin(), copiedDetectors.end(),
               maths::common::COrderings::SFirstLess());
 
-    if (m_PersistenceManager->addPersistFunc([this, args]<typename T>(T&& PH1) {
+    if (m_PersistenceManager->addPersistFunc([ this, args ]<typename T>(T && PH1) {
             return runBackgroundPersist(args, std::forward<T>(PH1));
         }) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector background persistence function");
@@ -1333,7 +1331,7 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                 inserter.insertValue(VERSION_TAG, model::CAnomalyDetector::STATE_VERSION);
                 inserter.insertLevel(
                     INTERIM_BUCKET_CORRECTOR_TAG,
-                    [ObjectPtr = &interimBucketCorrector]<typename T>(T&& PH1) {
+                    [ObjectPtr = &interimBucketCorrector]<typename T>(T && PH1) {
                         ObjectPtr->acceptPersistInserter(std::forward<T>(PH1));
                     });
 
@@ -1351,7 +1349,7 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                     }
                     inserter.insertLevel(
                         TOP_LEVEL_DETECTOR_TAG,
-                        [capture0 = std::cref(*detector)]<typename T>(T&& PH1) {
+                        [capture0 = std::cref(*detector)]<typename T>(T && PH1) {
                             CAnomalyJob::persistIndividualDetector(
                                 capture0, std::forward<T>(PH1));
                         });
@@ -1360,7 +1358,7 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                 }
 
                 inserter.insertLevel(
-                    RESULTS_AGGREGATOR_TAG, [ObjectPtr = &aggregator]<typename T>(T&& PH1) {
+                    RESULTS_AGGREGATOR_TAG, [ObjectPtr = &aggregator]<typename T>(T && PH1) {
                         ObjectPtr->acceptPersistInserter(std::forward<T>(PH1));
                     });
 
@@ -1425,7 +1423,7 @@ bool CAnomalyJob::periodicPersistStateInForeground() {
         return false;
     }
 
-    if (m_PersistenceManager->addPersistFunc([this]<typename T>(T&& PH1) {
+    if (m_PersistenceManager->addPersistFunc([this]<typename T>(T && PH1) {
             return runForegroundPersist(std::forward<T>(PH1));
         }) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector foreground persistence function");
@@ -1556,13 +1554,13 @@ void CAnomalyJob::refreshMemoryAndReport() {
 
 void CAnomalyJob::persistIndividualDetector(const model::CAnomalyDetector& detector,
                                             core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(KEY_TAG, [ObjectPtr = &detector]<typename T>(T&& PH1) {
+    inserter.insertLevel(KEY_TAG, [ObjectPtr = &detector]<typename T>(T && PH1) {
         ObjectPtr->keyAcceptPersistInserter(std::forward<T>(PH1));
     });
-    inserter.insertLevel(PARTITION_FIELD_TAG, [ObjectPtr = &detector]<typename T>(T&& PH1) {
+    inserter.insertLevel(PARTITION_FIELD_TAG, [ObjectPtr = &detector]<typename T>(T && PH1) {
         ObjectPtr->partitionFieldAcceptPersistInserter(std::forward<T>(PH1));
     });
-    inserter.insertLevel(DETECTOR_TAG, [ObjectPtr = &detector]<typename T>(T&& PH1) {
+    inserter.insertLevel(DETECTOR_TAG, [ObjectPtr = &detector]<typename T>(T && PH1) {
         ObjectPtr->acceptPersistInserter(std::forward<T>(PH1));
     });
 }

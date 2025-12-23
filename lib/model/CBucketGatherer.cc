@@ -138,11 +138,11 @@ struct SBucketCountsPersister {
         personAttributeCounts.assign(bucketCounts.begin(), bucketCounts.end());
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end());
         for (std::size_t i = 0; i < personAttributeCounts.size(); ++i) {
-            inserter.insertLevel(PERSON_ATTRIBUTE_COUNT_TAG,
-                                 [tuple = std::cref(personAttributeCounts[i])](
-                                     core::CStatePersistInserter& inserter_) {
-                                     insertPersonAttributeCounts(tuple, inserter_);
-                                 });
+            inserter.insertLevel(
+                PERSON_ATTRIBUTE_COUNT_TAG, [tuple = std::cref(personAttributeCounts[i])](
+                                                core::CStatePersistInserter & inserter_) {
+                    insertPersonAttributeCounts(tuple, inserter_);
+                });
         }
     }
 
@@ -174,11 +174,10 @@ struct SInfluencerCountsPersister {
                     core::CStatePersistInserter& inserter) {
         for (std::size_t i = 0; i < data.size(); ++i) {
             inserter.insertValue(INFLUENCE_COUNT_TAG, i);
-            inserter.insertLevel(
-                INFLUENCE_ITEM_TAG,
-                [map = std::cref(data[i])](core::CStatePersistInserter& inserter_) {
-                    insertInfluencerPersonAttributeCounts(map, inserter_);
-                });
+            inserter.insertLevel(INFLUENCE_ITEM_TAG, [map = std::cref(data[i])](
+                                                         core::CStatePersistInserter & inserter_) {
+                insertInfluencerPersonAttributeCounts(map, inserter_);
+            });
         }
     }
 

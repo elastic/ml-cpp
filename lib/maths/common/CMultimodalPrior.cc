@@ -1234,7 +1234,7 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
         CToleranceTypes::E_AbsoluteTolerance | CToleranceTypes::E_RelativeTolerance, 1e-3};
     if (equal(modeSamples, numberSamples) == false) {
         LOG_WARN(<< tag << "Sum mode samples = " << modeSamples
-                  << ", total samples = " << numberSamples);
+                 << ", total samples = " << numberSamples);
         result = false;
     }
 
@@ -1452,7 +1452,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
 
     if (m_Prior->checkInvariants("SPLIT: ") == false) {
         LOG_DEBUG(<< "# samples = " << numberSamples << ", # modes = " << modes.size()
-                  << ", pLeft = " << pLeft << ", pRight = " << pRight); 
+                  << ", pLeft = " << pLeft << ", pRight = " << pRight);
     }
 
     LOG_TRACE(<< "Split mode");
