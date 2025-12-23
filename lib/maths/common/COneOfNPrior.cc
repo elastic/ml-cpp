@@ -461,9 +461,9 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     }
 
     if (this->badWeights()) {
-        LOG_ERROR(<< "Update failed (" << this->debugWeights() << ")");
-        LOG_ERROR(<< "samples = " << samples);
-        LOG_ERROR(<< "weights = " << weights);
+        LOG_WARN(<< "Update failed (" << this->debugWeights() << ")");
+        LOG_TRACE(<< "samples = " << samples);
+        LOG_TRACE(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
@@ -957,8 +957,8 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
 
     if (!(lowerBound >= 0.0 && lowerBound <= 1.001) ||
         !(upperBound >= 0.0 && upperBound <= 1.001)) {
-        LOG_ERROR(<< "Bad probability bounds = [" << lowerBound << ", " << upperBound << "]"
-                  << ", " << logWeights);
+        LOG_WARN(<< "Bad probability bounds = [" << lowerBound << ", " << upperBound << "]"
+                  << ", " << logWeights); // Def warn - the values are fixed below
     }
 
     if (CMathsFuncs::isNan(lowerBound)) {

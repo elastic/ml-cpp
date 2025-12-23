@@ -331,7 +331,7 @@ bool CResourceMonitor::isMemoryStable(core_t::TTime bucketLength) const {
 
     // Sanity check
     if (maths::common::CBasicStatistics::count(m_ModelBytesMoments) == 0.0) {
-        LOG_ERROR(<< "Programmatic error: checking memory stability before adding any measurements");
+        LOG_WARN(<< "Programmatic error: checking memory stability before adding any measurements");
         return false;
     }
 

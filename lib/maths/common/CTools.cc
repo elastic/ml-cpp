@@ -1010,7 +1010,7 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
         } else if (std::fabs(fb - fx) < 10.0 * EPSILON * fx) {
             y[i % 2] = b;
         } else {
-            LOG_ERROR(<< "Failed in bracketed solver: " << e.what()
+            LOG_WARN(<< "Failed in bracketed solver: " << e.what()
                       << ", x = " << x << ", bracket = (" << a << ", " << b << ")"
                       << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
             return truncate(px, 0.0, 1.0);
@@ -1238,7 +1238,7 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
         } else if (std::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx) {
             y[i % 2] = bracket.second;
         } else {
-            LOG_ERROR(<< "Failed in bracketed solver: " << e.what() << ", x = " << x
+            LOG_WARN(<< "Failed in bracketed solver: " << e.what() << ", x = " << x
                       << ", bracket " << bracket << ", f(bracket) = " << fBracket);
             return 1.0;
         }

@@ -160,7 +160,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
     }
 
     // This record must be within the specified latency. If latency
-    // is zero, then it should be after the current bucket end. If
+    // is zero, then it should be after the current bucket end. If  
     // latency is non-zero, then it should be after the current bucket
     // end minus the latency.
     if (*time < m_LastFinalisedBucketEndTime) {
@@ -169,7 +169,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
         ss << "Records must be in ascending time order. "
            << "Record '" << ml::api::CAnomalyJob::debugPrintRecord(dataRowFields) << "' time "
            << *time << " is before bucket time " << m_LastFinalisedBucketEndTime;
-        LOG_ERROR(<< ss.str());
+        LOG_WARN(<< ss.str());
         return true;
     }
 
