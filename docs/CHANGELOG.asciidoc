@@ -27,6 +27,12 @@
 //=== Bug Fixes
 
 //=== Regressions
+== {es} version 9.3.0
+
+=== Enhancements
+
+* Downgrade log severity for a batch of recoverable errors. (See {ml-pull}[#2889].)
+
 == {es} version 9.2.0
 
 === Enhancements
@@ -34,7 +40,6 @@
 * Update the PyTorch library to version 2.7.1. (See {ml-pull}2863[#2863].)
 * Report the actual memory usage of the autodetect process. (See {ml-pull}2846[#2846])
 * Improve adherence to memory limits for the bucket gatherer. (See {ml-pull}2848[#2848].)
-* Lower the logging severity of a bunch of recoverable errors. (See {ml-pull}[#2889].)
 
 == {es} version 9.1.0
 
