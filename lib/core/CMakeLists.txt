@@ -107,4 +107,11 @@ if (WIN32)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/date_time_zonespec.csv DESTINATION ${ML_RESOURCES_DIR})
 endif()
 
+# Enable Sandbox2 integration if available
+if(TARGET sandbox2::sandbox2)
+  target_compile_definitions(MlCore PRIVATE SANDBOX2_AVAILABLE)
+  target_link_libraries(MlCore PRIVATE sandbox2::sandbox2)
+  message(STATUS "MlCore: Sandbox2 enabled and linked")
+endif()
+
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ml-en.dict DESTINATION ${ML_RESOURCES_DIR})

@@ -26,7 +26,8 @@ namespace {
 bool setUpIStream(const std::string& fileName,
                   bool isFileNamedPipe,
                   core::CBlockingCallCancellerThread& cancellerThread,
-                  core::CNamedPipeFactory::TIStreamP& stream) {
+                  core::CNamedPipeFactory::TIStreamP& stream,
+                  const std::string& pipeType) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -37,17 +38,30 @@ bool setUpIStream(const std::string& fileName,
         stream = core::CNamedPipeFactory::openPipeStreamRead(
             fileName, cancellerThread.hasCancelledBlockingCall());
         cancellerThread.stop();
-        return stream != nullptr && !stream->bad();
+        if (stream == nullptr) {
+            LOG_ERROR(<< "Failed to open " << pipeType << " pipe for reading: " << fileName);
+            return false;
+        }
+        if (stream->bad()) {
+            LOG_ERROR(<< pipeType << " pipe stream is bad after opening: " << fileName);
+            return false;
+        }
+        return true;
     }
     std::ifstream* fileStream{nullptr};
     stream.reset(fileStream = new std::ifstream(fileName, std::ios::binary | std::ios::in));
-    return fileStream->is_open();
+    if (!fileStream->is_open()) {
+        LOG_ERROR(<< "Failed to open " << pipeType << " file for reading: " << fileName);
+        return false;
+    }
+    return true;
 }
 
 bool setUpOStream(const std::string& fileName,
                   bool isFileNamedPipe,
                   core::CBlockingCallCancellerThread& cancellerThread,
-                  core::CNamedPipeFactory::TOStreamP& stream) {
+                  core::CNamedPipeFactory::TOStreamP& stream,
+                  const std::string& pipeType) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -58,11 +72,23 @@ bool setUpOStream(const std::string& fileName,
         stream = core::CNamedPipeFactory::openPipeStreamWrite(
             fileName, cancellerThread.hasCancelledBlockingCall());
         cancellerThread.stop();
-        return stream != nullptr && !stream->bad();
+        if (stream == nullptr) {
+            LOG_ERROR(<< "Failed to open " << pipeType << " pipe for writing: " << fileName);
+            return false;
+        }
+        if (stream->bad()) {
+            LOG_ERROR(<< pipeType << " pipe stream is bad after opening: " << fileName);
+            return false;
+        }
+        return true;
     }
     std::ofstream* fileStream{nullptr};
     stream.reset(fileStream = new std::ofstream(fileName, std::ios::binary | std::ios::out));
-    return fileStream->is_open();
+    if (!fileStream->is_open()) {
+        LOG_ERROR(<< "Failed to open " << pipeType << " file for writing: " << fileName);
+        return false;
+    }
+    return true;
 }
 }
 
@@ -102,15 +128,51 @@ CIoManager::~CIoManager() {
 }
 
 bool CIoManager::initIo() {
-    m_IoInitialised = setUpIStream(m_InputFileName, m_IsInputFileNamedPipe,
-                                   m_CancellerThread, m_InputStream) &&
-                      setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe,
-                                   m_CancellerThread, m_OutputStream) &&
-                      setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe,
-                                   m_CancellerThread, m_RestoreStream) &&
-                      setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe,
-                                   m_CancellerThread, m_PersistStream);
-    return m_IoInitialised;
+    LOG_DEBUG(<< "Initializing IO streams...");
+    LOG_DEBUG(<< "  Input: " << (m_InputFileName.empty() ? "<none>" : m_InputFileName)
+              << (m_IsInputFileNamedPipe ? " (named pipe)" : " (file)"));
+    LOG_DEBUG(<< "  Output: " << (m_OutputFileName.empty() ? "<none>" : m_OutputFileName)
+              << (m_IsOutputFileNamedPipe ? " (named pipe)" : " (file)"));
+    LOG_DEBUG(<< "  Restore: " << (m_RestoreFileName.empty() ? "<none>" : m_RestoreFileName)
+              << (m_IsRestoreFileNamedPipe ? " (named pipe)" : " (file)"));
+    LOG_DEBUG(<< "  Persist: " << (m_PersistFileName.empty() ? "<none>" : m_PersistFileName)
+              << (m_IsPersistFileNamedPipe ? " (named pipe)" : " (file)"));
+
+    if (!setUpIStream(m_InputFileName, m_IsInputFileNamedPipe,
+                      m_CancellerThread, m_InputStream, "input")) {
+        LOG_ERROR(<< "Failed to set up input stream");
+        m_IoInitialised = false;
+        return false;
+    }
+    LOG_DEBUG(<< "Input stream set up successfully");
+
+    if (!setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe,
+                      m_CancellerThread, m_OutputStream, "output")) {
+        LOG_ERROR(<< "Failed to set up output stream");
+        m_IoInitialised = false;
+        return false;
+    }
+    LOG_DEBUG(<< "Output stream set up successfully");
+
+    if (!setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe,
+                      m_CancellerThread, m_RestoreStream, "restore")) {
+        LOG_ERROR(<< "Failed to set up restore stream");
+        m_IoInitialised = false;
+        return false;
+    }
+    LOG_DEBUG(<< "Restore stream set up successfully");
+
+    if (!setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe,
+                      m_CancellerThread, m_PersistStream, "persist")) {
+        LOG_ERROR(<< "Failed to set up persist stream");
+        m_IoInitialised = false;
+        return false;
+    }
+    LOG_DEBUG(<< "Persist stream set up successfully");
+
+    m_IoInitialised = true;
+    LOG_DEBUG(<< "All IO streams initialized successfully");
+    return true;
 }
 
 std::istream& CIoManager::inputStream() {

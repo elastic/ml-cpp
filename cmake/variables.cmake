@@ -123,6 +123,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(STRPTIME_LIB "${ML_BASE_PATH}/lib/strptime${ML_LIBEXT}")
 endif()
 
+# Sandbox2 libraries for Linux only
+# Set in 3rd_party/CMakeLists.txt after sandboxed-api is fetched and configured
+# If not set, default to empty (Sandbox2 not available)
+if (NOT DEFINED SANDBOX2_LIBRARIES)
+  set(SANDBOX2_LIBRARIES "")
+endif()
+
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)

@@ -318,8 +318,16 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName,
         if (isCancelled.load() == false) {
             LOG_ERROR(<< "Cannot log to named pipe " << pipeName
                       << " as it could not be opened for writing");
+            return false;
         }
-        return false;
+        // If cancelled (timeout), fall back to stderr logging instead of failing
+        // This allows the process to start even if the log pipe reader isn't ready yet
+        if (this->reconfigureLogJson() == false) {
+            return false;
+        }
+        LOG_DEBUG(<< "Logger falling back to stderr (log pipe " << pipeName
+                  << " not available due to timeout)");
+        return true;
     }
 
     // By default Boost.Log logs to the std::clog stream, which in turn outputs

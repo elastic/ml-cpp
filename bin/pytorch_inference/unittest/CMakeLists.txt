@@ -30,6 +30,6 @@ set(ML_LINK_LIBRARIES
   MlVer
   ${TORCH_LIB}
   ${C10_LIB}
-  )
+)
 
 ml_add_test_executable(pytorch_inference ${SRCS})
