@@ -959,7 +959,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     if (!(lowerBound >= 0.0 && lowerBound <= 1.001) ||
         !(upperBound >= 0.0 && upperBound <= 1.001)) {
         LOG_WARN(<< "Bad probability bounds = [" << lowerBound << ", " << upperBound << "]"
-                 << ", " << logWeights); // Def warn - the values are fixed below
+                 << ", " << logWeights);
     }
 
     if (CMathsFuncs::isNan(lowerBound)) {
