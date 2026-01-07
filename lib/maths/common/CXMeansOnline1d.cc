@@ -41,6 +41,25 @@
 #include <utility>
 #include <vector>
 
+namespace {
+bool isNumericalError(const std::exception& e) {
+    // Check exception type
+    if (dynamic_cast<const std::domain_error*>(&e) ||
+        dynamic_cast<const std::overflow_error*>(&e) ||
+        dynamic_cast<const std::underflow_error*>(&e)) {
+        return true;
+    }
+
+    // Check message content as fallback
+    std::string msg = e.what();
+    return msg.find("boost::math") != std::string::npos ||
+           msg.find("Scale parameter") != std::string::npos ||
+           msg.find("must be > 0") != std::string::npos ||
+           msg.find("-nan") != std::string::npos ||
+           msg.find("-inf") != std::string::npos;
+}
+} // anonymous namespace
+
 namespace ml {
 namespace maths {
 namespace common {
@@ -465,7 +484,13 @@ void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
         CBasicStatistics::moment<0>(category) = wm;
         CBasicStatistics::moment<1>(category) = std::max((n - 1.0) / n * wv, 0.0);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Bad category = " << category << ": " << e.what());
+        if (isNumericalError(e)) {
+            LOG_WARN(<< "Numerical error in category computation (recovered): " << category
+                     << " - " << e.what());
+        } else {
+            LOG_ERROR(<< "Unexpected error in category computation: " << category
+                      << " - " << e.what());
+        }
     }
 }
 

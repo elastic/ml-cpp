@@ -169,7 +169,9 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
         ss << "Records must be in ascending time order. "
            << "Record '" << ml::api::CAnomalyJob::debugPrintRecord(dataRowFields) << "' time "
            << *time << " is before bucket time " << m_LastFinalisedBucketEndTime;
-        LOG_WARN(<< ss.str());
+        LOG_WARN(<< "Skipping out-of-order record: time " << *time << " is before current bucket "
+                 << m_LastFinalisedBucketEndTime << " (record: "
+                 << ml::api::CAnomalyJob::debugPrintRecord(dataRowFields) << ")");
         return true;
     }
 

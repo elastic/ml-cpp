@@ -461,7 +461,8 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     }
 
     if (this->badWeights()) {
-        LOG_WARN(<< "Update failed (" << this->debugWeights() << ")");
+        LOG_WARN(<< "Prior update failed due to numerical instability (recovered by resetting to non-informative prior): "
+                 << this->debugWeights());
         LOG_TRACE(<< "samples = " << samples);
         LOG_TRACE(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());

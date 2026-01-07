@@ -1173,11 +1173,11 @@ CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& sampl
     auto status = static_cast<maths_t::EFloatingPointErrorStatus>(
         logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
     if ((status & maths_t::E_FpFailed) != 0) {
-        LOG_DEBUG(<< "Failed to compute log likelihood (" << this->debug() << ")");
-        LOG_TRACE(<< "samples = " << samples);
-        LOG_TRACE(<< "weights = " << weights);
+        LOG_WARN(<< "Failed to compute log likelihood (" << this->debug() << ")");
+        LOG_DEBUG(<< "samples = " << samples);
+        LOG_DEBUG(<< "weights = " << weights);
     } else if ((status & maths_t::E_FpOverflowed) != 0) {
-        LOG_DEBUG(<< "Log likelihood overflowed for (" << this->debug() << ")");
+        LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
         LOG_TRACE(<< "samples = " << samples);
         LOG_TRACE(<< "weights = " << weights);
     }
