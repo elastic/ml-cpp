@@ -116,7 +116,7 @@ bool CCommandProcessor::handleKill(std::uint32_t id, TStrVec tokens) {
 
     if (m_Spawner.terminateChild(pid) == false) {
         std::string error{"Failed to kill process with PID " + tokens[0]};
-        LOG_ERROR(<< error << " in command with ID " << id);
+        LOG_WARN(<< error << " in command with ID " << id);
         m_ResponseWriter.writeResponse(id, false, error);
         return false;
     }

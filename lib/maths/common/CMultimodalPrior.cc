@@ -1049,7 +1049,7 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             maths_t::EFloatingPointErrorStatus status =
                 this->jointLogMarginalLikelihood({x}, weight, fx);
             if ((status & maths_t::E_FpFailed) != 0) {
-                LOG_ERROR(<< "Unable to compute likelihood for " << x);
+                LOG_WARN(<< "Unable to compute likelihood for " << x);
                 return false;
             }
             if ((status & maths_t::E_FpOverflowed) != 0) {
@@ -1233,8 +1233,8 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
     CEqualWithTolerance<double> equal{
         CToleranceTypes::E_AbsoluteTolerance | CToleranceTypes::E_RelativeTolerance, 1e-3};
     if (equal(modeSamples, numberSamples) == false) {
-        LOG_ERROR(<< tag << "Sum mode samples = " << modeSamples
-                  << ", total samples = " << numberSamples);
+        LOG_WARN(<< tag << "Sum mode samples = " << modeSamples
+                 << ", total samples = " << numberSamples);
         result = false;
     }
 
@@ -1451,7 +1451,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
     }
 
     if (m_Prior->checkInvariants("SPLIT: ") == false) {
-        LOG_ERROR(<< "# samples = " << numberSamples << ", # modes = " << modes.size()
+        LOG_DEBUG(<< "# samples = " << numberSamples << ", # modes = " << modes.size()
                   << ", pLeft = " << pLeft << ", pRight = " << pRight);
     }
 

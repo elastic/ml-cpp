@@ -27,6 +27,12 @@
 //=== Bug Fixes
 
 //=== Regressions
+== {es} version 9.3.0
+
+=== Enhancements
+
+* Downgrade log severity for a batch of recoverable errors. (See {ml-pull}[#2889].)
+
 == {es} version 9.2.0
 
 === Enhancements
