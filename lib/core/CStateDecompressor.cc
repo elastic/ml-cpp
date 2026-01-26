@@ -108,8 +108,19 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
     do {
         char c = m_InputStreamWrapper->take();
         if (c == '\0') {
+            std::string message;
             if (m_ParsingStarted == false) {
+                message = "Encountered NULL character in stream before parsing has started.";
                 ret = false;
+            }
+            if (m_Reader->handler().s_Type == SBoostJsonHandler::E_TokenObjectEnd) {
+                message = "Encountered NULL character in stream after object end.";
+                ret = false;
+            }
+            if (ret == false && message.empty() == false) {
+                std::string jsonStr(m_Reader->handler().s_CompressedChunk,
+                    m_Reader->handler().s_CompressedChunkLength);
+                LOG_WARN(<< "Error parsing JSON: \"" << jsonStr << "\". " << message);
             }
             break;
         }
@@ -160,7 +171,7 @@ bool CStateDecompressor::CDechunkFilter::readHeader() {
     }
     // If we are here, we have got an empty document from downstream,
     // so the stream is finished
-    LOG_TRACE(<< "Failed to find 'compressed' data array!");
+    LOG_WARN(<< "Failed to find 'compressed' data array!");
     m_Initialised = false;
     m_IStream.reset();
     ++m_CurrentDocNum;
@@ -243,7 +254,7 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
 std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s,
                                                                 std::streamsize n,
                                                                 std::streamsize bytesDone) {
-    // return [ ] if not m_Initialised
+    // return [ ] if not m_Initialised - i.e. if no valid json could be found
     m_EndOfStream = true;
     if (!m_SentData && bytesDone == 0) {
         std::streamsize toCopy = std::min(std::streamsize(EMPTY_DATA.size()), n);
