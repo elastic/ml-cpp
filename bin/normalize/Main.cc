@@ -21,6 +21,7 @@
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CStateFileRemover.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -46,34 +47,6 @@
 #include <memory>
 #include <string>
 
-namespace {
-
-//! A helper to ensure that quantiles state files always get deleted on failure.
-//! They may also be explicitly be deleted on request as well but that is handled separately by the happy path.
-class CRemoveQuantilesStateOnFailure {
-public:
-    CRemoveQuantilesStateOnFailure() = delete;
-    CRemoveQuantilesStateOnFailure(const std::string& quantilesStateFile, bool deleteStateFiles = false)
-        : m_QuantilesStateFile{quantilesStateFile}, m_DeleteStateFiles{deleteStateFiles} {}
-    ~CRemoveQuantilesStateOnFailure() {
-        // Always delete quantiles state files if requested to do so, even on failure,
-        // else we run the risk of filling the disk after repeated failures.
-        // They should still exist in ES should they need to be examined.
-        if (m_QuantilesStateFile.empty() || m_DeleteStateFiles == false) {
-            return;
-        }
-        LOG_DEBUG(<< "Deleting quantiles state file '" << m_QuantilesStateFile << "'");
-        if (std::remove(m_QuantilesStateFile.c_str()) != 0) {
-            LOG_WARN(<< "Failed to delete quantiles state file '" << m_QuantilesStateFile << "': " << strerror(errno));
-        }
-    }
-
-private:
-    std::string m_QuantilesStateFile;
-    bool m_DeleteStateFiles{false};
-};
-}
-
 int main(int argc, char** argv) {
     // Read command line options
     std::string modelConfigFile;
@@ -91,7 +64,7 @@ int main(int argc, char** argv) {
     bool deleteStateFiles{false};
     bool writeCsv{false};
     bool validElasticLicenseKeyConfirmed{false};
-    std::unique_ptr<CRemoveQuantilesStateOnFailure> removeQuantilesStateOnFailure;
+    std::unique_ptr<ml::core::CStateFileRemover> removeQuantilesStateOnFailure;
 
     const bool parseSuccess = ml::normalize::CCmdLineParser::parse(
         argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
@@ -101,7 +74,7 @@ int main(int argc, char** argv) {
 
     if (!quantilesStateFile.empty()) {
         removeQuantilesStateOnFailure =
-            std::make_unique<CRemoveQuantilesStateOnFailure>(quantilesStateFile, deleteStateFiles);
+            std::make_unique<ml::core::CStateFileRemover>(quantilesStateFile, deleteStateFiles);
     }
 
     if (parseSuccess == false) {

@@ -26,7 +26,7 @@
 #include <core/CProcessPriority.h>
 #include <core/CProcessStats.h>
 #include <core/CProgramCounters.h>
-#include <core/CStringUtils.h>
+#include <core/CStateFileRemover.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -119,14 +119,23 @@ int main(int argc, char** argv) {
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
     bool validElasticLicenseKeyConfirmed{false};
-    if (ml::autodetect::CCmdLineParser::parse(
+    std::unique_ptr<ml::core::CStateFileRemover> removeQuantilesStateOnFailure;
+
+    const bool parseSuccess = ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, filtersConfigFile, eventsConfigFile,
             modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
             timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
             namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
             isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
             persistFileName, isPersistFileNamedPipe, isPersistInForeground,
-            maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed) == false) {
+            maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed);
+
+    if (!quantilesStateFile.empty()) {
+        removeQuantilesStateOnFailure =
+            std::make_unique<ml::core::CStateFileRemover>(quantilesStateFile, deleteStateFiles);
+    }
+
+    if (parseSuccess == false) {
         return EXIT_FAILURE;
     }
 
@@ -293,9 +302,6 @@ int main(int argc, char** argv) {
             LOG_FATAL(<< "Failed to restore quantiles and initialize normalizer");
             return EXIT_FAILURE;
         }
-        if (deleteStateFiles) {
-            std::remove(quantilesStateFile.c_str());
-        }
     }
 
     // The categorizer knows how to assign categories to records
@@ -345,6 +351,12 @@ int main(int argc, char** argv) {
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
     LOG_DEBUG(<< "ML anomaly detector job exiting");
+
+    // No need for a warning here so we reset the cleanup function and delete the file explicitly if requested.
+    removeQuantilesStateOnFailure.reset();
+    if (deleteStateFiles) {
+        std::remove(quantilesStateFile.c_str());
+    }
 
     return EXIT_SUCCESS;
 }
