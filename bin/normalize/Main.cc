@@ -52,22 +52,25 @@ namespace {
 //! They may also be explicitly be deleted on request as well but that is handled separately by the happy path.
 class CRemoveQuantilesStateOnFailure {
 public:
-    CRemoveQuantilesStateOnFailure() = default;
-    explicit CRemoveQuantilesStateOnFailure(const std::string& quantilesStateFile)
-        : m_QuantilesStateFile{quantilesStateFile} {}
+    CRemoveQuantilesStateOnFailure() = delete;
+    CRemoveQuantilesStateOnFailure(const std::string& quantilesStateFile, bool deleteStateFiles = false)
+        : m_QuantilesStateFile{quantilesStateFile}, m_DeleteStateFiles{deleteStateFiles} {}
     ~CRemoveQuantilesStateOnFailure() {
-        // Always delete quantiles state files on failure, else we run the risk of filling the disk after repeated failures.
+        // Always delete quantiles state files if requested to do so, even on failure,
+        // else we run the risk of filling the disk after repeated failures.
         // They should still exist in ES should they need to be examined.
-        if (m_QuantilesStateFile.empty()) {
+        if (m_QuantilesStateFile.empty() || m_DeleteStateFiles == false) {
             return;
         }
-        LOG_WARN(<< "Deleting quantiles state file '" << m_QuantilesStateFile << "'");
-        // Ignore the return value from remove, the file may have already been deleted.
-        std::remove(m_QuantilesStateFile.c_str());
+        LOG_DEBUG(<< "Deleting quantiles state file '" << m_QuantilesStateFile << "'");
+        if (std::remove(m_QuantilesStateFile.c_str()) != 0) {
+            LOG_WARN(<< "Failed to delete quantiles state file '" << m_QuantilesStateFile << "': " << strerror(errno));
+        }
     }
 
 private:
     std::string m_QuantilesStateFile;
+    bool m_DeleteStateFiles{false};
 };
 }
 
@@ -98,7 +101,7 @@ int main(int argc, char** argv) {
 
     if (!quantilesStateFile.empty()) {
         removeQuantilesStateOnFailure =
-            std::make_unique<CRemoveQuantilesStateOnFailure>(quantilesStateFile);
+            std::make_unique<CRemoveQuantilesStateOnFailure>(quantilesStateFile, deleteStateFiles);
     }
 
     if (parseSuccess == false) {
