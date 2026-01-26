@@ -46,6 +46,31 @@
 #include <memory>
 #include <string>
 
+namespace {
+
+//! A helper to ensure that quantiles state files always get deleted on failure.
+//! They may also be explicitly be deleted on request as well but that is handled separately by the happy path.
+class CRemoveQuantilesStateOnFailure {
+public:
+    CRemoveQuantilesStateOnFailure() = default;
+    explicit CRemoveQuantilesStateOnFailure(const std::string& quantilesStateFile)
+        : m_QuantilesStateFile{quantilesStateFile} {}
+    ~CRemoveQuantilesStateOnFailure() {
+        // Always delete quantiles state files on failure, else we run the risk of filling the disk after repeated failures.
+        // They should still exist in ES should they need to be examined.
+        if (m_QuantilesStateFile.empty()) {
+            return;
+        }
+        LOG_WARN(<< "Deleting quantiles state file '" << m_QuantilesStateFile << "'");
+        // Ignore the return value from remove, the file may have already been deleted.
+        std::remove(m_QuantilesStateFile.c_str());
+    }
+
+private:
+    std::string m_QuantilesStateFile;
+};
+}
+
 int main(int argc, char** argv) {
     // Read command line options
     std::string modelConfigFile;
@@ -63,11 +88,20 @@ int main(int argc, char** argv) {
     bool deleteStateFiles{false};
     bool writeCsv{false};
     bool validElasticLicenseKeyConfirmed{false};
-    if (ml::normalize::CCmdLineParser::parse(
-            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
-            lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
-            deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed) == false) {
+    std::unique_ptr<CRemoveQuantilesStateOnFailure> removeQuantilesStateOnFailure;
+
+    const bool parseSuccess = ml::normalize::CCmdLineParser::parse(
+        argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
+        lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
+        isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
+        deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed);
+
+    if (!quantilesStateFile.empty()) {
+        removeQuantilesStateOnFailure =
+            std::make_unique<CRemoveQuantilesStateOnFailure>(quantilesStateFile);
+    }
+
+    if (parseSuccess == false) {
         return EXIT_FAILURE;
     }
 
@@ -158,9 +192,6 @@ int main(int argc, char** argv) {
             LOG_FATAL(<< "Failed to initialize normalizer");
             return EXIT_FAILURE;
         }
-        if (deleteStateFiles) {
-            std::remove(quantilesStateFile.c_str());
-        }
     }
 
     // Now handle the numbers to be normalised from stdin
@@ -175,6 +206,12 @@ int main(int argc, char** argv) {
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
     LOG_DEBUG(<< "ML normalizer exiting");
+
+    // No need for a warning here so we reset the cleanup function and delete the file explicitly if requested.
+    removeQuantilesStateOnFailure.reset();
+    if (deleteStateFiles) {
+        std::remove(quantilesStateFile.c_str());
+    }
 
     return EXIT_SUCCESS;
 }
