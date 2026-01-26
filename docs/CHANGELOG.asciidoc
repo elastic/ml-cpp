@@ -32,7 +32,7 @@
 
 === Enhancements
 
-* Better error handling regarding normalizer quantiles state documents (See {ml-pull}[#2894])
+* Better error handling regarding quantiles state documents (See {ml-pull}[#2894])
 
 == {es} version 9.3.0
 
