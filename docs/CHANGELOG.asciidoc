@@ -27,6 +27,12 @@
 //=== Bug Fixes
 
 //=== Regressions
+== {es} version 9.4.0
+
+=== Enhancements
+
+* Better handling of invalid JSON state documents (See {ml-pull}[]#2895].)
+
 == {es} version 9.3.0
 
 === Enhancements
