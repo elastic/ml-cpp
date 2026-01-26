@@ -246,8 +246,7 @@ BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
         // Invalid base64 content
         R"({"compressed": ["not-base64"],"eos":true})",
         // Null state document
-        R"({"compressed": \0,"eos":true})"
-        };
+        R"({"compressed": \0,"eos":true})"};
 
     for (const auto& badState : badStates) {
         LOG_DEBUG(<< "Restoring from \"" << badState << "\"");

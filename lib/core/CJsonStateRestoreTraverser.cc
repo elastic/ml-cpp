@@ -401,7 +401,9 @@ bool CJsonStateRestoreTraverser::advance() {
 }
 
 void CJsonStateRestoreTraverser::logError() {
-    LOG_ERROR(<< "Error parsing JSON: " << "\"" << m_Buffer << "\"" << "\"" << m_Reader.last_error() << ", stream state - bad: "
+    LOG_ERROR(<< "Error parsing JSON: "
+              << "\"" << m_Buffer << "\""
+              << "\"" << m_Reader.last_error() << ", stream state - bad: "
               << m_ReadStream.bad() << ", fail: " << m_ReadStream.fail()
               << ", eof: " << m_ReadStream.eof() << ", bytes remaining: " << m_BytesRemaining
               << ", buffer position: " << (m_BufferPtr ? (m_BufferPtr - m_Buffer) : -1)

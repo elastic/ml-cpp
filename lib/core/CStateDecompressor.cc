@@ -119,7 +119,7 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
             }
             if (ret == false && message.empty() == false) {
                 std::string jsonStr(m_Reader->handler().s_CompressedChunk,
-                    m_Reader->handler().s_CompressedChunkLength);
+                                    m_Reader->handler().s_CompressedChunkLength);
                 LOG_WARN(<< "Error parsing JSON: \"" << jsonStr << "\". " << message);
             }
             break;

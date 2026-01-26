@@ -283,7 +283,7 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
 
     LOG_DEBUG(<< "Restore categorizer state");
 
-    auto handleCorruptRestore = [this](const std::string& message){
+    auto handleCorruptRestore = [this](const std::string& message) {
         LOG_ERROR(<< message);
         // This situation is fatal in terms of the categorizer we attempted to restore,
         // but returning false here can throw the system into a repeated cycle
