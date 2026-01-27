@@ -248,8 +248,7 @@ BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
         // Null state document
         R"({"compressed": \0,"eos":true})",
         // NULL character after object end
-        R"({"index":{"_id":"logs_services_count_logs_categories_categorizer_state#1"}})"
-    };
+        R"({"index":{"_id":"logs_services_count_logs_categories_categorizer_state#1"}})"};
 
     for (const auto& badState : badStates) {
         LOG_DEBUG(<< "Restoring from \"" << badState << "\"");
