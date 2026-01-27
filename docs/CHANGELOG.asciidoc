@@ -40,6 +40,7 @@
 === Enhancements
 
 * Downgrade log severity for a batch of recoverable errors. (See {ml-pull}[#2889].)
+* Add pytorch_process rss memory stat to inference response. (See {ml-pull}[#2896].)
 
 == {es} version 9.2.0
 
