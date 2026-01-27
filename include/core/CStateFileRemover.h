@@ -24,10 +24,17 @@ namespace core {
 //! DESCRIPTION:\n
 //! A helper to ensure that quantiles state files always get deleted on failure.
 //! They may also be explicitly be deleted on request as well but that is handled separately by the happy path.
+//!
+//! IMPLEMENTATION DECISIONS:\n
+//! Not copyable or moveable. No default construction.
 class CStateFileRemover {
 public:
     CStateFileRemover() = delete;
-    CStateFileRemover(const std::string& quantilesStateFile, bool deleteStateFiles = false)
+    CStateFileRemover(const CStateFileRemover&) = delete;
+    CStateFileRemover& operator=(const CStateFileRemover&) = delete;
+    CStateFileRemover(CStateFileRemover&&) = delete;
+    CStateFileRemover& operator=(CStateFileRemover&&) = delete;
+    explicit CStateFileRemover(const std::string& quantilesStateFile, bool deleteStateFiles = false)
         : m_QuantilesStateFile{quantilesStateFile}, m_DeleteStateFiles{deleteStateFiles} {}
     ~CStateFileRemover() {
         // Always delete quantiles state files if requested to do so, even on failure,
