@@ -34,7 +34,8 @@ public:
     CStateFileRemover& operator=(const CStateFileRemover&) = delete;
     CStateFileRemover(CStateFileRemover&&) = delete;
     CStateFileRemover& operator=(CStateFileRemover&&) = delete;
-    explicit CStateFileRemover(const std::string& quantilesStateFile, bool deleteStateFiles = false)
+    explicit CStateFileRemover(const std::string& quantilesStateFile,
+                               bool deleteStateFiles = false)
         : m_QuantilesStateFile{quantilesStateFile}, m_DeleteStateFiles{deleteStateFiles} {}
     ~CStateFileRemover() {
         // Always delete quantiles state files if requested to do so, even on failure,
@@ -45,14 +46,16 @@ public:
         }
         LOG_DEBUG(<< "Deleting quantiles state file '" << m_QuantilesStateFile << "'");
         if (std::remove(m_QuantilesStateFile.c_str()) != 0) {
-            LOG_WARN(<< "Failed to delete quantiles state file '" << m_QuantilesStateFile << "': " << strerror(errno));
+            LOG_WARN(<< "Failed to delete quantiles state file '"
+                     << m_QuantilesStateFile << "': " << strerror(errno));
         }
     }
 
 private:
     std::string m_QuantilesStateFile;
     bool m_DeleteStateFiles{false};
-};}
+};
+}
 }
 
 #endif // INCLUDED_ml_core_CStateFileRemover_h

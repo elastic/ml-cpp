@@ -122,17 +122,17 @@ int main(int argc, char** argv) {
     std::unique_ptr<ml::core::CStateFileRemover> removeQuantilesStateOnFailure;
 
     const bool parseSuccess = ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
-            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
-            timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
-            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe, isPersistInForeground,
-            maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed);
+        argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+        modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
+        timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
+        namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
+        isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+        persistFileName, isPersistFileNamedPipe, isPersistInForeground,
+        maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed);
 
     if (!quantilesStateFile.empty()) {
-        removeQuantilesStateOnFailure =
-            std::make_unique<ml::core::CStateFileRemover>(quantilesStateFile, deleteStateFiles);
+        removeQuantilesStateOnFailure = std::make_unique<ml::core::CStateFileRemover>(
+            quantilesStateFile, deleteStateFiles);
     }
 
     if (parseSuccess == false) {

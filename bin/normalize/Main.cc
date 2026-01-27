@@ -73,8 +73,8 @@ int main(int argc, char** argv) {
         deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed);
 
     if (!quantilesStateFile.empty()) {
-        removeQuantilesStateOnFailure =
-            std::make_unique<ml::core::CStateFileRemover>(quantilesStateFile, deleteStateFiles);
+        removeQuantilesStateOnFailure = std::make_unique<ml::core::CStateFileRemover>(
+            quantilesStateFile, deleteStateFiles);
     }
 
     if (parseSuccess == false) {
@@ -187,7 +187,8 @@ int main(int argc, char** argv) {
     removeQuantilesStateOnFailure.reset();
     if (deleteStateFiles) {
         if (std::remove(quantilesStateFile.c_str()) != 0) {
-            LOG_WARN(<< "Failed to delete quantiles state file '" << quantilesStateFile << "': " << strerror(errno));
+            LOG_WARN(<< "Failed to delete quantiles state file '"
+                     << quantilesStateFile << "': " << strerror(errno));
         }
     }
 
