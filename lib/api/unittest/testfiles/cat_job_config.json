@@ -1,0 +1,26 @@
+{
+  "job_id": "logs_services_count_logs_categories",
+  "analysis_config": {
+    "categorization_field_name": "message",
+    "per_partition_categorization": {
+      "enabled": true,
+      "stop_on_warn": false
+    },
+    "detectors": [
+      {
+        "detector_description": "count by mlcategory partitionfield=\"service.name\"",
+        "function": "count",
+        "by_field_name": "mlcategory",
+        "partition_field_name": "service.name"
+      }
+    ],
+    "influencers": [
+      "mlcategory",
+      "service.name"
+    ]
+  },
+  "data_description": {
+    "time_field": "@timestamp",
+    "time_format": "epoch_ms"
+  }
+}
