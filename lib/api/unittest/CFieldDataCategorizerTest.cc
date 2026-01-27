@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
         // "Empty" base64 - []
         R"({"compressed": ["H4sIAAAAAAAA","/4uOBQApu0wNAgAAAA=="],"eos":true})",
         // Not compressed base64 - "junk"
-        R"({"compressed": ["anVuawo="],"eos":true})"
+        R"({"compressed": ["anVuawo="],"eos":true})",
         // Empty compressed array
         R"({"compressed": [],"eos":true})",
         // Not a JSON array
@@ -246,7 +246,10 @@ BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
         // Invalid base64 content
         R"({"compressed": ["not-base64"],"eos":true})",
         // Null state document
-        R"({"compressed": \0,"eos":true})"};
+        R"({"compressed": \0,"eos":true})",
+        // NULL character after object end
+        R"({"index":{"_id":"logs_services_count_logs_categories_categorizer_state#1"}})"
+    };
 
     for (const auto& badState : badStates) {
         LOG_DEBUG(<< "Restoring from \"" << badState << "\"");

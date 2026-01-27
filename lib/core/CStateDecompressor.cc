@@ -114,7 +114,10 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
                 ret = false;
             }
             if (m_Reader->handler().s_Type == SBoostJsonHandler::E_TokenObjectEnd) {
-                message = "Encountered NULL character in stream after object end.";
+                if (message.size() > 0) {
+                    message += "\n";
+                }
+                message += "Encountered NULL character in stream after object end.";
                 ret = false;
             }
             if (ret == false && message.empty() == false) {
