@@ -27,6 +27,13 @@
 //=== Bug Fixes
 
 //=== Regressions
+
+== {es} version 9.4.0
+
+=== Enhancements
+
+* Better error handling regarding quantiles state documents (See {ml-pull}[#2894])
+
 == {es} version 9.3.0
 
 === Enhancements

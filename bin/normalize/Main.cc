@@ -21,6 +21,7 @@
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CStateFileRemover.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -63,11 +64,20 @@ int main(int argc, char** argv) {
     bool deleteStateFiles{false};
     bool writeCsv{false};
     bool validElasticLicenseKeyConfirmed{false};
-    if (ml::normalize::CCmdLineParser::parse(
-            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
-            lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
-            deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed) == false) {
+    std::unique_ptr<ml::core::CStateFileRemover> removeQuantilesStateOnFailure;
+
+    const bool parseSuccess = ml::normalize::CCmdLineParser::parse(
+        argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
+        lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
+        isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
+        deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed);
+
+    if (!quantilesStateFile.empty()) {
+        removeQuantilesStateOnFailure = std::make_unique<ml::core::CStateFileRemover>(
+            quantilesStateFile, deleteStateFiles);
+    }
+
+    if (parseSuccess == false) {
         return EXIT_FAILURE;
     }
 
@@ -158,9 +168,6 @@ int main(int argc, char** argv) {
             LOG_FATAL(<< "Failed to initialize normalizer");
             return EXIT_FAILURE;
         }
-        if (deleteStateFiles) {
-            std::remove(quantilesStateFile.c_str());
-        }
     }
 
     // Now handle the numbers to be normalised from stdin
@@ -175,6 +182,15 @@ int main(int argc, char** argv) {
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
     LOG_DEBUG(<< "ML normalizer exiting");
+
+    // No need for a warning here so we reset the cleanup function and delete the file explicitly if requested.
+    removeQuantilesStateOnFailure.reset();
+    if (deleteStateFiles) {
+        if (std::remove(quantilesStateFile.c_str()) != 0) {
+            LOG_WARN(<< "Failed to delete quantiles state file '"
+                     << quantilesStateFile << "': " << strerror(errno));
+        }
+    }
 
     return EXIT_SUCCESS;
 }
