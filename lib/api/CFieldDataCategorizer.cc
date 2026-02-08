@@ -284,7 +284,7 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
     LOG_DEBUG(<< "Restore categorizer state");
 
     auto handleCorruptRestore = [this](const std::string& message) {
-        LOG_ERROR(<< message);
+        LOG_WARN(<< message);
         // This situation is fatal in terms of the categorizer we attempted to restore,
         // but returning false here can throw the system into a repeated cycle
         // of failure.  It's better to reset the categorizer and re-categorize from
@@ -335,7 +335,7 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
 bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     const std::string& firstFieldName = traverser.name();
     if (traverser.isEof()) {
-        LOG_ERROR(<< "Expected categorizer persisted state but no state exists");
+        LOG_WARN(<< "Expected categorizer persisted state but no state exists");
         return false;
     }
 
