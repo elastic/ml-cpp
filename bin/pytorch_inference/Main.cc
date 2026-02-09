@@ -133,9 +133,11 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                          }
                      },
                      [&](const auto& innerResponseJson_, bool isCacheHit) {
-                         resultWriter.wrapAndWriteInnerResponse(innerResponseJson_,
-                                                                requestId, isCacheHit,
-                                                                stopWatch.stop());
+                         std::size_t residentSetSize =
+                             ml::core::CProcessStats::residentSetSize();
+                         resultWriter.wrapAndWriteInnerResponse(
+                             innerResponseJson_, requestId, isCacheHit,
+                             stopWatch.stop(), residentSetSize);
                      });
     });
     return true;
