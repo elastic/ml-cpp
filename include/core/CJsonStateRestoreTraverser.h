@@ -304,8 +304,7 @@ private:
         bool s_HaveCompleteToken{false};
     };
 
-    //! JSON reader istream wrapper
-    //    core::CBoostJsonUnbufferedIStreamWrapper m_ReadStream;
+    //! JSON stream to read from
     std::istream& m_ReadStream;
 
     //! JSON reader
