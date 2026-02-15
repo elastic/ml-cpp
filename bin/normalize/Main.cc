@@ -183,8 +183,8 @@ int main(int argc, char** argv) {
     // message indicating early exit then the process has probably core dumped
     LOG_DEBUG(<< "ML normalizer exiting");
 
-    // No need for a warning here so we reset the cleanup function and delete the file explicitly if requested.
-    removeQuantilesStateOnFailure.reset();
+    // No need for a warning here so we release the cleanup function and delete the file explicitly if requested.
+    removeQuantilesStateOnFailure.release();
     if (deleteStateFiles) {
         if (std::remove(quantilesStateFile.c_str()) != 0) {
             LOG_WARN(<< "Failed to delete quantiles state file '"
