@@ -84,45 +84,10 @@ BOOST_AUTO_TEST_CASE(testDeleteNonExistentFile) {
     { ml::core::CStateFileRemover remover(nonExistentFile, true); }
 }
 
-BOOST_AUTO_TEST_CASE(testDisarmPreventsDelete) {
-    // Calling disarm() sets the internal flag to false so the destructor
-    // becomes a no-op. This is used when the caller wants to suppress the
-    // RAII cleanup without leaking memory (as unique_ptr::release() would).
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-
-    {
-        ml::core::CStateFileRemover remover(TEST_FILE, true);
-        remover.disarm();
-    }
-
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-    removeTestFile(TEST_FILE);
-}
-
-BOOST_AUTO_TEST_CASE(testDisarmWithUniquePointer) {
-    // Mirrors a safe alternative to the old happy path that used
-    // unique_ptr::release() (which leaked). With disarm() the unique_ptr
-    // destructor runs normally, no memory is leaked, and the file is
-    // not deleted.
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-
-    {
-        auto remover = std::make_unique<ml::core::CStateFileRemover>(TEST_FILE, true);
-        remover->disarm();
-    }
-
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-    removeTestFile(TEST_FILE);
-}
-
-BOOST_AUTO_TEST_CASE(testUniquePointerDestructorTriggersDelete) {
-    // Mirrors the failure path in both normalize and autodetect when a
-    // unique_ptr<CStateFileRemover> goes out of scope without disarm()
-    // being called. The destructor fires and deletes the file.
+BOOST_AUTO_TEST_CASE(testUniquePointerDeletesFileWhenFlagTrue) {
+    // Mirrors both the success and failure paths in normalize and autodetect:
+    // the unique_ptr<CStateFileRemover> goes out of scope and the destructor
+    // deletes the file because deleteStateFiles is true.
     removeTestFile(TEST_FILE);
     createTestFile(TEST_FILE);
     BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
@@ -134,25 +99,9 @@ BOOST_AUTO_TEST_CASE(testUniquePointerDestructorTriggersDelete) {
     BOOST_TEST_REQUIRE(!fileExists(TEST_FILE));
 }
 
-BOOST_AUTO_TEST_CASE(testHappyPathDestructorDeletesFile) {
-    // Mirrors the happy path in both normalize and autodetect: the
-    // unique_ptr is simply allowed to destruct at the end of main().
-    // When deleteStateFiles is true the destructor deletes the file.
-    // There is no need for separate manual deletion logic.
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-
-    {
-        auto remover = std::make_unique<ml::core::CStateFileRemover>(TEST_FILE, true);
-    }
-
-    BOOST_TEST_REQUIRE(!fileExists(TEST_FILE));
-}
-
-BOOST_AUTO_TEST_CASE(testHappyPathDestructorKeepsFileWhenFlagFalse) {
-    // When deleteStateFiles is false, the destructor is a no-op and
-    // the file remains on disk.
+BOOST_AUTO_TEST_CASE(testUniquePointerKeepsFileWhenFlagFalse) {
+    // When deleteStateFiles is false the unique_ptr destructor is a no-op
+    // and the file remains on disk.
     removeTestFile(TEST_FILE);
     createTestFile(TEST_FILE);
     BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
