@@ -19,11 +19,13 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! Ensures that deletion of state files occurs even on process failure.
+//! Ensures that deletion of state files occurs on process exit.
 //!
 //! DESCRIPTION:\n
-//! A helper to ensure that quantiles state files always get deleted on failure.
-//! They may also be explicitly be deleted on request as well but that is handled separately by the happy path.
+//! A RAII helper that deletes quantiles state files when the owning scope
+//! exits, whether via success or failure. This prevents stale files from
+//! accumulating on disk after repeated failures. The files should still
+//! exist in Elasticsearch should they need to be examined.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Not copyable or moveable. No default construction.
@@ -50,11 +52,6 @@ public:
                      << m_QuantilesStateFile << "': " << strerror(errno));
         }
     }
-
-    //! Prevent the destructor from deleting the state file. Use this on
-    //! the happy path when the caller wants to suppress the RAII cleanup
-    //! without leaking memory (as unique_ptr::release() would).
-    void disarm() { m_DeleteStateFiles = false; }
 
 private:
     std::string m_QuantilesStateFile;
