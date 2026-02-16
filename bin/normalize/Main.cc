@@ -41,7 +41,6 @@
 #include "CCmdLineParser.h"
 
 #include <chrono>
-#include <cstdio>
 #include <cstdlib>
 #include <functional>
 #include <memory>
@@ -182,15 +181,6 @@ int main(int argc, char** argv) {
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
     LOG_DEBUG(<< "ML normalizer exiting");
-
-    // No need for a warning here so we release the cleanup function and delete the file explicitly if requested.
-    removeQuantilesStateOnFailure.release();
-    if (deleteStateFiles) {
-        if (std::remove(quantilesStateFile.c_str()) != 0) {
-            LOG_WARN(<< "Failed to delete quantiles state file '"
-                     << quantilesStateFile << "': " << strerror(errno));
-        }
-    }
 
     return EXIT_SUCCESS;
 }

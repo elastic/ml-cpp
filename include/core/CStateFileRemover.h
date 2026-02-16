@@ -51,6 +51,11 @@ public:
         }
     }
 
+    //! Prevent the destructor from deleting the state file. Use this on
+    //! the happy path when the caller wants to suppress the RAII cleanup
+    //! without leaking memory (as unique_ptr::release() would).
+    void disarm() { m_DeleteStateFiles = false; }
+
 private:
     std::string m_QuantilesStateFile;
     bool m_DeleteStateFiles{false};
