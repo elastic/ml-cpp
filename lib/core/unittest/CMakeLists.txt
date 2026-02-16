@@ -63,6 +63,7 @@ set (SRCS
   CShellArgQuoterTest.cc
   CSmallVectorTest.cc
   CStateCompressorTest.cc
+  CStateFileRemoverTest.cc
   CStateMachineTest.cc
   CStaticThreadPoolTest.cc
   CStopWatchTest.cc
