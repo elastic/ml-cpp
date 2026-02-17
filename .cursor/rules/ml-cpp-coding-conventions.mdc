@@ -1,54 +1,87 @@
 ---
-description: ml-cpp coding conventions and cross-platform considerations
-globs: "**/*.cc", "**/*.h"
+description: Coding conventions and patterns for Elasticsearch ml-cpp C++ code
+globs: ["**/*.cc", "**/*.h", "include/**", "lib/**", "bin/**"]
+alwaysApply: false
 ---
 
 # ml-cpp Coding Conventions
 
 ## Naming
 
-- Classes: `CUpperCamelCase` (C prefix)
-- Methods: `lowerCamelCase`
-- Member variables: `m_UpperCamelCase`
-- Static member variables: `ms_UpperCamelCase`
-- Types: `TUpperCamelCase` (T prefix for typedefs)
-- Test files: `CClassNameTest.cc`
-- Namespaces: `ml::module::submodule`
+- **Namespaces:** `ml::core`, `ml::model`, `ml::api`, `ml::maths::common`, `ml::maths::time_series`, `ml::maths::analytics`
+- **Classes:** `C` prefix (e.g. `CStateFileRemover`, `CAnomalyDetector`)
+- **Type aliases:** `T` prefix (e.g. `TDouble3Vec`, `TStrVec`)
+- **Enums:** `E` prefix (e.g. `EFloatingPointErrorStatus`)
+- **Member variables:** `m_` prefix (e.g. `m_DeleteStateFiles`, `m_QuantilesStateFile`)
+- **Test files:** `C<Name>Test.cc` with `BOOST_AUTO_TEST_SUITE(C<Name>Test)`
+- **Test cases:** `testSomethingDescriptive`
 
-## Commit Messages
+## C++ Standard
 
-Format: `[ML] Short description` — 1-2 sentences explaining the "why".
+- **C++20** (`CMAKE_CXX_STANDARD 20`)
+- Smart pointers preferred (`std::unique_ptr`, `std::make_unique`)
+- RAII pattern for resource management
 
-## Boost Test Framework
+## Header Guards
 
-- Tests use `BOOST_AUTO_TEST_SUITE` / `BOOST_AUTO_TEST_CASE`
-- `BOOST_TEST_DONT_PRINT_LOG_VALUE` for types without operator<<
-- JUnit output: `boost_test_results.junit` per test suite
-- Seeded RNG: `maths::common::CSampling::seed()` at test start
+The codebase uses `#ifndef` / `#define` / `#endif` style header guards (not `#pragma once`).
 
-## Cross-Platform Considerations
+## RAII Pattern
 
-### Stream/IO
-- `std::istream::eof()` behaves differently across platforms
-- Use `peek() == std::char_traits<char>::eof()` for portable end-of-stream detection
-- `CJsonStateRestoreTraverser::isEof()` uses both checks for portability
+Resources that need cleanup on scope exit should use RAII wrappers. Example: `CStateFileRemover` deletes quantiles state files in its destructor. Use `std::unique_ptr` to manage lifetime; prefer `reset()` over `release()` to avoid memory leaks.
 
-### Timing in Tests
-- **Never use wall-clock time** (`CStopWatch`, `CLOCK_MONOTONIC`) for performance assertions in unit tests — flaky under parallel execution
-- Use `std::clock()` (CPU time) for scaling/benchmark assertions
-- `std::clock()` measures process CPU time on all platforms (POSIX + Windows)
+## Logging
 
-### Temporary Files in Tests
-- Use process ID (`ml::core::CProcess::instance().id()`) for unique temp names
-- Do NOT use small random ranges (e.g. `1-100`) — causes collisions under parallel CTest
+Use the ML logging macros:
+- `LOG_TRACE` / `LOG_DEBUG` / `LOG_INFO` / `LOG_WARN` / `LOG_ERROR` / `LOG_FATAL`
+- Example: `LOG_WARN(<< "Failed to delete file '" << filename << "': " << strerror(errno));`
+- Logger is configured via Boost.Log
 
-### Unity Build Conflicts
-- Anonymous-namespace constants (`EMPTY_STRING`, `*_TAG`) cause redefinition errors
-- Fix: rename to be unique, or add file to `SKIP_UNITY_BUILD_INCLUSION`
-- `BOOST_TEST_DONT_PRINT_LOG_VALUE` macros also conflict in unity builds
+## Unit Tests
 
-## RAII Patterns
+### Structure
 
-- `std::unique_ptr` with custom deleters for resource cleanup
-- Use `reset()` not `release()` + manual cleanup — avoids leaks on exception paths
-- `CStateFileRemover` is the RAII helper for state file deletion
+```cpp
+#include <core/CStateFileRemover.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CStateFileRemoverTest)
+
+BOOST_AUTO_TEST_CASE(testDeleteOnDestruction) {
+    // Test body
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+```
+
+### Conventions
+
+- Each test file tests one class
+- Comment each test case explaining which production code path it mirrors
+- Clean up test artifacts (temp files) in each test case
+- Use `BOOST_TEST_REQUIRE` for preconditions, `BOOST_CHECK` / `BOOST_TEST` for assertions
+- Tests discover via `--list_content` and run via `--run_test=Suite/Case`
+
+## License Header
+
+Every file must start with the Elastic License 2.0 header:
+
+```
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. ...
+ */
+```
+
+## Include Order
+
+1. Primary header for the implementation file
+2. Project headers (`#include <core/...>`, `#include <model/...>`)
+3. Boost headers
+4. Standard library headers
+
+## Warnings
+
+The build uses `-Wall -Wextra -Wconversion -Wold-style-cast` and many more. Third-party headers are included via `-isystem` to suppress their warnings. Eigen generates `-Wmaybe-uninitialized` and `-Warray-bounds` warnings at `-O3` with GCC 13.3 but these are not errors.
