@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_SUITE(CStateFileRemoverTest)
 
 namespace {
 
-const std::string TEST_FILE{"CStateFileRemoverTest_quantiles_state"};
+const std::string TEST_FILE_BASE{"CStateFileRemoverTest_quantiles_state"};
 
 bool fileExists(const std::string& filename) {
     std::ifstream stream(filename);
@@ -51,67 +51,71 @@ BOOST_AUTO_TEST_CASE(testNoDeleteWhenFilenameEmpty) {
 BOOST_AUTO_TEST_CASE(testNoDeleteWhenFlagFalse) {
     // Mirrors both apps when --deleteStateFiles is not passed. The file should
     // remain after CStateFileRemover is destroyed.
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
+    const std::string testFile{TEST_FILE_BASE + "_no_delete"};
+    removeTestFile(testFile);
+    createTestFile(testFile);
+    BOOST_TEST_REQUIRE(fileExists(testFile));
 
-    { ml::core::CStateFileRemover remover(TEST_FILE, false); }
+    { ml::core::CStateFileRemover remover(testFile, false); }
 
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-    removeTestFile(TEST_FILE);
+    BOOST_TEST_REQUIRE(fileExists(testFile));
+    removeTestFile(testFile);
 }
 
 BOOST_AUTO_TEST_CASE(testDeleteOnDestruction) {
     // Mirrors the failure path in both normalize and autodetect: the
     // CStateFileRemover goes out of scope and its destructor deletes the
     // quantiles state file.
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
+    const std::string testFile{TEST_FILE_BASE + "_delete_on_destruct"};
+    removeTestFile(testFile);
+    createTestFile(testFile);
+    BOOST_TEST_REQUIRE(fileExists(testFile));
 
-    { ml::core::CStateFileRemover remover(TEST_FILE, true); }
+    { ml::core::CStateFileRemover remover(testFile, true); }
 
-    BOOST_TEST_REQUIRE(!fileExists(TEST_FILE));
+    BOOST_TEST_REQUIRE(!fileExists(testFile));
 }
 
 BOOST_AUTO_TEST_CASE(testDeleteNonExistentFile) {
     // Edge case: the file does not exist at destruction time. The destructor
     // should handle this gracefully (logging a warning but not crashing).
-    const std::string nonExistentFile{"CStateFileRemoverTest_does_not_exist"};
-    removeTestFile(nonExistentFile);
-    BOOST_TEST_REQUIRE(!fileExists(nonExistentFile));
+    const std::string testFile{TEST_FILE_BASE + "_nonexistent"};
+    removeTestFile(testFile);
+    BOOST_TEST_REQUIRE(!fileExists(testFile));
 
-    { ml::core::CStateFileRemover remover(nonExistentFile, true); }
+    { ml::core::CStateFileRemover remover(testFile, true); }
 }
 
 BOOST_AUTO_TEST_CASE(testUniquePointerDeletesFileWhenFlagTrue) {
     // Mirrors both the success and failure paths in normalize and autodetect:
     // the unique_ptr<CStateFileRemover> goes out of scope and the destructor
     // deletes the file because deleteStateFiles is true.
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
+    const std::string testFile{TEST_FILE_BASE + "_uptr_delete"};
+    removeTestFile(testFile);
+    createTestFile(testFile);
+    BOOST_TEST_REQUIRE(fileExists(testFile));
 
     {
-        auto remover = std::make_unique<ml::core::CStateFileRemover>(TEST_FILE, true);
+        auto remover = std::make_unique<ml::core::CStateFileRemover>(testFile, true);
     }
 
-    BOOST_TEST_REQUIRE(!fileExists(TEST_FILE));
+    BOOST_TEST_REQUIRE(!fileExists(testFile));
 }
 
 BOOST_AUTO_TEST_CASE(testUniquePointerKeepsFileWhenFlagFalse) {
     // When deleteStateFiles is false the unique_ptr destructor is a no-op
     // and the file remains on disk.
-    removeTestFile(TEST_FILE);
-    createTestFile(TEST_FILE);
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
+    const std::string testFile{TEST_FILE_BASE + "_uptr_keep"};
+    removeTestFile(testFile);
+    createTestFile(testFile);
+    BOOST_TEST_REQUIRE(fileExists(testFile));
 
     {
-        auto remover = std::make_unique<ml::core::CStateFileRemover>(TEST_FILE, false);
+        auto remover = std::make_unique<ml::core::CStateFileRemover>(testFile, false);
     }
 
-    BOOST_TEST_REQUIRE(fileExists(TEST_FILE));
-    removeTestFile(TEST_FILE);
+    BOOST_TEST_REQUIRE(fileExists(testFile));
+    removeTestFile(testFile);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
