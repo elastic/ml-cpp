@@ -1,0 +1,136 @@
+---
+description: Build system, test infrastructure, and Docker environment for Elasticsearch ml-cpp
+globs: ["CMakeLists.txt", "cmake/**", "**/*Test.cc", "**/*Test.h"]
+alwaysApply: false
+---
+
+# ml-cpp Build System & Test Infrastructure
+
+## Project Structure
+
+- **Source headers:** `include/` (e.g. `include/core/`, `include/model/`)
+- **Libraries:** `lib/` with sub-libraries: `core`, `model`, `api`, `maths/common`, `maths/time_series`, `maths/analytics`, `ver`, `seccomp`, `test`
+- **Applications:** `bin/autodetect`, `bin/normalize`, `bin/controller`, `bin/categorize`, `bin/data_frame_analyzer`, `bin/pytorch_inference`
+- **Unit tests:** co-located at `lib/<name>/unittest/` and `bin/<name>/unittest/`
+- **CMake modules:** `cmake/` -- toolchain files, functions, test runners
+- **3rd party:** `3rd_party/` -- Eigen, RapidJSON headers
+
+## CMake Conventions
+
+### Custom Functions (cmake/functions.cmake)
+
+- `ml_add_test_executable(_target ...)` -- creates test executable `ml_test_<target>`, links with Boost.Test, creates `test_<target>` and `test_<target>_individually` custom targets
+- `ml_add_test(_directory _target)` -- registers a test suite; populates `ML_BUILD_TEST_DEPENDS`, `ML_TEST_DEPENDS`, `ML_TEST_INDIVIDUALLY_DEPENDS`
+- `ml_codesign(_target)` -- macOS code signing
+
+### Key CMake Targets
+
+- `build_tests` -- builds all test executables without running them
+- `test_<suite>` -- build + run a single test suite (e.g. `test_core`)
+- `test_<suite>_individually` -- build + run a single suite with tests in separate processes
+- `run_tests` -- runs all test suites sequentially
+- `run_tests_individually` -- runs all test suites individually (parallel within each suite)
+- `test` -- run all tests + check for failures
+- `test_individually` -- run all tests individually + check for failures
+
+### Toolchain Files
+
+- `cmake/linux-x86_64.cmake` -- GCC 13.3 at `/usr/local/gcc133/`
+- `cmake/linux-aarch64.cmake` -- GCC 13.3 at `/usr/local/gcc133/`
+- `cmake/darwin-aarch64.cmake` -- Clang (Xcode)
+- Auto-detected from `CMAKE_HOST_SYSTEM_NAME` and `uname -m` if not specified
+
+### Build Types
+
+- Default: `RelWithDebInfo` (optimized with debug symbols)
+- `ML_DEBUG=1` environment variable switches to `Debug`
+- Flags defined in `cmake/variables.cmake`
+
+## Test Framework
+
+### Boost.Test Conventions
+
+- Test suites named `C<Name>Test` (e.g. `CStateFileRemoverTest`)
+- Test cases named `test<Description>` (e.g. `testDeleteOnDestruction`)
+- Files named `C<Name>Test.cc`
+- Must be added to the `SRCS` list in the unittest's `CMakeLists.txt`
+- Copyright header required on all files
+
+### Running Tests
+
+```bash
+# Single suite
+cmake --build <build-dir> --target test_core
+
+# Single suite, tests in separate processes (parallel via CTest)
+cmake --build <build-dir> --target test_core_individually
+
+# All suites
+cmake --build <build-dir> --target test
+
+# All suites individually (parallel within each)
+cmake --build <build-dir> --target test_individually
+
+# All suites individually with outer parallelism (optimal on 14-core: -j5)
+cmake --build <build-dir> --target test_individually -j5
+
+# Specific test case
+TESTS=CStateFileRemoverTest cmake --build <build-dir> --target test_core
+
+# Direct executable invocation
+<build-dir>/test/lib/core/unittest/ml_test_core --run_test=CStateFileRemoverTest
+```
+
+### Environment Variables for Test Runner
+
+- `BOOST_TEST_MAX_ARGS` -- tests per batch (default: 2)
+- `BOOST_TEST_MAX_PROCS` -- max parallel processes (default: nproc)
+- `BOOST_TEST_MIXED_MODE` -- if "true", batch tests run in one Boost process
+- `BOOST_TEST_OUTPUT_FORMAT_FLAGS` -- JUnit output flags
+- `TEST_FLAGS` -- additional flags passed to test executable
+- `RUN_BOOST_TESTS_IN_FOREGROUND` -- run tests with output to terminal
+
+## Docker Build/Test Environments
+
+### Images
+
+| Image | Arch | Tag Pattern |
+|---|---|---|
+| `docker.elastic.co/ml-dev/ml-linux-build` | x86_64 | `:34` |
+| `docker.elastic.co/ml-dev/ml-linux-aarch64-native-build` | aarch64 | `:17` |
+
+### Required Environment
+
+```bash
+export CPP_SRC_HOME=/path/to/ml-cpp
+export PATH="/usr/local/gcc133/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/gcc133/lib64:/usr/local/gcc133/lib"
+```
+
+### Docker Build Example
+
+```bash
+docker run --rm \
+  -v /path/to/ml-cpp:/ml-cpp \
+  -e CPP_SRC_HOME=/ml-cpp \
+  -e PATH="/usr/local/gcc133/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+  -e LD_LIBRARY_PATH="/usr/local/gcc133/lib64:/usr/local/gcc133/lib" \
+  -w /ml-cpp \
+  docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 \
+  bash -c "mkdir -p /tmp/build && cd /tmp/build && \
+    cmake -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake /ml-cpp && \
+    cmake --build . --target test_individually -j5"
+```
+
+### Build Performance (ARM Mac host)
+
+- **aarch64 image:** runs natively, full build ~7min at `-j4`, limited by Docker 8GB RAM
+- **x86_64 image:** runs under QEMU emulation, full build 30+ min at `-j1`, OOM risk at `-j2+`
+
+## Dependencies
+
+- **Boost 1.86.0** -- found via CMake `find_package`, libraries at `/usr/local/gcc133/lib/`
+- **PyTorch (libtorch)** -- headers at `/usr/local/gcc133/include/pytorch`, libs at `/usr/local/gcc133/lib/`
+- **libxml2** -- at `/usr/local/gcc133/lib/`
+- **Eigen** -- header-only at `3rd_party/eigen/`
+- **RapidJSON** -- header-only at `3rd_party/include/`

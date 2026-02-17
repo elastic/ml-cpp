@@ -35,7 +35,7 @@ add_custom_target(run_tests_individually
         DEPENDS clean_test_results ${ML_TEST_INDIVIDUALLY_DEPENDS}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-add_custom_target(test
+add_custom_target(ml_test
     DEPENDS run_tests
     COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-check-success.cmake
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
