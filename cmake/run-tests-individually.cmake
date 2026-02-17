@@ -46,8 +46,31 @@ endforeach()
 # Derive paths
 # ---------------------------------------------------------------------------
 set(TEST_EXECUTABLE "${BINARY_DIR}/ml_${TEST_SUITE}")
+if(CMAKE_HOST_WIN32 AND NOT TEST_EXECUTABLE MATCHES "\\.exe$")
+  set(TEST_EXECUTABLE "${TEST_EXECUTABLE}.exe")
+endif()
 set(LOG_DIR "${BINARY_DIR}/test_logs")
 set(CTEST_PROJECT_DIR "${BINARY_DIR}/_ctest_individual")
+
+# ---------------------------------------------------------------------------
+# On Windows, ensure DLLs are discoverable by prepending the distribution
+# bin directory to PATH. This mirrors what set_env.ps1 does.
+# ---------------------------------------------------------------------------
+if(CMAKE_HOST_WIN32 AND DEFINED SOURCE_DIR)
+  set(_dist_bin "${SOURCE_DIR}/build/distribution/platform/windows-x86_64/bin")
+  if(IS_DIRECTORY "${_dist_bin}")
+    set(ENV{PATH} "${_dist_bin};$ENV{PATH}")
+    message(STATUS "Prepended ${_dist_bin} to PATH")
+  endif()
+endif()
+
+# ---------------------------------------------------------------------------
+# Set CPP_SRC_HOME so that CResourceLocator can find resource files
+# (dictionaries, timezone DB, etc.) when running from the build tree.
+# ---------------------------------------------------------------------------
+if(DEFINED SOURCE_DIR AND NOT DEFINED ENV{CPP_SRC_HOME})
+  set(ENV{CPP_SRC_HOME} "${SOURCE_DIR}")
+endif()
 
 # ---------------------------------------------------------------------------
 # Parallelism and batching settings
