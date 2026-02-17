@@ -396,16 +396,34 @@ function(ml_add_test_executable _target)
       )
   endif()
 
-  add_custom_target(test_${_target}_individually
-    DEPENDS ml_test_${_target}
-    COMMAND ${CMAKE_COMMAND}
-      -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
-      -DTEST_SUITE=test_${_target}
-      -DTEST_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-      -P ${CMAKE_SOURCE_DIR}/cmake/run-tests-individually.cmake
-    COMMENT "Running test: ml_test_${_target}_individually"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  )
+  if(isMultiConfig)
+    add_custom_target(test_${_target}_individually
+      DEPENDS ml_test_${_target}
+      COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/ml_test_${_target}${CMAKE_EXECUTABLE_SUFFIX}
+        ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}${CMAKE_EXECUTABLE_SUFFIX}
+      COMMAND ${CMAKE_COMMAND}
+        -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+        -DTEST_SUITE=test_${_target}
+        -DTEST_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -P ${CMAKE_SOURCE_DIR}/cmake/run-tests-individually.cmake
+      COMMENT "Running test: ml_test_${_target}_individually"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  else()
+    add_custom_target(test_${_target}_individually
+      DEPENDS ml_test_${_target}
+      COMMAND ${CMAKE_COMMAND}
+        -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+        -DTEST_SUITE=test_${_target}
+        -DTEST_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -P ${CMAKE_SOURCE_DIR}/cmake/run-tests-individually.cmake
+      COMMENT "Running test: ml_test_${_target}_individually"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  endif()
 endfunction()
 
 function(ml_codesign _target)
