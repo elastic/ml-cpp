@@ -313,8 +313,7 @@ bool CJsonStateRestoreTraverser::start() {
     // For Ml state the first token should be the start of a JSON
     // object, but we don't store it
     if (m_Handler.s_Type != SBoostJsonHandler::E_TokenObjectStart) {
-        if (m_IsArrayOfObjects &&
-            m_Handler.s_Type == SBoostJsonHandler::E_TokenArrayEnd) {
+        if (m_IsArrayOfObjects && m_Handler.s_Type == SBoostJsonHandler::E_TokenArrayEnd) {
             LOG_DEBUG(<< "JSON document is an empty array");
             return false;
         }
