@@ -116,7 +116,9 @@ project.ext.numCpus = Runtime.runtime.availableProcessors()
 // Each suite spawns ctest --parallel <all_cpus> internally, so running too
 // many suites simultaneously causes resource contention. These values were
 // determined empirically (see PR #2900).
-project.ext.testParallel = isWindows ? 2 : Math.max(1, (int) Math.ceil(numCpus / 3.0))
+// On low-core machines (<=4, e.g. macOS CI Orka VMs), use all cores since
+// CTest internal parallelism is modest enough that contention is minimal.
+project.ext.testParallel = isWindows ? 2 : (numCpus <= 4 ? numCpus : Math.max(2, (int) Math.ceil(numCpus / 3.0)))
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,
                                 'SNAPSHOT': (isSnapshot ? 'yes' : 'no'),
@@ -232,6 +234,9 @@ task test(type: Exec) {
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
+  doFirst {
+    logger.lifecycle("Test parallelism: numCpus=${numCpus}, testParallel=${testParallel} (cmake --build -j ${testParallel})")
+  }
 }
 
 check {

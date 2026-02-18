@@ -68,7 +68,15 @@ if [ "x$1" = "x--test" ] ; then
     echo passed > build/test_status.txt
     # Each test suite spawns ctest --parallel <nproc> internally, so limit
     # the number of suites running concurrently to avoid resource contention.
-    TEST_PARALLEL=$(( ($(nproc) + 2) / 3 ))
+    # On low-core machines (<=4), use all cores since CTest internal
+    # parallelism is modest enough that contention is minimal.
+    NCPUS=$(nproc)
+    if [ "$NCPUS" -le 4 ]; then
+        TEST_PARALLEL=$NCPUS
+    else
+        TEST_PARALLEL=$(( (NCPUS + 2) / 3 ))
+    fi
+    echo "Test parallelism: nproc=${NCPUS}, TEST_PARALLEL=${TEST_PARALLEL} (cmake --build -j ${TEST_PARALLEL})"
     cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t test_individually || echo failed > build/test_status.txt
 fi
 

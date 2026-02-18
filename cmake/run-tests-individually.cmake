@@ -188,8 +188,8 @@ if(NOT "${_current_batch}" STREQUAL "")
 endif()
 
 list(LENGTH _batches _num_batches)
-message(STATUS "Running ${_num_tests} test(s) in ${_num_batches} batch(es), "
-  "max ${MAX_PROCS} parallel process(es)")
+message(STATUS "${TEST_SUITE}: ${_num_tests} test(s) in ${_num_batches} batch(es), "
+  "MAX_ARGS=${MAX_ARGS}, MAX_PROCS=${MAX_PROCS} (${_num_cpus} logical CPUs)")
 
 # ---------------------------------------------------------------------------
 # Generate a per-batch runner script invoked by each CTest test entry
