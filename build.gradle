@@ -112,6 +112,11 @@ if (isWindows && msystem != 'MINGW64') {
 }
 
 project.ext.numCpus = Runtime.runtime.availableProcessors()
+// Optimal number of test suites to run concurrently via cmake --build -j.
+// Each suite spawns ctest --parallel <all_cpus> internally, so running too
+// many suites simultaneously causes resource contention. These values were
+// determined empirically (see PR #2900).
+project.ext.testParallel = isWindows ? 2 : Math.max(1, (int) Math.ceil(numCpus / 3.0))
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,
                                 'SNAPSHOT': (isSnapshot ? 'yes' : 'no'),
@@ -223,7 +228,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test_individually"
+  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${testParallel} -t test_individually"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
