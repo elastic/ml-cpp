@@ -64,8 +64,8 @@ cd "$TOOLS_DIR/.."
 
 # Update Eigen and Valijson outside of Docker, as the Docker containers may not have the
 # necessary network access
-3rd_party/pull-eigen.sh
-3rd_party/pull-valijson.sh
+(cd 3rd_party && cmake -P pull-eigen.cmake)
+(cd 3rd_party && cmake -P pull-valijson.cmake)
 
 . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 

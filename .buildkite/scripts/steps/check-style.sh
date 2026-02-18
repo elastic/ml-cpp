@@ -16,4 +16,4 @@ source ${REPO_ROOT}/.buildkite/scripts/common/base.sh
 # override the setting in the check_style docker image
 unset CPP_SRC_HOME
 
-./dev-tools/check-style.sh ${@}
+cmake -DCHECK_ALL=ON -DSOURCE_DIR="$(pwd)" -P cmake/check-style.cmake

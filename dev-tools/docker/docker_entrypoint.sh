@@ -38,7 +38,7 @@ cmake -B cmake-build-docker ${CMAKE_FLAGS}
 cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j`nproc` -t install
 
 # Strip the binaries
-dev-tools/strip_binaries.sh
+cmake -P cmake/strip-binaries.cmake
 
 # Get the version number
 PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
