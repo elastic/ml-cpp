@@ -66,6 +66,9 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t test_individually || echo failed > build/test_status.txt
+    # Each test suite spawns ctest --parallel <nproc> internally, so limit
+    # the number of suites running concurrently to avoid resource contention.
+    TEST_PARALLEL=$(( ($(nproc) + 2) / 3 ))
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t test_individually || echo failed > build/test_status.txt
 fi
 
