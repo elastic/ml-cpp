@@ -86,6 +86,15 @@ if (isWindows) {
 // where the desired build type is specified at build time with the '--config' option. (It's safe to always specify the
 // '--config' option as it will simply be ignored by a single-config generated build system)
 String cmakeFlags = '--no-warn-unused-cli -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
+// Append any extra CMake flags from the environment (e.g. -DCMAKE_UNITY_BUILD=ON)
+String envCmakeFlags = System.env.CMAKE_FLAGS
+if (envCmakeFlags != null && !envCmakeFlags.isEmpty()) {
+  // Strip any toolchain file flag to avoid duplication
+  envCmakeFlags = envCmakeFlags.replaceAll(/-DCMAKE_TOOLCHAIN_FILE=\\S+/, '').trim()
+  if (!envCmakeFlags.isEmpty()) {
+    cmakeFlags += ' ' + envCmakeFlags
+  }
+}
 project.ext.cmakeBuildDir = "cmake-build-relwithdebinfo"
 project.ext.cmakeBuildType = "RelWithDebInfo"
 if (mlDebug.toBoolean()) {
