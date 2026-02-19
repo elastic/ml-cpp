@@ -64,6 +64,12 @@ detect_cpus() {
 NCPUS=$(detect_cpus)
 echo "CPU detection: nproc=$(nproc), cgroup-aware=${NCPUS}"
 
+# Set up sccache with GCS backend if credentials are available.
+# SCCACHE_GCS_BUCKET is exported by the Buildkite post-checkout hook.
+if [ -n "${SCCACHE_GCS_BUCKET:-}" ]; then
+  source ./dev-tools/setup_sccache.sh
+fi
+
 # Note: no need to clean due to the .dockerignore file
 
 # Configure the build
@@ -108,6 +114,12 @@ elif [ "x$1" = "x--test" ] ; then
     fi
     echo "Test parallelism: nproc=${NCPUS}, TEST_PARALLEL=${TEST_PARALLEL} (cmake --build -j ${TEST_PARALLEL})"
     cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t test_all_parallel || echo failed > build/test_status.txt
+fi
+
+# Print sccache stats if it was used
+if [ -n "${SCCACHE_PATH:-}" ]; then
+  "$SCCACHE_PATH" --show-stats || true
+  "$SCCACHE_PATH" --stop-server || true
 fi
 
 # Print sccache stats if it was used
