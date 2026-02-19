@@ -89,7 +89,9 @@ function Update-CmakeFlags {
 }
 
 function Start-SccacheServer {
-    & $Script:SccachePath --stop-server 2>$null
+    $ErrorActionPreference = "Continue"
+    & $Script:SccachePath --stop-server 2>&1 | Out-Null
+    $ErrorActionPreference = "Stop"
     & $Script:SccachePath --start-server
     Write-Host "sccache server started"
 }

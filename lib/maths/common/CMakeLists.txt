@@ -24,10 +24,13 @@ set_source_files_properties(
   CKMeansOnline1d.cc
   CKMostCorrelated.cc
   CLogNormalMeanPrecConjugate.cc
+  CMixtureDistribution.cc
   CModel.cc
   CMultimodalPrior.cc
   CMultinomialConjugate.cc
   CMultivariateConstantPrior.cc
+  CMultivariateMultimodalPriorFactory.cc
+  CMultivariateNormalConjugateFactory.cc
   CMultivariateOneOfNPrior.cc
   CNaiveBayes.cc
   CNaturalBreaksClassifier.cc

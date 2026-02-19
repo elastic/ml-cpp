@@ -56,7 +56,6 @@ def main(args):
             "env": {
               "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
-              "CMAKE_GENERATOR": "Ninja Multi-Config",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
