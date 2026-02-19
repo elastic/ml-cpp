@@ -26,11 +26,19 @@ set_source_files_properties(
   CCountingModel.cc
   CDataGatherer.cc
   CEventRateBucketGatherer.cc
+  CEventRateModel.cc
+  CEventRatePopulationModel.cc
   CForecastModelPersist.cc
   CHierarchicalResultsAggregator.cc
+  CIndividualModel.cc
   CMetricBucketGatherer.cc
+  CMetricModel.cc
+  CMetricPopulationModel.cc
   CModelDetailsView.cc
+  CPopulationModel.cc
+  CSampleCounts.cc
   CSearchKey.cc
+  CSimpleCountDetector.cc
   PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
 )
 
