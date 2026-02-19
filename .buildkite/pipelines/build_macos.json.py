@@ -43,7 +43,7 @@ envs = {
       "PATH": "/opt/homebrew/bin:$PATH",
       "ML_DEBUG": "0",
       "CPP_CROSS_COMPILE": "",
-      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake -DML_PCH=ON",
       "RUN_TESTS": "true",
       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
     }
@@ -67,7 +67,7 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": envs[arch],
-            "artifact_paths": "*/**/unittest/boost_test_results.junit;*/**/unittest/ml_test_*",
+            "artifact_paths": "*/**/unittest/boost_test_results.junit",
             "plugins": {
               "test-collector#v1.2.0": {                                                              
                 "files": "*/*/unittest/boost_test_results.junit",

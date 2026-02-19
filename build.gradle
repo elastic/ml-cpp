@@ -126,11 +126,10 @@ project.ext.numCpus = Runtime.runtime.availableProcessors()
 // many suites simultaneously causes resource contention. These values were
 // determined empirically (see PR #2900).
 // On low-core machines (<=4, e.g. macOS CI Orka VMs with 4 cores),
-// cap at numCpus-1 to leave headroom for timing-sensitive tests
-// (e.g. CKMostCorrelatedTest/testScale). For higher core counts,
-// ceil(numCpus/2) balances parallelism vs contention — ceil(numCpus/3)
-// was too conservative on 8-core machines (52 min vs 39.5 min).
-project.ext.testParallel = isWindows ? 2 : (numCpus <= 4 ? Math.max(2, numCpus - 1) : Math.max(2, (int) Math.ceil(numCpus / 2.0)))
+// use 2 to avoid starving timing-sensitive tests like
+// CKMostCorrelatedTest/testScale.  For higher core counts,
+// ceil(numCpus/2) balances parallelism vs contention.
+project.ext.testParallel = isWindows ? 2 : (numCpus <= 4 ? 2 : Math.max(2, (int) Math.ceil(numCpus / 2.0)))
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,
                                 'SNAPSHOT': (isSnapshot ? 'yes' : 'no'),
