@@ -17,7 +17,22 @@ set(ML_LINK_LIBRARIES
   MlMathsCommon
   MlMathsTimeSeries)
 
-set(CMAKE_UNITY_BUILD OFF)
+set_source_files_properties(
+  CAnnotatedProbability.cc
+  CAnomalyDetector.cc
+  CAnomalyDetectorModel.cc
+  CAnomalyScore.cc
+  CBucketGatherer.cc
+  CCountingModel.cc
+  CDataGatherer.cc
+  CEventRateBucketGatherer.cc
+  CForecastModelPersist.cc
+  CHierarchicalResultsAggregator.cc
+  CMetricBucketGatherer.cc
+  CModelDetailsView.cc
+  CSearchKey.cc
+  PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
 
 ml_add_library(MlModel SHARED
   CAnnotatedProbability.cc

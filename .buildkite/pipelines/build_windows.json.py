@@ -41,7 +41,8 @@ windows_agents = {
 common_env = {
     "ML_DEBUG": "0",
     "CPP_CROSS_COMPILE": "",
-    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake -DCMAKE_UNITY_BUILD=ON",
+    "CMAKE_GENERATOR": "Ninja Multi-Config",
+    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
 }
 
 def main(args):

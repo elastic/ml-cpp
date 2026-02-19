@@ -160,9 +160,9 @@ endif()
 # Dictate which flags to use for "Release", "RelWithDebinfo", "Debug" and "Sanitizer" builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
-  set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
-  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /O2 /Zi" CACHE STRING
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Z7 /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /Od /RTC1")
+  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /O2 /Z7" CACHE STRING
           "Flags used by the C++ compiler during sanitizer builds."
           FORCE)
   set(CMAKE_EXE_LINKER_FLAGS_SANITIZER "")
