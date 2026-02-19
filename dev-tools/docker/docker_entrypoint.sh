@@ -74,7 +74,7 @@ if [ "x$1" = "x--test" ] ; then
     # contention — ceil(nproc/3) was too conservative on 8-core machines.
     NCPUS=$(nproc)
     if [ "$NCPUS" -le 4 ]; then
-        TEST_PARALLEL=$(( NCPUS > 2 ? NCPUS - 1 : 2 ))
+        TEST_PARALLEL=2
     else
         TEST_PARALLEL=$(( (NCPUS + 1) / 2 ))
     fi
