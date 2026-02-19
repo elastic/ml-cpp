@@ -206,7 +206,6 @@ function(ml_add_library _target _type)
       <numeric>
       <map>
       <sstream>
-      <boost/unordered_map.hpp>
     )
   endif()
 
@@ -400,7 +399,6 @@ function(ml_add_test_executable _target)
       <map>
       <sstream>
       <boost/test/unit_test.hpp>
-      <boost/unordered_map.hpp>
     )
   endif()
 
