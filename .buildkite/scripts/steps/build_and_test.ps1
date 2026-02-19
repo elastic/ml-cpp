@@ -53,6 +53,17 @@ if (Test-Path Env:ML_DEBUG) {
     $DebugOption=""
 }
 
+# Diagnostic: check if Ninja is available for the CMake generator
+Write-Output "--- Ninja availability check ---"
+$ninjaCmd = Get-Command ninja -ErrorAction SilentlyContinue
+if ($ninjaCmd) {
+    Write-Output "ninja found: $($ninjaCmd.Source)"
+    & ninja --version
+} else {
+    Write-Output "ninja NOT found on PATH"
+    Write-Output "PATH: $Env:PATH"
+}
+
 # Set up sccache with GCS backend if the bucket env var has been injected
 if (Test-Path Env:SCCACHE_GCS_BUCKET) {
     . "$PSScriptRoot\..\..\..\dev-tools\setup_sccache.ps1"
