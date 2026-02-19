@@ -79,4 +79,6 @@ set(ML_LINK_LIBRARIES
   MlTest
   )
 
+set(CMAKE_UNITY_BUILD OFF)
+
 ml_add_test_executable(maths_common ${SRCS})

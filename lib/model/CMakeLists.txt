@@ -17,6 +17,8 @@ set(ML_LINK_LIBRARIES
   MlMathsCommon
   MlMathsTimeSeries)
 
+set(CMAKE_UNITY_BUILD OFF)
+
 ml_add_library(MlModel SHARED
   CAnnotatedProbability.cc
   CAnnotatedProbabilityBuilder.cc
