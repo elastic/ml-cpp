@@ -39,6 +39,14 @@ fi
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
+# Use fast zip compression for non-release builds (PR, main, feature branches).
+# Numbered branches (e.g. 8.16, 9.0) produce release artifacts that need full compression.
+if [[ "${BUILDKITE_BRANCH:-}" =~ ^[0-9]+\.[0-9x]+$ ]]; then
+    export ZIP_COMPRESSION_LEVEL=9
+else
+    export ZIP_COMPRESSION_LEVEL=1
+fi
+
 # Set up sccache with GCS backend if the bucket env var has been injected.
 # The post-checkout hook exports SCCACHE_GCS_BUCKET and writes the GCS key
 # to SCCACHE_GCS_KEY_FILE when credentials are available in Vault.
