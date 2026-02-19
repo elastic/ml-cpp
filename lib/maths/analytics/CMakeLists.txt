@@ -16,8 +16,6 @@ set(ML_LINK_LIBRARIES
   MlMathsCommon
   MlCore)
 
-set(CMAKE_UNITY_BUILD OFF)
-
 ml_add_library(MlMathsAnalytics SHARED
   CBoostedTree.cc
   CBoostedTreeFactory.cc

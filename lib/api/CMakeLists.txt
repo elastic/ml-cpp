@@ -21,7 +21,18 @@ set(ML_LINK_LIBRARIES
   $<$<BOOL:${WIN32}>:ws2_32>
   )
 
-set(CMAKE_UNITY_BUILD OFF)
+set_source_files_properties(
+  CAnomalyJob.cc
+  CAnomalyJobConfig.cc
+  CFieldDataCategorizer.cc
+  CForecastRunner.cc
+  CGlobalCategoryId.cc
+  CHierarchicalResultsWriter.cc
+  CModelSizeStatsJsonWriter.cc
+  CModelSnapshotJsonWriter.cc
+  CSingleFieldDataCategorizer.cc
+  PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
 
 ml_add_library(MlApi SHARED
   CAnnotationJsonWriter.cc
