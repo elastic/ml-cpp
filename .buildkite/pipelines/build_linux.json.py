@@ -67,7 +67,7 @@ def main(args):
                 "key": f"build_test_linux-{arch}-{build_type}",
                 "env": {
                   "ML_DEBUG": "0",
-                  "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON",
+                  "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
                   "CPP_CROSS_COMPILE": "",
                   "RUN_TESTS": "true",
                   "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
@@ -101,7 +101,7 @@ def main(args):
             "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
             "env": {
               "ML_DEBUG": "1",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DCMAKE_UNITY_BUILD=ON",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
               "CPP_CROSS_COMPILE": "",
               "RUN_TESTS": "true",
               "SKIP_ARTIFACT_UPLOAD": "true",
