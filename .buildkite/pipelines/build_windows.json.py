@@ -41,7 +41,7 @@ windows_agents = {
 common_env = {
     "ML_DEBUG": "0",
     "CPP_CROSS_COMPILE": "",
-    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake",
+    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake -DCMAKE_UNITY_BUILD=ON",
 }
 
 def main(args):

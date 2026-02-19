@@ -93,7 +93,7 @@ def main(args):
                     "key": build_key,
                     "env": {
                       **common_env,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON",
                       "RUN_TESTS": "false",
                     },
                     "notify": [
@@ -118,7 +118,7 @@ def main(args):
                     "env": {
                       **common_env,
                       "BUILD_STEP_KEY": build_key,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON",
                       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
                     },
                     "plugins": {
@@ -151,7 +151,7 @@ def main(args):
                     "key": build_key,
                     "env": {
                       **common_env,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON",
                       "RUN_TESTS": "false",
                     },
                     "notify": [
@@ -176,7 +176,7 @@ def main(args):
                     "env": {
                       **common_env,
                       "BUILD_STEP_KEY": build_key,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON",
                       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
                     },
                     "plugins": {
@@ -212,7 +212,7 @@ def main(args):
             "env": {
               **common_env,
               "ML_DEBUG": "1",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DCMAKE_UNITY_BUILD=ON",
               "RUN_TESTS": "false",
               "SKIP_ARTIFACT_UPLOAD": "true",
             },
@@ -239,7 +239,7 @@ def main(args):
               **common_env,
               "BUILD_STEP_KEY": debug_build_key,
               "ML_DEBUG": "1",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DCMAKE_UNITY_BUILD=ON",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "plugins": {

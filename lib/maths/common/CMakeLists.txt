@@ -15,6 +15,11 @@ set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES}
   MlCore)
 
+# Many source files in this library define identically-named constants
+# (EMPTY_STRING, DECAY_RATE_TAG, etc.) in anonymous namespaces, which
+# causes redefinition errors under unity builds.
+set(CMAKE_UNITY_BUILD OFF)
+
 ml_add_library(MlMathsCommon SHARED
   CAgglomerativeClusterer.cc
   CBasicStatistics.cc
