@@ -21,13 +21,19 @@ endif()
 message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 message (STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 
-# Use ccache if it is available
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-  message(STATUS "ccache found: ${CCACHE_FOUND}")
-  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_FOUND} CACHE STRING "" FORCE)
+# Use a compiler cache (sccache or ccache) if available.
+# If CMAKE_CXX_COMPILER_LAUNCHER is already set (e.g. by a CI script
+# pointing at sccache), respect that.  Otherwise auto-detect ccache.
+if(CMAKE_CXX_COMPILER_LAUNCHER)
+  message(STATUS "Compiler launcher already set: ${CMAKE_CXX_COMPILER_LAUNCHER}")
 else()
-  message(STATUS "ccache not found")
+  find_program(CCACHE_FOUND ccache)
+  if(CCACHE_FOUND)
+    message(STATUS "ccache found: ${CCACHE_FOUND}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_FOUND} CACHE STRING "" FORCE)
+  else()
+    message(STATUS "No compiler cache found")
+  endif()
 endif()
 
 # Our CI build scripts explicitly specify the toolchain file
