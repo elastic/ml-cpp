@@ -16,6 +16,8 @@ set(ML_LINK_LIBRARIES
   MlMathsCommon
   MlCore)
 
+set(CMAKE_UNITY_BUILD OFF)
+
 ml_add_library(MlMathsTimeSeries SHARED
   CAdaptiveBucketing.cc
   CCalendarComponent.cc

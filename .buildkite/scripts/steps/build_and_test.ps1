@@ -53,6 +53,37 @@ if (Test-Path Env:ML_DEBUG) {
     $DebugOption=""
 }
 
+# Ensure Ninja is available (required for Ninja Multi-Config generator)
+$ninjaCmd = Get-Command ninja -ErrorAction SilentlyContinue
+if ($ninjaCmd) {
+    Write-Output "ninja found: $($ninjaCmd.Source)"
+} else {
+    $ninjaVersion = "1.12.1"
+    $ninjaDir = "$Env:LOCALAPPDATA\ninja"
+    $ninjaExe = "$ninjaDir\ninja.exe"
+    if (Test-Path $ninjaExe) {
+        Write-Output "ninja already downloaded: $ninjaExe"
+    } else {
+        Write-Output "Downloading ninja v${ninjaVersion}..."
+        $url = "https://github.com/ninja-build/ninja/releases/download/v${ninjaVersion}/ninja-win.zip"
+        $zipPath = "$Env:TEMP\ninja-win.zip"
+        if (-not (Test-Path $ninjaDir)) { New-Item -ItemType Directory -Path $ninjaDir | Out-Null }
+        (New-Object Net.WebClient).DownloadFile($url, $zipPath)
+        Expand-Archive -Path $zipPath -DestinationPath $ninjaDir -Force
+        Remove-Item $zipPath -ErrorAction SilentlyContinue
+        Write-Output "ninja installed: $ninjaExe"
+    }
+    if ($Env:PATH -notlike "*$ninjaDir*") {
+        $Env:PATH = "$ninjaDir;$Env:PATH"
+    }
+}
+& ninja --version
+
+# Set up sccache with GCS backend if the bucket env var has been injected
+if (Test-Path Env:SCCACHE_GCS_BUCKET) {
+    . "$PSScriptRoot\..\..\..\dev-tools\setup_sccache.ps1"
+}
+
 # The exit code of the gradlew commands is checked explicitly, and their
 # stderr is treated as an error by PowerShell without this
 $ErrorActionPreference="Continue"
@@ -67,6 +98,12 @@ buildkite-agent artifact upload "windows-x86_64-unit_test_results.zip"
 
 if ($ExitCode -ne 0) {
     Exit $ExitCode
+}
+
+# Print sccache stats if it was used
+if (Test-Path Env:SCCACHE_PATH) {
+    & $Env:SCCACHE_PATH --show-stats 2>$null
+    & $Env:SCCACHE_PATH --stop-server 2>$null
 }
 
 buildkite-agent artifact upload "build/distributions/*"
