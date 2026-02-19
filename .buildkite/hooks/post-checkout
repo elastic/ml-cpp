@@ -31,10 +31,10 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     export BUILDKITE_API_READ_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/buildkite/api_read_token 2>/dev/null || echo "")
   fi
 
-  # sccache with GCS backend — inject credentials for all build_test steps.
-  # The GCS service account key is stored in Vault. Build scripts detect
-  # SCCACHE_GCS_BUCKET and configure sccache automatically.
-  if [[ "$BUILDKITE_STEP_KEY" == build_test_* ]]; then
+  # GCS service account — inject credentials for build and Java IT steps.
+  # Build steps use it for sccache; Java IT steps use it for the Gradle
+  # build cache.  The key is stored in Vault.
+  if [[ "$BUILDKITE_STEP_KEY" == build_test_* || "$BUILDKITE_STEP_KEY" == java_integration_tests_* ]]; then
     SCCACHE_GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
     if [ -n "$SCCACHE_GCS_KEY_JSON" ]; then
       export SCCACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
