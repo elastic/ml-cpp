@@ -28,6 +28,9 @@ ARG SNAPSHOT=yes
 # Pass through ML debug option (default blank)
 ARG ML_DEBUG=
 
+# Zip compression level (1=fast for CI, 9=max for release)
+ARG ZIP_COMPRESSION_LEVEL=9
+
 # Pass through the format of the unit test output files
 ARG BOOST_TEST_OUTPUT_FORMAT_FLAGS=
 

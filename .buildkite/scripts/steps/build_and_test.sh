@@ -39,6 +39,14 @@ fi
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
+# Use fast zip compression for non-release builds (PR, main, feature branches).
+# Numbered branches (e.g. 8.16, 9.0) produce release artifacts that need full compression.
+if [[ "${BUILDKITE_BRANCH:-}" =~ ^[0-9]+\.[0-9x]+$ ]]; then
+    export ZIP_COMPRESSION_LEVEL=9
+else
+    export ZIP_COMPRESSION_LEVEL=1
+fi
+
 TEST_OUTCOME=0
 if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then # linux aarch64 (native)
   # On Linux native aarch64 build using Docker
