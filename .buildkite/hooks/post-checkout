@@ -31,6 +31,20 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     export BUILDKITE_API_READ_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/buildkite/api_read_token 2>/dev/null || echo "")
   fi
 
+  # sccache with GCS backend — inject credentials for all build_test steps.
+  # The GCS service account key is stored in Vault. Build scripts detect
+  # SCCACHE_GCS_BUCKET and configure sccache automatically.
+  if [[ "$BUILDKITE_STEP_KEY" == build_test_* ]]; then
+    SCCACHE_GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
+    if [ -n "$SCCACHE_GCS_KEY_JSON" ]; then
+      export SCCACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
+      export SCCACHE_GCS_KEY_FILE=$(mktemp)
+      echo "$SCCACHE_GCS_KEY_JSON" > "$SCCACHE_GCS_KEY_FILE"
+      export GOOGLE_APPLICATION_CREDENTIALS="$SCCACHE_GCS_KEY_FILE"
+      export SCCACHE_GCS_KEY_PATH="$SCCACHE_GCS_KEY_FILE"
+    fi
+  fi
+
   if [[ "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then
     export DOCKER_REGISTRY_USERNAME=$(vault read --field=username  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
     export DOCKER_REGISTRY_PASSWORD=$(vault read --field=password  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
