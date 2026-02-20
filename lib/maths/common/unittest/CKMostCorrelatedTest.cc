@@ -753,9 +753,8 @@ BOOST_AUTO_TEST_CASE(testScale) {
         LOG_DEBUG(<< "n = " << n[s] << ", cpu time = " << elapsed[s] << "ms");
     }
 
-    LOG_DEBUG(<< "elapsed cpu times = "
-              << elapsed[0] << ", " << elapsed[1] << ", "
-              << elapsed[2] << ", " << elapsed[3]);
+    LOG_DEBUG(<< "elapsed cpu times = " << elapsed[0] << ", " << elapsed[1]
+              << ", " << elapsed[2] << ", " << elapsed[3]);
 
     TMeanVarAccumulator slope;
     for (std::size_t i = 1; i < std::size(elapsed); ++i) {
