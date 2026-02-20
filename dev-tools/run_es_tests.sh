@@ -131,6 +131,11 @@ GCS_CACHE_PATH=""
 if [ -n "${GRADLE_BUILD_CACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
     GCS_CACHE_PATH="gs://${GRADLE_BUILD_CACHE_GCS_BUCKET}/${CACHE_KEY}.tar.gz"
     if command -v gsutil &>/dev/null; then
+        # The gcloud SDK gsutil needs explicit service account activation;
+        # GOOGLE_APPLICATION_CREDENTIALS alone is not sufficient.
+        if command -v gcloud &>/dev/null; then
+            gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" 2>/dev/null || true
+        fi
         echo "--- Restoring Gradle build cache from $GCS_CACHE_PATH"
         mkdir -p "$GRADLE_CACHE_DIR"
         if gsutil -q stat "$GCS_CACHE_PATH" 2>/dev/null; then
