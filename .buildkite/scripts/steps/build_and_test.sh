@@ -42,12 +42,18 @@ HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 # Set up sccache with GCS backend if the bucket env var has been injected.
 # The post-checkout hook exports SCCACHE_GCS_BUCKET and writes the GCS key
 # to SCCACHE_GCS_KEY_FILE when credentials are available in Vault.
-if [ -n "${SCCACHE_GCS_BUCKET:-}" ]; then
+# Skip for Linux aarch64 native builds — those run in Docker which has its
+# own sccache setup via docker_entrypoint.sh.
+USES_DOCKER=false
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]]; then
+    USES_DOCKER=true
+fi
+if [ -n "${SCCACHE_GCS_BUCKET:-}" ] && [ "$USES_DOCKER" = false ]; then
     source "${REPO_ROOT}/dev-tools/setup_sccache.sh"
 fi
 
 TEST_OUTCOME=0
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then # linux aarch64 (native)
+if [ "$USES_DOCKER" = true ] ; then # linux aarch64 (native)
   # On Linux native aarch64 build using Docker
   
   # The Docker version is helpful to identify version-specific Docker bugs
