@@ -63,6 +63,10 @@ def main():
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
 
+    # Analyze failures with AI if the build failed
+    pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
+                                                       ".buildkite/pipelines/analyze_build_failure.yml.sh"))
+
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
