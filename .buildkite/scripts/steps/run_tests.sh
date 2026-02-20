@@ -15,7 +15,7 @@
 # monolithic build_and_test.sh because its Docker-based workflow makes
 # splitting more complex.
 
-set -euo pipefail
+set -eo pipefail
 
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 OS=$(uname -s | tr "A-Z" "a-z")

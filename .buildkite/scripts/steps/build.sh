@@ -15,7 +15,7 @@
 # monolithic build_and_test.sh because its Docker-based workflow makes
 # splitting more complex.
 
-set -euo pipefail
+set -eo pipefail
 
 if [ "${BUILD_SNAPSHOT:=true}" != false ] ; then
     BUILD_SNAPSHOT=true
