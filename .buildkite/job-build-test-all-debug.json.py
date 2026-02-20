@@ -57,6 +57,9 @@ def main():
     # Ingest step-level timings into Elasticsearch for anomaly detection
     pipeline_steps.append(pipeline_steps.generate_step("Ingest build timings",
                                                        ".buildkite/pipelines/ingest_build_timings.yml.sh"))
+    # Analyze failures with AI if the build failed
+    pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
+                                                       ".buildkite/pipelines/analyze_build_failure.yml.sh"))
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps

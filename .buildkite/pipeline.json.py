@@ -83,6 +83,9 @@ def main():
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
                                                        ".buildkite/pipelines/check_build_regression.yml.sh",
                                                        soft_fail=True))
+    # Analyze failures with AI if the build failed
+    pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
+                                                       ".buildkite/pipelines/analyze_build_failure.yml.sh"))
 
     # Validate the PyTorch allowlist against HuggingFace models when
     # triggered from the PyTorch edge pipeline.  Runs in a python:3
