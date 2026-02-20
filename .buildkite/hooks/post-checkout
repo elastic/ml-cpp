@@ -30,6 +30,7 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   if [[ "$BUILDKITE_STEP_KEY" == "analyze_build_failure" ]]; then
     export BUILDKITE_API_READ_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/buildkite/api_read_token 2>/dev/null || echo "")
     export ANTHROPIC_API_KEY=$(vault read -field=api_key secret/ci/elastic-ml-cpp/anthropic/claude 2>/dev/null || echo "")
+    export SLACK_WEBHOOK_URL=$(vault read -field=url secret/ci/elastic-ml-cpp/slack/build_failure_webhook 2>/dev/null || echo "")
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then

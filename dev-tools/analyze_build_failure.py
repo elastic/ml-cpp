@@ -2,7 +2,8 @@
 """Analyze a Buildkite build failure using Claude and post a diagnosis.
 
 Fetches logs from failed build steps, sends them to the Anthropic Claude API
-with repository context, and posts the analysis as a Buildkite annotation.
+with repository context, and posts the analysis as a Buildkite annotation
+and optionally to Slack.
 
 Usage:
     # Analyze the current build (in CI)
@@ -11,12 +12,13 @@ Usage:
     # Analyze a specific build
     python3 dev-tools/analyze_build_failure.py --pipeline ml-cpp-snapshot-builds --build 5819
 
-    # Dry run (print to stdout, don't annotate)
+    # Dry run (print to stdout, don't annotate or post to Slack)
     python3 dev-tools/analyze_build_failure.py --pipeline ml-cpp-snapshot-builds --build 5819 --dry-run
 
 Environment:
     BUILDKITE_TOKEN / BUILDKITE_API_READ_TOKEN   Buildkite API token
     ANTHROPIC_API_KEY                             Claude API key
+    SLACK_WEBHOOK_URL                             Slack incoming webhook (optional)
     BUILDKITE_PIPELINE_SLUG                       Current pipeline (set by Buildkite)
     BUILDKITE_BUILD_NUMBER                        Current build number (set by Buildkite)
 """
@@ -144,11 +146,88 @@ def call_claude(api_key, prompt):
     return "No analysis generated."
 
 
+def post_to_slack(webhook_url, pipeline, build_number, branch, build_url, analyses):
+    """Post a summary of the failure analysis to Slack."""
+    # Slack uses mrkdwn, not full markdown — convert minimally
+    blocks = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "Build Failure Analysis",
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": (
+                    f"*Pipeline:* `{pipeline}` | *Build:* <{build_url}|#{build_number}> | *Branch:* `{branch}`"
+                ),
+            },
+        },
+    ]
+
+    for step_label, analysis in analyses:
+        # Extract just the classification and root cause for a compact Slack message
+        lines = analysis.split("\n")
+        root_cause = ""
+        classification = ""
+        for i, line in enumerate(lines):
+            if line.startswith("### Root Cause"):
+                root_cause = lines[i + 1].strip() if i + 1 < len(lines) else ""
+            elif line.startswith("### Classification"):
+                classification = lines[i + 1].strip() if i + 1 < len(lines) else ""
+
+        emoji = {
+            "infrastructure/transient": ":cloud:",
+            "code bug": ":bug:",
+            "test failure": ":test_tube:",
+            "configuration": ":gear:",
+            "dependency": ":package:",
+        }.get(classification, ":warning:")
+
+        blocks.append({"type": "divider"})
+        blocks.append({
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"{emoji} *{step_label}*\n>{root_cause}\n_Classification: {classification}_",
+            },
+        })
+
+    blocks.append({"type": "divider"})
+    blocks.append({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": f"<{build_url}|View build> | Analysis by Claude — verify before acting",
+            }
+        ],
+    })
+
+    payload = json.dumps({"blocks": blocks}).encode("utf-8")
+    req = urllib.request.Request(
+        webhook_url,
+        data=payload,
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.status == 200:
+                print("Slack notification posted.")
+            else:
+                print(f"Slack returned status {resp.status}", file=sys.stderr)
+    except Exception as e:
+        print(f"Could not post to Slack: {e}", file=sys.stderr)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Analyze Buildkite build failures with Claude")
     parser.add_argument("--pipeline", default=os.environ.get("BUILDKITE_PIPELINE_SLUG"))
     parser.add_argument("--build", type=int, default=int(os.environ.get("BUILDKITE_BUILD_NUMBER", "0")))
-    parser.add_argument("--dry-run", action="store_true", help="Print analysis without annotating")
+    parser.add_argument("--dry-run", action="store_true", help="Print analysis without annotating or posting to Slack")
     args = parser.parse_args()
 
     if not args.pipeline or not args.build:
@@ -185,7 +264,11 @@ def main():
 
     print(f"Found {len(failed_jobs)} failed step(s)")
 
+    slack_webhook = get_env_or_file("SLACK_WEBHOOK_URL", "")
+    build_url = build.get("web_url", f"https://buildkite.com/{BUILDKITE_ORG}/{args.pipeline}/builds/{args.build}")
+
     all_analyses = []
+    slack_analyses = []
 
     for job in failed_jobs:
         step_key = job.get("step_key", "unknown")
@@ -224,6 +307,7 @@ Analyze the root cause and suggest a fix."""
 
         print(f"\n{analysis}")
         all_analyses.append(f"## {step_label}\n\n{analysis}")
+        slack_analyses.append((step_label, analysis))
 
     if not all_analyses:
         print("No analyses generated.")
@@ -247,6 +331,14 @@ Analyze the root cause and suggest a fix."""
         except (FileNotFoundError, subprocess.CalledProcessError) as e:
             print(f"\nCould not post annotation: {e}", file=sys.stderr)
             print("Full analysis printed above.")
+
+        if slack_webhook:
+            post_to_slack(
+                slack_webhook, args.pipeline, args.build,
+                build.get("branch", "?"), build_url, slack_analyses,
+            )
+        else:
+            print("No SLACK_WEBHOOK_URL set, skipping Slack notification.")
 
 
 if __name__ == "__main__":
