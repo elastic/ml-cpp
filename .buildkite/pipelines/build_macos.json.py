@@ -36,17 +36,13 @@ agents = {
       "image": "ml-macos-14-arm-003.orkasi"
    }
 }
-envs = {
-    "aarch64": {
-      "TMPDIR": "/tmp",
-      "HOMEBREW_PREFIX": "/opt/homebrew",
-      "PATH": "/opt/homebrew/bin:$PATH",
-      "ML_DEBUG": "0",
-      "CPP_CROSS_COMPILE": "",
-      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
-      "RUN_TESTS": "true",
-      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-    }
+common_env = {
+    "TMPDIR": "/tmp",
+    "HOMEBREW_PREFIX": "/opt/homebrew",
+    "PATH": "/opt/homebrew/bin:$PATH",
+    "ML_DEBUG": "0",
+    "CPP_CROSS_COMPILE": "",
+    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
 }
 
 def main(args):
@@ -56,20 +52,51 @@ def main(args):
         cur_build_types = [args.build_type]
 
     for arch, build_type in product(archs, cur_build_types):
+        build_key = f"build_macos-{arch}-{build_type}"
+
+        # Build step
         pipeline_steps.append({
-            "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
-            "timeout_in_minutes": "300",
+            "label": f"Build :cpp: for MacOS-{arch}-{build_type} :macos:",
+            "timeout_in_minutes": "180",
             "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              ".buildkite/scripts/steps/build_and_test.sh"
+              ".buildkite/scripts/steps/build.sh"
             ],
             "depends_on": "check_style",
+            "key": build_key,
+            "env": {
+              **common_env,
+              "RUN_TESTS": "false",
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": f"Build on MacOS {arch} {build_type}",
+                },
+              },
+            ],
+        })
+
+        # Test step
+        pipeline_steps.append({
+            "label": f"Test :cpp: for MacOS-{arch}-{build_type} :macos:",
+            "timeout_in_minutes": "60",
+            "agents": agents[arch],
+            "commands": [
+              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+              ".buildkite/scripts/steps/run_tests.sh"
+            ],
+            "depends_on": build_key,
             "key": f"build_test_macos-{arch}-{build_type}",
-            "env": envs[arch],
-            "artifact_paths": "*/**/unittest/boost_test_results.junit;*/**/unittest/ml_test_*",
+            "env": {
+              **common_env,
+              "RUN_TESTS": "true",
+              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+            },
+            "artifact_paths": "*/**/unittest/boost_test_results.junit",
             "plugins": {
-              "test-collector#v1.2.0": {                                                              
+              "test-collector#v1.2.0": {
                 "files": "*/*/unittest/boost_test_results.junit",
                 "format": "junit"
               }
@@ -77,7 +104,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build and test on MacOS {arch} {build_type}",
+                  "context": f"Test on MacOS {arch} {build_type}",
                 },
               },
             ],

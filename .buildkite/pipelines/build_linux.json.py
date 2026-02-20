@@ -46,6 +46,20 @@ agents = {
       "diskName": "/dev/xvda"
    }
 }
+# Test steps can request less memory since they don't compile
+test_agents = {
+   "x86_64": {
+      "cpu": "6",
+      "ephemeralStorage": "20G",
+      "memory": "32G",
+      "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:34")
+   },
+}
+
+common_env = {
+    "ML_DEBUG": "0",
+    "CPP_CROSS_COMPILE": "",
+}
 
 def main(args):
     pipeline_steps = []
@@ -55,37 +69,96 @@ def main(args):
 
     for arch, build_type in product(archs, cur_build_types):
         if args.build_x86_64 and arch == "x86_64" or args.build_aarch64 and arch == "aarch64":
-            pipeline_steps.append({
-                "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
-                "timeout_in_minutes": "240",
-                "agents": agents[arch],
-                "commands": [
-                  f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-                  ".buildkite/scripts/steps/build_and_test.sh"
-                ],
-                "depends_on": "check_style",
-                "key": f"build_test_linux-{arch}-{build_type}",
-                "env": {
-                  "ML_DEBUG": "0",
-                  "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                  "CPP_CROSS_COMPILE": "",
-                  "RUN_TESTS": "true",
-                  "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-                },
-                "plugins": {
-                  "test-collector#v1.2.0": {                                                              
-                    "files": "*/*/unittest/boost_test_results.junit",
-                    "format": "junit"
-                  }
-                },
-                "notify": [
-                  {
-                    "github_commit_status": {
-                      "context": f"Build and test on Linux {arch} {build_type}",
+
+            if arch == "x86_64":
+                # x86_64: split into separate build and test steps
+                build_key = f"build_linux-{arch}-{build_type}"
+
+                pipeline_steps.append({
+                    "label": f"Build :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": "180",
+                    "agents": agents[arch],
+                    "commands": [
+                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+                      ".buildkite/scripts/steps/build.sh"
+                    ],
+                    "depends_on": "check_style",
+                    "key": build_key,
+                    "env": {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "RUN_TESTS": "false",
                     },
-                  },
-                ],
-            })
+                    "notify": [
+                      {
+                        "github_commit_status": {
+                          "context": f"Build on Linux {arch} {build_type}",
+                        },
+                      },
+                    ],
+                })
+
+                pipeline_steps.append({
+                    "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": "60",
+                    "agents": test_agents[arch],
+                    "commands": [
+                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+                      ".buildkite/scripts/steps/run_tests.sh"
+                    ],
+                    "depends_on": build_key,
+                    "key": f"build_test_linux-{arch}-{build_type}",
+                    "env": {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+                    },
+                    "plugins": {
+                      "test-collector#v1.2.0": {
+                        "files": "*/*/unittest/boost_test_results.junit",
+                        "format": "junit"
+                      }
+                    },
+                    "notify": [
+                      {
+                        "github_commit_status": {
+                          "context": f"Test on Linux {arch} {build_type}",
+                        },
+                      },
+                    ],
+                })
+            else:
+                # aarch64: keep monolithic (Docker-based build+test is hard to split)
+                pipeline_steps.append({
+                    "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": "240",
+                    "agents": agents[arch],
+                    "commands": [
+                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+                      ".buildkite/scripts/steps/build_and_test.sh"
+                    ],
+                    "depends_on": "check_style",
+                    "key": f"build_test_linux-{arch}-{build_type}",
+                    "env": {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "RUN_TESTS": "true",
+                      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+                    },
+                    "plugins": {
+                      "test-collector#v1.2.0": {
+                        "files": "*/*/unittest/boost_test_results.junit",
+                        "format": "junit"
+                      }
+                    },
+                    "notify": [
+                      {
+                        "github_commit_status": {
+                          "context": f"Build and test on Linux {arch} {build_type}",
+                        },
+                      },
+                    ],
+                })
 
     # Add a debug build step for PR builds to detect compilation errors with optimization disabled
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
@@ -108,7 +181,7 @@ def main(args):
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "plugins": {
-              "test-collector#v1.2.0": {                                                              
+              "test-collector#v1.2.0": {
                 "files": "*/*/unittest/boost_test_results.junit",
                 "format": "junit"
               }
