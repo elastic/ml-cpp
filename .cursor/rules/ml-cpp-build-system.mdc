@@ -1,0 +1,69 @@
+---
+description: ml-cpp build system knowledge — CMake, Gradle, Docker, CI
+globs: CMakeLists.txt, cmake/**, build.gradle, dev-tools/**, .buildkite/**
+---
+
+# ml-cpp Build System
+
+## CMake Structure
+
+- Top-level `CMakeLists.txt` configures the project, includes `CTest`, detects compiler cache
+- `cmake/functions.cmake` defines `ml_add_library`, `ml_add_test_executable`, `ml_add_test`, `ml_install`
+- `cmake/variables.cmake` defines compiler flags per platform
+- Toolchain files: `cmake/{darwin-aarch64,linux-x86_64,linux-aarch64,windows-x86_64}.cmake`
+- `test/CMakeLists.txt` defines test targets: `ml_test`, `test_individually`, `build_tests`, `run_tests`
+
+## Important: CTest and Target Names
+
+- `include(CTest)` reserves the `test` target name — custom targets must not use it
+- Our monolithic test target is named `ml_test` (not `test`)
+- `test_individually` runs tests via CTest with parallel execution
+
+## Build Acceleration
+
+### Unity Builds (`-DCMAKE_UNITY_BUILD=ON`)
+- Combines multiple source files into single translation units
+- Effective on x86_64 (~41% faster), minimal on aarch64
+- Conflicts from anonymous-namespace symbols need `SKIP_UNITY_BUILD_INCLUSION`
+- Disabled entirely for: `MlMathsTimeSeries`, `MlMathsAnalytics`, `MlApi`, `ml_test_maths_common`, `ml_test_api`
+
+### Precompiled Headers (`-DML_PCH=ON`)
+- Custom option, applied in `cmake/functions.cmake` via `target_precompile_headers()`
+- STL headers + `<boost/test/unit_test.hpp>` for test targets
+- Do NOT include `<boost/unordered_map.hpp>` — conflicts with `boost/json.hpp` on GCC
+
+### sccache (GCS Backend)
+- `dev-tools/setup_sccache.sh` / `setup_sccache.ps1` — downloads, configures, starts
+- GCS bucket: `gs://elastic-ml-cpp-sccache`, per-platform prefix (`linux-x86_64/`, etc.)
+- Vault: `secret/ci/elastic-ml-cpp/sccache/gcs_service_account`
+- Requires `-DCMAKE_CXX_COMPILER_LAUNCHER=sccache` — top-level CMakeLists.txt respects existing launcher
+
+### Compiler Launcher Precedence
+If `CMAKE_CXX_COMPILER_LAUNCHER` is already set (e.g. sccache), the ccache auto-detection in `CMakeLists.txt` is skipped.
+
+### MSVC `/Z7` vs `/Zi`
+- `/Zi`: Debug info via shared PDB (`mspdbsrv.exe`) — serializes parallel compilation
+- `/Z7`: Debug info embedded in `.obj` — fully parallel, sccache-compatible
+- We use `/Z7` for all Windows configurations; `/FS` flag removed as unnecessary
+
+## Gradle Integration
+
+- `build.gradle` invokes CMake for macOS and Windows builds
+- `task test` calls `cmake --build ... -t ml_test`
+- `task check` depends on `test`
+- `testParallel` formula: `numCpus <= 4 ? 2 : Math.ceil(numCpus / 2.0)` (Unix), `2` (Windows)
+- Environment `CMAKE_FLAGS` are appended to Gradle's internal cmake flags (stripping duplicate toolchain)
+
+## Docker Builds (Linux)
+
+- `dev-tools/docker/docker_entrypoint.sh` — main build/test script inside containers
+- `dev-tools/docker_build.sh` / `docker_test.sh` — host orchestration
+- Linux aarch64 builds run in Docker; x86_64 runs `docker_entrypoint.sh` directly
+- cgroup-aware CPU detection: check `/sys/fs/cgroup/cpu.max` (cgroups v2) or `/sys/fs/cgroup/cpu/cpu.cfs_{quota,period}_us` (v1)
+- `ZIP_COMPRESSION_LEVEL`: 1 for PR/debug builds, 9 for release branches
+
+## Test Parallelism
+
+- Test parallelism formula: `numCpus <= 4 ? 2 : ceil(numCpus / 2)`
+- CKMostCorrelatedTest/testScale is CPU-time-sensitive — keep parallelism conservative on low-core machines
+- Each test suite internally uses `ctest --parallel <cpus>` for individual test case parallelism
