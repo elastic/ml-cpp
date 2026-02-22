@@ -11,9 +11,10 @@
 # Test step: downloads the test bundle from the build step, extracts it, and
 # runs all test suites in parallel via CTest.
 #
-# Used for Linux x86_64 and macOS. Linux aarch64 continues to use the
-# monolithic build_and_test.sh because its Docker-based workflow makes
-# splitting more complex.
+# The test bundle contains pre-built test executables and ALL shared libraries.
+# We set DYLD_LIBRARY_PATH (macOS) / LD_LIBRARY_PATH (Linux) to override the
+# absolute rpaths baked in at link time, allowing the executables to find libs
+# even though this agent's workspace path differs from the build agent's.
 
 set -eo pipefail
 
@@ -36,18 +37,24 @@ BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
 echo "Extracted ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
 rm -f "${TEST_BUNDLE}"
 
-# Ensure test executables are executable (tar should preserve this, but be safe)
+# Ensure test executables are executable
 find ${BUILD_DIR}/test -name "ml_test_*" -type f -exec chmod +x {} \;
+
+# Build library search path from all .so/.dylib directories in the bundle.
+# This overrides the absolute build-time rpaths so tests can find libs on
+# a different agent.
+LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
+    \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" \
+    -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
+
+if [[ "$(uname)" = "Linux" ]]; then
+    export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+else
+    export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+fi
 
 echo "--- Running tests"
 TEST_OUTCOME=0
-
-# Set LD_LIBRARY_PATH for Linux so test executables can find our shared libs
-if [[ "$(uname)" = "Linux" ]]; then
-    DIST_LIB="$(pwd)/build/distribution/platform/linux-${HARDWARE_ARCH}/lib"
-    BUILD_LIB="$(find $(pwd)/${BUILD_DIR}/lib -name 'libMl*.so' -printf '%h\n' 2>/dev/null | sort -u | tr '\n' ':')"
-    export LD_LIBRARY_PATH="${DIST_LIB}:${BUILD_LIB}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-fi
 
 cmake \
     -DSOURCE_DIR="$(pwd)" \

@@ -35,22 +35,19 @@ fi
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 OS=$(uname -s | tr "A-Z" "a-z")
 
-# Ensure we're in the repo root
+# Save PATH before set_env.sh resets it (it removes buildkite-agent etc.)
+ORIGINAL_PATH="$PATH"
+
 cd "${REPO_ROOT:-.}"
 
 if [[ "$(uname)" = "Linux" ]]; then
-    # --- Linux x86_64: build directly (k8s pod IS the build environment) ---
     BUILD_DIR="cmake-build-docker"
-
-    # Build libraries, install, strip, package
     dev-tools/docker/docker_entrypoint.sh
 
-    # Build test executables (docker_entrypoint.sh without --test doesn't)
     echo "--- Building test executables"
     . ./set_env.sh
     cmake --build ${BUILD_DIR} -j$(nproc) -t build_tests
 else
-    # --- macOS: build via Gradle ---
     BUILD_DIR="cmake-build-relwithdebinfo"
     ./gradlew --info \
         -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} \
@@ -58,24 +55,27 @@ else
         -Dbuild.ml_debug=${ML_DEBUG:-0} \
         clean compile strip buildZip buildZipSymbols
 
-    # Build test executables
     echo "--- Building test executables"
     . ./set_env.sh
     cmake --build ${BUILD_DIR} -j$(sysctl -n hw.logicalcpu) -t build_tests
 fi
 
+# Restore PATH for buildkite-agent access
+export PATH="$ORIGINAL_PATH"
+
 # --- Create and upload test bundle ---
+# The bundle contains test executables AND all shared libraries (ours + 3rd
+# party) so the test step can run on a different agent without needing the
+# original build tree. DYLD_LIBRARY_PATH / LD_LIBRARY_PATH overrides the
+# absolute rpaths baked in at link time.
 echo "--- Creating test bundle"
 TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
 
 {
-    # Test executables
     find ${BUILD_DIR}/test -name "ml_test_*" -type f \( -perm -u=x -o -name "*.exe" \) 2>/dev/null
-    # Our shared libraries (built by us, needed at runtime)
-    find ${BUILD_DIR}/lib -name "libMl*.so" -o -name "libMl*.dylib" 2>/dev/null
-    # The installed distribution (contains shared libs for LD_LIBRARY_PATH / @rpath)
+    find ${BUILD_DIR}/lib -name "*.so" -o -name "*.dylib" 2>/dev/null
     if [ -d "build/distribution" ]; then
-        find build/distribution -type f \( -name "libMl*" -o -name "*.so" -o -name "*.dylib" \) 2>/dev/null
+        find build/distribution -type f \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" 2>/dev/null
     fi
 } | sort -u > /tmp/test-bundle-files.txt
 
@@ -88,7 +88,6 @@ BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
 echo "Test bundle: ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
 buildkite-agent artifact upload "${TEST_BUNDLE}"
 
-# --- Upload distribution artifacts ---
 if [[ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
     buildkite-agent artifact upload "build/distributions/*.zip"
 fi

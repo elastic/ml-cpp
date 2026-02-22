@@ -48,55 +48,50 @@ if ($BuildExitCode -ne 0) {
     Exit $BuildExitCode
 }
 
-# Build test executables
+# Build test executables via cmake (Gradle's configure task already ran cmake -B)
 Write-Output "--- Building test executables"
 $BuildDir = "cmake-build-relwithdebinfo"
 $BuildType = "RelWithDebInfo"
 
-$ErrorActionPreference="Continue"
-& ".\gradlew.bat" --info "-Dbuild.version_qualifier=$Env:VERSION_QUALIFIER" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" $DebugOption configure 2>&1 | % { "$_" }
-$ErrorActionPreference="Stop"
-
-# set_env.bat needs to run in cmd context for the cmake call
+# set_env.bat configures the PATH for cmake/compiler access
 & cmd.exe /c "set_env.bat && cmake --build $BuildDir --config $BuildType -j $Env:NUMBER_OF_PROCESSORS -t build_tests"
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "--- Building test executables failed"
+    Exit $LASTEXITCODE
+}
 
-# Create test bundle — a zip containing test executables and shared libs,
-# preserving relative directory structure so it extracts in-place.
+# Create test bundle — tar preserves relative directory structure.
+# Include test executables, our DLLs, and 3rd-party DLLs from the distribution.
 Write-Output "--- Creating test bundle"
-$TestBundle = "windows-x86_64-test-bundle.zip"
+$TestBundle = "windows-x86_64-test-bundle.tar.gz"
+$RepoRoot = (Get-Location).Path
 
-# Collect files with their relative paths
-$FilesToBundle = @()
+$RelativePaths = @()
 
-# Test executables
+# Test executables (in config-specific subdirectories like RelWithDebInfo/)
 Get-ChildItem -Path "$BuildDir\test" -Recurse -Filter "ml_test_*.exe" | ForEach-Object {
-    $FilesToBundle += $_.FullName
+    $RelativePaths += $_.FullName.Substring($RepoRoot.Length + 1).Replace("\", "/")
 }
 
-# Our shared libraries in the build directory
+# Our DLLs from the build tree
 Get-ChildItem -Path "$BuildDir\lib" -Recurse -Filter "Ml*.dll" -ErrorAction SilentlyContinue | ForEach-Object {
-    $FilesToBundle += $_.FullName
-}
-Get-ChildItem -Path "$BuildDir\lib" -Recurse -Filter "Ml*.lib" -ErrorAction SilentlyContinue | ForEach-Object {
-    $FilesToBundle += $_.FullName
+    $RelativePaths += $_.FullName.Substring($RepoRoot.Length + 1).Replace("\", "/")
 }
 
-# Installed distribution (DLLs needed at runtime)
+# All DLLs from the installed distribution (our libs + 3rd party)
 if (Test-Path "build\distribution") {
     Get-ChildItem -Path "build\distribution" -Recurse -Filter "*.dll" -ErrorAction SilentlyContinue | ForEach-Object {
-        $FilesToBundle += $_.FullName
+        $RelativePaths += $_.FullName.Substring($RepoRoot.Length + 1).Replace("\", "/")
     }
 }
 
-Write-Output "Bundling $($FilesToBundle.Count) files into $TestBundle"
+Write-Output "Bundling $($RelativePaths.Count) files into $TestBundle"
 
-# Use tar to preserve directory structure relative to repo root
-$RepoRoot = (Get-Location).Path
-$RelativePaths = $FilesToBundle | ForEach-Object { $_.Replace("$RepoRoot\", "").Replace("\", "/") }
+# Write file list WITHOUT BOM (tar doesn't handle BOM)
 $FileList = Join-Path $Env:TEMP "test-bundle-files.txt"
-$RelativePaths | Out-File -FilePath $FileList -Encoding utf8
+[System.IO.File]::WriteAllLines($FileList, $RelativePaths)
 
-& tar czf "$TestBundle" -T "$FileList"
+& tar czf $TestBundle -T $FileList
 $BundleSize = [math]::Round((Get-Item $TestBundle).Length / 1MB)
 Write-Output "Test bundle: $TestBundle (${BundleSize}MB)"
 
