@@ -72,33 +72,35 @@ cmake -B cmake-build-docker ${CMAKE_FLAGS}
 # Build the code
 cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j${NCPUS} -t install
 
-# Strip the binaries
-cmake -P cmake/strip-binaries.cmake
+if [ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ] ; then
+    # Strip the binaries
+    cmake -P cmake/strip-binaries.cmake
 
-# Get the version number
-PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
-if [ -n "$VERSION_QUALIFIER" ] ; then
-    PRODUCT_VERSION="$PRODUCT_VERSION-$VERSION_QUALIFIER"
+    # Get the version number
+    PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
+    if [ -n "$VERSION_QUALIFIER" ] ; then
+        PRODUCT_VERSION="$PRODUCT_VERSION-$VERSION_QUALIFIER"
+    fi
+    if [ "$SNAPSHOT" = yes ] ; then
+        PRODUCT_VERSION="$PRODUCT_VERSION-SNAPSHOT"
+    fi
+
+    ARTIFACT_NAME=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^artifactName' | awk -F= '{ print $2 }' | xargs echo`
+
+    # Create the output artifacts
+    cd build/distribution
+    mkdir -p ../distributions
+    ZIP_LEVEL=${ZIP_COMPRESSION_LEVEL:-9}
+    echo "Zip compression level: ${ZIP_LEVEL}"
+    # Exclude import libraries, test support libraries, debug files and core dumps
+    zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
+    # Include only debug files
+    zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
+    cd ../..
 fi
-if [ "$SNAPSHOT" = yes ] ; then
-    PRODUCT_VERSION="$PRODUCT_VERSION-SNAPSHOT"
-fi
-
-ARTIFACT_NAME=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^artifactName' | awk -F= '{ print $2 }' | xargs echo`
-
-# Create the output artifacts
-cd build/distribution
-mkdir -p ../distributions
-ZIP_LEVEL=${ZIP_COMPRESSION_LEVEL:-9}
-echo "Zip compression level: ${ZIP_LEVEL}"
-# Exclude import libraries, test support libraries, debug files and core dumps
-zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
-# Include only debug files
-zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
-cd ../..
 
 if [ "x$1" = "x--build-tests" ] ; then
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t build_tests
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests
 elif [ "x$1" = "x--test" ] ; then
     echo passed > build/test_status.txt
     if [ "$NCPUS" -le 4 ]; then
@@ -106,8 +108,9 @@ elif [ "x$1" = "x--test" ] ; then
     else
         TEST_PARALLEL=$(( (NCPUS + 1) / 2 ))
     fi
-    echo "Test parallelism: nproc=${NCPUS}, TEST_PARALLEL=${TEST_PARALLEL} (cmake --build -j ${TEST_PARALLEL})"
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t test_all_parallel || echo failed > build/test_status.txt
+    echo "Test parallelism: nproc=${NCPUS}, TEST_PARALLEL=${TEST_PARALLEL}"
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t build_tests || echo failed > build/test_status.txt
+    cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
 fi
 
 # Print sccache stats if it was used
