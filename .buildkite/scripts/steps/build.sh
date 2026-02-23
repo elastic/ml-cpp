@@ -43,6 +43,9 @@ cd "${REPO_ROOT:-.}"
 
 if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = Linux ]]; then
     # --- Linux aarch64 (native): Docker-based build ---
+    # The Dockerfile runs docker_entrypoint.sh --build-tests which compiles
+    # libraries, creates release artifacts, AND builds test executables in a
+    # single docker build layer.
     BUILD_DIR="cmake-build-docker"
 
     docker --version
@@ -58,7 +61,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     DOCKERFILE="$TOOLS_DIR/docker/linux_aarch64_native_builder/Dockerfile"
     TEMP_TAG=$(git rev-parse --short=14 HEAD)-linux_aarch64_native-$$
 
-    echo "--- Building libraries (Docker)"
+    echo "--- Building libraries and test executables (Docker)"
     prefetch_docker_base_image "$DOCKERFILE"
     docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain \
         --build-arg VERSION_QUALIFIER="${VERSION_QUALIFIER:-}" \
@@ -66,19 +69,13 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         --build-arg ML_DEBUG="${ML_DEBUG:-}" \
         -f "$DOCKERFILE" .
 
-    echo "--- Building test executables (Docker)"
-    docker run --name ${TEMP_TAG}-tests $TEMP_TAG bash -c \
-        'source /ml-cpp/set_env.sh && cmake --build /ml-cpp/cmake-build-docker -j$(nproc) -t build_tests'
-    docker commit ${TEMP_TAG}-tests ${TEMP_TAG}-with-tests
-    docker rm ${TEMP_TAG}-tests
-
-    echo "--- Extracting build artifacts"
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c \
-        "tar cf - build/distributions && sleep 5" | tar xvf -
-
-    echo "--- Creating test bundle"
+    echo "--- Extracting build artifacts and creating test bundle"
     TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
-    docker run --rm --workdir=/ml-cpp ${TEMP_TAG}-with-tests bash -c '
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c '
+        tar cf - build/distributions
+    ' | tar xf -
+
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c '
         {
             find cmake-build-docker/test -name "ml_test_*" -type f -executable 2>/dev/null
             find cmake-build-docker/lib -name "*.so" 2>/dev/null
@@ -88,7 +85,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         tar czf - -T /tmp/bundle-files.txt
     ' > "${TEST_BUNDLE}"
 
-    docker rmi --force $TEMP_TAG ${TEMP_TAG}-with-tests
+    docker rmi --force $TEMP_TAG
 
     export PATH="$ORIGINAL_PATH"
 
@@ -103,11 +100,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
 elif [[ "$(uname)" = "Linux" ]]; then
     # --- Linux x86_64: direct build (agent already inside Docker) ---
     BUILD_DIR="cmake-build-docker"
-    dev-tools/docker/docker_entrypoint.sh
-
-    echo "--- Building test executables"
-    . ./set_env.sh
-    cmake --build ${BUILD_DIR} -j$(nproc) -t build_tests
+    dev-tools/docker/docker_entrypoint.sh --build-tests
 
     export PATH="$ORIGINAL_PATH"
 

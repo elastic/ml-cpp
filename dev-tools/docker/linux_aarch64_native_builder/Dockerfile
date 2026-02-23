@@ -31,7 +31,7 @@ ARG ML_DEBUG=
 # Pass through the format of the unit test output files
 ARG BOOST_TEST_OUTPUT_FORMAT_FLAGS=
 
-# Run the build
+# Build libraries, artifacts, and test executables
 RUN \
-  /ml-cpp/dev-tools/docker/docker_entrypoint.sh
+  /ml-cpp/dev-tools/docker/docker_entrypoint.sh --build-tests
 

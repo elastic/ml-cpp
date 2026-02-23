@@ -71,14 +71,9 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
                 -P cmake/run-all-tests-parallel.cmake
         ' || TEST_OUTCOME=$?
 
-    KERNEL_VERSION=$(uname -r)
-    if [[ $TEST_OUTCOME -eq 0 ]]; then
-        echo "--- Re-running seccomp tests outside Docker (kernel: $KERNEL_VERSION)"
-        chmod +x ${BUILD_DIR}/test/lib/seccomp/unittest/ml_test_seccomp
-        (cd ${BUILD_DIR}/test/lib/seccomp/unittest && \
-            LD_LIBRARY_PATH=$(cd ../../../../build/distribution/platform/linux-aarch64/lib 2>/dev/null && pwd) \
-            ./ml_test_seccomp) || TEST_OUTCOME=$?
-    fi
+    # Seccomp tests run inside the Docker container which shares the host
+    # kernel, so the kernel's seccomp filters are exercised without needing
+    # a separate outside-Docker run.
 
 else
     # --- Linux x86_64 / macOS: run tests directly ---
