@@ -36,13 +36,17 @@ agents = {
       "image": "ml-macos-14-arm-003.orkasi"
    }
 }
-common_env = {
-    "TMPDIR": "/tmp",
-    "HOMEBREW_PREFIX": "/opt/homebrew",
-    "PATH": "/opt/homebrew/bin:$PATH",
-    "ML_DEBUG": "0",
-    "CPP_CROSS_COMPILE": "",
-    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
+envs = {
+    "aarch64": {
+      "TMPDIR": "/tmp",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "PATH": "/opt/homebrew/bin:$PATH",
+      "ML_DEBUG": "0",
+      "CPP_CROSS_COMPILE": "",
+      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
+      "RUN_TESTS": "true",
+      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+    }
 }
 
 def main(args):
@@ -66,7 +70,7 @@ def main(args):
             "depends_on": "check_style",
             "key": build_key,
             "env": {
-              **common_env,
+              **envs[arch],
               "RUN_TESTS": "false",
             },
             "notify": [
@@ -89,11 +93,7 @@ def main(args):
             ],
             "depends_on": build_key,
             "key": f"build_test_macos-{arch}-{build_type}",
-            "env": {
-              **common_env,
-              "RUN_TESTS": "true",
-              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-            },
+            "env": envs[arch],
             "artifact_paths": "*/**/unittest/boost_test_results.junit",
             "plugins": {
               "test-collector#v1.2.0": {

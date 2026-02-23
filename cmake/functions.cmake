@@ -490,6 +490,23 @@ add_custom_target(format
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_custom_target(strip_binaries
+  COMMENT "Stripping binaries to reduce distribution size"
+  COMMAND ${CMAKE_COMMAND}
+    -DCPP_PLATFORM_HOME=${CPP_PLATFORM_HOME}
+    -P ${CMAKE_SOURCE_DIR}/cmake/strip-binaries.cmake
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(check_style
+  COMMENT "Checking code style and copyright headers"
+  COMMAND ${CMAKE_COMMAND}
+    -DCHECK_ALL=ON
+    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -P ${CMAKE_SOURCE_DIR}/cmake/check-style.cmake
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 add_custom_target(precommit
   COMMENT "Running essential tasks prior to code commit"
   DEPENDS format test
