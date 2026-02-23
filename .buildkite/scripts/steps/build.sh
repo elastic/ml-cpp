@@ -53,9 +53,6 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     MY_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
     TOOLS_DIR="$MY_DIR/dev-tools"
 
-    3rd_party/pull-eigen.sh
-    3rd_party/pull-valijson.sh
-
     . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 
     DOCKERFILE="$TOOLS_DIR/docker/linux_aarch64_native_builder/Dockerfile"
