@@ -11,9 +11,10 @@
 # Build step: compiles libraries, installs, strips, packages, builds test
 # executables, and uploads a test bundle artifact for the separate test step.
 #
-# Used for Linux x86_64 and macOS. Linux aarch64 continues to use the
-# monolithic build_and_test.sh because its Docker-based workflow makes
-# splitting more complex.
+# Supports all platforms:
+#   - Linux x86_64: builds directly (agent runs inside Docker image)
+#   - Linux aarch64: builds via Docker (docker build + docker run)
+#   - macOS: builds via Gradle
 
 set -eo pipefail
 
@@ -40,14 +41,101 @@ ORIGINAL_PATH="$PATH"
 
 cd "${REPO_ROOT:-.}"
 
-if [[ "$(uname)" = "Linux" ]]; then
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = Linux ]]; then
+    # --- Linux aarch64 (native): Docker-based build ---
+    BUILD_DIR="cmake-build-docker"
+
+    docker --version
+
+    MY_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
+    TOOLS_DIR="$MY_DIR/dev-tools"
+
+    3rd_party/pull-eigen.sh
+    3rd_party/pull-valijson.sh
+
+    . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
+
+    DOCKERFILE="$TOOLS_DIR/docker/linux_aarch64_native_builder/Dockerfile"
+    TEMP_TAG=$(git rev-parse --short=14 HEAD)-linux_aarch64_native-$$
+
+    echo "--- Building libraries (Docker)"
+    prefetch_docker_base_image "$DOCKERFILE"
+    docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain \
+        --build-arg VERSION_QUALIFIER="${VERSION_QUALIFIER:-}" \
+        --build-arg SNAPSHOT=$SNAPSHOT \
+        --build-arg ML_DEBUG="${ML_DEBUG:-}" \
+        -f "$DOCKERFILE" .
+
+    echo "--- Building test executables (Docker)"
+    docker run --name ${TEMP_TAG}-tests $TEMP_TAG bash -c \
+        'source /ml-cpp/set_env.sh && cmake --build /ml-cpp/cmake-build-docker -j$(nproc) -t build_tests'
+    docker commit ${TEMP_TAG}-tests ${TEMP_TAG}-with-tests
+    docker rm ${TEMP_TAG}-tests
+
+    echo "--- Extracting build artifacts"
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c \
+        "tar cf - build/distributions && sleep 5" | tar xvf -
+
+    echo "--- Creating test bundle"
+    TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
+    docker run --rm --workdir=/ml-cpp ${TEMP_TAG}-with-tests bash -c '
+        {
+            find cmake-build-docker/test -name "ml_test_*" -type f -executable 2>/dev/null
+            find cmake-build-docker/lib -name "*.so" 2>/dev/null
+            find build/distribution -name "*.so" -not -path "*.debug*" 2>/dev/null
+        } | sort -u > /tmp/bundle-files.txt
+        echo "Files in bundle: $(wc -l < /tmp/bundle-files.txt)" >&2
+        tar czf - -T /tmp/bundle-files.txt
+    ' > "${TEST_BUNDLE}"
+
+    docker rmi --force $TEMP_TAG ${TEMP_TAG}-with-tests
+
+    export PATH="$ORIGINAL_PATH"
+
+    BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
+    echo "Test bundle: ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
+    buildkite-agent artifact upload "${TEST_BUNDLE}"
+
+    if [[ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
+        buildkite-agent artifact upload "build/distributions/*.zip"
+    fi
+
+elif [[ "$(uname)" = "Linux" ]]; then
+    # --- Linux x86_64: direct build (agent already inside Docker) ---
     BUILD_DIR="cmake-build-docker"
     dev-tools/docker/docker_entrypoint.sh
 
     echo "--- Building test executables"
     . ./set_env.sh
     cmake --build ${BUILD_DIR} -j$(nproc) -t build_tests
+
+    export PATH="$ORIGINAL_PATH"
+
+    echo "--- Creating test bundle"
+    TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
+
+    {
+        find ${BUILD_DIR}/test -name "ml_test_*" -type f \( -perm -u=x -o -name "*.exe" \) 2>/dev/null
+        find ${BUILD_DIR}/lib -name "*.so" -o -name "*.dylib" 2>/dev/null
+        if [ -d "build/distribution" ]; then
+            find build/distribution -type f \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" 2>/dev/null
+        fi
+    } | sort -u > /tmp/test-bundle-files.txt
+
+    BUNDLE_FILES=$(wc -l < /tmp/test-bundle-files.txt | tr -d ' ')
+    echo "Bundling ${BUNDLE_FILES} files into ${TEST_BUNDLE}"
+    tar czf "${TEST_BUNDLE}" -T /tmp/test-bundle-files.txt
+
+    BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
+    echo "Test bundle: ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
+    buildkite-agent artifact upload "${TEST_BUNDLE}"
+
+    if [[ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
+        buildkite-agent artifact upload "build/distributions/*.zip"
+    fi
+
 else
+    # --- macOS ---
     BUILD_DIR="cmake-build-relwithdebinfo"
     ./gradlew --info \
         -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} \
@@ -58,36 +146,29 @@ else
     echo "--- Building test executables"
     . ./set_env.sh
     cmake --build ${BUILD_DIR} -j$(sysctl -n hw.logicalcpu) -t build_tests
-fi
 
-# Restore PATH for buildkite-agent access
-export PATH="$ORIGINAL_PATH"
+    export PATH="$ORIGINAL_PATH"
 
-# --- Create and upload test bundle ---
-# The bundle contains test executables AND all shared libraries (ours + 3rd
-# party) so the test step can run on a different agent without needing the
-# original build tree. DYLD_LIBRARY_PATH / LD_LIBRARY_PATH overrides the
-# absolute rpaths baked in at link time.
-echo "--- Creating test bundle"
-TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
+    echo "--- Creating test bundle"
+    TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
 
-{
-    find ${BUILD_DIR}/test -name "ml_test_*" -type f \( -perm -u=x -o -name "*.exe" \) 2>/dev/null
-    find ${BUILD_DIR}/lib -name "*.so" -o -name "*.dylib" 2>/dev/null
-    if [ -d "build/distribution" ]; then
-        find build/distribution -type f \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" 2>/dev/null
+    {
+        find ${BUILD_DIR}/test -name "ml_test_*" -type f \( -perm -u=x -o -name "*.exe" \) 2>/dev/null
+        find ${BUILD_DIR}/lib -name "*.so" -o -name "*.dylib" 2>/dev/null
+        if [ -d "build/distribution" ]; then
+            find build/distribution -type f \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" 2>/dev/null
+        fi
+    } | sort -u > /tmp/test-bundle-files.txt
+
+    BUNDLE_FILES=$(wc -l < /tmp/test-bundle-files.txt | tr -d ' ')
+    echo "Bundling ${BUNDLE_FILES} files into ${TEST_BUNDLE}"
+    tar czf "${TEST_BUNDLE}" -T /tmp/test-bundle-files.txt
+
+    BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
+    echo "Test bundle: ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
+    buildkite-agent artifact upload "${TEST_BUNDLE}"
+
+    if [[ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
+        buildkite-agent artifact upload "build/distributions/*.zip"
     fi
-} | sort -u > /tmp/test-bundle-files.txt
-
-BUNDLE_FILES=$(wc -l < /tmp/test-bundle-files.txt | tr -d ' ')
-echo "Bundling ${BUNDLE_FILES} files into ${TEST_BUNDLE}"
-
-tar czf "${TEST_BUNDLE}" -T /tmp/test-bundle-files.txt
-
-BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
-echo "Test bundle: ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
-buildkite-agent artifact upload "${TEST_BUNDLE}"
-
-if [[ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ]] ; then
-    buildkite-agent artifact upload "build/distributions/*.zip"
 fi

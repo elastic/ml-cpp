@@ -54,6 +54,13 @@ test_agents = {
       "memory": "32G",
       "image": os.getenv("DOCKER_IMAGE", "docker.elastic.co/ml-dev/ml-linux-build:34")
    },
+   "aarch64": {
+      "provider": "aws",
+      "instanceType": "m6g.2xlarge",
+      "imagePrefix": "core-almalinux-8-aarch64",
+      "diskSizeGb": "100",
+      "diskName": "/dev/xvda"
+   },
 }
 
 common_env = {
@@ -128,21 +135,46 @@ def main(args):
                     ],
                 })
             else:
-                # aarch64: keep monolithic (Docker-based build+test is hard to split)
+                # aarch64: split into build and test steps
+                build_key = f"build_linux-{arch}-{build_type}"
+
                 pipeline_steps.append({
-                    "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
-                    "timeout_in_minutes": "240",
+                    "label": f"Build :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": "180",
                     "agents": agents[arch],
                     "commands": [
                       f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-                      ".buildkite/scripts/steps/build_and_test.sh"
+                      ".buildkite/scripts/steps/build.sh"
                     ],
                     "depends_on": "check_style",
+                    "key": build_key,
+                    "env": {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "RUN_TESTS": "false",
+                    },
+                    "notify": [
+                      {
+                        "github_commit_status": {
+                          "context": f"Build on Linux {arch} {build_type}",
+                        },
+                      },
+                    ],
+                })
+
+                pipeline_steps.append({
+                    "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": "60",
+                    "agents": test_agents[arch],
+                    "commands": [
+                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+                      ".buildkite/scripts/steps/run_tests.sh"
+                    ],
+                    "depends_on": build_key,
                     "key": f"build_test_linux-{arch}-{build_type}",
                     "env": {
                       **common_env,
                       "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "RUN_TESTS": "true",
                       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
                     },
                     "plugins": {
@@ -154,7 +186,7 @@ def main(args):
                     "notify": [
                       {
                         "github_commit_status": {
-                          "context": f"Build and test on Linux {arch} {build_type}",
+                          "context": f"Test on Linux {arch} {build_type}",
                         },
                       },
                     ],

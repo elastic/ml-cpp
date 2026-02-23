@@ -28,6 +28,8 @@ else
     BUILD_DIR="cmake-build-relwithdebinfo"
 fi
 
+cd "${REPO_ROOT:-.}"
+
 echo "--- Downloading test bundle"
 buildkite-agent artifact download "${TEST_BUNDLE}" .
 
@@ -37,29 +39,67 @@ BUNDLE_MB=$(du -m "${TEST_BUNDLE}" | cut -f1)
 echo "Extracted ${TEST_BUNDLE} (${BUNDLE_MB}MB)"
 rm -f "${TEST_BUNDLE}"
 
-# Ensure test executables are executable
-find ${BUILD_DIR}/test -name "ml_test_*" -type f -exec chmod +x {} \;
-
-# Build library search path from all .so/.dylib directories in the bundle.
-# This overrides the absolute build-time rpaths so tests can find libs on
-# a different agent.
-LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
-    \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" \
-    -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
-
-if [[ "$(uname)" = "Linux" ]]; then
-    export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-else
-    export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
-fi
-
-echo "--- Running tests"
 TEST_OUTCOME=0
 
-cmake \
-    -DSOURCE_DIR="$(pwd)" \
-    -DBUILD_DIR="$(pwd)/${BUILD_DIR}" \
-    -P cmake/run-all-tests-parallel.cmake || TEST_OUTCOME=$?
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = Linux ]]; then
+    # --- Linux aarch64: run tests inside Docker container from base image ---
+    BASE_IMAGE="docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
+
+    echo "--- Running tests (Docker)"
+    docker run --rm \
+        -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
+        -v "$(pwd)/build:/ml-cpp/build" \
+        -v "$(pwd)/lib:/ml-cpp/lib:ro" \
+        -v "$(pwd)/bin:/ml-cpp/bin:ro" \
+        -v "$(pwd)/cmake:/ml-cpp/cmake:ro" \
+        -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
+        -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
+        -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
+        -w /ml-cpp \
+        $BASE_IMAGE bash -c '
+            source ./set_env.sh
+
+            LIB_DIRS=$(find /ml-cpp/cmake-build-docker/lib /ml-cpp/build/distribution \
+                -name "*.so" -exec dirname {} \; 2>/dev/null | sort -u | tr "\n" ":")
+            export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib"
+
+            chmod -R +x cmake-build-docker/test/ 2>/dev/null
+
+            cmake \
+                -DSOURCE_DIR=/ml-cpp \
+                -DBUILD_DIR=/ml-cpp/cmake-build-docker \
+                -P cmake/run-all-tests-parallel.cmake
+        ' || TEST_OUTCOME=$?
+
+    KERNEL_VERSION=$(uname -r)
+    if [[ $TEST_OUTCOME -eq 0 ]]; then
+        echo "--- Re-running seccomp tests outside Docker (kernel: $KERNEL_VERSION)"
+        chmod +x ${BUILD_DIR}/test/lib/seccomp/unittest/ml_test_seccomp
+        (cd ${BUILD_DIR}/test/lib/seccomp/unittest && \
+            LD_LIBRARY_PATH=$(cd ../../../../build/distribution/platform/linux-aarch64/lib 2>/dev/null && pwd) \
+            ./ml_test_seccomp) || TEST_OUTCOME=$?
+    fi
+
+else
+    # --- Linux x86_64 / macOS: run tests directly ---
+    find ${BUILD_DIR}/test -name "ml_test_*" -type f -exec chmod +x {} \;
+
+    LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
+        \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" \
+        -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
+
+    if [[ "$(uname)" = "Linux" ]]; then
+        export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    else
+        export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+    fi
+
+    echo "--- Running tests"
+    cmake \
+        -DSOURCE_DIR="$(pwd)" \
+        -DBUILD_DIR="$(pwd)/${BUILD_DIR}" \
+        -P cmake/run-all-tests-parallel.cmake || TEST_OUTCOME=$?
+fi
 
 # Upload test results
 echo "--- Uploading test results"
