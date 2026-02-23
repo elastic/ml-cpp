@@ -87,9 +87,10 @@ if (Test-Path "build\distribution") {
 
 Write-Output "Bundling $($RelativePaths.Count) files into $TestBundle"
 
-# Write file list WITHOUT BOM (tar doesn't handle BOM)
+# Write file list with LF line endings (tar treats \r as part of the filename)
 $FileList = Join-Path $Env:TEMP "test-bundle-files.txt"
-[System.IO.File]::WriteAllLines($FileList, $RelativePaths)
+$content = $RelativePaths -join "`n"
+[System.IO.File]::WriteAllText($FileList, $content, (New-Object System.Text.UTF8Encoding $false))
 
 & tar czf $TestBundle -T $FileList
 $BundleSize = [math]::Round((Get-Item $TestBundle).Length / 1MB)
