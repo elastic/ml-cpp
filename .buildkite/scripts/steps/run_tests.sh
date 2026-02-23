@@ -49,8 +49,8 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     docker run --rm \
         -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
         -v "$(pwd)/build:/ml-cpp/build" \
-        -v "$(pwd)/lib:/ml-cpp/lib:ro" \
-        -v "$(pwd)/bin:/ml-cpp/bin:ro" \
+        -v "$(pwd)/lib:/ml-cpp/lib" \
+        -v "$(pwd)/bin:/ml-cpp/bin" \
         -v "$(pwd)/cmake:/ml-cpp/cmake:ro" \
         -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
         -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
@@ -77,6 +77,8 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
 
 else
     # --- Linux x86_64 / macOS: run tests directly ---
+    . ./set_env.sh
+
     find ${BUILD_DIR}/test -name "ml_test_*" -type f -exec chmod +x {} \;
 
     LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
