@@ -283,6 +283,9 @@ if(NOT _ctest_rc EQUAL 0)
 endif()
 
 # --- Merge JUnit results per suite ---
+# Each batch writes boost_test_results_<batch>.junit in the suite's source
+# directory.  Merge them into a single valid boost_test_results.junit per
+# suite by extracting <testcase> elements and wrapping in one <testsuite>.
 foreach(_suite_entry ${_suites})
   string(REPLACE ":" ";" _parts "${_suite_entry}")
   list(GET _parts 0 _name)
@@ -290,14 +293,69 @@ foreach(_suite_entry ${_suites})
 
   file(GLOB _junit_files "${SOURCE_DIR}/${_src_dir}/boost_test_results_*.junit")
   list(LENGTH _junit_files _n_junit)
-  if(_n_junit GREATER 0)
-    set(_merged "")
-    foreach(_f ${_junit_files})
-      file(READ "${_f}" _content)
-      string(APPEND _merged "${_content}\n")
-    endforeach()
-    file(WRITE "${SOURCE_DIR}/${_src_dir}/boost_test_results.junit" "${_merged}")
+  if(_n_junit EQUAL 0)
+    continue()
   endif()
+
+  set(_all_testcases "")
+  set(_total_tests 0)
+  set(_total_failures 0)
+  set(_total_errors 0)
+  set(_total_skipped 0)
+  set(_total_time 0)
+  set(_suite_name "")
+
+  foreach(_f ${_junit_files})
+    file(READ "${_f}" _content)
+
+    # Extract suite name from the first file
+    if(_suite_name STREQUAL "")
+      string(REGEX MATCH "name=\"([^\"]+)\"" _name_match "${_content}")
+      if(_name_match)
+        string(REGEX REPLACE "name=\"([^\"]+)\"" "\\1" _suite_name "${_name_match}")
+      endif()
+    endif()
+
+    # Accumulate counts
+    string(REGEX MATCH "tests=\"([0-9]+)\"" _m "${_content}")
+    if(_m)
+      string(REGEX REPLACE "tests=\"([0-9]+)\"" "\\1" _v "${_m}")
+      math(EXPR _total_tests "${_total_tests} + ${_v}")
+    endif()
+    string(REGEX MATCH "failures=\"([0-9]+)\"" _m "${_content}")
+    if(_m)
+      string(REGEX REPLACE "failures=\"([0-9]+)\"" "\\1" _v "${_m}")
+      math(EXPR _total_failures "${_total_failures} + ${_v}")
+    endif()
+    string(REGEX MATCH "errors=\"([0-9]+)\"" _m "${_content}")
+    if(_m)
+      string(REGEX REPLACE "errors=\"([0-9]+)\"" "\\1" _v "${_m}")
+      math(EXPR _total_errors "${_total_errors} + ${_v}")
+    endif()
+    string(REGEX MATCH "skipped=\"([0-9]+)\"" _m "${_content}")
+    if(_m)
+      string(REGEX REPLACE "skipped=\"([0-9]+)\"" "\\1" _v "${_m}")
+      math(EXPR _total_skipped "${_total_skipped} + ${_v}")
+    endif()
+
+    # Extract all <testcase .../> and <testcase ...>...</testcase> elements
+    string(REGEX MATCHALL "<testcase [^<]*(/>([\r\n])?|>([^<]|<[^/]|</[^t]|</t[^e])*</testcase>)" _cases "${_content}")
+    foreach(_case ${_cases})
+      string(APPEND _all_testcases "${_case}\n")
+    endforeach()
+  endforeach()
+
+  if(_suite_name STREQUAL "")
+    set(_suite_name "ml_test_${_name}")
+  endif()
+
+  set(_merged "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+  string(APPEND _merged "<testsuite tests=\"${_total_tests}\" skipped=\"${_total_skipped}\" errors=\"${_total_errors}\" failures=\"${_total_failures}\" id=\"0\" name=\"${_suite_name}\">\n")
+  string(APPEND _merged "${_all_testcases}")
+  string(APPEND _merged "</testsuite>\n")
+
+  file(WRITE "${SOURCE_DIR}/${_src_dir}/boost_test_results.junit" "${_merged}")
+  message(STATUS "Merged ${_n_junit} JUnit files for ml_test_${_name}: ${_total_tests} tests, ${_total_failures} failures")
 endforeach()
 
 # Signal pass/fail for the calling target
