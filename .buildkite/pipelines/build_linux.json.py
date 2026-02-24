@@ -192,24 +192,51 @@ def main(args):
                     ],
                 })
 
-    # Add a debug build step for PR builds to detect compilation errors with optimization disabled
+    # Add debug build/test steps for PR builds to detect compilation errors with optimization disabled
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
             os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
+        debug_build_key = "build_linux-x86_64-RelWithDebInfo-debug"
+
         pipeline_steps.append({
-            "label": "Build & test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
-            "timeout_in_minutes": "240",
+            "label": "Build :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
+            "timeout_in_minutes": "180",
             "agents": agents["x86_64"],
             "commands": [
-              ".buildkite/scripts/steps/build_and_test.sh"
+              "export ML_DEBUG=1",
+              ".buildkite/scripts/steps/build.sh"
             ],
             "depends_on": "check_style",
-            "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
+            "key": debug_build_key,
             "env": {
+              **common_env,
               "ML_DEBUG": "1",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
-              "CPP_CROSS_COMPILE": "",
-              "RUN_TESTS": "true",
+              "RUN_TESTS": "false",
               "SKIP_ARTIFACT_UPLOAD": "true",
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": "Build on Linux x86_64 RelWithDebInfo (debug)",
+                },
+              },
+            ],
+        })
+
+        pipeline_steps.append({
+            "label": "Test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
+            "timeout_in_minutes": "60",
+            "agents": test_agents["x86_64"],
+            "commands": [
+              "export ML_DEBUG=1",
+              ".buildkite/scripts/steps/run_tests.sh"
+            ],
+            "depends_on": debug_build_key,
+            "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
+            "env": {
+              **common_env,
+              "ML_DEBUG": "1",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "plugins": {
@@ -221,7 +248,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": "Build and test on Linux x86_64 RelWithDebInfo (debug)",
+                  "context": "Test on Linux x86_64 RelWithDebInfo (debug)",
                 },
               },
             ],
