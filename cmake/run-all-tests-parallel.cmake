@@ -43,7 +43,7 @@ endif()
 # Multi-config generators (Visual Studio, Ninja Multi-Config) place executables
 # in a config-specific subdirectory (e.g. RelWithDebInfo/).
 if(DEFINED BUILD_TYPE AND NOT BUILD_TYPE STREQUAL "")
-  set(_config_subdir "${BUILD_TYPE}/")
+  set(_config_subdir "/${BUILD_TYPE}")
 else()
   set(_config_subdir "")
 endif()
@@ -93,7 +93,7 @@ foreach(_suite_entry ${_suites})
   list(GET _parts 0 _name)
   list(GET _parts 1 _src_dir)
 
-  set(_exe "${BUILD_DIR}/test/${_src_dir}/${_config_subdir}ml_test_${_name}${_exe_suffix}")
+  set(_exe "${BUILD_DIR}/test/${_src_dir}${_config_subdir}/ml_test_${_name}${_exe_suffix}")
 
   if(NOT EXISTS "${_exe}")
     message(WARNING "Test executable not found: ${_exe}, skipping")
@@ -169,7 +169,7 @@ foreach(_suite_entry ${_suites})
   list(GET _parts 0 _name)
   list(GET _parts 1 _src_dir)
 
-  set(_test_binary_dir "${BUILD_DIR}/test/${_src_dir}/${_config_subdir}")
+  set(_test_binary_dir "${BUILD_DIR}/test/${_src_dir}${_config_subdir}")
   file(GLOB _old_out "${_test_binary_dir}/ml_test_${_name}*.out")
   file(GLOB _old_failed "${_test_binary_dir}/ml_test_${_name}*.failed")
   file(GLOB _old_junit "${SOURCE_DIR}/${_src_dir}/boost_test_results*.junit")
@@ -227,7 +227,7 @@ foreach(_suite_entry ${_suites})
 
       string(APPEND _ctest_file_content
         "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
-        " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}/${_config_subdir}\""
+        " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}${_config_subdir}\""
         " \"-DTEST_NAME=ml_test_${_name}\""
         " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
         "set_tests_properties(\"${_test_label}\" PROPERTIES"
@@ -252,7 +252,7 @@ foreach(_suite_entry ${_suites})
 
     string(APPEND _ctest_file_content
       "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
-      " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}/${_config_subdir}\""
+      " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}${_config_subdir}\""
       " \"-DTEST_NAME=ml_test_${_name}\""
       " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
       "set_tests_properties(\"${_test_label}\" PROPERTIES"
