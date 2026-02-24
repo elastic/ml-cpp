@@ -314,26 +314,25 @@ foreach(_suite_entry ${_suites})
       endif()
     endif()
 
-    # Accumulate failure/error counts
-    string(REGEX MATCH "failures=\"([0-9]+)\"" _m "${_content}")
-    if(_m)
-      string(REGEX REPLACE "failures=\"([0-9]+)\"" "\\1" _v "${_m}")
-      math(EXPR _total_failures "${_total_failures} + ${_v}")
-    endif()
-    string(REGEX MATCH "errors=\"([0-9]+)\"" _m "${_content}")
-    if(_m)
-      string(REGEX REPLACE "errors=\"([0-9]+)\"" "\\1" _v "${_m}")
-      math(EXPR _total_errors "${_total_errors} + ${_v}")
-    endif()
-
     # Extract all <testcase .../> and <testcase ...>...</testcase> elements,
     # excluding disabled tests (those containing <skipped).
+    # Derive failure/error counts from the actual included test cases rather
+    # than from the batch-level <testsuite> attributes, to stay consistent
+    # with the filtered test count.
     string(REGEX MATCHALL "<testcase [^<]*(/>([\r\n])?|>([^<]|<[^/]|</[^t]|</t[^e])*</testcase>)" _cases "${_content}")
     foreach(_case ${_cases})
       string(FIND "${_case}" "<skipped" _skip_pos)
       if(_skip_pos EQUAL -1)
         string(APPEND _all_testcases "${_case}\n")
         math(EXPR _total_tests "${_total_tests} + 1")
+        string(FIND "${_case}" "<failure" _fail_pos)
+        if(NOT _fail_pos EQUAL -1)
+          math(EXPR _total_failures "${_total_failures} + 1")
+        endif()
+        string(FIND "${_case}" "<error" _err_pos)
+        if(NOT _err_pos EQUAL -1)
+          math(EXPR _total_errors "${_total_errors} + 1")
+        endif()
       endif()
     endforeach()
   endforeach()
@@ -348,7 +347,7 @@ foreach(_suite_entry ${_suites})
   string(APPEND _merged "</testsuite>\n")
 
   file(WRITE "${SOURCE_DIR}/${_src_dir}/boost_test_results.junit" "${_merged}")
-  message(STATUS "Merged ${_n_junit} JUnit files for ml_test_${_name}: ${_total_tests} tests, ${_total_failures} failures")
+  message(STATUS "Merged ${_n_junit} JUnit files for ml_test_${_name}: ${_total_tests} tests, ${_total_failures} failures, ${_total_errors} errors")
 endforeach()
 
 # Signal pass/fail for the calling target
