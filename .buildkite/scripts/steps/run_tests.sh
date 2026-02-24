@@ -103,7 +103,11 @@ echo "--- Uploading test results"
 TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
 find . \( -path "*/**/ml_test_*.out" -o -path "*/**/*.junit" \) -print0 | tar czf ${TEST_RESULTS_ARCHIVE} --null -T - 2>/dev/null || true
 if [ -f "${TEST_RESULTS_ARCHIVE}" ]; then
+    ARCHIVE_MB=$(du -m "${TEST_RESULTS_ARCHIVE}" | cut -f1)
+    echo "Uploading ${TEST_RESULTS_ARCHIVE} (${ARCHIVE_MB}MB)"
     buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}" 2>/dev/null || true
+else
+    echo "No test results archive created"
 fi
 
 exit $TEST_OUTCOME
