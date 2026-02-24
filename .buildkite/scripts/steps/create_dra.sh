@@ -76,8 +76,10 @@ find . \( -path "**/libMl*" -o \
 
 cd -
 
-# Create a CSV report on 3rd party dependencies we redistribute
-cmake -D OUTPUT_FILE=build/distributions/dependencies-${VERSION}.csv -P 3rd_party/dependency_report.cmake
+# Create a CSV report on 3rd party dependencies we redistribute.
+# This step runs on a JDK image without cmake, so use the bash script
+# rather than cmake -P 3rd_party/dependency_report.cmake.
+./3rd_party/dependency_report.sh --csv build/distributions/dependencies-${VERSION}.csv
 
 # Upload the newly created artifacts
 buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}*.zip;build/distributions/dependencies-${VERSION}.csv"
