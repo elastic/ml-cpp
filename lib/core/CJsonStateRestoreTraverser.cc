@@ -35,7 +35,13 @@ CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream
 }
 
 bool CJsonStateRestoreTraverser::isEof() const {
-    return m_ReadStream.eof();
+    if (m_ReadStream.eof()) {
+        return true;
+    }
+    // On some platforms (notably Windows), eof() is not set until a read past
+    // the end is attempted. Use peek() as a portable fallback to check whether
+    // the stream has been exhausted.
+    return m_ReadStream.peek() == std::char_traits<char>::eof();
 }
 
 bool CJsonStateRestoreTraverser::next() {
@@ -307,8 +313,7 @@ bool CJsonStateRestoreTraverser::start() {
     // For Ml state the first token should be the start of a JSON
     // object, but we don't store it
     if (m_Handler.s_Type != SBoostJsonHandler::E_TokenObjectStart) {
-        if (m_IsArrayOfObjects &&
-            m_Handler.s_Type == SBoostJsonHandler::E_TokenArrayEnd && this->isEof()) {
+        if (m_IsArrayOfObjects && m_Handler.s_Type == SBoostJsonHandler::E_TokenArrayEnd) {
             LOG_DEBUG(<< "JSON document is an empty array");
             return false;
         }

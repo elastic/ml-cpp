@@ -38,7 +38,7 @@ cmake -B cmake-build-docker ${CMAKE_FLAGS}
 cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j`nproc` -t install
 
 # Strip the binaries
-dev-tools/strip_binaries.sh
+cmake -P cmake/strip-binaries.cmake
 
 # Get the version number
 PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
@@ -66,6 +66,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t test_individually || echo failed > build/test_status.txt
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t test_all_parallel || echo failed > build/test_status.txt
 fi
 
