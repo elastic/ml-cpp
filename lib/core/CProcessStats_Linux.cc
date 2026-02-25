@@ -18,6 +18,7 @@
 #include <string.h>
 #include <sys/resource.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 namespace ml {
 namespace core {
@@ -56,7 +57,7 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
 
 std::size_t CProcessStats::residentSetSize() {
     std::string statm;
-    std::size_t rss;
+    std::size_t rss{0};
 
     if (readFromSystemFile("/proc/self/statm", statm) == true) {
         std::vector<std::string> tokens;
@@ -73,6 +74,9 @@ std::size_t CProcessStats::residentSetSize() {
                       << " from /proc/self/statm: " << statm);
             return 0;
         }
+
+        // /proc/self/statm reports values in pages; convert to bytes
+        rss *= static_cast<std::size_t>(::sysconf(_SC_PAGE_SIZE));
     }
 
     return rss;
