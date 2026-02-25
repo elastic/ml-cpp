@@ -68,6 +68,15 @@ else()
   set(_max_args 2)
 endif()
 
+# Per-test timeout in seconds.  Prevents a single hung or extremely slow test
+# batch from consuming the entire step timeout budget and blocking JUnit merge
+# and artifact upload.
+if(DEFINED ENV{TEST_TIMEOUT})
+  set(_test_timeout $ENV{TEST_TIMEOUT})
+else()
+  set(_test_timeout 2700)
+endif()
+
 # --- Discover all test suites ---
 # Each test suite is defined by its executable and the source directory
 # (which is the working directory for that suite's tests).
@@ -250,6 +259,7 @@ foreach(_suite_entry ${_suites})
         " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
         "set_tests_properties(\"${_test_label}\" PROPERTIES"
         " WORKING_DIRECTORY \"${SOURCE_DIR}/${_src_dir}\""
+        " TIMEOUT ${_test_timeout}"
         " ENVIRONMENT \"TESTS=${_run_test}\")\n"
       )
 
@@ -275,13 +285,14 @@ foreach(_suite_entry ${_suites})
       " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
       "set_tests_properties(\"${_test_label}\" PROPERTIES"
       " WORKING_DIRECTORY \"${SOURCE_DIR}/${_src_dir}\""
+      " TIMEOUT ${_test_timeout}"
       " ENVIRONMENT \"TESTS=${_run_test}\")\n"
     )
   endif()
 endforeach()
 
 message(STATUS "Total: ${_test_count} test cases in ${_batch_id} batches across all suites")
-message(STATUS "Running with MAX_PROCS=${_max_procs}, MAX_ARGS=${_max_args} (${_num_cpus} logical CPUs)")
+message(STATUS "Running with MAX_PROCS=${_max_procs}, MAX_ARGS=${_max_args}, TIMEOUT=${_test_timeout}s (${_num_cpus} logical CPUs)")
 
 # --- Write CTestTestfile.cmake ---
 file(WRITE "${_ctest_dir}/CTestTestfile.cmake" "${_ctest_file_content}")
