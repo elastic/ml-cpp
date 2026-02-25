@@ -90,6 +90,7 @@ def main(args):
             "key": f"build_test_Windows-{arch}-{build_type}",
             "env": {
               **common_env,
+              "BUILD_STEP_KEY": build_key,
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },

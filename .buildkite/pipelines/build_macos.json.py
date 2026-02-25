@@ -93,7 +93,10 @@ def main(args):
             ],
             "depends_on": build_key,
             "key": f"build_test_macos-{arch}-{build_type}",
-            "env": envs[arch],
+            "env": {
+              **envs[arch],
+              "BUILD_STEP_KEY": build_key,
+            },
             "artifact_paths": "*/**/unittest/boost_test_results.junit",
             "plugins": {
               "test-collector#v1.2.0": {

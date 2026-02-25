@@ -31,7 +31,11 @@ fi
 cd "${REPO_ROOT:-.}"
 
 echo "--- Downloading test bundle"
-buildkite-agent artifact download "${TEST_BUNDLE}" .
+if [ -n "${BUILD_STEP_KEY:-}" ]; then
+    buildkite-agent artifact download "${TEST_BUNDLE}" . --step "${BUILD_STEP_KEY}"
+else
+    buildkite-agent artifact download "${TEST_BUNDLE}" .
+fi
 
 echo "--- Extracting test bundle"
 tar xzf "${TEST_BUNDLE}"
