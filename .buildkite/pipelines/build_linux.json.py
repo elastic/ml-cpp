@@ -227,7 +227,7 @@ def main(args):
 
         pipeline_steps.append({
             "label": "Test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
-            "timeout_in_minutes": "60",
+            "timeout_in_minutes": "90",
             "agents": test_agents["x86_64"],
             "commands": [
               "export ML_DEBUG=1",

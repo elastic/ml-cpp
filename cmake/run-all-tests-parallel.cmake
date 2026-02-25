@@ -163,13 +163,31 @@ if(_test_count EQUAL 0)
   message(FATAL_ERROR "No test cases discovered")
 endif()
 
+# For multi-config generators (Visual Studio, Ninja Multi-Config), copy test
+# executables from the config-specific subdirectory up one level.  Some tests
+# (e.g. CProgNameTest::testProgDir) assume the executable resides directly in
+# the unittest directory, matching the old ml_add_test() behaviour.
+if(NOT _config_subdir STREQUAL "")
+  foreach(_suite_entry ${_suites})
+    string(REPLACE ":" ";" _parts "${_suite_entry}")
+    list(GET _parts 0 _name)
+    list(GET _parts 1 _src_dir)
+    set(_src_exe "${BUILD_DIR}/test/${_src_dir}${_config_subdir}/ml_test_${_name}${_exe_suffix}")
+    set(_dst_exe "${BUILD_DIR}/test/${_src_dir}/ml_test_${_name}${_exe_suffix}")
+    if(EXISTS "${_src_exe}")
+      file(COPY_FILE "${_src_exe}" "${_dst_exe}")
+      message(STATUS "Copied ml_test_${_name} from ${_config_subdir} to parent directory")
+    endif()
+  endforeach()
+endif()
+
 # --- Clean previous results ---
 foreach(_suite_entry ${_suites})
   string(REPLACE ":" ";" _parts "${_suite_entry}")
   list(GET _parts 0 _name)
   list(GET _parts 1 _src_dir)
 
-  set(_test_binary_dir "${BUILD_DIR}/test/${_src_dir}${_config_subdir}")
+  set(_test_binary_dir "${BUILD_DIR}/test/${_src_dir}")
   file(GLOB _old_out "${_test_binary_dir}/ml_test_${_name}*.out")
   file(GLOB _old_failed "${_test_binary_dir}/ml_test_${_name}*.failed")
   file(GLOB _old_junit "${SOURCE_DIR}/${_src_dir}/boost_test_results*.junit")
@@ -227,7 +245,7 @@ foreach(_suite_entry ${_suites})
 
       string(APPEND _ctest_file_content
         "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
-        " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}${_config_subdir}\""
+        " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}\""
         " \"-DTEST_NAME=ml_test_${_name}\""
         " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
         "set_tests_properties(\"${_test_label}\" PROPERTIES"
@@ -252,7 +270,7 @@ foreach(_suite_entry ${_suites})
 
     string(APPEND _ctest_file_content
       "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
-      " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}${_config_subdir}\""
+      " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}\""
       " \"-DTEST_NAME=ml_test_${_name}\""
       " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
       "set_tests_properties(\"${_test_label}\" PROPERTIES"
