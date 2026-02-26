@@ -99,7 +99,11 @@ do
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
     prefetch_docker_base_image "$DOCKERFILE"
-    docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg BOOST_TEST_OUTPUT_FORMAT_FLAGS=$BOOST_TEST_OUTPUT_FORMAT_FLAGS --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
+    SCCACHE_SECRET_ARG=""
+    if [ -n "${SCCACHE_GCS_KEY_FILE:-}" ] && [ -f "${SCCACHE_GCS_KEY_FILE}" ]; then
+        SCCACHE_SECRET_ARG="--secret id=gcs_key,src=${SCCACHE_GCS_KEY_FILE}"
+    fi
+    DOCKER_BUILDKIT=1 docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg BOOST_TEST_OUTPUT_FORMAT_FLAGS=$BOOST_TEST_OUTPUT_FORMAT_FLAGS --build-arg ML_DEBUG=$ML_DEBUG --build-arg SCCACHE_GCS_BUCKET="${SCCACHE_GCS_BUCKET:-}" $SCCACHE_SECRET_ARG -f "$DOCKERFILE" .
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
