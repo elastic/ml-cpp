@@ -26,7 +26,7 @@ cd "$TOOLS_DIR/.."
 
 # This Dockerfile is for the temporary image that is used to do the style check.
 # It is based on a pre-built image stored on Docker Hub, but will have the local
-# repository contents copied into it before the check-style.sh script is run.
+# repository contents copied into it before the style check is run.
 # This temporary image is discarded after the check is complete.
 DOCKERFILE="$TOOLS_DIR/docker/style_checker/Dockerfile"
 TEMP_TAG=`git rev-parse --short=14 HEAD`-style-$$
@@ -34,7 +34,7 @@ TEMP_TAG=`git rev-parse --short=14 HEAD`-style-$$
 . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 prefetch_docker_base_image "$DOCKERFILE"
 docker build --no-cache --force-rm -t $TEMP_TAG -f "$DOCKERFILE" .
-docker run --rm --workdir=/ml-cpp $TEMP_TAG dev-tools/check-style.sh --all
+docker run --rm --workdir=/ml-cpp $TEMP_TAG cmake -DCHECK_ALL=ON -DSOURCE_DIR=/ml-cpp -P cmake/check-style.cmake
 RC=$?
 docker rmi --force $TEMP_TAG
 exit $RC
