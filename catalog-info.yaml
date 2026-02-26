@@ -256,7 +256,7 @@ spec:
       allow_rebuilds: true
       cancel_intermediate_builds: true
       branch_configuration: main
-      pipeline_file: .buildkite/job-version-bump.json
+      pipeline_file: .buildkite/job-version-bump.json.py
       provider_settings:
         trigger_mode: none
       repository: elastic/ml-cpp
