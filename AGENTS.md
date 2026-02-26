@@ -180,10 +180,15 @@ Run specific test cases (wildcards supported):
 TESTS="*/testPersist" cmake --build cmake-build-relwithdebinfo -t test_model
 ```
 
-Run tests individually in separate processes (better isolation, enables parallelism):
+Run tests individually in separate processes (better isolation, per-suite parallelism):
 ```
 cmake --build cmake-build-relwithdebinfo -j8 -t test_individually
 cmake --build cmake-build-relwithdebinfo -j8 -t test_api_individually
+```
+
+Run all test cases from all suites in a single CTest invocation (optimal cross-suite parallelism):
+```
+cmake --build cmake-build-relwithdebinfo -t test_all_parallel
 ```
 
 Pass extra flags to the Boost.Test runner:
