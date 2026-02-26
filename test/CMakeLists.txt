@@ -45,3 +45,24 @@ add_custom_target(test_individually
         COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-check-success.cmake
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+# Unified parallel test target: discovers ALL test cases from ALL suites and
+# runs them in a single CTest invocation, allowing CTest to optimally schedule
+# across all available CPU cores. This replaces the sequential per-suite
+# approach used by test_individually.
+get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(_isMultiConfig)
+  set(_build_type_arg "-DBUILD_TYPE=$<CONFIG>")
+else()
+  set(_build_type_arg "")
+endif()
+
+add_custom_target(test_all_parallel
+        DEPENDS build_tests
+        COMMAND ${CMAKE_COMMAND}
+            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+            -DBUILD_DIR=${CMAKE_BINARY_DIR}
+            ${_build_type_arg}
+            -P ${CMAKE_SOURCE_DIR}/cmake/run-all-tests-parallel.cmake
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
