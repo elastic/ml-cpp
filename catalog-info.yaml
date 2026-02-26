@@ -254,8 +254,9 @@ spec:
       description: Buildkite Pipeline for ml-cpp version bump
     spec:
       allow_rebuilds: true
-      cancel_intermediate_builds: true
       branch_configuration: main
+      cancel_intermediate_builds: true
+      clone_method: https
       pipeline_file: .buildkite/job-version-bump.json.py
       provider_settings:
         trigger_mode: none
