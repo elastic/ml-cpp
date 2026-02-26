@@ -62,4 +62,4 @@ A changelog entry is **not required** for:
 - Documentation-only changes
 
 PRs that do not require a changelog entry should be labelled with
-`>test`, `>refactoring`, `>docs`, or `>build` to skip validation.
+`>test`, `>refactoring`, `>docs`, `>build`, or `>non-issue` to skip validation.

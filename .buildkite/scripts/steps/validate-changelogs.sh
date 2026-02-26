@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-SKIP_LABELS=">test >refactoring >docs >build"
+SKIP_LABELS=">test >refactoring >docs >build >non-issue"
 
 # On PR builds, check if the PR has a label that skips changelog validation.
 # BUILDKITE_PULL_REQUEST_LABELS is a comma-separated list set by Buildkite.
