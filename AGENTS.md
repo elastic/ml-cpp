@@ -4,7 +4,8 @@
 - **Language**: C++20 (`CMAKE_CXX_STANDARD 20`).
 - **Build system**: CMake (primary) or Gradle wrapper (`./gradlew`).
 - **Compilers**: GCC 13.3 on Linux, Xcode Clang on macOS, MSVC on Windows.
-- **Key dependencies**: Boost 1.86.0 (dynamic linking), PyTorch (libtorch), RapidJSON, Eigen, libxml2.
+- **Key dependencies**: Boost 1.86.0 (dynamic linking, includes Boost.Json for JSON handling), PyTorch 2.7.1 (libtorch), libxml2.
+- **Header-only libraries**: Eigen and valijson are header-only and managed by the `3rd_party/` CMake system (pulled automatically during configuration).
 - **Platforms**: Linux x86_64/aarch64, macOS aarch64, Windows x86_64.
 - **Toolchain files**: Auto-selected from `cmake/<os>-<arch>.cmake` or set via `CMAKE_TOOLCHAIN_FILE`.
 
@@ -47,7 +48,7 @@ lib/                    # Shared libraries
   test/                 #   Shared test utilities (CBoostTestXmlOutput, etc.)
   ver/                  #   Version information
 include/                # Public headers (mirrors lib/ structure)
-3rd_party/              # Vendored third-party code (Eigen, etc.)
+3rd_party/              # Header-only third-party libraries (Eigen, valijson), licenses
 cmake/                  # CMake toolchain files, helper functions, test runners
 build-setup/            # Platform-specific build environment instructions
 .buildkite/             # CI pipeline definitions (Buildkite)
