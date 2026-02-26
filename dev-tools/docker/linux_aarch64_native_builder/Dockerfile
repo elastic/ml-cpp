@@ -32,6 +32,12 @@ ARG ML_DEBUG=
 ARG BOOST_TEST_OUTPUT_FORMAT_FLAGS=
 
 # Build libraries, artifacts, and test executables
-RUN \
+# sccache with GCS backend (optional — leave SCCACHE_GCS_BUCKET empty to disable)
+ARG SCCACHE_GCS_BUCKET=
+ENV SCCACHE_GCS_BUCKET=$SCCACHE_GCS_BUCKET
+
+# Run the build
+RUN --mount=type=secret,id=gcs_key,required=false \
+  if [ -f /run/secrets/gcs_key ]; then export SCCACHE_GCS_KEY_PATH=/run/secrets/gcs_key; fi && \
   /ml-cpp/dev-tools/docker/docker_entrypoint.sh --build-tests
 

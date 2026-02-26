@@ -29,6 +29,12 @@ cd "$MY_DIR/../.."
 # Set a consistent environment
 . ./set_env.sh
 
+# Set up sccache with GCS backend if credentials are available.
+# SCCACHE_GCS_BUCKET is exported by the Buildkite post-checkout hook.
+if [ -n "${SCCACHE_GCS_BUCKET:-}" ]; then
+  source ./dev-tools/setup_sccache.sh
+fi
+
 # Note: no need to clean due to the .dockerignore file
 
 # Configure the build
@@ -65,5 +71,11 @@ if [ "x$1" = "x--build-tests" ] ; then
 elif [ "x$1" = "x--test" ] ; then
     echo passed > build/test_status.txt
     cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t test_all_parallel || echo failed > build/test_status.txt
+fi
+
+# Print sccache stats if it was used
+if [ -n "${SCCACHE_PATH:-}" ]; then
+  "$SCCACHE_PATH" --show-stats || true
+  "$SCCACHE_PATH" --stop-server || true
 fi
 
