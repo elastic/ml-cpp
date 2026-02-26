@@ -5,34 +5,23 @@ on:
     types: ["labeled", "closed"]
 
 permissions:
-  contents: read
-  id-token: write
+  contents: write
+  pull-requests: write
 
 jobs:
   backport:
     name: Backport PR
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
     # Run when a merged PR is closed or labeled, but skip PRs that are
     # themselves backports (identified by the 'backport' label) to avoid loops.
     if: |
       github.event.pull_request.merged == true &&
       !(contains(github.event.pull_request.labels.*.name, 'backport'))
     steps:
-      - name: Fetch ephemeral GitHub token
-        id: fetch-token
-        uses: elastic/ci-gh-actions/fetch-github-token@v1.0.0
-        with:
-          vault-instance: "ci-prod"
-
       - name: Backport Action
         uses: sorenlouv/backport-github-action@v10.2.0
         with:
-          github_token: ${{ steps.fetch-token.outputs.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Info log
         if: ${{ success() }}
