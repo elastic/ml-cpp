@@ -58,6 +58,94 @@ dev-tools/              # Developer scripts (clang-format, benchmarks)
 Libraries must not have circular dependencies. The dependency order is roughly:
 `core` -> `maths` -> `model` -> `api` -> `bin/*`.
 
+## CMake Helper Functions
+
+The build uses custom CMake functions defined in `cmake/functions.cmake`. Use these instead of raw `add_library`/`add_executable` — they handle platform-specific sources, linking, installation, and Windows resource generation automatically.
+
+### Adding a Shared Library
+
+Set `ML_LINK_LIBRARIES` then call `ml_add_library`:
+
+```cmake
+project("ML MyLib")
+
+set(ML_LINK_LIBRARIES
+  ${Boost_LIBRARIES}
+  MlCore
+  )
+
+ml_add_library(MlMyLib SHARED
+  CMyClass.cc
+  CMyOtherClass.cc
+  )
+```
+
+Libraries are named with the `Ml` prefix (e.g. `MlCore`, `MlModel`). The function handles shared library versioning, RPATH, and installation. Use `SHARED` for distributed libraries or `STATIC` for internal-only ones.
+
+For libraries that should not be installed/distributed (e.g. internal helpers), use `ml_add_non_distributed_library` instead.
+
+### Adding an Executable
+
+Set `ML_LINK_LIBRARIES` then call `ml_add_executable`. A `Main.cc` file is included automatically — do not list it in the sources:
+
+```cmake
+project("ML MyApp")
+
+set(ML_LINK_LIBRARIES
+  ${Boost_LIBRARIES}
+  MlCore
+  MlApi
+  MlVer
+  )
+
+ml_add_executable(myapp
+  CCmdLineParser.cc
+  )
+```
+
+The function creates a companion OBJECT library (`MlMyApp`) from the listed sources, which test executables can link against. The executable itself always builds from `Main.cc` plus those objects.
+
+For executables not intended for distribution (dev tools, benchmarks), use `ml_add_non_distributed_executable`.
+
+### Adding a Test Executable
+
+Test executables live in `unittest/` subdirectories. Set `ML_LINK_LIBRARIES` (including `${Boost_LIBRARIES_WITH_UNIT_TEST}` and `MlTest`), then call `ml_add_test_executable`:
+
+```cmake
+project("ML MyLib unit tests")
+
+set(SRCS
+  CMyClassTest.cc
+  CMyOtherClassTest.cc
+  Main.cc
+  )
+
+set(ML_LINK_LIBRARIES
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  MlCore
+  MlMyLib
+  MlTest
+  )
+
+ml_add_test_executable(mylib ${SRCS})
+```
+
+The `_target` argument (e.g. `mylib`) is used to derive the test executable name (`ml_test_mylib`) and the CMake targets `test_mylib` and `test_mylib_individually`.
+
+### Registering Tests with the Build
+
+After creating the test executable, register it in `test/CMakeLists.txt` using `ml_add_test`:
+
+```cmake
+ml_add_test(lib/mylib/unittest mylib)
+```
+
+The first argument is the relative path to the unittest directory; the second is the target name matching `ml_add_test_executable`.
+
+### Platform-Specific Sources
+
+If a source file has a platform-specific variant (e.g. `CMyClass_Linux.cc`, `CMyClass_Darwin.cc`), the `ml_generate_platform_sources` function (called internally by all `ml_add_*` functions) will automatically substitute the platform-specific file at build time. Just list the base filename (`CMyClass.cc`) in your sources.
+
 ## Testing
 
 Tests use the **Boost.Test** framework. Each library and application has a `unittest/` subdirectory containing test files and a `Main.cc` entry point.
