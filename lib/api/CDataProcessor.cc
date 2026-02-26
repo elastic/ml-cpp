@@ -51,9 +51,9 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
             fieldValues.push_back(',');
         }
         fieldNames.append(rowIter->first);
-        const auto& val = rowIter->second;
-        if (val.size() > model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH) {
-            fieldValues.append(val, 0, model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH);
+        const std::string& val = rowIter->second;
+        if (model::CFieldValueTruncator::needsTruncation(val)) {
+            fieldValues.append(model::CFieldValueTruncator::truncated(val));
             fieldValues.append("...");
         } else {
             fieldValues.append(val);

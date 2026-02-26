@@ -38,10 +38,17 @@ public:
     //! Values longer than this are truncated to prevent excessive memory usage.
     static constexpr std::size_t MAX_FIELD_VALUE_LENGTH = 256;
 
+    //! Check if a field value needs truncation.
+    //! This avoids creating copies when checking if truncation is necessary.
+    //! \return true if the value exceeds MAX_FIELD_VALUE_LENGTH.
+    static bool needsTruncation(const std::string& value) {
+        return value.size() > MAX_FIELD_VALUE_LENGTH;
+    }
+
     //! In-place truncation of a field value.
     //! \return true if truncation occurred, false if value was within limit.
     static bool truncate(std::string& value) {
-        if (value.size() <= MAX_FIELD_VALUE_LENGTH) {
+        if (!needsTruncation(value)) {
             return false;
         }
         value.resize(MAX_FIELD_VALUE_LENGTH);
@@ -49,8 +56,9 @@ public:
     }
 
     //! Returns a truncated copy of the field value. Original unchanged.
+    //! Use needsTruncation() first if you want to avoid copying.
     static std::string truncated(const std::string& value) {
-        if (value.size() <= MAX_FIELD_VALUE_LENGTH) {
+        if (!needsTruncation(value)) {
             return value;
         }
         return value.substr(0, MAX_FIELD_VALUE_LENGTH);

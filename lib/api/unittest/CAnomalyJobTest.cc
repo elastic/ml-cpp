@@ -1219,8 +1219,9 @@ BOOST_AUTO_TEST_CASE(testOversizedFieldValuesTruncated) {
     CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
     std::string const oversizedValue(77000, 'x');
-    CTestAnomalyJob::TStrStrUMap dataRows{
-        {"time", "1000"}, {"by_field", oversizedValue}, {"influencer_field", oversizedValue}};
+    CTestAnomalyJob::TStrStrUMap dataRows{{"time", "1000"},
+                                          {"by_field", oversizedValue},
+                                          {"influencer_field", oversizedValue}};
 
     BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());

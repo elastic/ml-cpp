@@ -1710,7 +1710,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr& detector,
     TStrVec truncatedCopies;
     for (const auto& fieldName : fieldNames) {
         const std::string* value = fieldValue(fieldName, dataRowFields);
-        if (value != nullptr && value->size() > model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH) {
+        if (value != nullptr && model::CFieldValueTruncator::needsTruncation(*value)) {
             truncatedCopies.push_back(model::CFieldValueTruncator::truncated(*value));
             fieldValues.push_back(&truncatedCopies.back());
             LOG_WARN(<< "Field '" << fieldName << "' value exceeds "

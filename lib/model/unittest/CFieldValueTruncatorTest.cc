@@ -61,4 +61,15 @@ BOOST_AUTO_TEST_CASE(testVeryLargeValueTruncated) {
     BOOST_REQUIRE_EQUAL(CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH, value.size());
 }
 
+BOOST_AUTO_TEST_CASE(testNeedsTruncation) {
+    BOOST_REQUIRE_EQUAL(false, CFieldValueTruncator::needsTruncation("short"));
+    BOOST_REQUIRE_EQUAL(false, CFieldValueTruncator::needsTruncation(""));
+    BOOST_REQUIRE_EQUAL(false, CFieldValueTruncator::needsTruncation(std::string(
+                                   CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH, 'x')));
+    BOOST_REQUIRE_EQUAL(true, CFieldValueTruncator::needsTruncation(std::string(
+                                  CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH + 1, 'x')));
+    BOOST_REQUIRE_EQUAL(
+        true, CFieldValueTruncator::needsTruncation(std::string(77000, 'x')));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

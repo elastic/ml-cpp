@@ -32,7 +32,7 @@
 
 === Bug Fixes
 
-* Truncate oversized field values to prevent autodetect process crash. (See {ml-issue}2796[#2796].)
+* Truncate oversized field values to prevent autodetect process crash. (See {ml-pull}2929[#2929].)
 
 === Enhancements
 
