@@ -3,7 +3,7 @@
 ## Toolchain
 - **Language**: C++20 (`CMAKE_CXX_STANDARD 20`).
 - **Build system**: CMake (primary) or Gradle wrapper (`./gradlew`).
-- **Compilers**: GCC 13.3 on Linux, Xcode Clang on macOS, MSVC on Windows.
+- **Compilers**: GCC 13.3.0 on Linux (built from source, installed to `/usr/local/gcc133/`), Xcode Clang on macOS (Xcode 15.2+ for Ventura/Sonoma), Visual Studio 2022 Professional (MSVC) on Windows.
 - **Key dependencies**: Boost 1.86.0 (dynamic linking, includes Boost.Json for JSON handling), PyTorch 2.7.1 (libtorch), libxml2.
 - **Header-only libraries**: Eigen and valijson are header-only and managed by the `3rd_party/` CMake system (pulled automatically during configuration).
 - **Platforms**: Linux x86_64/aarch64, macOS aarch64, Windows x86_64.
