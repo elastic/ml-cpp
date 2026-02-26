@@ -15,6 +15,8 @@
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
+#include <model/CFieldValueTruncator.h>
+
 namespace ml {
 namespace api {
 
@@ -49,7 +51,13 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
             fieldValues.push_back(',');
         }
         fieldNames.append(rowIter->first);
-        fieldValues.append(rowIter->second);
+        const auto& val = rowIter->second;
+        if (val.size() > model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH) {
+            fieldValues.append(val, 0, model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH);
+            fieldValues.append("...");
+        } else {
+            fieldValues.append(val);
+        }
     }
 
     result << fieldNames << core_t::LINE_ENDING << fieldValues;

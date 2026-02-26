@@ -30,6 +30,10 @@
 
 == {es} version 9.4.0
 
+=== Bug Fixes
+
+* Truncate oversized field values to prevent autodetect process crash. (See {ml-issue}2796[#2796].)
+
 === Enhancements
 
 * Better handling of invalid JSON state documents (See {ml-pull}[]#2895].)

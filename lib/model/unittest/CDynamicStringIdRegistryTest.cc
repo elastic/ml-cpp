@@ -15,6 +15,7 @@
 #include <core/CSmallVector.h>
 
 #include <model/CDynamicStringIdRegistry.h>
+#include <model/CFieldValueTruncator.h>
 #include <model/CResourceMonitor.h>
 
 #include <boost/test/unit_test.hpp>
@@ -107,6 +108,36 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_TRACE(<< "Restored JSON:\n" << restoredJson.str());
 
     BOOST_REQUIRE_EQUAL(restoredJson.str(), origJson.str());
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreTruncatesOversizedNames) {
+    CResourceMonitor resourceMonitor;
+    CDynamicStringIdRegistry registry("person", counter_t::E_TSADNumberNewPeople,
+                                      counter_t::E_TSADNumberNewPeopleNotAllowed,
+                                      counter_t::E_TSADNumberNewPeopleRecycled);
+
+    bool addedPerson = false;
+    std::string shortName("foo");
+    std::string oversizedName(77000, 'x');
+    registry.addName(shortName, 0, resourceMonitor, addedPerson);
+    registry.addName(oversizedName, 0, resourceMonitor, addedPerson);
+
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, std::bind_front(&CDynamicStringIdRegistry::acceptPersistInserter, &registry));
+
+    std::istringstream is("{\"topLevel\" : " + origJson.str() + "}");
+    core::CJsonStateRestoreTraverser traverser(is);
+    CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
+                                              counter_t::E_TSADNumberNewPeopleNotAllowed,
+                                              counter_t::E_TSADNumberNewPeopleRecycled);
+    traverser.traverseSubLevel(std::bind_front(
+        &CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry));
+
+    BOOST_REQUIRE_EQUAL(2, restoredRegistry.numberNames());
+    BOOST_REQUIRE_EQUAL(shortName, restoredRegistry.name(0, ""));
+    BOOST_REQUIRE_EQUAL(CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH,
+                        restoredRegistry.name(1, "").size());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -18,6 +18,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 
+#include <model/CFieldValueTruncator.h>
 #include <model/CResourceMonitor.h>
 
 #include <boost/unordered_set.hpp>
@@ -251,7 +252,9 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
     do {
         const std::string& name = traverser.name();
         if (name == NAMES_TAG) {
-            m_Names.emplace_back(traverser.value());
+            std::string value = traverser.value();
+            CFieldValueTruncator::truncate(value);
+            m_Names.emplace_back(std::move(value));
         } else if (name == FREE_NAMES_TAG) {
             if (!core::CPersistUtils::restore(FREE_NAMES_TAG, m_FreeUids, traverser)) {
                 return false;

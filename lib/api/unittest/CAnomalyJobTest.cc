@@ -1205,4 +1205,54 @@ BOOST_AUTO_TEST_CASE(testHierarchicalResultsNormalizerShouldIncreaseMemoryUsage)
     resourceMonitor.forceRefreshAll();
     BOOST_TEST_REQUIRE(resourceMonitor.totalMemory() < memoryUsageBeforeUnregister);
 }
+
+BOOST_AUTO_TEST_CASE(testOversizedFieldValuesTruncated) {
+    model::CLimits limits;
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "count", "", "by_field", "", "", {"influencer_field"});
+
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+    std::string const oversizedValue(77000, 'x');
+    CTestAnomalyJob::TStrStrUMap dataRows{
+        {"time", "1000"}, {"by_field", oversizedValue}, {"influencer_field", oversizedValue}};
+
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
+}
+
+BOOST_AUTO_TEST_CASE(testNormalFieldValuesNotTruncated) {
+    model::CLimits limits;
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "count", "", "by_field", "", "", {"influencer_field"});
+
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+    std::string const normalValue("normal_value");
+    CTestAnomalyJob::TStrStrUMap dataRows{
+        {"time", "1000"}, {"by_field", normalValue}, {"influencer_field", normalValue}};
+
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
+}
+
+BOOST_AUTO_TEST_CASE(testDebugPrintRecordTruncatesLongValues) {
+    api::CDataProcessor::TStrStrUMap record;
+    record["field1"] = std::string(1000, 'x');
+    record["field2"] = "short";
+    std::string result = api::CDataProcessor::debugPrintRecord(record);
+    BOOST_TEST_REQUIRE(result.find("...") != std::string::npos);
+    BOOST_TEST_REQUIRE(result.size() < 1500);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -28,6 +28,7 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
 
+#include <model/CFieldValueTruncator.h>
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsPopulator.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
@@ -1706,8 +1707,18 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr& detector,
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
     const TStrVec& fieldNames = detector->fieldsOfInterest();
     fieldValues.reserve(fieldNames.size());
+    TStrVec truncatedCopies;
     for (const auto& fieldName : fieldNames) {
-        fieldValues.push_back(fieldValue(fieldName, dataRowFields));
+        const std::string* value = fieldValue(fieldName, dataRowFields);
+        if (value != nullptr && value->size() > model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH) {
+            truncatedCopies.push_back(model::CFieldValueTruncator::truncated(*value));
+            fieldValues.push_back(&truncatedCopies.back());
+            LOG_WARN(<< "Field '" << fieldName << "' value exceeds "
+                     << model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH
+                     << " characters and has been truncated");
+        } else {
+            fieldValues.push_back(value);
+        }
     }
 
     detector->addRecord(time, fieldValues);

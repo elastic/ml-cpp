@@ -23,6 +23,7 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
+#include <model/CFieldValueTruncator.h>
 #include <model/CResourceMonitor.h>
 
 #include <boost/tuple/tuple.hpp>
@@ -116,6 +117,9 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser& traver
         RESTORE_BUILT_IN(PERSON_UID_TAG, person)
         RESTORE_BUILT_IN(ATTRIBUTE_UID_TAG, attribute)
         RESTORE_NO_ERROR(INFLUENCER_TAG, influence = traverser.value())
+        if (name == INFLUENCER_TAG) {
+            CFieldValueTruncator::truncate(influence);
+        }
         if (name == COUNT_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), count) == false) {
                 LOG_ERROR(<< "Failed to restore COUNT_TAG, got " << traverser.value());
