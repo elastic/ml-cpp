@@ -160,6 +160,20 @@ task format(type: Exec) {
   workingDir "${projectDir}"
 }
 
+task validateChangelogs(type: Exec) {
+  commandLine 'python3', 'dev-tools/validate_changelogs.py'
+  workingDir "${projectDir}"
+  description = 'Validate changelog YAML entries against the schema'
+  group = 'verification'
+}
+
+task bundleChangelogs(type: Exec) {
+  commandLine 'python3', 'dev-tools/bundle_changelogs.py', '--version', project.version
+  workingDir "${projectDir}"
+  description = 'Generate consolidated changelog from per-PR YAML entries'
+  group = 'documentation'
+}
+
 task precommit(type: Exec) {
   commandLine shell
   workingDir "${projectDir}"

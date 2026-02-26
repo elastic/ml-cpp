@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/elastic/ml-cpp/tree/main/docs/changelog",
+  "description": "Schema for ml-cpp changelog YAML entries",
+  "type": "object",
+  "properties": {
+    "pr": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "area": {
+      "type": "string",
+      "enum": [
+        "Anomaly Detection",
+        "Data Frame Analytics",
+        "NLP",
+        "Core",
+        "API",
+        "Build",
+        "Inference"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "breaking",
+        "bug",
+        "deprecation",
+        "enhancement",
+        "feature",
+        "regression"
+      ]
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    }
+  },
+  "required": [
+    "pr",
+    "summary",
+    "area",
+    "type"
+  ],
+  "additionalProperties": false
+}
