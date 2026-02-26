@@ -66,6 +66,20 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t test_all_parallel || echo failed > build/test_status.txt
+    # Each test suite spawns ctest --parallel <nproc> internally, so limit
+    # the number of suites running concurrently to avoid resource contention.
+    # On low-core machines (<=4), cap at nproc-1 to leave headroom for
+    # timing-sensitive tests (e.g. CKMostCorrelatedTest/testScale).
+    # For higher core counts, ceil(nproc/2) balances parallelism vs
+    # contention — ceil(nproc/3) was too conservative on 8-core machines.
+    NCPUS=$(nproc)
+    if [ "$NCPUS" -le 4 ]; then
+        TEST_PARALLEL=2
+    else
+        TEST_PARALLEL=$(( (NCPUS + 1) / 2 ))
+    fi
+    echo "Test parallelism: nproc=${NCPUS}, TEST_PARALLEL=${TEST_PARALLEL} (cmake --build -j ${TEST_PARALLEL})"
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t build_tests
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t test_all_parallel || echo failed > build/test_status.txt
 fi
 
