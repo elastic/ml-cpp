@@ -204,7 +204,7 @@ Or: `./gradlew precommit`
 - Each test file uses `BOOST_AUTO_TEST_SUITE(CClassNameTest)` / `BOOST_AUTO_TEST_CASE(testMethodName)`.
 - Use real classes over mocks wherever possible. Tests should reflect real-world usage.
 - Every class should have a corresponding test suite; every public method should have a test.
-- Tests must not modify shared resources or leave side effects that affect other tests.
+- Test cases must be completely independent from one another — they may be run in parallel across separate processes, so they must not depend on execution order or share mutable state.
 
 ## Formatting & Style
 
