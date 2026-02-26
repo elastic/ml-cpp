@@ -84,7 +84,7 @@ def main():
     pipeline["steps"] = pipeline_steps
     pipeline["notify"] = [
         {
-            "slack": {"channels": ["#test-channel-for-plugin"]},
+            "slack": {"channels": ["#machine-learn-build "]},
             "if": (
                 "(build.branch == 'main' || "
                 "build.branch =~ /^[0-9]+\\.[0-9x]+$/) && "
@@ -93,7 +93,7 @@ def main():
         },
         {
             "slack": {
-                "channels": ["#test-channel-for-plugin"],
+                "channels": ["#machine-learn-build "],
                 "message": (
                     "🚦 Pipeline waiting for approval 🚦\n"
                     "Repo: `${REPO}`\n\n"
