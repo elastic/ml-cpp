@@ -8,14 +8,11 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates a pipeline JSON for the ml-cpp-debug-build pipeline
-# which is triggered nightly on a schedule. The build itself runs with
-# full debug and assertions enabled.
-#
-# The basic logic of this script is very simple.
-# It either parses the github label or the triggering PR comment.
-# If a PR comment is present, the script ignores the github label.
-#
+# This script generates JSON for the ml-cpp version bump pipeline.
+# It is intended to be triggered by the centralized release-eng pipeline.
+# It can be integrated into existing or new workflows and includes a plugin
+# that polls artifact URLs until the expected version is available.
+
 
 import contextlib
 import json
