@@ -134,13 +134,23 @@ The `_target` argument (e.g. `mylib`) is used to derive the test executable name
 
 ### Registering Tests with the Build
 
-After creating the test executable, register it in `test/CMakeLists.txt` using `ml_add_test`:
+After creating the test executable, register it in `test/CMakeLists.txt` by adding an `ml_add_test` call alongside the existing entries:
 
 ```cmake
-ml_add_test(lib/mylib/unittest mylib)
+ml_add_test(lib/core/unittest core)
+ml_add_test(lib/maths/common/unittest maths_common)
+ml_add_test(lib/maths/time_series/unittest maths_time_series)
+ml_add_test(lib/maths/analytics/unittest maths_analytics)
+ml_add_test(lib/model/unittest model)
+ml_add_test(lib/api/unittest api)
+ml_add_test(lib/ver/unittest ver)
+ml_add_test(lib/seccomp/unittest seccomp)
+ml_add_test(bin/controller/unittest controller)
+ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
+ml_add_test(lib/mylib/unittest mylib)          # <-- new entry
 ```
 
-The first argument is the relative path to the unittest directory; the second is the target name matching `ml_add_test_executable`.
+The first argument is the relative path to the unittest directory; the second is the target name matching `ml_add_test_executable`. Note how nested libraries use underscores in the target name (e.g. `lib/maths/common/unittest` -> `maths_common`).
 
 ### Platform-Specific Sources
 
