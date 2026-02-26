@@ -52,6 +52,7 @@ include/                # Public headers (mirrors lib/ structure)
 cmake/                  # CMake toolchain files, helper functions, test runners
 build-setup/            # Platform-specific build environment instructions
 .buildkite/             # CI pipeline definitions (Buildkite)
+.ci/                    # Packer scripts for building Orka macOS CI VMs
 .github/workflows/      # GitHub Actions (automatic backport)
 dev-tools/              # Developer scripts (clang-format, benchmarks)
 ```
