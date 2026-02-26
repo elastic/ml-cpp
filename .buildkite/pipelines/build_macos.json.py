@@ -67,7 +67,7 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": envs[arch],
-            "artifact_paths": "*/**/unittest/boost_test_results.junit;*/**/unittest/ml_test_*",
+            "artifact_paths": "*/**/unittest/boost_test_results.junit",
             "plugins": {
               "test-collector#v1.2.0": {                                                              
                 "files": "*/*/unittest/boost_test_results.junit",

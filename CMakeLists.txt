@@ -23,16 +23,21 @@ message (STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 
 # Use a compiler cache (sccache or ccache) if available.
 # If CMAKE_CXX_COMPILER_LAUNCHER is already set (e.g. by a CI script
-# pointing at sccache), respect that.  Otherwise auto-detect ccache.
+# passing -DCMAKE_CXX_COMPILER_LAUNCHER=sccache), respect that.
+# Otherwise auto-detect sccache (preferred) then ccache.
 if(CMAKE_CXX_COMPILER_LAUNCHER)
   message(STATUS "Compiler launcher already set: ${CMAKE_CXX_COMPILER_LAUNCHER}")
 else()
+  find_program(SCCACHE_FOUND sccache)
   find_program(CCACHE_FOUND ccache)
-  if(CCACHE_FOUND)
+  if(SCCACHE_FOUND)
+    message(STATUS "sccache found: ${SCCACHE_FOUND}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${SCCACHE_FOUND} CACHE STRING "" FORCE)
+  elseif(CCACHE_FOUND)
     message(STATUS "ccache found: ${CCACHE_FOUND}")
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_FOUND} CACHE STRING "" FORCE)
   else()
-    message(STATUS "No compiler cache found")
+    message(STATUS "No compiler cache found (install sccache or ccache for faster rebuilds)")
   endif()
 endif()
 

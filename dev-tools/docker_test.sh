@@ -71,8 +71,19 @@ cd "$TOOLS_DIR/.."
 
 # Update Eigen and Valijson outside of Docker, as the Docker containers may not have the
 # necessary network access
-3rd_party/pull-eigen.sh
-3rd_party/pull-valijson.sh
+if command -v cmake &>/dev/null; then
+  (cd 3rd_party && cmake -P pull-eigen.cmake)
+  (cd 3rd_party && cmake -P pull-valijson.cmake)
+else
+  # Fallback for hosts without cmake (e.g. aarch64 AWS agents)
+  if [ ! -d 3rd_party/eigen ] || ! grep -q "EIGEN_MINOR_VERSION 0" 3rd_party/eigen/Eigen/src/Core/util/Macros.h 2>/dev/null; then
+    rm -rf 3rd_party/eigen
+    git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git 3rd_party/eigen
+  fi
+  if [ ! -d 3rd_party/valijson ]; then
+    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git 3rd_party/valijson
+  fi
+fi
 
 . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 

@@ -99,7 +99,6 @@ if (isWindows && msystem != 'MINGW64') {
   project.ext.setEnv = ".\\set_env.bat"
   project.ext.shellFlag = "/c"
   project.ext.cleanCmd = "if exist ${cmakeBuildDir}\\ (rmdir /s /q ${cmakeBuildDir}) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
-  // Stripping the binaries is not necessary on Windows, execute a no-op command instead
   project.ext.stripCmd = "cd ."
 } else {
   // Use the bash shell for the C++ build (Git bash when on Windows using MinGW)
@@ -107,8 +106,7 @@ if (isWindows && msystem != 'MINGW64') {
   project.ext.setEnv = "source ./set_env.sh"
   project.ext.shellFlag = "-c"
   project.ext.cleanCmd = "rm -rf ${cmakeBuildDir} 3rd_party/eigen"
-  // Stripping the binaries is not necessary on Windows, execute a no-op command instead
-  project.ext.stripCmd = isWindows ? 'true' : "dev-tools/strip_binaries.sh"
+  project.ext.stripCmd = "cmake -P cmake/strip-binaries.cmake"
 }
 
 project.ext.numCpus = Runtime.runtime.availableProcessors()
@@ -223,7 +221,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test"
+  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test_all_parallel"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
@@ -431,8 +429,7 @@ task buildDependencyReport(type: Exec) {
   outputs.file("${buildDir}/distributions/dependencies-${version}.csv")
   environment makeEnvironment
   commandLine shell
-  args shellFlag, isWindows ? "${setEnv} && cmake -D OUTPUT_FILE=\"${outputs.files.singleFile}\" -P 3rd_party/dependency_report.cmake"
-                            : "${setEnv} && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
+  args shellFlag, "${setEnv} && cmake -D OUTPUT_FILE=\"${outputs.files.singleFile}\" -P 3rd_party/dependency_report.cmake"
   workingDir "${projectDir}"
   description = 'Create a CSV report on 3rd party dependencies we redistribute'
 }
