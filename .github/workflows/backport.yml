@@ -12,21 +12,45 @@ jobs:
   backport:
     name: Backport PR
     runs-on: ubuntu-latest
-    # Run when a merged PR is closed or labeled, but skip PRs that are
-    # themselves backports (identified by the 'backport' label) to avoid loops.
+    # Only run for merged PRs that are not themselves backports (avoid loops).
     if: |
       github.event.pull_request.merged == true &&
       !(contains(github.event.pull_request.labels.*.name, 'backport'))
     steps:
+      - name: Check for version labels
+        id: check-labels
+        env:
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+        run: |
+          for label in $LABELS; do
+            if echo "$label" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+'; then
+              echo "Found version label: $label"
+              echo "has_version_label=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "No version label matching vN.N.N found — nothing to backport."
+          echo "has_version_label=false" >> "$GITHUB_OUTPUT"
+
       - name: Backport Action
+        id: backport
+        if: steps.check-labels.outputs.has_version_label == 'true'
         uses: sorenlouv/backport-github-action@v10.2.0
+        continue-on-error: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Info log
-        if: ${{ success() }}
+        if: steps.backport.outcome == 'success'
         run: cat ~/.backport/backport.info.log
 
-      - name: Debug log
-        if: ${{ failure() }}
-        run: cat ~/.backport/backport.debug.log
+      - name: Check for real failures
+        if: steps.backport.outcome == 'failure'
+        run: |
+          cat ~/.backport/backport.debug.log
+          if grep -q '"code":"no-branches-exception"' ~/.backport/backport.debug.log 2>/dev/null; then
+            echo "No target branches matched the version labels — nothing to backport. This is OK."
+            exit 0
+          fi
+          echo "::error::Backport failed with a real error"
+          exit 1
