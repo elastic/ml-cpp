@@ -37,6 +37,7 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     export BUILDKITE_API_READ_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/buildkite/api_read_token 2>/dev/null || echo "")
     export ANTHROPIC_API_KEY=$(vault read -field=api_key secret/ci/elastic-ml-cpp/anthropic/claude 2>/dev/null || echo "")
     export SLACK_WEBHOOK_URL=$(vault read -field=url secret/ci/elastic-ml-cpp/slack/build_failure_webhook 2>/dev/null || echo "")
+    export GITHUB_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/github/pr_comment_token 2>/dev/null || echo "")
   fi
 
   # GCS service account — inject credentials for build and Java IT steps.
