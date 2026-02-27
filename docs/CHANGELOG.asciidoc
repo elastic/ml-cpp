@@ -942,4 +942,3 @@ The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See 
 === Bug Fixes
 
 * Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
-
