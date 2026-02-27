@@ -286,6 +286,8 @@ def main():
     parser = argparse.ArgumentParser(description="Analyze Buildkite build failures with Claude")
     parser.add_argument("--pipeline", default=os.environ.get("BUILDKITE_PIPELINE_SLUG"))
     parser.add_argument("--build", type=int, default=int(os.environ.get("BUILDKITE_BUILD_NUMBER", "0")))
+    parser.add_argument("--pr", type=int, default=None,
+                        help="Override PR number (for testing GitHub comment posting)")
     parser.add_argument("--dry-run", action="store_true", help="Print analysis without annotating or posting to Slack")
     args = parser.parse_args()
 
@@ -325,8 +327,10 @@ def main():
 
     slack_webhook = get_env_or_file("SLACK_WEBHOOK_URL", "")
     github_token = get_env_or_file("GITHUB_TOKEN", "")
-    pr_number = os.environ.get("BUILDKITE_PULL_REQUEST", "false")
-    pr_number = int(pr_number) if pr_number not in ("false", "") else None
+    pr_number = args.pr
+    if pr_number is None:
+        pr_env = os.environ.get("BUILDKITE_PULL_REQUEST", "false")
+        pr_number = int(pr_env) if pr_env not in ("false", "") else None
     build_url = build.get("web_url", f"https://buildkite.com/{BUILDKITE_ORG}/{args.pipeline}/builds/{args.build}")
 
     all_analyses = []
