@@ -225,9 +225,12 @@ def main(args):
             ],
         })
 
+        # Debug tests are ~3-4x slower than optimised; the Bayesian optimisation
+        # test alone can take 50+ min.  Once PR #2931 (reduce test workload in
+        # debug builds) is merged, this can be reduced back to 90 min.
         pipeline_steps.append({
             "label": "Test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
-            "timeout_in_minutes": "90",
+            "timeout_in_minutes": "150",
             "agents": test_agents["x86_64"],
             "commands": [
               "export ML_DEBUG=1",
