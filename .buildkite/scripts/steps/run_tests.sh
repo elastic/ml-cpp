@@ -59,6 +59,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
         -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
         -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
+        ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
         -w /ml-cpp \
         $BASE_IMAGE bash -c '
             source ./set_env.sh

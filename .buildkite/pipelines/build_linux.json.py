@@ -227,7 +227,7 @@ def main(args):
 
         # Debug tests are ~3-4x slower than optimised; the Bayesian optimisation
         # test alone can take 50+ min.  Once PR #2931 (reduce test workload in
-        # debug builds) is merged, this can be reduced back to 90 min.
+        # debug builds) is merged, the timeout and TEST_TIMEOUT can be reduced.
         pipeline_steps.append({
             "label": "Test :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
             "timeout_in_minutes": "150",
@@ -244,6 +244,7 @@ def main(args):
               "ML_DEBUG": "1",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+              "TEST_TIMEOUT": "5400",
             },
             "plugins": {
               "test-collector#v1.2.0": {
