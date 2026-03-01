@@ -1,0 +1,12 @@
+{
+    "bert": "bert-base-uncased",
+    "roberta": "roberta-base",
+    "distilbert": "distilbert-base-uncased",
+    "electra": "google/electra-small-discriminator",
+    "mpnet": "microsoft/mpnet-base",
+    "deberta": "microsoft/deberta-base",
+    "bart": "facebook/bart-base",
+    "dpr": "facebook/dpr-ctx_encoder-single-nq-base",
+    "mobilebert": "google/mobilebert-uncased",
+    "xlm-roberta": "xlm-roberta-base"
+}
