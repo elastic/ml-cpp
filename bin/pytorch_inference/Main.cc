@@ -27,6 +27,7 @@
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 #include "CCommandParser.h"
+#include "CModelGraphValidator.h"
 #include "CResultWriter.h"
 #include "CThreadSettings.h"
 
@@ -42,24 +43,41 @@
 #include <string>
 
 namespace {
-// Add more forbidden ops here if needed
-const std::unordered_set<std::string_view> FORBIDDEN_OPERATIONS = {"aten::from_file", "aten::save"};
-
 void verifySafeModel(const torch::jit::script::Module& module_) {
     try {
-        const auto method = module_.get_method("forward");
-        for (const auto graph = method.graph(); const auto& node : graph->nodes()) {
-            if (const std::string opName = node->kind().toQualString();
-                FORBIDDEN_OPERATIONS.contains(opName)) {
-                HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: "
-                             << opName);
-            }
-        }
-    } catch (const c10::Error& e) {
-        LOG_FATAL(<< "Failed to get forward method: " << e.what());
-    }
+        auto result = ml::torch::CModelGraphValidator::validate(module_);
 
-    LOG_DEBUG(<< "Model verified: no forbidden operations detected.");
+        if (result.s_ForbiddenOps.empty() == false) {
+            std::string ops;
+            for (const auto& op : result.s_ForbiddenOps) {
+                if (ops.empty() == false) {
+                    ops += ", ";
+                }
+                ops += op;
+            }
+            HANDLE_FATAL(<< "Model contains forbidden operations: " << ops);
+        }
+
+        if (result.s_UnrecognisedOps.empty() == false) {
+            std::string ops;
+            for (const auto& op : result.s_UnrecognisedOps) {
+                if (ops.empty() == false) {
+                    ops += ", ";
+                }
+                ops += op;
+            }
+            HANDLE_FATAL(<< "Model graph does not match any supported architecture. "
+                         << "Unrecognised operations: " << ops);
+        }
+
+        if (result.s_IsValid == false) {
+            HANDLE_FATAL(<< "Model graph validation failed");
+        }
+
+        LOG_DEBUG(<< "Model verified: all operations match supported architectures.");
+    } catch (const c10::Error& e) {
+        LOG_FATAL(<< "Model graph validation failed: " << e.what());
+    }
 }
 }
 
