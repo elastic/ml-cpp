@@ -176,14 +176,20 @@ BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
 
 BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
 
-    // Check that the kernel parameters we choose are at a minimum of the likelihood
-    // as a function of those parameters.
+// Check that the kernel parameters we choose are at a minimum of the likelihood
+// as a function of those parameters.
+
+#ifdef NDEBUG
+    constexpr std::size_t NUM_TRIALS{50};
+#else
+    constexpr std::size_t NUM_TRIALS{15};
+#endif
 
     test::CRandomNumbers rng;
     TDoubleVec coordinates;
     TDoubleVec noise;
 
-    for (std::size_t test = 0; test < 50; ++test) {
+    for (std::size_t test = 0; test < NUM_TRIALS; ++test) {
 
         maths::common::CBayesianOptimisation bopt{
             {{0.0, 10.0}, {0.0, 10.0}, {0.0, 10.0}, {0.0, 10.0}}};
@@ -272,9 +278,22 @@ BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient) {
 
 BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
-    // This tests the efficiency of the search on a variety of non-convex functions.
-    // We check the value of the function we find after fixed number of iterations
-    // vs a random search baseline.
+// This tests the efficiency of the search on a variety of non-convex functions.
+// We check the value of the function we find after fixed number of iterations
+// vs a random search baseline.
+
+#ifdef NDEBUG
+    constexpr std::size_t NUM_TRIALS{50};
+    constexpr std::size_t NUM_BO_ITERATIONS{30};
+    constexpr double WIN_RATE_THRESHOLD{0.95};
+#else
+    // Unoptimised Eigen makes each maximumExpectedImprovement() call ~100x
+    // slower.  Reduce the workload so the test completes in a few minutes
+    // rather than 90+ in debug builds.
+    constexpr std::size_t NUM_TRIALS{10};
+    constexpr std::size_t NUM_BO_ITERATIONS{15};
+    constexpr double WIN_RATE_THRESHOLD{0.7};
+#endif
 
     test::CRandomNumbers rng;
     TDoubleVec centreCoordinates;
@@ -290,7 +309,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     TMeanAccumulator meanImprovementBopt;
     TMeanAccumulator meanImprovementRs;
 
-    for (std::size_t test = 0; test < 50; ++test) {
+    for (std::size_t test = 0; test < NUM_TRIALS; ++test) {
 
         rng.generateUniformSamples(-10.0, 10.0, 12, centreCoordinates);
         rng.generateUniformSamples(0.3, 4.0, 12, coordinateScales);
@@ -331,7 +350,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
         LOG_TRACE(<< "Bayesian optimisation...");
         double f0Bopt{fminBopt};
-        for (std::size_t i = 0; i < 30; ++i) {
+        for (std::size_t i = 0; i < NUM_BO_ITERATIONS; ++i) {
             TVector x;
             std::tie(x, std::ignore) = bopt.maximumExpectedImprovement();
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
@@ -342,7 +361,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
         LOG_TRACE(<< "random search...");
         double f0Rs{fminRs};
-        for (std::size_t i = 0; i < 30; ++i) {
+        for (std::size_t i = 0; i < NUM_BO_ITERATIONS; ++i) {
             rng.generateUniformSamples(0.0, 1.0, 4, randomSearch);
             TVector x{a + vector(randomSearch).asDiagonal() * (b - a)};
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
@@ -363,9 +382,9 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
               << 100.0 * maths::common::CBasicStatistics::mean(meanImprovementBopt));
     LOG_DEBUG(<< "mean % improvement RS = "
               << 100.0 * maths::common::CBasicStatistics::mean(meanImprovementRs));
-    BOOST_TEST_REQUIRE(wins > static_cast<std::size_t>(0.95 * 50)); // 95% better
+    BOOST_TEST_REQUIRE(wins > static_cast<std::size_t>(WIN_RATE_THRESHOLD * NUM_TRIALS));
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanImprovementBopt) >
-                       1.5 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 50% mean improvement
+                       1.5 * maths::common::CBasicStatistics::mean(meanImprovementRs));
 }
 
 BOOST_AUTO_TEST_CASE(testKernelInvariants) {
