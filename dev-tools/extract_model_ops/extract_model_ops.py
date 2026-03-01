@@ -63,14 +63,22 @@ def collect_all_module_ops(module):
     return collect_graph_ops(graph)
 
 
-def extract_ops_for_model(model_name: str) -> set[str]:
-    """Trace a HuggingFace model and return its TorchScript op set."""
+def extract_ops_for_model(model_name: str) -> set[str] | None:
+    """Trace a HuggingFace model and return its TorchScript op set.
+
+    Returns None if the model could not be loaded or traced.
+    """
     print(f"  Loading {model_name}...", file=sys.stderr)
     token = os.environ.get("HF_TOKEN")
-    tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
-    config = AutoConfig.from_pretrained(model_name, torchscript=True, token=token)
-    model = AutoModel.from_pretrained(model_name, config=config, token=token)
-    model.eval()
+
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
+        config = AutoConfig.from_pretrained(model_name, torchscript=True, token=token)
+        model = AutoModel.from_pretrained(model_name, config=config, token=token)
+        model.eval()
+    except Exception as e:
+        print(f"  Error: failed to load {model_name}: {e}", file=sys.stderr)
+        return None
 
     inputs = tokenizer("This is a sample input for graph extraction.",
                        return_tensors="pt", padding="max_length",
@@ -87,8 +95,9 @@ def extract_ops_for_model(model_name: str) -> set[str]:
         try:
             traced = torch.jit.script(model)
         except Exception as e2:
-            print(f"  Error: script also failed for {model_name}: {e2}", file=sys.stderr)
-            return set()
+            print(f"  Error: script also failed for {model_name}: {e2}",
+                  file=sys.stderr)
+            return None
 
     return collect_all_module_ops(traced)
 
@@ -121,13 +130,20 @@ def main():
     print("Extracting TorchScript ops from supported architectures...",
           file=sys.stderr)
 
+    failed = []
     for arch, model_name in reference_models.items():
         ops = extract_ops_for_model(model_name)
+        if ops is None:
+            failed.append(arch)
+            print(f"  {arch}: FAILED", file=sys.stderr)
+            continue
         per_model_ops[arch] = ops
         union_ops.update(ops)
         print(f"  {arch}: {len(ops)} ops", file=sys.stderr)
 
     print(f"\nTotal union: {len(union_ops)} unique ops", file=sys.stderr)
+    if failed:
+        print(f"Failed models: {', '.join(failed)}", file=sys.stderr)
 
     if args.per_model:
         for arch, ops in sorted(per_model_ops.items()):

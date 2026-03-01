@@ -8,5 +8,15 @@
     "bart": "facebook/bart-base",
     "dpr": "facebook/dpr-ctx_encoder-single-nq-base",
     "mobilebert": "google/mobilebert-uncased",
-    "xlm-roberta": "xlm-roberta-base"
+    "xlm-roberta": "xlm-roberta-base",
+    "elastic-bge-m3": "elastic/bge-m3",
+    "elastic-distilbert-cased-ner": "elastic/distilbert-base-cased-finetuned-conll03-english",
+    "elastic-distilbert-uncased-ner": "elastic/distilbert-base-uncased-finetuned-conll03-english",
+    "elastic-eis-elser-v2": "elastic/eis-elser-v2",
+    "elastic-elser-v2": "elastic/elser-v2",
+    "elastic-hugging-face-elser": "elastic/hugging-face-elser",
+    "elastic-multilingual-e5-small": "elastic/multilingual-e5-small",
+    "elastic-multilingual-e5-small-optimized": "elastic/multilingual-e5-small-optimized",
+    "elastic-splade-v3": "elastic/splade-v3",
+    "elastic-test-elser-v2": "elastic/test-elser-v2"
 }
