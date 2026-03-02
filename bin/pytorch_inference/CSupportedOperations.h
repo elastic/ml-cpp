@@ -40,6 +40,23 @@ public:
     using TStringViewSet = std::unordered_set<std::string_view>;
 
     //! Operations explicitly forbidden regardless of the allowlist.
+    //!
+    //! The forbidden list is checked separately from (and takes precedence
+    //! over) the allowed list.  This two-tier approach provides:
+    //!
+    //!  1. Stable, targeted error messages for known-dangerous operations
+    //!     (e.g. "model contains forbidden operation: aten::save") rather
+    //!     than the generic "unrecognised operation" that the allowlist
+    //!     would produce.  This helps model authors diagnose rejections.
+    //!
+    //!  2. A safety net against accidental allowlist expansion.  If a
+    //!     future PyTorch upgrade or new architecture inadvertently adds
+    //!     a dangerous op to the allowed set, the forbidden list still
+    //!     blocks it.  The forbidden check is independent of regeneration.
+    //!
+    //!  3. Defence-in-depth: two independent mechanisms must both agree
+    //!     before an operation is permitted, reducing the risk of a
+    //!     single-point allowlist error opening an attack vector.
     static const TStringViewSet FORBIDDEN_OPERATIONS;
 
     //! Union of all TorchScript operations observed in supported architectures.

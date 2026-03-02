@@ -36,6 +36,10 @@ CModelGraphValidator::validate(const TStringSet& observedOps,
 
     SResult result;
 
+    // Check forbidden ops first so they are always reported with a specific
+    // error even if they also appear in the allowed set.  See the comment on
+    // CSupportedOperations::FORBIDDEN_OPERATIONS for the rationale behind
+    // maintaining both a forbidden list and an allowed list.
     for (const auto& op : observedOps) {
         if (forbiddenOps.contains(op)) {
             result.s_IsValid = false;
