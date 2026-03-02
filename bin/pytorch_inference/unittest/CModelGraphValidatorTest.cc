@@ -15,6 +15,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <torch/script.h>
+
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -231,6 +233,90 @@ BOOST_AUTO_TEST_CASE(testForbiddenOpAlsoInAllowlist) {
     BOOST_REQUIRE(result.s_IsValid == false);
     BOOST_REQUIRE_EQUAL(1, result.s_ForbiddenOps.size());
     BOOST_REQUIRE_EQUAL("aten::from_file", result.s_ForbiddenOps[0]);
+}
+
+// --- Integration tests using real TorchScript modules ---
+
+BOOST_AUTO_TEST_CASE(testValidModuleWithAllowedOps) {
+    // A simple module using only aten::add and aten::mul, both of which
+    // are in the allowed set.
+    ::torch::jit::Module m("__torch__.ValidModel");
+    m.define(R"(
+        def forward(self, x: Tensor) -> Tensor:
+            return x + x * x
+    )");
+
+    auto result = CModelGraphValidator::validate(m);
+
+    BOOST_REQUIRE(result.s_IsValid);
+    BOOST_REQUIRE(result.s_ForbiddenOps.empty());
+    BOOST_REQUIRE(result.s_UnrecognisedOps.empty());
+    BOOST_REQUIRE(result.s_NodeCount > 0);
+}
+
+BOOST_AUTO_TEST_CASE(testModuleWithUnrecognisedOps) {
+    // torch.sin is not in the transformer allowlist.
+    ::torch::jit::Module m("__torch__.UnknownOps");
+    m.define(R"(
+        def forward(self, x: Tensor) -> Tensor:
+            return torch.sin(x)
+    )");
+
+    auto result = CModelGraphValidator::validate(m);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE(result.s_ForbiddenOps.empty());
+    BOOST_REQUIRE(result.s_UnrecognisedOps.empty() == false);
+    bool foundSin = false;
+    for (const auto& op : result.s_UnrecognisedOps) {
+        if (op == "aten::sin") {
+            foundSin = true;
+        }
+    }
+    BOOST_REQUIRE(foundSin);
+}
+
+BOOST_AUTO_TEST_CASE(testModuleNodeCountPopulated) {
+    ::torch::jit::Module m("__torch__.NodeCount");
+    m.define(R"(
+        def forward(self, x: Tensor) -> Tensor:
+            a = x + x
+            b = a * a
+            c = b - a
+            return c
+    )");
+
+    auto result = CModelGraphValidator::validate(m);
+
+    BOOST_REQUIRE(result.s_NodeCount > 0);
+}
+
+BOOST_AUTO_TEST_CASE(testModuleWithSubmoduleInlines) {
+    // Create a parent module with a child submodule. After inlining,
+    // the child's operations should be visible and validated.
+    ::torch::jit::Module child("__torch__.Child");
+    child.define(R"(
+        def forward(self, x: Tensor) -> Tensor:
+            return torch.sin(x)
+    )");
+
+    ::torch::jit::Module parent("__torch__.Parent");
+    parent.register_module("child", child);
+    parent.define(R"(
+        def forward(self, x: Tensor) -> Tensor:
+            return self.child.forward(x) + x
+    )");
+
+    auto result = CModelGraphValidator::validate(parent);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    bool foundSin = false;
+    for (const auto& op : result.s_UnrecognisedOps) {
+        if (op == "aten::sin") {
+            foundSin = true;
+        }
+    }
+    BOOST_REQUIRE(foundSin);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
