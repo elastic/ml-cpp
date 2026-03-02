@@ -115,17 +115,23 @@ def trace_and_collect_ops(model_name: str) -> set[str] | None:
     return collect_graph_ops(graph)
 
 
-def validate_model(model_name: str,
-                   allowed: set[str],
-                   forbidden: set[str],
-                   verbose: bool) -> bool:
-    """Validate one model. Returns True if all ops pass."""
-    print(f"  {model_name}...", file=sys.stderr)
-    ops = trace_and_collect_ops(model_name)
-    if ops is None:
-        print(f"    FAILED (could not load/trace)", file=sys.stderr)
-        return False
+def load_pt_and_collect_ops(pt_path: str) -> set[str] | None:
+    """Load a saved TorchScript .pt file, inline, and return its op set."""
+    try:
+        module = torch.jit.load(pt_path)
+        graph = module.forward.graph.copy()
+        torch._C._jit_pass_inline(graph)
+        return collect_graph_ops(graph)
+    except Exception as exc:
+        print(f"    LOAD ERROR: {exc}", file=sys.stderr)
+        return None
 
+
+def check_ops(ops: set[str],
+              allowed: set[str],
+              forbidden: set[str],
+              verbose: bool) -> bool:
+    """Check an op set against allowed/forbidden lists. Returns True if all pass."""
     forbidden_found = sorted(ops & forbidden)
     unrecognised = sorted(ops - allowed - forbidden)
 
@@ -145,6 +151,33 @@ def validate_model(model_name: str,
     return False
 
 
+def validate_model(model_name: str,
+                   allowed: set[str],
+                   forbidden: set[str],
+                   verbose: bool) -> bool:
+    """Validate one HuggingFace model. Returns True if all ops pass."""
+    print(f"  {model_name}...", file=sys.stderr)
+    ops = trace_and_collect_ops(model_name)
+    if ops is None:
+        print(f"    FAILED (could not load/trace)", file=sys.stderr)
+        return False
+    return check_ops(ops, allowed, forbidden, verbose)
+
+
+def validate_pt_file(name: str,
+                     pt_path: str,
+                     allowed: set[str],
+                     forbidden: set[str],
+                     verbose: bool) -> bool:
+    """Validate a local TorchScript .pt file. Returns True if all ops pass."""
+    print(f"  {name} ({pt_path})...", file=sys.stderr)
+    ops = load_pt_and_collect_ops(pt_path)
+    if ops is None:
+        print(f"    FAILED (could not load)", file=sys.stderr)
+        return False
+    return check_ops(ops, allowed, forbidden, verbose)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -152,6 +185,9 @@ def main():
     parser.add_argument(
         "--config", type=Path, default=DEFAULT_CONFIG,
         help="Path to reference_models.json (default: %(default)s)")
+    parser.add_argument(
+        "--pt-dir", type=Path, default=None,
+        help="Directory of pre-saved .pt TorchScript files to validate")
     parser.add_argument(
         "--verbose", action="store_true",
         help="Print per-model op counts")
@@ -163,22 +199,36 @@ def main():
     print(f"Parsed {len(allowed)} allowed ops and {len(forbidden)} "
           f"forbidden ops from {SUPPORTED_OPS_CC.name}", file=sys.stderr)
 
+    results: dict[str, bool] = {}
+
     with open(args.config) as f:
         models = json.load(f)
-    print(f"Validating {len(models)} models from {args.config.name}...",
-          file=sys.stderr)
+    print(f"Validating {len(models)} HuggingFace models from "
+          f"{args.config.name}...", file=sys.stderr)
 
-    results: dict[str, bool] = {}
     for arch, model_id in models.items():
         results[arch] = validate_model(
             model_id, allowed, forbidden, args.verbose)
 
+    if args.pt_dir and args.pt_dir.is_dir():
+        pt_files = sorted(args.pt_dir.glob("*.pt"))
+        if pt_files:
+            print(f"Validating {len(pt_files)} local .pt files from "
+                  f"{args.pt_dir}...", file=sys.stderr)
+            for pt_path in pt_files:
+                name = pt_path.stem
+                results[f"pt:{name}"] = validate_pt_file(
+                    name, str(pt_path), allowed, forbidden, args.verbose)
+
     print(file=sys.stderr)
     print("=" * 60, file=sys.stderr)
     all_pass = all(results.values())
-    for arch, passed in results.items():
+    for key, passed in results.items():
         status = "PASS" if passed else "FAIL"
-        print(f"  {arch} ({models[arch]}): {status}", file=sys.stderr)
+        if key.startswith("pt:"):
+            print(f"  {key}: {status}", file=sys.stderr)
+        else:
+            print(f"  {key} ({models[key]}): {status}", file=sys.stderr)
 
     print("=" * 60, file=sys.stderr)
     if all_pass:

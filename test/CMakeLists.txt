@@ -75,9 +75,13 @@ add_custom_target(test_all_parallel
 # See dev-tools/extract_model_ops/README.md for details.
 set(_validate_wrapper ${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/run_validation.sh)
 set(_validate_config ${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json)
+set(_validate_pt_dir ${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models)
 
 add_custom_target(validate_pytorch_inference_models
-        COMMAND ${_validate_wrapper} --config ${_validate_config} --verbose
-        COMMENT "Validating pytorch_inference allowlist against HuggingFace models"
+        COMMAND ${_validate_wrapper}
+            --config ${_validate_config}
+            --pt-dir ${_validate_pt_dir}
+            --verbose
+        COMMENT "Validating pytorch_inference allowlist against HuggingFace models and ES integration test models"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
