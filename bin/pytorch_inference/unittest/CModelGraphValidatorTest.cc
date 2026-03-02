@@ -188,6 +188,34 @@ BOOST_AUTO_TEST_CASE(testCustomAllowlistAndForbiddenList) {
     BOOST_REQUIRE_EQUAL(1, result.s_UnrecognisedOps.size());
 }
 
+BOOST_AUTO_TEST_CASE(testCallMethodForbiddenAfterInlining) {
+    // prim::CallMethod must not appear after graph inlining; its presence
+    // means a method call could not be resolved and the graph cannot be
+    // fully validated.
+    TStringSet observed{"aten::linear", "prim::Constant", "prim::CallMethod"};
+
+    auto result = CModelGraphValidator::validate(
+        observed, CSupportedOperations::ALLOWED_OPERATIONS,
+        CSupportedOperations::FORBIDDEN_OPERATIONS);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE_EQUAL(1, result.s_ForbiddenOps.size());
+    BOOST_REQUIRE_EQUAL("prim::CallMethod", result.s_ForbiddenOps[0]);
+    BOOST_REQUIRE(result.s_UnrecognisedOps.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testCallFunctionForbiddenAfterInlining) {
+    TStringSet observed{"aten::linear", "prim::CallFunction"};
+
+    auto result = CModelGraphValidator::validate(
+        observed, CSupportedOperations::ALLOWED_OPERATIONS,
+        CSupportedOperations::FORBIDDEN_OPERATIONS);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE_EQUAL(1, result.s_ForbiddenOps.size());
+    BOOST_REQUIRE_EQUAL("prim::CallFunction", result.s_ForbiddenOps[0]);
+}
+
 BOOST_AUTO_TEST_CASE(testForbiddenOpAlsoInAllowlist) {
     // If an op appears in both forbidden and allowed, forbidden takes precedence.
     TStringViewSet allowed{"aten::from_file", "aten::linear"};

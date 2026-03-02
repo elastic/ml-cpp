@@ -50,6 +50,7 @@ public:
         bool s_IsValid{true};
         TStringVec s_ForbiddenOps;
         TStringVec s_UnrecognisedOps;
+        std::size_t s_NodeCount{0};
     };
 
 public:
@@ -66,10 +67,17 @@ public:
 
 private:
     //! Collect all operation names from a block, recursing into sub-blocks.
-    static void collectBlockOps(const ::torch::jit::Block& block, TStringSet& ops);
+    static void collectBlockOps(const ::torch::jit::Block& block,
+                                TStringSet& ops,
+                                std::size_t& nodeCount);
 
-    //! Recursively collect ops from all methods of a module and its children.
-    static void collectModuleOps(const ::torch::jit::Module& module, TStringSet& ops);
+    //! Inline all method calls and collect ops from the flattened graph.
+    //! After inlining, prim::CallMethod should not appear; if it does,
+    //! the call could not be resolved statically and is treated as
+    //! unrecognised.
+    static void collectModuleOps(const ::torch::jit::Module& module,
+                                 TStringSet& ops,
+                                 std::size_t& nodeCount);
 };
 }
 }

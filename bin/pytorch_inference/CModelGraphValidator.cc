@@ -15,6 +15,8 @@
 
 #include <core/CLogger.h>
 
+#include <torch/csrc/jit/passes/inliner.h>
+
 #include <algorithm>
 
 namespace ml {
@@ -23,15 +25,19 @@ namespace torch {
 CModelGraphValidator::SResult CModelGraphValidator::validate(const ::torch::jit::Module& module) {
 
     TStringSet observedOps;
-    collectModuleOps(module, observedOps);
+    std::size_t nodeCount{0};
+    collectModuleOps(module, observedOps, nodeCount);
 
-    LOG_DEBUG(<< "Model graph contains " << observedOps.size() << " distinct operations");
+    LOG_DEBUG(<< "Model graph contains " << observedOps.size()
+              << " distinct operations across " << nodeCount << " nodes");
     for (const auto& op : observedOps) {
         LOG_DEBUG(<< "  observed op: " << op);
     }
 
-    return validate(observedOps, CSupportedOperations::ALLOWED_OPERATIONS,
-                    CSupportedOperations::FORBIDDEN_OPERATIONS);
+    auto result = validate(observedOps, CSupportedOperations::ALLOWED_OPERATIONS,
+                           CSupportedOperations::FORBIDDEN_OPERATIONS);
+    result.s_NodeCount = nodeCount;
+    return result;
 }
 
 CModelGraphValidator::SResult
@@ -61,24 +67,29 @@ CModelGraphValidator::validate(const TStringSet& observedOps,
     return result;
 }
 
-void CModelGraphValidator::collectBlockOps(const ::torch::jit::Block& block, TStringSet& ops) {
+void CModelGraphValidator::collectBlockOps(const ::torch::jit::Block& block,
+                                           TStringSet& ops,
+                                           std::size_t& nodeCount) {
     for (const auto* node : block.nodes()) {
+        ++nodeCount;
         ops.emplace(node->kind().toQualString());
         for (const auto* subBlock : node->blocks()) {
-            collectBlockOps(*subBlock, ops);
+            collectBlockOps(*subBlock, ops, nodeCount);
         }
     }
 }
 
 void CModelGraphValidator::collectModuleOps(const ::torch::jit::Module& module,
-                                            TStringSet& ops) {
+                                            TStringSet& ops,
+                                            std::size_t& nodeCount) {
     for (const auto& method : module.get_methods()) {
-        auto graph = method.graph();
-        collectBlockOps(*graph->block(), ops);
-    }
-
-    for (const auto& child : module.children()) {
-        collectModuleOps(child, ops);
+        // Inline all method calls so that operations hidden behind
+        // prim::CallMethod are surfaced.  After inlining, any remaining
+        // prim::CallMethod indicates a call that could not be resolved
+        // statically and will be flagged as unrecognised.
+        auto graph = method.graph()->copy();
+        ::torch::jit::Inline(*graph);
+        collectBlockOps(*graph->block(), ops, nodeCount);
     }
 }
 }
