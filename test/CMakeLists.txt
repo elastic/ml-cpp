@@ -70,18 +70,16 @@ add_custom_target(test_all_parallel
 # Python integration test: validate the pytorch_inference operation
 # allowlist against real HuggingFace models.  This target is opt-in
 # (not part of the regular "test" target) because it requires network
-# access to download models.  The wrapper script automatically creates
-# a Python venv and installs dependencies on first run.
+# access to download models.  The CMake script automatically locates
+# a Python 3 interpreter, creates a venv, and installs dependencies.
 # See dev-tools/extract_model_ops/README.md for details.
-set(_validate_wrapper ${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/run_validation.sh)
-set(_validate_config ${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json)
-set(_validate_pt_dir ${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models)
-
 add_custom_target(validate_pytorch_inference_models
-        COMMAND ${_validate_wrapper}
-            --config ${_validate_config}
-            --pt-dir ${_validate_pt_dir}
-            --verbose
+        COMMAND ${CMAKE_COMMAND}
+            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+            -DVALIDATE_CONFIG=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json
+            -DVALIDATE_PT_DIR=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models
+            -DVALIDATE_VERBOSE=TRUE
+            -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
         COMMENT "Validating pytorch_inference allowlist against HuggingFace models and ES integration test models"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

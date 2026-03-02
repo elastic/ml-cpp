@@ -82,11 +82,19 @@ python3 validate_allowlist.py --verbose
 python3 validate_allowlist.py --config /path/to/models.json
 ```
 
-The script can also be run via CMake:
+The script can also be run via the CMake `validate_pytorch_inference_models`
+target, which automatically locates a Python 3 interpreter, creates a venv,
+and installs dependencies — no manual setup required:
 
 ```bash
 cmake --build cmake-build-relwithdebinfo -t validate_pytorch_inference_models
 ```
+
+The CMake target searches for `python3`, `python3.12`, `python3.11`,
+`python3.10`, `python3.9`, and `python` (in that order), accepting the
+first one that reports Python 3.x.  This handles Linux build machines
+where Python is only available as `python3.12` (via `make altinstall`)
+as well as Windows where the canonical name is `python`.
 
 ## Configuration files
 
