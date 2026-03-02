@@ -25,6 +25,11 @@ CModelGraphValidator::SResult CModelGraphValidator::validate(const ::torch::jit:
     TStringSet observedOps;
     collectModuleOps(module, observedOps);
 
+    LOG_DEBUG(<< "Model graph contains " << observedOps.size() << " distinct operations");
+    for (const auto& op : observedOps) {
+        LOG_DEBUG(<< "  observed op: " << op);
+    }
+
     return validate(observedOps, CSupportedOperations::ALLOWED_OPERATIONS,
                     CSupportedOperations::FORBIDDEN_OPERATIONS);
 }
