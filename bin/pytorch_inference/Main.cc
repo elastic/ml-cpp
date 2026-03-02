@@ -71,8 +71,7 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
         }
 
         if (result.s_NodeCount > ml::torch::CModelGraphValidator::MAX_NODE_COUNT) {
-            HANDLE_FATAL(<< "Model graph is too large: " << result.s_NodeCount
-                         << " nodes exceeds limit of "
+            HANDLE_FATAL(<< "Model graph is too large: " << result.s_NodeCount << " nodes exceeds limit of "
                          << ml::torch::CModelGraphValidator::MAX_NODE_COUNT);
         }
 
