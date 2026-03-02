@@ -20,12 +20,28 @@
 #   VALIDATE_CONFIG  - path to validation_models.json
 #   VALIDATE_PT_DIR  - directory of .pt files to validate
 #   VALIDATE_VERBOSE - if TRUE, pass --verbose to the script
+#   OPTIONAL         - if TRUE, skip gracefully when Python 3 is not
+#                      found or dependency installation fails (instead
+#                      of failing the build).  Intended for use when
+#                      this script is invoked as part of a broader test
+#                      target where the environment may not have Python
+#                      or network access.
 
 cmake_minimum_required(VERSION 3.16)
 
 if(NOT DEFINED SOURCE_DIR)
   message(FATAL_ERROR "SOURCE_DIR must be defined")
 endif()
+
+# Helper: emit a FATAL_ERROR or a WARNING+return depending on OPTIONAL.
+macro(_validation_fail _msg)
+  if(DEFINED OPTIONAL AND OPTIONAL)
+    message(WARNING "Skipping validation: ${_msg}")
+    return()
+  else()
+    message(FATAL_ERROR "${_msg}")
+  endif()
+endmacro()
 
 set(_tools_dir "${SOURCE_DIR}/dev-tools/extract_model_ops")
 set(_venv_dir "${_tools_dir}/.venv")
@@ -66,7 +82,7 @@ foreach(_name ${_python_names})
 endforeach()
 
 if(_python_exe STREQUAL "")
-  message(FATAL_ERROR
+  _validation_fail(
     "No Python 3 interpreter found on PATH.\n"
     "Searched for: ${_python_names}\n"
     "Install Python 3 or ensure it is on your PATH.")
@@ -97,7 +113,7 @@ if(NOT EXISTS "${_venv_python}")
     RESULT_VARIABLE _venv_rc
   )
   if(NOT _venv_rc EQUAL 0)
-    message(FATAL_ERROR "Failed to create virtual environment (exit ${_venv_rc})")
+    _validation_fail("Failed to create virtual environment (exit ${_venv_rc})")
   endif()
 endif()
 
@@ -130,7 +146,9 @@ if(_needs_install)
     RESULT_VARIABLE _pip_rc
   )
   if(NOT _pip_rc EQUAL 0)
-    message(FATAL_ERROR "Failed to install dependencies from ${_requirements} (exit ${_pip_rc})")
+    _validation_fail(
+      "Failed to install dependencies from ${_requirements} (exit ${_pip_rc}).\n"
+      "This may indicate no network access is available.")
   endif()
 
   file(WRITE "${_stamp}" "installed")
@@ -183,5 +201,5 @@ execute_process(
 )
 
 if(NOT _validate_rc EQUAL 0)
-  message(FATAL_ERROR "Validation failed (exit ${_validate_rc})")
+  _validation_fail("Validation failed (exit ${_validate_rc})")
 endif()
