@@ -70,11 +70,18 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
                          << "Unrecognised operations: " << ops);
         }
 
+        if (result.s_NodeCount > ml::torch::CModelGraphValidator::MAX_NODE_COUNT) {
+            HANDLE_FATAL(<< "Model graph is too large: " << result.s_NodeCount
+                         << " nodes exceeds limit of "
+                         << ml::torch::CModelGraphValidator::MAX_NODE_COUNT);
+        }
+
         if (result.s_IsValid == false) {
             HANDLE_FATAL(<< "Model graph validation failed");
         }
 
-        LOG_DEBUG(<< "Model verified: all operations match supported architectures.");
+        LOG_DEBUG(<< "Model verified: " << result.s_NodeCount
+                  << " nodes, all operations match supported architectures.");
     } catch (const c10::Error& e) {
         LOG_FATAL(<< "Model graph validation failed: " << e.what());
     }

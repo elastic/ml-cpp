@@ -45,6 +45,12 @@ public:
     using TStringSet = std::unordered_set<std::string>;
     using TStringVec = std::vector<std::string>;
 
+    //! Upper bound on the number of graph nodes we are willing to inspect.
+    //! Transformer models typically have O(10k) nodes after inlining; a
+    //! limit of 1M provides generous headroom while preventing a
+    //! pathologically large graph from consuming unbounded memory or CPU.
+    static constexpr std::size_t MAX_NODE_COUNT{1000000};
+
     //! Result of validating a model graph.
     struct SResult {
         bool s_IsValid{true};

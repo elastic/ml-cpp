@@ -216,6 +216,11 @@ BOOST_AUTO_TEST_CASE(testCallFunctionForbiddenAfterInlining) {
     BOOST_REQUIRE_EQUAL("prim::CallFunction", result.s_ForbiddenOps[0]);
 }
 
+BOOST_AUTO_TEST_CASE(testMaxNodeCountConstant) {
+    BOOST_REQUIRE(CModelGraphValidator::MAX_NODE_COUNT > 0);
+    BOOST_REQUIRE_EQUAL(std::size_t{1000000}, CModelGraphValidator::MAX_NODE_COUNT);
+}
+
 BOOST_AUTO_TEST_CASE(testForbiddenOpAlsoInAllowlist) {
     // If an op appears in both forbidden and allowed, forbidden takes precedence.
     TStringViewSet allowed{"aten::from_file", "aten::linear"};
