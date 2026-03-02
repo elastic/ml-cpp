@@ -20,5 +20,10 @@
     "elastic-test-elser-v2": "elastic/test-elser-v2",
 
     "ner-dslim-bert-base": "dslim/bert-base-NER",
-    "sentiment-distilbert-sst2": "distilbert-base-uncased-finetuned-sst-2-english"
+    "sentiment-distilbert-sst2": "distilbert-base-uncased-finetuned-sst-2-english",
+
+    "es-multilingual-e5-small": "intfloat/multilingual-e5-small",
+    "es-all-MiniLM-L6-v2": "sentence-transformers/all-MiniLM-L6-v2",
+    "es-cross-encoder-ms-marco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base"
 }
