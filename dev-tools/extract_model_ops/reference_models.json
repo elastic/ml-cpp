@@ -5,7 +5,6 @@
     "electra": "google/electra-small-discriminator",
     "mpnet": "microsoft/mpnet-base",
     "deberta": "microsoft/deberta-base",
-    "bart": "facebook/bart-base",
     "dpr": "facebook/dpr-ctx_encoder-single-nq-base",
     "mobilebert": "google/mobilebert-uncased",
     "xlm-roberta": "xlm-roberta-base",
@@ -15,7 +14,6 @@
     "elastic-eis-elser-v2": "elastic/eis-elser-v2",
     "elastic-elser-v2": "elastic/elser-v2",
     "elastic-hugging-face-elser": "elastic/hugging-face-elser",
-    "elastic-multilingual-e5-small": "elastic/multilingual-e5-small",
     "elastic-multilingual-e5-small-optimized": "elastic/multilingual-e5-small-optimized",
     "elastic-splade-v3": "elastic/splade-v3",
     "elastic-test-elser-v2": "elastic/test-elser-v2"
