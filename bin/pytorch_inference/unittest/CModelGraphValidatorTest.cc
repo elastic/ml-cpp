@@ -326,20 +326,19 @@ BOOST_AUTO_TEST_CASE(testModuleWithSubmoduleInlines) {
 
 namespace {
 bool hasForbiddenOp(const CModelGraphValidator::SResult& result, const std::string& op) {
-    return std::find(result.s_ForbiddenOps.begin(),
-                     result.s_ForbiddenOps.end(), op) != result.s_ForbiddenOps.end();
+    return std::find(result.s_ForbiddenOps.begin(), result.s_ForbiddenOps.end(),
+                     op) != result.s_ForbiddenOps.end();
 }
 
 bool hasUnrecognisedOp(const CModelGraphValidator::SResult& result, const std::string& op) {
-    return std::find(result.s_UnrecognisedOps.begin(),
-                     result.s_UnrecognisedOps.end(), op) != result.s_UnrecognisedOps.end();
+    return std::find(result.s_UnrecognisedOps.begin(), result.s_UnrecognisedOps.end(),
+                     op) != result.s_UnrecognisedOps.end();
 }
 }
 
 BOOST_AUTO_TEST_CASE(testMaliciousFileReader) {
     // A model that uses aten::from_file to read arbitrary files.
-    auto module = ::torch::jit::load(
-        "testfiles/malicious_models/malicious_file_reader.pt");
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_file_reader.pt");
     auto result = CModelGraphValidator::validate(module);
 
     BOOST_REQUIRE(result.s_IsValid == false);
@@ -349,8 +348,7 @@ BOOST_AUTO_TEST_CASE(testMaliciousFileReader) {
 BOOST_AUTO_TEST_CASE(testMaliciousMixedFileReader) {
     // A model that mixes allowed ops (aten::add) with a forbidden
     // aten::from_file. The entire model must be rejected.
-    auto module = ::torch::jit::load(
-        "testfiles/malicious_models/malicious_mixed_file_reader.pt");
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_mixed_file_reader.pt");
     auto result = CModelGraphValidator::validate(module);
 
     BOOST_REQUIRE(result.s_IsValid == false);
@@ -361,8 +359,7 @@ BOOST_AUTO_TEST_CASE(testMaliciousMixedFileReader) {
 BOOST_AUTO_TEST_CASE(testMaliciousHiddenInSubmodule) {
     // Unrecognised ops buried three levels deep in nested submodules.
     // The validator must inline through all submodules to find them.
-    auto module = ::torch::jit::load(
-        "testfiles/malicious_models/malicious_hidden_in_submodule.pt");
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_hidden_in_submodule.pt");
     auto result = CModelGraphValidator::validate(module);
 
     BOOST_REQUIRE(result.s_IsValid == false);
@@ -373,8 +370,7 @@ BOOST_AUTO_TEST_CASE(testMaliciousHiddenInSubmodule) {
 BOOST_AUTO_TEST_CASE(testMaliciousConditionalBranch) {
     // An unrecognised op hidden inside a conditional branch. The
     // validator must recurse into prim::If blocks to detect it.
-    auto module = ::torch::jit::load(
-        "testfiles/malicious_models/malicious_conditional.pt");
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_conditional.pt");
     auto result = CModelGraphValidator::validate(module);
 
     BOOST_REQUIRE(result.s_IsValid == false);
@@ -383,8 +379,7 @@ BOOST_AUTO_TEST_CASE(testMaliciousConditionalBranch) {
 
 BOOST_AUTO_TEST_CASE(testMaliciousManyUnrecognisedOps) {
     // A model using many different unrecognised ops (sin, cos, tan, exp).
-    auto module = ::torch::jit::load(
-        "testfiles/malicious_models/malicious_many_unrecognised.pt");
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_many_unrecognised.pt");
     auto result = CModelGraphValidator::validate(module);
 
     BOOST_REQUIRE(result.s_IsValid == false);
@@ -399,8 +394,7 @@ BOOST_AUTO_TEST_CASE(testMaliciousManyUnrecognisedOps) {
 BOOST_AUTO_TEST_CASE(testMaliciousFileReaderInSubmodule) {
     // The forbidden aten::from_file is hidden inside a submodule.
     // After inlining, the validator must still detect it.
-    auto module = ::torch::jit::load(
-        "testfiles/malicious_models/malicious_file_reader_in_submodule.pt");
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_file_reader_in_submodule.pt");
     auto result = CModelGraphValidator::validate(module);
 
     BOOST_REQUIRE(result.s_IsValid == false);
