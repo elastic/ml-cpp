@@ -1,17 +1,14 @@
 # extract\_model\_ops
 
-Developer tool that extracts TorchScript operation sets from the supported
-HuggingFace transformer architectures.  The output is used to maintain the
-C++ operation allowlist in
-`bin/pytorch_inference/CSupportedOperations.cc`.
+Developer tools for maintaining and validating the TorchScript operation
+allowlist in `bin/pytorch_inference/CSupportedOperations.cc`.
 
-## When to run
+This directory contains two scripts that share the same Python environment:
 
-Re-run this tool whenever:
-
-- A new transformer architecture is added to the supported set.
-- The PyTorch (libtorch) version used by ml-cpp is upgraded.
-- You need to verify which operations a particular model uses.
+| Script | Purpose |
+|---|---|
+| `extract_model_ops.py` | Generate the C++ `ALLOWED_OPERATIONS` set from reference models |
+| `validate_allowlist.py` | Verify the allowlist accepts all supported models (no false positives) |
 
 ## Setup
 
@@ -30,7 +27,19 @@ If any of the reference models are gated, set a HuggingFace token:
 export HF_TOKEN="hf_..."
 ```
 
-## Usage
+## extract\_model\_ops.py
+
+Traces each model in `reference_models.json`, collects the TorchScript
+operations from the inlined forward graph, and outputs the union as a
+sorted list or a ready-to-paste C++ initializer.
+
+### When to run
+
+- A new transformer architecture is added to the supported set.
+- The PyTorch (libtorch) version used by ml-cpp is upgraded.
+- You need to inspect which operations a particular model uses.
+
+### Usage
 
 ```bash
 # Print the sorted union of all operations (default)
@@ -46,10 +55,47 @@ python3 extract_model_ops.py --per-model --cpp
 python3 extract_model_ops.py --config /path/to/models.json
 ```
 
-## Configuration
+## validate\_allowlist.py
 
-The set of reference models is defined in `reference_models.json`.  Each
-entry maps a short architecture name to a HuggingFace model identifier:
+Parses `ALLOWED_OPERATIONS` and `FORBIDDEN_OPERATIONS` directly from
+`CSupportedOperations.cc`, then traces every model in a config file and
+checks that each model's operations are accepted.  Exits non-zero if
+any model would be rejected (a false positive).
+
+### When to run
+
+- After regenerating `ALLOWED_OPERATIONS` with `extract_model_ops.py`.
+- After adding new models to `validation_models.json`.
+- As a pre-merge check for any PR that touches the allowlist or the
+  graph validation logic.
+
+### Usage
+
+```bash
+# Validate against the default set (validation_models.json)
+python3 validate_allowlist.py
+
+# Validate with verbose per-model op counts
+python3 validate_allowlist.py --verbose
+
+# Validate against a custom model set
+python3 validate_allowlist.py --config /path/to/models.json
+```
+
+The script can also be run via CMake:
+
+```bash
+cmake --build cmake-build-relwithdebinfo -t validate_pytorch_inference_models
+```
+
+## Configuration files
+
+| File | Used by | Purpose |
+|---|---|---|
+| `reference_models.json` | `extract_model_ops.py` | Models whose ops form the allowlist |
+| `validation_models.json` | `validate_allowlist.py` | Superset including task-specific models (NER, sentiment) from `bin/pytorch_inference/examples/` |
+
+Each file maps a short architecture name to a HuggingFace model identifier:
 
 ```json
 {
@@ -58,9 +104,11 @@ entry maps a short architecture name to a HuggingFace model identifier:
 }
 ```
 
-To add a new architecture, append an entry to this file and re-run the
-script.  Copy the `--cpp` output into `CSupportedOperations.cc`, adding
-any new operations to the `ALLOWED_OPERATIONS` set.
+To add a new architecture, append an entry to `reference_models.json`,
+re-run `extract_model_ops.py --cpp`, and update `CSupportedOperations.cc`.
+Then add the same entry (plus any task-specific variants) to
+`validation_models.json` and run `validate_allowlist.py` to confirm
+there are no false positives.
 
 ## How it works
 
