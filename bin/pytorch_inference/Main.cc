@@ -48,24 +48,12 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
         auto result = ml::torch::CModelGraphValidator::validate(module_);
 
         if (result.s_ForbiddenOps.empty() == false) {
-            std::string ops;
-            for (const auto& op : result.s_ForbiddenOps) {
-                if (ops.empty() == false) {
-                    ops += ", ";
-                }
-                ops += op;
-            }
+            std::string ops = ml::core::CStringUtils::join(result.s_ForbiddenOps, ", ");
             HANDLE_FATAL(<< "Model contains forbidden operations: " << ops);
         }
 
         if (result.s_UnrecognisedOps.empty() == false) {
-            std::string ops;
-            for (const auto& op : result.s_UnrecognisedOps) {
-                if (ops.empty() == false) {
-                    ops += ", ";
-                }
-                ops += op;
-            }
+            std::string ops = ml::core::CStringUtils::join(result.s_UnrecognisedOps, ", ");
             HANDLE_FATAL(<< "Model graph does not match any supported architecture. "
                          << "Unrecognised operations: " << ops);
         }
