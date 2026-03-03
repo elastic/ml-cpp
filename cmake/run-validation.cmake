@@ -52,49 +52,30 @@ set(_validate_script "${_tools_dir}/validate_allowlist.py")
 # Try names in order of preference.  On Linux build machines Python may
 # only be available as python3.12 (installed via make altinstall).
 # On Windows the canonical name is just "python".
-set(_python_names
-  python3
-  python3.12
-  python3.11
-  python3.10
-  python3.9
-  python
+find_program(_python_path
+  NAMES python3 python3.12 python3.11 python3.10 python3.9 python
+  DOC "Python 3 interpreter"
 )
 
-set(_python_exe "")
-foreach(_name ${_python_names})
-  execute_process(
-    COMMAND ${_name} --version
-    OUTPUT_VARIABLE _py_version_out
-    ERROR_VARIABLE _py_version_out
-    RESULT_VARIABLE _py_rc
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  if(_py_rc EQUAL 0)
-    # Verify it is actually Python 3
-    string(REGEX MATCH "Python 3\\." _is_py3 "${_py_version_out}")
-    if(_is_py3)
-      set(_python_exe "${_name}")
-      message(STATUS "Found Python 3: ${_name} (${_py_version_out})")
-      break()
-    endif()
-  endif()
-endforeach()
-
-if(_python_exe STREQUAL "")
+if(NOT _python_path)
   _validation_fail(
     "No Python 3 interpreter found on PATH.\n"
-    "Searched for: ${_python_names}\n"
     "Install Python 3 or ensure it is on your PATH.")
 endif()
 
-# Resolve the full path so venv creation and pip invocations are unambiguous.
-find_program(_python_path "${_python_exe}")
-if(NOT _python_path)
-  # find_program failed but the execute_process above succeeded — fall back
-  # to the bare name (it will still work via PATH lookup).
-  set(_python_path "${_python_exe}")
+# Verify it is actually Python 3 (guards against "python" being Python 2).
+execute_process(
+  COMMAND "${_python_path}" --version
+  OUTPUT_VARIABLE _py_version_out
+  ERROR_VARIABLE _py_version_out
+  RESULT_VARIABLE _py_rc
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT _py_rc EQUAL 0 OR NOT _py_version_out MATCHES "Python 3\\.")
+  _validation_fail(
+    "Found ${_python_path} but it is not Python 3 (${_py_version_out}).")
 endif()
+message(STATUS "Found Python 3: ${_python_path} (${_py_version_out})")
 
 # --- Platform-specific venv paths ---
 if(CMAKE_HOST_WIN32)
