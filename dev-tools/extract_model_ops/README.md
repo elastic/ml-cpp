@@ -1,4 +1,4 @@
-# extract\_model\_ops
+# extract_model_ops
 
 Developer tools for maintaining and validating the TorchScript operation
 allowlist in `bin/pytorch_inference/CSupportedOperations.cc`.
@@ -27,7 +27,7 @@ If any of the reference models are gated, set a HuggingFace token:
 export HF_TOKEN="hf_..."
 ```
 
-## extract\_model\_ops.py
+## extract_model_ops.py
 
 Traces each model in `reference_models.json`, collects the TorchScript
 operations from the inlined forward graph, and outputs the union as a

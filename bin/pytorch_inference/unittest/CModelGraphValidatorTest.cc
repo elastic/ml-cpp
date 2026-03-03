@@ -9,9 +9,9 @@
  * limitation.
  */
 
-#include "../CModelGraphValidator.h"
+#include <CModelGraphValidator.h>
 
-#include "../CSupportedOperations.h"
+#include <CSupportedOperations.h>
 
 #include <boost/test/unit_test.hpp>
 
