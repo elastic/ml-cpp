@@ -28,12 +28,10 @@ Flags:
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
-import torch
-from transformers import AutoConfig, AutoModel, AutoTokenizer
+from torchscript_utils import collect_inlined_ops, load_and_trace_hf_model
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = SCRIPT_DIR / "reference_models.json"
@@ -45,61 +43,16 @@ def load_reference_models(config_path: Path) -> dict[str, str]:
         return json.load(f)
 
 
-def collect_graph_ops(graph):
-    """Collect all operation names from a TorchScript graph, including blocks."""
-    ops = set()
-    for node in graph.nodes():
-        ops.add(node.kind())
-        for block in node.blocks():
-            ops.update(collect_graph_ops(block))
-    return ops
-
-
-def collect_all_module_ops(module):
-    """Collect all ops by inlining method calls and walking the flattened graph."""
-    forward = module.forward
-    graph = forward.graph.copy()
-    torch._C._jit_pass_inline(graph)
-    return collect_graph_ops(graph)
-
-
 def extract_ops_for_model(model_name: str) -> set[str] | None:
     """Trace a HuggingFace model and return its TorchScript op set.
 
     Returns None if the model could not be loaded or traced.
     """
     print(f"  Loading {model_name}...", file=sys.stderr)
-    token = os.environ.get("HF_TOKEN")
-
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
-        config = AutoConfig.from_pretrained(model_name, torchscript=True, token=token)
-        model = AutoModel.from_pretrained(model_name, config=config, token=token)
-        model.eval()
-    except Exception as e:
-        print(f"  Error: failed to load {model_name}: {e}", file=sys.stderr)
+    traced = load_and_trace_hf_model(model_name)
+    if traced is None:
         return None
-
-    inputs = tokenizer("This is a sample input for graph extraction.",
-                       return_tensors="pt", padding="max_length",
-                       max_length=32, truncation=True)
-
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-
-    try:
-        traced = torch.jit.trace(model, (input_ids, attention_mask), strict=False)
-    except Exception as e:
-        print(f"  Warning: trace failed for {model_name}: {e}", file=sys.stderr)
-        print(f"  Falling back to torch.jit.script...", file=sys.stderr)
-        try:
-            traced = torch.jit.script(model)
-        except Exception as e2:
-            print(f"  Error: script also failed for {model_name}: {e2}",
-                  file=sys.stderr)
-            return None
-
-    return collect_all_module_ops(traced)
+    return collect_inlined_ops(traced)
 
 
 def format_cpp_initializer(ops: set[str]) -> str:

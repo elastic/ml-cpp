@@ -30,13 +30,17 @@ Usage:
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
 import torch
-from transformers import AutoConfig, AutoModel, AutoTokenizer
+
+from torchscript_utils import (
+    collect_graph_ops,
+    collect_inlined_ops,
+    load_and_trace_hf_model,
+)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
@@ -62,66 +66,11 @@ def load_cpp_sets() -> tuple[set[str], set[str]]:
     return allowed, forbidden
 
 
-def collect_graph_ops(graph) -> set[str]:
-    """Collect all operation names from a TorchScript graph, including blocks."""
-    ops = set()
-    for node in graph.nodes():
-        ops.add(node.kind())
-        for block in node.blocks():
-            ops.update(collect_graph_ops(block))
-    return ops
-
-
-def trace_and_collect_ops(model_name: str) -> set[str] | None:
-    """Load, trace, inline, and return the op set for a HuggingFace model.
-
-    Returns None if the model could not be loaded or traced.
-    """
-    token = os.environ.get("HF_TOKEN")
-
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
-        config = AutoConfig.from_pretrained(
-            model_name, torchscript=True, token=token)
-        model = AutoModel.from_pretrained(
-            model_name, config=config, token=token)
-        model.eval()
-    except Exception as exc:
-        print(f"    LOAD ERROR: {exc}", file=sys.stderr)
-        return None
-
-    inputs = tokenizer(
-        "This is a sample input for graph extraction.",
-        return_tensors="pt", padding="max_length",
-        max_length=32, truncation=True)
-
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-
-    try:
-        traced = torch.jit.trace(
-            model, (input_ids, attention_mask), strict=False)
-    except Exception as exc:
-        print(f"    TRACE WARNING: {exc}", file=sys.stderr)
-        print("    Falling back to torch.jit.script...", file=sys.stderr)
-        try:
-            traced = torch.jit.script(model)
-        except Exception as exc2:
-            print(f"    SCRIPT ERROR: {exc2}", file=sys.stderr)
-            return None
-
-    graph = traced.forward.graph.copy()
-    torch._C._jit_pass_inline(graph)
-    return collect_graph_ops(graph)
-
-
 def load_pt_and_collect_ops(pt_path: str) -> set[str] | None:
     """Load a saved TorchScript .pt file, inline, and return its op set."""
     try:
         module = torch.jit.load(pt_path)
-        graph = module.forward.graph.copy()
-        torch._C._jit_pass_inline(graph)
-        return collect_graph_ops(graph)
+        return collect_inlined_ops(module)
     except Exception as exc:
         print(f"    LOAD ERROR: {exc}", file=sys.stderr)
         return None
@@ -157,10 +106,11 @@ def validate_model(model_name: str,
                    verbose: bool) -> bool:
     """Validate one HuggingFace model. Returns True if all ops pass."""
     print(f"  {model_name}...", file=sys.stderr)
-    ops = trace_and_collect_ops(model_name)
-    if ops is None:
+    traced = load_and_trace_hf_model(model_name)
+    if traced is None:
         print(f"    FAILED (could not load/trace)", file=sys.stderr)
         return False
+    ops = collect_inlined_ops(traced)
     return check_ops(ops, allowed, forbidden, verbose)
 
 
