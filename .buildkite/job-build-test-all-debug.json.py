@@ -53,6 +53,11 @@ def main():
     if config.run_pytorch_tests:
         pipeline_steps.append(pipeline_steps.generate_step("Upload PyTorch tests runner pipeline",
                                                            ".buildkite/pipelines/run_pytorch_tests.yml.sh"))
+
+    # Ingest step-level timings into Elasticsearch for anomaly detection
+    pipeline_steps.append(pipeline_steps.generate_step("Ingest build timings",
+                                                       ".buildkite/pipelines/ingest_build_timings.yml.sh"))
+
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
