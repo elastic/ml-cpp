@@ -97,11 +97,9 @@ zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATF
 zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
 cd ../..
 
-if [ "x$1" = "x--test" ] ; then
-    # Convert any failure of this make command into the word passed or failed in
-    # a status file - this allows the Docker image build to succeed if the only
-    # failure is the unit tests, and then the detailed test results can be
-    # copied from the image
+if [ "x$1" = "x--build-tests" ] ; then
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t build_tests
+elif [ "x$1" = "x--test" ] ; then
     echo passed > build/test_status.txt
     if [ "$NCPUS" -le 4 ]; then
         TEST_PARALLEL=2

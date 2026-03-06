@@ -31,6 +31,19 @@ actions = [
     "debug"
 ]
 
+windows_agents = {
+    "provider": "gcp",
+    "machineType": "c2-standard-16",
+    "minCpuPlatform": "Intel Cascade Lake",
+    "image": "family/ml-cpp-5-windows-2022",
+}
+
+common_env = {
+    "ML_DEBUG": "0",
+    "CPP_CROSS_COMPILE": "",
+    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake",
+}
+
 def main(args):
     pipeline_steps = []
     cur_build_types = build_types
@@ -38,25 +51,46 @@ def main(args):
         cur_build_types = [args.build_type]
 
     for arch, build_type in product(archs, cur_build_types):
+        build_key = f"build_Windows-{arch}-{build_type}"
+
+        # Build step
         pipeline_steps.append({
-            "label": f"Build & test :cpp: for Windows-{arch}-{build_type} :windows:",
-            "timeout_in_minutes": "240",
-            "agents": {
-              "provider": "gcp",
-              "machineType": "c2-standard-16",
-              "minCpuPlatform": "Intel Cascade Lake",
-              "image": "family/ml-cpp-5-windows-2022",
-            },
+            "label": f"Build :cpp: for Windows-{arch}-{build_type} :windows:",
+            "timeout_in_minutes": "180",
+            "agents": windows_agents,
             "commands": [
-              f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
-              "& .buildkite\\scripts\\steps\\build_and_test.ps1"
+              f'if ( "{args.action}" -eq "debug" ) {{$Env:ML_DEBUG="1"}}',
+              "& .buildkite\\scripts\\steps\\build.ps1"
             ],
             "depends_on": "check_style",
+            "key": build_key,
+            "env": {
+              **common_env,
+              "RUN_TESTS": "false",
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": f"Build on Windows {arch} {build_type}",
+                },
+              },
+            ],
+        })
+
+        # Test step
+        pipeline_steps.append({
+            "label": f"Test :cpp: for Windows-{arch}-{build_type} :windows:",
+            "timeout_in_minutes": "60",
+            "agents": windows_agents,
+            "commands": [
+              f'if ( "{args.action}" -eq "debug" ) {{$Env:ML_DEBUG="1"}}',
+              "& .buildkite\\scripts\\steps\\run_tests.ps1"
+            ],
+            "depends_on": build_key,
             "key": f"build_test_Windows-{arch}-{build_type}",
             "env": {
-              "ML_DEBUG": "0",
-              "CPP_CROSS_COMPILE": "",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake",
+              **common_env,
+              "BUILD_STEP_KEY": build_key,
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
@@ -70,7 +104,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build and test on Windows {arch} {build_type}",
+                  "context": f"Test on Windows {arch} {build_type}",
                 },
               },
             ],
