@@ -27,6 +27,13 @@
 //=== Bug Fixes
 
 //=== Regressions
+
+== {es} version 9.2.7
+
+=== Bug Fixes
+
+* Report RSS in bytes instead of pages. (See {ml-pull}[#2917].)
+
 == {es} version 9.2.0
 
 === Enhancements
