@@ -27,7 +27,8 @@
 //=== Bug Fixes
 
 //=== Regressions
-== {es} version 9.2.7
+
+== {es} version 9.3.2
 
 === Bug Fixes
 
