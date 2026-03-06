@@ -18,4 +18,13 @@ steps:
     notify:
       - github_commit_status:
           context: "Validate formatting with clang-format"
+  - label: "Validate changelog entries"
+    key: "validate_changelogs"
+    command: ".buildkite/scripts/steps/validate-changelogs.sh"
+    agents:
+      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+    soft_fail: true
+    notify:
+      - github_commit_status:
+          context: "Validate changelog entries"
 EOL
