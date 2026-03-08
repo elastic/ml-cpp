@@ -38,7 +38,7 @@ jobs:
         uses: sorenlouv/backport-github-action@v10.2.0
         continue-on-error: true
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.MACHINE_TOKEN }}
 
       - name: Info log
         if: steps.backport.outcome == 'success'
@@ -55,22 +55,39 @@ jobs:
           echo "::error::Backport failed with a real error"
           exit 1
 
-      - name: Enable auto-merge on backport PRs
+      - name: Extract backport PR numbers
+        id: extract-prs
+        if: steps.backport.outcome == 'success'
+        run: |
+          PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
+            | grep -oE '[0-9]+' | tr '\n' ' ' || true)
+          echo "pr_numbers=$PR_NUMBERS" >> "$GITHUB_OUTPUT"
+          echo "Backport PRs: $PR_NUMBERS"
+
+      - name: Auto-approve backport PRs
         if: >-
-          steps.backport.outcome == 'success' &&
+          steps.extract-prs.outputs.pr_numbers != '' &&
           contains(github.event.pull_request.labels.*.name, 'auto-backport')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          # Extract created PR numbers from the backport info log.
-          PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
-            | grep -oE '[0-9]+' || true)
-          if [ -z "$PR_NUMBERS" ]; then
-            echo "No backport PRs found in log. Skipping auto-merge."
-            exit 0
-          fi
-          for pr in $PR_NUMBERS; do
+          for pr in ${{ steps.extract-prs.outputs.pr_numbers }}; do
+            echo "Approving backport PR #$pr"
+            gh pr review "$pr" --repo "$REPO" --approve \
+              --body "Auto-approved: backport of a PR with the auto-backport label." || \
+              echo "::warning::Could not approve #$pr"
+          done
+
+      - name: Enable auto-merge on backport PRs
+        if: >-
+          steps.extract-prs.outputs.pr_numbers != '' &&
+          contains(github.event.pull_request.labels.*.name, 'auto-backport')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          for pr in ${{ steps.extract-prs.outputs.pr_numbers }}; do
             echo "Enabling auto-merge (squash) on PR #$pr"
             gh pr merge "$pr" --repo "$REPO" --auto --squash || \
               echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
