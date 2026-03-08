@@ -7,7 +7,7 @@
 
 = Elasticsearch Release Notes
 
-// Test manual merge backport — unique marker 2026-03-08T22:40Z
+// Final e2e test with race condition fix — unique marker 2026-03-08T22:50Z
 
 //
 // To add a release, copy and paste the following text,  uncomment the relevant
