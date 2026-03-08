@@ -56,20 +56,50 @@ def main(args):
         cur_build_types = [args.build_type]
 
     for arch, build_type in product(archs, cur_build_types):
+        build_key = f"build_macos-{arch}-{build_type}"
+
+        # Build step
         pipeline_steps.append({
-            "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
-            "timeout_in_minutes": "300",
+            "label": f"Build :cpp: for MacOS-{arch}-{build_type} :macos:",
+            "timeout_in_minutes": "180",
             "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              ".buildkite/scripts/steps/build_and_test.sh"
+              ".buildkite/scripts/steps/build.sh"
             ],
             "depends_on": "check_style",
+            "key": build_key,
+            "env": {
+              **envs[arch],
+              "RUN_TESTS": "false",
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": f"Build on MacOS {arch} {build_type}",
+                },
+              },
+            ],
+        })
+
+        # Test step
+        pipeline_steps.append({
+            "label": f"Test :cpp: for MacOS-{arch}-{build_type} :macos:",
+            "timeout_in_minutes": "60",
+            "agents": agents[arch],
+            "commands": [
+              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+              ".buildkite/scripts/steps/run_tests.sh"
+            ],
+            "depends_on": build_key,
             "key": f"build_test_macos-{arch}-{build_type}",
-            "env": envs[arch],
+            "env": {
+              **envs[arch],
+              "BUILD_STEP_KEY": build_key,
+            },
             "artifact_paths": "*/**/unittest/boost_test_results.junit",
             "plugins": {
-              "test-collector#v1.2.0": {                                                              
+              "test-collector#v1.2.0": {
                 "files": "*/*/unittest/boost_test_results.junit",
                 "format": "junit"
               }
@@ -77,7 +107,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build and test on MacOS {arch} {build_type}",
+                  "context": f"Test on MacOS {arch} {build_type}",
                 },
               },
             ],

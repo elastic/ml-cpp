@@ -43,7 +43,7 @@ endif()
 # Multi-config generators (Visual Studio, Ninja Multi-Config) place executables
 # in a config-specific subdirectory (e.g. RelWithDebInfo/).
 if(DEFINED BUILD_TYPE AND NOT BUILD_TYPE STREQUAL "")
-  set(_config_subdir "${BUILD_TYPE}/")
+  set(_config_subdir "/${BUILD_TYPE}")
 else()
   set(_config_subdir "")
 endif()
@@ -66,6 +66,15 @@ if(DEFINED ENV{MAX_ARGS})
   set(_max_args $ENV{MAX_ARGS})
 else()
   set(_max_args 2)
+endif()
+
+# Per-test timeout in seconds.  Prevents a single hung or extremely slow test
+# batch from consuming the entire step timeout budget and blocking JUnit merge
+# and artifact upload.
+if(DEFINED ENV{TEST_TIMEOUT})
+  set(_test_timeout $ENV{TEST_TIMEOUT})
+else()
+  set(_test_timeout 2700)
 endif()
 
 # --- Discover all test suites ---
@@ -93,7 +102,7 @@ foreach(_suite_entry ${_suites})
   list(GET _parts 0 _name)
   list(GET _parts 1 _src_dir)
 
-  set(_exe "${BUILD_DIR}/test/${_src_dir}/${_config_subdir}ml_test_${_name}${_exe_suffix}")
+  set(_exe "${BUILD_DIR}/test/${_src_dir}${_config_subdir}/ml_test_${_name}${_exe_suffix}")
 
   if(NOT EXISTS "${_exe}")
     message(WARNING "Test executable not found: ${_exe}, skipping")
@@ -163,13 +172,31 @@ if(_test_count EQUAL 0)
   message(FATAL_ERROR "No test cases discovered")
 endif()
 
+# For multi-config generators (Visual Studio, Ninja Multi-Config), copy test
+# executables from the config-specific subdirectory up one level.  Some tests
+# (e.g. CProgNameTest::testProgDir) assume the executable resides directly in
+# the unittest directory, matching the old ml_add_test() behaviour.
+if(NOT _config_subdir STREQUAL "")
+  foreach(_suite_entry ${_suites})
+    string(REPLACE ":" ";" _parts "${_suite_entry}")
+    list(GET _parts 0 _name)
+    list(GET _parts 1 _src_dir)
+    set(_src_exe "${BUILD_DIR}/test/${_src_dir}${_config_subdir}/ml_test_${_name}${_exe_suffix}")
+    set(_dst_exe "${BUILD_DIR}/test/${_src_dir}/ml_test_${_name}${_exe_suffix}")
+    if(EXISTS "${_src_exe}")
+      file(COPY_FILE "${_src_exe}" "${_dst_exe}")
+      message(STATUS "Copied ml_test_${_name} from ${_config_subdir} to parent directory")
+    endif()
+  endforeach()
+endif()
+
 # --- Clean previous results ---
 foreach(_suite_entry ${_suites})
   string(REPLACE ":" ";" _parts "${_suite_entry}")
   list(GET _parts 0 _name)
   list(GET _parts 1 _src_dir)
 
-  set(_test_binary_dir "${BUILD_DIR}/test/${_src_dir}/${_config_subdir}")
+  set(_test_binary_dir "${BUILD_DIR}/test/${_src_dir}")
   file(GLOB _old_out "${_test_binary_dir}/ml_test_${_name}*.out")
   file(GLOB _old_failed "${_test_binary_dir}/ml_test_${_name}*.failed")
   file(GLOB _old_junit "${SOURCE_DIR}/${_src_dir}/boost_test_results*.junit")
@@ -227,11 +254,12 @@ foreach(_suite_entry ${_suites})
 
       string(APPEND _ctest_file_content
         "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
-        " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}/${_config_subdir}\""
+        " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}\""
         " \"-DTEST_NAME=ml_test_${_name}\""
         " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
         "set_tests_properties(\"${_test_label}\" PROPERTIES"
         " WORKING_DIRECTORY \"${SOURCE_DIR}/${_src_dir}\""
+        " TIMEOUT ${_test_timeout}"
         " ENVIRONMENT \"TESTS=${_run_test}\")\n"
       )
 
@@ -252,18 +280,19 @@ foreach(_suite_entry ${_suites})
 
     string(APPEND _ctest_file_content
       "add_test(\"${_test_label}\" \"${CMAKE_COMMAND}\""
-      " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}/${_config_subdir}\""
+      " \"-DTEST_DIR=${BUILD_DIR}/test/${_src_dir}\""
       " \"-DTEST_NAME=ml_test_${_name}\""
       " -P \"${SOURCE_DIR}/cmake/test-runner.cmake\")\n"
       "set_tests_properties(\"${_test_label}\" PROPERTIES"
       " WORKING_DIRECTORY \"${SOURCE_DIR}/${_src_dir}\""
+      " TIMEOUT ${_test_timeout}"
       " ENVIRONMENT \"TESTS=${_run_test}\")\n"
     )
   endif()
 endforeach()
 
 message(STATUS "Total: ${_test_count} test cases in ${_batch_id} batches across all suites")
-message(STATUS "Running with MAX_PROCS=${_max_procs}, MAX_ARGS=${_max_args} (${_num_cpus} logical CPUs)")
+message(STATUS "Running with MAX_PROCS=${_max_procs}, MAX_ARGS=${_max_args}, TIMEOUT=${_test_timeout}s (${_num_cpus} logical CPUs)")
 
 # --- Write CTestTestfile.cmake ---
 file(WRITE "${_ctest_dir}/CTestTestfile.cmake" "${_ctest_file_content}")
@@ -283,6 +312,9 @@ if(NOT _ctest_rc EQUAL 0)
 endif()
 
 # --- Merge JUnit results per suite ---
+# Each batch writes boost_test_results_<batch>.junit in the suite's source
+# directory.  Merge them into a single valid boost_test_results.junit per
+# suite by extracting <testcase> elements and wrapping in one <testsuite>.
 foreach(_suite_entry ${_suites})
   string(REPLACE ":" ";" _parts "${_suite_entry}")
   list(GET _parts 0 _name)
@@ -290,14 +322,61 @@ foreach(_suite_entry ${_suites})
 
   file(GLOB _junit_files "${SOURCE_DIR}/${_src_dir}/boost_test_results_*.junit")
   list(LENGTH _junit_files _n_junit)
-  if(_n_junit GREATER 0)
-    set(_merged "")
-    foreach(_f ${_junit_files})
-      file(READ "${_f}" _content)
-      string(APPEND _merged "${_content}\n")
-    endforeach()
-    file(WRITE "${SOURCE_DIR}/${_src_dir}/boost_test_results.junit" "${_merged}")
+  if(_n_junit EQUAL 0)
+    continue()
   endif()
+
+  set(_all_testcases "")
+  set(_total_tests 0)
+  set(_total_failures 0)
+  set(_total_errors 0)
+  set(_suite_name "")
+
+  foreach(_f ${_junit_files})
+    file(READ "${_f}" _content)
+
+    # Extract suite name from the first file
+    if(_suite_name STREQUAL "")
+      string(REGEX MATCH "name=\"([^\"]+)\"" _name_match "${_content}")
+      if(_name_match)
+        string(REGEX REPLACE "name=\"([^\"]+)\"" "\\1" _suite_name "${_name_match}")
+      endif()
+    endif()
+
+    # Extract all <testcase .../> and <testcase ...>...</testcase> elements,
+    # excluding disabled tests (those containing <skipped).
+    # Derive failure/error counts from the actual included test cases rather
+    # than from the batch-level <testsuite> attributes, to stay consistent
+    # with the filtered test count.
+    string(REGEX MATCHALL "<testcase [^<]*(/>([\r\n])?|>([^<]|<[^/]|</[^t]|</t[^e])*</testcase>)" _cases "${_content}")
+    foreach(_case ${_cases})
+      string(FIND "${_case}" "<skipped" _skip_pos)
+      if(_skip_pos EQUAL -1)
+        string(APPEND _all_testcases "${_case}\n")
+        math(EXPR _total_tests "${_total_tests} + 1")
+        string(FIND "${_case}" "<failure" _fail_pos)
+        if(NOT _fail_pos EQUAL -1)
+          math(EXPR _total_failures "${_total_failures} + 1")
+        endif()
+        string(FIND "${_case}" "<error" _err_pos)
+        if(NOT _err_pos EQUAL -1)
+          math(EXPR _total_errors "${_total_errors} + 1")
+        endif()
+      endif()
+    endforeach()
+  endforeach()
+
+  if(_suite_name STREQUAL "")
+    set(_suite_name "ml_test_${_name}")
+  endif()
+
+  set(_merged "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+  string(APPEND _merged "<testsuite tests=\"${_total_tests}\" errors=\"${_total_errors}\" failures=\"${_total_failures}\" id=\"0\" name=\"${_suite_name}\">\n")
+  string(APPEND _merged "${_all_testcases}")
+  string(APPEND _merged "</testsuite>\n")
+
+  file(WRITE "${SOURCE_DIR}/${_src_dir}/boost_test_results.junit" "${_merged}")
+  message(STATUS "Merged ${_n_junit} JUnit files for ml_test_${_name}: ${_total_tests} tests, ${_total_failures} failures, ${_total_errors} errors")
 endforeach()
 
 # Signal pass/fail for the calling target
