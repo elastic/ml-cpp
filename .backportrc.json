@@ -5,5 +5,7 @@
   "branchLabelMapping" : {
     "^v9.4.0$" : "main",
     "^v(\\d+).(\\d+).\\d+(?:-(?:alpha|beta|rc)\\d+)?$" : "$1.$2"
-  }
+  },
+  "copySourcePRLabels" : "^(?!backport$)(?!v\\d).*$",
+  "sourcePRLabels" : [ "backport-pending" ]
 }
