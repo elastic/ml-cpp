@@ -88,6 +88,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
           # Backport PR titles follow the pattern: [9.2] Original title (#1234)
@@ -97,8 +98,8 @@ jobs:
             exit 0
           fi
           echo "Original PR: #$ORIGINAL_PR"
+          echo "Just-merged backport PR: #$PR_NUMBER"
 
-          # Check whether the original PR has the backport-pending label
           HAS_LABEL=$(gh pr view "$ORIGINAL_PR" --repo "$REPO" --json labels \
             --jq '[.labels[].name] | if index("backport-pending") then "true" else "false" end')
           if [ "$HAS_LABEL" != "true" ]; then
@@ -106,11 +107,10 @@ jobs:
             exit 0
           fi
 
-          # Count open backport PRs whose title references this original PR.
-          # Use GitHub search with the exact substring "(#NNNN)" to avoid false matches.
+          # Count open backport PRs, excluding the just-merged PR (API eventual consistency).
           OPEN_BACKPORTS=$(gh pr list --repo "$REPO" --label backport --state open \
             --json number,title \
-            --jq "[.[] | select(.title | test(\"\\\\(#${ORIGINAL_PR}\\\\)\"))] | length")
+            --jq "[.[] | select(.number != ${PR_NUMBER}) | select(.title | test(\"\\\\(#${ORIGINAL_PR}\\\\)\"))] | length")
           echo "Open backport PRs remaining: $OPEN_BACKPORTS"
 
           if [ "$OPEN_BACKPORTS" -eq 0 ]; then
