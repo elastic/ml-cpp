@@ -55,6 +55,27 @@ jobs:
           echo "::error::Backport failed with a real error"
           exit 1
 
+      - name: Enable auto-merge on backport PRs
+        if: >-
+          steps.backport.outcome == 'success' &&
+          contains(github.event.pull_request.labels.*.name, 'auto-backport')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Extract created PR numbers from the backport info log.
+          PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
+            | grep -oE '[0-9]+' || true)
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No backport PRs found in log. Skipping auto-merge."
+            exit 0
+          fi
+          for pr in $PR_NUMBERS; do
+            echo "Enabling auto-merge (squash) on PR #$pr"
+            gh pr merge "$pr" --repo "$REPO" --auto --squash || \
+              echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
+          done
+
   remove-backport-pending:
     name: Remove backport-pending label
     runs-on: ubuntu-latest
