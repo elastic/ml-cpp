@@ -7,6 +7,8 @@
 
 = Elasticsearch Release Notes
 
+// Test self-approve — unique marker 2026-03-08T23:00Z
+
 //
 // To add a release, copy and paste the following text,  uncomment the relevant
 // sections, and add a link to the new section in the list of releases at the
