@@ -1,0 +1,27 @@
+name: Test self-approve
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to try approving"
+        required: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Try to approve PR using GITHUB_TOKEN
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Attempting to approve PR #${{ inputs.pr_number }} using GITHUB_TOKEN (github-actions[bot])"
+          echo "Checking PR author..."
+          gh pr view ${{ inputs.pr_number }} --repo ${{ github.repository }} --json author --jq '.author.login'
+          echo "Attempting approval..."
+          gh pr review ${{ inputs.pr_number }} --repo ${{ github.repository }} --approve \
+            --body "Test: auto-approval using GITHUB_TOKEN" 2>&1 || echo "APPROVAL FAILED"
+          echo "Done."
