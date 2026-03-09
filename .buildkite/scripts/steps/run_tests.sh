@@ -24,6 +24,8 @@ TEST_BUNDLE="${OS}-${HARDWARE_ARCH}-test-bundle.tar.gz"
 
 if [[ "$(uname)" = "Linux" ]]; then
     BUILD_DIR="cmake-build-docker"
+elif [[ "${ML_DEBUG:-0}" != "0" ]]; then
+    BUILD_DIR="cmake-build-debug"
 else
     BUILD_DIR="cmake-build-relwithdebinfo"
 fi

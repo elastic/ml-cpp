@@ -126,7 +126,11 @@ elif [[ "$(uname)" = "Linux" ]]; then
 
 else
     # --- macOS ---
-    BUILD_DIR="cmake-build-relwithdebinfo"
+    if [[ "${ML_DEBUG:-0}" != "0" ]]; then
+        BUILD_DIR="cmake-build-debug"
+    else
+        BUILD_DIR="cmake-build-relwithdebinfo"
+    fi
     ./gradlew --info \
         -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} \
         -Dbuild.snapshot=$BUILD_SNAPSHOT \
