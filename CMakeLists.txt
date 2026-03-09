@@ -68,6 +68,8 @@ endif()
 
 project("ML")
 
+include(CTest)
+
 include(CheckPIESupported)
 check_pie_supported()
 
