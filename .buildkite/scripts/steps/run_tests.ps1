@@ -20,8 +20,13 @@ $ErrorActionPreference="Stop"
 
 Set-Location -Path "$PSScriptRoot\..\..\.."
 
-$BuildDir = "cmake-build-relwithdebinfo"
-$BuildType = "RelWithDebInfo"
+if ((Test-Path Env:ML_DEBUG) -and $Env:ML_DEBUG -ne "0") {
+    $BuildDir = "cmake-build-debug"
+    $BuildType = "Debug"
+} else {
+    $BuildDir = "cmake-build-relwithdebinfo"
+    $BuildType = "RelWithDebInfo"
+}
 $TestBundle = "windows-x86_64-test-bundle.zip"
 
 Write-Output "--- Downloading test bundle"
