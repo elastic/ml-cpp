@@ -1,0 +1,53 @@
+name: Backport
+
+on:
+  pull_request_target:
+    types: ["labeled", "closed"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  remove-backport-pending:
+    name: Remove backport-pending label
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'backport')
+    steps:
+      - name: Check if all backports are complete
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Backport PR titles follow the pattern: [9.2] Original title (#1234)
+          ORIGINAL_PR=$(echo "$PR_TITLE" | grep -oE '\(#[0-9]+\)' | tail -1 | tr -d '(#)')
+          if [ -z "$ORIGINAL_PR" ]; then
+            echo "Could not extract original PR number from title: $PR_TITLE"
+            exit 0
+          fi
+          echo "Original PR: #$ORIGINAL_PR"
+          echo "Just-merged backport PR: #$PR_NUMBER"
+
+          HAS_LABEL=$(gh pr view "$ORIGINAL_PR" --repo "$REPO" --json labels \
+            --jq '[.labels[].name] | if index("backport-pending") then "true" else "false" end')
+          if [ "$HAS_LABEL" != "true" ]; then
+            echo "Original PR #$ORIGINAL_PR does not have backport-pending label. Nothing to do."
+            exit 0
+          fi
+
+          # Count open backport PRs, excluding the just-merged PR (API eventual consistency).
+          OPEN_BACKPORTS=$(gh pr list --repo "$REPO" --label backport --state open \
+            --json number,title \
+            --jq "[.[] | select(.number != ${PR_NUMBER}) | select(.title | test(\"\\\\(#${ORIGINAL_PR}\\\\)\"))] | length")
+          echo "Open backport PRs remaining: $OPEN_BACKPORTS"
+
+          if [ "$OPEN_BACKPORTS" -eq 0 ]; then
+            echo "All backport PRs are merged/closed. Removing backport-pending label from #$ORIGINAL_PR."
+            gh pr edit "$ORIGINAL_PR" --repo "$REPO" --remove-label "backport-pending"
+          else
+            echo "Still $OPEN_BACKPORTS open backport PR(s). Keeping backport-pending label on #$ORIGINAL_PR."
+          fi
