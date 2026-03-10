@@ -21,6 +21,8 @@ set(ML_LINK_LIBRARIES
   $<$<BOOL:${WIN32}>:ws2_32>
   )
 
+set(CMAKE_UNITY_BUILD OFF)
+
 ml_add_library(MlApi SHARED
   CAnnotationJsonWriter.cc
   CAnomalyJob.cc
