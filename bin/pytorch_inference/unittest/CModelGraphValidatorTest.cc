@@ -401,4 +401,38 @@ BOOST_AUTO_TEST_CASE(testMaliciousFileReaderInSubmodule) {
     BOOST_REQUIRE(hasForbiddenOp(result, "aten::from_file"));
 }
 
+// --- Sandbox2 attack models (PR #2873) ---
+//
+// These reproduce real-world attack vectors that exploit torch.as_strided
+// to read out-of-bounds heap memory, leak libtorch addresses, and build
+// ROP chains that call mprotect + shellcode to write arbitrary files.
+// The graph validator must reject them because aten::as_strided (and
+// several helper ops like aten::item) are not in the allowlist.
+
+BOOST_AUTO_TEST_CASE(testMaliciousHeapLeak) {
+    // A model that uses torch.as_strided with a malicious storage offset
+    // to scan the heap for libtorch pointers and leak their addresses
+    // via an assertion message.
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_heap_leak.pt");
+    auto result = CModelGraphValidator::validate(module);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE(result.s_ForbiddenOps.empty());
+    BOOST_REQUIRE(hasUnrecognisedOp(result, "aten::as_strided"));
+    BOOST_REQUIRE(hasUnrecognisedOp(result, "aten::item"));
+}
+
+BOOST_AUTO_TEST_CASE(testMaliciousRopExploit) {
+    // A model that extends the heap-leak technique to overwrite function
+    // pointers and build a ROP chain: mprotect a heap page as executable,
+    // then jump to shellcode that writes files to disk.
+    auto module = ::torch::jit::load("testfiles/malicious_models/malicious_rop_exploit.pt");
+    auto result = CModelGraphValidator::validate(module);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE(result.s_ForbiddenOps.empty());
+    BOOST_REQUIRE(hasUnrecognisedOp(result, "aten::as_strided"));
+    BOOST_REQUIRE(hasUnrecognisedOp(result, "aten::item"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
