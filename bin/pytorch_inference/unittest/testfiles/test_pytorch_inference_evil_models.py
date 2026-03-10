@@ -50,9 +50,7 @@ Exit code: 0 if all tests pass, 1 otherwise.
 
 import argparse
 import os
-import platform
 import shutil
-import struct
 import subprocess
 import sys
 import tempfile
@@ -60,6 +58,12 @@ from pathlib import Path
 
 import torch
 from torch import Tensor
+
+from pytorch_inference_test_utils import (
+    find_pytorch_inference,
+    run_pytorch_inference,
+    script_and_save_model,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -197,61 +201,7 @@ class ExploitModel(torch.nn.Module):
 
 
 # ---------------------------------------------------------------------------
-# Binary discovery
-# ---------------------------------------------------------------------------
-
-# Standard locations where the pytorch_inference binary may be found,
-# relative to the ml-cpp project root.
-_BUILD_DIR_NAMES = [
-    "cmake-build-relwithdebinfo",
-    "cmake-build-debug",
-    "cmake-build-release",
-]
-
-
-def find_pytorch_inference() -> str:
-    """Locate the pytorch_inference binary in standard build locations.
-
-    Searches the CMake build directories and the Gradle distribution bundle.
-    Raises FileNotFoundError if no executable is found.
-    """
-    project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
-
-    machine = platform.machine()
-    if machine in ("arm64", "aarch64"):
-        darwin_arch = "darwin-aarch64"
-        linux_arch = "linux-aarch64"
-    else:
-        darwin_arch = "darwin-x86_64"
-        linux_arch = "linux-x86_64"
-
-    candidates = [
-        # macOS distribution bundle (Gradle build)
-        project_root / "build" / "distribution" / "platform" / darwin_arch
-        / "controller.app" / "Contents" / "MacOS" / "pytorch_inference",
-        # Linux distribution (Gradle build)
-        project_root / "build" / "distribution" / "platform" / linux_arch
-        / "bin" / "pytorch_inference",
-    ]
-
-    # CMake build directories
-    for build_dir in _BUILD_DIR_NAMES:
-        candidates.append(
-            project_root / build_dir / "bin" / "pytorch_inference" / "pytorch_inference"
-        )
-
-    for path in candidates:
-        if path.is_file() and os.access(path, os.X_OK):
-            return str(path)
-
-    raise FileNotFoundError(
-        "Could not find pytorch_inference binary. "
-        "Build from the feature/harden_pytorch_inference branch, or pass --binary."
-    )
-
-
-# ---------------------------------------------------------------------------
-# Model generation and binary framing
+# Test configuration
 # ---------------------------------------------------------------------------
 
 MODELS = {
@@ -274,33 +224,6 @@ MODELS = {
     },
 }
 
-
-def generate_model(cls, path: Path) -> None:
-    """TorchScript-compile a model class and save as a .pt archive."""
-    model = cls()
-    scripted = torch.jit.script(model)
-    torch.jit.save(scripted, str(path))
-
-
-def prepare_restore_file(model_path: Path, restore_path: Path) -> None:
-    """Wrap a .pt file with the 4-byte big-endian size header expected by
-    CBufferedIStreamAdapter.
-
-    pytorch_inference reads models via CBufferedIStreamAdapter which expects:
-      [4 bytes: uint32 big-endian model size][model bytes...]
-    This matches the framing Elasticsearch uses when sending models over
-    the named-pipe / stdin transport.
-    """
-    model_bytes = model_path.read_bytes()
-    with open(restore_path, "wb") as f:
-        f.write(struct.pack("!I", len(model_bytes)))
-        f.write(model_bytes)
-
-
-# ---------------------------------------------------------------------------
-# Test execution
-# ---------------------------------------------------------------------------
-
 # Phrases that indicate the graph validator actively rejected the model.
 # Must be specific enough to avoid matching benign log lines like
 # "Model verified: no forbidden operations detected."
@@ -313,34 +236,9 @@ _REJECTION_PHRASES = [
 ]
 
 
-def run_pytorch_inference(
-    binary: str, model_path: Path, tmp_dir: Path, timeout: int = 30
-) -> tuple[int, str, str]:
-    """Run pytorch_inference against a model file.
-
-    Wraps the .pt file in the size-prefixed restore format, then invokes
-    the binary.  Returns (exit_code, stdout, stderr).
-    """
-    restore_file = tmp_dir / f"{model_path.stem}_restore.bin"
-    prepare_restore_file(model_path, restore_file)
-
-    cmd = [
-        binary,
-        f"--restore={restore_file}",
-        "--validElasticLicenseKeyConfirmed=true",
-    ]
-    proc = subprocess.run(
-        cmd,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        timeout=timeout,
-    )
-    return (
-        proc.returncode,
-        proc.stdout.decode("utf-8", errors="replace"),
-        proc.stderr.decode("utf-8", errors="replace"),
-    )
+# ---------------------------------------------------------------------------
+# Test execution
+# ---------------------------------------------------------------------------
 
 
 def run_tests(binary: str) -> bool:
@@ -362,7 +260,7 @@ def run_tests(binary: str) -> bool:
             print(f"--- {name}: {spec['description']} ---")
 
             try:
-                generate_model(spec["class"], model_path)
+                script_and_save_model(spec["class"](), model_path)
                 print(f"  Model generated: {model_path.name} ({model_path.stat().st_size} bytes)")
             except Exception as e:
                 print(f"  SKIP: could not generate model: {e}")
@@ -370,7 +268,9 @@ def run_tests(binary: str) -> bool:
                 continue
 
             try:
-                exit_code, stdout, stderr = run_pytorch_inference(binary, model_path, tmp_dir)
+                exit_code, stdout, stderr = run_pytorch_inference(
+                    binary, model_path, tmp_dir
+                )
             except subprocess.TimeoutExpired:
                 print(f"  FAIL: pytorch_inference timed out (30s)")
                 all_passed = False
