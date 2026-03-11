@@ -15,7 +15,7 @@ export PATH=$PATH:~/google-cloud-sdk/bin
 
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
-  if [[ "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo" ]]; then
+  if [[ "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo" || "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo-debug" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
   elif [[ "$BUILDKITE_STEP_KEY" == "test_linux-aarch64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
