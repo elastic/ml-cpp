@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE(testAllowlistCoversReferenceModels) {
     const auto& allowed = CSupportedOperations::ALLOWED_OPERATIONS;
     const auto& forbidden = CSupportedOperations::FORBIDDEN_OPERATIONS;
 
-    for (const auto& [arch, entry] : models) {
+    for (const auto & [ arch, entry ] : models) {
         const auto& info = entry.as_object();
         const auto& ops = info.at("ops").as_array();
         std::string modelId{info.at("model_id").as_string()};
@@ -469,17 +469,13 @@ BOOST_AUTO_TEST_CASE(testAllowlistCoversReferenceModels) {
         for (const auto& opVal : ops) {
             std::string op{opVal.as_string()};
 
-            BOOST_CHECK_MESSAGE(
-                forbidden.count(op) == 0,
-                arch << " (" << modelId << "): op " << op
-                     << " is in FORBIDDEN_OPERATIONS — a legitimate model "
-                     << "should not use forbidden ops");
+            BOOST_CHECK_MESSAGE(forbidden.count(op) == 0,
+                                arch << " (" << modelId << "): op " << op << " is in FORBIDDEN_OPERATIONS — a legitimate model "
+                                     << "should not use forbidden ops");
 
-            BOOST_CHECK_MESSAGE(
-                allowed.count(op) == 1,
-                arch << " (" << modelId << "): op " << op
-                     << " is not in ALLOWED_OPERATIONS — update the allowlist "
-                     << "or check if this op was introduced by a PyTorch upgrade");
+            BOOST_CHECK_MESSAGE(allowed.count(op) == 1,
+                                arch << " (" << modelId << "): op " << op << " is not in ALLOWED_OPERATIONS — update the allowlist "
+                                     << "or check if this op was introduced by a PyTorch upgrade");
         }
     }
 }
