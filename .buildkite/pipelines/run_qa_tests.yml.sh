@@ -13,8 +13,8 @@ steps:
   - label: "Trigger Appex QA Tests :test_tube:"
     command:
       - echo 'Trigger QA Tests'
-      - 'buildkite-agent artifact download "build/*" . --step build_linux-x86_64-RelWithDebInfo'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
+    depends_on: "test_linux-x86_64-RelWithDebInfo"
     notify:
       -  github_commit_status:
            context: "Trigger Appex QA Tests"
