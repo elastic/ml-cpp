@@ -17,11 +17,13 @@ The output is a sorted, de-duplicated union of all operations which can be
 used to build the C++ allowlist in CSupportedOperations.h.
 
 Usage:
-    python3 extract_model_ops.py [--per-model] [--cpp] [--config CONFIG]
+    python3 extract_model_ops.py [--per-model] [--cpp] [--golden OUTPUT] [--config CONFIG]
 
 Flags:
     --per-model      Print the op set for each model individually.
     --cpp            Print the union as a C++ initializer list.
+    --golden OUTPUT  Write per-model op sets as a JSON golden file for the
+                     C++ allowlist drift test.
     --config CONFIG  Path to the reference models JSON config file.
                      Defaults to reference_models.json in the same directory.
 """
@@ -30,6 +32,8 @@ import argparse
 import json
 import sys
 from pathlib import Path
+
+import torch
 
 from torchscript_utils import collect_inlined_ops, load_and_trace_hf_model
 
@@ -71,6 +75,8 @@ def main():
                         help="Print per-model op sets")
     parser.add_argument("--cpp", action="store_true",
                         help="Print union as C++ initializer")
+    parser.add_argument("--golden", type=Path, default=None, metavar="OUTPUT",
+                        help="Write per-model op sets as a JSON golden file")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG,
                         help="Path to reference_models.json config file")
     args = parser.parse_args()
@@ -98,6 +104,25 @@ def main():
     if failed:
         print(f"Failed models: {', '.join(failed)}", file=sys.stderr)
 
+    if args.golden:
+        golden = {
+            "pytorch_version": torch.__version__,
+            "models": {
+                arch: {
+                    "model_id": reference_models[arch],
+                    "ops": sorted(ops),
+                }
+                for arch, ops in sorted(per_model_ops.items())
+            },
+        }
+        args.golden.parent.mkdir(parents=True, exist_ok=True)
+        with open(args.golden, "w") as f:
+            json.dump(golden, f, indent=2)
+            f.write("\n")
+        print(f"Wrote golden file to {args.golden} "
+              f"({len(per_model_ops)} models, "
+              f"{len(union_ops)} unique ops)", file=sys.stderr)
+
     if args.per_model:
         for arch, ops in sorted(per_model_ops.items()):
             print(f"\n=== {arch} ({reference_models[arch]}) ===")
@@ -107,7 +132,7 @@ def main():
     if args.cpp:
         print("\n// C++ initializer for SUPPORTED_OPERATIONS:")
         print(format_cpp_initializer(union_ops))
-    else:
+    elif not args.golden:
         print("\n// Sorted union of all operations:")
         for op in sorted(union_ops):
             print(op)

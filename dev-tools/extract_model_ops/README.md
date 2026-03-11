@@ -51,6 +51,10 @@ python3 extract_model_ops.py --cpp
 # Also show per-model breakdowns
 python3 extract_model_ops.py --per-model --cpp
 
+# Generate the golden file for the C++ allowlist drift test
+python3 extract_model_ops.py --golden \
+  ../../bin/pytorch_inference/unittest/testfiles/reference_model_ops.json
+
 # Use a custom config file
 python3 extract_model_ops.py --config /path/to/models.json
 ```
@@ -116,7 +120,37 @@ To add a new architecture, append an entry to `reference_models.json`,
 re-run `extract_model_ops.py --cpp`, and update `CSupportedOperations.cc`.
 Then add the same entry (plus any task-specific variants) to
 `validation_models.json` and run `validate_allowlist.py` to confirm
-there are no false positives.
+there are no false positives.  Finally, regenerate the golden file
+(see below).
+
+## Golden file for allowlist drift detection
+
+The C++ test `testAllowlistCoversReferenceModels` loads a golden JSON
+file containing per-architecture op sets and verifies every op is in
+`ALLOWED_OPERATIONS` and none are in `FORBIDDEN_OPERATIONS`.  This
+catches allowlist regressions in CI without requiring Python or network
+access.
+
+The golden file lives at:
+`bin/pytorch_inference/unittest/testfiles/reference_model_ops.json`
+
+### When to regenerate
+
+- After upgrading the PyTorch (libtorch) version.
+- After adding or removing a supported architecture.
+- After modifying `ALLOWED_OPERATIONS` or `FORBIDDEN_OPERATIONS`.
+
+### How to regenerate
+
+```bash
+cd dev-tools/extract_model_ops
+source .venv/bin/activate
+python3 extract_model_ops.py --golden \
+  ../../bin/pytorch_inference/unittest/testfiles/reference_model_ops.json
+```
+
+If the regenerated file introduces ops not in the allowlist, the C++
+test will fail until `CSupportedOperations.cc` is updated.
 
 ## How it works
 
