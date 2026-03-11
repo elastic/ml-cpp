@@ -74,6 +74,8 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    test_timeout = "120" if args.action == "debug" else "60"
+
     for arch, build_type in product(archs, cur_build_types):
         if args.build_x86_64 and arch == "x86_64" or args.build_aarch64 and arch == "aarch64":
 
@@ -81,21 +83,24 @@ def main(args):
                 # x86_64: split into separate build and test steps
                 build_key = f"build_linux-{arch}-{build_type}"
 
+                build_env = {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "RUN_TESTS": "false",
+                }
+                if args.action == "debug":
+                    build_env["ML_DEBUG"] = "1"
+
                 pipeline_steps.append({
                     "label": f"Build :cpp: for linux-{arch}-{build_type} :linux:",
                     "timeout_in_minutes": "180",
                     "agents": agents[arch],
                     "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                       ".buildkite/scripts/steps/build.sh"
                     ],
                     "depends_on": "check_style",
                     "key": build_key,
-                    "env": {
-                      **common_env,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "RUN_TESTS": "false",
-                    },
+                    "env": build_env,
                     "notify": [
                       {
                         "github_commit_status": {
@@ -105,22 +110,25 @@ def main(args):
                     ],
                 })
 
-                pipeline_steps.append({
-                    "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
-                    "timeout_in_minutes": "60",
-                    "agents": test_agents[arch],
-                    "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-                      ".buildkite/scripts/steps/run_tests.sh"
-                    ],
-                    "depends_on": build_key,
-                    "key": f"build_test_linux-{arch}-{build_type}",
-                    "env": {
+                test_env = {
                       **common_env,
                       "BUILD_STEP_KEY": build_key,
                       "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
                       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-                    },
+                }
+                if args.action == "debug":
+                    test_env["ML_DEBUG"] = "1"
+
+                pipeline_steps.append({
+                    "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": test_timeout,
+                    "agents": test_agents[arch],
+                    "commands": [
+                      ".buildkite/scripts/steps/run_tests.sh"
+                    ],
+                    "depends_on": build_key,
+                    "key": f"build_test_linux-{arch}-{build_type}",
+                    "env": test_env,
                     "plugins": {
                       "test-collector#v1.2.0": {
                         "files": "*/*/unittest/boost_test_results.junit",
@@ -139,21 +147,24 @@ def main(args):
                 # aarch64: split into build and test steps
                 build_key = f"build_linux-{arch}-{build_type}"
 
+                aarch64_build_env = {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
+                      "RUN_TESTS": "false",
+                }
+                if args.action == "debug":
+                    aarch64_build_env["ML_DEBUG"] = "1"
+
                 pipeline_steps.append({
                     "label": f"Build :cpp: for linux-{arch}-{build_type} :linux:",
                     "timeout_in_minutes": "180",
                     "agents": agents[arch],
                     "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                       ".buildkite/scripts/steps/build.sh"
                     ],
                     "depends_on": "check_style",
                     "key": build_key,
-                    "env": {
-                      **common_env,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "RUN_TESTS": "false",
-                    },
+                    "env": aarch64_build_env,
                     "notify": [
                       {
                         "github_commit_status": {
@@ -163,22 +174,25 @@ def main(args):
                     ],
                 })
 
-                pipeline_steps.append({
-                    "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
-                    "timeout_in_minutes": "60",
-                    "agents": test_agents[arch],
-                    "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-                      ".buildkite/scripts/steps/run_tests.sh"
-                    ],
-                    "depends_on": build_key,
-                    "key": f"build_test_linux-{arch}-{build_type}",
-                    "env": {
+                aarch64_test_env = {
                       **common_env,
                       "BUILD_STEP_KEY": build_key,
                       "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
                       "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-                    },
+                }
+                if args.action == "debug":
+                    aarch64_test_env["ML_DEBUG"] = "1"
+
+                pipeline_steps.append({
+                    "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
+                    "timeout_in_minutes": test_timeout,
+                    "agents": test_agents[arch],
+                    "commands": [
+                      ".buildkite/scripts/steps/run_tests.sh"
+                    ],
+                    "depends_on": build_key,
+                    "key": f"build_test_linux-{arch}-{build_type}",
+                    "env": aarch64_test_env,
                     "plugins": {
                       "test-collector#v1.2.0": {
                         "files": "*/*/unittest/boost_test_results.junit",

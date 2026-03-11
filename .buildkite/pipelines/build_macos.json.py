@@ -55,6 +55,8 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    test_timeout = "120" if args.action == "debug" else "60"
+
     for arch, build_type in product(archs, cur_build_types):
         build_key = f"build_macos-{arch}-{build_type}"
 
@@ -89,7 +91,7 @@ def main(args):
         # Test step
         pipeline_steps.append({
             "label": f"Test :cpp: for MacOS-{arch}-{build_type} :macos:",
-            "timeout_in_minutes": "60",
+            "timeout_in_minutes": test_timeout,
             "agents": agents[arch],
             "commands": [
               ".buildkite/scripts/steps/run_tests.sh"
