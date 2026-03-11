@@ -32,7 +32,7 @@
 
 === Enhancements
 
-* Harden pytorch_inference with TorchScript model graph validation. (See {ml-pull}[#2936].)
+* Harden pytorch_inference with TorchScript model graph validation. (See {ml-pull}2936[#2936].)
 * Better handling of invalid JSON state documents (See {ml-pull}[]#2895].)
 * Better error handling regarding quantiles state documents (See {ml-pull}[#2894])
 

@@ -70,7 +70,7 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
         LOG_DEBUG(<< "Model verified: " << result.s_NodeCount
                   << " nodes, all operations match supported architectures.");
     } catch (const c10::Error& e) {
-        LOG_FATAL(<< "Model graph validation failed: " << e.what());
+        HANDLE_FATAL(<< "Model graph validation failed: " << e.what());
     }
 }
 }

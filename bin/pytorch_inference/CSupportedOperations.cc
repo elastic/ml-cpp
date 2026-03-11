@@ -17,6 +17,9 @@ namespace torch {
 using namespace std::string_view_literals;
 
 const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERATIONS = {
+    // Arbitrary memory access — enables heap scanning, address leaks, and
+    // ROP chain construction.
+    "aten::as_strided"sv,
     "aten::from_file"sv,
     "aten::save"sv,
     // After graph inlining, method and function calls should be resolved.

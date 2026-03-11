@@ -28,6 +28,12 @@ CModelGraphValidator::SResult CModelGraphValidator::validate(const ::torch::jit:
     std::size_t nodeCount{0};
     collectModuleOps(module, observedOps, nodeCount);
 
+    if (nodeCount > MAX_NODE_COUNT) {
+        LOG_ERROR(<< "Model graph is too large: " << nodeCount
+                  << " nodes exceeds limit of " << MAX_NODE_COUNT);
+        return {false, {}, {}, nodeCount};
+    }
+
     LOG_DEBUG(<< "Model graph contains " << observedOps.size()
               << " distinct operations across " << nodeCount << " nodes");
     for (const auto& op : observedOps) {
@@ -47,17 +53,22 @@ CModelGraphValidator::validate(const TStringSet& observedOps,
 
     SResult result;
 
-    // Check forbidden ops first so they are always reported with a specific
-    // error even if they also appear in the allowed set.  See the comment on
-    // CSupportedOperations::FORBIDDEN_OPERATIONS for the rationale behind
-    // maintaining both a forbidden list and an allowed list.
+    // Two-pass check: forbidden ops first, then unrecognised.  This lets us
+    // fail fast when a known-dangerous operation is present and avoids the
+    // cost of scanning for unrecognised ops on a model we will reject anyway.
     for (const auto& op : observedOps) {
         if (forbiddenOps.contains(op)) {
             result.s_IsValid = false;
             result.s_ForbiddenOps.push_back(op);
-        } else if (allowedOps.contains(op) == false) {
-            result.s_IsValid = false;
-            result.s_UnrecognisedOps.push_back(op);
+        }
+    }
+
+    if (result.s_ForbiddenOps.empty()) {
+        for (const auto& op : observedOps) {
+            if (allowedOps.contains(op) == false) {
+                result.s_IsValid = false;
+                result.s_UnrecognisedOps.push_back(op);
+            }
         }
     }
 
@@ -71,10 +82,15 @@ void CModelGraphValidator::collectBlockOps(const ::torch::jit::Block& block,
                                            TStringSet& ops,
                                            std::size_t& nodeCount) {
     for (const auto* node : block.nodes()) {
-        ++nodeCount;
+        if (++nodeCount > MAX_NODE_COUNT) {
+            return;
+        }
         ops.emplace(node->kind().toQualString());
         for (const auto* subBlock : node->blocks()) {
             collectBlockOps(*subBlock, ops, nodeCount);
+            if (nodeCount > MAX_NODE_COUNT) {
+                return;
+            }
         }
     }
 }
@@ -90,6 +106,9 @@ void CModelGraphValidator::collectModuleOps(const ::torch::jit::Module& module,
         auto graph = method.graph()->copy();
         ::torch::jit::Inline(*graph);
         collectBlockOps(*graph->block(), ops, nodeCount);
+        if (nodeCount > MAX_NODE_COUNT) {
+            return;
+        }
     }
 }
 }
