@@ -41,7 +41,8 @@ windows_agents = {
 common_env = {
     "ML_DEBUG": "0",
     "CPP_CROSS_COMPILE": "",
-    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake",
+    "CMAKE_GENERATOR": "Ninja Multi-Config",
+    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
 }
 
 def main(args):
@@ -50,8 +51,10 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    test_timeout = "120" if args.action == "debug" else "60"
+
     for arch, build_type in product(archs, cur_build_types):
-        build_key = f"build_Windows-{arch}-{build_type}"
+        build_key = f"build_test_Windows-{arch}-{build_type}"
 
         step_env = {**common_env, "RUN_TESTS": "false"}
         if args.action == "debug":
@@ -89,13 +92,13 @@ def main(args):
         # Test step
         pipeline_steps.append({
             "label": f"Test :cpp: for Windows-{arch}-{build_type} :windows:",
-            "timeout_in_minutes": "60",
+            "timeout_in_minutes": test_timeout,
             "agents": windows_agents,
             "commands": [
               "& .buildkite\\scripts\\steps\\run_tests.ps1"
             ],
             "depends_on": build_key,
-            "key": f"build_test_Windows-{arch}-{build_type}",
+            "key": f"test_Windows-{arch}-{build_type}",
             "env": test_env,
             "artifact_paths": ["*/**/unittest/boost_test_results.junit"],
             "plugins": {

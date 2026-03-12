@@ -68,6 +68,18 @@ endif()
 
 project("ML")
 
+if(CMAKE_UNITY_BUILD)
+  if(NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 16)
+  endif()
+  message(STATUS "Unity build enabled (batch size: ${CMAKE_UNITY_BUILD_BATCH_SIZE})")
+endif()
+
+option(ML_PCH "Enable precompiled headers for faster compilation" OFF)
+if(ML_PCH)
+  message(STATUS "Precompiled headers enabled")
+endif()
+
 include(CTest)
 
 include(CheckPIESupported)

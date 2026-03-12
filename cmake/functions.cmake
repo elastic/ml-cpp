@@ -190,6 +190,25 @@ function(ml_add_library _target _type)
 
   set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
+  if(ML_PCH)
+    target_precompile_headers(${_target} PRIVATE
+      <string>
+      <vector>
+      <memory>
+      <algorithm>
+      <cmath>
+      <cstddef>
+      <cstdint>
+      <utility>
+      <functional>
+      <optional>
+      <limits>
+      <numeric>
+      <map>
+      <sstream>
+    )
+  endif()
+
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
   endif()
@@ -363,6 +382,26 @@ function(ml_add_test_executable _target)
 
   set_property(TARGET ml_test_${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
+  if(ML_PCH)
+    target_precompile_headers(ml_test_${_target} PRIVATE
+      <string>
+      <vector>
+      <memory>
+      <algorithm>
+      <cmath>
+      <cstddef>
+      <cstdint>
+      <utility>
+      <functional>
+      <optional>
+      <limits>
+      <numeric>
+      <map>
+      <sstream>
+      <boost/test/unit_test.hpp>
+    )
+  endif()
+
   target_link_libraries(ml_test_${_target} ${ML_LINK_LIBRARIES})
 
   add_test(NAME ml_test_${_target} COMMAND ml_test_${_target}
@@ -526,5 +565,12 @@ add_custom_target(check_style
 add_custom_target(precommit
   COMMENT "Running essential tasks prior to code commit"
   DEPENDS format test
+  COMMAND ${CMAKE_COMMAND}
+      -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+      -DVALIDATE_CONFIG=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json
+      -DVALIDATE_PT_DIR=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models
+      -DVALIDATE_VERBOSE=TRUE
+      -DOPTIONAL=TRUE
+      -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

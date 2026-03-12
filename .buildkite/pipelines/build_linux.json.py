@@ -74,28 +74,33 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    test_timeout = "120" if args.action == "debug" else "60"
+
     for arch, build_type in product(archs, cur_build_types):
         if args.build_x86_64 and arch == "x86_64" or args.build_aarch64 and arch == "aarch64":
 
             if arch == "x86_64":
                 # x86_64: split into separate build and test steps
-                build_key = f"build_linux-{arch}-{build_type}"
+                build_key = f"build_test_linux-{arch}-{build_type}"
+
+                build_env = {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+                      "RUN_TESTS": "false",
+                }
+                if args.action == "debug":
+                    build_env["ML_DEBUG"] = "1"
 
                 pipeline_steps.append({
                     "label": f"Build :cpp: for linux-{arch}-{build_type} :linux:",
                     "timeout_in_minutes": "180",
                     "agents": agents[arch],
                     "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                       ".buildkite/scripts/steps/build.sh"
                     ],
                     "depends_on": "check_style",
                     "key": build_key,
-                    "env": {
-                      **common_env,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "RUN_TESTS": "false",
-                    },
+                    "env": build_env,
                     "notify": [
                       {
                         "github_commit_status": {
@@ -105,22 +110,25 @@ def main(args):
                     ],
                 })
 
+                test_env = {
+                      **common_env,
+                      "BUILD_STEP_KEY": build_key,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+                      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+                }
+                if args.action == "debug":
+                    test_env["ML_DEBUG"] = "1"
+
                 pipeline_steps.append({
                     "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
-                    "timeout_in_minutes": "60",
+                    "timeout_in_minutes": test_timeout,
                     "agents": test_agents[arch],
                     "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                       ".buildkite/scripts/steps/run_tests.sh"
                     ],
                     "depends_on": build_key,
-                    "key": f"build_test_linux-{arch}-{build_type}",
-                    "env": {
-                      **common_env,
-                      "BUILD_STEP_KEY": build_key,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-                    },
+                    "key": f"test_linux-{arch}-{build_type}",
+                    "env": test_env,
                     "plugins": {
                       "test-collector#v1.2.0": {
                         "files": "*/*/unittest/boost_test_results.junit",
@@ -137,23 +145,26 @@ def main(args):
                 })
             else:
                 # aarch64: split into build and test steps
-                build_key = f"build_linux-{arch}-{build_type}"
+                build_key = f"build_test_linux-{arch}-{build_type}"
+
+                aarch64_build_env = {
+                      **common_env,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+                      "RUN_TESTS": "false",
+                }
+                if args.action == "debug":
+                    aarch64_build_env["ML_DEBUG"] = "1"
 
                 pipeline_steps.append({
                     "label": f"Build :cpp: for linux-{arch}-{build_type} :linux:",
                     "timeout_in_minutes": "180",
                     "agents": agents[arch],
                     "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                       ".buildkite/scripts/steps/build.sh"
                     ],
                     "depends_on": "check_style",
                     "key": build_key,
-                    "env": {
-                      **common_env,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "RUN_TESTS": "false",
-                    },
+                    "env": aarch64_build_env,
                     "notify": [
                       {
                         "github_commit_status": {
@@ -163,22 +174,25 @@ def main(args):
                     ],
                 })
 
+                aarch64_test_env = {
+                      **common_env,
+                      "BUILD_STEP_KEY": build_key,
+                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+                      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+                }
+                if args.action == "debug":
+                    aarch64_test_env["ML_DEBUG"] = "1"
+
                 pipeline_steps.append({
                     "label": f"Test :cpp: for linux-{arch}-{build_type} :linux:",
-                    "timeout_in_minutes": "60",
+                    "timeout_in_minutes": test_timeout,
                     "agents": test_agents[arch],
                     "commands": [
-                      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
                       ".buildkite/scripts/steps/run_tests.sh"
                     ],
                     "depends_on": build_key,
-                    "key": f"build_test_linux-{arch}-{build_type}",
-                    "env": {
-                      **common_env,
-                      "BUILD_STEP_KEY": build_key,
-                      "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
-                      "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-                    },
+                    "key": f"test_linux-{arch}-{build_type}",
+                    "env": aarch64_test_env,
                     "plugins": {
                       "test-collector#v1.2.0": {
                         "files": "*/*/unittest/boost_test_results.junit",
@@ -197,7 +211,7 @@ def main(args):
     # Add debug build/test steps for PR builds to detect compilation errors with optimization disabled
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
             os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
-        debug_build_key = "build_linux-x86_64-RelWithDebInfo-debug"
+        debug_build_key = "build_test_linux-x86_64-RelWithDebInfo-debug"
 
         pipeline_steps.append({
             "label": "Build :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
@@ -212,7 +226,7 @@ def main(args):
             "env": {
               **common_env,
               "ML_DEBUG": "1",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DML_FAST_DEBUG=ON -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
               "RUN_TESTS": "false",
               "SKIP_ARTIFACT_UPLOAD": "true",
             },
@@ -234,12 +248,12 @@ def main(args):
               ".buildkite/scripts/steps/run_tests.sh"
             ],
             "depends_on": debug_build_key,
-            "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
+            "key": "test_linux-x86_64-RelWithDebInfo-debug",
             "env": {
               **common_env,
               "BUILD_STEP_KEY": debug_build_key,
               "ML_DEBUG": "1",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "plugins": {
