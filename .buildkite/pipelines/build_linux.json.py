@@ -81,7 +81,7 @@ def main(args):
 
             if arch == "x86_64":
                 # x86_64: split into separate build and test steps
-                build_key = f"build_linux-{arch}-{build_type}"
+                build_key = f"build_test_linux-{arch}-{build_type}"
 
                 build_env = {
                       **common_env,
@@ -127,7 +127,7 @@ def main(args):
                       ".buildkite/scripts/steps/run_tests.sh"
                     ],
                     "depends_on": build_key,
-                    "key": f"build_test_linux-{arch}-{build_type}",
+                    "key": f"test_linux-{arch}-{build_type}",
                     "env": test_env,
                     "plugins": {
                       "test-collector#v1.2.0": {
@@ -145,7 +145,7 @@ def main(args):
                 })
             else:
                 # aarch64: split into build and test steps
-                build_key = f"build_linux-{arch}-{build_type}"
+                build_key = f"build_test_linux-{arch}-{build_type}"
 
                 aarch64_build_env = {
                       **common_env,
@@ -191,7 +191,7 @@ def main(args):
                       ".buildkite/scripts/steps/run_tests.sh"
                     ],
                     "depends_on": build_key,
-                    "key": f"build_test_linux-{arch}-{build_type}",
+                    "key": f"test_linux-{arch}-{build_type}",
                     "env": aarch64_test_env,
                     "plugins": {
                       "test-collector#v1.2.0": {
@@ -211,7 +211,7 @@ def main(args):
     # Add debug build/test steps for PR builds to detect compilation errors with optimization disabled
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
             os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
-        debug_build_key = "build_linux-x86_64-RelWithDebInfo-debug"
+        debug_build_key = "build_test_linux-x86_64-RelWithDebInfo-debug"
 
         pipeline_steps.append({
             "label": "Build :cpp: for linux-x86_64-RelWithDebInfo (debug) :linux:",
@@ -248,7 +248,7 @@ def main(args):
               ".buildkite/scripts/steps/run_tests.sh"
             ],
             "depends_on": debug_build_key,
-            "key": "build_test_linux-x86_64-RelWithDebInfo-debug",
+            "key": "test_linux-x86_64-RelWithDebInfo-debug",
             "env": {
               **common_env,
               "BUILD_STEP_KEY": debug_build_key,

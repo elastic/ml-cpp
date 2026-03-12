@@ -53,7 +53,7 @@ def main(args):
     test_timeout = "120" if args.action == "debug" else "60"
 
     for arch, build_type in product(archs, cur_build_types):
-        build_key = f"build_Windows-{arch}-{build_type}"
+        build_key = f"build_test_Windows-{arch}-{build_type}"
 
         step_env = {**common_env, "RUN_TESTS": "false"}
         if args.action == "debug":
@@ -97,7 +97,7 @@ def main(args):
               "& .buildkite\\scripts\\steps\\run_tests.ps1"
             ],
             "depends_on": build_key,
-            "key": f"build_test_Windows-{arch}-{build_type}",
+            "key": f"test_Windows-{arch}-{build_type}",
             "env": test_env,
             "artifact_paths": ["*/**/unittest/boost_test_results.junit"],
             "plugins": {
