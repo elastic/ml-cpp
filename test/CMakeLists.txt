@@ -36,7 +36,6 @@ add_custom_target(test
     COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-check-success.cmake
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-)
 
 # Common arguments for the pytorch_inference allowlist validation script.
 set(_validation_args
