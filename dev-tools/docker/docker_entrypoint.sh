@@ -103,14 +103,11 @@ if [ "x$1" = "x--build-tests" ] ; then
     cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests
 elif [ "x$1" = "x--test" ] ; then
     echo passed > build/test_status.txt
-    if [ "$NCPUS" -le 4 ]; then
-        TEST_PARALLEL=2
+    if ! cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests ; then
+        echo failed > build/test_status.txt
     else
-        TEST_PARALLEL=$(( (NCPUS + 1) / 2 ))
+        cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
     fi
-    echo "Test parallelism: nproc=${NCPUS}, TEST_PARALLEL=${TEST_PARALLEL}"
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${TEST_PARALLEL} -t build_tests || echo failed > build/test_status.txt
-    cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
 fi
 
 # Print sccache stats if it was used
