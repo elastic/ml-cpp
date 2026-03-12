@@ -27,6 +27,7 @@
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 #include "CCommandParser.h"
+#include "CModelGraphValidator.h"
 #include "CResultWriter.h"
 #include "CThreadSettings.h"
 
@@ -42,25 +43,35 @@
 #include <string>
 
 namespace {
-// Add more forbidden ops here if needed
-const std::unordered_set<std::string> FORBIDDEN_OPERATIONS = {"aten::from_file", "aten::save"};
-
 void verifySafeModel(const torch::jit::script::Module& module_) {
     try {
-        const auto method = module_.get_method("forward");
-        const auto graph = method.graph();
-        for (const auto& node : graph->nodes()) {
-            const std::string opName = node->kind().toQualString();
-            if (FORBIDDEN_OPERATIONS.find(opName) != FORBIDDEN_OPERATIONS.end()) {
-                HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: "
-                             << opName);
-            }
-        }
-    } catch (const c10::Error& e) {
-        LOG_FATAL(<< "Failed to get forward method: " << e.what());
-    }
+        auto result = ml::torch::CModelGraphValidator::validate(module_);
 
-    LOG_DEBUG(<< "Model verified: no forbidden operations detected.");
+        if (result.s_ForbiddenOps.empty() == false) {
+            std::string ops = ml::core::CStringUtils::join(result.s_ForbiddenOps, ", ");
+            HANDLE_FATAL(<< "Model contains forbidden operations: " << ops);
+        }
+
+        if (result.s_UnrecognisedOps.empty() == false) {
+            std::string ops = ml::core::CStringUtils::join(result.s_UnrecognisedOps, ", ");
+            HANDLE_FATAL(<< "Model graph does not match any supported architecture. "
+                         << "Unrecognised operations: " << ops);
+        }
+
+        if (result.s_NodeCount > ml::torch::CModelGraphValidator::MAX_NODE_COUNT) {
+            HANDLE_FATAL(<< "Model graph is too large: " << result.s_NodeCount << " nodes exceeds limit of "
+                         << ml::torch::CModelGraphValidator::MAX_NODE_COUNT);
+        }
+
+        if (result.s_IsValid == false) {
+            HANDLE_FATAL(<< "Model graph validation failed");
+        }
+
+        LOG_DEBUG(<< "Model verified: " << result.s_NodeCount
+                  << " nodes, all operations match supported architectures.");
+    } catch (const c10::Error& e) {
+        HANDLE_FATAL(<< "Model graph validation failed: " << e.what());
+    }
 }
 }
 

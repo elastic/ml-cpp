@@ -35,7 +35,9 @@ ml_add_executable(pytorch_inference
   CBufferedIStreamAdapter.cc
   CCmdLineParser.cc
   CCommandParser.cc
+  CModelGraphValidator.cc
   CResultWriter.cc
+  CSupportedOperations.cc
   CThreadSettings.cc
   )
 
