@@ -22,7 +22,6 @@ namespace {
 const std::string ACTIONS("actions");
 const std::string ACTUAL("actual");
 const std::string APPLIES_TO("applies_to");
-const std::string CONDITION("condition");
 const std::string CONDITIONS("conditions");
 const std::string DIFF_FROM_TYPICAL("diff_from_typical");
 const std::string EXCLUDE("exclude");

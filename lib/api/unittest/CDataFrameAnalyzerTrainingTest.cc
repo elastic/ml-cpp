@@ -2233,7 +2233,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
     TStrVec persistedStates{
-        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+        splitOnNull(std::stringstream{persistenceStream->str()})};
 
     LOG_DEBUG(<< "# states = " << persistedStates.size());
 

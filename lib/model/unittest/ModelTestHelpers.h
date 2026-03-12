@@ -27,7 +27,7 @@ namespace model {
 const CSearchKey KEY;
 const std::string EMPTY_STRING;
 
-static void testPersistence(const SModelParams& params,
+[[maybe_unused]] static void testPersistence(const SModelParams& params,
                             const CDataGatherer& origGatherer,
                             model_t::EAnalysisCategory category) {
     // Test persistence. (We check for idempotency.)
@@ -63,7 +63,7 @@ static void testPersistence(const SModelParams& params,
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
-static void testGathererAttributes(const CDataGatherer& gatherer,
+[[maybe_unused]] static void testGathererAttributes(const CDataGatherer& gatherer,
                                    core_t::TTime startTime,
                                    core_t::TTime bucketLength) {
 

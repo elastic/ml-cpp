@@ -724,7 +724,6 @@ const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
-const std::string UNKNOWN_VALUE_STRING("<unknown>");
 }
 
 CGammaRateConjugate::CGammaRateConjugate(maths_t::EDataType dataType,

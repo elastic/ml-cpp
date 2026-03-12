@@ -248,8 +248,6 @@ const core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
 const core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
 const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
-
-const std::string EMPTY_STRING;
 }
 
 CMultinomialConjugate::CMultinomialConjugate()

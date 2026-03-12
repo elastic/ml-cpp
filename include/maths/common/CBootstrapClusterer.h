@@ -677,8 +677,6 @@ protected:
         this->visit(next, graph, parities, state);
 
         double lowestCost = state.cost();
-        double bestCut = state.s_Cut;
-        std::size_t bestA = state.s_A;
         TBoolVec best = parities;
 
         while (state.s_A + 1 < V) {
@@ -725,8 +723,6 @@ protected:
             double cutCost = state.cost();
             if (cutCost < lowestCost) {
                 lowestCost = cutCost;
-                bestCut = state.s_Cut;
-                bestA = state.s_A;
                 best = parities;
             }
         }
@@ -734,7 +730,10 @@ protected:
         cost = lowestCost;
         parities.swap(best);
 
-        LOG_TRACE(<< "Best cut = " << bestCut << ", |A| = " << bestA << ", |B| = " << V - bestA
+        LOG_TRACE(<< "Best cut |A| = "
+                  << static_cast<std::size_t>(std::count(parities.begin(), parities.end(), true))
+                  << ", |B| = "
+                  << V - static_cast<std::size_t>(std::count(parities.begin(), parities.end(), true))
                   << ", cost = " << cost << ", threshold = " << threshold);
 
         return cost < threshold;

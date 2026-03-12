@@ -1420,7 +1420,7 @@ struct SCentralMomentsCustomAdd {
     static inline void add(const U& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
-        moments.add(x, n, 0);
+        moments.add(x, static_cast<double>(n), 0);
     }
 };
 }

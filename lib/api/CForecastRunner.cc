@@ -442,7 +442,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     if (forecastJob.s_MaxForecastModelMemory != DEFAULT_MAX_FORECAST_MODEL_MEMORY &&
         (forecastJob.s_MaxForecastModelMemory >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY ||
          forecastJob.s_MaxForecastModelMemory >=
-             static_cast<std::size_t>(jobBytesSizeLimit * 0.40))) {
+             static_cast<std::size_t>(static_cast<double>(jobBytesSizeLimit) * 0.40))) {
         errorFunction(forecastJob, ERROR_BAD_MODEL_MEMORY_LIMIT);
         return false;
     }

@@ -48,7 +48,8 @@ const std::unordered_set<std::string_view> FORBIDDEN_OPERATIONS = {"aten::from_f
 void verifySafeModel(const torch::jit::script::Module& module_) {
     try {
         const auto method = module_.get_method("forward");
-        for (const auto graph = method.graph(); const auto& node : graph->nodes()) {
+        const auto& graph = method.graph();
+        for (const auto* node : graph->nodes()) {
             if (const std::string opName = node->kind().toQualString();
                 FORBIDDEN_OPERATIONS.contains(opName)) {
                 HANDLE_FATAL(<< "Loading the inference process failed because it contains forbidden operation: "
@@ -282,7 +283,7 @@ int main(int argc, char** argv) {
     // allocations rather than per allocation. But macOS is not supported for
     // production, but just as a convenience for developers. So the most
     // important thing is that the threading works as intended on Linux.
-    at::set_num_threads(threadSettings.numThreadsPerAllocation());
+    at::set_num_threads(static_cast<int>(threadSettings.numThreadsPerAllocation()));
 
     // This is not used as we don't call at::launch anywhere.
     // Setting it to 1 to ensure there is no thread pool sitting around.
