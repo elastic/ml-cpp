@@ -27,8 +27,12 @@ if [[ -n "${BUILDKITE_PULL_REQUEST_LABELS:-}" ]]; then
   done
 fi
 
-# Install Python dependencies
-pip3 install --quiet pyyaml jsonschema 2>/dev/null || pip install --quiet pyyaml jsonschema
+# Install system and Python dependencies
+if ! command -v git &>/dev/null; then
+  apt-get update -qq && apt-get install -y -qq git >/dev/null 2>&1
+fi
+python3 -m pip install --quiet --break-system-packages pyyaml jsonschema 2>/dev/null \
+  || python3 -m pip install --quiet pyyaml jsonschema
 
 # Find changelog files changed in this PR (compared to main/target branch)
 TARGET_BRANCH="${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-main}"
