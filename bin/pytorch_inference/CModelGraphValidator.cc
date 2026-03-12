@@ -57,7 +57,7 @@ CModelGraphValidator::validate(const TStringSet& observedOps,
     // fail fast when a known-dangerous operation is present and avoids the
     // cost of scanning for unrecognised ops on a model we will reject anyway.
     for (const auto& op : observedOps) {
-        if (forbiddenOps.contains(op)) {
+        if (forbiddenOps.count(op) > 0) {
             result.s_IsValid = false;
             result.s_ForbiddenOps.push_back(op);
         }
@@ -65,7 +65,7 @@ CModelGraphValidator::validate(const TStringSet& observedOps,
 
     if (result.s_ForbiddenOps.empty()) {
         for (const auto& op : observedOps) {
-            if (allowedOps.contains(op) == false) {
+            if (allowedOps.count(op) == 0) {
                 result.s_IsValid = false;
                 result.s_UnrecognisedOps.push_back(op);
             }
