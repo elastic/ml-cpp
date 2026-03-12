@@ -22,7 +22,7 @@ steps:
     key: "validate_changelogs"
     command: ".buildkite/scripts/steps/validate-changelogs.sh"
     agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+      image: "python:3.11-slim"
     soft_fail: true
     notify:
       - github_commit_status:
