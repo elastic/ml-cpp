@@ -35,7 +35,7 @@ add_custom_target(run_tests_individually
         DEPENDS clean_test_results ${ML_TEST_INDIVIDUALLY_DEPENDS}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-add_custom_target(test
+add_custom_target(ml_test
     DEPENDS run_tests
     COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-check-success.cmake
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -57,6 +57,14 @@ else()
   set(_build_type_arg "")
 endif()
 
+# Common arguments for the pytorch_inference allowlist validation script.
+set(_validation_args
+    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -DVALIDATE_CONFIG=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json
+    -DVALIDATE_PT_DIR=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models
+    -DVALIDATE_VERBOSE=TRUE
+)
+
 add_custom_target(test_all_parallel
         DEPENDS build_tests
         COMMAND ${CMAKE_COMMAND}
@@ -64,5 +72,22 @@ add_custom_target(test_all_parallel
             -DBUILD_DIR=${CMAKE_BINARY_DIR}
             ${_build_type_arg}
             -P ${CMAKE_SOURCE_DIR}/cmake/run-all-tests-parallel.cmake
+        COMMAND ${CMAKE_COMMAND}
+            ${_validation_args}
+            -DOPTIONAL=TRUE
+            -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+# Standalone target for the pytorch_inference allowlist validation.
+# Unlike the invocation inside test_all_parallel (which uses OPTIONAL=TRUE
+# to skip gracefully when Python or network access is unavailable), this
+# target treats failures as hard errors — use it to explicitly verify the
+# allowlist.  See dev-tools/extract_model_ops/README.md for details.
+add_custom_target(validate_pytorch_inference_models
+        COMMAND ${CMAKE_COMMAND}
+            ${_validation_args}
+            -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
+        COMMENT "Validating pytorch_inference allowlist against HuggingFace models and ES integration test models"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
