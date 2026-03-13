@@ -267,7 +267,6 @@
     },
     "elastic-eis-elser-v2": {
       "model_id": "elastic/eis-elser-v2",
-      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -304,7 +303,6 @@
     },
     "elastic-elser-v2": {
       "model_id": "elastic/elser-v2",
-      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -337,44 +335,6 @@
         "prim::GetAttr",
         "prim::ListConstruct",
         "prim::NumToTensor"
-      ]
-    },
-    "elastic-elser-v2-quantized": {
-      "model_id": "elastic/elser-v2",
-      "quantized": true,
-      "ops": [
-        "aten::Int",
-        "aten::ScalarImplicit",
-        "aten::__and__",
-        "aten::add",
-        "aten::arange",
-        "aten::contiguous",
-        "aten::dropout",
-        "aten::embedding",
-        "aten::expand",
-        "aten::gather",
-        "aten::ge",
-        "aten::gelu",
-        "aten::index",
-        "aten::layer_norm",
-        "aten::mul_",
-        "aten::new_ones",
-        "aten::reshape",
-        "aten::scaled_dot_product_attention",
-        "aten::select",
-        "aten::size",
-        "aten::slice",
-        "aten::tanh",
-        "aten::to",
-        "aten::transpose",
-        "aten::unsqueeze",
-        "aten::view",
-        "prim::Constant",
-        "prim::DictConstruct",
-        "prim::GetAttr",
-        "prim::ListConstruct",
-        "prim::NumToTensor",
-        "quantized::linear_dynamic"
       ]
     },
     "elastic-hugging-face-elser": {

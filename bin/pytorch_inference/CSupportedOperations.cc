@@ -39,8 +39,6 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // elastic/test-elser-v2.
 // Additional ops from Elasticsearch integration test models
 // (PyTorchModelIT, TextExpansionQueryIT, TextEmbeddingQueryIT).
-// Quantized operations from dynamically quantized variants of the above
-// models (torch.quantization.quantize_dynamic on nn.Linear layers).
 const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATIONS = {
     // aten operations (core tensor computations)
     "aten::Int"sv,
@@ -81,7 +79,6 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::mean"sv,
     "aten::min"sv,
     "aten::mul"sv,
-    "aten::mul_"sv,
     "aten::ne"sv,
     "aten::neg"sv,
     "aten::new_ones"sv,
@@ -127,8 +124,6 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "prim::dtype"sv,
     "prim::max"sv,
     "prim::min"sv,
-    // quantized operations (dynamically quantized models, e.g. ELSER v2)
-    "quantized::linear_dynamic"sv,
 };
 }
 }

@@ -11,50 +11,11 @@
 #
 """Shared utilities for extracting and inspecting TorchScript operations."""
 
-import json
 import os
 import sys
-from pathlib import Path
 
 import torch
 from transformers import AutoConfig, AutoModel, AutoTokenizer
-
-
-def load_model_config(config_path: Path) -> dict[str, dict]:
-    """Load a model config JSON file and normalise entries.
-
-    Each entry is either a plain model-name string or a dict with
-    ``model_id`` (required) and optional ``quantized`` boolean.  All
-    entries are normalised to ``{"model_id": str, "quantized": bool}``.
-    Keys starting with ``_comment`` are silently skipped.
-
-    Raises ``ValueError`` for malformed entries so that config problems
-    are caught early with an actionable message.
-    """
-    with open(config_path) as f:
-        raw = json.load(f)
-
-    models: dict[str, dict] = {}
-    for key, value in raw.items():
-        if key.startswith("_comment"):
-            continue
-        if isinstance(value, str):
-            models[key] = {"model_id": value, "quantized": False}
-        elif isinstance(value, dict):
-            if "model_id" not in value:
-                raise ValueError(
-                    f"Config entry {key!r} is a dict but missing required "
-                    f"'model_id' key: {value!r}")
-            models[key] = {
-                "model_id": value["model_id"],
-                "quantized": value.get("quantized", False),
-            }
-        else:
-            raise ValueError(
-                f"Config entry {key!r} has unsupported type "
-                f"{type(value).__name__}: {value!r}. "
-                f"Expected a model name string or a dict with 'model_id'.")
-    return models
 
 
 def collect_graph_ops(graph) -> set[str]:
@@ -74,12 +35,8 @@ def collect_inlined_ops(module) -> set[str]:
     return collect_graph_ops(graph)
 
 
-def load_and_trace_hf_model(model_name: str, quantize: bool = False):
+def load_and_trace_hf_model(model_name: str):
     """Load a HuggingFace model, tokenize sample input, and trace to TorchScript.
-
-    When *quantize* is True the model is dynamically quantized (nn.Linear
-    layers converted to quantized::linear_dynamic) before tracing.  This
-    mirrors what Eland does when importing models for Elasticsearch.
 
     Returns the traced module, or None if the model could not be loaded or traced.
     """
@@ -95,16 +52,6 @@ def load_and_trace_hf_model(model_name: str, quantize: bool = False):
     except Exception as exc:
         print(f"    LOAD ERROR: {exc}", file=sys.stderr)
         return None
-
-    if quantize:
-        try:
-            model = torch.quantization.quantize_dynamic(
-                model, {torch.nn.Linear}, dtype=torch.qint8)
-            print("    Applied dynamic quantization (nn.Linear -> qint8)",
-                  file=sys.stderr)
-        except Exception as exc:
-            print(f"    QUANTIZE ERROR: {exc}", file=sys.stderr)
-            return None
 
     inputs = tokenizer(
         "This is a sample input for graph extraction.",

@@ -19,10 +19,6 @@
     "elastic-splade-v3": "elastic/splade-v3",
     "elastic-test-elser-v2": "elastic/test-elser-v2",
 
-    "elastic-elser-v2-quantized": {"model_id": "elastic/elser-v2", "quantized": true},
-    "elastic-eis-elser-v2-quantized": {"model_id": "elastic/eis-elser-v2", "quantized": true},
-    "elastic-test-elser-v2-quantized": {"model_id": "elastic/test-elser-v2", "quantized": true},
-
     "ner-dslim-bert-base": "dslim/bert-base-NER",
     "sentiment-distilbert-sst2": "distilbert-base-uncased-finetuned-sst-2-english",
 
