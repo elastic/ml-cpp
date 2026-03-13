@@ -50,15 +50,4 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     export DOCKER_REGISTRY_PASSWORD=$(vault read --field=password  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
   fi
 
-  # Retrieve GCS service account key for sccache (compiler caching).
-  if [[ "$BUILDKITE_STEP_KEY" == build_test_* ]]; then
-      SCCACHE_GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
-      if [ -n "$SCCACHE_GCS_KEY_JSON" ]; then
-          export SCCACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
-          export SCCACHE_GCS_KEY_FILE=$(mktemp)
-          echo "$SCCACHE_GCS_KEY_JSON" > "$SCCACHE_GCS_KEY_FILE"
-          export GOOGLE_APPLICATION_CREDENTIALS="$SCCACHE_GCS_KEY_FILE"
-          export SCCACHE_GCS_KEY_PATH="$SCCACHE_GCS_KEY_FILE"
-      fi
-  fi
 fi
