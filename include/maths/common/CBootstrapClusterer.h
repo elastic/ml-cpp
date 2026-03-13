@@ -731,9 +731,11 @@ protected:
         parities.swap(best);
 
         LOG_TRACE(<< "Best cut |A| = "
-                  << static_cast<std::size_t>(std::count(parities.begin(), parities.end(), true))
+                  << static_cast<std::size_t>(
+                         std::count(parities.begin(), parities.end(), true))
                   << ", |B| = "
-                  << V - static_cast<std::size_t>(std::count(parities.begin(), parities.end(), true))
+                  << V - static_cast<std::size_t>(
+                             std::count(parities.begin(), parities.end(), true))
                   << ", cost = " << cost << ", threshold = " << threshold);
 
         return cost < threshold;

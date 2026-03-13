@@ -104,8 +104,9 @@ CSingleFieldDataCategorizer::makeForegroundPersistFunc() const {
     model::CDataCategorizer::TPersistFunc categorizerPersistFunc{
         m_DataCategorizer->makeForegroundPersistFunc()};
 
-    return [ categorizerPersistFuncInner = std::move(categorizerPersistFunc),
-             this ](core::CStatePersistInserter & inserter) {
+    return [
+        categorizerPersistFuncInner = std::move(categorizerPersistFunc), this
+    ](core::CStatePersistInserter & inserter) {
         CSingleFieldDataCategorizer::acceptPersistInserter(
             categorizerPersistFuncInner, m_DataCategorizer->examplesCollector(),
             *m_CategoryIdMapper, inserter);
@@ -131,7 +132,8 @@ CSingleFieldDataCategorizer::makeBackgroundPersistFunc() const {
         categoryIdMapperCloneInner = std::move(categoryIdMapperClone)
     ](core::CStatePersistInserter & inserter) {
         CSingleFieldDataCategorizer::acceptPersistInserter(
-            categorizerPersistFuncInner, examplesCollectorInner, *categoryIdMapperCloneInner, inserter);
+            categorizerPersistFuncInner, examplesCollectorInner,
+            *categoryIdMapperCloneInner, inserter);
     };
 }
 

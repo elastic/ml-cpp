@@ -321,8 +321,8 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
     BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig(testBucketSize, model_t::E_None,
-                                                          "", 0, false);
+        model::CAnomalyDetectorModelConfig::defaultConfig(
+            testBucketSize, model_t::E_None, "", 0, false);
 
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 

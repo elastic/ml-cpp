@@ -82,7 +82,6 @@ void gaussianSamples(test::CRandomNumbers& rng,
     }
     LOG_DEBUG(<< "# samples = " << samples.size());
 }
-
 }
 
 BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
