@@ -34,10 +34,6 @@
 
 * Report RSS in bytes instead of pages. (See {ml-pull}[#2917].)
 
-=== Enhancements
-
-* Harden pytorch_inference with TorchScript model graph validation. (See {ml-pull}2936[#2936].)
-
 == {es} version 9.2.0
 
 === Enhancements
