@@ -29,7 +29,6 @@ Usage:
 """
 
 import argparse
-import json
 import re
 import sys
 from pathlib import Path
@@ -40,6 +39,7 @@ from torchscript_utils import (
     collect_graph_ops,
     collect_inlined_ops,
     load_and_trace_hf_model,
+    load_model_config,
 )
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -103,10 +103,12 @@ def check_ops(ops: set[str],
 def validate_model(model_name: str,
                    allowed: set[str],
                    forbidden: set[str],
-                   verbose: bool) -> bool:
+                   verbose: bool,
+                   quantize: bool = False) -> bool:
     """Validate one HuggingFace model. Returns True if all ops pass."""
-    print(f"  {model_name}...", file=sys.stderr)
-    traced = load_and_trace_hf_model(model_name)
+    label = f"{model_name} (quantized)" if quantize else model_name
+    print(f"  {label}...", file=sys.stderr)
+    traced = load_and_trace_hf_model(model_name, quantize=quantize)
     if traced is None:
         print(f"    FAILED (could not load/trace)", file=sys.stderr)
         return False
@@ -151,14 +153,15 @@ def main():
 
     results: dict[str, bool] = {}
 
-    with open(args.config) as f:
-        models = json.load(f)
+    models = load_model_config(args.config)
+
     print(f"Validating {len(models)} HuggingFace models from "
           f"{args.config.name}...", file=sys.stderr)
 
-    for arch, model_id in models.items():
+    for arch, spec in models.items():
         results[arch] = validate_model(
-            model_id, allowed, forbidden, args.verbose)
+            spec["model_id"], allowed, forbidden, args.verbose,
+            quantize=spec["quantized"])
 
     if args.pt_dir and args.pt_dir.is_dir():
         pt_files = sorted(args.pt_dir.glob("*.pt"))
@@ -178,7 +181,11 @@ def main():
         if key.startswith("pt:"):
             print(f"  {key}: {status}", file=sys.stderr)
         else:
-            print(f"  {key} ({models[key]}): {status}", file=sys.stderr)
+            spec = models[key]
+            label = spec["model_id"]
+            if spec["quantized"]:
+                label += " (quantized)"
+            print(f"  {key} ({label}): {status}", file=sys.stderr)
 
     print("=" * 60, file=sys.stderr)
     if all_pass:

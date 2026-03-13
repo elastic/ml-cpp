@@ -16,5 +16,10 @@
     "elastic-hugging-face-elser": "elastic/hugging-face-elser",
     "elastic-multilingual-e5-small-optimized": "elastic/multilingual-e5-small-optimized",
     "elastic-splade-v3": "elastic/splade-v3",
-    "elastic-test-elser-v2": "elastic/test-elser-v2"
+    "elastic-test-elser-v2": "elastic/test-elser-v2",
+
+    "_comment:quantized": "Quantized variants: Eland applies torch.quantization.quantize_dynamic on nn.Linear layers when importing models. These produce quantized::* ops not present in the standard traced graphs above.",
+    "elastic-elser-v2-quantized": {"model_id": "elastic/elser-v2", "quantized": true},
+    "elastic-eis-elser-v2-quantized": {"model_id": "elastic/eis-elser-v2", "quantized": true},
+    "elastic-test-elser-v2-quantized": {"model_id": "elastic/test-elser-v2", "quantized": true}
 }
