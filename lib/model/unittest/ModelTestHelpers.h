@@ -28,8 +28,8 @@ const CSearchKey KEY;
 const std::string EMPTY_STRING;
 
 [[maybe_unused]] static void testPersistence(const SModelParams& params,
-                            const CDataGatherer& origGatherer,
-                            model_t::EAnalysisCategory category) {
+                                             const CDataGatherer& origGatherer,
+                                             model_t::EAnalysisCategory category) {
     // Test persistence. (We check for idempotency.)
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
@@ -64,8 +64,8 @@ const std::string EMPTY_STRING;
 }
 
 [[maybe_unused]] static void testGathererAttributes(const CDataGatherer& gatherer,
-                                   core_t::TTime startTime,
-                                   core_t::TTime bucketLength) {
+                                                    core_t::TTime startTime,
+                                                    core_t::TTime bucketLength) {
 
     BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
     BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
