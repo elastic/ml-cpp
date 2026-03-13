@@ -20,6 +20,23 @@ if ([System.Environment]::OSVersion.Version.Build -lt 20348) {
     & "dev-tools\download_windows_deps.ps1"
 }
 
+# Install Ninja if CMAKE_GENERATOR requires it and it's not already on PATH
+if ((Test-Path Env:CMAKE_GENERATOR) -and $Env:CMAKE_GENERATOR -match "Ninja") {
+    if (-not (Get-Command ninja -ErrorAction SilentlyContinue)) {
+        $NinjaVersion = "v1.12.1"
+        $NinjaUrl = "https://github.com/ninja-build/ninja/releases/download/$NinjaVersion/ninja-win.zip"
+        $NinjaDir = "$Env:TEMP\ninja"
+        Write-Output "Installing Ninja $NinjaVersion..."
+        New-Item -ItemType Directory -Force -Path $NinjaDir | Out-Null
+        Invoke-WebRequest -Uri $NinjaUrl -OutFile "$NinjaDir\ninja.zip" -UseBasicParsing
+        Expand-Archive -Path "$NinjaDir\ninja.zip" -DestinationPath $NinjaDir -Force
+        $Env:PATH = "$NinjaDir;$Env:PATH"
+        Write-Output "Ninja installed: $(ninja --version)"
+    } else {
+        Write-Output "Ninja already available: $(ninja --version)"
+    }
+}
+
 if (!(Test-Path Env:BUILD_SNAPSHOT)) {
     $Env:BUILD_SNAPSHOT="true"
 }
@@ -50,8 +67,13 @@ if ($BuildExitCode -ne 0) {
 
 # Build test executables via cmake (Gradle's configure task already ran cmake -B)
 Write-Output "--- Building test executables"
-$BuildDir = "cmake-build-relwithdebinfo"
-$BuildType = "RelWithDebInfo"
+if ((Test-Path Env:ML_DEBUG) -and $Env:ML_DEBUG -ne "0") {
+    $BuildDir = "cmake-build-debug"
+    $BuildType = "Debug"
+} else {
+    $BuildDir = "cmake-build-relwithdebinfo"
+    $BuildType = "RelWithDebInfo"
+}
 
 # set_env.bat configures the PATH for cmake/compiler access
 & cmd.exe /c "set_env.bat && cmake --build $BuildDir --config $BuildType -j $Env:NUMBER_OF_PROCESSORS -t build_tests"

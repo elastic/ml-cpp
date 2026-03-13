@@ -51,8 +51,14 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    test_timeout = "120" if args.action == "debug" else "60"
+
     for arch, build_type in product(archs, cur_build_types):
-        build_key = f"build_Windows-{arch}-{build_type}"
+        build_key = f"build_test_Windows-{arch}-{build_type}"
+
+        step_env = {**common_env, "RUN_TESTS": "false"}
+        if args.action == "debug":
+            step_env["ML_DEBUG"] = "1"
 
         # Build step
         pipeline_steps.append({
@@ -60,15 +66,11 @@ def main(args):
             "timeout_in_minutes": "180",
             "agents": windows_agents,
             "commands": [
-              f'if ( "{args.action}" -eq "debug" ) {{$Env:ML_DEBUG="1"}}',
               "& .buildkite\\scripts\\steps\\build.ps1"
             ],
             "depends_on": "check_style",
             "key": build_key,
-            "env": {
-              **common_env,
-              "RUN_TESTS": "false",
-            },
+            "env": step_env,
             "notify": [
               {
                 "github_commit_status": {
@@ -78,23 +80,26 @@ def main(args):
             ],
         })
 
+        test_env = {
+            **common_env,
+            "BUILD_STEP_KEY": build_key,
+            "RUN_TESTS": "true",
+            "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+        }
+        if args.action == "debug":
+            test_env["ML_DEBUG"] = "1"
+
         # Test step
         pipeline_steps.append({
             "label": f"Test :cpp: for Windows-{arch}-{build_type} :windows:",
-            "timeout_in_minutes": "60",
+            "timeout_in_minutes": test_timeout,
             "agents": windows_agents,
             "commands": [
-              f'if ( "{args.action}" -eq "debug" ) {{$Env:ML_DEBUG="1"}}',
               "& .buildkite\\scripts\\steps\\run_tests.ps1"
             ],
             "depends_on": build_key,
-            "key": f"build_test_Windows-{arch}-{build_type}",
-            "env": {
-              **common_env,
-              "BUILD_STEP_KEY": build_key,
-              "RUN_TESTS": "true",
-              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-            },
+            "key": f"test_Windows-{arch}-{build_type}",
+            "env": test_env,
             "artifact_paths": ["*/**/unittest/boost_test_results.junit"],
             "plugins": {
               "test-collector#v1.2.0": {

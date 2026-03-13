@@ -220,6 +220,14 @@ if("$ENV{ML_DEBUG}")
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+option(ML_FAST_DEBUG "Use reduced debug info (-g1) and exclude trace logging for faster Debug builds. Intended for CI; local developers should leave this OFF." OFF)
+if(ML_FAST_DEBUG AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g1 -DEXCLUDE_TRACE_LOGGING")
+    message(STATUS "ML_FAST_DEBUG: overriding CMAKE_CXX_FLAGS_DEBUG to '${CMAKE_CXX_FLAGS_DEBUG}'")
+  endif()
+endif()
+
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 if(UNIX AND CMAKE_BUILD_TYPE STREQUAL Debug AND DEFINED ENV{ML_COVERAGE})
