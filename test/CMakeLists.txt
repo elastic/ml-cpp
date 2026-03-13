@@ -36,21 +36,3 @@ add_custom_target(test
     COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-check-success.cmake
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-
-# Common arguments for the pytorch_inference allowlist validation script.
-set(_validation_args
-    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-    -DVALIDATE_CONFIG=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json
-    -DVALIDATE_PT_DIR=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models
-    -DVALIDATE_VERBOSE=TRUE
-)
-
-# Standalone target for the pytorch_inference allowlist validation.
-# See dev-tools/extract_model_ops/README.md for details.
-add_custom_target(validate_pytorch_inference_models
-        COMMAND ${CMAKE_COMMAND}
-            ${_validation_args}
-            -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
-        COMMENT "Validating pytorch_inference allowlist against HuggingFace models and ES integration test models"
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
