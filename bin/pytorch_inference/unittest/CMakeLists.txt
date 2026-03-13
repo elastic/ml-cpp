@@ -14,7 +14,6 @@ project("ML pytorch_inference unit tests")
 set (SRCS
   Main.cc
   CCommandParserTest.cc
-  CModelGraphValidatorTest.cc
   CResultWriterTest.cc
   CThreadSettingsTest.cc
   )
@@ -34,5 +33,3 @@ set(ML_LINK_LIBRARIES
   )
 
 ml_add_test_executable(pytorch_inference ${SRCS})
-
-target_include_directories(ml_test_pytorch_inference PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
