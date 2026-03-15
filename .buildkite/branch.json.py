@@ -40,6 +40,10 @@ def main():
         build_linux = pipeline_steps.generate_step_template("Linux", "build", config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(build_linux)
 
+    # Ingest step-level timings into Elasticsearch for anomaly detection
+    pipeline_steps.append(pipeline_steps.generate_step("Ingest build timings",
+                                                       ".buildkite/pipelines/ingest_build_timings.yml.sh"))
+
     # Build the DRA artifacts and upload to S3 and GCS
     pipeline_steps.append(pipeline_steps.generate_step("Create daily releasable artifacts",
                                                        ".buildkite/pipelines/create_dra.yml.sh"))
