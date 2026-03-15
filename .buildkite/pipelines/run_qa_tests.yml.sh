@@ -22,13 +22,7 @@ steps:
   - trigger: appex-qa-stateful-custom-ml-cpp-build-testing
     async: false
     build:
-      message: |
-EOL
-
-# Output the message with proper indentation for YAML literal block scalar
-printf '%s\n' "${BUILDKITE_MESSAGE}" | sed 's/^/        /'
-
-cat <<EOL
+      message: "${BUILDKITE_MESSAGE}"
       env:
         QAF_TESTS_TO_RUN: "${QAF_TESTS_TO_RUN:-ml_cpp_pr}"
 EOL
