@@ -8,6 +8,8 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed 's/"/\\"/g')
+
 cat <<EOL
 steps:
   - label: "Trigger Appex QA Tests :test_tube:"
@@ -22,13 +24,7 @@ steps:
   - trigger: appex-qa-stateful-custom-ml-cpp-build-testing
     async: false
     build:
-      message: |
-EOL
-
-# Output the message with proper indentation for YAML literal block scalar
-printf '%s\n' "${BUILDKITE_MESSAGE}" | sed 's/^/        /'
-
-cat <<EOL
+      message: "${SAFE_MESSAGE}"
       env:
         QAF_TESTS_TO_RUN: "${QAF_TESTS_TO_RUN:-ml_cpp_pr}"
 EOL
