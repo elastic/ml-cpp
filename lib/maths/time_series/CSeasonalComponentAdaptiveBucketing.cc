@@ -74,7 +74,6 @@ const core::TPersistenceTag VARIANCE_6_3_TAG{"f", "variance"};
 const core::TPersistenceTag FIRST_UPDATE_6_3_TAG{"g", "first_update"};
 const core::TPersistenceTag LAST_UPDATE_6_3_TAG{"h", "last_update"};
 
-const std::string EMPTY_STRING;
 const core_t::TTime UNSET_TIME{0};
 const double SUFFICIENT_INTERVAL_TO_ESTIMATE_SLOPE{2.5};
 }

@@ -2101,10 +2101,12 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     LOG_TRACE(<< "remove mask = " << components.seasonalToRemoveMask());
 
     LOG_TRACE(<< "Estimate size change = "
-              << m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength));
+              << m_Seasonal->estimateSizeChange(components, m_DecayRate,
+                                                static_cast<double>(m_BucketLength)));
 
     if (memoryCircuitBreaker.areAllocationsAllowed() == false &&
-        m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength) > 0) {
+        m_Seasonal->estimateSizeChange(components, m_DecayRate,
+                                       static_cast<double>(m_BucketLength)) > 0) {
         // In the hard_limit state, we do not change the state of components if
         // adding new components will consume more memory than removing old ones.
         LOG_TRACE(<< "Not adding new seasonal components because we are in the hard limit state");

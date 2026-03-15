@@ -524,8 +524,8 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         std::istringstream origJsonStrm("{\"topLevel\" : " + origJson.str() + "}");
         ml::core::CJsonStateRestoreTraverser traverser{origJsonStrm};
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-            [&restoredCategorizer](ml::core::CStateRestoreTraverser& traverser) {
-                return restoredCategorizer.acceptRestoreTraverser(traverser);
+            [&restoredCategorizer](ml::core::CStateRestoreTraverser& subTraverser) {
+                return restoredCategorizer.acceptRestoreTraverser(subTraverser);
             }));
     }
 

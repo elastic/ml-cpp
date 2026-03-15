@@ -30,7 +30,6 @@ const std::string BASELINE_BUCKET_COUNT_TAG("h");
 const std::string BASELINE_BUCKET_MEAN_TAG("i");
 const std::string ATTRIBUTE_TAG("j");
 const std::string FEATURE_TAG("k");
-const std::string DESCRIPTIVE_DATA_TAG("l");
 const std::string ANOMALY_TYPE_TAG("m");
 const std::string CORRELATED_ATTRIBUTE_TAG("n");
 const std::string MULTI_BUCKET_IMPACT_TAG("o");

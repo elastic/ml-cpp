@@ -360,9 +360,6 @@ bool CJsonStateRestoreTraverser::start() {
         case SBoostJsonHandler::E_TokenStringPart:
             tokenTypeName = "string_part";
             break;
-        default:
-            tokenTypeName = "unknown";
-            break;
         }
 
         LOG_ERROR(<< "JSON state must be object at root. Found token type: " << tokenTypeName

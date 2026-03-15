@@ -41,7 +41,7 @@ logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, dou
 
     result = 0.0;
 
-    if (!(p >= 0.0 || p <= 1.0)) {
+    if (!(p >= 0.0 && p <= 1.0)) {
         LOG_ERROR(<< "Bad probability: " << p);
         return maths_t::E_FpFailed;
     }
@@ -588,7 +588,7 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
         double ni_ = static_cast<double>(ni[i]);
         if (ni_ > 0.0) {
             double pi_ = probabilities[i];
-            if (!(pi_ >= 0.0 || pi_ <= 1.0)) {
+            if (!(pi_ >= 0.0 && pi_ <= 1.0)) {
                 LOG_ERROR(<< "Bad probability: " << pi_);
                 return maths_t::E_FpFailed;
             }
