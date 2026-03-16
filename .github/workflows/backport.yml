@@ -1,0 +1,121 @@
+name: Backport
+
+on:
+  pull_request_target:
+    types: ["labeled", "closed"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  backport:
+    name: Backport PR
+    runs-on: ubuntu-latest
+    # Only run for merged PRs that are not themselves backports (avoid loops).
+    if: |
+      github.event.pull_request.merged == true &&
+      !(contains(github.event.pull_request.labels.*.name, 'backport'))
+    steps:
+      - name: Check for version labels
+        id: check-labels
+        env:
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+        run: |
+          for label in $LABELS; do
+            if echo "$label" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+'; then
+              echo "Found version label: $label"
+              echo "has_version_label=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "No version label matching vN.N.N found — nothing to backport."
+          echo "has_version_label=false" >> "$GITHUB_OUTPUT"
+
+      - name: Backport Action
+        id: backport
+        if: steps.check-labels.outputs.has_version_label == 'true'
+        uses: sorenlouv/backport-github-action@v10.2.0
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Info log
+        if: steps.backport.outcome == 'success'
+        run: cat ~/.backport/backport.info.log
+
+      - name: Check for real failures
+        if: steps.backport.outcome == 'failure'
+        run: |
+          cat ~/.backport/backport.debug.log
+          if grep -q '"code":"no-branches-exception"' ~/.backport/backport.debug.log 2>/dev/null; then
+            echo "No target branches matched the version labels — nothing to backport. This is OK."
+            exit 0
+          fi
+          echo "::error::Backport failed with a real error"
+          exit 1
+
+      - name: Enable auto-merge on backport PRs
+        if: >-
+          steps.backport.outcome == 'success' &&
+          contains(github.event.pull_request.labels.*.name, 'auto-backport')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Extract created PR numbers from the backport info log.
+          PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
+            | grep -oE '[0-9]+' || true)
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No backport PRs found in log. Skipping auto-merge."
+            exit 0
+          fi
+          for pr in $PR_NUMBERS; do
+            echo "Enabling auto-merge (squash) on PR #$pr"
+            gh pr merge "$pr" --repo "$REPO" --auto --squash || \
+              echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
+          done
+
+  remove-backport-pending:
+    name: Remove backport-pending label
+    runs-on: ubuntu-latest
+    # Run when a backport PR is merged or closed.
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'backport')
+    steps:
+      - name: Check if all backports are complete
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Backport PR titles follow the pattern: [9.2] Original title (#1234)
+          ORIGINAL_PR=$(echo "$PR_TITLE" | grep -oE '\(#[0-9]+\)' | tail -1 | tr -d '(#)')
+          if [ -z "$ORIGINAL_PR" ]; then
+            echo "Could not extract original PR number from title: $PR_TITLE"
+            exit 0
+          fi
+          echo "Original PR: #$ORIGINAL_PR"
+          echo "Just-merged backport PR: #$PR_NUMBER"
+
+          HAS_LABEL=$(gh pr view "$ORIGINAL_PR" --repo "$REPO" --json labels \
+            --jq '[.labels[].name] | if index("backport-pending") then "true" else "false" end')
+          if [ "$HAS_LABEL" != "true" ]; then
+            echo "Original PR #$ORIGINAL_PR does not have backport-pending label. Nothing to do."
+            exit 0
+          fi
+
+          # Count open backport PRs, excluding the just-merged PR (API eventual consistency).
+          OPEN_BACKPORTS=$(gh pr list --repo "$REPO" --label backport --state open \
+            --json number,title \
+            --jq "[.[] | select(.number != ${PR_NUMBER}) | select(.title | test(\"\\\\(#${ORIGINAL_PR}\\\\)\"))] | length")
+          echo "Open backport PRs remaining: $OPEN_BACKPORTS"
+
+          if [ "$OPEN_BACKPORTS" -eq 0 ]; then
+            echo "All backport PRs are merged/closed. Removing backport-pending label from #$ORIGINAL_PR."
+            gh pr edit "$ORIGINAL_PR" --repo "$REPO" --remove-label "backport-pending"
+          else
+            echo "Still $OPEN_BACKPORTS open backport PR(s). Keeping backport-pending label on #$ORIGINAL_PR."
+          fi

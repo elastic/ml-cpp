@@ -28,10 +28,18 @@ ARG SNAPSHOT=yes
 # Pass through ML debug option (default blank)
 ARG ML_DEBUG=
 
+# Zip compression level (1=fast for CI, 9=max for release)
+ARG ZIP_COMPRESSION_LEVEL=9
+
 # Pass through the format of the unit test output files
 ARG BOOST_TEST_OUTPUT_FORMAT_FLAGS=
 
+# sccache with GCS backend (optional — leave SCCACHE_GCS_BUCKET empty to disable)
+ARG SCCACHE_GCS_BUCKET=
+ENV SCCACHE_GCS_BUCKET=$SCCACHE_GCS_BUCKET
+
 # Run the build and unit tests
-RUN \
+RUN --mount=type=secret,id=gcs_key,required=false \
+  if [ -f /run/secrets/gcs_key ]; then export SCCACHE_GCS_KEY_PATH=/run/secrets/gcs_key; fi && \
   /ml-cpp/dev-tools/docker/docker_entrypoint.sh --test
 

@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -8,16 +7,20 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
-#
 
-# Script to get the appropriate version of Valijson, if not already present.
-#
-# Valijson must only be used in test code, _not_ any form of redistributable code.
-
-
-cd `dirname "$BASH_SOURCE"`
-
-if [ ! -d "valijson" ] ; then
-    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git
-fi
-
+cat <<EOL
+steps:
+  - label: "Analyse build timings :chart_with_upwards_trend:"
+    key: "analyze_build_timings"
+    command:
+        - "python3 .buildkite/scripts/steps/analyze_build_timings.py"
+    depends_on:
+        - "test_linux-aarch64-RelWithDebInfo"
+        - "test_linux-x86_64-RelWithDebInfo"
+        - "test_macos-aarch64-RelWithDebInfo"
+        - "test_Windows-x86_64-RelWithDebInfo"
+    allow_dependency_failure: true
+    soft_fail: true
+    agents:
+      image: "python:3-slim"
+EOL

@@ -21,13 +21,24 @@ endif()
 message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 message (STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 
-# Use ccache if it is available
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-  message(STATUS "ccache found: ${CCACHE_FOUND}")
-  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_FOUND} CACHE STRING "" FORCE)
+# Use a compiler cache (sccache or ccache) if available.
+# If CMAKE_CXX_COMPILER_LAUNCHER is already set (e.g. by a CI script
+# passing -DCMAKE_CXX_COMPILER_LAUNCHER=sccache), respect that.
+# Otherwise auto-detect sccache (preferred) then ccache.
+if(CMAKE_CXX_COMPILER_LAUNCHER)
+  message(STATUS "Compiler launcher already set: ${CMAKE_CXX_COMPILER_LAUNCHER}")
 else()
-  message(STATUS "ccache not found")
+  find_program(SCCACHE_FOUND sccache)
+  find_program(CCACHE_FOUND ccache)
+  if(SCCACHE_FOUND)
+    message(STATUS "sccache found: ${SCCACHE_FOUND}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${SCCACHE_FOUND} CACHE STRING "" FORCE)
+  elseif(CCACHE_FOUND)
+    message(STATUS "ccache found: ${CCACHE_FOUND}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_FOUND} CACHE STRING "" FORCE)
+  else()
+    message(STATUS "No compiler cache found (install sccache or ccache for faster rebuilds)")
+  endif()
 endif()
 
 # Our CI build scripts explicitly specify the toolchain file
@@ -56,6 +67,20 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 project("ML")
+
+if(CMAKE_UNITY_BUILD)
+  if(NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 16)
+  endif()
+  message(STATUS "Unity build enabled (batch size: ${CMAKE_UNITY_BUILD_BATCH_SIZE})")
+endif()
+
+option(ML_PCH "Enable precompiled headers for faster compilation" OFF)
+if(ML_PCH)
+  message(STATUS "Precompiled headers enabled")
+endif()
+
+include(CTest)
 
 include(CheckPIESupported)
 check_pie_supported()
