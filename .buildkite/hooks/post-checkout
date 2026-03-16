@@ -42,6 +42,7 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
       echo "$SCCACHE_GCS_KEY_JSON" > "$SCCACHE_GCS_KEY_FILE"
       export GOOGLE_APPLICATION_CREDENTIALS="$SCCACHE_GCS_KEY_FILE"
       export SCCACHE_GCS_KEY_PATH="$SCCACHE_GCS_KEY_FILE"
+      export GRADLE_BUILD_CACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
     fi
   fi
 
