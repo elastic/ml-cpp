@@ -160,9 +160,9 @@ endif()
 # Dictate which flags to use for "Release", "RelWithDebinfo", "Debug" and "Sanitizer" builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
-  set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
-  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /O2 /Zi" CACHE STRING
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Z7 /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /Od /RTC1")
+  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /O2 /Z7" CACHE STRING
           "Flags used by the C++ compiler during sanitizer builds."
           FORCE)
   set(CMAKE_EXE_LINKER_FLAGS_SANITIZER "")
@@ -218,6 +218,14 @@ endif()
 # for more detail.
 if("$ENV{ML_DEBUG}")
   set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+option(ML_FAST_DEBUG "Use reduced debug info (-g1) and exclude trace logging for faster Debug builds. Intended for CI; local developers should leave this OFF." OFF)
+if(ML_FAST_DEBUG AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g1 -DEXCLUDE_TRACE_LOGGING")
+    message(STATUS "ML_FAST_DEBUG: overriding CMAKE_CXX_FLAGS_DEBUG to '${CMAKE_CXX_FLAGS_DEBUG}'")
+  endif()
 endif()
 
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")

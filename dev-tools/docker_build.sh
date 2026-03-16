@@ -64,8 +64,19 @@ cd "$TOOLS_DIR/.."
 
 # Update Eigen and Valijson outside of Docker, as the Docker containers may not have the
 # necessary network access
-3rd_party/pull-eigen.sh
-3rd_party/pull-valijson.sh
+if command -v cmake &>/dev/null; then
+  (cd 3rd_party && cmake -P pull-eigen.cmake)
+  (cd 3rd_party && cmake -P pull-valijson.cmake)
+else
+  # Fallback for hosts without cmake (e.g. aarch64 AWS agents)
+  if [ ! -d 3rd_party/eigen ] || ! grep -q "EIGEN_MINOR_VERSION 0" 3rd_party/eigen/Eigen/src/Core/util/Macros.h 2>/dev/null; then
+    rm -rf 3rd_party/eigen
+    git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git 3rd_party/eigen
+  fi
+  if [ ! -d 3rd_party/valijson ]; then
+    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git 3rd_party/valijson
+  fi
+fi
 
 . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 
@@ -80,7 +91,11 @@ do
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
     prefetch_docker_base_image "$DOCKERFILE"
-    docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
+    SCCACHE_SECRET_ARG=""
+    if [ -n "${SCCACHE_GCS_KEY_FILE:-}" ] && [ -f "${SCCACHE_GCS_KEY_FILE}" ]; then
+        SCCACHE_SECRET_ARG="--secret id=gcs_key,src=${SCCACHE_GCS_KEY_FILE}"
+    fi
+    DOCKER_BUILDKIT=1 docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG --build-arg ZIP_COMPRESSION_LEVEL=${ZIP_COMPRESSION_LEVEL:-9} --build-arg SCCACHE_GCS_BUCKET="${SCCACHE_GCS_BUCKET:-}" $SCCACHE_SECRET_ARG -f "$DOCKERFILE" .
     # Using tar to copy the build artifacts out of the container seems more reliable
     # than docker cp, and also means the files end up with the correct uid/gid
     docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "tar cf - build/distributions && sleep 30" | tar xvf -

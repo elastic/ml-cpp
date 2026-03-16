@@ -15,15 +15,15 @@ export PATH=$PATH:~/google-cloud-sdk/bin
 
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
-  if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then
+  if [[ "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo" || "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo-debug" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-aarch64-RelWithDebInfo" ]]; then
+  elif [[ "$BUILDKITE_STEP_KEY" == "test_linux-aarch64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_macos-aarch64-RelWithDebInfo" ]]; then
+  elif [[ "$BUILDKITE_STEP_KEY" == "test_macos-aarch64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_aarch64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_macos-x86_64-RelWithDebInfo" ]]; then
+  elif [[ "$BUILDKITE_STEP_KEY" == "test_macos-x86_64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_x86_64 | awk '/^token/ {print $2;}')
-  else [[ "$BUILDKITE_STEP_KEY" == "build_test_Windows-x86_64-RelWithDebInfo" ]]
+  elif [[ "$BUILDKITE_STEP_KEY" == "test_Windows-x86_64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
   fi
 
@@ -31,14 +31,18 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     export BUILDKITE_API_READ_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/buildkite/api_read_token 2>/dev/null || echo "")
   fi
 
-  # GCS service account — inject credentials for Gradle build cache
-  # in Java integration test steps.
-  if [[ "$BUILDKITE_STEP_KEY" == java_integration_tests_* ]]; then
-    GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
-    if [ -n "$GCS_KEY_JSON" ]; then
+  # GCS service account — inject credentials for build and Java IT steps.
+  # Build steps use it for sccache; Java IT steps use it for the Gradle
+  # build cache.  The key is stored in Vault.
+  if [[ "$BUILDKITE_STEP_KEY" == build_test_* || "$BUILDKITE_STEP_KEY" == java_integration_tests_* ]]; then
+    SCCACHE_GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
+    if [ -n "$SCCACHE_GCS_KEY_JSON" ]; then
+      export SCCACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
+      export SCCACHE_GCS_KEY_FILE=$(mktemp)
+      echo "$SCCACHE_GCS_KEY_JSON" > "$SCCACHE_GCS_KEY_FILE"
+      export GOOGLE_APPLICATION_CREDENTIALS="$SCCACHE_GCS_KEY_FILE"
+      export SCCACHE_GCS_KEY_PATH="$SCCACHE_GCS_KEY_FILE"
       export GRADLE_BUILD_CACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
-      export GOOGLE_APPLICATION_CREDENTIALS=$(mktemp)
-      echo "$GCS_KEY_JSON" > "$GOOGLE_APPLICATION_CREDENTIALS"
     fi
   fi
 
@@ -46,4 +50,5 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     export DOCKER_REGISTRY_USERNAME=$(vault read --field=username  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
     export DOCKER_REGISTRY_PASSWORD=$(vault read --field=password  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
   fi
+
 fi

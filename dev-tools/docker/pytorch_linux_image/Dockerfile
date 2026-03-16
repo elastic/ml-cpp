@@ -34,11 +34,11 @@ ENV PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX="g++ -std=gnu++17"
 
 # Clone PyTorch and build LibTorch
-# If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
+# PYTORCH_BUILD_VERSION is only set for tagged branches (e.g. v2.7.1);
+# for main/viable/strict PyTorch derives the version from version.txt.
 ARG pytorch_branch=viable/strict
 
 ENV PYTORCH_BRANCH=${pytorch_branch}
-ENV PYTORCH_BUILD_VERSION=""
 
 RUN \
   cd ${build_dir} && \
@@ -48,7 +48,7 @@ RUN \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
   sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.12")' ./third_party/onnx/CMakeLists.txt && \
-  if [[ "$PYTORCH_BRANCH" != "main" && "$PYTORCH_BRANCH" != "viable/strict" ]]; then PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
+  if [[ "$PYTORCH_BRANCH" != "main" && "$PYTORCH_BRANCH" != "viable/strict" ]]; then export PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
@@ -58,7 +58,6 @@ RUN \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION && \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
   /usr/local/bin/python3.12 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org -r requirements.txt && \

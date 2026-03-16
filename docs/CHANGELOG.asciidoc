@@ -30,6 +30,10 @@
 
 == {es} version 9.4.0
 
+=== Bug Fixes
+
+* Report RSS in bytes instead of pages. (See {ml-pull}[#2917].)
+
 === Enhancements
 
 * Better handling of invalid JSON state documents (See {ml-pull}[]#2895].)

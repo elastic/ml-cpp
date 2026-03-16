@@ -1,0 +1,54 @@
+---
+description: ml-cpp coding conventions and cross-platform considerations
+globs: "**/*.cc", "**/*.h"
+---
+
+# ml-cpp Coding Conventions
+
+## Naming
+
+- Classes: `CUpperCamelCase` (C prefix)
+- Methods: `lowerCamelCase`
+- Member variables: `m_UpperCamelCase`
+- Static member variables: `ms_UpperCamelCase`
+- Types: `TUpperCamelCase` (T prefix for typedefs)
+- Test files: `CClassNameTest.cc`
+- Namespaces: `ml::module::submodule`
+
+## Commit Messages
+
+Format: `[ML] Short description` — 1-2 sentences explaining the "why".
+
+## Boost Test Framework
+
+- Tests use `BOOST_AUTO_TEST_SUITE` / `BOOST_AUTO_TEST_CASE`
+- `BOOST_TEST_DONT_PRINT_LOG_VALUE` for types without operator<<
+- JUnit output: `boost_test_results.junit` per test suite
+- Seeded RNG: `maths::common::CSampling::seed()` at test start
+
+## Cross-Platform Considerations
+
+### Stream/IO
+- `std::istream::eof()` behaves differently across platforms
+- Use `peek() == std::char_traits<char>::eof()` for portable end-of-stream detection
+- `CJsonStateRestoreTraverser::isEof()` uses both checks for portability
+
+### Timing in Tests
+- **Never use wall-clock time** (`CStopWatch`, `CLOCK_MONOTONIC`) for performance assertions in unit tests — flaky under parallel execution
+- Use `std::clock()` (CPU time) for scaling/benchmark assertions
+- `std::clock()` measures process CPU time on all platforms (POSIX + Windows)
+
+### Temporary Files in Tests
+- Use process ID (`ml::core::CProcess::instance().id()`) for unique temp names
+- Do NOT use small random ranges (e.g. `1-100`) — causes collisions under parallel CTest
+
+### Unity Build Conflicts
+- Anonymous-namespace constants (`EMPTY_STRING`, `*_TAG`) cause redefinition errors
+- Fix: rename to be unique, or add file to `SKIP_UNITY_BUILD_INCLUSION`
+- `BOOST_TEST_DONT_PRINT_LOG_VALUE` macros also conflict in unity builds
+
+## RAII Patterns
+
+- `std::unique_ptr` with custom deleters for resource cleanup
+- Use `reset()` not `release()` + manual cleanup — avoids leaks on exception paths
+- `CStateFileRemover` is the RAII helper for state file deletion
