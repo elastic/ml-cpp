@@ -23,5 +23,5 @@ steps:
     if: "build.state == 'failed' || build.state == 'failing'"
     soft_fail: true
     agents:
-      image: "python:3-slim"
+      image: "python:3"
 EOL
