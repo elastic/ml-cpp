@@ -10,4 +10,4 @@
 # limitation.
 #
 
-docker run --rm -v $CPP_SRC_HOME:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style:2 /ml-cpp/dev-tools/clang-format.sh
+docker run --rm -v $CPP_SRC_HOME:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style:2 cmake -P /ml-cpp/cmake/clang-format.cmake

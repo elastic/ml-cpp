@@ -40,6 +40,9 @@ def main():
         build_linux = pipeline_steps.generate_step_template("Linux", "build", config.build_aarch64, config.build_x86_64)
         pipeline_steps.append(build_linux)
 
+    # Analyse build timings after all build+test steps complete
+    pipeline_steps.append(pipeline_steps.generate_step("Analyse build timings",
+                                                       ".buildkite/pipelines/analyze_build_timings.yml.sh"))
     # Analyze failures with AI if the build failed
     pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
                                                        ".buildkite/pipelines/analyze_build_failure.yml.sh"))

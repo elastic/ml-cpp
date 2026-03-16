@@ -1,0 +1,69 @@
+---
+description: Buildkite CI pipeline structure, API access, and known patterns
+globs: .buildkite/**
+---
+
+# ml-cpp Buildkite CI
+
+## Pipeline Structure
+
+| Pipeline Slug | Trigger | Generator Script |
+|---|---|---|
+| `ml-cpp-pr-builds` | PR commits/comments | `.buildkite/pipeline.json.py` |
+| `ml-cpp-snapshot-builds` | Nightly on main | `.buildkite/branch.json.py` |
+| `ml-cpp-debug-build` | Nightly on main | `.buildkite/job-build-test-all-debug.json.py` |
+
+## Build Step Keys
+
+| Step Key | Platform |
+|---|---|
+| `build_test_linux-x86_64-RelWithDebInfo` | Linux x86_64 (Docker, k8s) |
+| `build_test_linux-aarch64-RelWithDebInfo` | Linux aarch64 (Docker, AWS) |
+| `build_test_macos-aarch64-RelWithDebInfo` | macOS aarch64 (Orka, 4 cores) |
+| `build_test_Windows-x86_64-RelWithDebInfo` | Windows x86_64 (GCP, 16 vCPU) |
+
+## CI Hardware
+
+| Platform | Agent | CPUs | RAM |
+|---|---|---|---|
+| Linux x86_64 | k8s (Docker) | 6 vCPU | 32GB |
+| Linux aarch64 | AWS (Docker) | 8 vCPU | 32GB |
+| macOS aarch64 | Orka VM | 4 cores | 8GB |
+| Windows x86_64 | GCP c2-standard-16 | 16 vCPU | 64GB |
+
+## API Access
+
+- Token env var: `BUILDKITE_TOKEN` (local) or `BUILDKITE_API_READ_TOKEN` (CI)
+- Base URL: `https://api.buildkite.com/v2/organizations/elastic/`
+- Common queries:
+  - Builds: `pipelines/{slug}/builds?per_page=N`
+  - Single build: `pipelines/{slug}/builds/{number}`
+  - Job log: use `raw_log_url` from job object (not `url` which may be empty)
+
+## Vault Secrets (post-checkout hook)
+
+| Secret Path | Used By |
+|---|---|
+| `secret/ci/elastic-ml-cpp/buildkite/api_read_token` | ingest/check/analyze steps |
+| `secret/ci/elastic-ml-cpp/elasticsearch/ci_analytics` | ingest/check steps |
+| `secret/ci/elastic-ml-cpp/anthropic/claude` | analyze_build_failure step |
+| `secret/ci/elastic-ml-cpp/slack/build_failure_webhook` | analyze_build_failure step |
+| `secret/ci/elastic-ml-cpp/sccache/gcs_service_account` | all build_test steps |
+
+## Conditional / Diagnostic Steps
+
+- `if: "build.state == 'failed'"` — only run on failure
+- `allow_dependency_failure: true` — run even if dependencies failed
+- `soft_fail: true` — don't affect overall build status
+- These three combined are the pattern for diagnostic steps
+
+## Known Failure Patterns
+
+| Pattern | Classification | Fix |
+|---|---|---|
+| `Unable to download toolchain` / Adoptium JDK | infrastructure/transient | Retry |
+| `Exceeded maximum artifact size limit of 10 GiB` | configuration | Narrow artifact_paths glob |
+| `sccache: error: couldn't connect to server` | infrastructure | Check setup_sccache.sh |
+| `CKMostCorrelatedTest/testScale` timeout | test failure | PR #2910 fixes with CPU time |
+| `CMultiFileDataAdderTest` collision | test failure | Use process ID for temp dirs |
+| `redefinition of` in unity builds | code bug | SKIP_UNITY_BUILD_INCLUSION |

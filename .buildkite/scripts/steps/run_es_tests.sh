@@ -24,6 +24,18 @@ export PR_AUTHOR=$(expr "$BUILDKITE_BRANCH" : '\(.*\):.*')
 export PR_SOURCE_BRANCH=$(expr "$BUILDKITE_BRANCH" : '.*:\(.*\)')
 export PR_TARGET_BRANCH=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 
+# Set up GCS credentials for Gradle build cache persistence (if available).
+# The post-checkout hook writes the GCS service account key for sccache;
+# reuse the same credentials for the Gradle cache bucket.
+if [ -n "${SCCACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
+    export GRADLE_BUILD_CACHE_GCS_BUCKET="${SCCACHE_GCS_BUCKET}"
+    # Install gsutil if not already present
+    if ! command -v gsutil &>/dev/null; then
+        echo "--- Installing gsutil"
+        pip3 install --quiet gsutil 2>/dev/null || pip install --quiet gsutil 2>/dev/null || echo "Warning: failed to install gsutil"
+    fi
+fi
+
 mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
 cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
 # Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split

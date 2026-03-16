@@ -39,8 +39,29 @@ fi
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
+# Use fast zip compression for non-release builds (PR, main, feature branches).
+# Numbered branches (e.g. 8.16, 9.0) produce release artifacts that need full compression.
+if [[ "${BUILDKITE_BRANCH:-}" =~ ^[0-9]+\.[0-9x]+$ ]]; then
+    export ZIP_COMPRESSION_LEVEL=9
+else
+    export ZIP_COMPRESSION_LEVEL=1
+fi
+
+# Set up sccache with GCS backend if the bucket env var has been injected.
+# The post-checkout hook exports SCCACHE_GCS_BUCKET and writes the GCS key
+# to SCCACHE_GCS_KEY_FILE when credentials are available in Vault.
+# Skip for Linux aarch64 native builds — those run in Docker which has its
+# own sccache setup via docker_entrypoint.sh.
+USES_DOCKER=false
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]]; then
+    USES_DOCKER=true
+fi
+if [ -n "${SCCACHE_GCS_BUCKET:-}" ] && [ "$USES_DOCKER" = false ]; then
+    source "${REPO_ROOT}/dev-tools/setup_sccache.sh"
+fi
+
 TEST_OUTCOME=0
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then # linux aarch64 (native)
+if [ "$USES_DOCKER" = true ] ; then # linux aarch64 (native)
   # On Linux native aarch64 build using Docker
   
   # The Docker version is helpful to identify version-specific Docker bugs
@@ -99,6 +120,12 @@ if [[ -z "$CPP_CROSS_COMPILE" ]] ; then
   TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
   find . \( -path "*/**/ml_test_*.out" -o -path "*/**/*.junit" \) -print0 | tar czf ${TEST_RESULTS_ARCHIVE} --null -T -
   buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
+fi
+
+# Print sccache stats if it was used
+if [ -n "${SCCACHE_PATH:-}" ]; then
+  "$SCCACHE_PATH" --show-stats || true
+  "$SCCACHE_PATH" --stop-server || true
 fi
 
 exit $TEST_OUTCOME
