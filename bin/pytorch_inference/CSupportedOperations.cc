@@ -36,7 +36,9 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // elastic/distilbert-base-{cased,uncased}-finetuned-conll03-english,
 // elastic/eis-elser-v2, elastic/elser-v2, elastic/hugging-face-elser,
 // elastic/multilingual-e5-small-optimized, elastic/splade-v3,
-// elastic/test-elser-v2, .rerank-v1 (Elastic rerank model).
+// elastic/test-elser-v2, .rerank-v1 (Elastic rerank model),
+// distilbert-base-uncased-finetuned-sst-2-english,
+// sentence-transformers/all-distilroberta-v1.
 // Additional ops from Elasticsearch integration test models
 // (PyTorchModelIT, TextExpansionQueryIT, TextEmbeddingQueryIT).
 // Quantized operations from dynamically quantized variants of the above
@@ -57,13 +59,16 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::ceil"sv,
     "aten::chunk"sv,
     "aten::clamp"sv,
+    "aten::clamp_min"sv,
     "aten::contiguous"sv,
     "aten::cumsum"sv,
     "aten::div"sv,
     "aten::div_"sv,
     "aten::dropout"sv,
     "aten::embedding"sv,
+    "aten::eq"sv,
     "aten::expand"sv,
+    "aten::expand_as"sv,
     "aten::floor_divide"sv,
     "aten::full_like"sv,
     "aten::gather"sv,
@@ -76,6 +81,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::layer_norm"sv,
     "aten::le"sv,
     "aten::len"sv,
+    "aten::linalg_vector_norm"sv,
     "aten::linear"sv,
     "aten::log"sv,
     "aten::lt"sv,
@@ -109,6 +115,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::squeeze"sv,
     "aten::str"sv,
     "aten::sub"sv,
+    "aten::sum"sv,
     "aten::tanh"sv,
     "aten::tensor"sv,
     "aten::to"sv,
