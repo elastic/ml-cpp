@@ -39,6 +39,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // elastic/test-elser-v2, .rerank-v1 (Elastic rerank model),
 // distilbert-base-uncased-finetuned-sst-2-english,
 // sentence-transformers/all-distilroberta-v1.
+// Eland-deployed variants of the above models (with pooling/normalization layers).
 // Additional ops from Elasticsearch integration test models
 // (PyTorchModelIT, TextExpansionQueryIT, TextEmbeddingQueryIT).
 // Quantized operations from dynamically quantized variants of the above
@@ -62,6 +63,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::clamp_min"sv,
     "aten::contiguous"sv,
     "aten::cumsum"sv,
+    "aten::detach"sv,
     "aten::div"sv,
     "aten::div_"sv,
     "aten::dropout"sv,
@@ -87,6 +89,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::lt"sv,
     "aten::manual_seed"sv,
     "aten::masked_fill"sv,
+    "aten::masked_fill_"sv,
     "aten::matmul"sv,
     "aten::max"sv,
     "aten::mean"sv,

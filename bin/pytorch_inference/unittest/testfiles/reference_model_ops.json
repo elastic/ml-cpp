@@ -1,8 +1,90 @@
 {
   "pytorch_version": "2.7.1",
   "models": {
+    "all-distilroberta-v1": {
+      "model_id": "sentence-transformers/all-distilroberta-v1",
+      "quantized": false,
+      "ops": [
+        "aten::Int",
+        "aten::ScalarImplicit",
+        "aten::__and__",
+        "aten::add",
+        "aten::arange",
+        "aten::contiguous",
+        "aten::cumsum",
+        "aten::dropout",
+        "aten::embedding",
+        "aten::expand",
+        "aten::gather",
+        "aten::ge",
+        "aten::gelu",
+        "aten::index",
+        "aten::layer_norm",
+        "aten::linear",
+        "aten::mul",
+        "aten::ne",
+        "aten::new_ones",
+        "aten::reshape",
+        "aten::scaled_dot_product_attention",
+        "aten::select",
+        "aten::size",
+        "aten::slice",
+        "aten::tanh",
+        "aten::to",
+        "aten::transpose",
+        "aten::type_as",
+        "aten::unsqueeze",
+        "aten::view",
+        "prim::Constant",
+        "prim::DictConstruct",
+        "prim::GetAttr",
+        "prim::ListConstruct",
+        "prim::NumToTensor"
+      ]
+    },
+    "all-distilroberta-v1-eland": {
+      "model_id": "sentence-transformers/all-distilroberta-v1",
+      "quantized": false,
+      "eland_task_type": "text_embedding",
+      "ops": [
+        "aten::add",
+        "aten::add_",
+        "aten::cat",
+        "aten::clamp",
+        "aten::clamp_min",
+        "aten::cumsum",
+        "aten::detach",
+        "aten::div",
+        "aten::dropout",
+        "aten::embedding",
+        "aten::expand",
+        "aten::expand_as",
+        "aten::gelu",
+        "aten::layer_norm",
+        "aten::linalg_vector_norm",
+        "aten::linear",
+        "aten::masked_fill",
+        "aten::mul",
+        "aten::ne",
+        "aten::reshape",
+        "aten::scaled_dot_product_attention",
+        "aten::size",
+        "aten::slice",
+        "aten::sub",
+        "aten::sum",
+        "aten::to",
+        "aten::transpose",
+        "aten::type_as",
+        "aten::unsqueeze",
+        "aten::view",
+        "prim::Constant",
+        "prim::GetAttr",
+        "prim::ListConstruct"
+      ]
+    },
     "bert": {
       "model_id": "bert-base-uncased",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -39,6 +121,7 @@
     },
     "deberta": {
       "model_id": "microsoft/deberta-base",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -94,6 +177,7 @@
     },
     "distilbert": {
       "model_id": "distilbert-base-uncased",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -125,8 +209,74 @@
         "prim::NumToTensor"
       ]
     },
+    "distilbert-sst2": {
+      "model_id": "distilbert-base-uncased-finetuned-sst-2-english",
+      "quantized": false,
+      "ops": [
+        "aten::Int",
+        "aten::ScalarImplicit",
+        "aten::__and__",
+        "aten::add",
+        "aten::arange",
+        "aten::contiguous",
+        "aten::dropout",
+        "aten::embedding",
+        "aten::expand",
+        "aten::ge",
+        "aten::gelu",
+        "aten::index",
+        "aten::layer_norm",
+        "aten::linear",
+        "aten::new_ones",
+        "aten::reshape",
+        "aten::scaled_dot_product_attention",
+        "aten::size",
+        "aten::slice",
+        "aten::to",
+        "aten::transpose",
+        "aten::unsqueeze",
+        "aten::view",
+        "prim::Constant",
+        "prim::DictConstruct",
+        "prim::GetAttr",
+        "prim::ListConstruct",
+        "prim::NumToTensor"
+      ]
+    },
+    "distilbert-sst2-eland": {
+      "model_id": "distilbert-base-uncased-finetuned-sst-2-english",
+      "quantized": false,
+      "eland_task_type": "text_classification",
+      "ops": [
+        "aten::add",
+        "aten::contiguous",
+        "aten::detach",
+        "aten::dropout",
+        "aten::embedding",
+        "aten::expand",
+        "aten::gelu",
+        "aten::layer_norm",
+        "aten::linear",
+        "aten::masked_fill",
+        "aten::relu",
+        "aten::scaled_dot_product_attention",
+        "aten::select",
+        "aten::size",
+        "aten::slice",
+        "aten::sub",
+        "aten::to",
+        "aten::transpose",
+        "aten::unsqueeze",
+        "aten::view",
+        "prim::Constant",
+        "prim::GetAttr",
+        "prim::ListConstruct",
+        "prim::TupleConstruct"
+      ]
+    },
     "dpr": {
       "model_id": "facebook/dpr-ctx_encoder-single-nq-base",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::__and__",
@@ -201,6 +351,7 @@
     },
     "elastic-distilbert-cased-ner": {
       "model_id": "elastic/distilbert-base-cased-finetuned-conll03-english",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -234,6 +385,7 @@
     },
     "elastic-distilbert-uncased-ner": {
       "model_id": "elastic/distilbert-base-uncased-finetuned-conll03-english",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -415,6 +567,7 @@
     },
     "elastic-multilingual-e5-small-optimized": {
       "model_id": "elastic/multilingual-e5-small-optimized",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -447,6 +600,64 @@
         "prim::GetAttr",
         "prim::ListConstruct",
         "prim::NumToTensor"
+      ]
+    },
+    "elastic-rerank-v1": {
+      "model_id": ".rerank-v1",
+      "quantized": false,
+      "ops": [
+        "aten::Int",
+        "aten::__and__",
+        "aten::abs",
+        "aten::add",
+        "aten::add_",
+        "aten::arange",
+        "aten::bitwise_not",
+        "aten::bmm",
+        "aten::ceil",
+        "aten::clamp",
+        "aten::contiguous",
+        "aten::div",
+        "aten::embedding",
+        "aten::eq",
+        "aten::expand",
+        "aten::floor_divide",
+        "aten::gather",
+        "aten::gelu",
+        "aten::gt",
+        "aten::layer_norm",
+        "aten::le",
+        "aten::linear",
+        "aten::log",
+        "aten::lt",
+        "aten::masked_fill",
+        "aten::masked_fill_",
+        "aten::mul",
+        "aten::ne",
+        "aten::neg",
+        "aten::permute",
+        "aten::repeat",
+        "aten::select",
+        "aten::sign",
+        "aten::size",
+        "aten::slice",
+        "aten::softmax",
+        "aten::sqrt",
+        "aten::squeeze",
+        "aten::sub",
+        "aten::tensor",
+        "aten::to",
+        "aten::transpose",
+        "aten::type_as",
+        "aten::unsqueeze",
+        "aten::view",
+        "aten::where",
+        "prim::Constant",
+        "prim::If",
+        "prim::ListConstruct",
+        "prim::NumToTensor",
+        "prim::device",
+        "prim::dtype"
       ]
     },
     "elastic-splade-v3": {
@@ -523,6 +734,7 @@
     },
     "electra": {
       "model_id": "google/electra-small-discriminator",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -557,6 +769,7 @@
     },
     "mobilebert": {
       "model_id": "google/mobilebert-uncased",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -596,6 +809,7 @@
     },
     "mpnet": {
       "model_id": "microsoft/mpnet-base",
+      "quantized": false,
       "ops": [
         "aten::abs",
         "aten::add",
@@ -640,6 +854,7 @@
     },
     "roberta": {
       "model_id": "roberta-base",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
@@ -680,6 +895,7 @@
     },
     "xlm-roberta": {
       "model_id": "xlm-roberta-base",
+      "quantized": false,
       "ops": [
         "aten::Int",
         "aten::ScalarImplicit",
