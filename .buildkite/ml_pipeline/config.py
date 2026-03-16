@@ -19,6 +19,7 @@ class Config:
     build_x86_64: str = ""
     run_qa_tests: bool = False
     run_pytorch_tests: bool = False
+    run_analyze: bool = False
     action: str = "build"
 
     def parse_comment(self):
@@ -37,7 +38,8 @@ class Config:
             self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
             self.run_qa_tests = self.action == "run_qa_tests"
             self.run_pytorch_tests = self.action == "run_pytorch_tests"
-            if self.run_pytorch_tests or self.run_qa_tests:
+            self.run_analyze = self.action == "analyze"
+            if self.run_pytorch_tests or self.run_qa_tests or self.run_analyze:
                 self.action = "build"
 
         # If the ACTION is set to "run_qa_tests" then set some optional variables governing the ES branch to build, the

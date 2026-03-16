@@ -66,9 +66,9 @@ def main():
     # Check for build timing regressions against nightly baseline
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
                                                        ".buildkite/pipelines/check_build_regression.yml.sh"))
-    # Analyze failures with AI if the build failed
-    pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
-                                                       ".buildkite/pipelines/analyze_build_failure.yml.sh"))
+    if config.run_analyze:
+        pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
+                                                           ".buildkite/pipelines/analyze_build_failure.yml.sh"))
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
