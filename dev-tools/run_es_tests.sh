@@ -131,8 +131,6 @@ GCS_CACHE_PATH=""
 if [ -n "${GRADLE_BUILD_CACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
     GCS_CACHE_PATH="gs://${GRADLE_BUILD_CACHE_GCS_BUCKET}/${CACHE_KEY}.tar.gz"
     if command -v gsutil &>/dev/null; then
-        # The gcloud SDK gsutil needs explicit service account activation;
-        # GOOGLE_APPLICATION_CREDENTIALS alone is not sufficient.
         if command -v gcloud &>/dev/null; then
             gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" 2>/dev/null || true
         fi
@@ -152,8 +150,22 @@ if [ -n "${GRADLE_BUILD_CACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CRE
     fi
 fi
 
-./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
-./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
+# ES_TEST_SUITE selects which test suite to run:
+#   javaRestTest  - native multi-node integration tests only
+#   yamlRestTest  - ML YAML REST tests only
+#   (unset/empty) - both suites sequentially (backward compatible)
+case "${ES_TEST_SUITE:-}" in
+  javaRestTest)
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+    ;;
+  yamlRestTest)
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
+    ;;
+  *)
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
+    ;;
+esac
 
 # Upload Gradle build cache to GCS for future builds.
 if [ -n "$GCS_CACHE_PATH" ] && [ -d "$GRADLE_CACHE_DIR" ] && command -v gsutil &>/dev/null; then
@@ -169,4 +181,3 @@ if [ -n "$GCS_CACHE_PATH" ] && [ -d "$GRADLE_CACHE_DIR" ] && command -v gsutil &
         echo "Skipping cache upload (size=${CACHE_SIZE:-0}M, expected 1-4095M)"
     fi
 fi
-
