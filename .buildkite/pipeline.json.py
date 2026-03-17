@@ -65,6 +65,10 @@ def main():
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
 
+    # Check for build timing regressions against nightly baseline
+    pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
+                                                       ".buildkite/pipelines/check_build_regression.yml.sh"))
+
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
