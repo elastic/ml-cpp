@@ -36,7 +36,6 @@ from pathlib import Path
 import torch
 
 from torchscript_utils import (
-    collect_graph_ops,
     collect_inlined_ops,
     load_and_trace_hf_model,
     load_model_config,
@@ -136,7 +135,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--config", type=Path, default=DEFAULT_CONFIG,
-        help="Path to reference_models.json (default: %(default)s)")
+        help="Path to validation_models.json (default: %(default)s)")
     parser.add_argument(
         "--pt-dir", type=Path, default=None,
         help="Directory of pre-saved .pt TorchScript files to validate")

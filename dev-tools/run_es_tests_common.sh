@@ -160,7 +160,14 @@ if [ -n "${GRADLE_BUILD_CACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CRE
 fi
 
 for GRADLE_CMD in "$@" ; do
-    eval ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" $GRADLE_CMD $EXTRA_TEST_OPTS
+    # eval is required here because each GRADLE_CMD argument from the caller
+    # contains embedded shell quoting (e.g. --tests "class.name {p0=glob/*}")
+    # that must be interpreted by the shell.  The environment variables
+    # (GRADLE_JVM_OPTS, CACHE_ARGS, EXTRA_TEST_OPTS) are set by our own
+    # scripts and the CI environment, not by untrusted input.
+    eval ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS \
+        "-Dbuild.ml_cpp.repo=$IVY_REPO_URL" \
+        $GRADLE_CMD $EXTRA_TEST_OPTS
 done
 
 # Upload Gradle build cache to GCS for future builds.

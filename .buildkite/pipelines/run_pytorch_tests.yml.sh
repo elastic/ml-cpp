@@ -8,7 +8,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed 's/"/\\"/g')
+SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
 
 cat <<EOL
 steps:

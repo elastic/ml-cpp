@@ -27,7 +27,7 @@
 #                      target where the environment may not have Python
 #                      or network access.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.19.2)
 
 if(NOT DEFINED SOURCE_DIR)
   message(FATAL_ERROR "SOURCE_DIR must be defined")
@@ -144,8 +144,17 @@ endif()
 if(CMAKE_HOST_WIN32)
   set(_venv_site_packages "${_venv_dir}/Lib/site-packages")
 else()
-  # Discover the site-packages directory (Python version varies)
-  file(GLOB _venv_site_packages "${_venv_dir}/lib/python*/site-packages")
+  # Query the venv Python for its site-packages directory rather than
+  # globbing, which can yield a semicolon-separated list of paths.
+  execute_process(
+    COMMAND "${_venv_python}" -c "import sysconfig; print(sysconfig.get_path('purelib'))"
+    OUTPUT_VARIABLE _venv_site_packages
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE _sp_rc
+  )
+  if(NOT _sp_rc EQUAL 0 OR _venv_site_packages STREQUAL "")
+    _validation_fail("Could not determine venv site-packages directory")
+  endif()
 endif()
 set(_torch_lib_dir "${_venv_site_packages}/torch/lib")
 
