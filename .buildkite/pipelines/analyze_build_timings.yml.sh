@@ -1,4 +1,4 @@
-#
+#!/bin/bash
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -7,29 +7,20 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
-#
 
-project("ML pytorch_inference unit tests")
-
-set (SRCS
-  Main.cc
-  CCommandParserTest.cc
-  CResultWriterTest.cc
-  CThreadSettingsTest.cc
-  )
-
-set(ML_LINK_LIBRARIES
-  ${Boost_LIBRARIES_WITH_UNIT_TEST}
-  ${LIBXML2_LIBRARIES}
-  MlCore
-  MlMathsCommon
-  MlMathsAnalytics
-  MlModel
-  MlApi
-  MlTest
-  MlVer
-  ${TORCH_LIB}
-  ${C10_LIB}
-  )
-
-ml_add_test_executable(pytorch_inference ${SRCS})
+cat <<EOL
+steps:
+  - label: "Analyse build timings :chart_with_upwards_trend:"
+    key: "analyze_build_timings"
+    command:
+        - "python3 .buildkite/scripts/steps/analyze_build_timings.py"
+    depends_on:
+        - "test_linux-aarch64-RelWithDebInfo"
+        - "test_linux-x86_64-RelWithDebInfo"
+        - "test_macos-aarch64-RelWithDebInfo"
+        - "test_Windows-x86_64-RelWithDebInfo"
+    allow_dependency_failure: true
+    soft_fail: true
+    agents:
+      image: "python:3-slim"
+EOL

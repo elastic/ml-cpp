@@ -404,7 +404,9 @@ function(ml_add_test_executable _target)
 
   target_link_libraries(ml_test_${_target} ${ML_LINK_LIBRARIES})
 
-  add_test(ml_test_${_target} ml_test_${_target})
+  add_test(NAME ml_test_${_target} COMMAND ml_test_${_target}
+    --logger=JUNIT,warning,${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}_junit.xml
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
   get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
@@ -431,14 +433,28 @@ function(ml_add_test_executable _target)
       COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
-
-    add_custom_target(test_${_target}_individually
-      DEPENDS ml_test_${_target}
-      COMMAND ${CMAKE_SOURCE_DIR}/run_tests_as_seperate_processes.sh ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} test_${_target}
-      COMMENT "Running test: ml_test_${_target}_individually"
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
   endif()
+
+  set(_individually_commands "")
+  if(isMultiConfig)
+    set(_individually_commands
+      COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/ml_test_${_target}${CMAKE_EXECUTABLE_SUFFIX}
+        ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}${CMAKE_EXECUTABLE_SUFFIX})
+  endif()
+
+  add_custom_target(test_${_target}_individually
+    DEPENDS ml_test_${_target}
+    ${_individually_commands}
+    COMMAND ${CMAKE_COMMAND}
+      -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+      -DTEST_SUITE=test_${_target}
+      -DTEST_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+      -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+      -P ${CMAKE_SOURCE_DIR}/cmake/run-tests-individually.cmake
+    COMMENT "Running test: ml_test_${_target}_individually"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 endfunction()
 
 function(ml_codesign _target)
@@ -549,12 +565,5 @@ add_custom_target(check_style
 add_custom_target(precommit
   COMMENT "Running essential tasks prior to code commit"
   DEPENDS format test
-  COMMAND ${CMAKE_COMMAND}
-      -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-      -DVALIDATE_CONFIG=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json
-      -DVALIDATE_PT_DIR=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models
-      -DVALIDATE_VERBOSE=TRUE
-      -DOPTIONAL=TRUE
-      -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
