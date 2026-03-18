@@ -29,11 +29,14 @@ case "${ES_TEST_SUITE:-}" in
     ;;
   yamlRestTest)
     exec "$SCRIPT_DIR/run_es_tests_common.sh" "$1" "$2" \
-        ':x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}"'
+        ':x-pack:plugin:yamlRestTest' \
+        --tests 'org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}'
     ;;
   *)
     exec "$SCRIPT_DIR/run_es_tests_common.sh" "$1" "$2" \
         ':x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest' \
-        ':x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}"'
+        '---' \
+        ':x-pack:plugin:yamlRestTest' \
+        --tests 'org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}'
     ;;
 esac

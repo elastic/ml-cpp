@@ -32,6 +32,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
+from typing import Optional
 
 import torch
 
@@ -65,7 +66,7 @@ def load_cpp_sets() -> tuple[set[str], set[str]]:
     return allowed, forbidden
 
 
-def load_pt_and_collect_ops(pt_path: str) -> set[str] | None:
+def load_pt_and_collect_ops(pt_path: str) -> Optional[set[str]]:
     """Load a saved TorchScript .pt file, inline, and return its op set."""
     try:
         module = torch.jit.load(pt_path)

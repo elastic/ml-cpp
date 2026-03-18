@@ -53,8 +53,8 @@ set(_validate_script "${_tools_dir}/validate_allowlist.py")
 # only be available as python3.12 (installed via make altinstall).
 # On Windows the canonical name is just "python".
 find_program(_python_path
-  NAMES python3 python3.12 python3.11 python3.10 python3.9 python
-  DOC "Python 3 interpreter"
+  NAMES python3 python3.12 python3.11 python3.10 python
+  DOC "Python 3 interpreter (>= 3.10)"
 )
 
 if(NOT _python_path)

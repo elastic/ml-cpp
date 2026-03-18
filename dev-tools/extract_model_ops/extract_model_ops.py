@@ -32,6 +32,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Optional
 
 import torch
 
@@ -46,7 +47,7 @@ DEFAULT_CONFIG = SCRIPT_DIR / "reference_models.json"
 
 
 def extract_ops_for_model(model_name: str,
-                          quantize: bool = False) -> set[str] | None:
+                          quantize: bool = False) -> Optional[set[str]]:
     """Trace a HuggingFace model and return its TorchScript op set.
 
     Returns None if the model could not be loaded or traced.

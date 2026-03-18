@@ -22,5 +22,10 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 exec "$SCRIPT_DIR/run_es_tests_common.sh" "$1" "$2" \
-    ':x-pack:plugin:inference:qa:inference-service-tests:javaRestTest --tests "org.elasticsearch.xpack.inference.DefaultEndPointsIT" --tests "org.elasticsearch.xpack.inference.TextEmbeddingCrudIT"' \
-    ':x-pack:plugin:inference:yamlRestTest --tests "org.elasticsearch.xpack.inference.InferenceRestIT.test {p0=inference/30_semantic_text_inference/*}" --tests "org.elasticsearch.xpack.inference.InferenceRestIT.test {p0=inference/40_semantic_text_query/*}"'
+    ':x-pack:plugin:inference:qa:inference-service-tests:javaRestTest' \
+    --tests 'org.elasticsearch.xpack.inference.DefaultEndPointsIT' \
+    --tests 'org.elasticsearch.xpack.inference.TextEmbeddingCrudIT' \
+    '---' \
+    ':x-pack:plugin:inference:yamlRestTest' \
+    --tests 'org.elasticsearch.xpack.inference.InferenceRestIT.test {p0=inference/30_semantic_text_inference/*}' \
+    --tests 'org.elasticsearch.xpack.inference.InferenceRestIT.test {p0=inference/40_semantic_text_query/*}'

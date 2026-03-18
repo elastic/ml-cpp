@@ -25,9 +25,11 @@
 # Arguments:
 # $1 = Where to clone the elasticsearch repo
 # $2 = Path to local Ivy repo
-# $3... = Gradle commands to run.  Each argument is a complete command line
-#         passed to ./gradlew with $GRADLE_JVM_OPTS, the Ivy repo property,
-#         and $EXTRA_TEST_OPTS automatically appended.
+# $3... = Gradle arguments.  Multiple Gradle invocations are separated by
+#         a literal '---' argument.  Each invocation's arguments are passed
+#         directly to ./gradlew (no eval/shell expansion), so callers must
+#         pass each token as a separate argument rather than embedding
+#         shell quoting inside a single string.
 
 set -e
 
@@ -128,9 +130,9 @@ IVY_REPO_URL="file://$IVY_REPO_PATH"
 ML_CPP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INIT_SCRIPT="$ML_CPP_ROOT/dev-tools/gradle-build-cache-init.gradle"
 GRADLE_CACHE_DIR="$HOME/.gradle/caches/build-cache-1"
-CACHE_ARGS=""
+CACHE_ARGS=()
 if [ -f "$INIT_SCRIPT" ]; then
-    CACHE_ARGS="--build-cache --init-script $INIT_SCRIPT"
+    CACHE_ARGS=("--build-cache" "--init-script" "$INIT_SCRIPT")
 fi
 
 # Restore Gradle build cache from GCS if credentials are available.
@@ -159,16 +161,34 @@ if [ -n "${GRADLE_BUILD_CACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CRE
     fi
 fi
 
-for GRADLE_CMD in "$@" ; do
-    # eval is required here because each GRADLE_CMD argument from the caller
-    # contains embedded shell quoting (e.g. --tests "class.name {p0=glob/*}")
-    # that must be interpreted by the shell.  The environment variables
-    # (GRADLE_JVM_OPTS, CACHE_ARGS, EXTRA_TEST_OPTS) are set by our own
-    # scripts and the CI environment, not by untrusted input.
-    eval ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS \
-        "-Dbuild.ml_cpp.repo=$IVY_REPO_URL" \
-        $GRADLE_CMD $EXTRA_TEST_OPTS
+# Build the base arguments array shared by every Gradle invocation.
+BASE_ARGS=()
+# shellcheck disable=SC2086
+BASE_ARGS+=($GRADLE_JVM_OPTS)
+BASE_ARGS+=("${CACHE_ARGS[@]}")
+BASE_ARGS+=("-Dbuild.ml_cpp.repo=$IVY_REPO_URL")
+
+run_gradle() {
+    local cmd_args=("$@")
+    # shellcheck disable=SC2086
+    ./gradlew "${BASE_ARGS[@]}" "${cmd_args[@]}" $EXTRA_TEST_OPTS
+}
+
+# Callers separate multiple Gradle invocations with '---'.
+GRADLE_ARGS=()
+for arg in "$@" ; do
+    if [ "$arg" = "---" ]; then
+        if [ ${#GRADLE_ARGS[@]} -gt 0 ]; then
+            run_gradle "${GRADLE_ARGS[@]}"
+            GRADLE_ARGS=()
+        fi
+    else
+        GRADLE_ARGS+=("$arg")
+    fi
 done
+if [ ${#GRADLE_ARGS[@]} -gt 0 ]; then
+    run_gradle "${GRADLE_ARGS[@]}"
+fi
 
 # Upload Gradle build cache to GCS for future builds.
 if [ -n "$GCS_CACHE_PATH" ] && [ -d "$GRADLE_CACHE_DIR" ] && command -v gsutil &>/dev/null; then
