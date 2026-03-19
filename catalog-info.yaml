@@ -255,13 +255,13 @@ spec:
     spec:
       allow_rebuilds: true
       branch_configuration: main
-      cancel_intermediate_builds: true
+      cancel_intermediate_builds: false
       clone_method: https
       pipeline_file: .buildkite/job-version-bump.json.py
       provider_settings:
         trigger_mode: none
       repository: elastic/ml-cpp
-      skip_intermediate_builds: true
+      skip_intermediate_builds: false
       teams:
         everyone:
           access_level: READ_ONLY
