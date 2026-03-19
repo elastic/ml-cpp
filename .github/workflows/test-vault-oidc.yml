@@ -1,0 +1,55 @@
+name: Test Vault OIDC
+
+on:
+  pull_request:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test-vault:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Vault JWT auth endpoint
+        run: |
+          echo "=== Checking if Vault has a JWT auth method enabled ==="
+          # This is a public, unauthenticated endpoint that returns config
+          # if the JWT auth method exists. A 404 means it's not enabled.
+          for path in jwt github-actions oidc; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              "https://vault-ci-prod.elastic.dev/v1/auth/${path}/.well-known/openid-configuration" 2>/dev/null)
+            echo "  auth/${path}: HTTP ${STATUS}"
+          done
+
+          echo ""
+          echo "=== Requesting GitHub OIDC token ==="
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            OIDC_TOKEN=$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://vault-ci-prod.elastic.dev" | jq -r '.value')
+            if [ -n "$OIDC_TOKEN" ] && [ "$OIDC_TOKEN" != "null" ]; then
+              echo "Got OIDC token (first 20 chars): ${OIDC_TOKEN:0:20}..."
+
+              # Decode the JWT claims (middle segment) to see what info it carries.
+              CLAIMS=$(echo "$OIDC_TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq . 2>/dev/null || echo "could not decode")
+              echo ""
+              echo "=== OIDC token claims ==="
+              echo "$CLAIMS"
+
+              echo ""
+              echo "=== Attempting Vault JWT login ==="
+              for path in jwt github-actions oidc; do
+                echo "  Trying auth/${path}/login..."
+                RESPONSE=$(curl -sS -X POST \
+                  "https://vault-ci-prod.elastic.dev/v1/auth/${path}/login" \
+                  -H "Content-Type: application/json" \
+                  -d "{\"jwt\": \"${OIDC_TOKEN}\", \"role\": \"\"}" 2>&1)
+                echo "  Response: $(echo "$RESPONSE" | jq -c '.errors // .auth.policies // .' 2>/dev/null || echo "$RESPONSE")"
+                echo ""
+              done
+            else
+              echo "Failed to get OIDC token"
+            fi
+          else
+            echo "ACTIONS_ID_TOKEN_REQUEST_URL not set — id-token permission may be missing"
+          fi
