@@ -95,7 +95,7 @@ do
     if [ -n "${SCCACHE_GCS_KEY_FILE:-}" ] && [ -f "${SCCACHE_GCS_KEY_FILE}" ]; then
         SCCACHE_SECRET_ARG="--secret id=gcs_key,src=${SCCACHE_GCS_KEY_FILE}"
     fi
-    DOCKER_BUILDKIT=1 docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG --build-arg SCCACHE_GCS_BUCKET="${SCCACHE_GCS_BUCKET:-}" $SCCACHE_SECRET_ARG -f "$DOCKERFILE" .
+    DOCKER_BUILDKIT=1 docker build --no-cache --force-rm -t $TEMP_TAG --progress=plain --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG --build-arg ZIP_COMPRESSION_LEVEL=${ZIP_COMPRESSION_LEVEL:-9} --build-arg SCCACHE_GCS_BUCKET="${SCCACHE_GCS_BUCKET:-}" $SCCACHE_SECRET_ARG -f "$DOCKERFILE" .
     # Using tar to copy the build artifacts out of the container seems more reliable
     # than docker cp, and also means the files end up with the correct uid/gid
     docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "tar cf - build/distributions && sleep 30" | tar xvf -

@@ -24,6 +24,9 @@
 
 set -e
 
+# Resolve the ml-cpp repo root before we cd away.
+ML_CPP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 function isCloneTargetValid {
     FORK_TO_CHECK="$1"
     BRANCH_TO_CHECK="$2"
@@ -113,6 +116,68 @@ export GIT_COMMIT="$(git rev-parse HEAD)"
 export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
 IVY_REPO_URL="file://$2"
-./gradlew $GRADLE_JVM_OPTS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
-./gradlew $GRADLE_JVM_OPTS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
 
+INIT_SCRIPT="$ML_CPP_ROOT/dev-tools/gradle-build-cache-init.gradle"
+GRADLE_CACHE_DIR="$HOME/.gradle/caches/build-cache-1"
+CACHE_ARGS=""
+if [ -f "$INIT_SCRIPT" ]; then
+    CACHE_ARGS="--build-cache --init-script $INIT_SCRIPT"
+fi
+
+# Restore Gradle build cache from GCS if credentials are available.
+# This lets ephemeral CI agents reuse compilation outputs from prior builds.
+CACHE_KEY="gradle-build-cache-$(uname -m)"
+GCS_CACHE_PATH=""
+if [ -n "${GRADLE_BUILD_CACHE_GCS_BUCKET:-}" ] && [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
+    GCS_CACHE_PATH="gs://${GRADLE_BUILD_CACHE_GCS_BUCKET}/${CACHE_KEY}.tar.gz"
+    if command -v gsutil &>/dev/null; then
+        if command -v gcloud &>/dev/null; then
+            gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" 2>/dev/null || true
+        fi
+        echo "--- Restoring Gradle build cache from $GCS_CACHE_PATH"
+        mkdir -p "$GRADLE_CACHE_DIR"
+        if gsutil -q stat "$GCS_CACHE_PATH" 2>/dev/null; then
+            gsutil cp "$GCS_CACHE_PATH" /tmp/gradle-cache.tar.gz \
+                && tar xzf /tmp/gradle-cache.tar.gz -C "$HOME/.gradle/caches/" \
+                && rm -f /tmp/gradle-cache.tar.gz \
+                && echo "Gradle build cache restored ($(du -sh "$GRADLE_CACHE_DIR" 2>/dev/null | cut -f1))" \
+                || echo "Warning: failed to restore Gradle build cache, continuing without it"
+        else
+            echo "No cached Gradle build cache found, will build from scratch"
+        fi
+    else
+        echo "gsutil not found, skipping Gradle build cache restore"
+    fi
+fi
+
+# ES_TEST_SUITE selects which test suite to run:
+#   javaRestTest  - native multi-node integration tests only
+#   yamlRestTest  - ML YAML REST tests only
+#   (unset/empty) - both suites sequentially (backward compatible)
+case "${ES_TEST_SUITE:-}" in
+  javaRestTest)
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+    ;;
+  yamlRestTest)
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
+    ;;
+  *)
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+    ./gradlew $GRADLE_JVM_OPTS $CACHE_ARGS -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
+    ;;
+esac
+
+# Upload Gradle build cache to GCS for future builds.
+if [ -n "$GCS_CACHE_PATH" ] && [ -d "$GRADLE_CACHE_DIR" ] && command -v gsutil &>/dev/null; then
+    echo "--- Uploading Gradle build cache to $GCS_CACHE_PATH"
+    CACHE_SIZE=$(du -sm "$GRADLE_CACHE_DIR" 2>/dev/null | cut -f1)
+    if [ "${CACHE_SIZE:-0}" -gt 0 ] && [ "${CACHE_SIZE:-0}" -lt 4096 ]; then
+        tar czf /tmp/gradle-cache.tar.gz -C "$HOME/.gradle/caches/" build-cache-1 \
+            && gsutil -o "GSUtil:parallel_composite_upload_threshold=50M" cp /tmp/gradle-cache.tar.gz "$GCS_CACHE_PATH" \
+            && rm -f /tmp/gradle-cache.tar.gz \
+            && echo "Gradle build cache uploaded (${CACHE_SIZE}M)" \
+            || echo "Warning: failed to upload Gradle build cache"
+    else
+        echo "Skipping cache upload (size=${CACHE_SIZE:-0}M, expected 1-4095M)"
+    fi
+fi

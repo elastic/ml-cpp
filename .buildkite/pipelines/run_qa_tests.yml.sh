@@ -14,7 +14,7 @@ steps:
     command:
       - echo 'Trigger QA Tests'
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    depends_on: "test_linux-x86_64-RelWithDebInfo"
     notify:
       -  github_commit_status:
            context: "Trigger Appex QA Tests"
@@ -22,7 +22,13 @@ steps:
   - trigger: appex-qa-stateful-custom-ml-cpp-build-testing
     async: false
     build:
-      message: "${BUILDKITE_MESSAGE}"
+      message: |
+EOL
+
+# Output the message with proper indentation for YAML literal block scalar
+printf '%s\n' "${BUILDKITE_MESSAGE}" | sed 's/^/        /'
+
+cat <<EOL
       env:
         QAF_TESTS_TO_RUN: "${QAF_TESTS_TO_RUN:-ml_cpp_pr}"
 EOL
