@@ -30,12 +30,12 @@ namespace model {
 //!
 //! Values exceeding MAX_FIELD_VALUE_LENGTH (256 chars) are transformed using
 //! collision-safe truncation:
-//!   - Retain PREFIX_LENGTH (240) characters of original value
+//!   - Retain PREFIX_LENGTH (239) characters of original value
 //!   - Append HASH_SEPARATOR ('$')
-//!   - Append HASH_HEX_DIGITS (15) character hex hash of complete original value
+//!   - Append HASH_HEX_DIGITS (16) character hex hash of complete original value
 //!
-//! Format: "<prefix_240_chars>$<hash_15_hex_chars>"
-//! Example: "very_long_field_value_that_exceeds_limit_and_continues_for_thousands_of_chars_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx$a1b2c3d4e5f6789"
+//! Format: "<prefix_239_chars>$<hash_16_hex_chars>"
+//! Example: "very_long_field_value_that_exceeds_limit_and_continues_for_thousands_of_chars_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx$a1b2c3d4e5f67890"
 //!
 //! The 256-character limit aligns with Elasticsearch's ignore_above default
 //! for keyword fields. The hash suffix ensures data integrity while maintaining
@@ -49,21 +49,19 @@ public:
 
     //! Collision prevention format components
     static constexpr char HASH_SEPARATOR = '$';
-    static constexpr std::size_t HASH_HEX_DIGITS = 15; // 15 hex chars for uint64_t
-    static constexpr std::size_t HASH_SUFFIX_LENGTH =
-        1 /* separator */ + HASH_HEX_DIGITS; // 16 total
+    static constexpr std::size_t HASH_HEX_DIGITS = 16; // 16 hex chars = full 64-bit hash
+    static constexpr std::size_t HASH_SUFFIX_LENGTH = 1 /* separator */ + HASH_HEX_DIGITS; // 17 total
 
     //! Content prefix length (readable portion after truncation)
-    static constexpr std::size_t PREFIX_LENGTH =
-        MAX_FIELD_VALUE_LENGTH - HASH_SUFFIX_LENGTH; // 240
+    static constexpr std::size_t PREFIX_LENGTH = MAX_FIELD_VALUE_LENGTH - HASH_SUFFIX_LENGTH; // 239
 
     // Domain invariants (enforced at compile-time)
     static_assert(PREFIX_LENGTH + HASH_SUFFIX_LENGTH == MAX_FIELD_VALUE_LENGTH,
                   "Term field format invariant: prefix + suffix = total length");
     static_assert(PREFIX_LENGTH >= 200,
                   "Readable prefix must be substantial for human comprehension");
-    static_assert(HASH_HEX_DIGITS * 4 <= 64,
-                  "Hash hex digits must fit in 64-bit hash output");
+    static_assert(HASH_HEX_DIGITS * 4 == 64,
+                  "Hash hex digits must represent full 64-bit hash output");
 
     //! Check if a term field value exceeds the domain constraint.
     //! \return true if the value requires length enforcement
@@ -114,9 +112,9 @@ private:
         //! Compute collision-resistant identity hash.
         //! Uses safeMurmurHash64 (endian-neutral) for state persistence safety.
         static std::uint64_t compute(const std::string& value) {
-            return core::CHashing::safeMurmurHash64(
-                value.data(), static_cast<int>(value.size()),
-                0); // Fixed seed for determinism
+            return core::CHashing::safeMurmurHash64(value.data(),
+                                                    static_cast<int>(value.size()),
+                                                    0); // Fixed seed for determinism
         }
 
         //! Format 64-bit hash as zero-padded lowercase hex string.
@@ -124,9 +122,9 @@ private:
         //! \param[out] buffer Must be at least HASH_HEX_DIGITS + 1 bytes
         //! \return Pointer to null-terminated hex string in buffer
         static const char* toHex(std::uint64_t hash, char* buffer) {
-            // %015llx produces 15-char zero-padded lowercase hex
-            std::snprintf(buffer, HASH_HEX_DIGITS + 1, "%015llx",
-                         static_cast<unsigned long long>(hash));
+            // %016llx produces 16-char zero-padded lowercase hex (full 64 bits)
+            std::snprintf(buffer, HASH_HEX_DIGITS + 1, "%016llx",
+                          static_cast<unsigned long long>(hash));
             return buffer;
         }
     };
@@ -135,7 +133,7 @@ private:
     //! \param originalValue Complete untruncated value for hash computation
     //! \param[in,out] prefix Truncated prefix to which suffix is appended
     static void appendCollisionPreventionSuffix(const std::string& originalValue,
-                                                 std::string& prefix) {
+                                                std::string& prefix) {
         std::uint64_t identityHash = HashEncoding::compute(originalValue);
 
         prefix.reserve(MAX_FIELD_VALUE_LENGTH);

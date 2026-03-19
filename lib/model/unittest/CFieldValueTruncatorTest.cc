@@ -84,18 +84,18 @@ BOOST_AUTO_TEST_CASE(testTruncatedValueHasCorrectFormat) {
     std::string value(1000, 'x');
     std::string result = CFieldValueTruncator::truncated(value);
 
-    // Format: 240 prefix + '$' + 15 hex chars = 256 total
+    // Format: 239 prefix + '$' + 16 hex chars = 256 total
     BOOST_REQUIRE_EQUAL(256, result.size());
-    BOOST_REQUIRE_EQUAL(CFieldValueTruncator::HASH_SEPARATOR, result[240]);
+    BOOST_REQUIRE_EQUAL(CFieldValueTruncator::HASH_SEPARATOR, result[239]);
 
     // Prefix should match original
-    BOOST_REQUIRE_EQUAL(0, result.compare(0, 240, value, 0, 240));
+    BOOST_REQUIRE_EQUAL(0, result.compare(0, 239, value, 0, 239));
 
     // Hash portion should be lowercase hex digits
-    for (std::size_t i = 241; i < 256; ++i) {
+    for (std::size_t i = 240; i < 256; ++i) {
         BOOST_REQUIRE(std::isxdigit(result[i]));
         BOOST_REQUIRE((result[i] >= '0' && result[i] <= '9') ||
-                     (result[i] >= 'a' && result[i] <= 'f'));
+                      (result[i] >= 'a' && result[i] <= 'f'));
     }
 }
 
@@ -105,10 +105,10 @@ BOOST_AUTO_TEST_CASE(testInPlaceTruncationPreservesFormat) {
 
     BOOST_REQUIRE_EQUAL(true, wasTruncated);
     BOOST_REQUIRE_EQUAL(256, value.size());
-    BOOST_REQUIRE_EQUAL(CFieldValueTruncator::HASH_SEPARATOR, value[240]);
+    BOOST_REQUIRE_EQUAL(CFieldValueTruncator::HASH_SEPARATOR, value[239]);
 
     // Verify hash portion is valid hex
-    for (std::size_t i = 241; i < 256; ++i) {
+    for (std::size_t i = 240; i < 256; ++i) {
         BOOST_REQUIRE(std::isxdigit(value[i]));
     }
 }
@@ -118,18 +118,18 @@ BOOST_AUTO_TEST_CASE(testInPlaceTruncationPreservesFormat) {
 // ============================================================================
 
 BOOST_AUTO_TEST_CASE(testDistinctValuesProduceDistinctResults) {
-    std::string prefix(240, 'x');
+    std::string prefix(239, 'x');
     std::string value1 = prefix + std::string(1000, 'A');
     std::string value2 = prefix + std::string(1000, 'B');
 
     std::string truncated1 = CFieldValueTruncator::truncated(value1);
     std::string truncated2 = CFieldValueTruncator::truncated(value2);
 
-    // Same prefix
-    BOOST_REQUIRE_EQUAL(truncated1.substr(0, 241), truncated2.substr(0, 241));
+    // Same prefix (239 chars + separator)
+    BOOST_REQUIRE_EQUAL(truncated1.substr(0, 240), truncated2.substr(0, 240));
 
     // But different hash suffixes prevent collision
-    BOOST_REQUIRE_NE(truncated1.substr(241), truncated2.substr(241));
+    BOOST_REQUIRE_NE(truncated1.substr(240), truncated2.substr(240));
     BOOST_REQUIRE_NE(truncated1, truncated2);
 }
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(testCollisionsPreventedByHashSuffix) {
     std::string truncated1 = CFieldValueTruncator::truncated(value1);
     std::string truncated2 = CFieldValueTruncator::truncated(value2);
 
-    // Must be distinct despite identical first 240 chars
+    // Must be distinct despite identical first 239 chars
     BOOST_REQUIRE_NE(truncated1, truncated2);
     BOOST_REQUIRE_EQUAL(CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH, truncated1.size());
     BOOST_REQUIRE_EQUAL(CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH, truncated2.size());
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testVeryLongValueWithDistinctEnding) {
     std::string truncated1 = CFieldValueTruncator::truncated(value1);
     std::string truncated2 = CFieldValueTruncator::truncated(value2);
 
-    // Must be distinct despite identical first 240 chars
+    // Must be distinct despite identical first 239 chars
     BOOST_REQUIRE_NE(truncated1, truncated2);
 }
 

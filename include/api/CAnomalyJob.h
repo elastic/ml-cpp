@@ -400,9 +400,9 @@ private:
     //! \param fieldValues Output vector of pointers to field values
     //! \param truncatedCopies Storage for truncated copies (must remain valid while fieldValues is used)
     static void prepareTruncatedFieldValues(const TStrVec& fieldNames,
-                                           const TStrStrUMap& dataRowFields,
-                                           model::CAnomalyDetector::TStrCPtrVec& fieldValues,
-                                           TStrVec& truncatedCopies);
+                                            const TStrStrUMap& dataRowFields,
+                                            model::CAnomalyDetector::TStrCPtrVec& fieldValues,
+                                            TStrVec& truncatedCopies);
 
     //! Parses a control message requesting that model state be persisted.
     //! Extracts optional arguments to be used for persistence.
