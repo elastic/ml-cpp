@@ -32,7 +32,7 @@
 
 === Bug Fixes
 
-* Truncate oversized field values to prevent autodetect process crash. (See {ml-pull}2929[#2929].)
+* Truncate oversized field values to prevent autodetect process crash. (See {ml-pull}2929[#2929], {es-pull}143180[#143180], issue: {ml-issue}2796[#2796].)
 * Report RSS in bytes instead of pages. (See {ml-pull}2917[#2917].)
 
 === Enhancements

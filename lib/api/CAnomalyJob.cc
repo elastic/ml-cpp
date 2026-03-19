@@ -1707,6 +1707,7 @@ void CAnomalyJob::prepareTruncatedFieldValues(const TStrVec& fieldNames,
                                               TStrVec& truncatedCopies) {
 
     fieldValues.reserve(fieldNames.size());
+    // Reserve ensures no reallocation invalidates pointers stored in fieldValues.
     truncatedCopies.reserve(fieldNames.size());
 
     for (const auto& fieldName : fieldNames) {

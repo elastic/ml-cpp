@@ -116,10 +116,9 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser& traver
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(PERSON_UID_TAG, person)
         RESTORE_BUILT_IN(ATTRIBUTE_UID_TAG, attribute)
-        RESTORE_NO_ERROR(INFLUENCER_TAG, influence = traverser.value())
-        if (name == INFLUENCER_TAG) {
-            CFieldValueTruncator::truncate(influence);
-        }
+        RESTORE_NO_ERROR(INFLUENCER_TAG, influence = traverser.value();
+                         CFieldValueTruncator::truncate(influence))
+
         if (name == COUNT_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), count) == false) {
                 LOG_ERROR(<< "Failed to restore COUNT_TAG, got " << traverser.value());
