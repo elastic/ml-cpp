@@ -39,12 +39,11 @@ namespace model {
 //!
 //! The 256-character limit aligns with Elasticsearch's ignore_above default
 //! for keyword fields. The hash suffix ensures data integrity while maintaining
-//! human readability (first 240 characters visible) and compatibility with
-//! prefix-based filtering. Collision probability is ~1 in 10^18 (effectively zero).
+//! human readability (first 239 characters visible) and compatibility with
+//! prefix-based filtering. Collision probability is ~1 in 10^19 (effectively zero).
 class MODEL_EXPORT CFieldValueTruncator {
 public:
-    //! Domain constraint: Maximum length for term fields in anomaly detection.
-    //! Aligned with Elasticsearch's ignore_above default for keyword fields.
+    //! Maximum length for term fields in anomaly detection.
     static constexpr std::size_t MAX_FIELD_VALUE_LENGTH = 256;
 
     //! Collision prevention format components
@@ -86,13 +85,12 @@ public:
     }
 
     //! Enforce term field length constraint, returning constrained copy.
-    //! Original value unchanged. For performance, call needsTruncation() first
-    //! to avoid copying when constraint is already satisfied.
+    //! Original value unchanged.
     //! \param value Original field value
     //! \return Copy with length constraint enforced
     static std::string truncated(const std::string& value) {
         if (needsTruncation(value) == false) {
-            return value; // RVO applies
+            return value;
         }
 
         std::string result;

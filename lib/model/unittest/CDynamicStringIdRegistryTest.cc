@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(testRestoreTruncatesOversizedNames) {
 
     bool addedPerson = false;
     std::string shortName("foo");
-    std::string oversizedName(77000, 'x');
+    std::string oversizedName(1000, 'x');
     registry.addName(shortName, 0, resourceMonitor, addedPerson);
     registry.addName(oversizedName, 0, resourceMonitor, addedPerson);
 
