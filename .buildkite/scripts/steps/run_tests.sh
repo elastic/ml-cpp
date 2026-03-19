@@ -105,6 +105,27 @@ else
         -P cmake/run-all-tests-parallel.cmake || TEST_OUTCOME=$?
 fi
 
+# --- PyTorch allowlist validation ---
+# When triggered from the PyTorch edge pipeline, run the Python-based
+# allowlist validation which traces live HuggingFace models with the
+# new PyTorch version and verifies every op is in ALLOWED_OPERATIONS.
+VALIDATION_OUTCOME=0
+if [[ "${GITHUB_PR_COMMENT_VAR_ACTION:-}" == "run_pytorch_tests" ]]; then
+    echo "--- Validating PyTorch allowlist against HuggingFace models"
+    cmake \
+        -DSOURCE_DIR="$(pwd)" \
+        -DVALIDATE_CONFIG="$(pwd)/dev-tools/extract_model_ops/validation_models.json" \
+        -DVALIDATE_PT_DIR="$(pwd)/dev-tools/extract_model_ops/es_it_models" \
+        -DVALIDATE_VERBOSE=TRUE \
+        -P cmake/run-validation.cmake || VALIDATION_OUTCOME=$?
+
+    if [[ $VALIDATION_OUTCOME -ne 0 ]]; then
+        echo "^^^ +++"
+        echo "Allowlist validation failed — the new PyTorch version may introduce ops not in ALLOWED_OPERATIONS."
+        echo "See dev-tools/extract_model_ops/README.md for how to update the allowlist."
+    fi
+fi
+
 # Upload test results
 echo "--- Uploading test results"
 TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
@@ -117,4 +138,6 @@ else
     echo "No test results archive created"
 fi
 
-exit $TEST_OUTCOME
+if [[ $TEST_OUTCOME -ne 0 || $VALIDATION_OUTCOME -ne 0 ]]; then
+    exit 1
+fi
