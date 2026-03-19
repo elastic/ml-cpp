@@ -116,6 +116,24 @@ void addArrival(CDataGatherer& gatherer,
                 core_t::TTime time,
                 const std::string& person,
                 double value,
+                const std::string& influencer) {
+    CDataGatherer::TStrCPtrVec fieldValues;
+    fieldValues.push_back(&person);
+    fieldValues.push_back(influencer.empty() ? nullptr : &influencer);
+    std::string const valueAsString(core::CStringUtils::typeToString(value));
+    fieldValues.push_back(&valueAsString);
+
+    CEventData eventData;
+    eventData.time(time);
+
+    gatherer.addArrival(fieldValues, eventData, resourceMonitor);
+}
+
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
+                core_t::TTime time,
+                const std::string& person,
+                double value,
                 const std::string& influencer1,
                 const std::string& influencer2) {
     CDataGatherer::TStrCPtrVec fieldValues;
@@ -1869,8 +1887,11 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerSums, CTestFixtur
 
     // Add arrivals with an oversized influencer value (bypasses CAnomalyJob input truncation).
     std::string const oversizedInfluencer(500, 'y');
-    addArrival(gatherer, m_ResourceMonitor, startTime + 1, "p", 1.0, oversizedInfluencer, "");
-    addArrival(gatherer, m_ResourceMonitor, startTime + 2, "p", 2.0, oversizedInfluencer, "");
+    addArrival(gatherer, m_ResourceMonitor, startTime + 1, "p", 1.0, oversizedInfluencer);
+    addArrival(gatherer, m_ResourceMonitor, startTime + 2, "p", 2.0, oversizedInfluencer);
+
+    // Advance past the first bucket so influencer sums are flushed to the persistable queue.
+    gatherer.timeNow(startTime + bucketLength);
 
     // Persist — the JSON will contain the oversized influencer value.
     std::ostringstream origJson;
