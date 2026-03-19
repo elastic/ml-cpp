@@ -23,11 +23,6 @@ from ml_pipeline import (
     config as buildConfig,
 )
 
-# Ensure VERSION_QUALIFIER is always empty for PR builds
-env = {
-    "VERSION_QUALIFIER": ""
-}
-
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([])
@@ -39,6 +34,25 @@ def main():
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
     config = buildConfig.Config()
     config.parse()
+
+    # Compute which build step keys will exist so that analytics steps
+    # can emit a correct depends_on list (not all platforms are built
+    # for every PR, depending on labels/comments).
+    build_step_keys = []
+    if config.build_linux and config.build_aarch64:
+        build_step_keys.append("build_test_linux-aarch64-RelWithDebInfo")
+    if config.build_linux and config.build_x86_64:
+        build_step_keys.append("build_test_linux-x86_64-RelWithDebInfo")
+    if config.build_macos and config.build_aarch64:
+        build_step_keys.append("build_test_macos-aarch64-RelWithDebInfo")
+    if config.build_windows and config.build_x86_64:
+        build_step_keys.append("build_test_Windows-x86_64-RelWithDebInfo")
+
+    env = {
+        "VERSION_QUALIFIER": "",
+        "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
+    }
+
     if config.build_windows:
         build_windows = pipeline_steps.generate_step_template("Windows", config.action, "", config.build_x86_64)
         pipeline_steps.append(build_windows)
