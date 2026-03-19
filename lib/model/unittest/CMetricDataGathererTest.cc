@@ -1869,10 +1869,8 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerSums, CTestFixtur
 
     // Add arrivals with an oversized influencer value (bypasses CAnomalyJob input truncation).
     std::string const oversizedInfluencer(500, 'y');
-    addArrival(gatherer, m_ResourceMonitor, startTime + 1, "p", 1.0,
-               oversizedInfluencer, "");
-    addArrival(gatherer, m_ResourceMonitor, startTime + 2, "p", 2.0,
-               oversizedInfluencer, "");
+    addArrival(gatherer, m_ResourceMonitor, startTime + 1, "p", 1.0, oversizedInfluencer, "");
+    addArrival(gatherer, m_ResourceMonitor, startTime + 2, "p", 2.0, oversizedInfluencer, "");
 
     // Persist — the JSON will contain the oversized influencer value.
     std::ostringstream origJson;
@@ -1890,9 +1888,8 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerSums, CTestFixtur
 
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
         EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
-    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None,
-                                   params, EMPTY_STRING, KEY,
-                                   bucketGathererInitData, traverser);
+    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+                                   KEY, bucketGathererInitData, traverser);
 
     // Persist restored gatherer — should NOT contain the oversized value.
     std::ostringstream restoredJson;
@@ -1907,9 +1904,8 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerSums, CTestFixtur
     // Verify idempotency: restore again and persist — should be identical.
     std::istringstream restoredJsonStrm{"{\"topLevel\" : " + restoredJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser2(restoredJsonStrm);
-    CDataGatherer restoredGatherer2(model_t::E_Metric, model_t::E_None,
-                                    params, EMPTY_STRING, KEY,
-                                    bucketGathererInitData, traverser2);
+    CDataGatherer restoredGatherer2(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+                                    KEY, bucketGathererInitData, traverser2);
 
     std::ostringstream restoredJson2;
     core::CJsonStatePersistInserter::persist(

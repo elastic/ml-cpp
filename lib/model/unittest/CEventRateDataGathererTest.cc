@@ -1906,12 +1906,12 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerValues, CTestFixt
     features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
     TStrVec influencerFieldNames{"IF1"};
 
-    CDataGatherer gatherer =
-        CDataGathererBuilder(model_t::E_EventRate, features, params, key, startTime)
-            .personFieldName("P")
-            .valueFieldName("V")
-            .influenceFieldNames(influencerFieldNames)
-            .build();
+    CDataGatherer gatherer = CDataGathererBuilder(model_t::E_EventRate, features,
+                                                  params, key, startTime)
+                                 .personFieldName("P")
+                                 .valueFieldName("V")
+                                 .influenceFieldNames(influencerFieldNames)
+                                 .build();
 
     BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
 
@@ -1936,9 +1936,8 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerValues, CTestFixt
 
     CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
         EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
-    CDataGatherer restoredGatherer(model_t::E_EventRate, model_t::E_None,
-                                   params, EMPTY_STRING, key,
-                                   bucketGathererInitData, traverser);
+    CDataGatherer restoredGatherer(model_t::E_EventRate, model_t::E_None, params,
+                                   EMPTY_STRING, key, bucketGathererInitData, traverser);
 
     // Persist restored gatherer — should NOT contain the oversized value.
     std::ostringstream restoredJson;
@@ -1953,9 +1952,8 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerValues, CTestFixt
     // Verify idempotency: restore again and persist — should be identical.
     std::istringstream restoredJsonStrm{"{\"topLevel\" : " + restoredJson.str() + "}"};
     core::CJsonStateRestoreTraverser traverser2(restoredJsonStrm);
-    CDataGatherer restoredGatherer2(model_t::E_EventRate, model_t::E_None,
-                                    params, EMPTY_STRING, key,
-                                    bucketGathererInitData, traverser2);
+    CDataGatherer restoredGatherer2(model_t::E_EventRate, model_t::E_None, params,
+                                    EMPTY_STRING, key, bucketGathererInitData, traverser2);
 
     std::ostringstream restoredJson2;
     core::CJsonStatePersistInserter::persist(
