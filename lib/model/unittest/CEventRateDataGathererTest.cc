@@ -17,6 +17,7 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CEventRateBucketGatherer.h>
+#include <model/CFieldValueTruncator.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 #include <model/ModelTypes.h>
@@ -1948,6 +1949,10 @@ BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerValues, CTestFixt
 
     // The full 500-char string must no longer appear (it was truncated to 256).
     BOOST_TEST_REQUIRE(restoredJson.str().find(oversizedInfluencer) == std::string::npos);
+    // Restore-path truncation must produce the same format as CFieldValueTruncator::truncated.
+    std::string const expectedTruncated =
+        model::CFieldValueTruncator::truncated(oversizedInfluencer);
+    BOOST_TEST_REQUIRE(restoredJson.str().find(expectedTruncated) != std::string::npos);
 
     // Verify idempotency: restore again and persist — should be identical.
     std::istringstream restoredJsonStrm{"{\"topLevel\" : " + restoredJson.str() + "}"};

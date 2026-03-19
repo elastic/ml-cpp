@@ -35,12 +35,12 @@ namespace model {
 //!   - Append HASH_HEX_DIGITS (16) character hex hash of complete original value
 //!
 //! Format: "<prefix_239_chars>$<hash_16_hex_chars>"
-//! Example: "very_long_field_value_that_exceeds_limit_and_continues_for_thousands_of_chars_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx$a1b2c3d4e5f67890"
+//! Example: "very_long_field_value_that_exceeds_limit_(...)$a1b2c3d4e5f67890"
 //!
 //! The 256-character limit aligns with Elasticsearch's ignore_above default
 //! for keyword fields. The hash suffix ensures data integrity while maintaining
 //! human readability (first 239 characters visible) and compatibility with
-//! prefix-based filtering. Collision probability is ~1 in 10^19 (effectively zero).
+//! prefix-based filtering.
 class MODEL_EXPORT CFieldValueTruncator {
 public:
     //! Maximum length for term fields in anomaly detection.
@@ -59,8 +59,6 @@ public:
                   "Term field format invariant: prefix + suffix = total length");
     static_assert(PREFIX_LENGTH >= 200,
                   "Readable prefix must be substantial for human comprehension");
-    static_assert(HASH_HEX_DIGITS * 4 == 64,
-                  "Hash hex digits must represent full 64-bit hash output");
 
     //! Check if a term field value exceeds the domain constraint.
     //! \return true if the value requires length enforcement
@@ -85,7 +83,6 @@ public:
     }
 
     //! Enforce term field length constraint, returning constrained copy.
-    //! Original value unchanged.
     //! \param value Original field value
     //! \return Copy with length constraint enforced
     static std::string truncated(const std::string& value) {

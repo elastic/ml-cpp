@@ -1718,11 +1718,12 @@ void CAnomalyJob::prepareTruncatedFieldValues(const TStrVec& fieldNames,
 
             std::string escapedFieldName = fieldName;
             core::CStringUtils::escape('\\', "\n\r\t", escapedFieldName);
-            LOG_WARN(<< "Field '" << escapedFieldName
-                     << "' value (length=" << value->size() << ", prefix='"
-                     << value->substr(0, std::min<std::size_t>(50, value->size()))
-                     << "...') exceeds " << model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH
-                     << " characters and has been truncated with collision-safe hash suffix");
+            LOG_INFO_THROTTLED(
+                << "Field '" << escapedFieldName
+                << "' value (length=" << value->size() << ", prefix='"
+                << value->substr(0, std::min<std::size_t>(50, value->size()))
+                << "...') exceeds " << model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH
+                << " characters and has been truncated with collision-safe hash suffix");
         } else {
             fieldValues.push_back(value);
         }

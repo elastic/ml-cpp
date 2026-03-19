@@ -53,8 +53,7 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
         fieldNames.append(rowIter->first);
         const std::string& val = rowIter->second;
         if (model::CFieldValueTruncator::needsTruncation(val)) {
-            fieldValues.append(val.substr(0, model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH));
-            fieldValues.append("...");
+            fieldValues.append(model::CFieldValueTruncator::truncated(val));
         } else {
             fieldValues.append(val);
         }
