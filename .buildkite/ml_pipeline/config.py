@@ -53,10 +53,10 @@ class Config:
             if "GITHUB_PR_COMMENT_VAR_ARGS" in os.environ:
                 os.environ["QAF_TESTS_TO_RUN"] = os.environ["GITHUB_PR_COMMENT_VAR_ARGS"]
 
-        # If the GITHUB_PR_COMMENT_VAR_ARCH environment variable is set then   attemot to parse it
+        # If the GITHUB_PR_COMMENT_VAR_ARCH environment variable is set then attempt to parse it
         # into comma separated values. If the values are one or both of "aarch64" or "x86_64" then set the member
         # variables self.build_aarch64, self.build_x86_64 accordingly. These values will be used to restrict the build
-        # jobs to a particular achitecture.
+        # jobs to a particular architecture.
         if "GITHUB_PR_COMMENT_VAR_ARCH" in os.environ:
             csv_arch = os.environ["GITHUB_PR_COMMENT_VAR_ARCH"]
             for each in [ x.strip().lower() for x in csv_arch.split(",")]:
@@ -64,11 +64,13 @@ class Config:
                     self.build_aarch64 = "--build-aarch64"
                 elif each == "x86_64":
                     self.build_x86_64 = "--build-x86_64"
+        elif self.run_qa_tests or self.run_pytorch_tests:
+            self.build_x86_64 = "--build-x86_64"
         else:
             self.build_aarch64 = "--build-aarch64"
             self.build_x86_64 = "--build-x86_64"
 
-        # If the GITHUB_PR_COMMENT_VAR_PLATFORM environment variable is set to a non-empty string then attemot to parse it
+        # If the GITHUB_PR_COMMENT_VAR_PLATFORM environment variable is set to a non-empty string then attempt to parse it
         # into comma separated values. If the values are one or a combination of "windows", "mac(os)", "linux"  then set the member
         # variables self.build_windows, self.build_macos, self.build_linux accordingly. These values will be used to restrict the build
         # jobs to a particular platform.
@@ -81,6 +83,8 @@ class Config:
                     self.build_macos = True
                 elif each == "linux":
                     self.build_linux = True
+        elif self.run_qa_tests or self.run_pytorch_tests:
+            self.build_linux = True
         else:
             self.build_windows = True
             self.build_macos = True
