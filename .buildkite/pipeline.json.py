@@ -35,9 +35,8 @@ def main():
     config = buildConfig.Config()
     config.parse()
 
-    # Compute which build step keys will exist so that analytics steps
-    # can emit a correct depends_on list (not all platforms are built
-    # for every PR, depending on labels/comments).
+    # Compute which build step keys will exist so that analytics and
+    # failure-analysis steps can emit a correct depends_on list.
     build_step_keys = []
     if config.build_linux and config.build_aarch64:
         build_step_keys.append("build_test_linux-aarch64-RelWithDebInfo")
