@@ -19,6 +19,10 @@
 
 BOOST_AUTO_TEST_SUITE(CBuildInfoTest)
 
+BOOST_AUTO_TEST_CASE(testDeliberateFailure) {
+    BOOST_FAIL("DELIBERATE TEST FAILURE: testing CI build failure analysis step — will be reverted");
+}
+
 BOOST_AUTO_TEST_CASE(testFullInfo) {
     std::string fullInfo(ml::ver::CBuildInfo::fullInfo());
     LOG_DEBUG(<< fullInfo);
