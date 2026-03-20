@@ -28,7 +28,6 @@ fi
 
 cat <<'EOL'
     allow_dependency_failure: true
-    if: "build.state == 'failed' || build.state == 'failing'"
     soft_fail: true
     agents:
       image: "python:3-slim"

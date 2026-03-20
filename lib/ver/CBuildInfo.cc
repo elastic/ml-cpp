@@ -10,8 +10,6 @@
  */
 #include <ver/CBuildInfo.h>
 
-#error "DELIBERATE FAILURE: testing CI build failure analysis step — will be reverted"
-
 #include <core/CProgName.h>
 #include <core/CStringUtils.h>
 
