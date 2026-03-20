@@ -24,16 +24,28 @@ from ml_pipeline import (
 )
 
 def main():
+    config = buildConfig.Config()
+    config.parse()
+
     pipeline = {}
     pipeline_steps = step.PipelineStep([])
+
+    # "buildkite analyze" triggers a lightweight pipeline that finds and
+    # analyzes the most recent failed build for this branch — no compilation.
+    if config.run_analyze:
+        pipeline["env"] = {"ML_ANALYZE_PREVIOUS": "true"}
+        pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
+                                                           ".buildkite/pipelines/analyze_build_failure.yml.sh"))
+        pipeline["steps"] = pipeline_steps
+        print(json.dumps(pipeline, indent=2))
+        return
+
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
                                                        ".buildkite/pipelines/send_slack_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
                                                        ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
-    config = buildConfig.Config()
-    config.parse()
 
     # Compute which build step keys will exist so that analytics and
     # failure-analysis steps can emit a correct depends_on list.
@@ -82,11 +94,6 @@ def main():
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
                                                        ".buildkite/pipelines/check_build_regression.yml.sh",
                                                        soft_fail=True))
-    # Analyze failures with AI — the step itself uses
-    # if: "build.state == 'failed' || build.state == 'failing'"
-    # so it is automatically skipped for passing builds.
-    pipeline_steps.append(pipeline_steps.generate_step("Analyze build failure",
-                                                       ".buildkite/pipelines/analyze_build_failure.yml.sh"))
 
     # Validate the PyTorch allowlist against HuggingFace models when
     # triggered from the PyTorch edge pipeline.  Runs in a python:3

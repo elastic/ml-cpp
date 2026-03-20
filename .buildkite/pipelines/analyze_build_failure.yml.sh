@@ -8,16 +8,22 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-cat <<'EOL'
+EXTRA_FLAGS=""
+if [ "${ML_ANALYZE_PREVIOUS:-}" = "true" ]; then
+    EXTRA_FLAGS=" --find-previous-failure"
+fi
+
+cat <<EOL
 steps:
   - label: "Analyze build failure :mag:"
     key: "analyze_build_failure"
     command:
-        - "python3 dev-tools/analyze_build_failure.py --pipeline $BUILDKITE_PIPELINE_SLUG --build $BUILDKITE_BUILD_NUMBER"
+        - "python3 dev-tools/analyze_build_failure.py --pipeline \$BUILDKITE_PIPELINE_SLUG --build \$BUILDKITE_BUILD_NUMBER${EXTRA_FLAGS}"
 EOL
 
 # Emit depends_on dynamically — ML_BUILD_STEP_KEYS is a comma-separated
-# list of step keys set by the pipeline generator.
+# list of step keys set by the pipeline generator.  In analyze-previous
+# mode there are no build steps so this block is skipped.
 if [ -n "${ML_BUILD_STEP_KEYS:-}" ]; then
     echo '    depends_on:'
     IFS=',' read -ra STEP_KEYS <<< "$ML_BUILD_STEP_KEYS"

@@ -13,6 +13,10 @@ Usage:
     # Analyze a specific build
     python3 dev-tools/analyze_build_failure.py --pipeline ml-cpp-snapshot-builds --build 5819
 
+    # Find and analyze the most recent failed build for the current branch
+    # (used by "buildkite analyze" PR comment — no rebuild needed)
+    python3 dev-tools/analyze_build_failure.py --find-previous-failure
+
     # Dry run (print to stdout, don't annotate or post to Slack/GitHub)
     python3 dev-tools/analyze_build_failure.py --pipeline ml-cpp-snapshot-builds --build 5819 --dry-run
 
@@ -27,8 +31,10 @@ Environment:
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
+import urllib.parse
 import urllib.request
 import urllib.error
 from pathlib import Path
@@ -98,6 +104,20 @@ def buildkite_get(path, token):
         return json.loads(resp.read())
 
 
+def find_previous_failed_build(pipeline, token, branch=None, exclude_build=None):
+    """Find the most recent failed build for a pipeline, optionally filtered by branch."""
+    params = {"state": "failed", "per_page": "5"}
+    if branch:
+        params["branch"] = branch
+    query = urllib.parse.urlencode(params)
+    builds = buildkite_get(f"pipelines/{pipeline}/builds?{query}", token)
+    for build in builds:
+        if exclude_build and build.get("number") == exclude_build:
+            continue
+        return build
+    return None
+
+
 def get_job_log(log_url, token):
     """Fetch the raw log for a Buildkite job."""
     req = urllib.request.Request(
@@ -114,11 +134,92 @@ def get_job_log(log_url, token):
         return None
 
 
-def truncate_log(log_text, max_chars=MAX_LOG_CHARS):
-    """Keep the last max_chars of the log (the end usually has the error)."""
-    if not log_text or len(log_text) <= max_chars:
+ERROR_PATTERNS = re.compile(
+    r"(?i)"
+    r"(?:^|\s)error(?:\s|:|\[|C\d)"    # "error:", "error C2338", "error[E"
+    r"|fatal error"
+    r"|^#error\b"
+    r"|FAILED"
+    r"|BOOST_ERROR"
+    r"|BOOST_FAIL"
+    r"|: fatal:"                         # linker fatal
+    r"|ninja: build stopped"
+    r"|make.*\*\*\*"                     # make: *** [target] Error
+    r"|CMake Error"
+    r"|assertion failed"
+    r"|LINK : fatal"                     # MSVC linker
+    r"|unresolved external"
+    r"|cannot find -l"                   # linker: cannot find library
+    r"|undefined reference"
+    r"|Segmentation fault"
+    r"|signal \d+"
+    r"|exit code \d+"
+    r"|Exit status: \d+(?!.*exit code 0)"
+)
+
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]|\x1b\].*?\x07")
+BK_TIMESTAMP = re.compile(r"_bk;t=\d+")
+
+
+def strip_terminal_noise(log_text):
+    """Remove ANSI escapes and Buildkite timestamp markers."""
+    text = ANSI_ESCAPE.sub("", log_text)
+    return BK_TIMESTAMP.sub("", text)
+
+
+def extract_error_context(log_text, context_lines=10, max_chars=MAX_LOG_CHARS):
+    """Extract error-relevant sections from a build log.
+
+    Scans every line for error patterns and collects matching lines with
+    surrounding context.  Always appends the tail of the log (which
+    typically contains the build summary / exit code).  The combined
+    output is capped at *max_chars*.
+    """
+    if not log_text:
         return log_text
-    return f"... [truncated {len(log_text) - max_chars} chars] ...\n" + log_text[-max_chars:]
+
+    log_text = strip_terminal_noise(log_text)
+    lines = log_text.splitlines()
+
+    if len(log_text) <= max_chars:
+        return log_text
+
+    # Find line indices that match error patterns.
+    error_indices = set()
+    for i, line in enumerate(lines):
+        if ERROR_PATTERNS.search(line):
+            error_indices.add(i)
+
+    # Expand each match with context_lines before/after, merging overlaps.
+    include = set()
+    for idx in sorted(error_indices):
+        for j in range(max(0, idx - context_lines), min(len(lines), idx + context_lines + 1)):
+            include.add(j)
+
+    # Always include the last 80 lines (build summary / exit info).
+    tail_start = max(0, len(lines) - 80)
+    for j in range(tail_start, len(lines)):
+        include.add(j)
+
+    # Build the excerpt, inserting "..." markers for skipped regions.
+    sections = []
+    prev = -2
+    for i in sorted(include):
+        if i != prev + 1:
+            sections.append("... [skipped] ...")
+        sections.append(lines[i])
+        prev = i
+
+    excerpt = "\n".join(sections)
+
+    # Final safety cap — if still too long, keep the head and tail.
+    if len(excerpt) > max_chars:
+        half = max_chars // 2
+        excerpt = (excerpt[:half]
+                   + f"\n... [trimmed {len(excerpt) - max_chars} chars] ...\n"
+                   + excerpt[-half:])
+
+    return excerpt
 
 
 def call_claude(api_key, prompt):
@@ -229,6 +330,8 @@ def main():
     parser = argparse.ArgumentParser(description="Analyze Buildkite build failures with Claude")
     parser.add_argument("--pipeline", default=os.environ.get("BUILDKITE_PIPELINE_SLUG"))
     parser.add_argument("--build", type=int, default=int(os.environ.get("BUILDKITE_BUILD_NUMBER", "0")))
+    parser.add_argument("--find-previous-failure", action="store_true",
+                        help="Find and analyze the most recent failed build for the current branch")
     parser.add_argument("--dry-run", action="store_true", help="Print analysis without annotating or posting to Slack")
     args = parser.parse_args()
 
@@ -246,6 +349,16 @@ def main():
     if not claude_key:
         print("Error: No Anthropic API key available", file=sys.stderr)
         sys.exit(1)
+
+    if args.find_previous_failure:
+        branch = os.environ.get("BUILDKITE_BRANCH")
+        print(f"Searching for previous failed build on branch '{branch}'...")
+        prev = find_previous_failed_build(args.pipeline, bk_token, branch, args.build)
+        if not prev:
+            print(f"No previous failed build found for branch '{branch}' — nothing to analyze.")
+            sys.exit(0)
+        args.build = prev["number"]
+        print(f"Found failed build #{args.build}: {prev.get('web_url', '')}")
 
     print(f"Analyzing {args.pipeline} build #{args.build}...")
 
@@ -284,7 +397,7 @@ def main():
             print(f"  Could not fetch log, skipping")
             continue
 
-        log_excerpt = truncate_log(log_text)
+        log_excerpt = extract_error_context(log_text)
 
         prompt = f"""Analyze this CI build failure.
 
@@ -295,7 +408,7 @@ def main():
 
 {KNOWN_FAILURE_PATTERNS}
 
-**Build log (last {MAX_LOG_CHARS} chars)**:
+**Build log (error-relevant sections extracted from full log)**:
 ```
 {log_excerpt}
 ```
