@@ -9,6 +9,15 @@ if [ ${MACHINE_TYPE} != "arm64" ]; then
     exit 1
 fi
 
+PYTHON_EXE=/opt/homebrew/bin/python3
+PIP_EXE=/opt/homebrew/bin/pip3
+
+# Verify they exist before proceeding
+if [ ! -f "$PYTHON_EXE" ]; then
+    echo "Homebrew Python not found at $PYTHON_EXE. Check install.sh."
+    exit 1
+fi
+
 export CPP='clang -E'
 export CC=clang
 export CFLAGS="-O3"
@@ -21,23 +30,50 @@ unset C_INCLUDE_PATH
 unset CPLUS_INCLUDE_PATH
 unset LIBRARY_PATH
 
-# Build and install boost 1.86.0
-curl -L https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar xjf - && \
-cd boost_1_86_0 && \
-./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
-sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp
-sudo ./b2 -j8 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC && \
-cd .. && \
-sudo rm -rf boost_1_86_0
+# 1. Download to a physical file first
+echo "Downloading Boost 1.86.0..."
+curl -L -f https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 -o boost_1_86_0.tar.bz2
 
-# Install python modules required by PyTorch
-sudo pip3 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+# 2. Check if the file is valid (not empty/missing)
+if [ ! -s boost_1_86_0.tar.bz2 ]; then
+    echo "ERROR: Boost download failed. Check network or URL."
+    exit 1
+fi
+
+# 3. Extract the physical file
+echo "Extracting Boost..."
+tar xjf boost_1_86_0.tar.bz2
+cd boost_1_86_0
+
+# 4. Run the bootstrap
+./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
+
+# 5. Patch and Install
+sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp
+sudo ./b2 -j4 install \
+  --layout=versioned \
+  --disable-icu \
+  threading=multi \
+  link=static,shared \
+  variant=release \
+  cxxflags="-std=c++17 -stdlib=libc++" \
+  linkflags="-stdlib=libc++" \
+  define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS \
+  define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT \
+  --without-python
+# 6. Cleanup
+cd ..
+sudo rm -rf boost_1_86_0 boost_1_86_0.tar.bz2
+
+# Install python modules using the explicit Brew pip path
+sudo $PIP_EXE install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+
 
 # Build and install PyTorch
 git clone --depth=1 --branch=v2.7.1 https://github.com/pytorch/pytorch.git && \
 cd pytorch && \
 git submodule sync && \
-git submodule update --init --recursive && \
+git submodule update --init --recursive
 sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
 sed -i -e '/CUDNN_ROOT/a\
            "DNNL_TARGET_ARCH",
@@ -61,7 +97,7 @@ export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 export PYTORCH_BUILD_VERSION=2.7.1
 export PYTORCH_BUILD_NUMBER=1
-python3 setup.py install
+$PYTHON_EXE setup.py install
 
 sudo mkdir -p /usr/local/lib && \
 sudo mkdir -p /usr/local/include/pytorch && \

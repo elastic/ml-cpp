@@ -30,6 +30,11 @@ if ! command -v vault 2> /dev/null ; then
     brew install hashicorp/tap/vault
 fi
 
+if [ ! -f "/opt/homebrew/bin/python3" ]; then
+    echo "installing homebrew python"
+    brew install python
+fi
+
 if ! command -v jq 2> /dev/null ; then
     echo "install jq"
     brew install jq
@@ -51,18 +56,34 @@ if ! java --version 2> /dev/null ; then
     sudo rm -rf /Library/Java/JavaVirtualMachines/zulu11.76.21-ca-jdk11.0.25-macosx_aarch64
 fi
 
-# Install CMake
+# 1. Install CMake (Fixing the sudo and pathing order)
 echo "Install CMake"
-curl -v -L https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-macos-universal.tar.gz | tar xvzf - --strip-components 1 -C /Applications
+# Use sudo for the tar command so it has permission to write to /Applications
+curl -L https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-macos-universal.tar.gz | sudo tar xvzf - --strip-components 1 -C /Applications
+
+# Ensure /usr/local/bin exists BEFORE creating the symlink
+sudo mkdir -p /usr/local/bin
 sudo ln -sf /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
 
-# Install the gobld-bootstrap.sh
-sudo mkdir -p /usr/local/bin
+# 2. Install the bootstrap script
 sudo cp /tmp/gobld-bootstrap.sh /usr/local/bin/gobld-bootstrap.sh
 sudo chmod +x /usr/local/bin/gobld-bootstrap.sh
-sudo cp /tmp/gobld-bootstrap.plist /Library/LaunchDaemons/gobld-bootstrap.plist
-sudo launchctl bootstrap system /Library/LaunchDaemons/gobld-bootstrap.plist
-sudo cp /tmp/gobld-bootstrap.plist /Users/admin
+
+# 3. FIX: Rename plist to match its internal Label: co.elastic.gobld-bootstrap
+# This is mandatory to prevent Error 5
+DEST_PLIST="/Library/LaunchDaemons/co.elastic.gobld-bootstrap.plist"
+sudo cp /tmp/gobld-bootstrap.plist "$DEST_PLIST"
+sudo chown root:wheel "$DEST_PLIST"
+sudo chmod 644 "$DEST_PLIST"
+
+# 4. Load the service 
+# Using legacy 'load' is more reliable than 'bootstrap' in Packer/Orka SSH sessions
+echo "Loading the LaunchDaemon..."
+sudo launchctl unload -w "$DEST_PLIST" 2>/dev/null || true
+sudo launchctl load -w "$DEST_PLIST"
+
+# Copy to home for reference as requested
+cp /tmp/gobld-bootstrap.plist /Users/admin/co.elastic.gobld-bootstrap.plist
 
 # Make sure all changes are written to disk
 sync

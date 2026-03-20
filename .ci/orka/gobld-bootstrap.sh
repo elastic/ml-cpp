@@ -22,4 +22,4 @@ retry() {
 }
 
 # Retry up to ~80 seconds as network is not guaranteed to be available when the script starts.
-retry 16 5 curl -s https://storage.googleapis.com/ci-systems-orka-provisioner-prod/gobld-bootstrap.sh | bash
+retry 16 5 curl -s https://storage.googleapis.com/ci-systems-orka-provisioner-dev/gobld-bootstrap.sh | bash
