@@ -140,8 +140,7 @@ ERROR_PATTERNS = re.compile(
     r"|fatal error"
     r"|^#error\b"
     r"|FAILED"
-    r"|BOOST_ERROR"
-    r"|BOOST_FAIL"
+    r"|\*\*\* \d+ failure"              # Boost.Test: *** N failure(s) detected
     r"|: fatal:"                         # linker fatal
     r"|ninja: build stopped"
     r"|make.*\*\*\*"                     # make: *** [target] Error
