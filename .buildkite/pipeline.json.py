@@ -52,8 +52,6 @@ def main():
         if config.build_x86_64:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
-            pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
-                                                               ".buildkite/pipelines/run_es_inference_tests_x86_64.yml.sh"))
             # We only use linux x86_64 builds for QA tests.
             if config.run_qa_tests:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",

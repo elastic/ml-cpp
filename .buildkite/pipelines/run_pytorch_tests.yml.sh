@@ -8,8 +8,6 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
-
 cat <<EOL
 steps:
   - label: "Trigger Appex PyTorch Tests :test_tube:"
@@ -24,7 +22,7 @@ steps:
   - trigger: appex-qa-stateful-custom-ml-cpp-build-testing
     async: false
     build:
-      message: "${SAFE_MESSAGE}"
+      message: "${BUILDKITE_MESSAGE}"
       env:
         QAF_TESTS_TO_RUN: "pytorch_tests"
 EOL
