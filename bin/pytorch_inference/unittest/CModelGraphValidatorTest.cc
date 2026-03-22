@@ -435,6 +435,30 @@ BOOST_AUTO_TEST_CASE(testMaliciousRopExploit) {
     BOOST_REQUIRE(hasForbiddenOp(result, "aten::as_strided"));
 }
 
+// --- Prepacked model compatibility tests ---
+//
+// These load TorchScript models that mirror the ops used by Elasticsearch's
+// prepacked models (ELSER, E5, rerank).  If a new op appears in a prepacked
+// model that isn't in the allowlist, these tests will catch it before CI
+// integration tests or production deployments.
+
+BOOST_AUTO_TEST_CASE(testPrepackedE5ModelWithNorm) {
+    // The prepacked .multilingual-e5-small model uses aten::norm for L2
+    // normalization.  This op was missing from the allowlist and caused
+    // production failures (the process exited with "Unrecognised operations:
+    // aten::norm").  This test model is a tiny (24KB) architecture-compatible
+    // replica with the same graph ops as the real 448MB prepacked model.
+    auto module = ::torch::jit::load("testfiles/e5_with_norm.pt");
+    auto result = CModelGraphValidator::validate(module);
+
+    BOOST_REQUIRE_MESSAGE(result.s_IsValid,
+                          "e5_with_norm.pt should pass validation but failed. "
+                          "Forbidden: " << result.s_ForbiddenOps.size()
+                          << ", Unrecognised: " << result.s_UnrecognisedOps.size());
+    BOOST_REQUIRE(result.s_ForbiddenOps.empty());
+    BOOST_REQUIRE(result.s_UnrecognisedOps.empty());
+}
+
 // --- Allowlist drift detection ---
 //
 // Validates that ALLOWED_OPERATIONS covers every operation observed in
