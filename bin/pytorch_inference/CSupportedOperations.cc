@@ -35,7 +35,8 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // google/mobilebert-uncased, xlm-roberta-base, elastic/bge-m3,
 // elastic/distilbert-base-{cased,uncased}-finetuned-conll03-english,
 // elastic/eis-elser-v2, elastic/elser-v2, elastic/hugging-face-elser,
-// elastic/multilingual-e5-small-optimized, elastic/splade-v3,
+// elastic/multilingual-e5-small-optimized, .multilingual-e5-small (prepacked),
+// elastic/splade-v3,
 // elastic/test-elser-v2, .rerank-v1 (Elastic rerank model),
 // distilbert-base-uncased-finetuned-sst-2-english,
 // sentence-transformers/all-distilroberta-v1.
@@ -99,6 +100,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::ne"sv,
     "aten::neg"sv,
     "aten::new_ones"sv,
+    "aten::norm"sv,
     "aten::ones"sv,
     "aten::pad"sv,
     "aten::permute"sv,
