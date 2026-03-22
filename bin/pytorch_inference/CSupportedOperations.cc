@@ -35,8 +35,8 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // google/mobilebert-uncased, xlm-roberta-base, elastic/bge-m3,
 // elastic/distilbert-base-{cased,uncased}-finetuned-conll03-english,
 // elastic/eis-elser-v2, elastic/elser-v2, elastic/hugging-face-elser,
-// elastic/multilingual-e5-small-optimized, .multilingual-e5-small (prepacked),
-// elastic/splade-v3,
+// elastic/multilingual-e5-small-optimized, intfloat/multilingual-e5-small,
+// .multilingual-e5-small (prepacked), elastic/splade-v3,
 // elastic/test-elser-v2, .rerank-v1 (Elastic rerank model),
 // distilbert-base-uncased-finetuned-sst-2-english,
 // sentence-transformers/all-distilroberta-v1.
