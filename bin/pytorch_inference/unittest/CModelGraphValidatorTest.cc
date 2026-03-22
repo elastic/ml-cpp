@@ -451,10 +451,10 @@ BOOST_AUTO_TEST_CASE(testPrepackedE5ModelWithNorm) {
     auto module = ::torch::jit::load("testfiles/e5_with_norm.pt");
     auto result = CModelGraphValidator::validate(module);
 
-    BOOST_REQUIRE_MESSAGE(result.s_IsValid,
-                          "e5_with_norm.pt should pass validation but failed. "
-                          "Forbidden: " << result.s_ForbiddenOps.size()
-                          << ", Unrecognised: " << result.s_UnrecognisedOps.size());
+    BOOST_REQUIRE_MESSAGE(result.s_IsValid, "e5_with_norm.pt should pass validation but failed. "
+                                            "Forbidden: "
+                                                << result.s_ForbiddenOps.size() << ", Unrecognised: "
+                                                << result.s_UnrecognisedOps.size());
     BOOST_REQUIRE(result.s_ForbiddenOps.empty());
     BOOST_REQUIRE(result.s_UnrecognisedOps.empty());
 }
