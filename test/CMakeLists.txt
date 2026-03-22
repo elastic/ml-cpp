@@ -57,6 +57,14 @@ else()
   set(_build_type_arg "")
 endif()
 
+# Common arguments for the pytorch_inference allowlist validation script.
+set(_validation_args
+    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -DVALIDATE_CONFIG=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/validation_models.json
+    -DVALIDATE_PT_DIR=${CMAKE_SOURCE_DIR}/dev-tools/extract_model_ops/es_it_models
+    -DVALIDATE_VERBOSE=TRUE
+)
+
 add_custom_target(test_all_parallel
         DEPENDS build_tests
         COMMAND ${CMAKE_COMMAND}
@@ -64,5 +72,19 @@ add_custom_target(test_all_parallel
             -DBUILD_DIR=${CMAKE_BINARY_DIR}
             ${_build_type_arg}
             -P ${CMAKE_SOURCE_DIR}/cmake/run-all-tests-parallel.cmake
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+# Standalone target for the pytorch_inference allowlist validation.
+# This creates a Python venv and may download HuggingFace models, so it
+# is deliberately kept separate from precommit and test_all_parallel to
+# avoid unexpected network/download side-effects.  Run it explicitly:
+#   cmake --build <dir> -t validate_pytorch_inference_models
+# See dev-tools/extract_model_ops/README.md for details.
+add_custom_target(validate_pytorch_inference_models
+        COMMAND ${CMAKE_COMMAND}
+            ${_validation_args}
+            -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
+        COMMENT "Validating pytorch_inference allowlist against HuggingFace models and ES integration test models"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
