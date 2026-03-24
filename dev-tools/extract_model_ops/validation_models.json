@@ -31,7 +31,9 @@
     "es-cross-encoder-ms-marco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
     "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base",
 
-    "_comment:qa-models": "Models from the Appex QA pytorch_tests suite (test_trained_model_boot_check). BART models (facebook/bart-large-mnli, valhalla/distilbart-mnli-12-6) cannot be TorchScript-traced and are excluded.",
+    "_comment:qa-models": "Models from the Appex QA pytorch_tests suite (test_trained_model_boot_check). BART models require use_cache=False and AutoModelForSequenceClassification to trace.",
     "qa-tinyroberta-squad2": "deepset/tinyroberta-squad2",
-    "qa-squeezebert-mnli": "typeform/squeezebert-mnli"
+    "qa-squeezebert-mnli": "typeform/squeezebert-mnli",
+    "qa-bart-large-mnli": {"model_id": "facebook/bart-large-mnli", "quantized": false},
+    "qa-distilbart-mnli": {"model_id": "valhalla/distilbart-mnli-12-6", "quantized": false}
 }
