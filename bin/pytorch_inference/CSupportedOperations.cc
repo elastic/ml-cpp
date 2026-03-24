@@ -38,6 +38,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // elastic/multilingual-e5-small-optimized, intfloat/multilingual-e5-small,
 // .multilingual-e5-small (prepacked), elastic/splade-v3,
 // elastic/test-elser-v2, .rerank-v1 (Elastic rerank model),
+// deepset/tinyroberta-squad2, typeform/squeezebert-mnli,
 // distilbert-base-uncased-finetuned-sst-2-english,
 // sentence-transformers/all-distilroberta-v1.
 // Eland-deployed variants of the above models (with pooling/normalization layers).
@@ -51,6 +52,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::IntImplicit"sv,
     "aten::ScalarImplicit"sv,
     "aten::__and__"sv,
+    "aten::_convolution"sv,
     "aten::abs"sv,
     "aten::add"sv,
     "aten::add_"sv,
