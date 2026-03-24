@@ -84,6 +84,14 @@ def main():
                                                        ".buildkite/pipelines/check_build_regression.yml.sh",
                                                        soft_fail=True))
 
+    # Validate the PyTorch allowlist against HuggingFace models when
+    # triggered from the PyTorch edge pipeline.  Runs in a python:3
+    # container since the build/test images don't include Python.
+    if config.run_pytorch_tests:
+        pipeline_steps.append(pipeline_steps.generate_step("Upload PyTorch allowlist validation",
+                                                           ".buildkite/pipelines/validate_pytorch_allowlist.yml.sh",
+                                                           soft_fail=True))
+
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
