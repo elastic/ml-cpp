@@ -1,0 +1,32 @@
+{
+    "bert": "bert-base-uncased",
+    "roberta": "roberta-base",
+    "distilbert": "distilbert-base-uncased",
+    "electra": "google/electra-small-discriminator",
+    "mpnet": "microsoft/mpnet-base",
+    "deberta": "microsoft/deberta-base",
+    "dpr": "facebook/dpr-ctx_encoder-single-nq-base",
+    "mobilebert": "google/mobilebert-uncased",
+    "xlm-roberta": "xlm-roberta-base",
+    "elastic-bge-m3": "elastic/bge-m3",
+    "elastic-distilbert-cased-ner": "elastic/distilbert-base-cased-finetuned-conll03-english",
+    "elastic-distilbert-uncased-ner": "elastic/distilbert-base-uncased-finetuned-conll03-english",
+    "elastic-eis-elser-v2": "elastic/eis-elser-v2",
+    "elastic-elser-v2": "elastic/elser-v2",
+    "elastic-hugging-face-elser": "elastic/hugging-face-elser",
+    "elastic-multilingual-e5-small-optimized": "elastic/multilingual-e5-small-optimized",
+    "multilingual-e5-small": "intfloat/multilingual-e5-small",
+    "elastic-splade-v3": "elastic/splade-v3",
+    "elastic-test-elser-v2": "elastic/test-elser-v2",
+    "distilbert-sst2": "distilbert-base-uncased-finetuned-sst-2-english",
+    "all-distilroberta-v1": "sentence-transformers/all-distilroberta-v1",
+
+    "_comment:prepacked": "Prepacked models: .rerank-v1 is an internal Elastic model hosted at ml-models.elastic.co, not on HuggingFace. Its ops are extracted from the TorchScript .pt file directly and added to the golden file manually.",
+
+    "_comment:eland": "Eland-deployed variants: Eland wraps models with additional layers (pooling, normalization) before tracing. The -eland entries in the golden file capture the full Eland-traced op set. These are extracted separately using eland[pytorch] and added to the golden file manually since extract_model_ops.py traces base HuggingFace models only.",
+
+    "_comment:quantized": "Quantized variants: Eland applies torch.quantization.quantize_dynamic on nn.Linear layers when importing models. These produce quantized::* ops not present in the standard traced graphs above.",
+    "elastic-elser-v2-quantized": {"model_id": "elastic/elser-v2", "quantized": true},
+    "elastic-eis-elser-v2-quantized": {"model_id": "elastic/eis-elser-v2", "quantized": true},
+    "elastic-test-elser-v2-quantized": {"model_id": "elastic/test-elser-v2", "quantized": true}
+}
