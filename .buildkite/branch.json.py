@@ -30,6 +30,27 @@ def main():
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
     config = buildConfig.Config()
     config.parse()
+
+    build_step_keys = []
+    test_step_keys = []
+    if config.build_linux and config.build_aarch64:
+        build_step_keys.append("build_test_linux-aarch64-RelWithDebInfo")
+        test_step_keys.append("test_linux-aarch64-RelWithDebInfo")
+    if config.build_linux and config.build_x86_64:
+        build_step_keys.append("build_test_linux-x86_64-RelWithDebInfo")
+        test_step_keys.append("test_linux-x86_64-RelWithDebInfo")
+    if config.build_macos and config.build_aarch64:
+        build_step_keys.append("build_test_macos-aarch64-RelWithDebInfo")
+        test_step_keys.append("test_macos-aarch64-RelWithDebInfo")
+    if config.build_windows and config.build_x86_64:
+        build_step_keys.append("build_test_Windows-x86_64-RelWithDebInfo")
+        test_step_keys.append("test_Windows-x86_64-RelWithDebInfo")
+
+    env = {
+        "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
+        "ML_TEST_STEP_KEYS": ",".join(test_step_keys),
+    }
+
     if config.build_windows:
         build_windows = pipeline_steps.generate_step_template("Windows", "build", "", config.build_x86_64)
         pipeline_steps.append(build_windows)
@@ -55,6 +76,7 @@ def main():
     pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to GCS",
                                                        ".buildkite/pipelines/upload_dra_to_gcs.yml.sh"))
 
+    pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
 

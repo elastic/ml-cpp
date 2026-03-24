@@ -8,18 +8,24 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-cat <<EOL
+cat <<'EOL'
 steps:
   - label: "Ingest build timings :elasticsearch:"
     key: "ingest_build_timings"
     command:
         - "pip3 install --quiet requests 2>/dev/null || true"
-        - "python3 dev-tools/ingest_build_timings.py --pipeline \$BUILDKITE_PIPELINE_SLUG --build \$BUILDKITE_BUILD_NUMBER"
-    depends_on:
-        - "build_test_linux-aarch64-RelWithDebInfo"
-        - "build_test_linux-x86_64-RelWithDebInfo"
-        - "build_test_macos-aarch64-RelWithDebInfo"
-        - "build_test_Windows-x86_64-RelWithDebInfo"
+        - "python3 dev-tools/ingest_build_timings.py --pipeline $BUILDKITE_PIPELINE_SLUG --build $BUILDKITE_BUILD_NUMBER"
+EOL
+
+if [ -n "${ML_BUILD_STEP_KEYS:-}" ]; then
+    echo '    depends_on:'
+    IFS=',' read -ra STEP_KEYS <<< "$ML_BUILD_STEP_KEYS"
+    for key in "${STEP_KEYS[@]}"; do
+        echo "        - \"${key}\""
+    done
+fi
+
+cat <<'EOL'
     allow_dependency_failure: true
     soft_fail: true
     agents:

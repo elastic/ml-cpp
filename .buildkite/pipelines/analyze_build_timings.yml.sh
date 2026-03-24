@@ -8,17 +8,23 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-cat <<EOL
+cat <<'EOL'
 steps:
   - label: "Analyse build timings :chart_with_upwards_trend:"
     key: "analyze_build_timings"
     command:
         - "python3 .buildkite/scripts/steps/analyze_build_timings.py"
-    depends_on:
-        - "test_linux-aarch64-RelWithDebInfo"
-        - "test_linux-x86_64-RelWithDebInfo"
-        - "test_macos-aarch64-RelWithDebInfo"
-        - "test_Windows-x86_64-RelWithDebInfo"
+EOL
+
+if [ -n "${ML_TEST_STEP_KEYS:-}" ]; then
+    echo '    depends_on:'
+    IFS=',' read -ra STEP_KEYS <<< "$ML_TEST_STEP_KEYS"
+    for key in "${STEP_KEYS[@]}"; do
+        echo "        - \"${key}\""
+    done
+fi
+
+cat <<'EOL'
     allow_dependency_failure: true
     soft_fail: true
     agents:
