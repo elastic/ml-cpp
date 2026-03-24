@@ -110,7 +110,7 @@ fi
 # allowlist validation which traces live HuggingFace models with the
 # new PyTorch version and verifies every op is in ALLOWED_OPERATIONS.
 VALIDATION_OUTCOME=0
-if [[ "${GITHUB_PR_COMMENT_VAR_ACTION:-}" == "run_pytorch_tests" ]]; then
+if [[ "${GITHUB_PR_COMMENT_VAR_ACTION:-}" == "run_pytorch_tests" ]] && [ -f cmake/run-validation.cmake ]; then
     echo "--- Validating PyTorch allowlist against HuggingFace models"
     cmake \
         -DSOURCE_DIR="$(pwd)" \
