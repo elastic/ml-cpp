@@ -30,9 +30,9 @@ if ! command -v vault 2> /dev/null ; then
     brew install hashicorp/tap/vault
 fi
 
-if [ ! -f "/opt/homebrew/bin/python3" ]; then
-    echo "installing homebrew python"
-    brew install python
+if [ ! -f "/opt/homebrew/bin/python3.12" ]; then
+    echo "installing homebrew python 3.12"
+    brew install python@3.12
 fi
 
 if ! command -v jq 2> /dev/null ; then

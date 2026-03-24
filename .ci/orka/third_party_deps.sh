@@ -9,14 +9,23 @@ if [ ${MACHINE_TYPE} != "arm64" ]; then
     exit 1
 fi
 
-PYTHON_EXE=/opt/homebrew/bin/python3
-PIP_EXE=/opt/homebrew/bin/pip3
+SYSTEM_PYTHON=/opt/homebrew/opt/python@3.12/bin/python3.12
+SYSTEM_PIP=/opt/homebrew/opt/python@3.12/bin/pip3.12
 
-# Verify they exist before proceeding
-if [ ! -f "$PYTHON_EXE" ]; then
-    echo "Homebrew Python not found at $PYTHON_EXE. Check install.sh."
+# Verify system Python exists before proceeding
+if [ ! -f "$SYSTEM_PYTHON" ]; then
+    echo "Homebrew Python not found at $SYSTEM_PYTHON. Check install.sh."
     exit 1
 fi
+
+# Create and activate virtual environment
+echo "Creating Python virtual environment..."
+$SYSTEM_PYTHON -m venv /tmp/ml-cpp-build-venv
+source /tmp/ml-cpp-build-venv/bin/activate
+
+# Update paths to use venv
+PYTHON_EXE=/tmp/ml-cpp-build-venv/bin/python
+PIP_EXE=/tmp/ml-cpp-build-venv/bin/pip
 
 export CPP='clang -E'
 export CC=clang
@@ -46,27 +55,30 @@ tar xjf boost_1_86_0.tar.bz2
 cd boost_1_86_0
 
 # 4. Run the bootstrap
-./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
+./bootstrap.sh --with-toolset=clang --without-libraries=python --without-icu
 
-# 5. Patch and Install
-sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp
+# 5. Install WITHOUT the sed patch
+echo "Starting Boost build (this may take a few minutes)..."
 sudo ./b2 -j4 install \
   --layout=versioned \
   --disable-icu \
+  architecture=arm \
+  address-model=64 \
   threading=multi \
   link=static,shared \
   variant=release \
   cxxflags="-std=c++17 -stdlib=libc++" \
   linkflags="-stdlib=libc++" \
   define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS \
-  define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT \
   --without-python
+
 # 6. Cleanup
 cd ..
 sudo rm -rf boost_1_86_0 boost_1_86_0.tar.bz2
 
-# Install python modules using the explicit Brew pip path
-sudo $PIP_EXE install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+# Install python modules in virtual environment
+echo "Installing Python packages in virtual environment..."
+$PIP_EXE install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 
 # Build and install PyTorch
@@ -97,6 +109,7 @@ export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 export PYTORCH_BUILD_VERSION=2.7.1
 export PYTORCH_BUILD_NUMBER=1
+echo "Installing PyTorch in virtual environment..."
 $PYTHON_EXE setup.py install
 
 sudo mkdir -p /usr/local/lib && \
