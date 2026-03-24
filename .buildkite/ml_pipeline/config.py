@@ -90,6 +90,17 @@ class Config:
             self.build_macos = True
             self.build_linux = True
 
+        # If no explicit action was set (e.g. "buildkite test this" via
+        # always_trigger_comment_regex), check PR labels for QA/PyTorch
+        # flags.  This is done after platform/arch defaults so that
+        # label-based flags don't restrict platforms to Linux-only.
+        if "GITHUB_PR_COMMENT_VAR_ACTION" not in os.environ and "GITHUB_PR_LABELS" in os.environ:
+            labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
+            if "ci:run-qa-tests" in labels:
+                self.run_qa_tests = True
+            if "ci:run-pytorch-tests" in labels:
+                self.run_pytorch_tests = True
+
     def parse_label(self):
         """ Parse labels set on GitHub PR comments."""
 
