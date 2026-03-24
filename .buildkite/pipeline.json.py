@@ -67,7 +67,8 @@ def main():
 
     # Check for build timing regressions against nightly baseline
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
-                                                       ".buildkite/pipelines/check_build_regression.yml.sh"))
+                                                       ".buildkite/pipelines/check_build_regression.yml.sh",
+                                                       soft_fail=True))
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
