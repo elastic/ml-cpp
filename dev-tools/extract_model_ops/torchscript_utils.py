@@ -145,13 +145,18 @@ def load_and_trace_hf_model(model_name: str, quantize: bool = False,
     attention_mask = inputs["attention_mask"]
 
     try:
-        return torch.jit.trace(
+        traced = torch.jit.trace(
             model, (input_ids, attention_mask), strict=False)
     except Exception as exc:
         print(f"    TRACE WARNING: {exc}", file=sys.stderr)
         print("    Falling back to torch.jit.script...", file=sys.stderr)
         try:
-            return torch.jit.script(model)
+            traced = torch.jit.script(model)
         except Exception as exc2:
             print(f"    SCRIPT ERROR: {exc2}", file=sys.stderr)
             return None
+
+    # Free the original HF model to reduce peak memory when validating
+    # many models sequentially.
+    del model, tokenizer, inputs
+    return traced

@@ -29,6 +29,7 @@ Usage:
 """
 
 import argparse
+import gc
 import re
 import sys
 from pathlib import Path
@@ -121,7 +122,10 @@ def validate_model(model_name: str,
         print(f"    SKIPPED (could not load/trace)", file=sys.stderr)
         return "skip"
     ops = collect_inlined_ops(traced)
-    return "pass" if check_ops(ops, allowed, forbidden, verbose) else "fail"
+    result = "pass" if check_ops(ops, allowed, forbidden, verbose) else "fail"
+    del traced
+    gc.collect()
+    return result
 
 
 def validate_pt_file(name: str,
