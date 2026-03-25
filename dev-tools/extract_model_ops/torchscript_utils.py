@@ -11,7 +11,6 @@
 #
 """Shared utilities for extracting and inspecting TorchScript operations."""
 
-import importlib
 import json
 import os
 import sys
@@ -46,7 +45,8 @@ def load_model_config(config_path: Path) -> dict[str, dict]:
         if key.startswith("_comment"):
             continue
         if isinstance(value, str):
-            models[key] = {"model_id": value, "quantized": False}
+            models[key] = {"model_id": value, "quantized": False,
+                           "auto_class": None, "config_overrides": {}}
         elif isinstance(value, dict):
             if "model_id" not in value:
                 raise ValueError(

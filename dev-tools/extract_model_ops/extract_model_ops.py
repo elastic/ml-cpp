@@ -98,8 +98,8 @@ def main():
     for arch, spec in reference_models.items():
         ops = extract_ops_for_model(spec["model_id"],
                                     quantize=spec["quantized"],
-                                    auto_class=spec.get("auto_class"),
-                                    config_overrides=spec.get("config_overrides"))
+                                    auto_class=spec["auto_class"],
+                                    config_overrides=spec["config_overrides"])
         if ops is None:
             failed.append(arch)
             print(f"  {arch}: FAILED", file=sys.stderr)
