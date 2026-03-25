@@ -33,8 +33,8 @@ cat <<'EOL'
     allow_dependency_failure: true
     agents:
       image: "python:3.12"
-      memory: "16G"
-      ephemeralStorage: "20G"
+      memory: "32G"
+      ephemeralStorage: "30G"
     notify:
       - github_commit_status:
           context: "Validate PyTorch allowlist"
