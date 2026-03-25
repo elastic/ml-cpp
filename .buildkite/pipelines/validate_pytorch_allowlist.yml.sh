@@ -32,5 +32,5 @@ cat <<'EOL'
     allow_dependency_failure: true
     soft_fail: true
     agents:
-      image: "python:3"
+      image: "python:3.12"
 EOL
