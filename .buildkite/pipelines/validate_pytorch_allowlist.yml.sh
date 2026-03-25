@@ -35,4 +35,7 @@ cat <<'EOL'
       image: "python:3.12"
       memory: "16G"
       ephemeralStorage: "20G"
+    notify:
+      - github_commit_status:
+          context: "Validate PyTorch allowlist"
 EOL
