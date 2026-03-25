@@ -29,5 +29,11 @@
     "es-multilingual-e5-small": "intfloat/multilingual-e5-small",
     "es-all-MiniLM-L6-v2": "sentence-transformers/all-MiniLM-L6-v2",
     "es-cross-encoder-ms-marco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
-    "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base"
+    "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base",
+
+    "_comment:qa-models": "Models from the Appex QA pytorch_tests suite. BART models require auto_class and config_overrides to trace correctly.",
+    "qa-tinyroberta-squad2": "deepset/tinyroberta-squad2",
+    "qa-squeezebert-mnli": "typeform/squeezebert-mnli",
+    "qa-bart-large-mnli": {"model_id": "facebook/bart-large-mnli", "auto_class": "AutoModelForSequenceClassification", "config_overrides": {"use_cache": false}},
+    "qa-distilbart-mnli": {"model_id": "valhalla/distilbart-mnli-12-6", "auto_class": "AutoModelForSequenceClassification", "config_overrides": {"use_cache": false}}
 }
