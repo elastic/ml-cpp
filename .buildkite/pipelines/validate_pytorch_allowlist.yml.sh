@@ -12,9 +12,10 @@ cat <<'EOL'
 steps:
   - label: "Validate PyTorch allowlist :torch:"
     key: "validate_pytorch_allowlist"
+    timeout_in_minutes: 60
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
-        - "pip install -q -r dev-tools/extract_model_ops/requirements.txt"
+        - "pip install -r dev-tools/extract_model_ops/requirements.txt"
         - "python3 dev-tools/extract_model_ops/validate_allowlist.py --config dev-tools/extract_model_ops/validation_models.json --pt-dir dev-tools/extract_model_ops/es_it_models --verbose"
 EOL
 
@@ -33,4 +34,6 @@ cat <<'EOL'
     soft_fail: true
     agents:
       image: "python:3.12"
+      memory: "16G"
+      ephemeralStorage: "20G"
 EOL
