@@ -32,7 +32,7 @@
     "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base",
 
     "_comment:qa-models": "Models from the Appex QA pytorch_tests suite. BART models require auto_class and config_overrides to trace correctly.",
-    "qa-tinyroberta-squad2": "deepset/tinyroberta-squad2",
+    "qa-tinyroberta-squad2": {"model_id": "deepset/tinyroberta-squad2", "auto_class": "AutoModelForQuestionAnswering"},
     "qa-squeezebert-mnli": "typeform/squeezebert-mnli",
     "qa-bart-large-mnli": {"model_id": "facebook/bart-large-mnli", "auto_class": "AutoModelForSequenceClassification", "config_overrides": {"use_cache": false}},
     "qa-distilbart-mnli": {"model_id": "valhalla/distilbart-mnli-12-6", "auto_class": "AutoModelForSequenceClassification", "config_overrides": {"use_cache": false}}
