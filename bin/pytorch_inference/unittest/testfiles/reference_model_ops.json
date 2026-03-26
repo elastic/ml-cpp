@@ -1011,9 +1011,9 @@
       "model_id": "deepset/tinyroberta-squad2",
       "quantized": false,
       "ops": [
-        "aten::Int",
         "aten::add",
         "aten::add_",
+        "aten::contiguous",
         "aten::cumsum",
         "aten::detach",
         "aten::dropout",
@@ -1027,11 +1027,11 @@
         "aten::ne",
         "aten::reshape",
         "aten::scaled_dot_product_attention",
-        "aten::select",
         "aten::size",
         "aten::slice",
+        "aten::split",
+        "aten::squeeze",
         "aten::sub",
-        "aten::tanh",
         "aten::to",
         "aten::transpose",
         "aten::type_as",
@@ -1040,9 +1040,10 @@
         "prim::Constant",
         "prim::GetAttr",
         "prim::ListConstruct",
-        "prim::NumToTensor",
+        "prim::ListUnpack",
         "prim::TupleConstruct"
-      ]
+      ],
+      "auto_class": "AutoModelForQuestionAnswering"
     },
     "qa-bart-large-mnli": {
       "model_id": "facebook/bart-large-mnli",
