@@ -37,6 +37,7 @@
 #include <torch/script.h>
 
 #include <cstdint>
+#include <cstdlib>
 #include <exception>
 #include <memory>
 #include <optional>
@@ -315,7 +316,13 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         module_ = torch::jit::load(std::move(readAdapter));
-        verifySafeModel(module_);
+        const char* skipValidation = std::getenv("ML_SKIP_MODEL_VALIDATION");
+        if (skipValidation != nullptr && std::string{skipValidation} == "true") {
+            LOG_WARN(<< "Model graph validation SKIPPED — ML_SKIP_MODEL_VALIDATION=true. "
+                     << "This disables security checks on model operations.");
+        } else {
+            verifySafeModel(module_);
+        }
         module_.eval();
 
         LOG_DEBUG(<< "model loaded");
