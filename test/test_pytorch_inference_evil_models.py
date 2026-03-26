@@ -21,8 +21,9 @@ Usage:
     --binary PATH   Explicit path to the pytorch_inference binary.
                     If omitted, the script searches standard build locations.
 
-Requires: torch, a built pytorch_inference binary with graph validation
-          (feature/harden_pytorch_inference branch or later).
+Requires: torch, and a built pytorch_inference binary from this repository
+          with graph validation enabled (i.e., including the
+          CModelGraphValidator checks).
 """
 
 import argparse
@@ -215,7 +216,7 @@ def find_pytorch_inference() -> str:
 
     raise FileNotFoundError(
         "Could not find pytorch_inference binary. "
-        "Build from the feature/harden_pytorch_inference branch, or pass --binary."
+        "Build the project with graph validation enabled, or pass --binary."
     )
 
 
@@ -267,7 +268,7 @@ def prepare_restore_file(model_path: Path, restore_path: Path) -> None:
 
 
 def run_pytorch_inference(binary: str, model_path: Path, tmp_dir: Path,
-                          timeout: int = 30, extra_env: dict | None = None) -> tuple[int, str, str]:
+                          timeout: int = 30, extra_args: list | None = None) -> tuple[int, str, str]:
     """Run pytorch_inference against a model file.
 
     Returns (exit_code, stdout, stderr).
@@ -280,16 +281,14 @@ def run_pytorch_inference(binary: str, model_path: Path, tmp_dir: Path,
         f"--restore={restore_file}",
         "--validElasticLicenseKeyConfirmed=true",
     ]
-    env = os.environ.copy()
-    if extra_env:
-        env.update(extra_env)
+    if extra_args:
+        cmd.extend(extra_args)
     proc = subprocess.run(
         cmd,
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         timeout=timeout,
-        env=env,
     )
     return proc.returncode, proc.stdout.decode("utf-8", errors="replace"), proc.stderr.decode("utf-8", errors="replace")
 
@@ -315,7 +314,8 @@ def run_tests(binary: str) -> bool:
                 generate_model(spec["class"], model_path)
                 print(f"  Model generated: {model_path.name} ({model_path.stat().st_size} bytes)")
             except Exception as e:
-                print(f"  SKIP: could not generate model: {e}")
+                print(f"  FAIL: could not generate model: {e}")
+                all_passed = False
                 print()
                 continue
 
@@ -378,16 +378,16 @@ def run_tests(binary: str) -> bool:
             print()
 
         # --- Kill switch test ---
-        # Verify ML_SKIP_MODEL_VALIDATION=true bypasses the graph validator.
+        # Verify --skipModelValidation bypasses the graph validator.
         # Use the leak model (which is normally rejected) and confirm it is
-        # accepted when the kill switch is set.
-        print("--- kill_switch: ML_SKIP_MODEL_VALIDATION=true bypasses validation ---")
+        # accepted when the flag is set.
+        print("--- kill_switch: --skipModelValidation bypasses validation ---")
         leak_path = tmp_dir / "model_leak.pt"
         if leak_path.exists():
             try:
                 exit_code, stdout, stderr = run_pytorch_inference(
                     binary, leak_path, tmp_dir,
-                    extra_env={"ML_SKIP_MODEL_VALIDATION": "true"})
+                    extra_args=["--skipModelValidation"])
             except subprocess.TimeoutExpired:
                 exit_code, stderr = -1, ""
 
@@ -404,13 +404,12 @@ def run_tests(binary: str) -> bool:
                 print(f"  Test: FAIL")
                 all_passed = False
 
-            # Also verify ML_SKIP_MODEL_VALIDATION=false does NOT skip
+            # Also verify without the flag, validation still runs
             print()
-            print("--- kill_switch_false: ML_SKIP_MODEL_VALIDATION=false still validates ---")
+            print("--- kill_switch_absent: without flag, validation still active ---")
             try:
                 exit_code, stdout, stderr = run_pytorch_inference(
-                    binary, leak_path, tmp_dir,
-                    extra_env={"ML_SKIP_MODEL_VALIDATION": "false"})
+                    binary, leak_path, tmp_dir)
             except subprocess.TimeoutExpired:
                 exit_code, stderr = -1, ""
 
@@ -419,8 +418,8 @@ def run_tests(binary: str) -> bool:
                 print(f"  Result: model rejected (validation still active)")
                 print(f"  Test: OK")
             else:
-                print(f"  Result: validation was bypassed by value 'false'")
-                print(f"  Test: FAIL — only 'true' should bypass")
+                print(f"  Result: validation was not active without flag")
+                print(f"  Test: FAIL")
                 all_passed = False
         else:
             print("  SKIP: leak model not generated")

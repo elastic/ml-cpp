@@ -52,7 +52,8 @@ public:
                       std::size_t& cacheMemorylimitBytes,
                       bool& validElasticLicenseKeyConfirmed,
                       bool& lowPriority,
-                      bool& useImmediateExecutor);
+                      bool& useImmediateExecutor,
+                      bool& skipModelValidation);
 
 private:
     static const std::string DESCRIPTION;
