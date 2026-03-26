@@ -22,7 +22,7 @@ variable "admin_password" {
 }
 
 source "macstadium-orka" "image" {
-  source_image     = "base-generic-macos-14-sonoma-arm-1774034496"
+  source_image     = "generic-14-sonoma-arm"
   image_name       = "clind-ml-macos-14-arm"
   orka_endpoint    = local.orka_endpoint
   orka_auth_token  = local.orka_auth_token

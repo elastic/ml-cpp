@@ -9,24 +9,6 @@ if [ ${MACHINE_TYPE} != "arm64" ]; then
     exit 1
 fi
 
-SYSTEM_PYTHON=/opt/homebrew/opt/python@3.12/bin/python3.12
-SYSTEM_PIP=/opt/homebrew/opt/python@3.12/bin/pip3.12
-
-# Verify system Python exists before proceeding
-if [ ! -f "$SYSTEM_PYTHON" ]; then
-    echo "Homebrew Python not found at $SYSTEM_PYTHON. Check install.sh."
-    exit 1
-fi
-
-# Create and activate virtual environment
-echo "Creating Python virtual environment..."
-$SYSTEM_PYTHON -m venv /tmp/ml-cpp-build-venv
-source /tmp/ml-cpp-build-venv/bin/activate
-
-# Update paths to use venv
-PYTHON_EXE=/tmp/ml-cpp-build-venv/bin/python
-PIP_EXE=/tmp/ml-cpp-build-venv/bin/pip
-
 export CPP='clang -E'
 export CC=clang
 export CFLAGS="-O3"
@@ -39,53 +21,23 @@ unset C_INCLUDE_PATH
 unset CPLUS_INCLUDE_PATH
 unset LIBRARY_PATH
 
-# 1. Download to a physical file first
-echo "Downloading Boost 1.86.0..."
-curl -L -f https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 -o boost_1_86_0.tar.bz2
+# Build and install boost 1.86.0
+curl -L https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 | tar xjf - && \
+cd boost_1_86_0 && \
+./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
+sed -i -e 's/{13ul/{3ul, 13ul/' boost/unordered/detail/prime_fmod.hpp
+sudo ./b2 -j8 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC && \
+cd .. && \
+sudo rm -rf boost_1_86_0
 
-# 2. Check if the file is valid (not empty/missing)
-if [ ! -s boost_1_86_0.tar.bz2 ]; then
-    echo "ERROR: Boost download failed. Check network or URL."
-    exit 1
-fi
-
-# 3. Extract the physical file
-echo "Extracting Boost..."
-tar xjf boost_1_86_0.tar.bz2
-cd boost_1_86_0
-
-# 4. Run the bootstrap
-./bootstrap.sh --with-toolset=clang --without-libraries=python --without-icu
-
-# 5. Install WITHOUT the sed patch
-echo "Starting Boost build (this may take a few minutes)..."
-sudo ./b2 -j4 install \
-  --layout=versioned \
-  --disable-icu \
-  architecture=arm \
-  address-model=64 \
-  threading=multi \
-  link=static,shared \
-  variant=release \
-  cxxflags="-std=c++17 -stdlib=libc++" \
-  linkflags="-stdlib=libc++" \
-  define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS \
-  --without-python
-
-# 6. Cleanup
-cd ..
-sudo rm -rf boost_1_86_0 boost_1_86_0.tar.bz2
-
-# Install python modules in virtual environment
-echo "Installing Python packages in virtual environment..."
-$PIP_EXE install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
-
+# Install python modules required by PyTorch
+sudo pip3 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Build and install PyTorch
 git clone --depth=1 --branch=v2.7.1 https://github.com/pytorch/pytorch.git && \
 cd pytorch && \
 git submodule sync && \
-git submodule update --init --recursive
+git submodule update --init --recursive && \
 sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
 sed -i -e '/CUDNN_ROOT/a\
            "DNNL_TARGET_ARCH",
@@ -109,8 +61,7 @@ export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 export PYTORCH_BUILD_VERSION=2.7.1
 export PYTORCH_BUILD_NUMBER=1
-echo "Installing PyTorch in virtual environment..."
-$PYTHON_EXE setup.py install
+python3 setup.py install
 
 sudo mkdir -p /usr/local/lib && \
 sudo mkdir -p /usr/local/include/pytorch && \
