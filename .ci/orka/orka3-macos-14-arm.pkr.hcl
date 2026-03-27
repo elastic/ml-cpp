@@ -12,13 +12,6 @@ locals {
   orka_auth_token = vault("secret/security-sre-team/ci/orka3", "packer_service_account_token")
   ssh_username = vault("secret/security-sre-team/ci/orka", "ssh_username")
   ssh_password = vault("secret/security-sre-team/ci/orka", "ssh_password")
-  sensitive  = true
-}
-
-variable "admin_password" {
-  type      = string
-  default   = "dontUseThisDefault"
-  sensitive = true
 }
 
 source "macstadium-orka" "image" {
