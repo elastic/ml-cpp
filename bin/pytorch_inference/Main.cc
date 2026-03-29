@@ -207,11 +207,10 @@ int main(int argc, char** argv) {
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
-            numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
-            validElasticLicenseKeyConfirmed, lowPriority, useImmediateExecutor,
-            skipModelValidation) == false) {
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, logFileName, logProperties, numThreadsPerAllocation,
+            numAllocations, cacheMemorylimitBytes, validElasticLicenseKeyConfirmed,
+            lowPriority, useImmediateExecutor, skipModelValidation) == false) {
         return EXIT_FAILURE;
     }
 
