@@ -31,6 +31,8 @@
     "es-cross-encoder-ms-marco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
     "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base",
 
+    "jina-embeddings-v5-text-nano": "jinaai/jina-embeddings-v5-text-nano",
+
     "_comment:qa-models": "Models from the Appex QA pytorch_tests suite. BART models require auto_class and config_overrides to trace correctly.",
     "qa-tinyroberta-squad2": {"model_id": "deepset/tinyroberta-squad2", "auto_class": "AutoModelForQuestionAnswering"},
     "qa-squeezebert-mnli": "typeform/squeezebert-mnli",
