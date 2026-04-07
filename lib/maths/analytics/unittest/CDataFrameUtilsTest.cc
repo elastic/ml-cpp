@@ -845,9 +845,10 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         LOG_TRACE(<< "Actual category count " << actualCategoryCounts);
 
         BOOST_REQUIRE_EQUAL(actualCategoryCounts.size(), expectedCategoryCounts.size());
-        for (std::size_t i = 0; i < expectedCategoryCounts.size(); ++i) {
-            BOOST_REQUIRE_EQUAL(actualCategoryCounts[i],
-                                expectedCategoryCounts[static_cast<double>(i)]);
+        for (const auto & [ category, expected ] : expectedCategoryCounts) {
+            auto index = static_cast<std::size_t>(category);
+            BOOST_TEST_REQUIRE(index < actualCategoryCounts.size());
+            BOOST_REQUIRE_EQUAL(actualCategoryCounts[index], expected);
         }
     }
 
