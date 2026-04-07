@@ -302,6 +302,14 @@ def run_tests(binary: str) -> bool:
 
     tmp_dir = Path(tempfile.mkdtemp(prefix="pt_infer_evil_test_"))
     all_passed = True
+    validation_rejection_phrases = [
+        "Model contains forbidden operations:",
+        "Unrecognised operations:",
+        "graph validation failed",
+        "graph is too large:",
+        # Older main-branch validator message
+        "contains forbidden operation:",
+    ]
 
     try:
         for name, spec in MODELS.items():
@@ -341,14 +349,6 @@ def run_tests(binary: str) -> bool:
                 for line in display_lines:
                     print(f"    {line}")
 
-            validation_rejection_phrases = [
-                "Model contains forbidden operations:",
-                "Unrecognised operations:",
-                "graph validation failed",
-                "graph is too large:",
-                # Older main-branch validator message
-                "contains forbidden operation:",
-            ]
             was_rejected_by_validator = any(p in stderr for p in validation_rejection_phrases)
 
             if expect_rejected:
