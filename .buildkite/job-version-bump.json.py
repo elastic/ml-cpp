@@ -20,24 +20,23 @@ import json
 
 def main():
     pipeline = {}
-    # TODO: replace the block step with version bump logic
     pipeline_steps = [
         {
-            "block": "Ready to fetch for DRA artifacts?",
-            "prompt": (
-                "Unblock when your team is ready to proceed.\n\n"
-                "Trigger parameters:\n"
-                "- NEW_VERSION: ${NEW_VERSION}\n"
-                "- BRANCH: ${BRANCH}\n"
-                "- WORKFLOW: ${WORKFLOW}\n"
-            ),
-            "key": "block-get-dra-artifacts",
-            "blocked_state": "running",
+            "label": "Bump version to ${NEW_VERSION}",
+            "key": "bump-version",
+            "agents": {
+                "image": "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest",
+                "cpu": "250m",
+                "memory": "512Mi",
+            },
+            "command": [
+                "dev-tools/bump_version.sh",
+            ],
         },
         {
             "label": "Fetch DRA Artifacts",
             "key": "fetch-dra-artifacts",
-            "depends_on": "block-get-dra-artifacts",
+            "depends_on": "bump-version",
             "agents": {
                 "image": "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest",
                 "cpu": "250m",
@@ -87,21 +86,6 @@ def main():
                 "build.branch =~ /^[0-9]+\\.[0-9x]+$/) && "
                 "(build.state == 'passed' || build.state == 'failed')"
             ),
-        },
-        {
-            "slack": {
-                "channels": ["#machine-learn-build"],
-                "message": (
-                    "Pipeline waiting for approval\n"
-                    "Repo: `${REPO}`\n\n"
-                    "Ready to fetch DRA artifacts - please unblock when ready.\n"
-                    "New version: `${NEW_VERSION}`\n"
-                    "Branch: `${BRANCH}`\n"
-                    "Workflow: `${WORKFLOW}`\n"
-                    "${BUILDKITE_BUILD_URL}\n"
-                ),
-            },
-            "if": 'build.state == "blocked"',
         },
     ]
 
