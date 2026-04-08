@@ -550,7 +550,7 @@ bool CDataFrame::parallelApplyToAllRows(std::size_t beginRows,
     sliceFuncs.reserve(funcs.size());
 
     for (auto& func : funcs) {
-        sliceFuncs.push_back([=, &func, &successful](const TRowSlicePtr& slice) mutable {
+        sliceFuncs.push_back([=, this, &func, &successful](const TRowSlicePtr& slice) mutable {
             if (successful.load() == false) {
                 return;
             }
@@ -639,7 +639,7 @@ bool CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
             backgroundApply = async(
                 defaultAsyncExecutor(),
-                [ =, &func, readSlice_ = std::move(readSlice) ]() mutable {
+                [ =, this, &func, readSlice_ = std::move(readSlice) ]() mutable {
 
                     TOptionalPopMaskedRow popMaskedRow;
                     if (rowMask != nullptr) {
