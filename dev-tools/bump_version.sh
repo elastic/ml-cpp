@@ -15,6 +15,8 @@
 # commits, and pushes directly to the target branch.  Designed to be
 # called from a Buildkite step with NEW_VERSION and BRANCH set.
 #
+# Set DRY_RUN=true to perform all steps except the final git push.
+#
 # Follows the same pattern as the Elasticsearch repo's automated
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
 
@@ -22,8 +24,13 @@ set -euo pipefail
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
+DRY_RUN="${DRY_RUN:-false}"
 
 GRADLE_PROPS="gradle.properties"
+
+if [ "$DRY_RUN" = "true" ]; then
+    echo "=== DRY RUN MODE — will not push ==="
+fi
 
 # Ensure we're on the correct branch and up to date
 git checkout "$BRANCH"
@@ -36,12 +43,17 @@ if [ "$CURRENT_VERSION" = "$NEW_VERSION" ]; then
 fi
 
 echo "Bumping version: $CURRENT_VERSION → $NEW_VERSION"
-sed -i "s/^elasticsearchVersion=.*/elasticsearchVersion=${NEW_VERSION}/" "$GRADLE_PROPS"
+# macOS sed requires -i '' while GNU sed requires -i without an argument
+if sed --version >/dev/null 2>&1; then
+    sed -i "s/^elasticsearchVersion=.*/elasticsearchVersion=${NEW_VERSION}/" "$GRADLE_PROPS"
+else
+    sed -i '' "s/^elasticsearchVersion=.*/elasticsearchVersion=${NEW_VERSION}/" "$GRADLE_PROPS"
+fi
 
 # Verify the substitution worked
 if ! grep -q "^elasticsearchVersion=${NEW_VERSION}$" "$GRADLE_PROPS"; then
     echo "ERROR: version update verification failed"
-    cat "$GRADLE_PROPS"
+    grep 'elasticsearchVersion' "$GRADLE_PROPS"
     exit 1
 fi
 
@@ -51,11 +63,23 @@ if git diff-index --quiet HEAD --; then
     exit 0
 fi
 
-git config --global user.name elasticsearchmachine
-git config --global user.email 'infra-root+elasticsearchmachine@elastic.co'
+git config user.name elasticsearchmachine
+git config user.email 'infra-root+elasticsearchmachine@elastic.co'
 
 git add "$GRADLE_PROPS"
 git commit -m "[ML] Bump version to ${NEW_VERSION}"
-git push origin "$BRANCH"
 
-echo "Version bumped to ${NEW_VERSION} on branch ${BRANCH}"
+if [ "$DRY_RUN" = "true" ]; then
+    echo ""
+    echo "=== DRY RUN: commit created but NOT pushed ==="
+    echo "Branch:  $BRANCH"
+    echo "Version: $CURRENT_VERSION → $NEW_VERSION"
+    echo "Commit:  $(git log -1 --format='%h %s')"
+    echo "Author:  $(git log -1 --format='%an <%ae>')"
+    echo ""
+    echo "To inspect: git log -1 -p"
+    echo "To undo:    git reset --soft HEAD~1 && git restore --staged $GRADLE_PROPS && git checkout -- $GRADLE_PROPS"
+else
+    git push origin "$BRANCH"
+    echo "Version bumped to ${NEW_VERSION} on branch ${BRANCH}"
+fi
