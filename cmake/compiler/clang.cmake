@@ -37,7 +37,6 @@ list(APPEND ML_C_FLAGS
   "-Wno-switch-default"
   "-Wno-unknown-warning-option"
   "-Wno-unreachable-code"
-  "-Wno-unused-macros"
   "-Wno-used-but-marked-unused"
   ${ML_COVERAGE})
 
