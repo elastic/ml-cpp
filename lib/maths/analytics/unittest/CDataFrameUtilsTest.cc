@@ -704,7 +704,8 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         testRng.generateNormalSamples(0.0, 3.0, numberRows, categories);
 
         testRng.generateUniformSamples(200, 500, 1, desiredNumberSamples);
-        double desiredSamplesFraction{static_cast<double>(desiredNumberSamples[0]) / numberRows};
+        double desiredSamplesFraction{static_cast<double>(desiredNumberSamples[0]) /
+                                      static_cast<double>(numberRows)};
 
         auto frame = core::makeMainStorageDataFrame(numberCols).first;
         frame->categoricalColumns(TBoolVec{true});
@@ -780,7 +781,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
             }
         }
 
-        double percentageStep{1.0 / numberBins * 100.0};
+        double percentageStep{1.0 / static_cast<double>(numberBins) * 100.0};
         double expected;
         double actual;
         for (double percentage = percentageStep; percentage < 100.0;
@@ -896,7 +897,7 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
             }
         }
 
-        double percentageStep{1.0 / numberBins * 100.0};
+        double percentageStep{1.0 / static_cast<double>(numberBins) * 100.0};
         double expected;
         double actual;
         for (double percentage = percentageStep; percentage < 100.0;

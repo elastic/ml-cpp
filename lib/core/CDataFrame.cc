@@ -508,8 +508,9 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
     // We use an "uncertainty percentage factor" to account for this.
     static constexpr double containerMemoryEstimateUncertaintyPercentage{2.5};
 
-    std::size_t additionalMemory{static_cast<std::size_t>(
-        estimatedMemoryUsage * containerMemoryEstimateUncertaintyPercentage / 100)};
+    std::size_t additionalMemory{
+        static_cast<std::size_t>(static_cast<double>(estimatedMemoryUsage) *
+                                 containerMemoryEstimateUncertaintyPercentage / 100)};
 
     return estimatedMemoryUsage + additionalMemory;
 }
@@ -637,23 +638,23 @@ bool CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
             // We wait here so at most one slice is copied into memory.
             wait_for_valid(backgroundApply);
 
-            backgroundApply = async(
-                defaultAsyncExecutor(),
-                [ =, this, &func, readSlice_ = std::move(readSlice) ]() mutable {
+            backgroundApply = async(defaultAsyncExecutor(), [
+                =, this, &func, readSlice_ = std::move(readSlice)
+            ]() mutable {
 
-                    TOptionalPopMaskedRow popMaskedRow;
-                    if (rowMask != nullptr) {
-                        beginSliceRows = *maskedRow;
-                        popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
-                    }
+                TOptionalPopMaskedRow popMaskedRow;
+                if (rowMask != nullptr) {
+                    beginSliceRows = *maskedRow;
+                    popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
+                }
 
-                    this->applyToRowsOfOneSlice(func[0], beginSliceRows, endSliceRows,
-                                                popMaskedRow, readSlice_);
+                this->applyToRowsOfOneSlice(func[0], beginSliceRows, endSliceRows,
+                                            popMaskedRow, readSlice_);
 
-                    if (commitResult) {
-                        (*slice)->write(readSlice_.rows(), readSlice_.docHashes());
-                    }
-                });
+                if (commitResult) {
+                    (*slice)->write(readSlice_.rows(), readSlice_.docHashes());
+                }
+            });
         }
         break;
     }

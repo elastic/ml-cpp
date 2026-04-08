@@ -896,7 +896,8 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
         }};
 
         std::size_t numberExamples{
-            static_cast<std::size_t>(trainExamples * dataSummarizationFraction) + predictExamples};
+            static_cast<std::size_t>(static_cast<double>(trainExamples) * dataSummarizationFraction) +
+            predictExamples};
         runAnalyzer(numberExamples, predictExamples, TTask::E_Predict, &restorerSupplier);
         readPredictions(outputStream.str(), "target_prediction", actualPredictions);
     }
@@ -992,7 +993,8 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
         }};
 
         std::size_t numberExamples{
-            static_cast<std::size_t>(trainExamples * dataSummarizationFraction) + predictExamples};
+            static_cast<std::size_t>(static_cast<double>(trainExamples) * dataSummarizationFraction) +
+            predictExamples};
         runAnalyzer(numberExamples, predictExamples, TTask::E_Predict, &restorerSupplier);
         readPredictions(outputStream.str(), "target_prediction", actualPredictions);
     }
