@@ -13,6 +13,11 @@
 
 #include <boost/test/unit_test.hpp>
 
+// This test deliberately divides by zero to verify edge-case handling.
+#ifdef _MSC_VER
+#pragma warning(disable : 4723) // potential divide by 0
+#endif
+
 #include <cmath>
 #include <limits>
 #include <vector>
