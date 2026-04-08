@@ -203,13 +203,14 @@ int main(int argc, char** argv) {
     bool validElasticLicenseKeyConfirmed{false};
     bool lowPriority{false};
     bool useImmediateExecutor{false};
+    bool skipModelValidation{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
-            numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
-            validElasticLicenseKeyConfirmed, lowPriority, useImmediateExecutor) == false) {
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, logFileName, logProperties, numThreadsPerAllocation,
+            numAllocations, cacheMemorylimitBytes, validElasticLicenseKeyConfirmed,
+            lowPriority, useImmediateExecutor, skipModelValidation) == false) {
         return EXIT_FAILURE;
     }
 
@@ -315,7 +316,12 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         module_ = torch::jit::load(std::move(readAdapter));
-        verifySafeModel(module_);
+        if (skipModelValidation) {
+            LOG_WARN(<< "Model graph validation SKIPPED — --skipModelValidation flag is set. "
+                     << "This disables security checks on model operations.");
+        } else {
+            verifySafeModel(module_);
+        }
         module_.eval();
 
         LOG_DEBUG(<< "model loaded");
