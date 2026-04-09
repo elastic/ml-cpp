@@ -92,7 +92,7 @@ def main():
             "slack": {
                 "channels": ["#machine-learn-build"],
                 "message": (
-                    "🚦 Pipeline waiting for approval 🚦\n"
+                    " Pipeline waiting for approval \n"
                     "Repo: `${REPO}`\n\n"
                     "Ready to fetch DRA artifacts - please unblock when ready.\n"
                     "New version: `${NEW_VERSION}`\n"
