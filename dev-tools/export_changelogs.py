@@ -23,7 +23,6 @@ Usage:
 import argparse
 import difflib
 import json
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -42,6 +41,7 @@ except ImportError:
 
 
 PREFIX = "ml-cpp-"
+SOURCE_REPO = "elastic/ml-cpp"
 
 
 def validate_entries(entries, schema_path):
@@ -102,7 +102,7 @@ def resolve_conflict(source_path, dest, target_name):
     while True:
         choice = input(f"  [{target_name}] (o)verwrite / (s)kip / (a)bort export? ").strip().lower()
         if choice in ("o", "overwrite"):
-            shutil.copy2(source_path, dest)
+            write_entry_with_source_repo(source_path, dest)
             print(f"  {target_name}: overwritten")
             return "overwrite"
         elif choice in ("s", "skip"):
@@ -144,8 +144,18 @@ def verify_es_repo(target_dir):
     return es_repo_root
 
 
+def write_entry_with_source_repo(source_path, dest):
+    """Write a changelog entry to dest, injecting source_repo if not already present."""
+    with open(source_path) as f:
+        data = yaml.safe_load(f)
+    if "source_repo" not in data:
+        data["source_repo"] = SOURCE_REPO
+    with open(dest, "w") as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+
+
 def export_entries(entries, target_dir, dry_run=False):
-    """Copy entries to the target directory with prefixed filenames."""
+    """Export entries to the target directory with prefixed filenames and source_repo."""
     target = Path(target_dir)
 
     exported = []
@@ -165,7 +175,7 @@ def export_entries(entries, target_dir, dry_run=False):
             else:
                 skipped += 1
         else:
-            shutil.copy2(source_path, dest)
+            write_entry_with_source_repo(source_path, dest)
             print(f"  Copied {source_path.name} -> {target_name}")
             exported.append(dest)
 
