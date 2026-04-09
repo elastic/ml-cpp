@@ -54,11 +54,7 @@ def validate_file(filepath, schema):
 
     errors = []
     filename = os.path.basename(filepath)
-
-    # Check filename convention: <number>.yaml
     stem = Path(filepath).stem
-    if not re.match(r"^\d+$", stem):
-        errors.append(f"{filename}: filename must be a PR number (e.g. 1234.yaml)")
 
     try:
         with open(filepath) as f:
@@ -81,12 +77,18 @@ def validate_file(filepath, schema):
         path = ".".join(str(p) for p in error.absolute_path) or "(root)"
         errors.append(f"{filename}: {path}: {error.message}")
 
-    # Cross-check: PR number in filename should match pr field
-    if "pr" in data and stem.isdigit():
-        if data["pr"] != int(stem):
+    # Filename convention: numeric filenames must match the pr field.
+    # Types without a pr field (known-issue, security) may use descriptive names.
+    if re.match(r"^\d+$", stem):
+        if "pr" in data and data["pr"] != int(stem):
             errors.append(
                 f"{filename}: pr field ({data['pr']}) does not match filename ({stem})"
             )
+    elif "pr" in data:
+        errors.append(
+            f"{filename}: file has a pr field ({data['pr']}), "
+            f"so filename should be {data['pr']}.yaml"
+        )
 
     return errors
 

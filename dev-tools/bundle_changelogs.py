@@ -26,13 +26,21 @@ except ImportError:
 
 
 TYPE_ORDER = [
+    ("known-issue", "Known issues"),
+    ("security", "Security fixes"),
     ("breaking", "Breaking changes"),
+    ("breaking-java", "Breaking Java changes"),
     ("deprecation", "Deprecations"),
     ("feature", "New features"),
+    ("new-aggregation", "New aggregations"),
     ("enhancement", "Enhancements"),
     ("bug", "Bug fixes"),
     ("regression", "Regression fixes"),
+    ("upgrade", "Upgrades"),
 ]
+
+ML_CPP_PULL_URL = "https://github.com/elastic/ml-cpp/pull"
+ML_CPP_ISSUE_URL = "https://github.com/elastic/ml-cpp/issues"
 
 
 def load_entries(changelog_dir):
@@ -53,7 +61,8 @@ def format_markdown(entries, version=None):
 
     grouped = defaultdict(lambda: defaultdict(list))
     for entry in entries:
-        grouped[entry["type"]][entry["area"]].append(entry)
+        area = entry.get("area", "General")
+        grouped[entry["type"]][area].append(entry)
 
     for type_key, type_label in TYPE_ORDER:
         if type_key not in grouped:
@@ -61,12 +70,15 @@ def format_markdown(entries, version=None):
         lines.append(f"### {type_label}\n")
         for area in sorted(grouped[type_key].keys()):
             lines.append(f"**{area}**")
-            for entry in sorted(grouped[type_key][area], key=lambda e: e["pr"]):
-                pr = entry["pr"]
+            for entry in sorted(grouped[type_key][area], key=lambda e: e.get("pr", 0)):
+                pr = entry.get("pr")
                 summary = entry["summary"]
                 issues = entry.get("issues", [])
                 issue_refs = ", ".join(f"#{i}" for i in issues)
-                line = f"- {summary} [#{pr}](https://github.com/elastic/ml-cpp/pull/{pr})"
+                if pr:
+                    line = f"- {summary} [#{pr}]({ML_CPP_PULL_URL}/{pr})"
+                else:
+                    line = f"- {summary}"
                 if issue_refs:
                     line += f" ({issue_refs})"
                 lines.append(line)
@@ -82,7 +94,8 @@ def format_asciidoc(entries, version=None):
 
     grouped = defaultdict(lambda: defaultdict(list))
     for entry in entries:
-        grouped[entry["type"]][entry["area"]].append(entry)
+        area = entry.get("area", "General")
+        grouped[entry["type"]][area].append(entry)
 
     for type_key, type_label in TYPE_ORDER:
         if type_key not in grouped:
@@ -90,12 +103,17 @@ def format_asciidoc(entries, version=None):
         lines.append(f"=== {type_label}\n")
         for area in sorted(grouped[type_key].keys()):
             lines.append(f"*{area}*")
-            for entry in sorted(grouped[type_key][area], key=lambda e: e["pr"]):
-                pr = entry["pr"]
+            for entry in sorted(grouped[type_key][area], key=lambda e: e.get("pr", 0)):
+                pr = entry.get("pr")
                 summary = entry["summary"]
                 issues = entry.get("issues", [])
-                issue_refs = ", ".join(f"https://github.com/elastic/ml-cpp/issues/{i}[#{i}]" for i in issues)
-                line = f"* {summary} https://github.com/elastic/ml-cpp/pull/{pr}[#{pr}]"
+                issue_refs = ", ".join(
+                    f"{ML_CPP_ISSUE_URL}/{i}[#{i}]" for i in issues
+                )
+                if pr:
+                    line = f"* {summary} {{ml-pull}}{pr}[#{pr}]"
+                else:
+                    line = f"* {summary}"
                 if issue_refs:
                     line += f" ({issue_refs})"
                 lines.append(line)
