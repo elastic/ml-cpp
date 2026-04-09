@@ -21,6 +21,8 @@ Usage:
 """
 
 import argparse
+import difflib
+import json
 import shutil
 import subprocess
 import sys
@@ -32,8 +34,28 @@ except ImportError:
     print("Missing pyyaml. Install with: pip3 install pyyaml", file=sys.stderr)
     sys.exit(2)
 
+try:
+    import jsonschema
+except ImportError:
+    print("Missing jsonschema. Install with: pip3 install jsonschema", file=sys.stderr)
+    sys.exit(2)
+
 
 PREFIX = "ml-cpp-"
+
+
+def validate_entries(entries, schema_path):
+    """Validate all entries against the JSON schema. Returns list of errors."""
+    with open(schema_path) as f:
+        schema = json.load(f)
+
+    validator = jsonschema.Draft7Validator(schema)
+    errors = []
+    for source_path, _, data in entries:
+        for error in validator.iter_errors(data):
+            path = ".".join(str(p) for p in error.absolute_path) or "(root)"
+            errors.append(f"{source_path.name}: {path}: {error.message}")
+    return errors
 
 
 def collect_entries(changelog_dir, specific_files=None):
@@ -59,30 +81,104 @@ def collect_entries(changelog_dir, specific_files=None):
     return entries
 
 
+def resolve_conflict(source_path, dest, target_name):
+    """Handle a pre-existing file at the destination. Returns the action taken."""
+    source_lines = source_path.read_text().splitlines(keepends=True)
+    dest_lines = dest.read_text().splitlines(keepends=True)
+
+    if source_lines == dest_lines:
+        print(f"  {target_name}: identical to existing file, skipping")
+        return "skip"
+
+    print(f"\n  {target_name}: file already exists with different content.\n")
+    diff = difflib.unified_diff(
+        dest_lines, source_lines,
+        fromfile=f"existing: {dest.name}",
+        tofile=f"incoming: {source_path.name}",
+    )
+    sys.stdout.writelines("    " + line for line in diff)
+    print()
+
+    while True:
+        choice = input(f"  [{target_name}] (o)verwrite / (s)kip / (a)bort export? ").strip().lower()
+        if choice in ("o", "overwrite"):
+            shutil.copy2(source_path, dest)
+            print(f"  {target_name}: overwritten")
+            return "overwrite"
+        elif choice in ("s", "skip"):
+            print(f"  {target_name}: skipped")
+            return "skip"
+        elif choice in ("a", "abort"):
+            print("\nExport aborted.")
+            sys.exit(1)
+        else:
+            print("  Please enter 'o' (overwrite), 's' (skip), or 'a' (abort).")
+
+
+def verify_es_repo(target_dir):
+    """Verify that the target looks like an ES docs/changelog directory."""
+    target = Path(target_dir).resolve()
+
+    if not target.is_dir():
+        print(f"Error: target directory does not exist: {target}", file=sys.stderr)
+        sys.exit(1)
+
+    es_repo_root = target.parent.parent
+    markers = [
+        es_repo_root / "build.gradle",
+        es_repo_root / "settings.gradle",
+        es_repo_root / "docs" / "changelog",
+    ]
+    if not all(m.exists() for m in markers):
+        print(
+            f"Warning: {es_repo_root} does not look like an Elasticsearch checkout.\n"
+            f"  Expected to find build.gradle, settings.gradle, and docs/changelog/\n"
+            f"  at the repo root (two levels above --target).\n",
+            file=sys.stderr,
+        )
+        choice = input("  Continue anyway? (y/n) ").strip().lower()
+        if choice not in ("y", "yes"):
+            print("Export aborted.")
+            sys.exit(1)
+
+    return es_repo_root
+
+
 def export_entries(entries, target_dir, dry_run=False):
     """Copy entries to the target directory with prefixed filenames."""
     target = Path(target_dir)
-    if not dry_run and not target.is_dir():
-        print(f"Error: target directory {target} does not exist", file=sys.stderr)
-        sys.exit(1)
 
+    exported = []
+    skipped = 0
     for source_path, target_name, data in entries:
         dest = target / target_name
         pr = data.get("pr", "n/a")
         summary = data.get("summary", "")[:60]
         if dry_run:
-            print(f"  {target_name}  (PR #{pr}: {summary})")
+            flag = " [EXISTS]" if dest.exists() else ""
+            print(f"  {target_name}  (PR #{pr}: {summary}){flag}")
+            exported.append(dest)
+        elif dest.exists():
+            action = resolve_conflict(source_path, dest, target_name)
+            if action == "overwrite":
+                exported.append(dest)
+            else:
+                skipped += 1
         else:
             shutil.copy2(source_path, dest)
-            print(f"  Copied {source_path.name} -> {dest}")
+            print(f"  Copied {source_path.name} -> {target_name}")
+            exported.append(dest)
 
-    return [target / name for _, name, _ in entries]
+    if skipped > 0 and not dry_run:
+        print(f"\n  ({skipped} file(s) skipped due to conflicts)")
+
+    return exported
 
 
 def create_pr(es_repo_dir, exported_files, version=None):
     """Create a git branch and PR in the ES repo with the exported entries."""
     es_repo = Path(es_repo_dir).resolve()
-    branch_name = f"ml-cpp-changelog-export"
+    branch_name = "ml-cpp-changelog-export"
     if version:
         branch_name += f"-{version}"
 
@@ -96,12 +192,15 @@ def create_pr(es_repo_dir, exported_files, version=None):
         subprocess.run(["git", "commit", "-m", msg], cwd=es_repo, check=True)
         subprocess.run(["git", "push", "-u", "origin", branch_name], cwd=es_repo, check=True)
 
-        pr_body = f"Adds ml-cpp changelog entries to the ES release notes.\n\nSource: elastic/ml-cpp docs/changelog/"
+        pr_body = (
+            "Adds ml-cpp changelog entries to the ES release notes.\n\n"
+            "Source: elastic/ml-cpp docs/changelog/"
+        )
         if version:
             pr_body += f"\nVersion: {version}"
         result = subprocess.run(
             ["gh", "pr", "create", "--title", msg, "--body", pr_body],
-            cwd=es_repo, capture_output=True, text=True
+            cwd=es_repo, capture_output=True, text=True,
         )
         if result.returncode == 0:
             print(f"\nPR created: {result.stdout.strip()}")
@@ -115,7 +214,7 @@ def create_pr(es_repo_dir, exported_files, version=None):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Export ml-cpp changelog entries for ES release notes"
+        description="Export ml-cpp changelog entries for ES release notes",
     )
     parser.add_argument(
         "--target",
@@ -155,13 +254,31 @@ def main():
 
     repo_root = Path(__file__).resolve().parent.parent
     changelog_dir = Path(args.dir) if args.dir else repo_root / "docs" / "changelog"
+    schema_path = repo_root / "docs" / "changelog" / "changelog-schema.json"
 
     entries = collect_entries(changelog_dir, args.files if args.files else None)
     if not entries:
         print("No changelog entries found.")
         return
 
-    print(f"Found {len(entries)} changelog entry(ies):\n")
+    print(f"Found {len(entries)} changelog entry(ies).")
+
+    # Validate all entries before exporting
+    if schema_path.exists():
+        print("Validating entries against schema... ", end="", flush=True)
+        errors = validate_entries(entries, schema_path)
+        if errors:
+            print(f"FAILED ({len(errors)} error(s)):\n")
+            for error in errors:
+                print(f"  - {error}")
+            print("\nFix validation errors before exporting.")
+            sys.exit(1)
+        print("OK")
+    else:
+        print(f"Warning: schema not found at {schema_path}, skipping validation",
+              file=sys.stderr)
+
+    print()
 
     if args.dry_run or not args.target:
         export_entries(entries, args.target or "/dev/null", dry_run=True)
@@ -169,12 +286,18 @@ def main():
             print("\nUse --target to export, or --dry-run to preview.")
         return
 
+    # Verify the target is a real ES checkout
+    es_repo_root = verify_es_repo(args.target)
+
     exported = export_entries(entries, args.target)
+    if not exported:
+        print("\nNo files exported.")
+        return
+
     print(f"\nExported {len(exported)} file(s) to {args.target}")
 
     if args.create_pr:
-        es_repo_dir = Path(args.target).resolve().parent.parent
-        create_pr(es_repo_dir, exported, args.version)
+        create_pr(es_repo_root, exported, args.version)
 
     if args.prune:
         for source_path, _, _ in entries:
