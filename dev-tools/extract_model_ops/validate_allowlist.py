@@ -16,6 +16,10 @@ operations (using the same inlining approach as the C++ validator), and
 checks every operation against the ALLOWED_OPERATIONS and FORBIDDEN_OPERATIONS
 sets parsed from CSupportedOperations.cc.
 
+Each model download/trace is subject to a timeout (default 10 minutes,
+configurable via --model-timeout) to prevent stalled HuggingFace downloads
+from consuming the entire step timeout.
+
 This is the Python-side equivalent of the C++ CModelGraphValidator and is
 intended as an integration test: if any legitimate model produces an
 operation that the C++ code would reject, this script exits non-zero.
@@ -31,9 +35,20 @@ Usage:
 import argparse
 import gc
 import re
+import signal
 import sys
 from pathlib import Path
 from typing import Optional
+
+MODEL_TIMEOUT_SECONDS = 600  # 10 minutes per model
+
+
+class ModelTimeoutError(Exception):
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise ModelTimeoutError("Model download/trace timed out")
 
 import torch
 
@@ -107,17 +122,29 @@ def validate_model(model_name: str,
                    verbose: bool,
                    quantize: bool = False,
                    auto_class: str | None = None,
-                   config_overrides: dict | None = None) -> str:
+                   config_overrides: dict | None = None,
+                   timeout: int = MODEL_TIMEOUT_SECONDS) -> str:
     """Validate one HuggingFace model.
 
     Returns "pass", "fail" (op validation failed), or "skip" (could not
-    load/trace — e.g. private model without HF_TOKEN).
+    load/trace — e.g. private model without HF_TOKEN, or download timeout).
     """
     label = f"{model_name} (quantized)" if quantize else model_name
     print(f"  {label}...", file=sys.stderr)
-    traced = load_and_trace_hf_model(model_name, quantize=quantize,
-                                     auto_class=auto_class,
-                                     config_overrides=config_overrides)
+
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(timeout)
+    try:
+        traced = load_and_trace_hf_model(model_name, quantize=quantize,
+                                         auto_class=auto_class,
+                                         config_overrides=config_overrides)
+    except ModelTimeoutError:
+        print(f"    SKIPPED (timed out after {timeout}s)", file=sys.stderr)
+        return "skip"
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
+
     if traced is None:
         print(f"    SKIPPED (could not load/trace)", file=sys.stderr)
         return "skip"
@@ -158,6 +185,9 @@ def main():
     parser.add_argument(
         "--verbose", action="store_true",
         help="Print per-model op counts")
+    parser.add_argument(
+        "--model-timeout", type=int, default=MODEL_TIMEOUT_SECONDS,
+        help=f"Timeout in seconds for each model download/trace (default: {MODEL_TIMEOUT_SECONDS})")
     args = parser.parse_args()
 
     print(f"PyTorch version: {torch.__version__}", file=sys.stderr)
@@ -178,7 +208,8 @@ def main():
             spec["model_id"], allowed, forbidden, args.verbose,
             quantize=spec["quantized"],
             auto_class=spec.get("auto_class"),
-            config_overrides=spec.get("config_overrides"))
+            config_overrides=spec.get("config_overrides"),
+            timeout=args.model_timeout)
 
     if args.pt_dir and args.pt_dir.is_dir():
         pt_files = sorted(args.pt_dir.glob("*.pt"))
