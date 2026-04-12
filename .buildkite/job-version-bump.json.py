@@ -65,6 +65,14 @@ def main():
 
     pipeline_steps = [
         {
+            "label": "Queue a :slack: notification for the pipeline",
+            "depends_on": None,
+            "command": ".buildkite/pipelines/send_slack_notification.sh | buildkite-agent pipeline upload",
+            "agents": {
+                "image": "python",
+            },
+        },
+        {
             "label": "Bump version to ${NEW_VERSION}",
             "key": "bump-version",
             "agents": {
@@ -151,16 +159,6 @@ def main():
 
     pipeline = {
         "steps": pipeline_steps,
-        "notify": [
-            {
-                "slack": {"channels": ["#machine-learn-build"]},
-                "if": (
-                    "(build.branch == 'main' || "
-                    "build.branch =~ /^[0-9]+\\.[0-9x]+$/) && "
-                    "(build.state == 'passed' || build.state == 'failed')"
-                ),
-            },
-        ],
     }
 
     print(json.dumps(pipeline, indent=2))
