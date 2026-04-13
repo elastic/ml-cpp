@@ -3,9 +3,18 @@
 Each pull request that changes user-visible behaviour should include a changelog
 entry as a YAML file in this directory, named `<PR_NUMBER>.yaml`.
 
-The schema is aligned with the
-[Elasticsearch changelog schema](https://github.com/elastic/elasticsearch/blob/main/build-tools-internal/src/main/resources/changelog-schema.json)
-so that ml-cpp entries can be consumed directly by the ES release notes pipeline.
+## Schema
+
+The canonical schema is the
+[Elasticsearch changelog schema](https://github.com/elastic/elasticsearch/blob/main/build-tools-internal/src/main/resources/changelog-schema.json).
+The validator (`dev-tools/validate_changelogs.py`) fetches this schema from
+the ES repo at validation time to ensure ml-cpp entries are always compatible
+with the ES release notes pipeline. If the fetch fails (e.g. offline
+development), it falls back to the local copy in `changelog-schema.json`.
+
+If the local copy has diverged from the ES source, the validator will print a
+warning. To update the local copy, download the latest version from the URL
+above.
 
 ## Format
 
@@ -40,7 +49,8 @@ issues: []
 
 Most ml-cpp entries should use **Machine Learning**. Other valid areas from the
 ES schema (e.g. **Inference**) may be used when appropriate. The full list of
-valid areas is defined in `changelog-schema.json`.
+valid areas is defined in the
+[ES changelog schema](https://github.com/elastic/elasticsearch/blob/main/build-tools-internal/src/main/resources/changelog-schema.json).
 
 ### Valid types
 
@@ -83,7 +93,7 @@ breaking:
 ```
 
 Valid areas for breaking/deprecation changes are a subset of the main areas,
-defined in `changelog-schema.json` under `compatibilityChangeArea`.
+defined in the ES changelog schema under `compatibilityChangeArea`.
 
 ## When is a changelog entry required?
 
