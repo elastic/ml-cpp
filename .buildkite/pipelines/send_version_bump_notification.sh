@@ -18,6 +18,7 @@ notify:
   - slack:
       channels:
         - "#machine-learn-build"
+        - "#ml-core"
       message: |
         :large_green_circle: Version bump pipeline waiting for approval
         Branch: \${BUILDKITE_BRANCH}
