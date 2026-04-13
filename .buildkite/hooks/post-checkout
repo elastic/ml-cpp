@@ -49,7 +49,10 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "validate_pytorch_allowlist" ]]; then
-    export HF_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/huggingface/hf_token 2>/dev/null || echo "")
+    HF_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/huggingface/hf_token 2>/dev/null || echo "")
+    if [ -n "$HF_TOKEN" ]; then
+      export HF_TOKEN
+    fi
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then

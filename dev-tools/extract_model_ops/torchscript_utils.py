@@ -111,7 +111,7 @@ def load_and_trace_hf_model(model_name: str, quantize: bool = False,
 
     Returns the traced module, or None if the model could not be loaded or traced.
     """
-    token = os.environ.get("HF_TOKEN")
+    token = os.environ.get("HF_TOKEN") or None
     model_cls = _resolve_auto_class(auto_class)
     overrides = config_overrides or {}
 
