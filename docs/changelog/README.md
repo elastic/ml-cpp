@@ -34,6 +34,7 @@ issues: []
 | `highlight`   | Release highlight object (see below). |
 | `breaking`    | Breaking change details. **Required** when type is `breaking` or `breaking-java`. |
 | `deprecation` | Deprecation details. **Required** when type is `deprecation`. |
+| `source_repo` | GitHub repository (`owner/name`) for entries from external repos, e.g. `elastic/ml-cpp`. Used by the ES release notes pipeline to generate correct PR links. Injected automatically by the export script; not normally set manually. |
 
 ### Valid areas
 

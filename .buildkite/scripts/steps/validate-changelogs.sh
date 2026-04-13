@@ -36,9 +36,22 @@ python3 -m pip install --quiet --break-system-packages pyyaml jsonschema 2>/dev/
 TARGET_BRANCH="${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-main}"
 
 # Fetch the target branch so we can diff against it
-git fetch origin "${TARGET_BRANCH}" --depth=1 2>/dev/null || true
+if ! git fetch origin "${TARGET_BRANCH}" --depth=1 2>/dev/null; then
+  echo "Warning: could not fetch origin/${TARGET_BRANCH}, skipping changelog validation"
+  exit 0
+fi
 
-CHANGED_CHANGELOGS=$(git diff --name-only --diff-filter=ACM "origin/${TARGET_BRANCH}"...HEAD -- 'docs/changelog/*.yaml' || true)
+if ! git rev-parse --verify "origin/${TARGET_BRANCH}" >/dev/null 2>&1; then
+  echo "Warning: origin/${TARGET_BRANCH} not available, skipping changelog validation"
+  exit 0
+fi
+
+CHANGED_CHANGELOGS=$(git diff --name-only --diff-filter=ACM "origin/${TARGET_BRANCH}"...HEAD -- 'docs/changelog/*.yaml')
+DIFF_EXIT=$?
+if [[ $DIFF_EXIT -ne 0 ]]; then
+  echo "Warning: git diff failed (exit $DIFF_EXIT), skipping changelog validation"
+  exit 0
+fi
 
 if [[ -z "${CHANGED_CHANGELOGS}" ]]; then
   echo "No changelog files found in this PR."

@@ -151,7 +151,7 @@ def write_entry_with_source_repo(source_path, dest):
     if "source_repo" not in data:
         data["source_repo"] = SOURCE_REPO
     with open(dest, "w") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
 
 
 def export_entries(entries, target_dir, dry_run=False):

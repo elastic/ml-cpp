@@ -305,7 +305,6 @@
         "System requirement",
         "Transform"
       ]
-    },
-    "additionalProperties": false
+    }
   }
 }
