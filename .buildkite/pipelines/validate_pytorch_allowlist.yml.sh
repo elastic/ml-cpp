@@ -13,6 +13,8 @@ steps:
   - label: "Validate PyTorch allowlist :torch:"
     key: "validate_pytorch_allowlist"
     timeout_in_minutes: 60
+    env:
+        HF_HUB_DISABLE_XET: "1"
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
         - "pip install -r dev-tools/extract_model_ops/requirements.txt"
