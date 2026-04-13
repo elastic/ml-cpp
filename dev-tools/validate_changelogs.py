@@ -19,7 +19,14 @@ import json
 import os
 import re
 import sys
+import urllib.request
 from pathlib import Path
+
+
+ES_SCHEMA_URL = (
+    "https://raw.githubusercontent.com/elastic/elasticsearch/main/"
+    "build-tools-internal/src/main/resources/changelog-schema.json"
+)
 
 
 def check_dependencies():
@@ -42,9 +49,42 @@ def check_dependencies():
         sys.exit(2)
 
 
-def load_schema(schema_path):
-    with open(schema_path) as f:
-        return json.load(f)
+def load_schema(local_path):
+    """Load the changelog schema, preferring the canonical ES version.
+
+    Fetches the schema from the Elasticsearch repo to ensure we validate
+    against the single source of truth. Falls back to the local copy if
+    the fetch fails (e.g. no network / offline development). Warns if
+    the local copy has diverged from the remote.
+    """
+    local_schema = None
+    if local_path.exists():
+        with open(local_path) as f:
+            local_schema = json.load(f)
+
+    try:
+        response = urllib.request.urlopen(ES_SCHEMA_URL, timeout=10)
+        remote_schema = json.loads(response.read())
+    except Exception as e:
+        if local_schema is not None:
+            print(f"Note: could not fetch ES schema ({e}), using local copy",
+                  file=sys.stderr)
+            return local_schema
+        print(f"Error: could not fetch ES schema and no local copy at {local_path}",
+              file=sys.stderr)
+        sys.exit(2)
+
+    if local_schema is not None and local_schema != remote_schema:
+        print(
+            "WARNING: local changelog-schema.json differs from the Elasticsearch source.\n"
+            f"  Remote: {ES_SCHEMA_URL}\n"
+            f"  Local:  {local_path}\n"
+            "  Validating against the remote (canonical) schema.\n"
+            "  Please update the local copy to stay in sync.\n",
+            file=sys.stderr,
+        )
+
+    return remote_schema
 
 
 def validate_file(filepath, schema):
@@ -118,10 +158,6 @@ def main():
     repo_root = Path(__file__).resolve().parent.parent
     schema_path = Path(args.schema) if args.schema else repo_root / "docs" / "changelog" / "changelog-schema.json"
     changelog_dir = Path(args.dir) if args.dir else repo_root / "docs" / "changelog"
-
-    if not schema_path.exists():
-        print(f"Schema not found: {schema_path}", file=sys.stderr)
-        sys.exit(2)
 
     schema = load_schema(schema_path)
 
