@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-SKIP_LABELS=">test >refactoring >docs >build >non-issue"
+SKIP_LABELS="|>test|>refactoring|>docs|>build|>non-issue|"
 
 # On PR builds, check if the PR has a label that skips changelog validation.
 # BUILDKITE_PULL_REQUEST_LABELS is a comma-separated list set by Buildkite.
@@ -18,12 +18,10 @@ if [[ -n "${BUILDKITE_PULL_REQUEST_LABELS:-}" ]]; then
   IFS=',' read -ra LABELS <<< "${BUILDKITE_PULL_REQUEST_LABELS}"
   for label in "${LABELS[@]}"; do
     label="$(echo "${label}" | xargs)"  # trim whitespace
-    for skip in ${SKIP_LABELS}; do
-      if [[ "${label}" == "${skip}" ]]; then
-        echo "Skipping changelog validation: PR has label '${label}'"
-        exit 0
-      fi
-    done
+    if [[ "${SKIP_LABELS}" == *"|${label}|"* ]]; then
+      echo "Skipping changelog validation: PR has label '${label}'"
+      exit 0
+    fi
   done
 fi
 
@@ -46,7 +44,7 @@ if [[ -z "${CHANGED_CHANGELOGS}" ]]; then
   echo "No changelog files found in this PR."
   echo "If this PR changes user-visible behaviour, please add a changelog entry."
   echo "See docs/changelog/README.md for details."
-  echo "To skip this check, add one of these labels: ${SKIP_LABELS}"
+  echo "To skip this check, add one of these labels: >test, >refactoring, >docs, >build, >non-issue"
 
   # Soft warning rather than hard failure during rollout
   if [[ "${CHANGELOG_REQUIRED:-false}" == "true" ]]; then
