@@ -17,7 +17,15 @@ steps:
         HF_HUB_DISABLE_XET: "1"
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
-        - "pip install -r dev-tools/extract_model_ops/requirements.txt"
+        - |
+          if [[ "${DOCKER_IMAGE:-}" == *"pytorch_latest"* ]]; then
+            echo "--- Nightly PyTorch build detected"
+            pip install --pre torch --index-url https://download.pytorch.org/whl/nightly/cpu
+            grep -v '^torch==' dev-tools/extract_model_ops/requirements.txt | pip install -r /dev/stdin
+          else
+            pip install -r dev-tools/extract_model_ops/requirements.txt
+          fi
+        - "python3 -c \"import torch; print(f'PyTorch version: {torch.__version__}')\""
         - "python3 dev-tools/extract_model_ops/validate_allowlist.py --config dev-tools/extract_model_ops/validation_models.json --pt-dir dev-tools/extract_model_ops/es_it_models --verbose"
 EOL
 
