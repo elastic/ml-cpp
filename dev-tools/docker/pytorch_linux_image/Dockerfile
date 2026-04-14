@@ -20,6 +20,12 @@ RUN dnf -y update && \
     dnf config-manager --set-enabled powertools && \
     dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
 
+# Install sccache for GCS-backed compilation caching across builds
+ARG SCCACHE_VERSION=v0.14.0
+RUN curl -fsSL "https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+    | tar xz -C /usr/local/bin --strip-components=1 "sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl/sccache" && \
+    chmod +x /usr/local/bin/sccache
+
 # For compiling with hardening and optimisation
 ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
 ENV CXXFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
@@ -37,9 +43,13 @@ ENV CXX="g++ -std=gnu++17"
 # PYTORCH_BUILD_VERSION is only set for tagged branches (e.g. v2.7.1);
 # for main/viable/strict PyTorch derives the version from version.txt.
 ARG pytorch_branch=viable/strict
+ARG pytorch_commit=unknown
 
 ENV PYTORCH_BRANCH=${pytorch_branch}
 
+# Split the build into clone + build so sccache (GCS-backed) can accelerate
+# incremental rebuilds. The GCS key is passed via --mount=type=secret to
+# avoid baking credentials into the image.
 RUN \
   cd ${build_dir} && \
   git -c advice.detachedHead=false clone --depth=1 --branch=${PYTORCH_BRANCH} https://github.com/pytorch/pytorch.git && \
@@ -47,7 +57,10 @@ RUN \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
-  sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.12")' ./third_party/onnx/CMakeLists.txt && \
+  sed -i -e '104 i set(PYTHON_EXECUTABLE "/usr/local/bin/python3.12")' ./third_party/onnx/CMakeLists.txt
+
+RUN --mount=type=secret,id=gcs_key \
+  cd ${build_dir}/pytorch && \
   if [[ "$PYTORCH_BRANCH" != "main" && "$PYTORCH_BRANCH" != "viable/strict" ]]; then export PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)'); fi && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
@@ -60,8 +73,21 @@ RUN \
   export USE_XNNPACK=OFF && \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
+  if [ -f /run/secrets/gcs_key ]; then \
+    export SCCACHE_GCS_BUCKET=elastic-ml-cpp-sccache && \
+    export SCCACHE_GCS_KEY_PREFIX=pytorch-build && \
+    export SCCACHE_GCS_RW_MODE=READ_WRITE && \
+    export SCCACHE_GCS_KEY_PATH=/run/secrets/gcs_key && \
+    export CMAKE_C_COMPILER_LAUNCHER=sccache && \
+    export CMAKE_CXX_COMPILER_LAUNCHER=sccache && \
+    sccache --start-server && \
+    echo "sccache: using GCS backend (bucket=$SCCACHE_GCS_BUCKET prefix=$SCCACHE_GCS_KEY_PREFIX)"; \
+  else \
+    echo "sccache: no GCS credentials — building without cache"; \
+  fi && \
   /usr/local/bin/python3.12 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org -r requirements.txt && \
   /usr/local/bin/python3.12 setup.py install && \
+  if command -v sccache &>/dev/null && sccache --show-stats &>/dev/null; then sccache --show-stats; sccache --stop-server; fi && \
   mkdir -p /usr/local/gcc133/include/pytorch && \
   /bin/cp -rf torch/include/* /usr/local/gcc133/include/pytorch/ && \
   /bin/cp -f torch/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
@@ -78,6 +104,10 @@ COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=builder /usr/local/lib/libpython3.12.a /usr/local/lib/libpython3.12.a
 RUN ln -sf /usr/local/bin/python3.12 /usr/local/bin/python3 && \
     ln -sf /usr/local/bin/pip3.12 /usr/local/bin/pip3
+
+ARG pytorch_commit=unknown
+LABEL pytorch.commit=${pytorch_commit}
+
 RUN \
   dnf -y update && \
   dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \
