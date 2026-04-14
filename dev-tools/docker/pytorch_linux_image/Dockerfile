@@ -71,6 +71,13 @@ RUN \
 
 FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
+# Python 3.12 + torch site-packages for allowlist validation
+COPY --from=builder /usr/local/bin/python3.12 /usr/local/bin/python3.12
+COPY --from=builder /usr/local/bin/pip3.12 /usr/local/bin/pip3.12
+COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=builder /usr/local/lib/libpython3.12.a /usr/local/lib/libpython3.12.a
+RUN ln -sf /usr/local/bin/python3.12 /usr/local/bin/python3 && \
+    ln -sf /usr/local/bin/pip3.12 /usr/local/bin/pip3
 RUN \
   dnf -y update && \
   dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \
