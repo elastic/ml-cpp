@@ -32,8 +32,8 @@ actions = [
 ]
 agents = {
    "aarch64": {
-      "provider": "orka3",
-      "image": "clind-ml-macos-14-arm"
+      "provider": "orka",
+      "image": "ml-macos-14-arm"
    }
 }
 envs = {

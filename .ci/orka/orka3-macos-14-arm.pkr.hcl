@@ -16,7 +16,7 @@ locals {
 
 source "macstadium-orka" "image" {
   source_image     = "generic-14-sonoma-arm"
-  image_name       = "clind-ml-macos-14-arm"
+  image_name       = "ml-macos-14-arm"
   orka_endpoint    = local.orka_endpoint
   orka_auth_token  = local.orka_auth_token
   ssh_username     = local.ssh_username
