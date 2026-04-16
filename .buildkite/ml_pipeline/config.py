@@ -19,6 +19,7 @@ class Config:
     build_x86_64: str = ""
     run_qa_tests: bool = False
     run_pytorch_tests: bool = False
+    run_serverless_tests: bool = False
     action: str = "build"
 
     def parse_comment(self):
@@ -37,7 +38,8 @@ class Config:
             self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
             self.run_qa_tests = self.action == "run_qa_tests"
             self.run_pytorch_tests = self.action == "run_pytorch_tests"
-            if self.run_pytorch_tests or self.run_qa_tests:
+            self.run_serverless_tests = self.action == "run_serverless_tests"
+            if self.run_pytorch_tests or self.run_qa_tests or self.run_serverless_tests:
                 self.action = "build"
 
         # If the ACTION is set to "run_qa_tests" then set some optional variables governing the ES branch to build, the
@@ -64,7 +66,7 @@ class Config:
                     self.build_aarch64 = "--build-aarch64"
                 elif each == "x86_64":
                     self.build_x86_64 = "--build-x86_64"
-        elif self.run_qa_tests or self.run_pytorch_tests:
+        elif self.run_qa_tests or self.run_pytorch_tests or self.run_serverless_tests:
             self.build_x86_64 = "--build-x86_64"
         else:
             self.build_aarch64 = "--build-aarch64"
@@ -83,7 +85,7 @@ class Config:
                     self.build_macos = True
                 elif each == "linux":
                     self.build_linux = True
-        elif self.run_qa_tests or self.run_pytorch_tests:
+        elif self.run_qa_tests or self.run_pytorch_tests or self.run_serverless_tests:
             self.build_linux = True
         else:
             self.build_windows = True
@@ -100,11 +102,13 @@ class Config:
                 self.run_qa_tests = True
             if "ci:run-pytorch-tests" in labels:
                 self.run_pytorch_tests = True
+            if "ci:run-serverless-tests" in labels:
+                self.run_serverless_tests = True
 
     def parse_label(self):
         """ Parse labels set on GitHub PR comments."""
 
-        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests','ci:run-pytorch-tests','ci:build-aarch64','ci:build-x86_64']
+        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests','ci:run-pytorch-tests','ci:run-serverless-tests','ci:build-aarch64','ci:build-x86_64']
         all_labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
         ci_labels = [label for label in all_labels if re.search("|".join(build_labels), label)]
         if not ci_labels:
@@ -137,6 +141,10 @@ class Config:
                     self.build_macos = True
                     self.build_linux = True
                     self.run_pytorch_tests = True
+                if "ci:run-serverless-tests" == label:
+                    self.build_linux = True
+                    self.build_x86_64 = "--build-x86_64"
+                    self.run_serverless_tests = True
             if self.build_aarch64 == "" and self.build_x86_64 == "":
                 self.build_aarch64 = "--build-aarch64"
                 self.build_x86_64 = "--build-x86_64"
