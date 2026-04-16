@@ -8,16 +8,14 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-# Pipeline: trigger the elasticsearch-serverless validation pipeline to build
-# a Docker image incorporating custom ml-cpp artifacts from this build, then
-# run E2E tests against MKI QA.
+# Pipeline: build a serverless Docker image with custom ml-cpp and deploy it
+# to the QA environment for interactive use. Unlike run_serverless_tests.yml.sh,
+# this does NOT run E2E tests -- it just gets the environment running so the
+# developer can interact with it (deploy models, run queries, kubectl, etc.).
 #
-# The triggered pipeline uses $BUILDKITE_TRIGGERED_FROM_BUILD_ID to download
-# ml-cpp artifacts from this build via buildkite-agent, sets up a local Ivy
-# repo, and passes -Dbuild.ml_cpp.repo to the Gradle Docker build.
-#
-# This avoids cloning elasticsearch-serverless or needing AWS credentials
-# in the ml-cpp PR pipeline.
+# The deployment stays up for 1 hour by default. Set KEEP_DEPLOYMENT=true
+# (via the Buildkite UI) to keep it longer. The build annotations will
+# contain the URL and encrypted credentials for accessing the deployment.
 
 SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
 PR_NUM="${BUILDKITE_PULL_REQUEST}"
@@ -25,15 +23,12 @@ if [ -z "${PR_NUM}" ] || [ "${PR_NUM}" = "false" ]; then
   PR_NUM="manual"
 fi
 
-# Extract PR metadata once for reuse by all resolution steps below.
+# Extract PR metadata once for reuse.
 PR_AUTHOR_FORK="$(expr "${BUILDKITE_BRANCH:-}" : '\(.*\):.*' 2>/dev/null || true)"
 PR_SOURCE="$(expr "${BUILDKITE_BRANCH:-}" : '.*:\(.*\)' 2>/dev/null || true)"
 PR_TARGET="${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-main}"
 
 # --- Resolve elasticsearch-serverless branch ---
-# Reuses the fork/branch resolution pattern from dev-tools/run_es_tests_common.sh.
-# The trigger step can only use branches on elastic/elasticsearch-serverless,
-# so if a matching branch is found on a fork but not on elastic/, we warn.
 SERVERLESS_BRANCH="main"
 
 check_serverless_branch() {
@@ -51,7 +46,6 @@ else
       echo "Found '$PR_SOURCE' on both $PR_AUTHOR_FORK and elastic; using elastic/" >&2
     else
       echo "WARNING: Found '$PR_SOURCE' on $PR_AUTHOR_FORK/elasticsearch-serverless but not on elastic/." >&2
-      echo "The trigger step can only use branches on elastic/elasticsearch-serverless." >&2
       echo "Push the branch to elastic/ or set ES_SERVERLESS_BRANCH explicitly." >&2
     fi
   elif check_serverless_branch "elastic" "$PR_SOURCE"; then
@@ -63,8 +57,6 @@ fi
 echo "Resolved elasticsearch-serverless branch: $SERVERLESS_BRANCH" >&2
 
 # --- Resolve ES submodule commit ---
-# If the developer has a matching branch on their elasticsearch fork
-# (coordinated changes), use that. Otherwise use the latest ES main commit.
 ES_COMMIT=""
 if [ -n "$PR_AUTHOR_FORK" ] && [ -n "$PR_SOURCE" ]; then
   ES_COMMIT=$(git ls-remote --heads "https://github.com/${PR_AUTHOR_FORK}/elasticsearch.git" "$PR_SOURCE" 2>/dev/null | awk '{print $1}')
@@ -77,26 +69,7 @@ if [ -z "$ES_COMMIT" ]; then
   ES_COMMIT="${ES_COMMIT:-HEAD}"
 fi
 
-# --- Resolve ES PR number ---
-# The serverless pipeline's PR-specific tests step looks up labels from the
-# ES PR. First tries the ml-cpp PR author's matching ES PR (coordinated
-# changes), then falls back to any recent open ES PR.
-ES_PR_NUM=""
-if [ -z "${ELASTICSEARCH_PR_NUMBER:-}" ]; then
-  if [ -n "$PR_AUTHOR_FORK" ] && [ -n "$PR_SOURCE" ]; then
-    ES_PR_NUM=$(curl -s "https://api.github.com/repos/elastic/elasticsearch/pulls?head=${PR_AUTHOR_FORK}:${PR_SOURCE}&state=open&per_page=1" 2>/dev/null \
-      | python3 -c "import sys,json; prs=json.load(sys.stdin); print(prs[0]['number'] if prs else '')" 2>/dev/null || true)
-  fi
-  if [ -z "$ES_PR_NUM" ]; then
-    ES_PR_NUM=$(curl -s "https://api.github.com/repos/elastic/elasticsearch/pulls?state=open&per_page=1" 2>/dev/null \
-      | python3 -c "import sys,json; prs=json.load(sys.stdin); print(prs[0]['number'] if prs else '')" 2>/dev/null || true)
-  fi
-fi
-ES_PR_NUM="${ELASTICSEARCH_PR_NUMBER:-${ES_PR_NUM}}"
-if [ -z "$ES_PR_NUM" ]; then
-  echo "WARNING: Could not resolve an ES PR number. The serverless PR-specific tests step may fail." >&2
-fi
-echo "Using ES submodule commit: $ES_COMMIT, ES PR number: $ES_PR_NUM" >&2
+echo "Deploying to serverless QA with custom ml-cpp from PR #${PR_NUM}" >&2
 
 cat <<EOL
 steps:
@@ -113,16 +86,16 @@ steps:
       diskSizeGb: 100
       diskName: '/dev/xvda'
 
-  - label: ":docker: :serverless: Build serverless image with custom ml-cpp"
+  - label: ":rocket: Deploy custom ml-cpp to serverless QA"
     depends_on: "upload_ml_cpp_deps"
     async: false
-    trigger: elasticsearch-serverless-es-pr-check
+    trigger: elasticsearch-serverless-deploy-qa
     build:
       branch: "${SERVERLESS_BRANCH}"
       message: "ml-cpp PR #${PR_NUM}: ${SAFE_MESSAGE}"
       env:
-        UPDATE_SUBMODULE: "false"
         ML_CPP_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         ELASTICSEARCH_SUBMODULE_COMMIT: "${ES_COMMIT}"
-        ELASTICSEARCH_PR_NUMBER: "${ES_PR_NUM}"
+        KEEP_DEPLOYMENT: "${KEEP_DEPLOYMENT:-false}"
+        REGION_ID: "${REGION_ID:-aws-eu-west-1}"
 EOL

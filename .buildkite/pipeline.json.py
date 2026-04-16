@@ -75,12 +75,17 @@ def main():
             if config.run_pytorch_tests:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload QA PyTorch tests runner pipeline",
                                                                    ".buildkite/pipelines/run_pytorch_tests.yml.sh"))
-            if config.run_serverless_tests:
-                pipeline_steps.append(pipeline_steps.generate_step("Upload serverless tests runner pipeline",
-                                                                   ".buildkite/pipelines/run_serverless_tests.yml.sh"))
         if config.build_aarch64:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
+
+        # Serverless tests require both x86_64 and aarch64 Linux builds.
+        if config.run_serverless_tests:
+            pipeline_steps.append(pipeline_steps.generate_step("Upload serverless tests runner pipeline",
+                                                               ".buildkite/pipelines/run_serverless_tests.yml.sh"))
+        if config.deploy_serverless_qa:
+            pipeline_steps.append(pipeline_steps.generate_step("Upload serverless QA deploy pipeline",
+                                                               ".buildkite/pipelines/deploy_serverless_qa.yml.sh"))
 
     # Check for build timing regressions against nightly baseline
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
