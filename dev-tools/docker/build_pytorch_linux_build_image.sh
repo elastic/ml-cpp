@@ -20,7 +20,7 @@
 #
 # Optimizations:
 #   1. Skip if viable/strict hasn't moved since the last build
-#   2. ccache via BuildKit cache mount for fast incremental rebuilds
+#   2. sccache using a Docker secret for the GCS backend for fast incremental rebuilds
 
 if [ "$(uname -m)" != x86_64 ] ; then
     echo "Native build images must be built on the correct hardware architecture"

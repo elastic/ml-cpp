@@ -132,8 +132,10 @@ def validate_model(model_name: str,
     label = f"{model_name} (quantized)" if quantize else model_name
     print(f"  {label}...", file=sys.stderr)
 
-    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-    signal.alarm(timeout)
+    has_alarm = hasattr(signal, "SIGALRM")
+    if has_alarm:
+        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(timeout)
     try:
         traced = load_and_trace_hf_model(model_name, quantize=quantize,
                                          auto_class=auto_class,
@@ -142,8 +144,9 @@ def validate_model(model_name: str,
         print(f"    SKIPPED (timed out after {timeout}s)", file=sys.stderr)
         return "skip"
     finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, old_handler)
+        if has_alarm:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old_handler)
 
     if traced is None:
         print(f"    SKIPPED (could not load/trace)", file=sys.stderr)

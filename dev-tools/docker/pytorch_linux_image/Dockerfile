@@ -18,7 +18,7 @@ LABEL maintainer="Ed Savage <ed.savage@elastic.co>"
 RUN dnf -y update && \
     dnf install -y dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
-    dnf install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
+    dnf install -y bzip2 curl gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
 
 # Install sccache for GCS-backed compilation caching across builds
 ARG SCCACHE_VERSION=v0.14.0
@@ -110,6 +110,6 @@ LABEL pytorch.commit=${pytorch_commit}
 
 RUN \
   dnf -y update && \
-  dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \
+  dnf install -y bzip2 gcc git make openssl-libs unzip which zip zlib-devel findutils && \
   dnf clean all && \
   rm -rf /var/cache/dnf /tmp/*
