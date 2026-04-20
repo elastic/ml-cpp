@@ -23,11 +23,6 @@ from ml_pipeline import (
     config as buildConfig,
 )
 
-# Ensure VERSION_QUALIFIER is always empty for PR builds
-env = {
-    "VERSION_QUALIFIER": ""
-}
-
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([])
@@ -39,6 +34,25 @@ def main():
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
     config = buildConfig.Config()
     config.parse()
+
+    # Compute which build step keys will exist so that analytics steps
+    # can emit a correct depends_on list (not all platforms are built
+    # for every PR, depending on labels/comments).
+    build_step_keys = []
+    if config.build_linux and config.build_aarch64:
+        build_step_keys.append("build_test_linux-aarch64-RelWithDebInfo")
+    if config.build_linux and config.build_x86_64:
+        build_step_keys.append("build_test_linux-x86_64-RelWithDebInfo")
+    if config.build_macos and config.build_aarch64:
+        build_step_keys.append("build_test_macos-aarch64-RelWithDebInfo")
+    if config.build_windows and config.build_x86_64:
+        build_step_keys.append("build_test_Windows-x86_64-RelWithDebInfo")
+
+    env = {
+        "VERSION_QUALIFIER": "",
+        "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
+    }
+
     if config.build_windows:
         build_windows = pipeline_steps.generate_step_template("Windows", config.action, "", config.build_x86_64)
         pipeline_steps.append(build_windows)
@@ -52,6 +66,8 @@ def main():
         if config.build_x86_64:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
+            pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
+                                                               ".buildkite/pipelines/run_es_inference_tests_x86_64.yml.sh"))
             # We only use linux x86_64 builds for QA tests.
             if config.run_qa_tests:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
@@ -65,7 +81,16 @@ def main():
 
     # Check for build timing regressions against nightly baseline
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
-                                                       ".buildkite/pipelines/check_build_regression.yml.sh"))
+                                                       ".buildkite/pipelines/check_build_regression.yml.sh",
+                                                       soft_fail=True))
+
+    # Validate the PyTorch allowlist against HuggingFace models when
+    # triggered from the PyTorch edge pipeline.  Runs in a python:3
+    # container since the build/test images don't include Python.
+    if config.run_pytorch_tests:
+        pipeline_steps.append(pipeline_steps.generate_step("Upload PyTorch allowlist validation",
+                                                           ".buildkite/pipelines/validate_pytorch_allowlist.yml.sh",
+                                                           soft_fail=True))
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps

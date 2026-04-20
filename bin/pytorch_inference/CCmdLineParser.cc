@@ -41,7 +41,8 @@ bool CCmdLineParser::parse(int argc,
                            std::size_t& cacheMemorylimitBytes,
                            bool& validElasticLicenseKeyConfirmed,
                            bool& lowPriority,
-                           bool& useImmediateExecutor) {
+                           bool& useImmediateExecutor,
+                           bool& skipModelValidation) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -75,6 +76,7 @@ bool CCmdLineParser::parse(int argc,
             ("lowPriority", "Execute process in low priority")
             ("useImmediateExecutor", "Execute requests on the main thread. This mode should only used for "
             "benchmarking purposes to ensure requests are processed in order)")
+            ("skipModelValidation", "Skip TorchScript model graph validation. WARNING: disables security checks on model operations.")
         ;
         // clang-format on
 
@@ -147,6 +149,9 @@ bool CCmdLineParser::parse(int argc,
                           << std::endl;
                 return false;
             }
+        }
+        if (vm.count("skipModelValidation") > 0) {
+            skipModelValidation = true;
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

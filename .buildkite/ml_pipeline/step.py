@@ -9,7 +9,7 @@
 # limitation.
 
 class PipelineStep(list):
-  def generate_step(self, label, command):
+  def generate_step(self, label, command, soft_fail=False):
     command = command + " | buildkite-agent pipeline upload"
     step = {
       "label": label,
@@ -19,6 +19,8 @@ class PipelineStep(list):
         "image": "python",
       }
     }
+    if soft_fail:
+      step["soft_fail"] = True
     return step
 
   def generate_step_template(self, platform, action, build_aarch64, build_x86_64):

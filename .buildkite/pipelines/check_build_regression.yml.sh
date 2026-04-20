@@ -8,17 +8,27 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-cat <<EOL
+cat <<'EOL'
 steps:
   - label: "Check build timing regressions :chart_with_downwards_trend:"
     key: "check_build_regression"
     command:
         - "python3 dev-tools/check_build_regression.py --annotate"
-    depends_on:
-        - "build_test_linux-aarch64-RelWithDebInfo"
-        - "build_test_linux-x86_64-RelWithDebInfo"
-        - "build_test_macos-aarch64-RelWithDebInfo"
-        - "build_test_Windows-x86_64-RelWithDebInfo"
+EOL
+
+# Emit depends_on dynamically — ML_BUILD_STEP_KEYS is a comma-separated
+# list of step keys set by the pipeline generator.  Only keys that
+# actually exist in this build are included, avoiding Buildkite errors
+# when a platform is not built.
+if [ -n "${ML_BUILD_STEP_KEYS:-}" ]; then
+    echo '    depends_on:'
+    IFS=',' read -ra STEP_KEYS <<< "$ML_BUILD_STEP_KEYS"
+    for key in "${STEP_KEYS[@]}"; do
+        echo "        - \"${key}\""
+    done
+fi
+
+cat <<'EOL'
     allow_dependency_failure: true
     soft_fail: true
     agents:
