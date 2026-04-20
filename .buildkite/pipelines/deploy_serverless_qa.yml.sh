@@ -100,4 +100,5 @@ steps:
         ELASTICSEARCH_SUBMODULE_COMMIT: "${ES_COMMIT}"
         KEEP_DEPLOYMENT: "${KEEP_DEPLOYMENT:-false}"
         REGION_ID: "${REGION_ID:-aws-eu-west-1}"
+        PROJECT_TYPE: "${PROJECT_TYPE:-elasticsearch}"
 EOL
