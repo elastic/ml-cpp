@@ -28,7 +28,16 @@ PR_AUTHOR_FORK="$(expr "${BUILDKITE_BRANCH:-}" : '\(.*\):.*' 2>/dev/null || true
 PR_SOURCE="$(expr "${BUILDKITE_BRANCH:-}" : '.*:\(.*\)' 2>/dev/null || true)"
 PR_TARGET="${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-main}"
 
+ML_CPP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=dev-tools/pick_elasticsearch_clone_target.sh
+source "${ML_CPP_ROOT}/dev-tools/pick_elasticsearch_clone_target.sh"
+export PR_AUTHOR="${PR_AUTHOR_FORK}"
+export PR_SOURCE_BRANCH="${PR_SOURCE}"
+export PR_TARGET_BRANCH="${PR_TARGET}"
+
 # --- Resolve elasticsearch-serverless branch ---
+# Same fork/branch *idea* as pick_elasticsearch_clone_target.sh (different repo);
+# ES submodule SHA below uses that script directly.
 SERVERLESS_BRANCH="main"
 
 check_serverless_branch() {
@@ -56,18 +65,11 @@ else
 fi
 echo "Resolved elasticsearch-serverless branch: $SERVERLESS_BRANCH" >&2
 
-# --- Resolve ES submodule commit ---
-ES_COMMIT=""
-if [ -n "$PR_AUTHOR_FORK" ] && [ -n "$PR_SOURCE" ]; then
-  ES_COMMIT=$(git ls-remote --heads "https://github.com/${PR_AUTHOR_FORK}/elasticsearch.git" "$PR_SOURCE" 2>/dev/null | awk '{print $1}')
-  if [ -n "$ES_COMMIT" ]; then
-    echo "Using ES commit from ${PR_AUTHOR_FORK}/elasticsearch:${PR_SOURCE}" >&2
-  fi
-fi
-if [ -z "$ES_COMMIT" ]; then
-  ES_COMMIT=$(git ls-remote --heads "https://github.com/elastic/elasticsearch.git" main 2>/dev/null | awk '{print $1}')
-  ES_COMMIT="${ES_COMMIT:-HEAD}"
-fi
+# --- Resolve ES submodule commit (same fork/branch rules as run_es_tests_common.sh) ---
+pickCloneTarget || true
+ES_COMMIT="$(elasticsearch_selected_branch_head_sha)"
+ES_COMMIT="${ES_COMMIT:-HEAD}"
+echo "Resolved elasticsearch submodule: ${SELECTED_FORK}/${SELECTED_BRANCH} -> ${ES_COMMIT}" >&2
 
 echo "Deploying to serverless QA with custom ml-cpp from PR #${PR_NUM}" >&2
 
