@@ -18,14 +18,20 @@ Usage:
 
     # Export specific files only
     python3 dev-tools/export_changelogs.py --target /tmp/out docs/changelog/3008.yaml
+
+    # If an export branch already exists locally or on origin, a timestamp suffix
+    # is used automatically; --force-branch deletes a colliding local branch first.
+    python3 dev-tools/export_changelogs.py --target ~/src/elasticsearch/docs/changelog --create-pr --force-branch
 """
 
 import argparse
 import difflib
-import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+
+from changelog_common import load_schema, validate_changelog_mapping
 
 try:
     import yaml
@@ -33,29 +39,66 @@ except ImportError:
     print("Missing pyyaml. Install with: pip3 install pyyaml", file=sys.stderr)
     sys.exit(2)
 
+# fail fast with a clear message if jsonschema isn’t installed
 try:
-    import jsonschema
+    import jsonschema  # noqa: F401
 except ImportError:
     print("Missing jsonschema. Install with: pip3 install jsonschema", file=sys.stderr)
     sys.exit(2)
-
 
 PREFIX = "ml-cpp-"
 SOURCE_REPO = "elastic/ml-cpp"
 
 
-def validate_entries(entries, schema_path):
-    """Validate all entries against the JSON schema. Returns list of errors."""
-    with open(schema_path) as f:
-        schema = json.load(f)
-
-    validator = jsonschema.Draft7Validator(schema)
-    errors = []
+def validate_entries(entries, schema: dict) -> list[str]:
+    """Validate all entries (schema + filename rules). Returns list of errors."""
+    errors: list[str] = []
     for source_path, _, data in entries:
-        for error in validator.iter_errors(data):
-            path = ".".join(str(p) for p in error.absolute_path) or "(root)"
-            errors.append(f"{source_path.name}: {path}: {error.message}")
+        errors.extend(
+            validate_changelog_mapping(source_path.name, source_path.stem, data, schema)
+        )
     return errors
+
+
+def pick_export_branch_name(es_repo: Path, base_name: str, force_branch: bool) -> str:
+    """Return a branch name that does not collide with an existing local or origin branch."""
+    if force_branch:
+        subprocess.run(
+            ["git", "branch", "-D", base_name],
+            cwd=es_repo,
+            capture_output=True,
+            text=True,
+        )
+        if not _remote_branch_exists(es_repo, base_name):
+            return base_name
+
+    if not _local_branch_exists(es_repo, base_name) and not _remote_branch_exists(
+        es_repo, base_name
+    ):
+        return base_name
+
+    suffix = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%SZ")
+    return f"{base_name}-{suffix}"
+
+
+def _local_branch_exists(es_repo: Path, name: str) -> bool:
+    result = subprocess.run(
+        ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{name}"],
+        cwd=es_repo,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def _remote_branch_exists(es_repo: Path, name: str) -> bool:
+    result = subprocess.run(
+        ["git", "ls-remote", "--heads", "origin", f"refs/heads/{name}"],
+        cwd=es_repo,
+        capture_output=True,
+        text=True,
+    )
+    return bool(result.stdout.strip())
 
 
 def collect_entries(changelog_dir, specific_files=None):
@@ -155,10 +198,16 @@ def write_entry_with_source_repo(source_path, dest):
 
 
 def export_entries(entries, target_dir, dry_run=False):
-    """Export entries to the target directory with prefixed filenames and source_repo."""
+    """Export entries to the target directory with prefixed filenames and source_repo.
+
+    Returns (exported_dest_paths, exported_source_paths). The second list is only
+    populated for files actually written or overwritten from ml-cpp (used by
+    :option:`--prune`).
+    """
     target = Path(target_dir)
 
-    exported = []
+    exported_dests: list[Path] = []
+    exported_sources: list[Path] = []
     skipped = 0
     for source_path, target_name, data in entries:
         dest = target / target_name
@@ -167,30 +216,38 @@ def export_entries(entries, target_dir, dry_run=False):
         if dry_run:
             flag = " [EXISTS]" if dest.exists() else ""
             print(f"  {target_name}  (PR #{pr}: {summary}){flag}")
-            exported.append(dest)
+            exported_dests.append(dest)
         elif dest.exists():
             action = resolve_conflict(source_path, dest, target_name)
             if action == "overwrite":
-                exported.append(dest)
+                exported_dests.append(dest)
+                exported_sources.append(source_path)
             else:
                 skipped += 1
         else:
             write_entry_with_source_repo(source_path, dest)
             print(f"  Copied {source_path.name} -> {target_name}")
-            exported.append(dest)
+            exported_dests.append(dest)
+            exported_sources.append(source_path)
 
     if skipped > 0 and not dry_run:
         print(f"\n  ({skipped} file(s) skipped due to conflicts)")
 
-    return exported
+    return exported_dests, exported_sources
 
 
-def create_pr(es_repo_dir, exported_files, version=None):
+def create_pr(es_repo_dir, exported_files, version=None, force_branch: bool = False):
     """Create a git branch and PR in the ES repo with the exported entries."""
     es_repo = Path(es_repo_dir).resolve()
-    branch_name = "ml-cpp-changelog-export"
+    base_branch = "ml-cpp-changelog-export"
     if version:
-        branch_name += f"-{version}"
+        base_branch += f"-{version}"
+    branch_name = pick_export_branch_name(es_repo, base_branch, force_branch)
+    if branch_name != base_branch:
+        print(
+            f"Note: branch '{base_branch}' already exists; using '{branch_name}' instead.",
+            file=sys.stderr,
+        )
 
     try:
         subprocess.run(["git", "checkout", "-b", branch_name], cwd=es_repo, check=True)
@@ -251,6 +308,12 @@ def main():
         help="Create a PR in the ES repo (requires --target to be inside an ES checkout)",
     )
     parser.add_argument(
+        "--force-branch",
+        action="store_true",
+        help="When using --create-pr, delete a local branch with the same name if it exists "
+        "(still uses a timestamp suffix if the branch already exists on origin)",
+    )
+    parser.add_argument(
         "--prune",
         action="store_true",
         help="Delete source YAML files after successful export (use after release)",
@@ -273,20 +336,22 @@ def main():
 
     print(f"Found {len(entries)} changelog entry(ies).")
 
-    # Validate all entries before exporting
-    if schema_path.exists():
-        print("Validating entries against schema... ", end="", flush=True)
-        errors = validate_entries(entries, schema_path)
-        if errors:
-            print(f"FAILED ({len(errors)} error(s)):\n")
-            for error in errors:
-                print(f"  - {error}")
-            print("\nFix validation errors before exporting.")
-            sys.exit(1)
-        print("OK")
-    else:
-        print(f"Warning: schema not found at {schema_path}, skipping validation",
-              file=sys.stderr)
+    # Validate all entries before exporting (same rules as validate_changelogs.py)
+    try:
+        print("Validating entries against schema...", flush=True)
+        schema = load_schema(schema_path)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    errors = validate_entries(entries, schema)
+    if errors:
+        print(f"Validation FAILED ({len(errors)} error(s)):\n")
+        for error in errors:
+            print(f"  - {error}")
+        print("\nFix validation errors before exporting.")
+        sys.exit(1)
+    print("OK")
 
     print()
 
@@ -299,21 +364,21 @@ def main():
     # Verify the target is a real ES checkout
     es_repo_root = verify_es_repo(args.target)
 
-    exported = export_entries(entries, args.target)
-    if not exported:
+    exported_dests, exported_sources = export_entries(entries, args.target)
+    if not exported_dests:
         print("\nNo files exported.")
         return
 
-    print(f"\nExported {len(exported)} file(s) to {args.target}")
+    print(f"\nExported {len(exported_dests)} file(s) to {args.target}")
 
     if args.create_pr:
-        create_pr(es_repo_root, exported, args.version)
+        create_pr(es_repo_root, exported_dests, args.version, force_branch=args.force_branch)
 
     if args.prune:
-        for source_path, _, _ in entries:
+        for source_path in exported_sources:
             source_path.unlink()
             print(f"  Pruned {source_path}")
-        print(f"\nPruned {len(entries)} source file(s)")
+        print(f"\nPruned {len(exported_sources)} source file(s)")
 
 
 if __name__ == "__main__":

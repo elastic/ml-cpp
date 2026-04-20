@@ -16,6 +16,7 @@ Formats:
 import argparse
 import sys
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 try:
@@ -43,6 +44,52 @@ ML_CPP_PULL_URL = "https://github.com/elastic/ml-cpp/pull"
 ML_CPP_ISSUE_URL = "https://github.com/elastic/ml-cpp/issues"
 
 
+@dataclass(frozen=True)
+class ChangelogFormatStyle:
+    """Heading / bullet / link conventions for bundled changelog output."""
+
+    version_heading_prefix: str
+    type_heading_prefix: str
+    use_markdown_issue_links: bool
+
+    def version_heading(self, version: str) -> str:
+        return f"{self.version_heading_prefix}{version}\n"
+
+    def type_heading(self, label: str) -> str:
+        return f"{self.type_heading_prefix}{label}\n"
+
+    def area_line(self, area: str) -> str:
+        if self.use_markdown_issue_links:
+            return f"**{area}**"
+        return f"*{area}*"
+
+    def entry_line(self, entry: dict) -> str:
+        summary = entry["summary"]
+        issues = entry.get("issues", [])
+        pr = entry.get("pr")
+        if self.use_markdown_issue_links:
+            issue_refs = ", ".join(f"#{i}" for i in issues)
+            if pr:
+                line = f"- {summary} [#{pr}]({ML_CPP_PULL_URL}/{pr})"
+            else:
+                line = f"- {summary}"
+        else:
+            issue_refs = ", ".join(
+                f"{ML_CPP_ISSUE_URL}/{i}[#{i}]" for i in issues
+            )
+            if pr:
+                line = f"* {summary} {{ml-pull}}{pr}[#{pr}]"
+            else:
+                line = f"* {summary}"
+        if issue_refs:
+            line += f" ({issue_refs})"
+        return line
+
+
+MARKDOWN_STYLE = ChangelogFormatStyle("## ", "### ", True)
+ASCIIDOC_STYLE = ChangelogFormatStyle("== ", "=== ", False)
+
+
 def load_entries(changelog_dir):
     entries = []
     for path in sorted(changelog_dir.glob("*.yaml")):
@@ -54,69 +101,30 @@ def load_entries(changelog_dir):
     return entries
 
 
-def format_markdown(entries, version=None):
-    lines = []
-    if version:
-        lines.append(f"## {version}\n")
-
+def _group_by_type_and_area(entries):
     grouped = defaultdict(lambda: defaultdict(list))
     for entry in entries:
         area = entry.get("area", "General")
         grouped[entry["type"]][area].append(entry)
-
-    for type_key, type_label in TYPE_ORDER:
-        if type_key not in grouped:
-            continue
-        lines.append(f"### {type_label}\n")
-        for area in sorted(grouped[type_key].keys()):
-            lines.append(f"**{area}**")
-            for entry in sorted(grouped[type_key][area], key=lambda e: e.get("pr", 0)):
-                pr = entry.get("pr")
-                summary = entry["summary"]
-                issues = entry.get("issues", [])
-                issue_refs = ", ".join(f"#{i}" for i in issues)
-                if pr:
-                    line = f"- {summary} [#{pr}]({ML_CPP_PULL_URL}/{pr})"
-                else:
-                    line = f"- {summary}"
-                if issue_refs:
-                    line += f" ({issue_refs})"
-                lines.append(line)
-            lines.append("")
-
-    return "\n".join(lines)
+    return grouped
 
 
-def format_asciidoc(entries, version=None):
+def format_entries(entries, style: ChangelogFormatStyle, version=None):
+    """Render bundled entries using the given heading/bullet/link style."""
     lines = []
     if version:
-        lines.append(f"== {version}\n")
+        lines.append(style.version_heading(version))
 
-    grouped = defaultdict(lambda: defaultdict(list))
-    for entry in entries:
-        area = entry.get("area", "General")
-        grouped[entry["type"]][area].append(entry)
+    grouped = _group_by_type_and_area(entries)
 
     for type_key, type_label in TYPE_ORDER:
         if type_key not in grouped:
             continue
-        lines.append(f"=== {type_label}\n")
+        lines.append(style.type_heading(type_label))
         for area in sorted(grouped[type_key].keys()):
-            lines.append(f"*{area}*")
+            lines.append(style.area_line(area))
             for entry in sorted(grouped[type_key][area], key=lambda e: e.get("pr", 0)):
-                pr = entry.get("pr")
-                summary = entry["summary"]
-                issues = entry.get("issues", [])
-                issue_refs = ", ".join(
-                    f"{ML_CPP_ISSUE_URL}/{i}[#{i}]" for i in issues
-                )
-                if pr:
-                    line = f"* {summary} {{ml-pull}}{pr}[#{pr}]"
-                else:
-                    line = f"* {summary}"
-                if issue_refs:
-                    line += f" ({issue_refs})"
-                lines.append(line)
+                lines.append(style.entry_line(entry))
             lines.append("")
 
     return "\n".join(lines)
@@ -137,10 +145,8 @@ def main():
         print("No changelog entries found.", file=sys.stderr)
         sys.exit(0)
 
-    if args.format == "asciidoc":
-        print(format_asciidoc(entries, args.version))
-    else:
-        print(format_markdown(entries, args.version))
+    style = ASCIIDOC_STYLE if args.format == "asciidoc" else MARKDOWN_STYLE
+    print(format_entries(entries, style, args.version))
 
 
 if __name__ == "__main__":

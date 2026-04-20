@@ -111,3 +111,18 @@ A changelog entry is **not required** for:
 
 PRs that do not require a changelog entry should be labelled with
 `>test`, `>refactoring`, `>docs`, `>build`, or `>non-issue` to skip validation.
+
+## Developing changelog tooling
+
+From the repository root, run the Python unit tests for shared validation and the
+bundle formatter:
+
+```bash
+python3 -m unittest discover -s dev-tools/unittest -p 'test_*.py'
+```
+
+### Future improvements
+
+- Run the changelog tooling `unittest` suite in CI (Gradle and/or Buildkite) so
+  Python regressions are caught automatically; track wiring work as a separate
+  issue.

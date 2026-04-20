@@ -70,4 +70,5 @@ echo "Validating changelog files:"
 echo "${CHANGED_CHANGELOGS}"
 echo ""
 
-python3 dev-tools/validate_changelogs.py ${CHANGED_CHANGELOGS}
+readarray -t CHANGED_FILES <<< "${CHANGED_CHANGELOGS}"
+python3 dev-tools/validate_changelogs.py "${CHANGED_FILES[@]}"

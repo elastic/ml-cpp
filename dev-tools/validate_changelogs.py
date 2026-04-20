@@ -15,18 +15,11 @@ Exit codes:
 """
 
 import argparse
-import json
 import os
-import re
 import sys
-import urllib.request
 from pathlib import Path
 
-
-ES_SCHEMA_URL = (
-    "https://raw.githubusercontent.com/elastic/elasticsearch/main/"
-    "build-tools-internal/src/main/resources/changelog-schema.json"
-)
+from changelog_common import load_schema, validate_changelog_mapping
 
 
 def check_dependencies():
@@ -49,47 +42,8 @@ def check_dependencies():
         sys.exit(2)
 
 
-def load_schema(local_path):
-    """Load the changelog schema, preferring the canonical ES version.
-
-    Fetches the schema from the Elasticsearch repo to ensure we validate
-    against the single source of truth. Falls back to the local copy if
-    the fetch fails (e.g. no network / offline development). Warns if
-    the local copy has diverged from the remote.
-    """
-    local_schema = None
-    if local_path.exists():
-        with open(local_path) as f:
-            local_schema = json.load(f)
-
-    try:
-        response = urllib.request.urlopen(ES_SCHEMA_URL, timeout=10)
-        remote_schema = json.loads(response.read())
-    except Exception as e:
-        if local_schema is not None:
-            print(f"Note: could not fetch ES schema ({e}), using local copy",
-                  file=sys.stderr)
-            return local_schema
-        print(f"Error: could not fetch ES schema and no local copy at {local_path}",
-              file=sys.stderr)
-        sys.exit(2)
-
-    if local_schema is not None and local_schema != remote_schema:
-        print(
-            "WARNING: local changelog-schema.json differs from the Elasticsearch source.\n"
-            f"  Remote: {ES_SCHEMA_URL}\n"
-            f"  Local:  {local_path}\n"
-            "  Validating against the remote (canonical) schema.\n"
-            "  Please update the local copy to stay in sync.\n",
-            file=sys.stderr,
-        )
-
-    return remote_schema
-
-
 def validate_file(filepath, schema):
     """Validate a single YAML file. Returns a list of error strings."""
-    import jsonschema
     import yaml
 
     errors = []
@@ -111,25 +65,7 @@ def validate_file(filepath, schema):
         errors.append(f"{filename}: expected a YAML mapping, got {type(data).__name__}")
         return errors
 
-    # Validate against JSON schema
-    validator = jsonschema.Draft7Validator(schema)
-    for error in sorted(validator.iter_errors(data), key=lambda e: list(e.path)):
-        path = ".".join(str(p) for p in error.absolute_path) or "(root)"
-        errors.append(f"{filename}: {path}: {error.message}")
-
-    # Filename convention: numeric filenames must match the pr field.
-    # Types without a pr field (known-issue, security) may use descriptive names.
-    if re.match(r"^\d+$", stem):
-        if "pr" in data and data["pr"] != int(stem):
-            errors.append(
-                f"{filename}: pr field ({data['pr']}) does not match filename ({stem})"
-            )
-    elif "pr" in data:
-        errors.append(
-            f"{filename}: file has a pr field ({data['pr']}), "
-            f"so filename should be {data['pr']}.yaml"
-        )
-
+    errors.extend(validate_changelog_mapping(filename, stem, data, schema))
     return errors
 
 
@@ -159,7 +95,11 @@ def main():
     schema_path = Path(args.schema) if args.schema else repo_root / "docs" / "changelog" / "changelog-schema.json"
     changelog_dir = Path(args.dir) if args.dir else repo_root / "docs" / "changelog"
 
-    schema = load_schema(schema_path)
+    try:
+        schema = load_schema(schema_path)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(2)
 
     # Collect files to validate
     if args.files:
