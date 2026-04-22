@@ -122,6 +122,9 @@ steps:
       env:
         UPDATE_SUBMODULE: "false"
         ML_CPP_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        # ml-cpp repo commit at trigger time; serverless folds this into IMAGE_TAG
+        # with ML_CPP_BUILD_ID so Docker tags never collide with stock builds.
+        ML_CPP_COMMIT: "${BUILDKITE_COMMIT}"
         ELASTICSEARCH_SUBMODULE_COMMIT: "${ES_COMMIT}"
         ELASTICSEARCH_PR_NUMBER: "${ES_PR_NUM}"
 EOL
