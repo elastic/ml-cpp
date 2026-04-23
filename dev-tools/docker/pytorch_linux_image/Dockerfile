@@ -20,11 +20,11 @@ RUN dnf -y update && \
     dnf config-manager --set-enabled powertools && \
     dnf install -y bzip2 curl gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
 
-# Install sccache for GCS-backed compilation caching across builds
+# Install sccache for GCS-backed compilation caching across builds (same dir as the pinned GCC toolchain)
 ARG SCCACHE_VERSION=v0.14.0
 RUN curl -fsSL "https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-    | tar xz -C /usr/local/bin --strip-components=1 "sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl/sccache" && \
-    chmod +x /usr/local/bin/sccache
+    | tar xz -C /usr/local/gcc133/bin --strip-components=1 "sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl/sccache" && \
+    chmod +x /usr/local/gcc133/bin/sccache
 
 # For compiling with hardening and optimisation
 ENV CFLAGS="-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
@@ -97,6 +97,7 @@ RUN --mount=type=secret,id=gcs_key \
 
 FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
+RUN rm -f /usr/local/gcc133/bin/sccache
 # Python 3.12 + torch site-packages for allowlist validation
 COPY --from=builder /usr/local/bin/python3.12 /usr/local/bin/python3.12
 COPY --from=builder /usr/local/bin/pip3.12 /usr/local/bin/pip3.12
