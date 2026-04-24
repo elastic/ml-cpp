@@ -11,6 +11,17 @@
 import os
 import re
 
+# Keys allowed in the optional tail of trigger_comment_regex (group serverless_kv).
+_SERVERLESS_KV_KEYS = frozenset(
+    {
+        "KEEP_DEPLOYMENT",
+        "REGION_ID",
+        "PROJECT_TYPE",
+        "ES_SERVERLESS_BRANCH",
+    }
+)
+
+
 class Config:
     build_windows: bool = False
     build_macos: bool = False
@@ -43,6 +54,8 @@ class Config:
             self.deploy_serverless_qa = self.action == "deploy_serverless_qa"
             if self.run_pytorch_tests or self.run_qa_tests or self.run_serverless_tests or self.deploy_serverless_qa:
                 self.action = "build"
+
+            self._apply_serverless_kv_from_comment()
 
         # If the ACTION is set to "run_qa_tests" then set some optional variables governing the ES branch to build, the
         # stack version to set and the subset of QA tests to run, depending on whether appropriate variables are set in
@@ -176,4 +189,21 @@ class Config:
             self.build_aarch64 = "--build-aarch64"
             self.build_x86_64 = "--build-x86_64"
             self.run_qa_tests = False
+
+    def _apply_serverless_kv_from_comment(self):
+        """Copy whitelisted KEY=value tokens from the PR comment regex capture into os.environ."""
+
+        env_key = "GITHUB_PR_COMMENT_VAR_SERVERLESS_KV"
+        if env_key not in os.environ:
+            return
+        raw = os.environ[env_key].strip()
+        if not raw:
+            return
+        for token in raw.split():
+            key, sep, value = token.partition("=")
+            if not sep or key not in _SERVERLESS_KV_KEYS:
+                continue
+            if key == "KEEP_DEPLOYMENT" and value.lower() not in ("true", "false"):
+                continue
+            os.environ[key] = value
 

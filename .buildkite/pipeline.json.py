@@ -17,6 +17,7 @@
 #
 
 import json
+import os
 
 from ml_pipeline import (
     step,
@@ -52,6 +53,16 @@ def main():
         "VERSION_QUALIFIER": "",
         "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
     }
+    if config.run_serverless_tests or config.deploy_serverless_qa:
+        for serverless_env_key in (
+            "KEEP_DEPLOYMENT",
+            "REGION_ID",
+            "PROJECT_TYPE",
+            "ES_SERVERLESS_BRANCH",
+        ):
+            value = os.environ.get(serverless_env_key)
+            if value:
+                env[serverless_env_key] = value
 
     if config.build_windows:
         build_windows = pipeline_steps.generate_step_template("Windows", config.action, "", config.build_x86_64)
