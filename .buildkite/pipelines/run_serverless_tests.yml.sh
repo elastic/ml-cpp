@@ -37,40 +37,12 @@ export PR_AUTHOR="${PR_AUTHOR_FORK}"
 export PR_SOURCE_BRANCH="${PR_SOURCE}"
 export PR_TARGET_BRANCH="${PR_TARGET}"
 
-# --- Resolve elasticsearch-serverless branch ---
-# Same fork/branch *idea* as pick_elasticsearch_clone_target.sh (different repo);
-# ES submodule SHA below uses that script directly.
-# The trigger step can only use branches on elastic/elasticsearch-serverless,
-# so if a matching branch is found on a fork but not on elastic/, we warn.
-SERVERLESS_BRANCH="main"
+# --- Resolve elasticsearch-serverless branch (shared with deploy_serverless_qa.yml.sh) ---
+# shellcheck source=dev-tools/pick_elasticsearch_serverless_branch.sh
+source "${ML_CPP_ROOT}/dev-tools/pick_elasticsearch_serverless_branch.sh"
+pickElasticsearchServerlessBranch
 
-check_serverless_branch() {
-  local repo="$1" branch="$2"
-  [ -n "$branch" ] && git ls-remote --heads "https://github.com/${repo}/elasticsearch-serverless.git" "$branch" 2>/dev/null | grep -q .
-}
-
-if [ -n "${ES_SERVERLESS_BRANCH:-}" ]; then
-  SERVERLESS_BRANCH="${ES_SERVERLESS_BRANCH}"
-  echo "Using explicit ES_SERVERLESS_BRANCH override: $SERVERLESS_BRANCH" >&2
-else
-  if [ -n "$PR_AUTHOR_FORK" ] && check_serverless_branch "$PR_AUTHOR_FORK" "$PR_SOURCE"; then
-    if check_serverless_branch "elastic" "$PR_SOURCE"; then
-      SERVERLESS_BRANCH="$PR_SOURCE"
-      echo "Found '$PR_SOURCE' on both $PR_AUTHOR_FORK and elastic; using elastic/" >&2
-    else
-      echo "WARNING: Found '$PR_SOURCE' on $PR_AUTHOR_FORK/elasticsearch-serverless but not on elastic/." >&2
-      echo "The trigger step can only use branches on elastic/elasticsearch-serverless." >&2
-      echo "Push the branch to elastic/ or set ES_SERVERLESS_BRANCH explicitly." >&2
-    fi
-  elif check_serverless_branch "elastic" "$PR_SOURCE"; then
-    SERVERLESS_BRANCH="$PR_SOURCE"
-  elif [ "$PR_TARGET" != "main" ] && check_serverless_branch "elastic" "$PR_TARGET"; then
-    SERVERLESS_BRANCH="$PR_TARGET"
-  fi
-fi
-echo "Resolved elasticsearch-serverless branch: $SERVERLESS_BRANCH" >&2
-
-# --- Resolve ES submodule commit (same fork/branch rules as run_es_tests_common.sh) ---
+# --- Resolve ES submodule commit (shared pick_elasticsearch_clone_target.sh) ---
 pickCloneTarget || true
 ES_COMMIT="$(elasticsearch_selected_branch_head_sha)"
 ES_COMMIT="${ES_COMMIT:-HEAD}"
