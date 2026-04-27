@@ -27,4 +27,12 @@ steps:
     notify:
       - github_commit_status:
           context: "Validate changelog entries"
+  - label: "Unit tests: changelog Python tools"
+    key: "test_changelog_tools"
+    command: ".buildkite/scripts/steps/test-changelog-tools.sh"
+    agents:
+      image: "python:3.11-slim"
+    notify:
+      - github_commit_status:
+          context: "Unit tests: changelog Python tools"
 EOL

@@ -114,15 +114,13 @@ PRs that do not require a changelog entry should be labelled with
 
 ## Developing changelog tooling
 
-From the repository root, run the Python unit tests for shared validation and the
-bundle formatter:
+From the repository root, install `pyyaml` and `jsonschema` if needed, then run
+the Python unit tests for shared validation and the bundle formatter:
 
 ```bash
+python3 -m pip install pyyaml jsonschema
 python3 -m unittest discover -s dev-tools/unittest -p 'test_*.py'
 ```
 
-### Future improvements
-
-- Run the changelog tooling `unittest` suite in CI (Gradle and/or Buildkite) so
-  Python regressions are caught automatically; track wiring work as a separate
-  issue.
+The same suite runs on every PR in Buildkite (**Unit tests: changelog Python tools**,
+via `.buildkite/scripts/steps/test-changelog-tools.sh`).
