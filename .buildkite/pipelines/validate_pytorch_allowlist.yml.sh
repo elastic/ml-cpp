@@ -20,8 +20,6 @@ steps:
     timeout_in_minutes: 60
     env:
         HF_HUB_DISABLE_XET: "1"
-        # Redundant with the image ENV once pytorch_latest includes MKL; kept for older tags.
-        LD_LIBRARY_PATH: "/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib"
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
         - "python3 -c \"import torch; print(f'PyTorch version: {torch.__version__}')\""
