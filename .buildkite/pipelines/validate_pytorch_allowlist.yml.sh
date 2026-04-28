@@ -8,20 +8,10 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-# Use an image that has Python 3.12, source-built torch, and MKL under
-# /usr/local/gcc133 so `import torch` matches ml-cpp's libtorch linkage.
-#
-# Child pipelines (e.g. PyTorch Docker nightly via build_pytorch_docker_image.yml.sh)
-# set DOCKER_IMAGE to ml-linux-dependency-build:pytorch_latest for *compile* agents.
-# That image does not ship MKL next to torch; reusing it here reproduces
-# libmkl_intel_lp64.so.2 errors. Only honour DOCKER_IMAGE when it is a ml-linux-build
-# image; otherwise default to the published ml-linux-build tag.
-DEFAULT_VALIDATION_IMAGE="docker.elastic.co/ml-dev/ml-linux-build:34"
-if [[ -n "${DOCKER_IMAGE:-}" && "${DOCKER_IMAGE}" == *ml-linux-build* ]]; then
-  VALIDATION_IMAGE="${DOCKER_IMAGE}"
-else
-  VALIDATION_IMAGE="${DEFAULT_VALIDATION_IMAGE}"
-fi
+# Always validate against the published PyTorch Linux dependency image (same tag as
+# Linux compile agents: torch + MKL under /usr/local/gcc133 per dev-tools/docker/pytorch_linux_image).
+# Optional override for experiments: PYTORCH_ALLOWLIST_VALIDATION_IMAGE.
+VALIDATION_IMAGE="${PYTORCH_ALLOWLIST_VALIDATION_IMAGE:-docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest}"
 
 cat <<EOL
 steps:
@@ -30,6 +20,8 @@ steps:
     timeout_in_minutes: 60
     env:
         HF_HUB_DISABLE_XET: "1"
+        # Redundant with the image ENV once pytorch_latest includes MKL; kept for older tags.
+        LD_LIBRARY_PATH: "/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib"
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
         - "python3 -c \"import torch; print(f'PyTorch version: {torch.__version__}')\""
