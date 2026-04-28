@@ -8,10 +8,20 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-# Use the same Docker image as the build steps — it has Python 3.12 and
-# the source-built torch package, giving exact version parity with the
-# libtorch that pytorch_inference links against.
-VALIDATION_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/ml-dev/ml-linux-build:34}"
+# Use an image that has Python 3.12, source-built torch, and MKL under
+# /usr/local/gcc133 so `import torch` matches ml-cpp's libtorch linkage.
+#
+# Child pipelines (e.g. PyTorch Docker nightly via build_pytorch_docker_image.yml.sh)
+# set DOCKER_IMAGE to ml-linux-dependency-build:pytorch_latest for *compile* agents.
+# That image does not ship MKL next to torch; reusing it here reproduces
+# libmkl_intel_lp64.so.2 errors. Only honour DOCKER_IMAGE when it is a ml-linux-build
+# image; otherwise default to the published ml-linux-build tag.
+DEFAULT_VALIDATION_IMAGE="docker.elastic.co/ml-dev/ml-linux-build:34"
+if [[ -n "${DOCKER_IMAGE:-}" && "${DOCKER_IMAGE}" == *ml-linux-build* ]]; then
+  VALIDATION_IMAGE="${DOCKER_IMAGE}"
+else
+  VALIDATION_IMAGE="${DEFAULT_VALIDATION_IMAGE}"
+fi
 
 cat <<EOL
 steps:
