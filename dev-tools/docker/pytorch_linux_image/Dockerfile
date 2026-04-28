@@ -20,9 +20,11 @@ RUN dnf -y update && \
     dnf config-manager --set-enabled powertools && \
     dnf install -y bzip2 curl gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel findutils
 
-# Install sccache for GCS-backed compilation caching across builds
+# Install sccache for GCS-backed compilation caching. Keep it under /usr/local/bin (not under
+# /usr/local/gcc133) so it is not copied into the final image with the toolchain tree.
 ARG SCCACHE_VERSION=v0.14.0
-RUN curl -fsSL "https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+RUN mkdir -p /usr/local/bin && \
+    curl -fsSL "https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     | tar xz -C /usr/local/bin --strip-components=1 "sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl/sccache" && \
     chmod +x /usr/local/bin/sccache
 
@@ -34,9 +36,10 @@ ENV LDFLAGS_FOR_TARGET="-Wl,-z,relro -Wl,-z,now"
 
 ARG build_dir=/usr/src
 
-# Update paths to use the compiler in C++17 mode
+# Update paths to use the compiler in C++17 mode. /usr/local/bin is on PATH in this stage only
+# so the PyTorch compile step can invoke sccache without shipping it inside /usr/local/gcc133.
 ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
-ENV PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/sbin:/sbin
+ENV PATH=/usr/local/gcc133/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX="g++ -std=gnu++17"
 
 # Clone PyTorch and build LibTorch

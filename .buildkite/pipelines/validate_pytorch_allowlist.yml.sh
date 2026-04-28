@@ -20,6 +20,9 @@ steps:
     timeout_in_minutes: 60
     env:
         HF_HUB_DISABLE_XET: "1"
+        # torch is linked against MKL under /usr/local/gcc133; importing torch fails without this
+        # (e.g. libmkl_intel_lp64.so.2: cannot open shared object file).
+        LD_LIBRARY_PATH: "/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib"
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
         - "python3 -c \"import torch; print(f'PyTorch version: {torch.__version__}')\""
