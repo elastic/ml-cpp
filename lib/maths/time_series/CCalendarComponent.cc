@@ -33,7 +33,6 @@ namespace {
 const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
 const core::TPersistenceTag BUCKETING_TAG{"b", "bucketing"};
 const core::TPersistenceTag LAST_INTERPOLATION_TAG{"c", "last_interpolation_time"};
-const std::string EMPTY_STRING;
 }
 
 CCalendarComponent::CCalendarComponent(const CCalendarFeature& feature,

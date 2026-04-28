@@ -527,7 +527,8 @@ BOOST_AUTO_TEST_CASE(testLongBuckets) {
         TDoubleVec error;
         for (core_t::TTime time = 0, i = 0; time <= end; time += DAY) {
             rng.generateNormalSamples(0.0, 9.0, 1, error);
-            if (time >= months[i] && time < months[i] + DAY && i < months.size() - 1) {
+            if (time >= months[i] && time < months[i] + DAY &&
+                static_cast<std::size_t>(i) < months.size() - 1) {
                 error[0] += 20.0;
                 ++i;
             }

@@ -319,7 +319,7 @@ bool CJsonStateRestoreTraverser::start() {
         }
 
         // Enhanced error logging with comprehensive debugging information
-        std::string tokenTypeName;
+        std::string tokenTypeName{"unknown"};
         switch (m_Handler.s_Type) {
         case SBoostJsonHandler::E_TokenNull:
             tokenTypeName = "null";
@@ -359,9 +359,6 @@ bool CJsonStateRestoreTraverser::start() {
             break;
         case SBoostJsonHandler::E_TokenStringPart:
             tokenTypeName = "string_part";
-            break;
-        default:
-            tokenTypeName = "unknown";
             break;
         }
 

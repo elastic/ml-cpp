@@ -135,7 +135,7 @@ public:
     void features(const TFeatureVec& features) override;
 
     //! Set the modeled bucket length.
-    virtual void bucketLength(core_t::TTime bucketLength);
+    void bucketLength(core_t::TTime bucketLength);
     //@}
 
     //! Get the minimum seasonal variance scale

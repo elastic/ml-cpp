@@ -27,10 +27,14 @@ list(APPEND ML_COMPILE_DEFINITIONS
   _WIN32_WINNT=0x0601
   Windows)
 
+# Treat SYSTEM include directories as external — suppress warnings from
+# third-party headers (Boost, Eigen, PyTorch, etc.).  Requires MSVC 17.0+.
+set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "/external:I ")
 list(APPEND ML_C_FLAGS
   "/X"
   "/nologo"
   "/W4"
+  "/external:W0"
   "/EHsc"
   "/Gw"
   "/Zc:inline"
