@@ -34,9 +34,10 @@ ENV LDFLAGS_FOR_TARGET="-Wl,-z,relro -Wl,-z,now"
 
 ARG build_dir=/usr/src
 
-# Update paths to use the compiler in C++17 mode
+# Update paths to use the compiler in C++17 mode. /usr/local/bin must stay on PATH so
+# the sccache binary (installed above) is visible during the PyTorch RUN steps.
 ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
-ENV PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/sbin:/sbin
+ENV PATH=/usr/local/gcc133/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX="g++ -std=gnu++17"
 
 # Install Intel MKL into gcc133 (same pattern as dev-tools/docker/linux_image/Dockerfile) so
