@@ -8,10 +8,10 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-# Use the same Docker image as the build steps — it has Python 3.12 and
-# the source-built torch package, giving exact version parity with the
-# libtorch that pytorch_inference links against.
-VALIDATION_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/ml-dev/ml-linux-build:34}"
+# Always validate against the published PyTorch Linux dependency image (same tag as
+# Linux compile agents: torch + MKL under /usr/local/gcc133 per dev-tools/docker/pytorch_linux_image).
+# Optional override for experiments: PYTORCH_ALLOWLIST_VALIDATION_IMAGE.
+VALIDATION_IMAGE="${PYTORCH_ALLOWLIST_VALIDATION_IMAGE:-docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest}"
 
 cat <<EOL
 steps:

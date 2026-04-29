@@ -36,11 +36,28 @@ ENV LDFLAGS_FOR_TARGET="-Wl,-z,relro -Wl,-z,now"
 
 ARG build_dir=/usr/src
 
-# Update paths to use the compiler in C++17 mode. /usr/local/bin is on PATH in this stage only
-# so the PyTorch compile step can invoke sccache without shipping it inside /usr/local/gcc133.
+# Update paths to use the compiler in C++17 mode. Keep /usr/local/bin on PATH in this stage so
+# the sccache binary (installed above) is visible during the PyTorch RUN steps; sccache stays
+# under /usr/local/bin (not under /usr/local/gcc133) so it is not copied into the final image with
+# the toolchain tree.
 ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
 ENV PATH=/usr/local/gcc133/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX="g++ -std=gnu++17"
+
+# Install Intel MKL into gcc133 (same pattern as dev-tools/docker/linux_image/Dockerfile) so
+# libtorch_cpu.so resolves MKL at runtime in the final image after COPY --from=builder.
+RUN \
+  echo -e '[oneAPI]\n\
+name=Intel oneAPI repository\n\
+baseurl=https://yum.repos.intel.com/oneapi\n\
+enabled=1\n\
+gpgcheck=1\n\
+repo_gpgcheck=1\n\
+gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB\n' > /etc/yum.repos.d/oneAPI.repo && \
+  dnf install -y intel-oneapi-mkl-devel-2024.0 && \
+  (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc133 && tar xvf -) && \
+  dnf clean all && \
+  rm -rf /var/cache/dnf /opt/intel/oneapi/mkl/2024.0/doc /tmp/*
 
 # Clone PyTorch and build LibTorch
 # PYTORCH_BUILD_VERSION is only set for tagged branches (e.g. v2.7.1);
@@ -100,6 +117,10 @@ RUN --mount=type=secret,id=gcs_key \
 
 FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
+# Match linux_image final stage: MKL + libtorch under gcc133; needed for `import torch`
+# when running without the full compile-time shell (e.g. allowlist validation).
+ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
+ENV PATH=/usr/local/gcc133/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Python 3.12 + torch site-packages for allowlist validation
 COPY --from=builder /usr/local/bin/python3.12 /usr/local/bin/python3.12
 COPY --from=builder /usr/local/bin/pip3.12 /usr/local/bin/pip3.12
