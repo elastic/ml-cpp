@@ -23,6 +23,8 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
 
+#include <model/CFieldValueTruncator.h>
+
 #include <boost/unordered_map.hpp>
 
 namespace ml {
@@ -89,6 +91,7 @@ struct SInfluencerSumSerializer {
             const std::string& name = traverser.name();
             if (name == SUM_MAP_KEY_TAG) {
                 key = traverser.value();
+                CFieldValueTruncator::truncate(key);
             } else if (name == SUM_MAP_VALUE_TAG) {
                 if (core::CStringUtils::stringToType(traverser.value(), map[key]) == false) {
                     LOG_ERROR(<< "Invalid sum in " << traverser.value());

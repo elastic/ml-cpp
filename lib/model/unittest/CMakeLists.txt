@@ -22,6 +22,7 @@ set (SRCS
   CDetectionRuleTest.cc
   CDetectorEqualizerTest.cc
   CDynamicStringIdRegistryTest.cc
+  CFieldValueTruncatorTest.cc
   CEventRateAnomalyDetectorTest.cc
   CEventRateDataGathererTest.cc
   CEventRateModelTest.cc

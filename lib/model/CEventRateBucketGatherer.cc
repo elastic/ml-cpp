@@ -27,6 +27,7 @@
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
+#include <model/CFieldValueTruncator.h>
 #include <model/CResourceMonitor.h>
 #include <model/FunctionTypes.h>
 
@@ -684,6 +685,7 @@ bool restoreInfluencerUniqueStrings(core::CStateRestoreTraverser& traverser,
         const std::string& name = traverser.name();
         if (name == DICTIONARY_WORD_TAG) {
             key = traverser.value();
+            CFieldValueTruncator::truncate(key);
         } else if (name == UNIQUE_WORD_TAG) {
             CUniqueStringFeatureData::TWord value;
             if (value.fromDelimited(traverser.value()) == false) {

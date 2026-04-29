@@ -17,6 +17,7 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
+#include <model/CFieldValueTruncator.h>
 #include <model/CLimits.h>
 
 #include <api/CAnomalyJobConfig.h>
@@ -1205,4 +1206,95 @@ BOOST_AUTO_TEST_CASE(testHierarchicalResultsNormalizerShouldIncreaseMemoryUsage)
     resourceMonitor.forceRefreshAll();
     BOOST_TEST_REQUIRE(resourceMonitor.totalMemory() < memoryUsageBeforeUnregister);
 }
+
+BOOST_AUTO_TEST_CASE(testOversizedFieldValuesTruncated) {
+    // Verify that addRecord (via prepareTruncatedFieldValues) truncates oversized
+    // by/influencer values before they enter the model. We assert on persisted
+    // state because that reflects what the detector stored; if addRecord did
+    // not truncate, the full value would appear here.
+    model::CLimits limits;
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "count", "", "by_field", "", "", {"influencer_field"});
+
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+    std::string const oversizedValue(1000, 'x');
+    CTestAnomalyJob::TStrStrUMap dataRows{{"time", "1000"},
+                                          {"by_field", oversizedValue},
+                                          {"influencer_field", oversizedValue}};
+
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
+
+    // Advance past bucket boundary so results are output and state can be persisted.
+    CTestAnomalyJob::TStrStrUMap advanceRows{{"time", "5000"},
+                                             {"by_field", oversizedValue},
+                                             {"influencer_field", oversizedValue}};
+    BOOST_TEST_REQUIRE(job.handleRecord(advanceRows));
+    BOOST_REQUIRE_EQUAL(uint64_t(2), job.numRecordsHandled());
+
+    std::ostringstream* strm{nullptr};
+    api::CSingleStreamDataAdder::TOStreamP ptr{strm = new std::ostringstream()};
+    api::CSingleStreamDataAdder persister{ptr};
+    BOOST_TEST_REQUIRE(job.persistStateInForeground(persister, ""));
+    std::string const persistedState{strm->str()};
+
+    // Full oversized value must not be in state (addRecord truncated before store).
+    BOOST_TEST_REQUIRE(persistedState.find(oversizedValue) == std::string::npos);
+    // Persisted state must contain the truncated form produced by input truncation.
+    std::string const expectedTruncated = model::CFieldValueTruncator::truncated(oversizedValue);
+    BOOST_TEST_REQUIRE(persistedState.find(expectedTruncated) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testNormalFieldValuesNotTruncated) {
+    model::CLimits limits;
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "count", "", "by_field", "", "", {"influencer_field"});
+
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+    std::string const normalValue("normal_value");
+    CTestAnomalyJob::TStrStrUMap dataRows{
+        {"time", "1000"}, {"by_field", normalValue}, {"influencer_field", normalValue}};
+
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
+
+    // Advance past bucket boundary so results are output and state can be persisted.
+    CTestAnomalyJob::TStrStrUMap advanceRows{
+        {"time", "5000"}, {"by_field", normalValue}, {"influencer_field", normalValue}};
+    BOOST_TEST_REQUIRE(job.handleRecord(advanceRows));
+    BOOST_REQUIRE_EQUAL(uint64_t(2), job.numRecordsHandled());
+
+    std::ostringstream* strm{nullptr};
+    api::CSingleStreamDataAdder::TOStreamP ptr{strm = new std::ostringstream()};
+    api::CSingleStreamDataAdder persister{ptr};
+    BOOST_TEST_REQUIRE(job.persistStateInForeground(persister, ""));
+    std::string const persistedState{strm->str()};
+
+    BOOST_TEST_REQUIRE(persistedState.find(normalValue) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testDebugPrintRecordTruncatesLongValues) {
+    api::CDataProcessor::TStrStrUMap record;
+    record["field1"] = std::string(1000, 'x');
+    record["field2"] = "short";
+    std::string result = api::CDataProcessor::debugPrintRecord(record);
+    // truncated() produces prefix + '$' + 16 hex chars; full 1000-char value not present
+    BOOST_TEST_REQUIRE(result.find(std::string(1000, 'x')) == std::string::npos);
+    BOOST_TEST_REQUIRE(result.find(model::CFieldValueTruncator::HASH_SEPARATOR) !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(result.size() < 500);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

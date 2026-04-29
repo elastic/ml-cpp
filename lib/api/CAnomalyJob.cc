@@ -28,6 +28,7 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
 
+#include <model/CFieldValueTruncator.h>
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsPopulator.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
@@ -1700,15 +1701,43 @@ const std::string* CAnomalyJob::fieldValue(const std::string& fieldName,
     return !fieldName.empty() && fieldValue.empty() ? nullptr : &fieldValue;
 }
 
+void CAnomalyJob::prepareTruncatedFieldValues(const TStrVec& fieldNames,
+                                              const TStrStrUMap& dataRowFields,
+                                              model::CAnomalyDetector::TStrCPtrVec& fieldValues,
+                                              TStrVec& truncatedCopies) {
+
+    fieldValues.reserve(fieldNames.size());
+    // Reserve ensures no reallocation invalidates pointers stored in fieldValues.
+    truncatedCopies.reserve(fieldNames.size());
+
+    for (const auto& fieldName : fieldNames) {
+        const std::string* value = fieldValue(fieldName, dataRowFields);
+        if (value != nullptr && model::CFieldValueTruncator::needsTruncation(*value)) {
+            truncatedCopies.push_back(model::CFieldValueTruncator::truncated(*value));
+            fieldValues.push_back(&truncatedCopies.back());
+
+            std::string escapedFieldName = fieldName;
+            core::CStringUtils::escape('\\', "\n\r\t", escapedFieldName);
+            LOG_INFO_THROTTLED(
+                << "Field '" << escapedFieldName
+                << "' value (length=" << value->size() << ", prefix='"
+                << value->substr(0, std::min<std::size_t>(50, value->size()))
+                << "...') exceeds " << model::CFieldValueTruncator::MAX_FIELD_VALUE_LENGTH
+                << " characters and has been truncated with collision-safe hash suffix");
+        } else {
+            fieldValues.push_back(value);
+        }
+    }
+}
+
 void CAnomalyJob::addRecord(const TAnomalyDetectorPtr& detector,
                             core_t::TTime time,
                             const TStrStrUMap& dataRowFields) {
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
+    TStrVec truncatedCopies;
     const TStrVec& fieldNames = detector->fieldsOfInterest();
-    fieldValues.reserve(fieldNames.size());
-    for (const auto& fieldName : fieldNames) {
-        fieldValues.push_back(fieldValue(fieldName, dataRowFields));
-    }
+
+    prepareTruncatedFieldValues(fieldNames, dataRowFields, fieldValues, truncatedCopies);
 
     detector->addRecord(time, fieldValues);
 }

@@ -30,7 +30,8 @@ namespace core {
 //! This is thread safe but uses a very simple strategy: all accesses to a single
 //! hash map are sychronised. We assume that log throttling is only applied to
 //! messages which normally occur infrequently; for example, this is only currently
-//! applied to WARN and ERROR level logging (see LogMacros.h). So there will be
+//! applied to WARN, ERROR, and throttled INFO (LOG_INFO_THROTTLED) logging
+//! (see LogMacros.h). So there will be
 //! little contention. Furthermore, the overhead of locking and unlocking the mutex
 //! should be neglible compared to the work done if the log line were actually
 //! emitted. So this should actually give a significant performance improvement
