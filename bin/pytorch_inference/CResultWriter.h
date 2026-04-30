@@ -83,7 +83,8 @@ public:
     void wrapAndWriteInnerResponse(const std::string& innerResponse,
                                    const std::string& requestId,
                                    bool isCacheHit,
-                                   std::uint64_t timeMs);
+                                   std::uint64_t timeMs,
+                                   std::size_t residentSize);
 
     //! Write the prediction portion of an inference result.
     template<std::size_t N>
