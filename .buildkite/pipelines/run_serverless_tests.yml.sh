@@ -40,7 +40,7 @@ export PR_TARGET_BRANCH="${PR_TARGET}"
 # --- Resolve elasticsearch-serverless branch (shared with deploy_serverless_qa.yml.sh) ---
 # shellcheck source=dev-tools/pick_elasticsearch_serverless_branch.sh
 source "${ML_CPP_ROOT}/dev-tools/pick_elasticsearch_serverless_branch.sh"
-pickElasticsearchServerlessBranch
+pickElasticsearchServerlessBranch || exit 1
 
 # --- Resolve ES submodule commit (shared pick_elasticsearch_clone_target.sh) ---
 pickCloneTarget || true
@@ -68,6 +68,13 @@ if [ -z "$ES_PR_NUM" ]; then
   echo "WARNING: Could not resolve an ES PR number. The serverless PR-specific tests step may fail." >&2
 fi
 echo "Using ES submodule commit: $ES_COMMIT, ES PR number: $ES_PR_NUM" >&2
+
+yaml_double_quote_escape() {
+  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+}
+KEEP_DEPLOYMENT_SAFE=$(yaml_double_quote_escape "${KEEP_DEPLOYMENT:-false}")
+REGION_ID_SAFE=$(yaml_double_quote_escape "${REGION_ID:-aws-eu-west-1}")
+PROJECT_TYPE_SAFE=$(yaml_double_quote_escape "${PROJECT_TYPE:-elasticsearch}")
 
 cat <<EOL
 steps:
@@ -99,4 +106,7 @@ steps:
         ML_CPP_COMMIT: "${BUILDKITE_COMMIT}"
         ELASTICSEARCH_SUBMODULE_COMMIT: "${ES_COMMIT}"
         ELASTICSEARCH_PR_NUMBER: "${ES_PR_NUM}"
+        KEEP_DEPLOYMENT: "${KEEP_DEPLOYMENT_SAFE}"
+        REGION_ID: "${REGION_ID_SAFE}"
+        PROJECT_TYPE: "${PROJECT_TYPE_SAFE}"
 EOL

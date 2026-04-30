@@ -110,6 +110,14 @@ class Config:
             self.build_macos = True
             self.build_linux = True
 
+        # Serverless runner pipelines depend on both Linux aarch64 and x86_64
+        # build steps. Normalize after platform/arch parsing so PR comment tails
+        # cannot leave dangling depends_on keys or skip Linux builds.
+        if self.run_serverless_tests or self.deploy_serverless_qa:
+            self.build_aarch64 = "--build-aarch64"
+            self.build_x86_64 = "--build-x86_64"
+            self.build_linux = True
+
         # If no explicit action was set (e.g. "buildkite test this" via
         # always_trigger_comment_regex), check PR labels for QA/PyTorch
         # flags.  This is done after platform/arch defaults so that
@@ -204,6 +212,10 @@ class Config:
             if not sep or key not in _SERVERLESS_KV_KEYS:
                 continue
             if key == "KEEP_DEPLOYMENT" and value.lower() not in ("true", "false"):
+                continue
+            if key in ("REGION_ID", "PROJECT_TYPE") and not re.fullmatch(r"[A-Za-z0-9_.:-]+", value):
+                continue
+            if key == "ES_SERVERLESS_BRANCH" and not re.fullmatch(r"[A-Za-z0-9_./-]+", value):
                 continue
             os.environ[key] = value
 

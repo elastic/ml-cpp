@@ -90,11 +90,14 @@ def main():
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
 
-        # Serverless tests require both x86_64 and aarch64 Linux builds.
-        if config.run_serverless_tests:
+        # Serverless tests/deploy require both Linux aarch64 and x86_64 build steps.
+        linux_both_arches = (
+            config.build_linux and config.build_aarch64 and config.build_x86_64
+        )
+        if linux_both_arches and config.run_serverless_tests:
             pipeline_steps.append(pipeline_steps.generate_step("Upload serverless tests runner pipeline",
                                                                ".buildkite/pipelines/run_serverless_tests.yml.sh"))
-        if config.deploy_serverless_qa:
+        if linux_both_arches and config.deploy_serverless_qa:
             pipeline_steps.append(pipeline_steps.generate_step("Upload serverless QA deploy pipeline",
                                                                ".buildkite/pipelines/deploy_serverless_qa.yml.sh"))
 

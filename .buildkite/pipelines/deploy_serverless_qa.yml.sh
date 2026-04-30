@@ -38,7 +38,7 @@ export PR_TARGET_BRANCH="${PR_TARGET}"
 # --- Resolve elasticsearch-serverless branch (shared with run_serverless_tests.yml.sh) ---
 # shellcheck source=dev-tools/pick_elasticsearch_serverless_branch.sh
 source "${ML_CPP_ROOT}/dev-tools/pick_elasticsearch_serverless_branch.sh"
-pickElasticsearchServerlessBranch
+pickElasticsearchServerlessBranch || exit 1
 
 # --- Resolve ES submodule commit (shared pick_elasticsearch_clone_target.sh) ---
 pickCloneTarget || true
@@ -47,6 +47,13 @@ ES_COMMIT="${ES_COMMIT:-HEAD}"
 echo "Resolved elasticsearch submodule: ${SELECTED_FORK}/${SELECTED_BRANCH} -> ${ES_COMMIT}" >&2
 
 echo "Deploying to serverless QA with custom ml-cpp from PR #${PR_NUM}" >&2
+
+yaml_double_quote_escape() {
+  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+}
+KEEP_DEPLOYMENT_SAFE=$(yaml_double_quote_escape "${KEEP_DEPLOYMENT:-false}")
+REGION_ID_SAFE=$(yaml_double_quote_escape "${REGION_ID:-aws-eu-west-1}")
+PROJECT_TYPE_SAFE=$(yaml_double_quote_escape "${PROJECT_TYPE:-elasticsearch}")
 
 cat <<EOL
 steps:
@@ -73,7 +80,7 @@ steps:
       env:
         ML_CPP_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         ELASTICSEARCH_SUBMODULE_COMMIT: "${ES_COMMIT}"
-        KEEP_DEPLOYMENT: "${KEEP_DEPLOYMENT:-false}"
-        REGION_ID: "${REGION_ID:-aws-eu-west-1}"
-        PROJECT_TYPE: "${PROJECT_TYPE:-elasticsearch}"
+        KEEP_DEPLOYMENT: "${KEEP_DEPLOYMENT_SAFE}"
+        REGION_ID: "${REGION_ID_SAFE}"
+        PROJECT_TYPE: "${PROJECT_TYPE_SAFE}"
 EOL

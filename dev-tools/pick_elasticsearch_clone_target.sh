@@ -28,13 +28,16 @@
 # This file must be sourced (not executed) so that SELECTED_* remain in the caller's shell.
 
 function isCloneTargetValid {
-    FORK_TO_CHECK="$1"
-    BRANCH_TO_CHECK="$2"
+    local fork_to_check="$1"
+    local branch_to_check="$2"
+    if [ -z "$fork_to_check" ] || [ -z "$branch_to_check" ]; then
+        return 1
+    fi
     # Diagnostics must go to stderr: callers (e.g. deploy_serverless_qa.yml.sh)
     # pipe stdout to `buildkite-agent pipeline upload` and expect only YAML.
-    echo "Checking for '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch" >&2
-    if [ -n "$(git ls-remote --heads "git@github.com:$FORK_TO_CHECK/elasticsearch.git" "$BRANCH_TO_CHECK" 2>/dev/null)" ]; then
-        echo "Will use '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch for ES integration tests" >&2
+    echo "Checking for '$branch_to_check' branch at $fork_to_check/elasticsearch" >&2
+    if [ -n "$(git ls-remote --heads "git@github.com:${fork_to_check}/elasticsearch.git" "$branch_to_check" 2>/dev/null)" ]; then
+        echo "Will use '$branch_to_check' branch at $fork_to_check/elasticsearch for ES integration tests" >&2
         return 0
     fi
     return 1

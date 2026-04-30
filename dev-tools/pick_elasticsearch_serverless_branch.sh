@@ -36,10 +36,15 @@ function pickElasticsearchServerlessBranch {
     SERVERLESS_BRANCH="main"
 
     if [ -n "${ES_SERVERLESS_BRANCH:-}" ]; then
-        SERVERLESS_BRANCH="${ES_SERVERLESS_BRANCH}"
-        echo "Using explicit ES_SERVERLESS_BRANCH override: $SERVERLESS_BRANCH" >&2
-        echo "Resolved elasticsearch-serverless branch: $SERVERLESS_BRANCH" >&2
-        return 0
+        if isElasticsearchServerlessBranchAtRemote "elastic" "${ES_SERVERLESS_BRANCH}"; then
+            SERVERLESS_BRANCH="${ES_SERVERLESS_BRANCH}"
+            echo "Using explicit ES_SERVERLESS_BRANCH override: $SERVERLESS_BRANCH" >&2
+            echo "Resolved elasticsearch-serverless branch: $SERVERLESS_BRANCH" >&2
+            return 0
+        fi
+        echo "ERROR: ES_SERVERLESS_BRANCH override '${ES_SERVERLESS_BRANCH}' was not found on elastic/elasticsearch-serverless." >&2
+        echo "Set ES_SERVERLESS_BRANCH to an existing branch on elastic/elasticsearch-serverless." >&2
+        return 1
     fi
 
     if [ -n "$PR_AUTHOR_FORK" ] && isElasticsearchServerlessBranchAtRemote "$PR_AUTHOR_FORK" "$PR_SOURCE"; then
