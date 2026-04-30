@@ -17,59 +17,18 @@
 # (via the Buildkite UI) to keep it longer. The build annotations will
 # contain the URL and encrypted credentials for accessing the deployment.
 
-SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
-PR_NUM="${BUILDKITE_PULL_REQUEST}"
-if [ -z "${PR_NUM}" ] || [ "${PR_NUM}" = "false" ]; then
-  PR_NUM="manual"
-fi
-
-# Extract PR metadata once for reuse.
-PR_AUTHOR_FORK="$(expr "${BUILDKITE_BRANCH:-}" : '\(.*\):.*' 2>/dev/null || true)"
-PR_SOURCE="$(expr "${BUILDKITE_BRANCH:-}" : '.*:\(.*\)' 2>/dev/null || true)"
-PR_TARGET="${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-main}"
-
 ML_CPP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-# shellcheck source=dev-tools/pick_elasticsearch_clone_target.sh
-source "${ML_CPP_ROOT}/dev-tools/pick_elasticsearch_clone_target.sh"
-export PR_AUTHOR="${PR_AUTHOR_FORK}"
-export PR_SOURCE_BRANCH="${PR_SOURCE}"
-export PR_TARGET_BRANCH="${PR_TARGET}"
+# shellcheck source=dev-tools/serverless_buildkite_trigger_prepare.sh
+source "${ML_CPP_ROOT}/dev-tools/serverless_buildkite_trigger_prepare.sh"
 
-# --- Resolve elasticsearch-serverless branch (shared with run_serverless_tests.yml.sh) ---
-# shellcheck source=dev-tools/pick_elasticsearch_serverless_branch.sh
-source "${ML_CPP_ROOT}/dev-tools/pick_elasticsearch_serverless_branch.sh"
-pickElasticsearchServerlessBranch || exit 1
-
-# --- Resolve ES submodule commit (shared pick_elasticsearch_clone_target.sh) ---
-pickCloneTarget || true
-ES_COMMIT="$(elasticsearch_selected_branch_head_sha)"
-ES_COMMIT="${ES_COMMIT:-HEAD}"
-echo "Resolved elasticsearch submodule: ${SELECTED_FORK}/${SELECTED_BRANCH} -> ${ES_COMMIT}" >&2
+prepareMlCppServerlessTriggerContext "${BASH_SOURCE[0]}" || exit 1
+assignServerlessQaTriggerEnvYamlEscapes
 
 echo "Deploying to serverless QA with custom ml-cpp from PR #${PR_NUM}" >&2
 
-yaml_double_quote_escape() {
-  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
-}
-KEEP_DEPLOYMENT_SAFE=$(yaml_double_quote_escape "${KEEP_DEPLOYMENT:-false}")
-REGION_ID_SAFE=$(yaml_double_quote_escape "${REGION_ID:-aws-eu-west-1}")
-PROJECT_TYPE_SAFE=$(yaml_double_quote_escape "${PROJECT_TYPE:-elasticsearch}")
-
 cat <<EOL
 steps:
-  - label: ":package: Upload ml-cpp deps artifact"
-    key: "upload_ml_cpp_deps"
-    command: 'buildkite-agent artifact upload dev-tools/minimal.zip'
-    depends_on:
-      - "build_test_linux-x86_64-RelWithDebInfo"
-      - "build_test_linux-aarch64-RelWithDebInfo"
-    agents:
-      provider: aws
-      instanceType: m6i.xlarge
-      imagePrefix: core-amazonlinux-2023
-      diskSizeGb: 100
-      diskName: '/dev/xvda'
-
+$(emitServerlessUploadMlCppDepsStepYaml)
   - label: ":rocket: Deploy custom ml-cpp to serverless QA"
     depends_on: "upload_ml_cpp_deps"
     async: false
