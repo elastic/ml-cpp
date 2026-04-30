@@ -17,6 +17,7 @@
 
 import contextlib
 import json
+import os
 
 
 WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest"
@@ -63,7 +64,7 @@ def main():
         {
             "label": "Queue a :slack: notification for the pipeline",
             "depends_on": None,
-            "command": ".buildkite/pipelines/send_slack_notification.sh | buildkite-agent pipeline upload",
+            "command": ".buildkite/pipelines/send_slack_version_bump_notification.sh | buildkite-agent pipeline upload",
             "agents": {
                 "image": "python",
             },
@@ -80,22 +81,29 @@ def main():
                 "dev-tools/bump_version.sh",
             ],
         },
-        dra_step(
-            label="Fetch DRA Artifacts",
-            key="fetch-dra-artifacts",
-            depends_on="bump-version",
-            plugins=[
-                json_watcher_plugin(
-                    f"{STAGING_URL}/${{BRANCH}}.json",
-                    "${NEW_VERSION}",
-                ),
-                json_watcher_plugin(
-                    f"{SNAPSHOT_URL}/${{BRANCH}}.json",
-                    "${NEW_VERSION}-SNAPSHOT",
-                ),
-            ],
-        ),
     ]
+
+    # Smoke tests: set ML_CPP_VERSION_BUMP_SKIP_DRA_WAIT on the Buildkite build
+    # to skip json-watcher polling (avoids a long-running build when NEW_VERSION
+    # will never appear in artifact JSON).
+    if not os.environ.get("ML_CPP_VERSION_BUMP_SKIP_DRA_WAIT", "").strip():
+        pipeline_steps.append(
+            dra_step(
+                label="Fetch DRA Artifacts",
+                key="fetch-dra-artifacts",
+                depends_on="bump-version",
+                plugins=[
+                    json_watcher_plugin(
+                        f"{STAGING_URL}/${{BRANCH}}.json",
+                        "${NEW_VERSION}",
+                    ),
+                    json_watcher_plugin(
+                        f"{SNAPSHOT_URL}/${{BRANCH}}.json",
+                        "${NEW_VERSION}-SNAPSHOT",
+                    ),
+                ],
+            )
+        )
 
     pipeline = {
         "steps": pipeline_steps,
