@@ -10,83 +10,96 @@
 #
 # This script generates JSON for the ml-cpp version bump pipeline.
 # It is intended to be triggered by the centralized release-eng pipeline.
-# It can be integrated into existing or new workflows and includes a plugin
-# that polls artifact URLs until the expected version is available.
+#
+# Patch workflow: bump version on BRANCH, then wait for staging and snapshot
+# artifact JSON to publish NEW_VERSION.
 
 
 import contextlib
 import json
 
 
+WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest"
+STAGING_URL = "https://artifacts-staging.elastic.co/ml-cpp/latest"
+SNAPSHOT_URL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest"
+
+
+def json_watcher_plugin(url, expected_value):
+    return {
+        "elastic/json-watcher#v1.0.0": {
+            "url": url,
+            "field": ".version",
+            "expected_value": expected_value,
+            "polling_interval": "30",
+        }
+    }
+
+
+def dra_step(label, key, depends_on, plugins):
+    return {
+        "label": label,
+        "key": key,
+        "depends_on": depends_on,
+        "agents": {
+            "image": WOLFI_IMAGE,
+            "cpu": "250m",
+            "memory": "512Mi",
+            "ephemeralStorage": "1Gi",
+        },
+        "command": [
+            'echo "Waiting for DRA artifacts..."',
+        ],
+        "timeout_in_minutes": 240,
+        "retry": {
+            "automatic": [{"exit_status": "*", "limit": 2}],
+            "manual": {"permit_on_passed": True},
+        },
+        "plugins": plugins,
+    }
+
+
 def main():
-    pipeline = {}
-    # TODO: replace the block step with version bump logic
     pipeline_steps = [
         {
             "label": "Queue a :slack: notification for the pipeline",
             "depends_on": None,
-            "command": ".buildkite/pipelines/send_version_bump_notification.sh | buildkite-agent pipeline upload",
+            "command": ".buildkite/pipelines/send_slack_notification.sh | buildkite-agent pipeline upload",
             "agents": {
                 "image": "python",
             },
         },
         {
-            "block": "Ready to fetch for DRA artifacts?",
-            "prompt": (
-                "Unblock when your team is ready to proceed.\n\n"
-                "Trigger parameters:\n"
-                "- NEW_VERSION: ${NEW_VERSION}\n"
-                "- BRANCH: ${BRANCH}\n"
-                "- WORKFLOW: ${WORKFLOW}\n"
-            ),
-            "key": "block-get-dra-artifacts",
-            "blocked_state": "running",
-        },
-        {
-            "label": "Fetch DRA Artifacts",
-            "key": "fetch-dra-artifacts",
-            "depends_on": "block-get-dra-artifacts",
+            "label": "Bump version to ${NEW_VERSION}",
+            "key": "bump-version",
             "agents": {
-                "image": "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest",
+                "image": WOLFI_IMAGE,
                 "cpu": "250m",
                 "memory": "512Mi",
-                "ephemeralStorage": "1Gi",
             },
             "command": [
-                'echo "Starting DRA artifacts retrieval..."',
-            ],
-            "timeout_in_minutes": 240,
-            "retry": {
-                "automatic": [
-                    {
-                        "exit_status": "*",
-                        "limit": 2,
-                    }
-                ],
-                "manual": {"permit_on_passed": True},
-            },
-            "plugins": [
-                {
-                    "elastic/json-watcher#v1.0.0": {
-                        "url": "https://artifacts-staging.elastic.co/ml-cpp/latest/${BRANCH}.json",
-                        "field": ".version",
-                        "expected_value": "${NEW_VERSION}",
-                        "polling_interval": "30",
-                    }
-                },
-                {
-                    "elastic/json-watcher#v1.0.0": {
-                        "url": "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/${BRANCH}.json",
-                        "field": ".version",
-                        "expected_value": "${NEW_VERSION}-SNAPSHOT",
-                        "polling_interval": "30",
-                    }
-                },
+                "dev-tools/bump_version.sh",
             ],
         },
+        dra_step(
+            label="Fetch DRA Artifacts",
+            key="fetch-dra-artifacts",
+            depends_on="bump-version",
+            plugins=[
+                json_watcher_plugin(
+                    f"{STAGING_URL}/${{BRANCH}}.json",
+                    "${NEW_VERSION}",
+                ),
+                json_watcher_plugin(
+                    f"{SNAPSHOT_URL}/${{BRANCH}}.json",
+                    "${NEW_VERSION}-SNAPSHOT",
+                ),
+            ],
+        ),
     ]
 
-    pipeline["steps"] = pipeline_steps
+    pipeline = {
+        "steps": pipeline_steps,
+    }
 
     print(json.dumps(pipeline, indent=2))
 
