@@ -32,8 +32,10 @@ import argparse
 import json
 import os
 import re
+import socket
 import subprocess
 import sys
+import tempfile
 import urllib.parse
 import urllib.request
 import urllib.error
@@ -44,6 +46,10 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
 MAX_LOG_CHARS = 30000
 MAX_RESPONSE_TOKENS = 2048
+BK_HTTP_TIMEOUT_SEC = 45
+BK_LOG_FETCH_TIMEOUT_SEC = 120
+
+FAILED_JOB_STATES = frozenset({"failed", "timed_out"})
 
 KNOWN_FAILURE_PATTERNS = """
 Known transient/infrastructure failures:
@@ -98,10 +104,17 @@ def get_env_or_file(env_var, file_path):
 
 
 def buildkite_get(path, token):
+    """GET a JSON resource from the Buildkite REST API."""
     url = f"https://api.buildkite.com/v2/organizations/{BUILDKITE_ORG}/{path}"
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=BK_HTTP_TIMEOUT_SEC) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace") if e.fp else ""
+        raise RuntimeError(f"Buildkite HTTP {e.code} for {path}: {body[:500]}") from e
+    except (urllib.error.URLError, TimeoutError, socket.timeout, OSError) as e:
+        raise RuntimeError(f"Buildkite request failed for {path}: {e}") from e
 
 
 def find_previous_failed_build(pipeline, token, branch=None, exclude_build=None):
@@ -110,7 +123,10 @@ def find_previous_failed_build(pipeline, token, branch=None, exclude_build=None)
     if branch:
         params["branch"] = branch
     query = urllib.parse.urlencode(params)
-    builds = buildkite_get(f"pipelines/{pipeline}/builds?{query}", token)
+    try:
+        builds = buildkite_get(f"pipelines/{pipeline}/builds?{query}", token)
+    except RuntimeError:
+        return None
     for build in builds:
         if exclude_build and build.get("number") == exclude_build:
             continue
@@ -128,9 +144,9 @@ def get_job_log(log_url, token):
         },
     )
     try:
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=BK_LOG_FETCH_TIMEOUT_SEC) as resp:
             return resp.read().decode("utf-8", errors="replace")
-    except urllib.error.HTTPError:
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, socket.timeout, OSError):
         return None
 
 
@@ -159,6 +175,31 @@ ERROR_PATTERNS = re.compile(
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]|\x1b\].*?\x07")
 BK_TIMESTAMP = re.compile(r"_bk;t=\d+")
 
+def redact_secrets(text):
+    """Best-effort removal of credentials from CI log excerpts before external APIs."""
+    if not text:
+        return text
+    out = text
+    out = re.sub(r"(?i)(authorization:\s*bearer\s+)\S+", r"\1<redacted>", out)
+    out = re.sub(r"(?i)(x-api-key:\s*)\S+", r"\1<redacted>", out)
+    out = re.sub(r"(?i)(x-anthropic-api-key:\s*)\S+", r"\1<redacted>", out)
+    out = re.sub(r"\bsk-ant-api\d{3}-[\w-]{20,}\b", "<redacted>", out)
+    out = re.sub(r"\bghp_[A-Za-z0-9]{36,}\b", "<redacted>", out)
+    out = re.sub(r"\bgho_[A-Za-z0-9]{36}\b", "<redacted>", out)
+    out = re.sub(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b", "<redacted>", out)
+    out = re.sub(r"\bxox[baprs]-[A-Za-z0-9-]+\b", "<redacted>", out)
+    out = re.sub(r"\bAKIA[0-9A-Z]{16}\b", "<redacted>", out)
+    out = re.sub(r"\bAROA[0-9A-Z]{16}\b", "<redacted>", out)
+    out = re.sub(r"(?i)(aws_secret_access_key|aws_session_token)\s*=\s*\S+", r"\1=<redacted>", out)
+    out = re.sub(r"(?i)(password|secret|token|apikey)\s*=\s*\S+", r"\1=<redacted>", out)
+    out = re.sub(r"https?://[^:]+:[^@\s]+@", "https://<redacted>:<redacted>@", out)
+    out = re.sub(
+        r"(?is)(-----BEGIN [A-Z ]*PRIVATE KEY-----)(.*?)(-----END [A-Z ]*PRIVATE KEY-----)",
+        r"\1[REDACTED PRIVATE KEY]\3",
+        out,
+    )
+    return out
+
 
 def strip_terminal_noise(log_text):
     """Remove ANSI escapes and Buildkite timestamp markers."""
@@ -178,6 +219,7 @@ def extract_error_context(log_text, context_lines=10, max_chars=MAX_LOG_CHARS):
         return log_text
 
     log_text = strip_terminal_noise(log_text)
+    log_text = redact_secrets(log_text)
     lines = log_text.splitlines()
 
     if len(log_text) <= max_chars:
@@ -345,9 +387,6 @@ def main():
     if not bk_token:
         print("Error: No Buildkite token available", file=sys.stderr)
         sys.exit(1)
-    if not claude_key:
-        print("Error: No Anthropic API key available", file=sys.stderr)
-        sys.exit(1)
 
     if args.find_previous_failure:
         branch = os.environ.get("BUILDKITE_BRANCH")
@@ -361,7 +400,12 @@ def main():
 
     print(f"Analyzing {args.pipeline} build #{args.build}...")
 
-    build = buildkite_get(f"pipelines/{args.pipeline}/builds/{args.build}", bk_token)
+    try:
+        build = buildkite_get(f"pipelines/{args.pipeline}/builds/{args.build}", bk_token)
+    except RuntimeError as e:
+        print(str(e), file=sys.stderr)
+        print("Could not fetch build from Buildkite — exiting without analysis.", file=sys.stderr)
+        sys.exit(0)
 
     if build.get("state") == "passed":
         print("Build passed — nothing to analyze.")
@@ -369,7 +413,7 @@ def main():
 
     failed_jobs = [
         j for j in build.get("jobs", [])
-        if j.get("type") == "script" and j.get("state") == "failed"
+        if j.get("type") == "script" and j.get("state") in FAILED_JOB_STATES
     ]
 
     if not failed_jobs:
@@ -398,7 +442,18 @@ def main():
 
         log_excerpt = extract_error_context(log_text)
 
-        prompt = f"""Analyze this CI build failure.
+        if args.dry_run:
+            analysis = (
+                "_Dry run:_ Claude API not called. Log excerpt (redacted) below.\n\n"
+                f"```\n{log_excerpt}\n```"
+            )
+        elif not claude_key:
+            analysis = (
+                "*Analysis skipped:* `ANTHROPIC_API_KEY` is not set. "
+                "Configure the key on the Buildkite pipeline to enable Claude failure analysis."
+            )
+        else:
+            prompt = f"""Analyze this CI build failure.
 
 **Pipeline**: {args.pipeline}
 **Build**: #{args.build}
@@ -414,10 +469,10 @@ def main():
 
 Analyze the root cause and suggest a fix."""
 
-        try:
-            analysis = call_claude(claude_key, prompt)
-        except Exception as e:
-            analysis = f"Failed to get analysis: {e}"
+            try:
+                analysis = call_claude(claude_key, prompt)
+            except Exception as e:
+                analysis = f"Failed to get analysis: {e}"
 
         print(f"\n{analysis}")
         all_analyses.append(f"## {step_label}\n\n{analysis}")
@@ -451,14 +506,28 @@ Analyze the root cause and suggest a fix."""
         # PR comment using the built-in GITHUB_TOKEN.
         annotation_body = "\n\n---\n\n".join(all_analyses)
         try:
-            subprocess.run(
-                ["buildkite-agent", "meta-data", "set",
-                 "build-failure-analysis"],
-                input=annotation_body.encode(),
-                check=True,
-            )
-            print("Analysis saved as build metadata.")
-        except (FileNotFoundError, subprocess.CalledProcessError) as e:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                suffix="-build-failure-analysis.md",
+                delete=False,
+            ) as meta_file:
+                meta_file.write(annotation_body)
+                meta_path = meta_file.name
+            try:
+                with open(meta_path, "rb") as meta_reader:
+                    subprocess.run(
+                        ["buildkite-agent", "meta-data", "set", "build-failure-analysis"],
+                        stdin=meta_reader,
+                        check=True,
+                    )
+                print("Analysis saved as build metadata.")
+            finally:
+                try:
+                    os.unlink(meta_path)
+                except OSError:
+                    pass
+        except (FileNotFoundError, subprocess.CalledProcessError, OSError) as e:
             print(f"Could not save build metadata: {e}", file=sys.stderr)
 
         if slack_webhook:

@@ -18,16 +18,41 @@ steps:
   - label: "Analyze build failure :mag:"
     key: "analyze_build_failure"
     command:
-        - "python3 dev-tools/analyze_build_failure.py --pipeline \$BUILDKITE_PIPELINE_SLUG --build \$BUILDKITE_BUILD_NUMBER${EXTRA_FLAGS}"
+        - |
+            set -eu
+            # Step-level if/build.state is evaluated at pipeline upload time, so it cannot
+            # reliably gate on the final build outcome. Skip at job start when the build already
+            # succeeded, except for the lightweight "find previous failure" pipeline.
+            bs="\${BUILDKITE_BUILD_STATE:-}"
+            if [ "\$bs" = "passed" ] && [ "\${ML_ANALYZE_PREVIOUS:-}" != "true" ]; then
+              echo "Build state is passed; skipping failure analysis."
+              exit 0
+            fi
+            python3 dev-tools/analyze_build_failure.py --pipeline \$BUILDKITE_PIPELINE_SLUG --build \$BUILDKITE_BUILD_NUMBER${EXTRA_FLAGS}
 EOL
 
-# Emit depends_on dynamically — ML_BUILD_STEP_KEYS is a comma-separated
-# list of step keys set by the pipeline generator.  In analyze-previous
-# mode there are no build steps so this block is skipped.
+# Emit depends_on dynamically — ML_BUILD_STEP_KEYS and ML_TEST_STEP_KEYS are
+# comma-separated lists set by the pipeline generator (branch builds expose
+# both; PR pipelines may only set ML_BUILD_STEP_KEYS). In analyze-previous
+# mode there are no build/test steps so this block is skipped.
+DEPENDS_ON_KEYS=()
 if [ -n "${ML_BUILD_STEP_KEYS:-}" ]; then
-    echo '    depends_on:'
     IFS=',' read -ra STEP_KEYS <<< "$ML_BUILD_STEP_KEYS"
-    for key in "${STEP_KEYS[@]}"; do
+    DEPENDS_ON_KEYS+=("${STEP_KEYS[@]}")
+fi
+if [ -n "${ML_TEST_STEP_KEYS:-}" ]; then
+    IFS=',' read -ra STEP_KEYS <<< "$ML_TEST_STEP_KEYS"
+    DEPENDS_ON_KEYS+=("${STEP_KEYS[@]}")
+fi
+if [ "${#DEPENDS_ON_KEYS[@]}" -gt 0 ]; then
+    echo '    depends_on:'
+    seen=" "
+    for key in "${DEPENDS_ON_KEYS[@]}"; do
+        [ -z "$key" ] && continue
+        case "$seen" in
+            *" ${key} "*) continue ;;
+        esac
+        seen+=" ${key} "
         echo "        - \"${key}\""
     done
 fi
