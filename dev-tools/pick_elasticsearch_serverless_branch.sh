@@ -21,6 +21,10 @@
 # Optional override:
 #   ES_SERVERLESS_BRANCH — force this branch name
 #
+# Resolution runs in sequential steps (no nested if/elif chain) so a fork-only
+# branch warning never blocks later fallbacks to elastic/ (PR_SOURCE, then
+# PR_TARGET on elastic).
+#
 # Call pickElasticsearchServerlessBranch. It sets SERVERLESS_BRANCH and writes
 # diagnostics to stderr (callers often pipe stdout to buildkite-agent).
 
@@ -35,6 +39,7 @@ function isElasticsearchServerlessBranchAtRemote {
 function pickElasticsearchServerlessBranch {
     SERVERLESS_BRANCH="main"
 
+    # 1) Explicit override (must exist on elastic/)
     if [ -n "${ES_SERVERLESS_BRANCH:-}" ]; then
         if isElasticsearchServerlessBranchAtRemote "elastic" "${ES_SERVERLESS_BRANCH}"; then
             SERVERLESS_BRANCH="${ES_SERVERLESS_BRANCH}"
@@ -47,19 +52,24 @@ function pickElasticsearchServerlessBranch {
         return 1
     fi
 
-    if [ -n "$PR_AUTHOR_FORK" ] && isElasticsearchServerlessBranchAtRemote "$PR_AUTHOR_FORK" "$PR_SOURCE"; then
-        if isElasticsearchServerlessBranchAtRemote "elastic" "$PR_SOURCE"; then
-            SERVERLESS_BRANCH="$PR_SOURCE"
-            echo "Found '$PR_SOURCE' on both $PR_AUTHOR_FORK and elastic; using elastic/" >&2
-        else
-            echo "WARNING: Found '$PR_SOURCE' on $PR_AUTHOR_FORK/elasticsearch-serverless but not on elastic/." >&2
-            echo "The trigger step can only use branches on elastic/elasticsearch-serverless." >&2
-            echo "Push the branch to elastic/ or set ES_SERVERLESS_BRANCH explicitly." >&2
-        fi
-    elif isElasticsearchServerlessBranchAtRemote "elastic" "$PR_SOURCE"; then
+    # 2) Prefer PR_SOURCE when it exists on elastic/ (Buildkite only consumes elastic/)
+    if isElasticsearchServerlessBranchAtRemote "elastic" "$PR_SOURCE"; then
         SERVERLESS_BRANCH="$PR_SOURCE"
-    elif [ "$PR_TARGET" != "main" ] && isElasticsearchServerlessBranchAtRemote "elastic" "$PR_TARGET"; then
-        SERVERLESS_BRANCH="$PR_TARGET"
+        if [ -n "$PR_AUTHOR_FORK" ] && isElasticsearchServerlessBranchAtRemote "$PR_AUTHOR_FORK" "$PR_SOURCE"; then
+            echo "Found '$PR_SOURCE' on both $PR_AUTHOR_FORK and elastic; using elastic/" >&2
+        fi
+    elif [ -n "$PR_AUTHOR_FORK" ] && isElasticsearchServerlessBranchAtRemote "$PR_AUTHOR_FORK" "$PR_SOURCE"; then
+        echo "WARNING: Found '$PR_SOURCE' on $PR_AUTHOR_FORK/elasticsearch-serverless but not on elastic/." >&2
+        echo "The trigger step can only use branches on elastic/elasticsearch-serverless." >&2
+        echo "Push the branch to elastic/ or set ES_SERVERLESS_BRANCH explicitly." >&2
+    fi
+
+    # 3) Still unresolved: fall back to PR base branch on elastic/ when available
+    if [ "$SERVERLESS_BRANCH" = "main" ] && [ -n "${PR_TARGET:-}" ] && [ "$PR_TARGET" != "main" ]; then
+        if isElasticsearchServerlessBranchAtRemote "elastic" "$PR_TARGET"; then
+            SERVERLESS_BRANCH="$PR_TARGET"
+            echo "Using elasticsearch-serverless branch '$PR_TARGET' from PR base (elastic/) as fallback." >&2
+        fi
     fi
 
     echo "Resolved elasticsearch-serverless branch: $SERVERLESS_BRANCH" >&2
