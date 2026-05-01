@@ -12,7 +12,8 @@
 # Automated patch version bump for the release-eng pipeline.
 #
 # Updates elasticsearchVersion in gradle.properties to NEW_VERSION on BRANCH,
-# updates .backportrc.json when bumping main, commits, and pushes.
+# commits, and pushes. Does not modify .backportrc.json (reserved for a future
+# main / minor bump automation change).
 #
 # Set DRY_RUN=true to perform all steps except git push.
 #
@@ -26,7 +27,6 @@ set -euo pipefail
 DRY_RUN="${DRY_RUN:-false}"
 
 GRADLE_PROPS="gradle.properties"
-BACKPORT_CONFIG=".backportrc.json"
 
 if [ "$DRY_RUN" = "true" ]; then
     echo "=== DRY RUN MODE — will not push ==="
@@ -78,35 +78,13 @@ bump_version_on_branch() {
         exit 1
     fi
 
-    # Update .backportrc.json so the new version maps to main
-    if [[ "$target_branch" == "main" && -f "$BACKPORT_CONFIG" ]]; then
-        echo "Updating backport config: v${target_version} → main"
-        # Use python for a reliable cross-platform JSON-safe replacement
-        python3 -c "
-import json, re, sys
-with open('$BACKPORT_CONFIG') as f:
-    data = json.load(f)
-mapping = data.get('branchLabelMapping', {})
-new_mapping = {}
-for k, v in mapping.items():
-    if v == 'main' and re.match(r'\^v\d+\.\d+\.\d+\\\$', k):
-        new_mapping['^v${target_version}\$'] = 'main'
-    else:
-        new_mapping[k] = v
-data['branchLabelMapping'] = new_mapping
-with open('$BACKPORT_CONFIG', 'w') as f:
-    json.dump(data, f, indent=2)
-    f.write('\n')
-" || echo "WARNING: could not update backport config — please check $BACKPORT_CONFIG manually"
-    fi
-
     if git diff-index --quiet HEAD --; then
         echo "No changes to commit on $target_branch (file unchanged after sed)"
         return 0
     fi
 
     configure_git
-    git add "$GRADLE_PROPS" "$BACKPORT_CONFIG"
+    git add "$GRADLE_PROPS"
     git commit -m "[ML] Bump version to ${target_version}"
     git_push "$target_branch"
 }
