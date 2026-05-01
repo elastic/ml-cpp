@@ -254,7 +254,9 @@ spec:
       description: Buildkite Pipeline for ml-cpp version bump
     spec:
       allow_rebuilds: true
-      branch_configuration: main
+      # TEMPORARY (PR #3030): allow Buildkite API/UI test runs from this branch.
+      # Revert to `main` only after the version-bump smoke test is complete.
+      branch_configuration: main feature/version-bump-patch-only
       cancel_intermediate_builds: false
       clone_method: https
       pipeline_file: .buildkite/job-version-bump.json.py
