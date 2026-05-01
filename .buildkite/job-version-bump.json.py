@@ -11,8 +11,8 @@
 # This script generates JSON for the ml-cpp version bump pipeline.
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
-# Patch workflow: bump version on BRANCH, then wait for staging and snapshot
-# artifact JSON to publish NEW_VERSION.
+# Patch workflow: verify git push credentials (dry-run), bump version on BRANCH,
+# then wait for staging and snapshot artifact JSON to publish NEW_VERSION.
 
 
 import contextlib
@@ -62,8 +62,22 @@ def dra_step(label, key, depends_on, plugins):
 def main():
     pipeline_steps = [
         {
-            "label": "Queue a :slack: notification for the pipeline",
+            "label": "Verify git push credentials (dry-run)",
+            "key": "git-push-auth-probe",
             "depends_on": None,
+            "agents": {
+                "image": WOLFI_IMAGE,
+                "cpu": "250m",
+                "memory": "512Mi",
+            },
+            "command": [
+                "dev-tools/git_push_auth_probe.sh",
+            ],
+        },
+        {
+            "label": "Queue a :slack: notification for the pipeline",
+            "key": "queue-slack-notify",
+            "depends_on": "git-push-auth-probe",
             "command": ".buildkite/pipelines/send_slack_version_bump_notification.sh | buildkite-agent pipeline upload",
             "agents": {
                 "image": "python",
@@ -72,6 +86,7 @@ def main():
         {
             "label": "Bump version to ${NEW_VERSION}",
             "key": "bump-version",
+            "depends_on": "queue-slack-notify",
             "agents": {
                 "image": WOLFI_IMAGE,
                 "cpu": "250m",
