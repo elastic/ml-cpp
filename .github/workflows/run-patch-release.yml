@@ -1,0 +1,115 @@
+# Skeleton: patch-oriented version bump via GitHub Actions (APM-style entry point).
+# Buildkite (or humans) can trigger this with `gh workflow run` once secrets exist.
+#
+# Required repository secrets (names are suggestions — align with infra / reuse an
+# existing org GitHub App after review):
+#   ML_CPP_RELEASE_GITHUB_APP_ID
+#   ML_CPP_RELEASE_GITHUB_APP_PRIVATE_KEY   (PEM for the app; multiline secret)
+#
+# Optional (Slack — mirror elastic/apm-server when ready):
+#   SLACK_BOT_TOKEN
+#
+# Install the GitHub App on elastic/ml-cpp with contents:write + pull-requests:write
+# (same class of permissions as elastic/apm-server run-patch-release.yml).
+
+name: ml-cpp run patch release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Git branch to bump (e.g. 9.5 or feature/foo — must exist on origin)"
+        required: true
+        type: string
+      new_version:
+        description: "Target elasticsearchVersion in gradle.properties (x.y.z)"
+        required: true
+        type: string
+      dry_run:
+        description: "If true, bump_version.sh runs with DRY_RUN=true (no git push)"
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare (validate inputs)
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.meta.outputs.branch }}
+      new_version: ${{ steps.meta.outputs.new_version }}
+      dry_run: ${{ steps.meta.outputs.dry_run }}
+    steps:
+      - name: Validate and emit outputs
+        id: meta
+        shell: bash
+        env:
+          BRANCH_IN: ${{ inputs.branch }}
+          VERSION_IN: ${{ inputs.new_version }}
+          DRY_IN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${BRANCH_IN// }" ]]; then
+            echo "::error::branch must not be empty"
+            exit 1
+          fi
+          if ! echo "${VERSION_IN}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::new_version must look like major.minor.patch (digits only)"
+            exit 1
+          fi
+          {
+            echo "branch=${BRANCH_IN}"
+            echo "new_version=${VERSION_IN}"
+          } >> "${GITHUB_OUTPUT}"
+          if [[ "${DRY_IN}" == "true" ]]; then
+            echo "dry_run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "dry_run=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+  bump:
+    name: Bump version (GitHub App token)
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+    steps:
+      - name: Mint installation token (GitHub App)
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.ML_CPP_RELEASE_GITHUB_APP_ID }}
+          private-key: ${{ secrets.ML_CPP_RELEASE_GITHUB_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ needs.prepare.outputs.branch }}
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      # Match dev-tools/bump_version.sh configure_git() so commits stay consistent.
+      # Swap for elastic/oblt-actions/git/setup@v1 if infra prefers the shared action.
+      - name: Configure git (service identity)
+        shell: bash
+        run: |
+          git config user.name elasticsearchmachine
+          git config user.email 'infra-root+elasticsearchmachine@elastic.co'
+
+      - name: Run bump script
+        env:
+          NEW_VERSION: ${{ needs.prepare.outputs.new_version }}
+          BRANCH: ${{ needs.prepare.outputs.branch }}
+          DRY_RUN: ${{ needs.prepare.outputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash dev-tools/bump_version.sh
