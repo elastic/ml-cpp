@@ -27,24 +27,6 @@ REMOTE="${GIT_REMOTE:-origin}"
 BUILD_NUM="${BUILDKITE_BUILD_NUMBER:-local}"
 PROBE_REF="refs/heads/ci/ml-cpp-bump-push-probe-${BUILD_NUM}"
 
-# TEMPORARY (version-bump PR): inspect GitHub App metadata; remove before merge.
-echo "=== TEMPORARY: elastic-vault-github-plugin-prod — reported .permissions ==="
-if [ -n "${VAULT_GITHUB_TOKEN:-}" ]; then
-    if command -v gh >/dev/null 2>&1; then
-        GH_TOKEN="${VAULT_GITHUB_TOKEN}" gh api /apps/elastic-vault-github-plugin-prod --jq '.permissions' ||
-            echo "WARNING: gh api app permissions query failed (non-fatal)." >&2
-    else
-        echo "NOTE: gh not in PATH; using curl for the same REST endpoint." >&2
-        curl -sS -H "Authorization: Bearer ${VAULT_GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/apps/elastic-vault-github-plugin-prod" |
-            python3 -c 'import json, sys; print(json.dumps(json.load(sys.stdin).get("permissions"), indent=2))' ||
-            echo "WARNING: curl/python app permissions query failed (non-fatal)." >&2
-    fi
-else
-    echo "WARNING: VAULT_GITHUB_TOKEN unset; skipping app permissions diagnostic." >&2
-fi
-
 echo "=== Git push auth probe (dry-run; no remote refs updated) ==="
 echo "Remote: ${REMOTE}"
 echo "Local HEAD: $(git rev-parse HEAD)"
