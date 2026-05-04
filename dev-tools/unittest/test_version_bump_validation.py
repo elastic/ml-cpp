@@ -8,7 +8,18 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-"""Pytest tests for dev-tools/version_bump_validation.py (Buildkite bump rules)."""
+"""Pytest tests for dev-tools/version_bump_validation.py (Buildkite bump rules).
+
+Integration tests (real ``git fetch`` + ``validate_version_bump_params.sh``) are
+opt-in so CI stays deterministic:
+
+    export VERSION_BUMP_GIT_INTEGRATION=1
+    export VERSION_BUMP_TEST_BRANCH=9.5   # MAJOR.MINOR branch that exists on origin
+    ./dev-tools/run_dev_tools_tests.sh
+
+Optional: ``VERSION_BUMP_SKIP_NEGATIVE_INTEGRATION=1`` to skip the negative
+``patch+2`` check only.
+"""
 
 from __future__ import annotations
 
@@ -206,3 +217,128 @@ def test_shell_skip_validation_env() -> None:
         timeout=5,
     )
     assert out.returncode == 0, out.stderr + out.stdout
+
+
+def _integration_requested() -> bool:
+    return os.environ.get("VERSION_BUMP_GIT_INTEGRATION") == "1"
+
+
+def _integration_branch() -> str | None:
+    b = os.environ.get("VERSION_BUMP_TEST_BRANCH", "").strip()
+    return b or None
+
+
+def _read_version_from_fetch_head(repo: Path) -> str:
+    proc = subprocess.run(
+        ["git", "show", "FETCH_HEAD:gradle.properties"],
+        cwd=str(repo),
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    if proc.returncode != 0:
+        raise AssertionError(
+            f"git show FETCH_HEAD:gradle.properties failed: {proc.stderr}"
+        )
+    for line in proc.stdout.splitlines():
+        if line.startswith("elasticsearchVersion="):
+            return line.split("=", 1)[1].strip()
+    raise AssertionError("elasticsearchVersion not found in FETCH_HEAD gradle.properties")
+
+
+@pytest.fixture
+def git_patch_integration_branch() -> str:
+    """Release branch MAJOR.MINOR; requires network + origin ref."""
+    if not _integration_requested():
+        pytest.skip(
+            "Set VERSION_BUMP_GIT_INTEGRATION=1 and VERSION_BUMP_TEST_BRANCH "
+            "(e.g. 9.5) to run git integration tests."
+        )
+    br = _integration_branch()
+    if not br:
+        pytest.skip("VERSION_BUMP_TEST_BRANCH is not set.")
+    return br
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not _VALIDATOR_SCRIPT.is_file(),
+    reason="validate_version_bump_params.sh missing",
+)
+def test_integration_patch_validate_script_with_git_fetch(git_patch_integration_branch: str) -> None:
+    """Run validate_version_bump_params.sh after fetch; NEW_VERSION = patch+1 from origin."""
+    branch = git_patch_integration_branch
+    fetch = subprocess.run(
+        ["git", "fetch", "origin", branch],
+        cwd=str(_REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert fetch.returncode == 0, fetch.stderr + fetch.stdout
+
+    cur = _read_version_from_fetch_head(_REPO_ROOT)
+    triple = vbu.parse_semver(cur)
+    assert triple is not None, f"unexpected elasticsearchVersion on branch: {cur!r}"
+    maj, mino, pat = triple
+    new_version = f"{maj}.{mino}.{pat + 1}"
+
+    env = os.environ.copy()
+    env["NEW_VERSION"] = new_version
+    env["BRANCH"] = branch
+    env["WORKFLOW"] = "patch"
+    env.pop("SKIP_VERSION_VALIDATION", None)
+
+    out = subprocess.run(
+        ["/bin/bash", str(_VALIDATOR_SCRIPT)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert out.returncode == 0, out.stderr + out.stdout
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not _VALIDATOR_SCRIPT.is_file(),
+    reason="validate_version_bump_params.sh missing",
+)
+@pytest.mark.skipif(
+    os.environ.get("VERSION_BUMP_SKIP_NEGATIVE_INTEGRATION") == "1",
+    reason="VERSION_BUMP_SKIP_NEGATIVE_INTEGRATION=1",
+)
+def test_integration_patch_validate_script_rejects_bad_jump(git_patch_integration_branch: str) -> None:
+    """Same fetch as production path; NEW_VERSION = patch+2 must fail validation."""
+    branch = git_patch_integration_branch
+    fetch = subprocess.run(
+        ["git", "fetch", "origin", branch],
+        cwd=str(_REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert fetch.returncode == 0, fetch.stderr + fetch.stdout
+
+    cur = _read_version_from_fetch_head(_REPO_ROOT)
+    triple = vbu.parse_semver(cur)
+    assert triple is not None
+    maj, mino, pat = triple
+    bad_version = f"{maj}.{mino}.{pat + 2}"
+
+    env = os.environ.copy()
+    env["NEW_VERSION"] = bad_version
+    env["BRANCH"] = branch
+    env["WORKFLOW"] = "patch"
+    env.pop("SKIP_VERSION_VALIDATION", None)
+
+    out = subprocess.run(
+        ["/bin/bash", str(_VALIDATOR_SCRIPT)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert out.returncode != 0, "validator should reject non-consecutive patch bump"

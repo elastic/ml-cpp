@@ -17,9 +17,9 @@ Run tests from ``dev-tools/``:
 
     ./run_dev_tools_tests.sh
 
-Or (after ``pip install -r dev-tools/test-requirements.txt``):
-
-    cd dev-tools && python3 -m pytest -c pytest.ini
+Optional git integration (real ``git fetch`` + shell validator): set
+``VERSION_BUMP_GIT_INTEGRATION=1`` and ``VERSION_BUMP_TEST_BRANCH=MAJOR.MINOR``.
+See ``unittest/test_version_bump_validation.py`` module docstring.
 """
 
 from __future__ import annotations
