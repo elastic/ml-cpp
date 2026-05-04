@@ -416,7 +416,13 @@ def main():
     ]
 
     if not failed_jobs:
-        print("No failed steps found.")
+        if build.get("state") == "running":
+            print(
+                "No failed/timed_out script steps yet — skipping Claude "
+                "(build still running or failures only in later/overlapping jobs)."
+            )
+        else:
+            print("No failed steps found.")
         sys.exit(0)
 
     print(f"Found {len(failed_jobs)} failed step(s)")

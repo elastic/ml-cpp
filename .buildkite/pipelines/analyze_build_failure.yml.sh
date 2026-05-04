@@ -23,6 +23,10 @@ steps:
             # Step-level if/build.state is evaluated at pipeline upload time, so it cannot
             # reliably gate on the final build outcome. Skip at job start when the build already
             # succeeded, except for the lightweight "find previous failure" pipeline.
+            # If sibling steps are still running, BUILDKITE_BUILD_STATE is often "running" here
+            # (not "passed"); analyze_build_failure.py then exits without Claude when the API
+            # shows no failed/timed_out script jobs yet. Failures only in steps that start after
+            # this job cannot be analyzed without widening depends_on.
             bs="\${BUILDKITE_BUILD_STATE:-}"
             if [ "\$bs" = "passed" ] && [ "\${ML_ANALYZE_PREVIOUS:-}" != "true" ]; then
               echo "Build state is passed; skipping failure analysis."
