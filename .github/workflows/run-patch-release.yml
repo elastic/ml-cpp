@@ -1,5 +1,5 @@
-# Skeleton: patch-oriented version bump via GitHub Actions (APM-style entry point).
-# Buildkite (or humans) can trigger this with `gh workflow run` once secrets exist.
+# Optional manual patch bump via workflow_dispatch (same dev-tools/bump_version.sh as Buildkite).
+# Primary automation is the ml-cpp-version-bump pipeline; use this when operating via GitHub App.
 #
 # Required repository secrets (names are suggestions — align with infra / reuse an
 # existing org GitHub App after review):
