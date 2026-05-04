@@ -17,6 +17,7 @@
 #
 
 import json
+import os
 
 from ml_pipeline import (
     step,
@@ -52,6 +53,16 @@ def main():
         "VERSION_QUALIFIER": "",
         "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
     }
+    if config.run_serverless_tests or config.deploy_serverless_qa:
+        for serverless_env_key in (
+            "KEEP_DEPLOYMENT",
+            "REGION_ID",
+            "PROJECT_TYPE",
+            "ES_SERVERLESS_BRANCH",
+        ):
+            value = os.environ.get(serverless_env_key)
+            if value:
+                env[serverless_env_key] = value
 
     if config.build_windows:
         build_windows = pipeline_steps.generate_step_template("Windows", config.action, "", config.build_x86_64)
@@ -78,6 +89,17 @@ def main():
         if config.build_aarch64:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
+
+        # Serverless tests/deploy require both Linux aarch64 and x86_64 build steps.
+        linux_both_arches = (
+            config.build_linux and config.build_aarch64 and config.build_x86_64
+        )
+        if linux_both_arches and config.run_serverless_tests:
+            pipeline_steps.append(pipeline_steps.generate_step("Upload serverless tests runner pipeline",
+                                                               ".buildkite/pipelines/run_serverless_tests.yml.sh"))
+        if linux_both_arches and config.deploy_serverless_qa:
+            pipeline_steps.append(pipeline_steps.generate_step("Upload serverless QA deploy pipeline",
+                                                               ".buildkite/pipelines/deploy_serverless_qa.yml.sh"))
 
     # Check for build timing regressions against nightly baseline
     pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
