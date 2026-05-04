@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -7,24 +8,17 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
+#
+# Install pytest (see dev-tools/test-requirements.txt) and run dev-tools/unittest.
+#
+# Usage (from repository root):
+#   ./dev-tools/run_dev_tools_tests.sh
+#   ./dev-tools/run_dev_tools_tests.sh -q --tb=short
 
-cat <<EOL
-steps:
-  - label: "Validate formatting with clang-format"
-    key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all"
-    agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
-    notify:
-      - github_commit_status:
-          context: "Validate formatting with clang-format"
+set -euo pipefail
 
-  - label: "dev-tools pytest"
-    key: "dev_tools_pytest"
-    command: ".buildkite/scripts/steps/dev_tools_pytest.sh"
-    agents:
-      image: "python:3"
-    notify:
-      - github_commit_status:
-          context: "dev-tools pytest"
-EOL
+ROOT="$(git rev-parse --show-toplevel)"
+cd "${ROOT}/dev-tools"
+
+python3 -m pip install -q -r test-requirements.txt
+exec python3 -m pytest -c pytest.ini "$@"

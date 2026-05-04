@@ -11,6 +11,9 @@
 #
 # Automated patch version bump for the release-eng pipeline.
 #
+# Parameter checks (increment rules, BRANCH vs version) run in
+# dev-tools/validate_version_bump_params.sh in the ml-cpp-version-bump pipeline.
+#
 # Updates elasticsearchVersion in gradle.properties to NEW_VERSION on BRANCH,
 # commits, and pushes. Does not modify .backportrc.json (reserved for a future
 # main / minor bump automation change).

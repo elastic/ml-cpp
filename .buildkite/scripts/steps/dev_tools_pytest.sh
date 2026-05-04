@@ -7,24 +7,10 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
+#
 
-cat <<EOL
-steps:
-  - label: "Validate formatting with clang-format"
-    key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all"
-    agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
-    notify:
-      - github_commit_status:
-          context: "Validate formatting with clang-format"
+set -euo pipefail
 
-  - label: "dev-tools pytest"
-    key: "dev_tools_pytest"
-    command: ".buildkite/scripts/steps/dev_tools_pytest.sh"
-    agents:
-      image: "python:3"
-    notify:
-      - github_commit_status:
-          context: "dev-tools pytest"
-EOL
+cd "${REPO_ROOT:-$(git rev-parse --show-toplevel)}"
+
+./dev-tools/run_dev_tools_tests.sh -q --tb=short

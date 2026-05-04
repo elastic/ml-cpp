@@ -11,8 +11,10 @@
 # This script generates JSON for the ml-cpp version bump pipeline.
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
-# Patch workflow: verify git push credentials (dry-run), bump version on BRANCH,
-# then wait for staging and snapshot artifact JSON to publish NEW_VERSION.
+# Patch workflow: validate NEW_VERSION/BRANCH/WORKFLOW, verify git push
+# credentials (dry-run), bump version on BRANCH, then wait for staging and
+# snapshot artifact JSON to publish NEW_VERSION. Set WORKFLOW=minor for minor
+# bumps; defaults to patch.
 
 
 import contextlib
@@ -62,9 +64,22 @@ def dra_step(label, key, depends_on, plugins):
 def main():
     pipeline_steps = [
         {
+            "label": "Validate version bump parameters",
+            "key": "validate-version-bump",
+            "depends_on": None,
+            "agents": {
+                "image": WOLFI_IMAGE,
+                "cpu": "250m",
+                "memory": "512Mi",
+            },
+            "command": [
+                "dev-tools/validate_version_bump_params.sh",
+            ],
+        },
+        {
             "label": "Verify git push credentials (dry-run)",
             "key": "git-push-auth-probe",
-            "depends_on": None,
+            "depends_on": "validate-version-bump",
             "agents": {
                 "image": WOLFI_IMAGE,
                 "cpu": "250m",
