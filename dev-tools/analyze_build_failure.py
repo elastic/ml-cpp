@@ -381,7 +381,6 @@ def main():
 
     bk_token = (get_env_or_file("BUILDKITE_TOKEN", "~/.buildkite/token")
                 or get_env_or_file("BUILDKITE_API_READ_TOKEN", ""))
-    claude_key = get_env_or_file("ANTHROPIC_API_KEY", "~/.elastic/claude_api_key")
 
     if not bk_token:
         print("Error: No Buildkite token available", file=sys.stderr)
@@ -426,6 +425,8 @@ def main():
         sys.exit(0)
 
     print(f"Found {len(failed_jobs)} failed step(s)")
+
+    claude_key = get_env_or_file("ANTHROPIC_API_KEY", "~/.elastic/claude_api_key")
 
     slack_webhook = get_env_or_file("SLACK_WEBHOOK_URL", "")
     build_url = build.get("web_url", f"https://buildkite.com/{BUILDKITE_ORG}/{args.pipeline}/builds/{args.build}")
