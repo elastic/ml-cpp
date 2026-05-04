@@ -33,7 +33,7 @@ SERVERLESS_BRANCH="main"
 function isElasticsearchServerlessBranchAtRemote {
     local repo="$1"
     local branch="$2"
-    [ -n "$branch" ] && git ls-remote --heads "https://github.com/${repo}/elasticsearch-serverless.git" "$branch" 2>/dev/null | grep -q .
+    [ -n "$branch" ] && git ls-remote --heads "git@github.com:${repo}/elasticsearch-serverless.git" "$branch" 2>/dev/null | grep -q .
 }
 
 function pickElasticsearchServerlessBranch {
