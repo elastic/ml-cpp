@@ -37,19 +37,25 @@ def main():
     config.parse()
 
     build_step_keys = []
+    test_step_keys = []
     if config.build_linux and config.build_aarch64:
         build_step_keys.append("build_test_linux-aarch64-RelWithDebInfo")
+        test_step_keys.append("test_linux-aarch64-RelWithDebInfo")
     if config.build_linux and config.build_x86_64:
         build_step_keys.append("build_test_linux-x86_64-RelWithDebInfo")
+        test_step_keys.append("test_linux-x86_64-RelWithDebInfo")
     if config.build_macos and config.build_aarch64:
         build_step_keys.append("build_test_macos-aarch64-RelWithDebInfo")
+        test_step_keys.append("test_macos-aarch64-RelWithDebInfo")
     if config.build_windows and config.build_x86_64:
         build_step_keys.append("build_test_Windows-x86_64-RelWithDebInfo")
+        test_step_keys.append("test_Windows-x86_64-RelWithDebInfo")
 
     env = {
         "BUILD_SNAPSHOT": "true",
         "VERSION_QUALIFIER": "",
         "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
+        "ML_TEST_STEP_KEYS": ",".join(test_step_keys),
     }
 
     if config.build_windows:

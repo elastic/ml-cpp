@@ -59,9 +59,24 @@ def main():
     if config.build_windows and config.build_x86_64:
         build_step_keys.append("build_test_Windows-x86_64-RelWithDebInfo")
 
+    test_step_keys = []
+    if config.build_linux and config.build_aarch64:
+        test_step_keys.append("test_linux-aarch64-RelWithDebInfo")
+    if config.build_linux and config.build_x86_64:
+        test_step_keys.append("test_linux-x86_64-RelWithDebInfo")
+    if config.build_macos and config.build_aarch64:
+        test_step_keys.append("test_macos-aarch64-RelWithDebInfo")
+    if config.build_windows and config.build_x86_64:
+        test_step_keys.append("test_Windows-x86_64-RelWithDebInfo")
+    # PR builds add an extra Linux x86_64 fast-debug compile+test pair (see build_linux.json.py).
+    if config.build_linux and config.build_x86_64:
+        build_step_keys.append("build_test_linux-x86_64-RelWithDebInfo-debug")
+        test_step_keys.append("test_linux-x86_64-RelWithDebInfo-debug")
+
     env = {
         "VERSION_QUALIFIER": "",
         "ML_BUILD_STEP_KEYS": ",".join(build_step_keys),
+        "ML_TEST_STEP_KEYS": ",".join(test_step_keys),
     }
 
     if config.build_windows:

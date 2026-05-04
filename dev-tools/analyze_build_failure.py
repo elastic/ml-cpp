@@ -35,7 +35,6 @@ import re
 import socket
 import subprocess
 import sys
-import tempfile
 import urllib.parse
 import urllib.request
 import urllib.error
@@ -506,27 +505,15 @@ Analyze the root cause and suggest a fix."""
         # PR comment using the built-in GITHUB_TOKEN.
         annotation_body = "\n\n---\n\n".join(all_analyses)
         try:
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding="utf-8",
-                suffix="-build-failure-analysis.md",
-                delete=False,
-            ) as meta_file:
-                meta_file.write(annotation_body)
-                meta_path = meta_file.name
-            try:
-                with open(meta_path, "rb") as meta_reader:
-                    subprocess.run(
-                        ["buildkite-agent", "meta-data", "set", "build-failure-analysis"],
-                        stdin=meta_reader,
-                        check=True,
-                    )
-                print("Analysis saved as build metadata.")
-            finally:
-                try:
-                    os.unlink(meta_path)
-                except OSError:
-                    pass
+            # buildkite-agent accepts the value as argv or via stdin (see
+            # `buildkite-agent meta-data set --help`). Pass bytes on stdin so
+            # large analyses need no temp file.
+            subprocess.run(
+                ["buildkite-agent", "meta-data", "set", "build-failure-analysis"],
+                input=annotation_body.encode("utf-8"),
+                check=True,
+            )
+            print("Analysis saved as build metadata.")
         except (FileNotFoundError, subprocess.CalledProcessError, OSError) as e:
             print(f"Could not save build metadata: {e}", file=sys.stderr)
 
