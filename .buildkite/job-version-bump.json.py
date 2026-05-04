@@ -12,7 +12,7 @@
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
 # Patch workflow: validate NEW_VERSION/BRANCH/WORKFLOW, verify git push
-# credentials (dry-run), bump version on BRANCH, then wait for staging and
+# credentials (dry-run) and temporary empty-commit probe, bump version on BRANCH, then wait for staging and
 # snapshot artifact JSON to publish NEW_VERSION. Set WORKFLOW=minor for minor
 # bumps; defaults to patch.
 
@@ -77,7 +77,7 @@ def main():
             ],
         },
         {
-            "label": "Verify git push credentials (dry-run)",
+            "label": "Verify git push (dry-run) + commit [temp]",
             "key": "git-push-auth-probe",
             "depends_on": "validate-version-bump",
             "agents": {
