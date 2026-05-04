@@ -48,7 +48,11 @@ class MixedFileReaderModel(torch.nn.Module):
 
 
 class HiddenInSubmodule(torch.nn.Module):
-    """Hides aten::sin (unrecognised) three levels deep in submodules."""
+    """Hides aten::logit (unrecognised) three levels deep in submodules.
+
+    Uses logit+clamp instead of sin so the fixture stays invalid when
+    aten::sin is added to the allowlist for transformer models (e.g. EuroBERT).
+    """
     def __init__(self):
         super().__init__()
         self.inner = _Inner()
@@ -69,7 +73,7 @@ class _Inner(torch.nn.Module):
 
 class _Leaf(torch.nn.Module):
     def forward(self, x: Tensor) -> Tensor:
-        return torch.sin(x)
+        return torch.logit(torch.clamp(x, 1e-6, 1.0 - 1e-6))
 
 
 class ConditionalMalicious(torch.nn.Module):

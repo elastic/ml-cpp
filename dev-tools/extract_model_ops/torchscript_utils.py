@@ -111,16 +111,19 @@ def load_and_trace_hf_model(model_name: str, quantize: bool = False,
 
     Returns the traced module, or None if the model could not be loaded or traced.
     """
-    token = os.environ.get("HF_TOKEN")
+    token = os.environ.get("HF_TOKEN") or None
     model_cls = _resolve_auto_class(auto_class)
     overrides = config_overrides or {}
 
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name, token=token, trust_remote_code=True)
         config = AutoConfig.from_pretrained(
-            model_name, torchscript=True, token=token, **overrides)
+            model_name, torchscript=True, token=token,
+            trust_remote_code=True, **overrides)
         model = model_cls.from_pretrained(
-            model_name, config=config, token=token)
+            model_name, config=config, token=token,
+            trust_remote_code=True)
         model.eval()
     except Exception as exc:
         print(f"    LOAD ERROR: {exc}", file=sys.stderr)

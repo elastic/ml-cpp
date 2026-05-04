@@ -8,14 +8,25 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-cat <<'EOL'
+# Always validate against the published PyTorch Linux dependency image (same tag as
+# Linux compile agents: torch + MKL under /usr/local/gcc133 per dev-tools/docker/pytorch_linux_image).
+# Optional override for experiments: PYTORCH_ALLOWLIST_VALIDATION_IMAGE.
+VALIDATION_IMAGE="${PYTORCH_ALLOWLIST_VALIDATION_IMAGE:-docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest}"
+
+cat <<EOL
 steps:
   - label: "Validate PyTorch allowlist :torch:"
     key: "validate_pytorch_allowlist"
     timeout_in_minutes: 60
+    env:
+        HF_HUB_DISABLE_XET: "1"
+        # torch is linked against MKL under /usr/local/gcc133; importing torch fails without this
+        # (e.g. libmkl_intel_lp64.so.2: cannot open shared object file).
+        LD_LIBRARY_PATH: "/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib"
     command:
         - "if [ ! -f dev-tools/extract_model_ops/validate_allowlist.py ]; then echo 'validate_allowlist.py not found, skipping'; exit 0; fi"
-        - "pip install -r dev-tools/extract_model_ops/requirements.txt"
+        - "python3 -c \"import torch; print(f'PyTorch version: {torch.__version__}')\""
+        - "grep -v '^torch==' dev-tools/extract_model_ops/requirements.txt | pip3 install -r /dev/stdin"
         - "python3 dev-tools/extract_model_ops/validate_allowlist.py --config dev-tools/extract_model_ops/validation_models.json --pt-dir dev-tools/extract_model_ops/es_it_models --verbose"
 EOL
 
@@ -29,10 +40,10 @@ if [ -n "${ML_BUILD_STEP_KEYS:-}" ]; then
     done
 fi
 
-cat <<'EOL'
+cat <<EOL
     allow_dependency_failure: true
     agents:
-      image: "python:3.12"
+      image: "${VALIDATION_IMAGE}"
       memory: "32G"
       ephemeralStorage: "30G"
     notify:

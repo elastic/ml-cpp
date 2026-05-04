@@ -42,7 +42,7 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # GCS service account — inject credentials for build and Java IT steps.
   # Build steps use it for sccache; Java IT steps use it for the Gradle
   # build cache.  The key is stored in Vault.
-  if [[ "$BUILDKITE_STEP_KEY" == build_test_* || "$BUILDKITE_STEP_KEY" == java_integration_tests_* ]]; then
+  if [[ "$BUILDKITE_STEP_KEY" == build_test_* || "$BUILDKITE_STEP_KEY" == java_integration_tests_* || "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then
     SCCACHE_GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
     if [ -n "$SCCACHE_GCS_KEY_JSON" ]; then
       export SCCACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
@@ -51,6 +51,13 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
       export GOOGLE_APPLICATION_CREDENTIALS="$SCCACHE_GCS_KEY_FILE"
       export SCCACHE_GCS_KEY_PATH="$SCCACHE_GCS_KEY_FILE"
       export GRADLE_BUILD_CACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
+    fi
+  fi
+
+  if [[ "$BUILDKITE_STEP_KEY" == "validate_pytorch_allowlist" ]]; then
+    HF_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/huggingface/hf_token 2>/dev/null || echo "")
+    if [ -n "$HF_TOKEN" ]; then
+      export HF_TOKEN
     fi
   fi
 

@@ -41,7 +41,8 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
 // deepset/tinyroberta-squad2, typeform/squeezebert-mnli,
 // facebook/bart-large-mnli, valhalla/distilbart-mnli-12-6,
 // distilbert-base-uncased-finetuned-sst-2-english,
-// sentence-transformers/all-distilroberta-v1.
+// sentence-transformers/all-distilroberta-v1,
+// jinaai/jina-embeddings-v5-text-nano (EuroBERT + LoRA).
 // Eland-deployed variants of the above models (with pooling/normalization layers).
 // Additional ops from Elasticsearch integration test models
 // (PyTorchModelIT, TextExpansionQueryIT, TextEmbeddingQueryIT).
@@ -68,6 +69,7 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::clone"sv,
     "aten::contiguous"sv,
     "aten::copy_"sv,
+    "aten::cos"sv,
     "aten::cumsum"sv,
     "aten::detach"sv,
     "aten::div"sv,
@@ -117,10 +119,13 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::ALLOWED_OPERATI
     "aten::relu"sv,
     "aten::repeat"sv,
     "aten::reshape"sv,
+    "aten::rsqrt"sv,
     "aten::rsub"sv,
     "aten::scaled_dot_product_attention"sv,
     "aten::select"sv,
     "aten::sign"sv,
+    "aten::silu"sv,
+    "aten::sin"sv,
     "aten::size"sv,
     "aten::slice"sv,
     "aten::softmax"sv,

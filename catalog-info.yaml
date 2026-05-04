@@ -158,7 +158,7 @@ spec:
         build_branches: true
         build_pull_request_forks: false
         cancel_deleted_branch_builds: true
-        filter_condition: build.branch == "main" || build.branch == "9.3" || build.branch == "9.2" || build.branch == "8.19" || build.branch == "7.17"
+        filter_condition: build.branch == "main" || build.branch == "9.4" || build.branch == "9.3" || build.branch == "8.19" || build.branch == "7.17"
         filter_enabled: true
         publish_blocked_as_pending: true
         publish_commit_status: false
@@ -174,14 +174,14 @@ spec:
           branch: '8.19'
           cronline: 30 03 * * *
           message: Daily SNAPSHOT build for 8.19
-        Daily 9.2:
-          branch: '9.2'
-          cronline: 30 02 * * *
-          message: Daily SNAPSHOT build for 9.2
         Daily 9.3:
           branch: '9.3'
-          cronline: 30 01 * * *
+          cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 9.3
+        Daily 9.4:
+          branch: '9.4'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 9.4
         Daily main:
           branch: main
           cronline: 30 00 * * *
@@ -268,4 +268,6 @@ spec:
         everyone:
           access_level: READ_ONLY
         ml-core: {}
+        release-eng:
+          access_level: BUILD_AND_READ
         
