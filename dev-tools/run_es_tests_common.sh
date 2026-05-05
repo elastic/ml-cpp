@@ -33,50 +33,8 @@
 
 set -e
 
-function isCloneTargetValid {
-    FORK_TO_CHECK="$1"
-    BRANCH_TO_CHECK="$2"
-    echo "Checking for '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch"
-    if [ -n "$(git ls-remote --heads "git@github.com:$FORK_TO_CHECK/elasticsearch.git" "$BRANCH_TO_CHECK" 2>/dev/null)" ]; then
-        echo "Will use '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch for ES integration tests"
-        return 0
-    fi
-    return 1
-}
-
-SELECTED_FORK=elastic
-SELECTED_BRANCH=main
-
-function pickCloneTarget {
-
-    if isCloneTargetValid "$GITHUB_PR_OWNER" "$GITHUB_PR_BRANCH" ; then
-        SELECTED_FORK="$GITHUB_PR_OWNER"
-        SELECTED_BRANCH="$GITHUB_PR_BRANCH"
-        return 0
-    fi
-
-    if isCloneTargetValid "$PR_AUTHOR" "$PR_SOURCE_BRANCH" ; then
-        SELECTED_FORK="$PR_AUTHOR"
-        SELECTED_BRANCH="$PR_SOURCE_BRANCH"
-        return 0
-    fi
-
-    if isCloneTargetValid "$SELECTED_FORK" "$PR_SOURCE_BRANCH" ; then
-        SELECTED_BRANCH="$PR_SOURCE_BRANCH"
-        return 0
-    fi
-
-    if isCloneTargetValid "$SELECTED_FORK" "$PR_TARGET_BRANCH" ; then
-        SELECTED_BRANCH="$PR_TARGET_BRANCH"
-        return 0
-    fi
-
-    if isCloneTargetValid "$SELECTED_FORK" "$SELECTED_BRANCH" ; then
-        return 0
-    fi
-
-    return 1
-}
+# shellcheck source=pick_elasticsearch_clone_target.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/pick_elasticsearch_clone_target.sh"
 
 CLONE_DIR="$1"
 IVY_REPO_PATH="$2"
