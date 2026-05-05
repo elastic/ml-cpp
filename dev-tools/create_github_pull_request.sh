@@ -123,6 +123,8 @@ PR_URL=$(gh pr create \
 echo "$PR_URL"
 
 if [[ "$DO_MERGE" == "true" ]]; then
-    gh pr merge "$PR_URL" "${MERGE_TYPE[@]}" --yes
+    # Older packaged gh (e.g. Wolfi apk) does not support --yes on pr merge; rely on
+    # non-TTY / GH_PROMPT_DISABLED for unattended merges.
+    GH_PROMPT_DISABLED=1 gh pr merge "$PR_URL" "${MERGE_TYPE[@]}"
     echo "Merged: ${PR_URL}" >&2
 fi
