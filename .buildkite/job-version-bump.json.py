@@ -11,10 +11,9 @@
 # This script generates JSON for the ml-cpp version bump pipeline.
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
-# Patch workflow: validate NEW_VERSION/BRANCH/WORKFLOW, verify git push
-# credentials (dry-run), bump version on BRANCH, then wait for staging and
-# snapshot artifact JSON to publish NEW_VERSION. Set WORKFLOW=minor for minor
-# bumps; defaults to patch.
+# Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
+# bump version on BRANCH, then wait for staging and snapshot artifact JSON to
+# publish NEW_VERSION. When DRY_RUN=true the DRA wait step is skipped (no push).
 
 
 import contextlib
@@ -39,10 +38,13 @@ def json_watcher_plugin(url, expected_value):
 
 
 def dra_step(label, key, depends_on, plugins):
+    # Skip when DRY_RUN=true: bump_version.sh does not push, so artifact JSON
+    # never reaches NEW_VERSION and the json-watcher would time out (240m).
     return {
         "label": label,
         "key": key,
         "depends_on": depends_on,
+        "if": 'build.env("DRY_RUN") != "true"',
         "agents": {
             "image": WOLFI_IMAGE,
             "cpu": "250m",

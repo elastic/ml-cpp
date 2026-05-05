@@ -8,14 +8,16 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-"""Rules for ml-cpp release version bump parameters (Buildkite / release-eng).
+"""Rules for ml-cpp patch release version bump parameters (Buildkite / release-eng).
 
 Used by dev-tools/validate_version_bump_params.sh and unit-tested under
 dev-tools/unittest/.
 
-Run tests from ``dev-tools/``:
+Run tests from repo root (install dev-tools test deps first, see
+``dev-tools/run_dev_tools_tests.sh``):
 
-    ./run_dev_tools_tests.sh
+    python3 -m pip install -r dev-tools/test-requirements.txt
+    ./dev-tools/run_dev_tools_tests.sh
 
 Optional git integration (real ``git fetch`` + shell validator): set
 ``VERSION_BUMP_GIT_INTEGRATION=1`` and ``VERSION_BUMP_TEST_BRANCH=MAJOR.MINOR``.
@@ -47,26 +49,16 @@ def parse_release_branch(branch: str) -> Optional[Tuple[int, int]]:
     return (int(m.group(1)), int(m.group(2)))
 
 
-def validate_workflow_name(workflow: str) -> None:
-    if workflow not in ("patch", "minor"):
-        raise ValueError(
-            f"WORKFLOW must be 'patch' or 'minor', got {workflow!r}"
-        )
-
-
 def validate_version_bump_params(
     *,
     current_version: str,
     new_version: str,
     branch: str,
-    workflow: str,
 ) -> None:
-    """Validate release bump parameters. Raises ValueError on failure.
+    """Validate patch bump parameters. Raises ValueError on failure.
 
     When current_version == new_version, the bump is a no-op and always valid.
     """
-    validate_workflow_name(workflow)
-
     new_t = parse_semver(new_version)
     if new_t is None:
         raise ValueError(
@@ -97,35 +89,17 @@ def validate_version_bump_params(
     if current_version.strip() == new_version.strip():
         return
 
-    if workflow == "patch":
-        if cur_major != new_major or cur_minor != new_minor:
-            raise ValueError(
-                "patch bump requires same MAJOR.MINOR as current "
-                f"({cur_major}.{cur_minor} vs {new_major}.{new_minor})"
-            )
-        expected_patch = cur_patch + 1
-        if new_patch != expected_patch:
-            raise ValueError(
-                "patch workflow expects NEW_VERSION patch = current patch + 1 "
-                f"({current_version} → {new_major}.{new_minor}.{expected_patch}), "
-                f"got {new_version}"
-            )
-        return
-
-    # minor
-    if new_patch != 0:
+    if cur_major != new_major or cur_minor != new_minor:
         raise ValueError(
-            f"minor workflow expects NEW_VERSION with PATCH=0, got {new_version!r}"
+            "patch bump requires same MAJOR.MINOR as current "
+            f"({cur_major}.{cur_minor} vs {new_major}.{new_minor})"
         )
-    if cur_major != new_major:
+    expected_patch = cur_patch + 1
+    if new_patch != expected_patch:
         raise ValueError(
-            f"minor bump must keep the same MAJOR ({cur_major} vs {new_major})"
-        )
-    expected_minor = cur_minor + 1
-    if new_minor != expected_minor:
-        raise ValueError(
-            "minor workflow expects MINOR = current minor + 1 "
-            f"({cur_minor} → {expected_minor}), got {new_minor}"
+            "patch bump expects NEW_VERSION patch = current patch + 1 "
+            f"({current_version} → {new_major}.{new_minor}.{expected_patch}), "
+            f"got {new_version}"
         )
 
 
@@ -135,7 +109,6 @@ def _cmd_validate(args: argparse.Namespace) -> int:
             current_version=args.current,
             new_version=args.new,
             branch=args.branch,
-            workflow=args.workflow,
         )
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
@@ -151,32 +124,24 @@ def _cmd_validate_and_report(args: argparse.Namespace) -> int:
     new = args.new.strip()
     if cur == new:
         print(f"OK: branch already at {new} — bump step will no-op.")
-    elif args.workflow == "patch":
-        print(f"OK: patch increment {cur} → {new}")
     else:
-        print(f"OK: minor increment {cur} → {new}")
+        print(f"OK: patch increment {cur} → {new}")
     return 0
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="ml-cpp version bump parameter validation"
+        description="ml-cpp patch version bump parameter validation"
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_val = sub.add_parser(
         "validate",
-        help="check current/new/branch/workflow (same rules as Buildkite)",
+        help="check current/new/branch (same rules as Buildkite)",
     )
     p_val.add_argument("--current", required=True, help="elasticsearchVersion on branch")
     p_val.add_argument("--new", required=True, dest="new", help="NEW_VERSION")
     p_val.add_argument("--branch", required=True, help="BRANCH (MAJOR.MINOR)")
-    p_val.add_argument(
-        "--workflow",
-        required=True,
-        choices=("patch", "minor"),
-        help="WORKFLOW",
-    )
     p_val.set_defaults(func=_cmd_validate)
 
     p_rep = sub.add_parser(
@@ -186,7 +151,6 @@ def main() -> int:
     p_rep.add_argument("--current", required=True)
     p_rep.add_argument("--new", required=True, dest="new")
     p_rep.add_argument("--branch", required=True)
-    p_rep.add_argument("--workflow", required=True, choices=("patch", "minor"))
     p_rep.set_defaults(func=_cmd_validate_and_report)
 
     args = parser.parse_args()

@@ -11,12 +11,13 @@
 #
 # Automated patch version bump for the release-eng pipeline.
 #
-# Parameter checks (increment rules, BRANCH vs version) run in
-# dev-tools/validate_version_bump_params.sh in the ml-cpp-version-bump pipeline.
+# Parameter checks run in dev-tools/validate_version_bump_params.sh before this
+# step. After git pull, we re-run the same patch rules against the branch tip so a
+# race (another bump / manual commit) cannot downgrade elasticsearchVersion.
 #
 # Updates elasticsearchVersion in gradle.properties to NEW_VERSION on BRANCH,
-# commits, and pushes. Does not modify .backportrc.json (reserved for a future
-# main / minor bump automation change).
+# commits, and pushes. Does not modify .backportrc.json (reserved for future
+# release automation).
 #
 # Set DRY_RUN=true to perform all steps except git push.
 #
@@ -24,6 +25,10 @@
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON="${PYTHON:-python3}"
+VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
@@ -66,7 +71,27 @@ bump_version_on_branch() {
     git pull --ff-only origin "$target_branch"
 
     local current_version
-    current_version=$(grep '^elasticsearchVersion=' "$GRADLE_PROPS" | cut -d= -f2)
+    # pipefail: grep exits 1 when there is no match — do not abort before the
+    # empty check below.
+    current_version=$(
+        grep '^elasticsearchVersion=' "$GRADLE_PROPS" | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
+    )
+    if [[ -z "$current_version" ]]; then
+        echo "ERROR: could not read elasticsearchVersion from ${GRADLE_PROPS} on ${target_branch}" >&2
+        exit 1
+    fi
+
+    # Revalidate against post-pull branch tip (race with other bumps / manual edits).
+    if ! "$PYTHON" "$VALIDATION_PY" validate \
+        --current "$current_version" \
+        --new "$target_version" \
+        --branch "$target_branch"
+    then
+        echo "ERROR: version bump does not match branch tip after pull (current=${current_version}, target=${target_version})." >&2
+        echo "Refusing to rewrite elasticsearchVersion — resolve manually if another automation advanced the branch." >&2
+        exit 1
+    fi
+
     if [ "$current_version" = "$target_version" ]; then
         echo "Version on $target_branch is already $target_version — nothing to do"
         return 0

@@ -15,6 +15,7 @@ opt-in so CI stays deterministic:
 
     export VERSION_BUMP_GIT_INTEGRATION=1
     export VERSION_BUMP_TEST_BRANCH=9.5   # MAJOR.MINOR branch that exists on origin
+    python3 -m pip install -r dev-tools/test-requirements.txt
     ./dev-tools/run_dev_tools_tests.sh
 
 Optional: ``VERSION_BUMP_SKIP_NEGATIVE_INTEGRATION=1`` to skip the negative
@@ -56,7 +57,6 @@ def test_patch_ok_consecutive() -> None:
         current_version="9.5.0",
         new_version="9.5.1",
         branch="9.5",
-        workflow="patch",
     )
 
 
@@ -65,7 +65,6 @@ def test_patch_ok_noop_same_version() -> None:
         current_version="9.5.1",
         new_version="9.5.1",
         branch="9.5",
-        workflow="patch",
     )
 
 
@@ -75,62 +74,25 @@ def test_patch_rejects_skip() -> None:
             current_version="9.5.0",
             new_version="9.5.2",
             branch="9.5",
-            workflow="patch",
         )
 
 
-def test_patch_rejects_wrong_branch_minor() -> None:
+def test_patch_rejects_wrong_release_branch() -> None:
     with pytest.raises(ValueError):
         vbu.validate_version_bump_params(
             current_version="9.5.0",
             new_version="9.5.1",
             branch="9.4",
-            workflow="patch",
         )
 
 
-def test_patch_rejects_minor_mismatch() -> None:
+def test_patch_rejects_major_minor_mismatch() -> None:
     with pytest.raises(ValueError):
         vbu.validate_version_bump_params(
             current_version="9.4.9",
             new_version="9.5.1",
             branch="9.5",
-            workflow="patch",
         )
-
-
-def test_minor_ok() -> None:
-    vbu.validate_version_bump_params(
-        current_version="9.4.12",
-        new_version="9.5.0",
-        branch="9.5",
-        workflow="minor",
-    )
-
-
-def test_minor_rejects_patch_not_zero() -> None:
-    with pytest.raises(ValueError):
-        vbu.validate_version_bump_params(
-            current_version="9.4.12",
-            new_version="9.5.1",
-            branch="9.5",
-            workflow="minor",
-        )
-
-
-def test_minor_rejects_wrong_increment() -> None:
-    with pytest.raises(ValueError):
-        vbu.validate_version_bump_params(
-            current_version="9.4.12",
-            new_version="9.6.0",
-            branch="9.6",
-            workflow="minor",
-        )
-
-
-def test_invalid_workflow() -> None:
-    with pytest.raises(ValueError):
-        vbu.validate_workflow_name("major")
 
 
 def test_cli_validate_patch_ok() -> None:
@@ -145,8 +107,6 @@ def test_cli_validate_patch_ok() -> None:
             "9.5.1",
             "--branch",
             "9.5",
-            "--workflow",
-            "patch",
         ],
         cwd=str(_REPO_ROOT),
         stdout=subprocess.DEVNULL,
@@ -167,36 +127,12 @@ def test_cli_validate_patch_negative() -> None:
             "9.5.2",
             "--branch",
             "9.5",
-            "--workflow",
-            "patch",
         ],
         cwd=str(_REPO_ROOT),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     assert rc != 0
-
-
-def test_cli_validate_minor_ok() -> None:
-    rc = subprocess.call(
-        [
-            sys.executable,
-            str(_MODULE),
-            "validate",
-            "--current",
-            "9.4.8",
-            "--new",
-            "9.5.0",
-            "--branch",
-            "9.5",
-            "--workflow",
-            "minor",
-        ],
-        cwd=str(_REPO_ROOT),
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    assert rc == 0
 
 
 @pytest.mark.skipif(
@@ -217,6 +153,29 @@ def test_shell_skip_validation_env() -> None:
         timeout=5,
     )
     assert out.returncode == 0, out.stderr + out.stdout
+
+
+@pytest.mark.skipif(
+    not _VALIDATOR_SCRIPT.is_file(),
+    reason="validate_version_bump_params.sh missing",
+)
+def test_shell_rejects_non_patch_workflow() -> None:
+    """Upstream may send WORKFLOW=minor; fail before git fetch."""
+    env = os.environ.copy()
+    env["WORKFLOW"] = "minor"
+    env["NEW_VERSION"] = "9.5.1"
+    env["BRANCH"] = "9.5"
+    env.pop("SKIP_VERSION_VALIDATION", None)
+    out = subprocess.run(
+        ["/bin/bash", str(_VALIDATOR_SCRIPT)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    assert out.returncode != 0, out.stderr + out.stdout
+    assert "WORKFLOW" in out.stderr or "WORKFLOW" in out.stdout
 
 
 def _integration_requested() -> bool:

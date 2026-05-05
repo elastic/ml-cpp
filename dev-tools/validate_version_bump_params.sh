@@ -9,14 +9,15 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Validates NEW_VERSION / BRANCH / WORKFLOW against elasticsearchVersion on the
+# Validates NEW_VERSION / BRANCH against elasticsearchVersion on the
 # remote release branch before ml-cpp-version-bump runs bump_version.sh.
 # Semantic rules live in version_bump_validation.py (unit-tested).
 #
 # Environment:
 #   NEW_VERSION — required target stack version (MAJOR.MINOR.PATCH), unless skipped
 #   BRANCH — required release branch (e.g. 9.5), unless skipped
-#   WORKFLOW — patch (default) or minor
+#   WORKFLOW — optional; defaults to patch. If set by upstream automation, must be
+#              exactly "patch" (this pipeline does not support minor bumps).
 #   SKIP_VERSION_VALIDATION — set to "true" to skip (emergency override only)
 #   PYTHON — interpreter (default: python3)
 
@@ -37,11 +38,19 @@ fi
 : "${BRANCH:?BRANCH must be set}"
 
 WORKFLOW="${WORKFLOW:-patch}"
+if [[ "$WORKFLOW" != "patch" ]]; then
+    echo "ERROR: WORKFLOW must be \"patch\" for this pipeline, got \"${WORKFLOW}\"" >&2
+    exit 1
+fi
 
-echo "=== Version bump validation ==="
+echo "=== Version bump validation (patch) ==="
 echo "WORKFLOW:     ${WORKFLOW}"
 echo "NEW_VERSION:  ${NEW_VERSION}"
 echo "BRANCH:       ${BRANCH}"
+
+# Patch-only pipeline (no WORKFLOW=minor): consecutive patch on this release
+# branch. Current version is read from origin/${BRANCH} by design — there is no
+# minor-line bump mode in dev-tools/version_bump_validation.py or this pipeline.
 
 echo "Fetching origin/${BRANCH}..."
 git fetch origin "$BRANCH"
@@ -51,8 +60,10 @@ if ! git cat-file -e FETCH_HEAD:gradle.properties 2>/dev/null; then
     exit 1
 fi
 
+# Allow empty result: with pipefail, grep exits 1 when there is no match, which
+# would abort the substitution before the explicit empty check below.
 CURRENT_VERSION=$(
-    git show FETCH_HEAD:gradle.properties | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]'
+    git show FETCH_HEAD:gradle.properties | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
 )
 
 if [[ -z "$CURRENT_VERSION" ]]; then
@@ -65,5 +76,4 @@ echo "Current version on origin/${BRANCH}: ${CURRENT_VERSION}"
 exec "$PYTHON" "$VALIDATION_PY" validate-and-report \
     --current "$CURRENT_VERSION" \
     --new "$NEW_VERSION" \
-    --branch "$BRANCH" \
-    --workflow "$WORKFLOW"
+    --branch "$BRANCH"
