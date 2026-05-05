@@ -12,8 +12,13 @@
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
 # Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
-# open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh),
-# then poll staging/snapshot artifact JSON until NEW_VERSION appears. The PR must be
+# open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
+# The bump step uses the GitHub CLI: gh pr create / gh pr merge via
+# dev-tools/create_github_pull_request.sh, which runs dev-tools/ensure_github_cli.sh
+# to install gh on Wolfi (apk) or via a Linux release tarball if needed. Uses image
+# docker.elastic.co/release-eng/wolfi-build-essential-release-eng (outbound network for
+# apk or tarball). Then poll staging/snapshot artifact JSON until NEW_VERSION appears.
+# The PR must be
 # merged (and snapshot/staging builds finish, typically ~1h) while the watcher runs;
 # the step allows up to 240 minutes. When DRY_RUN=true the DRA wait step is skipped
 # (no change merged, so artifacts would never advance).

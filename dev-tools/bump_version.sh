@@ -17,15 +17,19 @@
 #
 # Creates a topic branch from origin/${BRANCH}, commits elasticsearchVersion in
 # gradle.properties, pushes the topic branch to origin, and opens a GitHub pull
-# request into ${BRANCH} (required by repository rulesets that disallow direct
-# pushes). Does not modify .backportrc.json (reserved for future release automation).
+# request into ${BRANCH} via gh pr create (rulesets often disallow direct pushes).
+# Optionally merges immediately with gh pr merge (unless VERSION_BUMP_NO_MERGE=true).
+# Does not modify .backportrc.json (reserved for future release automation).
 #
 # Environment:
 #   NEW_VERSION, BRANCH — required
 #   DRY_RUN — true to skip push and PR creation
 #   BUILDKITE_BUILD_NUMBER — appended to topic branch name for uniqueness
 #   VERSION_BUMP_TOPIC_BRANCH — optional override for topic branch name
-#   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — for POST .../pulls (CI sets Vault token)
+#   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — auth for gh (CI sets Vault token)
+#   VERSION_BUMP_NO_MERGE — set to true to open PR only (no immediate gh pr merge)
+#   VERSION_BUMP_MERGE_METHOD — merge | squash | rebase (default: merge)
+#   gh install (apk/tarball): dev-tools/ensure_github_cli.sh via create_github_pull_request.sh
 #
 # Follows the same pattern as the Elasticsearch repo's automated
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
@@ -35,7 +39,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON="${PYTHON:-python3}"
 VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
-CREATE_PR_PY="${SCRIPT_DIR}/create_github_pull_request.py"
+CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
@@ -148,21 +152,35 @@ bump_version_via_pr() {
 
     repo_slug=$(github_repo_slug) || exit 1
 
-    pr_url=$(
-        "$PYTHON" "$CREATE_PR_PY" \
-            --repo "$repo_slug" \
-            --base "$target_branch" \
-            --head "$topic_branch" \
-            --title "[ML] Bump version to ${target_version}" \
-            --body "Automated patch version bump for branch \`${target_branch}\`.
+    local pr_body
+    pr_body="$(cat <<EOF
+Automated patch version bump for branch \`${target_branch}\`.
 
 | | |
 | --- | --- |
 | **elasticsearchVersion** | \`${current_version}\` → \`${target_version}\` |
 
-Please review and merge."
+Merged immediately by the version-bump pipeline via \`gh pr merge\` unless \`VERSION_BUMP_NO_MERGE=true\`.
+EOF
+)"
+
+    local -a pr_cmd=(
+        "$CREATE_PR_SH"
+        --repo "$repo_slug"
+        --base "$target_branch"
+        --head "$topic_branch"
+        --title "[ML] Bump version to ${target_version}"
+        --body "$pr_body"
     )
-    echo "  Opened pull request: ${pr_url}"
+    if [[ "${VERSION_BUMP_NO_MERGE:-}" != "true" ]]; then
+        pr_cmd+=(--merge)
+    fi
+    if [[ -n "${VERSION_BUMP_MERGE_METHOD:-}" ]]; then
+        pr_cmd+=(--merge-method "${VERSION_BUMP_MERGE_METHOD}")
+    fi
+
+    pr_url=$("${pr_cmd[@]}")
+    echo "  Pull request: ${pr_url}"
 }
 
 echo "=== Patch version bump (PR workflow): ${BRANCH} → ${NEW_VERSION} ==="
