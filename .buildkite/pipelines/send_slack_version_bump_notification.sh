@@ -8,29 +8,30 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Slack notifications for the version bump pipeline.
-# Sends notifications on build completion and when the build is blocked.
+# Slack notifications for the ml-cpp-version-bump pipeline only (not PR builds).
+#
+# Optional env:
+#   ML_CPP_VERSION_BUMP_SLACK_CHANNEL — override channel (default #machine-learn-build)
+
+CHANNEL="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build}"
+
 cat <<EOL
 steps:
-  - label: "Schedule :slack: notification"
+  - label: "Schedule :slack: notification (version bump)"
     command: "echo schedule :slack: notification"
 notify:
   - slack:
       channels:
-        - "#machine-learn-build"
-        - "#ml-core"
+        - "${CHANNEL}"
       message: |
-        :large_green_circle: Version bump pipeline waiting for approval
+        **Version bump pipeline**
+        Build message: \${BUILDKITE_MESSAGE:-"(none)"}
         Branch: \${BUILDKITE_BRANCH}
-        New version: \${NEW_VERSION}
+        User: \${BUILDKITE_BUILD_CREATOR}
+        NEW_VERSION: \${NEW_VERSION:-"(unset)"}
+        BRANCH (param): \${BRANCH:-"(unset)"}
+        DRY_RUN: \${DRY_RUN:-"(unset)"}
         Pipeline: \${BUILDKITE_BUILD_URL}
-    if: build.state == "blocked"
-  - slack:
-      channels:
-        - "#machine-learn-build"
-      message: |
-        Version bump pipeline finished (${BUILDKITE_BUILD_URL})
-        Branch: \${BUILDKITE_BRANCH}
-        New version: \${NEW_VERSION}
-    if: build.state != "blocked"
+        Build: \${BUILDKITE_BUILD_NUMBER}
+    if: build.pull_request.id == null
 EOL

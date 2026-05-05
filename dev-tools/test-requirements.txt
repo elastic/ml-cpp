@@ -1,0 +1,2 @@
+# Python dependencies for dev-tools/unittest (pytest).
+pytest>=7.0.0,<9
