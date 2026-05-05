@@ -12,10 +12,11 @@
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
 # Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
-# open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
-# Optional: set WAIT_FOR_DRA=true to run the json-watcher after the bump step
-# (use a second pipeline run after the PR is merged; artifacts are not updated until then).
-# When DRY_RUN=true the DRA wait step is skipped.
+# open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh),
+# then poll staging/snapshot artifact JSON until NEW_VERSION appears. The PR must be
+# merged (and snapshot/staging builds finish, typically ~1h) while the watcher runs;
+# the step allows up to 240 minutes. When DRY_RUN=true the DRA wait step is skipped
+# (no change merged, so artifacts would never advance).
 
 
 import contextlib
@@ -40,13 +41,13 @@ def json_watcher_plugin(url, expected_value):
 
 
 def dra_step(label, key, depends_on, plugins):
-    # Opt-in: bump opens a PR; DRA artifacts only advance after merge + publish.
-    # Skip when DRY_RUN=true (no topic-branch push).
+    # Bump opens a PR; artifacts update after merge + builds. Watcher polls until match or timeout.
+    # Skip when DRY_RUN=true (no PR pushed).
     return {
         "label": label,
         "key": key,
         "depends_on": depends_on,
-        "if": 'build.env("DRY_RUN") != "true" && build.env("WAIT_FOR_DRA") == "true"',
+        "if": 'build.env("DRY_RUN") != "true"',
         "agents": {
             "image": WOLFI_IMAGE,
             "cpu": "250m",
