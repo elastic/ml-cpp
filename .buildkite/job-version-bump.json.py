@@ -12,8 +12,10 @@
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
 # Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
-# bump version on BRANCH, then wait for staging and snapshot artifact JSON to
-# publish NEW_VERSION. When DRY_RUN=true the DRA wait step is skipped (no push).
+# open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
+# Optional: set WAIT_FOR_DRA=true to run the json-watcher after the bump step
+# (use a second pipeline run after the PR is merged; artifacts are not updated until then).
+# When DRY_RUN=true the DRA wait step is skipped.
 
 
 import contextlib
@@ -38,13 +40,13 @@ def json_watcher_plugin(url, expected_value):
 
 
 def dra_step(label, key, depends_on, plugins):
-    # Skip when DRY_RUN=true: bump_version.sh does not push, so artifact JSON
-    # never reaches NEW_VERSION and the json-watcher would time out (240m).
+    # Opt-in: bump opens a PR; DRA artifacts only advance after merge + publish.
+    # Skip when DRY_RUN=true (no topic-branch push).
     return {
         "label": label,
         "key": key,
         "depends_on": depends_on,
-        "if": 'build.env("DRY_RUN") != "true"',
+        "if": 'build.env("DRY_RUN") != "true" && build.env("WAIT_FOR_DRA") == "true"',
         "agents": {
             "image": WOLFI_IMAGE,
             "cpu": "250m",
