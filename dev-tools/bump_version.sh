@@ -29,6 +29,7 @@
 #   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — auth for gh (CI sets Vault token)
 #   VERSION_BUMP_NO_MERGE — set to true to open PR only (no immediate gh pr merge)
 #   VERSION_BUMP_MERGE_METHOD — merge | squash | rebase (default: squash)
+#   VERSION_BUMP_MERGE_ADMIN — true to pass gh pr merge --admin (needs repo bypass rights)
 #   gh install (apk/tarball): dev-tools/ensure_github_cli.sh via create_github_pull_request.sh
 #
 # Follows the same pattern as the Elasticsearch repo's automated

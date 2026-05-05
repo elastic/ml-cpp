@@ -25,6 +25,8 @@
 # Environment:
 #   VERSION_BUMP_MERGE_METHOD — merge style when --merge is used (merge|squash|rebase).
 #     Default squash — elastic/ml-cpp forbids merge commits on protected branches.
+#   VERSION_BUMP_MERGE_ADMIN — set to true to add gh pr merge --admin (bypasses some rule
+#     violations only if the token identity has appropriate admin/bypass rights on the repo).
 #   SKIP_GH_AUTO_INSTALL, GH_CLI_VERSION, GH_CLI_INSTALL_PREFIX — see ensure_github_cli.sh
 
 set -euo pipefail
@@ -126,6 +128,10 @@ echo "$PR_URL"
 if [[ "$DO_MERGE" == "true" ]]; then
     # Older packaged gh (e.g. Wolfi apk) does not support --yes on pr merge; rely on
     # non-TTY / GH_PROMPT_DISABLED for unattended merges.
-    GH_PROMPT_DISABLED=1 gh pr merge "$PR_URL" "${MERGE_TYPE[@]}"
+    declare -a merge_admin=()
+    if [[ "${VERSION_BUMP_MERGE_ADMIN:-}" == "true" ]]; then
+        merge_admin+=(--admin)
+    fi
+    GH_PROMPT_DISABLED=1 gh pr merge "$PR_URL" "${MERGE_TYPE[@]}" "${merge_admin[@]}"
     echo "Merged: ${PR_URL}" >&2
 fi

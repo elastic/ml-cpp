@@ -15,7 +15,10 @@
 # open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
 # The bump step uses the GitHub CLI: gh pr create / gh pr merge (default squash) via
 # dev-tools/create_github_pull_request.sh, which runs dev-tools/ensure_github_cli.sh
-# to install gh on Wolfi (apk) or via a Linux release tarball if needed. Uses image
+# to install gh on Wolfi (apk) or via a Linux release tarball if needed.
+# If branch rules require reviews, set VERSION_BUMP_MERGE_ADMIN=true only when the
+# Vault GitHub token may bypass rules, or exempt the pipeline actor in repo rules,
+# or use VERSION_BUMP_NO_MERGE=true and merge manually. Uses image
 # docker.elastic.co/release-eng/wolfi-build-essential-release-eng (outbound network for
 # apk or tarball). Then poll staging/snapshot artifact JSON until NEW_VERSION appears.
 # The PR must be
