@@ -1,0 +1,5 @@
+pr: 2848
+summary: "Improve adherence to memory limits for the bucket gatherer"
+area: Machine Learning
+type: enhancement
+issues: []
