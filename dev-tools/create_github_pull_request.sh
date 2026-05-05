@@ -23,7 +23,8 @@
 # On success, prints the PR URL to stdout (single line). Merge progress to stderr.
 #
 # Environment:
-#   VERSION_BUMP_MERGE_METHOD — default merge style when --merge is used (merge|squash|rebase)
+#   VERSION_BUMP_MERGE_METHOD — merge style when --merge is used (merge|squash|rebase).
+#     Default squash — elastic/ml-cpp forbids merge commits on protected branches.
 #   SKIP_GH_AUTO_INSTALL, GH_CLI_VERSION, GH_CLI_INSTALL_PREFIX — see ensure_github_cli.sh
 
 set -euo pipefail
@@ -59,7 +60,7 @@ HEAD_REF=""
 TITLE=""
 BODY=""
 DO_MERGE="false"
-MERGE_METHOD="${VERSION_BUMP_MERGE_METHOD:-merge}"
+MERGE_METHOD="${VERSION_BUMP_MERGE_METHOD:-squash}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in

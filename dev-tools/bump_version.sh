@@ -28,7 +28,7 @@
 #   VERSION_BUMP_TOPIC_BRANCH — optional override for topic branch name
 #   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — auth for gh (CI sets Vault token)
 #   VERSION_BUMP_NO_MERGE — set to true to open PR only (no immediate gh pr merge)
-#   VERSION_BUMP_MERGE_METHOD — merge | squash | rebase (default: merge)
+#   VERSION_BUMP_MERGE_METHOD — merge | squash | rebase (default: squash)
 #   gh install (apk/tarball): dev-tools/ensure_github_cli.sh via create_github_pull_request.sh
 #
 # Follows the same pattern as the Elasticsearch repo's automated
@@ -160,7 +160,7 @@ Automated patch version bump for branch \`${target_branch}\`.
 | --- | --- |
 | **elasticsearchVersion** | \`${current_version}\` → \`${target_version}\` |
 
-Merged immediately by the version-bump pipeline via \`gh pr merge\` unless \`VERSION_BUMP_NO_MERGE=true\`.
+Squash-merged immediately by the version-bump pipeline via \`gh pr merge --squash\` unless \`VERSION_BUMP_NO_MERGE=true\` (override style with \`VERSION_BUMP_MERGE_METHOD\`).
 EOF
 )"
 

@@ -13,7 +13,7 @@
 #
 # Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
 # open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
-# The bump step uses the GitHub CLI: gh pr create / gh pr merge via
+# The bump step uses the GitHub CLI: gh pr create / gh pr merge (default squash) via
 # dev-tools/create_github_pull_request.sh, which runs dev-tools/ensure_github_cli.sh
 # to install gh on Wolfi (apk) or via a Linux release tarball if needed. Uses image
 # docker.elastic.co/release-eng/wolfi-build-essential-release-eng (outbound network for
