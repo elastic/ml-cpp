@@ -12,14 +12,20 @@
 # Automated patch version bump for the release-eng pipeline.
 #
 # Parameter checks run in dev-tools/validate_version_bump_params.sh before this
-# step. After git pull, we re-run the same patch rules against the branch tip so a
-# race (another bump / manual commit) cannot downgrade elasticsearchVersion.
+# step. After git fetch, we re-run the same patch rules against the branch tip so a
+# race (another bump / manual edits) cannot downgrade elasticsearchVersion.
 #
-# Updates elasticsearchVersion in gradle.properties to NEW_VERSION on BRANCH,
-# commits, and pushes. Does not modify .backportrc.json (reserved for future
-# release automation).
+# Creates a topic branch from origin/${BRANCH}, commits elasticsearchVersion in
+# gradle.properties, pushes the topic branch to origin, and opens a GitHub pull
+# request into ${BRANCH} (required by repository rulesets that disallow direct
+# pushes). Does not modify .backportrc.json (reserved for future release automation).
 #
-# Set DRY_RUN=true to perform all steps except git push.
+# Environment:
+#   NEW_VERSION, BRANCH — required
+#   DRY_RUN — true to skip push and PR creation
+#   BUILDKITE_BUILD_NUMBER — appended to topic branch name for uniqueness
+#   VERSION_BUMP_TOPIC_BRANCH — optional override for topic branch name
+#   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — for POST .../pulls (CI sets Vault token)
 #
 # Follows the same pattern as the Elasticsearch repo's automated
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
@@ -29,6 +35,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON="${PYTHON:-python3}"
 VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
+CREATE_PR_PY="${SCRIPT_DIR}/create_github_pull_request.py"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
@@ -37,17 +44,32 @@ DRY_RUN="${DRY_RUN:-false}"
 GRADLE_PROPS="gradle.properties"
 
 if [ "$DRY_RUN" = "true" ]; then
-    echo "=== DRY RUN MODE — will not push ==="
+    echo "=== DRY RUN MODE — will not push or create PR ==="
 fi
 
-git_push() {
-    local target_branch="$1"
-    if [ "$DRY_RUN" = "true" ]; then
-        echo "  [DRY RUN] Would push $target_branch"
-    else
-        git push origin "$target_branch"
-        echo "  Pushed $target_branch"
+# Parse elastic/ml-cpp from origin (https://github.com/elastic/ml-cpp.git or git@...)
+github_repo_slug() {
+    local url
+    url=$(git remote get-url origin 2>/dev/null || true)
+    if [[ "$url" =~ github\.com[:/]([^/]+)/([^/.]+)(\.git)?$ ]]; then
+        echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
+        return 0
     fi
+    echo "ERROR: could not parse owner/repo from git remote url: ${url:-empty}" >&2
+    return 1
+}
+
+topic_branch_name() {
+    local tb
+    if [[ -n "${VERSION_BUMP_TOPIC_BRANCH:-}" ]]; then
+        echo "${VERSION_BUMP_TOPIC_BRANCH}"
+        return 0
+    fi
+    tb="ci/ml-cpp-version-bump-${BRANCH}-${NEW_VERSION}"
+    if [[ -n "${BUILDKITE_BUILD_NUMBER:-}" ]]; then
+        tb="${tb}-bk${BUILDKITE_BUILD_NUMBER}"
+    fi
+    echo "$tb"
 }
 
 sed_inplace() {
@@ -63,68 +85,95 @@ configure_git() {
     git config user.email 'infra-root+elasticsearchmachine@elastic.co'
 }
 
-bump_version_on_branch() {
+bump_version_via_pr() {
     local target_branch="$1"
     local target_version="$2"
+    local topic_branch current_version repo_slug pr_url
 
-    git checkout "$target_branch"
-    git pull --ff-only origin "$target_branch"
+    topic_branch=$(topic_branch_name)
 
-    local current_version
-    # pipefail: grep exits 1 when there is no match — do not abort before the
-    # empty check below.
+    git fetch origin "$target_branch"
+
+    # Topic branch starts at release-branch tip (same tree validation uses).
+    git checkout -B "$topic_branch" "origin/${target_branch}"
+
     current_version=$(
         grep '^elasticsearchVersion=' "$GRADLE_PROPS" | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
     )
     if [[ -z "$current_version" ]]; then
-        echo "ERROR: could not read elasticsearchVersion from ${GRADLE_PROPS} on ${target_branch}" >&2
+        echo "ERROR: could not read elasticsearchVersion from ${GRADLE_PROPS} on origin/${target_branch}" >&2
         exit 1
     fi
 
-    # Revalidate against post-pull branch tip (race with other bumps / manual edits).
     if ! "$PYTHON" "$VALIDATION_PY" validate \
         --current "$current_version" \
         --new "$target_version" \
         --branch "$target_branch"
     then
-        echo "ERROR: version bump does not match branch tip after pull (current=${current_version}, target=${target_version})." >&2
+        echo "ERROR: version bump does not match branch tip after fetch (current=${current_version}, target=${target_version})." >&2
         echo "Refusing to rewrite elasticsearchVersion — resolve manually if another automation advanced the branch." >&2
         exit 1
     fi
 
     if [ "$current_version" = "$target_version" ]; then
-        echo "Version on $target_branch is already $target_version — nothing to do"
+        echo "Version on origin/${target_branch} is already ${target_version} — nothing to do"
         return 0
     fi
 
-    echo "Bumping version on $target_branch: $current_version → $target_version"
+    echo "Bumping version via PR branch ${topic_branch}: ${current_version} → ${target_version} (base ${target_branch})"
     sed_inplace "s/^elasticsearchVersion=.*/elasticsearchVersion=${target_version}/" "$GRADLE_PROPS"
 
     if ! grep -q "^elasticsearchVersion=${target_version}$" "$GRADLE_PROPS"; then
-        echo "ERROR: version update verification failed on $target_branch"
+        echo "ERROR: version update verification failed on ${topic_branch}"
         grep 'elasticsearchVersion' "$GRADLE_PROPS"
         exit 1
     fi
 
     if git diff-index --quiet HEAD --; then
-        echo "No changes to commit on $target_branch (file unchanged after sed)"
+        echo "No changes to commit (file unchanged after sed)"
         return 0
     fi
 
     configure_git
     git add "$GRADLE_PROPS"
     git commit -m "[ML] Bump version to ${target_version}"
-    git_push "$target_branch"
+
+    if [ "$DRY_RUN" = "true" ]; then
+        echo "  [DRY RUN] Would push origin ${topic_branch} and open PR into ${target_branch}"
+        return 0
+    fi
+
+    git push -u origin "$topic_branch"
+    echo "  Pushed topic branch ${topic_branch}"
+
+    repo_slug=$(github_repo_slug) || exit 1
+
+    pr_url=$(
+        "$PYTHON" "$CREATE_PR_PY" \
+            --repo "$repo_slug" \
+            --base "$target_branch" \
+            --head "$topic_branch" \
+            --title "[ML] Bump version to ${target_version}" \
+            --body "Automated patch version bump for branch \`${target_branch}\`.
+
+| | |
+| --- | --- |
+| **elasticsearchVersion** | \`${current_version}\` → \`${target_version}\` |
+
+Please review and merge."
+    )
+    echo "  Opened pull request: ${pr_url}"
 }
 
-echo "=== Patch version bump: $BRANCH → $NEW_VERSION ==="
-bump_version_on_branch "$BRANCH" "$NEW_VERSION"
+echo "=== Patch version bump (PR workflow): ${BRANCH} → ${NEW_VERSION} ==="
+bump_version_via_pr "$BRANCH" "$NEW_VERSION"
 
 if [ "$DRY_RUN" = "true" ]; then
     echo ""
     echo "=== DRY RUN SUMMARY ==="
-    echo "Branch:   $BRANCH"
-    echo "Version:  $NEW_VERSION"
+    echo "Branch:         $BRANCH"
+    echo "Version:        $NEW_VERSION"
+    echo "Topic branch:   $(topic_branch_name)"
     echo "Recent commits:"
     git log --oneline -3
 fi
