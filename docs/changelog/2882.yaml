@@ -1,5 +1,0 @@
-pr: 2882
-summary: "Bump PyTorch version to 2.7.1"
-area: Machine Learning
-type: upgrade
-issues: []

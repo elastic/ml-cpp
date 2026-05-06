@@ -1,6 +1,0 @@
-pr: 1234
-summary: Fix anomaly detection model state persistence for large jobs
-area: Machine Learning
-type: bug
-issues:
-  - 1230
