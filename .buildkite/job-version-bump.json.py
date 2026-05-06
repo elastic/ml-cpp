@@ -11,8 +11,8 @@
 # This script generates JSON for the ml-cpp version bump pipeline.
 # It is intended to be triggered by the centralized release-eng pipeline.
 #
-# Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
-# open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
+# Patch-only: validate NEW_VERSION/BRANCH, open a PR that bumps elasticsearchVersion
+# on BRANCH (see dev-tools/bump_version.sh).
 # The bump step uses the GitHub CLI: gh pr create then gh pr merge --auto --squash
 # (GitHub auto-merge when checks pass; same idea as backport workflow) via
 # dev-tools/create_github_pull_request.sh --merge-auto, unless Buildkite env
@@ -92,22 +92,9 @@ def main():
             ],
         },
         {
-            "label": "Verify git push credentials (dry-run)",
-            "key": "git-push-auth-probe",
-            "depends_on": "validate-version-bump",
-            "agents": {
-                "image": WOLFI_IMAGE,
-                "cpu": "250m",
-                "memory": "512Mi",
-            },
-            "command": [
-                "dev-tools/git_push_auth_probe.sh",
-            ],
-        },
-        {
             "label": "Queue a :slack: notification for the pipeline",
             "key": "queue-slack-notify",
-            "depends_on": "git-push-auth-probe",
+            "depends_on": "validate-version-bump",
             "command": ".buildkite/pipelines/send_slack_version_bump_notification.sh | buildkite-agent pipeline upload",
             "agents": {
                 "image": "python",
