@@ -8,81 +8,19 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates JSON for the ml-cpp version bump pipeline.
-# It is intended to be triggered by the centralized release-eng pipeline.
+# Phase 1 of the ml-cpp version bump pipeline (dynamic upload from release-eng).
 #
-# Patch-only: validate NEW_VERSION/BRANCH, open a PR that bumps elasticsearchVersion
-# on BRANCH (see dev-tools/bump_version.sh).
-# The bump step uses the GitHub CLI: gh pr create then gh pr merge --auto --squash
-# (GitHub auto-merge when checks pass; same idea as backport workflow) via
-# dev-tools/create_github_pull_request.sh --merge-auto, unless Buildkite env
-# VERSION_BUMP_MERGE_AUTO=false for immediate squash merge (legacy).
-# dev-tools/ensure_github_cli.sh installs gh on Wolfi (apk) or Linux tarball.
-# If branch rules block auto-merge, set VERSION_BUMP_MERGE_ADMIN=true only when the
-# Vault GitHub token may bypass rules, or exempt the pipeline actor in repo rules,
-# or use VERSION_BUMP_NO_MERGE=true and merge manually. Uses image
-# docker.elastic.co/release-eng/wolfi-build-essential-release-eng (outbound network for
-# apk or tarball). Then poll staging/snapshot artifact JSON until NEW_VERSION appears.
-# The PR must be
-# merged (and snapshot/staging builds finish, typically ~1h) while the watcher runs;
-# the step allows up to 240 minutes. When DRY_RUN=true the DRA wait step is skipped
-# (no change merged, so artifacts would never advance).
-# validate_version_bump_params.sh sets meta-data ml_cpp_version_bump_noop when
-# origin/BRANCH already equals NEW_VERSION — Slack, bump, and DRA steps are skipped
-# (bump_version.sh also sets ml_cpp_version_bump_changed when a PR is opened, for DRA).
-
+# Buildkite step `if` expressions cannot use build meta-data (see
+# https://buildkite.com/docs/pipelines/conditionals ). validate_version_bump_params.sh
+# sets ml_cpp_version_bump_noop when origin already matches NEW_VERSION; phase 2
+# (Slack, bump, DRA wait) is uploaded only when needed by
+# dev-tools/version_bump_upload_phase2.sh.
 
 import contextlib
 import json
-import os
 
 
 WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest"
-
-# Skip Slack + bump when validate detected no version change (already at NEW_VERSION).
-IF_NOT_NOOP = 'build.meta_data("ml_cpp_version_bump_noop") != "true"'
-STAGING_URL = "https://artifacts-staging.elastic.co/ml-cpp/latest"
-SNAPSHOT_URL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest"
-
-
-def json_watcher_plugin(url, expected_value):
-    return {
-        "elastic/json-watcher#v1.0.0": {
-            "url": url,
-            "field": ".version",
-            "expected_value": expected_value,
-            "polling_interval": "30",
-        }
-    }
-
-
-def dra_step(label, key, depends_on, plugins):
-    # Bump opens a PR; artifacts update after merge + builds. Watcher polls until match or timeout.
-    # Skip when DRY_RUN, validate no-op (no bump step), or bump did not open a PR.
-    return {
-        "label": label,
-        "key": key,
-        "depends_on": depends_on,
-        "if": (
-            f'{IF_NOT_NOOP} && build.env("DRY_RUN") != "true" && '
-            'build.meta_data("ml_cpp_version_bump_changed") == "true"'
-        ),
-        "agents": {
-            "image": WOLFI_IMAGE,
-            "cpu": "250m",
-            "memory": "512Mi",
-            "ephemeralStorage": "1Gi",
-        },
-        "command": [
-            'echo "Waiting for DRA artifacts..."',
-        ],
-        "timeout_in_minutes": 240,
-        "retry": {
-            "automatic": [{"exit_status": "*", "limit": 2}],
-            "manual": {"permit_on_passed": True},
-        },
-        "plugins": plugins,
-    }
 
 
 def main():
@@ -101,57 +39,19 @@ def main():
             ],
         },
         {
-            "label": "Queue a :slack: notification for the pipeline",
-            "key": "queue-slack-notify",
+            "label": "Schedule version bump follow-up steps",
+            "key": "schedule-version-bump-follow-up",
             "depends_on": "validate-version-bump",
-            "if": IF_NOT_NOOP,
-            "command": ".buildkite/pipelines/send_slack_version_bump_notification.sh | buildkite-agent pipeline upload",
             "agents": {
                 "image": "python",
             },
-        },
-        {
-            "label": "Bump version to ${NEW_VERSION}",
-            "key": "bump-version",
-            # Do not depend on queue-slack-notify: if that step were skipped, bump would
-            # be skipped too. Order: both run after validate (may run in parallel).
-            "depends_on": "validate-version-bump",
-            "if": IF_NOT_NOOP,
-            "agents": {
-                "image": WOLFI_IMAGE,
-                "cpu": "250m",
-                "memory": "512Mi",
-            },
-            "env": {
-                # Align with backport auto-merge (.github/workflows/backport.yml): no human merge click.
-                "VERSION_BUMP_MERGE_AUTO": os.environ.get("VERSION_BUMP_MERGE_AUTO", "true"),
-            },
             "command": [
-                "dev-tools/bump_version.sh",
+                "dev-tools/version_bump_upload_phase2.sh",
             ],
         },
-        dra_step(
-            label="Fetch DRA Artifacts",
-            key="fetch-dra-artifacts",
-            depends_on="bump-version",
-            plugins=[
-                json_watcher_plugin(
-                    f"{STAGING_URL}/${{BRANCH}}.json",
-                    "${NEW_VERSION}",
-                ),
-                json_watcher_plugin(
-                    f"{SNAPSHOT_URL}/${{BRANCH}}.json",
-                    "${NEW_VERSION}-SNAPSHOT",
-                ),
-            ],
-        ),
     ]
 
-    pipeline = {
-        "steps": pipeline_steps,
-    }
-
-    print(json.dumps(pipeline, indent=2))
+    print(json.dumps({"steps": pipeline_steps}, indent=2))
 
 
 if __name__ == "__main__":
