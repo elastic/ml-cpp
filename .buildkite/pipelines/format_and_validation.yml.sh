@@ -22,7 +22,8 @@ steps:
     key: "validate_changelogs"
     command: ".buildkite/scripts/steps/validate-changelogs.sh"
     agents:
-      image: "python:3.11-slim"
+      # bookworm (not slim): Buildkite agent environment hooks need curl + git before the step runs
+      image: "python:3.11-bookworm"
     soft_fail: true
     notify:
       - github_commit_status:
@@ -31,7 +32,7 @@ steps:
     key: "test_changelog_tools"
     command: ".buildkite/scripts/steps/test-changelog-tools.sh"
     agents:
-      image: "python:3.11-slim"
+      image: "python:3.11-bookworm"
     notify:
       - github_commit_status:
           context: "Unit tests: changelog Python tools"
