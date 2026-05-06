@@ -113,6 +113,14 @@ def test_phase2_order_bump_then_slack_then_dra() -> None:
     )
 
 
+def test_phase2_slack_step_uses_same_agent_image_as_bump() -> None:
+    """Slack step must run where buildkite-agent is available (see send_slack script)."""
+    pipeline = _run_phase2()
+    bump_img = _step_by_key(pipeline, "bump-version")["agents"]["image"]
+    slack_img = _step_by_key(pipeline, "queue-slack-notify")["agents"]["image"]
+    assert slack_img == bump_img
+
+
 def test_mutually_exclusive_merge_flags_script() -> None:
     """create_github_pull_request.sh rejects --merge and --merge-auto together."""
     script = _REPO_ROOT / "dev-tools" / "create_github_pull_request.sh"

@@ -46,7 +46,11 @@ def main():
                 ".buildkite/pipelines/send_slack_version_bump_notification.sh",
             ],
             "agents": {
-                "image": "python",
+                # Same image as bump-version: the minimal python image does not ship
+                # buildkite-agent, so meta-data get / pipeline upload silently skipped Slack.
+                "image": WOLFI_IMAGE,
+                "cpu": "250m",
+                "memory": "512Mi",
             },
         },
         {

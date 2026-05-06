@@ -19,15 +19,27 @@ set -euo pipefail
 
 CHANNEL="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build}"
 
-pr_url=""
-changed="false"
-if [[ "${BUILDKITE:-}" == "true" ]] && command -v buildkite-agent >/dev/null 2>&1; then
-    pr_url=$(buildkite-agent meta-data get "ml_cpp_version_bump_pr_url" 2>/dev/null || true)
-    changed=$(buildkite-agent meta-data get "ml_cpp_version_bump_changed" 2>/dev/null || echo "false")
+if [[ "${BUILDKITE:-}" != "true" ]]; then
+    echo "BUILDKITE is not true — skipping Slack notification (local run)."
+    exit 0
 fi
 
+if ! command -v buildkite-agent >/dev/null 2>&1; then
+    echo "ERROR: buildkite-agent not in PATH; cannot read meta-data or upload Slack notify pipeline." >&2
+    echo "Use the same agent image as bump-version (Wolfi), not a minimal python image." >&2
+    exit 1
+fi
+
+pr_url=""
+changed="false"
+pr_url=$(buildkite-agent meta-data get "ml_cpp_version_bump_pr_url" 2>/dev/null || true)
+changed=$(buildkite-agent meta-data get "ml_cpp_version_bump_changed" 2>/dev/null || echo "false")
+# Meta-data values must not contain stray whitespace (Breaks truthiness.)
+pr_url=$(echo -n "${pr_url}" | tr -d '\r')
+changed=$(echo -n "${changed}" | tr -d '\r')
+
 if [[ -z "${pr_url}" && "${changed}" != "true" ]]; then
-    echo "No version-bump PR opened; skipping Slack notification."
+    echo "No version-bump PR opened (pr_url empty, ml_cpp_version_bump_changed=${changed}); skipping Slack notification."
     exit 0
 fi
 
@@ -35,11 +47,6 @@ if [[ -z "${pr_url}" && "${changed}" == "true" ]]; then
     body_line="DRY RUN — no pull request URL (simulated bump)."
 else
     body_line="Pull request (approval required): ${pr_url}"
-fi
-
-if ! command -v buildkite-agent >/dev/null 2>&1; then
-    echo "WARNING: buildkite-agent not found; skipping Slack pipeline upload." >&2
-    exit 0
 fi
 
 (
