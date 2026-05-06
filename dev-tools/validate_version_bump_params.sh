@@ -20,8 +20,23 @@
 #              exactly "patch" (this pipeline does not support minor bumps).
 #   SKIP_VERSION_VALIDATION — set to "true" to skip (emergency override only)
 #   PYTHON — interpreter (default: python3)
+#
+# Buildkite (BUILDKITE=true): sets meta-data ml_cpp_version_bump_noop to true when
+# origin/BRANCH already has NEW_VERSION, so downstream Slack/bump steps are skipped.
 
 set -euo pipefail
+
+version_bump_set_noop_meta() {
+    local noop="$1"
+    if [[ "${BUILDKITE:-}" != "true" ]]; then
+        return 0
+    fi
+    if ! command -v buildkite-agent >/dev/null 2>&1; then
+        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ml_cpp_version_bump_noop=${noop}" >&2
+        return 0
+    fi
+    buildkite-agent meta-data set "ml_cpp_version_bump_noop" "$noop"
+}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON="${PYTHON:-python3}"
@@ -31,6 +46,7 @@ SKIP_VERSION_VALIDATION="${SKIP_VERSION_VALIDATION:-false}"
 
 if [[ "$SKIP_VERSION_VALIDATION" == "true" ]]; then
     echo "WARNING: SKIP_VERSION_VALIDATION=true — version increment checks skipped." >&2
+    version_bump_set_noop_meta false
     exit 0
 fi
 
@@ -73,7 +89,19 @@ fi
 
 echo "Current version on origin/${BRANCH}: ${CURRENT_VERSION}"
 
-exec "$PYTHON" "$VALIDATION_PY" validate-and-report \
+if ! "$PYTHON" "$VALIDATION_PY" validate-and-report \
     --current "$CURRENT_VERSION" \
     --new "$NEW_VERSION" \
     --branch "$BRANCH"
+then
+    exit 1
+fi
+
+# Match Python strip() semantics for equality (no-op → skip later pipeline steps).
+cur_trim=$(echo "$CURRENT_VERSION" | tr -d '[:space:]')
+new_trim=$(echo "$NEW_VERSION" | tr -d '[:space:]')
+if [[ "$cur_trim" == "$new_trim" ]]; then
+    version_bump_set_noop_meta true
+else
+    version_bump_set_noop_meta false
+fi

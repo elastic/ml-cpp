@@ -26,10 +26,10 @@
 # The PR must be
 # merged (and snapshot/staging builds finish, typically ~1h) while the watcher runs;
 # the step allows up to 240 minutes. When DRY_RUN=true the DRA wait step is skipped
-# (no change merged, so artifacts would never advance). When bump_version.sh does not
-# open a PR (branch already at NEW_VERSION), it sets meta-data ml_cpp_version_bump_changed=false
-# and the DRA step is skipped so the pipeline does not wait 240 minutes for artifacts
-# that will not advance.
+# (no change merged, so artifacts would never advance).
+# validate_version_bump_params.sh sets meta-data ml_cpp_version_bump_noop when
+# origin/BRANCH already equals NEW_VERSION — Slack, bump, and DRA steps are skipped
+# (bump_version.sh also sets ml_cpp_version_bump_changed when a PR is opened, for DRA).
 
 
 import contextlib
@@ -38,6 +38,9 @@ import os
 
 
 WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest"
+
+# Skip Slack + bump when validate detected no version change (already at NEW_VERSION).
+IF_NOT_NOOP = 'build.meta_data("ml_cpp_version_bump_noop") != "true"'
 STAGING_URL = "https://artifacts-staging.elastic.co/ml-cpp/latest"
 SNAPSHOT_URL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest"
 
@@ -55,13 +58,13 @@ def json_watcher_plugin(url, expected_value):
 
 def dra_step(label, key, depends_on, plugins):
     # Bump opens a PR; artifacts update after merge + builds. Watcher polls until match or timeout.
-    # Skip when DRY_RUN=true (no PR pushed) or when bump_version.sh did not open a PR (no-op bump).
+    # Skip when DRY_RUN, validate no-op (no bump step), or bump did not open a PR.
     return {
         "label": label,
         "key": key,
         "depends_on": depends_on,
         "if": (
-            'build.env("DRY_RUN") != "true" && '
+            f'{IF_NOT_NOOP} && build.env("DRY_RUN") != "true" && '
             'build.meta_data("ml_cpp_version_bump_changed") == "true"'
         ),
         "agents": {
@@ -101,6 +104,7 @@ def main():
             "label": "Queue a :slack: notification for the pipeline",
             "key": "queue-slack-notify",
             "depends_on": "validate-version-bump",
+            "if": IF_NOT_NOOP,
             "command": ".buildkite/pipelines/send_slack_version_bump_notification.sh | buildkite-agent pipeline upload",
             "agents": {
                 "image": "python",
@@ -109,7 +113,10 @@ def main():
         {
             "label": "Bump version to ${NEW_VERSION}",
             "key": "bump-version",
-            "depends_on": "queue-slack-notify",
+            # Do not depend on queue-slack-notify: if that step were skipped, bump would
+            # be skipped too. Order: both run after validate (may run in parallel).
+            "depends_on": "validate-version-bump",
+            "if": IF_NOT_NOOP,
             "agents": {
                 "image": WOLFI_IMAGE,
                 "cpu": "250m",

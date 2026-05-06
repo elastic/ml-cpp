@@ -48,6 +48,10 @@ def _dra_step(pipeline: dict) -> dict:
     return next(s for s in steps if s.get("key") == "fetch-dra-artifacts")
 
 
+def _slack_step(pipeline: dict) -> dict:
+    return next(s for s in pipeline["steps"] if s.get("key") == "queue-slack-notify")
+
+
 def test_bump_step_defaults_merge_auto_true() -> None:
     pipeline = _run_pipeline_generator()
     assert _bump_step(pipeline)["env"]["VERSION_BUMP_MERGE_AUTO"] == "true"
@@ -61,8 +65,17 @@ def test_bump_step_respects_merge_auto_override_false() -> None:
 def test_dra_step_requires_bump_meta_and_not_dry_run() -> None:
     pipeline = _run_pipeline_generator()
     cond = _dra_step(pipeline)["if"]
+    assert 'build.meta_data("ml_cpp_version_bump_noop") != "true"' in cond
     assert 'build.env("DRY_RUN") != "true"' in cond
     assert 'build.meta_data("ml_cpp_version_bump_changed") == "true"' in cond
+
+
+def test_slack_and_bump_skip_when_validate_noop_meta() -> None:
+    pipeline = _run_pipeline_generator()
+    want = 'build.meta_data("ml_cpp_version_bump_noop") != "true"'
+    assert _slack_step(pipeline)["if"] == want
+    assert _bump_step(pipeline)["if"] == want
+    assert _bump_step(pipeline)["depends_on"] == "validate-version-bump"
 
 
 def test_mutually_exclusive_merge_flags_script() -> None:
