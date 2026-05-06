@@ -12,6 +12,10 @@
 # bump step opens the PR. Reads ml_cpp_version_bump_pr_url from Buildkite meta-data
 # (set by dev-tools/bump_version.sh) and posts the PR link so reviewers can approve.
 #
+# Slack notify must live on the step (see Buildkite docs): build-level notify fires only
+# on build.finished — after every downstream step including long DRA waits — so the
+# message would appear hours late or never if someone checks earlier.
+#
 # Optional env:
 #   ML_CPP_VERSION_BUMP_SLACK_CHANNEL — override channel (default #machine-learn-build)
 
@@ -54,21 +58,20 @@ fi
 steps:
   - label: "Schedule :slack: notification (version bump)"
     command: "echo schedule :slack: notification"
-notify:
-  - slack:
-      channels:
-        - "${CHANNEL}"
-      message: |
-        **Version bump PR — approval required**
-        ${body_line}
-        Branch: \${BUILDKITE_BRANCH}
-        NEW_VERSION: \${NEW_VERSION:-"(unset)"}
-        BRANCH (param): \${BRANCH:-"(unset)"}
-        VERSION_BUMP_MERGE_AUTO: \${VERSION_BUMP_MERGE_AUTO:-"(unset)"}
-        DRY_RUN: \${DRY_RUN:-"(unset)"}
-        Pipeline: \${BUILDKITE_BUILD_URL}
-        Build: \${BUILDKITE_BUILD_NUMBER}
-        Please review and approve this pull request so it can merge (subject to branch protection).
-    if: build.pull_request.id == null
+    notify:
+      - slack:
+          channels:
+            - "${CHANNEL}"
+          message: |
+            **Version bump PR — approval required**
+            ${body_line}
+            Branch: \${BUILDKITE_BRANCH}
+            NEW_VERSION: \${NEW_VERSION:-"(unset)"}
+            BRANCH (param): \${BRANCH:-"(unset)"}
+            VERSION_BUMP_MERGE_AUTO: \${VERSION_BUMP_MERGE_AUTO:-"(unset)"}
+            DRY_RUN: \${DRY_RUN:-"(unset)"}
+            Pipeline: \${BUILDKITE_BUILD_URL}
+            Build: \${BUILDKITE_BUILD_NUMBER}
+            Please review and approve this pull request so it can merge (subject to branch protection).
 EOF
 ) | buildkite-agent pipeline upload
