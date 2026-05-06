@@ -13,10 +13,12 @@
 #
 # Patch-only: validate NEW_VERSION/BRANCH, verify git push credentials (dry-run),
 # open a PR that bumps elasticsearchVersion on BRANCH (see dev-tools/bump_version.sh).
-# The bump step uses the GitHub CLI: gh pr create / gh pr merge (default squash) via
-# dev-tools/create_github_pull_request.sh, which runs dev-tools/ensure_github_cli.sh
-# to install gh on Wolfi (apk) or via a Linux release tarball if needed.
-# If branch rules require reviews, set VERSION_BUMP_MERGE_ADMIN=true only when the
+# The bump step uses the GitHub CLI: gh pr create then gh pr merge --auto --squash
+# (GitHub auto-merge when checks pass; same idea as backport workflow) via
+# dev-tools/create_github_pull_request.sh --merge-auto, unless Buildkite env
+# VERSION_BUMP_MERGE_AUTO=false for immediate squash merge (legacy).
+# dev-tools/ensure_github_cli.sh installs gh on Wolfi (apk) or Linux tarball.
+# If branch rules block auto-merge, set VERSION_BUMP_MERGE_ADMIN=true only when the
 # Vault GitHub token may bypass rules, or exempt the pipeline actor in repo rules,
 # or use VERSION_BUMP_NO_MERGE=true and merge manually. Uses image
 # docker.elastic.co/release-eng/wolfi-build-essential-release-eng (outbound network for
@@ -119,6 +121,10 @@ def main():
                 "image": WOLFI_IMAGE,
                 "cpu": "250m",
                 "memory": "512Mi",
+            },
+            "env": {
+                # Align with backport auto-merge (.github/workflows/backport.yml): no human merge click.
+                "VERSION_BUMP_MERGE_AUTO": os.environ.get("VERSION_BUMP_MERGE_AUTO", "true"),
             },
             "command": [
                 "dev-tools/bump_version.sh",
