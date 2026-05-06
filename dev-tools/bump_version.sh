@@ -37,7 +37,8 @@
 #
 # Buildkite (BUILDKITE=true): sets meta-data:
 #   ml_cpp_version_bump_changed — true|false so the DRA wait step can skip when no PR was opened
-#   ml_cpp_version_bump_pr_url — HTTPS URL of the opened PR (empty if none / dry-run)
+#   ml_cpp_version_bump_pr_url — HTTPS URL of the opened PR (only set when non-empty;
+#     Buildkite forbids empty meta-data values)
 #
 # Follows the same pattern as the Elasticsearch repo's automated
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
@@ -110,9 +111,13 @@ version_bump_set_buildkite_meta_changed() {
     buildkite-agent meta-data set "ml_cpp_version_bump_changed" "$changed"
 }
 
-# PR URL for the Slack step (after bump). Empty when no PR was created.
+# PR URL for the Slack step (after bump). Omit calling when there is no URL — Buildkite
+# rejects meta-data set with an empty value ("value cannot be empty…").
 version_bump_set_pr_url_meta() {
     local url="${1:-}"
+    if [[ -z "${url}" ]]; then
+        return 0
+    fi
     if [[ "${BUILDKITE:-}" != "true" ]]; then
         return 0
     fi
@@ -130,7 +135,6 @@ bump_version_via_pr() {
 
     # Default: no DRA wait unless we open a PR (or DRY_RUN simulates one).
     version_bump_set_buildkite_meta_changed false
-    version_bump_set_pr_url_meta ""
 
     topic_branch=$(topic_branch_name)
 
@@ -159,7 +163,6 @@ bump_version_via_pr() {
 
     if [ "$current_version" = "$target_version" ]; then
         echo "Version on origin/${target_branch} is already ${target_version} — nothing to do"
-        version_bump_set_pr_url_meta ""
         return 0
     fi
 
@@ -174,7 +177,6 @@ bump_version_via_pr() {
 
     if git diff-index --quiet HEAD --; then
         echo "No changes to commit (file unchanged after sed)"
-        version_bump_set_pr_url_meta ""
         return 0
     fi
 
@@ -185,7 +187,6 @@ bump_version_via_pr() {
     if [ "$DRY_RUN" = "true" ]; then
         echo "  [DRY RUN] Would push origin ${topic_branch} and open PR into ${target_branch}"
         version_bump_set_buildkite_meta_changed true
-        version_bump_set_pr_url_meta ""
         return 0
     fi
 
