@@ -18,13 +18,20 @@
 #
 # Usage:
 #   create_github_pull_request.sh --repo ORG/REPO --base BASE --head HEAD \
-#       --title T --body B [--merge] [--merge-method merge|squash|rebase]
+#       --title T --body B [--merge | --merge-auto] [--merge-method merge|squash|rebase]
 #
 # On success, prints the PR URL to stdout (single line). Merge progress to stderr.
 #
+#   --merge       Squash/merge/rebase immediately after create (subject to branch rules).
+#   --merge-auto  Enable GitHub auto-merge with the chosen merge method (same pattern as
+#                 backport workflow: gh pr merge --auto --squash). Merge occurs when
+#                 required checks pass; no human click needed if policies allow the bot.
+#
 # Environment:
-#   VERSION_BUMP_MERGE_METHOD — merge style when --merge is used (merge|squash|rebase).
+#   VERSION_BUMP_MERGE_METHOD — merge style for --merge / --merge-auto (merge|squash|rebase).
 #     Default squash — elastic/ml-cpp forbids merge commits on protected branches.
+#   VERSION_BUMP_MERGE_ADMIN — set to true to add gh pr merge --admin (bypasses some rule
+#     violations only if the token identity has appropriate admin/bypass rights on the repo).
 #   SKIP_GH_AUTO_INSTALL, GH_CLI_VERSION, GH_CLI_INSTALL_PREFIX — see ensure_github_cli.sh
 
 set -euo pipefail
@@ -40,26 +47,13 @@ if ! command -v gh >/dev/null 2>&1; then
     exit 1
 fi
 
-# gh honors GH_TOKEN; map Vault/standard env the same as other automation
-if [[ -z "${GH_TOKEN:-}" ]]; then
-    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-        export GH_TOKEN="${GITHUB_TOKEN}"
-    elif [[ -n "${VAULT_GITHUB_TOKEN:-}" ]]; then
-        export GH_TOKEN="${VAULT_GITHUB_TOKEN}"
-    fi
-fi
-
-if [[ -z "${GH_TOKEN:-}" ]]; then
-    echo "ERROR: Set GITHUB_TOKEN, VAULT_GITHUB_TOKEN, or GH_TOKEN for gh auth." >&2
-    exit 1
-fi
-
 REPO=""
 BASE=""
 HEAD_REF=""
 TITLE=""
 BODY=""
 DO_MERGE="false"
+DO_MERGE_AUTO="false"
 MERGE_METHOD="${VERSION_BUMP_MERGE_METHOD:-squash}"
 
 while [[ $# -gt 0 ]]; do
@@ -88,6 +82,10 @@ while [[ $# -gt 0 ]]; do
             DO_MERGE="true"
             shift 1
             ;;
+        --merge-auto)
+            DO_MERGE_AUTO="true"
+            shift 1
+            ;;
         --merge-method)
             MERGE_METHOD="$2"
             shift 2
@@ -98,6 +96,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [[ "$DO_MERGE" == "true" && "$DO_MERGE_AUTO" == "true" ]]; then
+    echo "ERROR: use only one of --merge or --merge-auto." >&2
+    exit 1
+fi
 
 if [[ -z "$REPO" || -z "$BASE" || -z "$HEAD_REF" || -z "$TITLE" ]]; then
     echo "ERROR: --repo, --base, --head, and --title are required." >&2
@@ -114,6 +117,20 @@ case "$MERGE_METHOD" in
         ;;
 esac
 
+# gh honors GH_TOKEN; validate after CLI args so invalid flag combinations fail without secrets.
+if [[ -z "${GH_TOKEN:-}" ]]; then
+    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+        export GH_TOKEN="${GITHUB_TOKEN}"
+    elif [[ -n "${VAULT_GITHUB_TOKEN:-}" ]]; then
+        export GH_TOKEN="${VAULT_GITHUB_TOKEN}"
+    fi
+fi
+
+if [[ -z "${GH_TOKEN:-}" ]]; then
+    echo "ERROR: Set GITHUB_TOKEN, VAULT_GITHUB_TOKEN, or GH_TOKEN for gh auth." >&2
+    exit 1
+fi
+
 PR_URL=$(gh pr create \
     --repo "$REPO" \
     --base "$BASE" \
@@ -123,9 +140,18 @@ PR_URL=$(gh pr create \
 
 echo "$PR_URL"
 
-if [[ "$DO_MERGE" == "true" ]]; then
+if [[ "$DO_MERGE" == "true" || "$DO_MERGE_AUTO" == "true" ]]; then
     # Older packaged gh (e.g. Wolfi apk) does not support --yes on pr merge; rely on
     # non-TTY / GH_PROMPT_DISABLED for unattended merges.
-    GH_PROMPT_DISABLED=1 gh pr merge "$PR_URL" "${MERGE_TYPE[@]}"
-    echo "Merged: ${PR_URL}" >&2
+    declare -a merge_admin=()
+    if [[ "${VERSION_BUMP_MERGE_ADMIN:-}" == "true" ]]; then
+        merge_admin+=(--admin)
+    fi
+    if [[ "$DO_MERGE_AUTO" == "true" ]]; then
+        GH_PROMPT_DISABLED=1 gh pr merge "$PR_URL" --auto "${MERGE_TYPE[@]}" "${merge_admin[@]}"
+        echo "Enabled auto-merge: ${PR_URL}" >&2
+    else
+        GH_PROMPT_DISABLED=1 gh pr merge "$PR_URL" "${MERGE_TYPE[@]}" "${merge_admin[@]}"
+        echo "Merged: ${PR_URL}" >&2
+    fi
 fi

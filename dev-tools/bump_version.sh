@@ -18,7 +18,9 @@
 # Creates a topic branch from origin/${BRANCH}, commits elasticsearchVersion in
 # gradle.properties, pushes the topic branch to origin, and opens a GitHub pull
 # request into ${BRANCH} via gh pr create (rulesets often disallow direct pushes).
-# Optionally merges immediately with gh pr merge (unless VERSION_BUMP_NO_MERGE=true).
+# Optionally merges after PR creation unless VERSION_BUMP_NO_MERGE=true:
+#   VERSION_BUMP_MERGE_AUTO=true — gh pr merge --auto --squash (merge when checks pass; default for CI pipeline)
+#   else — immediate gh pr merge --squash (legacy / escape hatch)
 # Does not modify .backportrc.json (reserved for future release automation).
 #
 # Environment:
@@ -27,8 +29,10 @@
 #   BUILDKITE_BUILD_NUMBER — appended to topic branch name for uniqueness
 #   VERSION_BUMP_TOPIC_BRANCH — optional override for topic branch name
 #   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — auth for gh (CI sets Vault token)
-#   VERSION_BUMP_NO_MERGE — set to true to open PR only (no immediate gh pr merge)
+#   VERSION_BUMP_NO_MERGE — set to true to open PR only (no merge / auto-merge step)
+#   VERSION_BUMP_MERGE_AUTO — true: enable GitHub auto-merge (--auto --squash); false/unset with merge: immediate squash
 #   VERSION_BUMP_MERGE_METHOD — merge | squash | rebase (default: squash)
+#   VERSION_BUMP_MERGE_ADMIN — true to pass gh pr merge --admin (needs repo bypass rights)
 #   gh install (apk/tarball): dev-tools/ensure_github_cli.sh via create_github_pull_request.sh
 #
 # Follows the same pattern as the Elasticsearch repo's automated
@@ -160,7 +164,7 @@ Automated patch version bump for branch \`${target_branch}\`.
 | --- | --- |
 | **elasticsearchVersion** | \`${current_version}\` → \`${target_version}\` |
 
-Squash-merged immediately by the version-bump pipeline via \`gh pr merge --squash\` unless \`VERSION_BUMP_NO_MERGE=true\` (override style with \`VERSION_BUMP_MERGE_METHOD\`).
+When merging is enabled (\`VERSION_BUMP_NO_MERGE\` not true): **auto-merge** (\`gh pr merge --auto --squash\`) if \`VERSION_BUMP_MERGE_AUTO=true\`, otherwise **immediate squash** (\`gh pr merge --squash\`). Override merge style with \`VERSION_BUMP_MERGE_METHOD\`.
 EOF
 )"
 
@@ -173,7 +177,11 @@ EOF
         --body "$pr_body"
     )
     if [[ "${VERSION_BUMP_NO_MERGE:-}" != "true" ]]; then
-        pr_cmd+=(--merge)
+        if [[ "${VERSION_BUMP_MERGE_AUTO:-}" == "true" ]]; then
+            pr_cmd+=(--merge-auto)
+        else
+            pr_cmd+=(--merge)
+        fi
     fi
     if [[ -n "${VERSION_BUMP_MERGE_METHOD:-}" ]]; then
         pr_cmd+=(--merge-method "${VERSION_BUMP_MERGE_METHOD}")
