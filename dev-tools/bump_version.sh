@@ -35,6 +35,9 @@
 #   VERSION_BUMP_MERGE_ADMIN — true to pass gh pr merge --admin (needs repo bypass rights)
 #   gh install (apk/tarball): dev-tools/ensure_github_cli.sh via create_github_pull_request.sh
 #
+# Buildkite (BUILDKITE=true): sets meta-data ml_cpp_version_bump_changed to true|false so
+# the DRA wait step can skip when origin already has NEW_VERSION (no PR opened).
+#
 # Follows the same pattern as the Elasticsearch repo's automated
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
 
@@ -93,10 +96,26 @@ configure_git() {
     git config user.email 'infra-root+elasticsearchmachine@elastic.co'
 }
 
+# Record whether this run actually opened a version-bump PR (for Buildkite DRA wait gating).
+version_bump_set_buildkite_meta_changed() {
+    local changed="$1"
+    if [[ "${BUILDKITE:-}" != "true" ]]; then
+        return 0
+    fi
+    if ! command -v buildkite-agent >/dev/null 2>&1; then
+        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ml_cpp_version_bump_changed=${changed}" >&2
+        return 0
+    fi
+    buildkite-agent meta-data set "ml_cpp_version_bump_changed" "$changed"
+}
+
 bump_version_via_pr() {
     local target_branch="$1"
     local target_version="$2"
     local topic_branch current_version repo_slug pr_url
+
+    # Default: no DRA wait unless we open a PR (or DRY_RUN simulates one).
+    version_bump_set_buildkite_meta_changed false
 
     topic_branch=$(topic_branch_name)
 
@@ -148,6 +167,7 @@ bump_version_via_pr() {
 
     if [ "$DRY_RUN" = "true" ]; then
         echo "  [DRY RUN] Would push origin ${topic_branch} and open PR into ${target_branch}"
+        version_bump_set_buildkite_meta_changed true
         return 0
     fi
 
@@ -189,6 +209,7 @@ EOF
 
     pr_url=$("${pr_cmd[@]}")
     echo "  Pull request: ${pr_url}"
+    version_bump_set_buildkite_meta_changed true
 }
 
 echo "=== Patch version bump (PR workflow): ${BRANCH} → ${NEW_VERSION} ==="

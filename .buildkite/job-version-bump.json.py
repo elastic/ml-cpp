@@ -26,7 +26,10 @@
 # The PR must be
 # merged (and snapshot/staging builds finish, typically ~1h) while the watcher runs;
 # the step allows up to 240 minutes. When DRY_RUN=true the DRA wait step is skipped
-# (no change merged, so artifacts would never advance).
+# (no change merged, so artifacts would never advance). When bump_version.sh does not
+# open a PR (branch already at NEW_VERSION), it sets meta-data ml_cpp_version_bump_changed=false
+# and the DRA step is skipped so the pipeline does not wait 240 minutes for artifacts
+# that will not advance.
 
 
 import contextlib
@@ -52,12 +55,15 @@ def json_watcher_plugin(url, expected_value):
 
 def dra_step(label, key, depends_on, plugins):
     # Bump opens a PR; artifacts update after merge + builds. Watcher polls until match or timeout.
-    # Skip when DRY_RUN=true (no PR pushed).
+    # Skip when DRY_RUN=true (no PR pushed) or when bump_version.sh did not open a PR (no-op bump).
     return {
         "label": label,
         "key": key,
         "depends_on": depends_on,
-        "if": 'build.env("DRY_RUN") != "true"',
+        "if": (
+            'build.env("DRY_RUN") != "true" && '
+            'build.meta_data("ml_cpp_version_bump_changed") == "true"'
+        ),
         "agents": {
             "image": WOLFI_IMAGE,
             "cpu": "250m",
