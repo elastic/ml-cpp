@@ -35,8 +35,9 @@
 #   VERSION_BUMP_MERGE_ADMIN — true to pass gh pr merge --admin (needs repo bypass rights)
 #   gh install (apk/tarball): dev-tools/ensure_github_cli.sh via create_github_pull_request.sh
 #
-# Buildkite (BUILDKITE=true): sets meta-data ml_cpp_version_bump_changed to true|false so
-# the DRA wait step can skip when origin already has NEW_VERSION (no PR opened).
+# Buildkite (BUILDKITE=true): sets meta-data:
+#   ml_cpp_version_bump_changed — true|false so the DRA wait step can skip when no PR was opened
+#   ml_cpp_version_bump_pr_url — HTTPS URL of the opened PR (empty if none / dry-run)
 #
 # Follows the same pattern as the Elasticsearch repo's automated
 # Lucene snapshot updates (.buildkite/scripts/lucene-snapshot/).
@@ -109,6 +110,19 @@ version_bump_set_buildkite_meta_changed() {
     buildkite-agent meta-data set "ml_cpp_version_bump_changed" "$changed"
 }
 
+# PR URL for the Slack step (after bump). Empty when no PR was created.
+version_bump_set_pr_url_meta() {
+    local url="${1:-}"
+    if [[ "${BUILDKITE:-}" != "true" ]]; then
+        return 0
+    fi
+    if ! command -v buildkite-agent >/dev/null 2>&1; then
+        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ml_cpp_version_bump_pr_url" >&2
+        return 0
+    fi
+    buildkite-agent meta-data set "ml_cpp_version_bump_pr_url" "$url"
+}
+
 bump_version_via_pr() {
     local target_branch="$1"
     local target_version="$2"
@@ -116,6 +130,7 @@ bump_version_via_pr() {
 
     # Default: no DRA wait unless we open a PR (or DRY_RUN simulates one).
     version_bump_set_buildkite_meta_changed false
+    version_bump_set_pr_url_meta ""
 
     topic_branch=$(topic_branch_name)
 
@@ -144,6 +159,7 @@ bump_version_via_pr() {
 
     if [ "$current_version" = "$target_version" ]; then
         echo "Version on origin/${target_branch} is already ${target_version} — nothing to do"
+        version_bump_set_pr_url_meta ""
         return 0
     fi
 
@@ -158,6 +174,7 @@ bump_version_via_pr() {
 
     if git diff-index --quiet HEAD --; then
         echo "No changes to commit (file unchanged after sed)"
+        version_bump_set_pr_url_meta ""
         return 0
     fi
 
@@ -168,6 +185,7 @@ bump_version_via_pr() {
     if [ "$DRY_RUN" = "true" ]; then
         echo "  [DRY RUN] Would push origin ${topic_branch} and open PR into ${target_branch}"
         version_bump_set_buildkite_meta_changed true
+        version_bump_set_pr_url_meta ""
         return 0
     fi
 
@@ -210,6 +228,7 @@ EOF
     pr_url=$("${pr_cmd[@]}")
     echo "  Pull request: ${pr_url}"
     version_bump_set_buildkite_meta_changed true
+    version_bump_set_pr_url_meta "$pr_url"
 }
 
 echo "=== Patch version bump (PR workflow): ${BRANCH} → ${NEW_VERSION} ==="

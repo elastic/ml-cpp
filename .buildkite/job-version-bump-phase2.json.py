@@ -23,18 +23,9 @@ WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:l
 def main():
     pipeline_steps = [
         {
-            "label": "Queue a :slack: notification for the pipeline",
-            "key": "queue-slack-notify",
-            "depends_on": "schedule-version-bump-follow-up",
-            "command": ".buildkite/pipelines/send_slack_version_bump_notification.sh | buildkite-agent pipeline upload",
-            "agents": {
-                "image": "python",
-            },
-        },
-        {
             "label": "Bump version to ${NEW_VERSION}",
             "key": "bump-version",
-            "depends_on": "queue-slack-notify",
+            "depends_on": "schedule-version-bump-follow-up",
             "agents": {
                 "image": WOLFI_IMAGE,
                 "cpu": "250m",
@@ -48,9 +39,20 @@ def main():
             ],
         },
         {
+            "label": "Notify :slack: — version bump PR needs approval",
+            "key": "queue-slack-notify",
+            "depends_on": "bump-version",
+            "command": [
+                ".buildkite/pipelines/send_slack_version_bump_notification.sh",
+            ],
+            "agents": {
+                "image": "python",
+            },
+        },
+        {
             "label": "Fetch DRA Artifacts",
             "key": "fetch-dra-artifacts",
-            "depends_on": "bump-version",
+            "depends_on": "queue-slack-notify",
             "agents": {
                 "image": WOLFI_IMAGE,
                 "cpu": "250m",

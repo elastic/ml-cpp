@@ -98,16 +98,19 @@ def test_phase2_dra_uses_wait_script_not_meta_in_if() -> None:
     assert dra["command"] == ["python3", "dev-tools/wait_version_bump_dra.py"]
 
 
-def test_phase2_slack_depends_on_schedule_key() -> None:
+def test_phase2_order_bump_then_slack_then_dra() -> None:
     pipeline = _run_phase2()
-    slack = _step_by_key(pipeline, "queue-slack-notify")
-    assert slack["depends_on"] == "schedule-version-bump-follow-up"
-
-
-def test_phase2_bump_depends_on_slack() -> None:
-    pipeline = _run_phase2()
-    bump = _step_by_key(pipeline, "bump-version")
-    assert bump["depends_on"] == "queue-slack-notify"
+    assert (
+        _step_by_key(pipeline, "bump-version")["depends_on"]
+        == "schedule-version-bump-follow-up"
+    )
+    assert _step_by_key(pipeline, "queue-slack-notify")["depends_on"] == "bump-version"
+    slack_cmd = _step_by_key(pipeline, "queue-slack-notify")["command"]
+    assert slack_cmd == [".buildkite/pipelines/send_slack_version_bump_notification.sh"]
+    assert (
+        _step_by_key(pipeline, "fetch-dra-artifacts")["depends_on"]
+        == "queue-slack-notify"
+    )
 
 
 def test_mutually_exclusive_merge_flags_script() -> None:
