@@ -23,7 +23,6 @@ notify:
         :large_green_circle: Version bump pipeline waiting for approval
         Branch: \${BUILDKITE_BRANCH}
         New version: \${NEW_VERSION}
-        Workflow: \${WORKFLOW}
         Pipeline: \${BUILDKITE_BUILD_URL}
     if: build.state == "blocked"
   - slack:
@@ -33,6 +32,5 @@ notify:
         Version bump pipeline finished (${BUILDKITE_BUILD_URL})
         Branch: \${BUILDKITE_BRANCH}
         New version: \${NEW_VERSION}
-        Workflow: \${WORKFLOW}
     if: build.state != "blocked"
 EOL
