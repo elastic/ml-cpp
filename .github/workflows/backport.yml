@@ -44,15 +44,30 @@ jobs:
         if: steps.backport.outcome == 'success'
         run: cat ~/.backport/backport.info.log
 
+      # When version labels were detected we always run the Backport Action. If it fails with
+      # no-branches-exception, backport PRs were not created — fail CI so this is not silent.
       - name: Check for real failures
         if: steps.backport.outcome == 'failure'
+        env:
+          HAS_VERSION_LABEL: ${{ steps.check-labels.outputs.has_version_label }}
         run: |
-          cat ~/.backport/backport.debug.log
+          echo "::group::backport.debug.log"
+          cat ~/.backport/backport.debug.log 2>/dev/null || echo "(missing ~/.backport/backport.debug.log)"
+          echo "::endgroup::"
+          echo "::group::backport.info.log"
+          cat ~/.backport/backport.info.log 2>/dev/null || echo "(missing ~/.backport/backport.info.log)"
+          echo "::endgroup::"
+
           if grep -q '"code":"no-branches-exception"' ~/.backport/backport.debug.log 2>/dev/null; then
-            echo "No target branches matched the version labels — nothing to backport. This is OK."
+            if [ "${HAS_VERSION_LABEL}" = "true" ]; then
+              echo "::error::Backport CLI reported no-branches-exception while this PR had version labels. No backport PRs were opened — check branchLabelMapping / targetBranchChoices in .backportrc.json, review logs above, or open backports manually."
+              exit 1
+            fi
+            echo "No target branches matched (no version labels from workflow check) — nothing to backport."
             exit 0
           fi
-          echo "::error::Backport failed with a real error"
+
+          echo "::error::Backport failed — see logs above."
           exit 1
 
       - name: Enable auto-merge on backport PRs
