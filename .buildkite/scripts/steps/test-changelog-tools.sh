@@ -18,4 +18,6 @@ python3 -m pip install --quiet --break-system-packages pyyaml jsonschema 2>/dev/
   || python3 -m pip install --quiet pyyaml jsonschema
 
 echo "Running Python unit tests for dev-tools changelog scripts..."
-python3 -m unittest discover -s dev-tools/unittest -p 'test_*.py' -v
+# Only test_changelog_tools.py: other modules under unittest/ may be pytest-only
+# (e.g. test_version_bump_validation) and are run by the dev-tools pytest step.
+python3 -m unittest discover -s dev-tools/unittest -p 'test_changelog_tools.py' -v
