@@ -8,87 +8,50 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates JSON for the ml-cpp version bump pipeline.
-# It is intended to be triggered by the centralized release-eng pipeline.
-# It can be integrated into existing or new workflows and includes a plugin
-# that polls artifact URLs until the expected version is available.
-
+# Phase 1 of the ml-cpp version bump pipeline (dynamic upload from release-eng).
+#
+# Buildkite step `if` expressions cannot use build meta-data (see
+# https://buildkite.com/docs/pipelines/conditionals ). validate_version_bump_params.sh
+# sets ml_cpp_version_bump_noop when origin already matches NEW_VERSION; phase 2
+# (Slack, bump, DRA wait) is uploaded only when needed by
+# dev-tools/version_bump_upload_phase2.sh.
 
 import contextlib
 import json
 
 
+WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest"
+
+
 def main():
-    pipeline = {}
-    # TODO: replace the block step with version bump logic
     pipeline_steps = [
         {
-            "label": "Queue a :slack: notification for the pipeline",
+            "label": "Validate version bump parameters",
+            "key": "validate-version-bump",
             "depends_on": None,
-            "command": ".buildkite/pipelines/send_version_bump_notification.sh | buildkite-agent pipeline upload",
+            "agents": {
+                "image": WOLFI_IMAGE,
+                "cpu": "250m",
+                "memory": "512Mi",
+            },
+            "command": [
+                "dev-tools/validate_version_bump_params.sh",
+            ],
+        },
+        {
+            "label": "Schedule version bump follow-up steps",
+            "key": "schedule-version-bump-follow-up",
+            "depends_on": "validate-version-bump",
             "agents": {
                 "image": "python",
             },
-        },
-        {
-            "block": "Ready to fetch for DRA artifacts?",
-            "prompt": (
-                "Unblock when your team is ready to proceed.\n\n"
-                "Trigger parameters:\n"
-                "- NEW_VERSION: ${NEW_VERSION}\n"
-                "- BRANCH: ${BRANCH}\n"
-                "- WORKFLOW: ${WORKFLOW}\n"
-            ),
-            "key": "block-get-dra-artifacts",
-            "blocked_state": "running",
-        },
-        {
-            "label": "Fetch DRA Artifacts",
-            "key": "fetch-dra-artifacts",
-            "depends_on": "block-get-dra-artifacts",
-            "agents": {
-                "image": "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest",
-                "cpu": "250m",
-                "memory": "512Mi",
-                "ephemeralStorage": "1Gi",
-            },
             "command": [
-                'echo "Starting DRA artifacts retrieval..."',
-            ],
-            "timeout_in_minutes": 240,
-            "retry": {
-                "automatic": [
-                    {
-                        "exit_status": "*",
-                        "limit": 2,
-                    }
-                ],
-                "manual": {"permit_on_passed": True},
-            },
-            "plugins": [
-                {
-                    "elastic/json-watcher#v1.0.0": {
-                        "url": "https://artifacts-staging.elastic.co/ml-cpp/latest/${BRANCH}.json",
-                        "field": ".version",
-                        "expected_value": "${NEW_VERSION}",
-                        "polling_interval": "30",
-                    }
-                },
-                {
-                    "elastic/json-watcher#v1.0.0": {
-                        "url": "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/${BRANCH}.json",
-                        "field": ".version",
-                        "expected_value": "${NEW_VERSION}-SNAPSHOT",
-                        "polling_interval": "30",
-                    }
-                },
+                "dev-tools/version_bump_upload_phase2.sh",
             ],
         },
     ]
 
-    pipeline["steps"] = pipeline_steps
-
-    print(json.dumps(pipeline, indent=2))
+    print(json.dumps({"steps": pipeline_steps}, indent=2))
 
 
 if __name__ == "__main__":
