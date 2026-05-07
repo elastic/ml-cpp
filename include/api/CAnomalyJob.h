@@ -392,6 +392,18 @@ private:
                           core_t::TTime time,
                           const TStrStrUMap& dataRowFields);
 
+    //! Prepare field values with truncation handling.
+    //! Extracts field values from \p dataRowFields, truncates oversized values,
+    //! and populates \p fieldValues with pointers to either original or truncated values.
+    //! \param fieldNames The names of fields to extract
+    //! \param dataRowFields The data row containing field values
+    //! \param fieldValues Output vector of pointers to field values
+    //! \param truncatedCopies Storage for truncated copies (must remain valid while fieldValues is used)
+    static void prepareTruncatedFieldValues(const TStrVec& fieldNames,
+                                            const TStrStrUMap& dataRowFields,
+                                            model::CAnomalyDetector::TStrCPtrVec& fieldValues,
+                                            TStrVec& truncatedCopies);
+
     //! Parses a control message requesting that model state be persisted.
     //! Extracts optional arguments to be used for persistence.
     static bool parsePersistControlMessageArgs(const std::string& controlMessageArgs,

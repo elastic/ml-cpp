@@ -83,6 +83,24 @@
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
     LOG_LOCATION_INFO                                                                       \
     message
+#ifdef LOG_INFO_THROTTLED
+#undef LOG_INFO_THROTTLED
+#endif
+#define LOG_INFO_THROTTLED(message)                                                       \
+    do {                                                                                  \
+        std::size_t countOfInfoMessages;                                                  \
+        bool skipInfoMessage;                                                             \
+        std::tie(countOfInfoMessages, skipInfoMessage) =                                  \
+            ml::core::CLogger::instance().throttler().skip(__FILE__, __LINE__);           \
+        if (skipInfoMessage == false) {                                                   \
+            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),                  \
+                                 ml::core::CLogger::E_Info)                               \
+            LOG_LOCATION_INFO                                                             \
+            message << (countOfInfoMessages > 1                                           \
+                            ? " | repeated [" + std::to_string(countOfInfoMessages) + "]" \
+                            : "");                                                        \
+        }                                                                                 \
+    } while (0)
 #ifdef LOG_WARN
 #undef LOG_WARN
 #endif

@@ -18,6 +18,7 @@
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
+#include <model/CFieldValueTruncator.h>
 #include <model/CGathererTools.h>
 #include <model/CMetricBucketGatherer.h>
 #include <model/CResourceMonitor.h>
@@ -104,6 +105,24 @@ void addArrival(CDataGatherer& gatherer,
     latlngAsString += delimiter;
     latlngAsString += core::CStringUtils::typeToStringPrecise(lng, core::CIEEE754::E_DoublePrecision);
     fieldValues.push_back(&latlngAsString);
+
+    CEventData eventData;
+    eventData.time(time);
+
+    gatherer.addArrival(fieldValues, eventData, resourceMonitor);
+}
+
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
+                core_t::TTime time,
+                const std::string& person,
+                double value,
+                const std::string& influencer) {
+    CDataGatherer::TStrCPtrVec fieldValues;
+    fieldValues.push_back(&person);
+    fieldValues.push_back(influencer.empty() ? nullptr : &influencer);
+    std::string const valueAsString(core::CStringUtils::typeToString(value));
+    fieldValues.push_back(&valueAsString);
 
     CEventData eventData;
     eventData.time(time);
@@ -1841,6 +1860,86 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs3.second.first[1], i3ExpectedMean, 0.0001);
         }
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(testRestoreTruncatesOversizedInfluencerSums, CTestFixture) {
+    // Verify that oversized influencer keys in CGathererTools::SInfluencerSumSerializer
+    // are truncated on restore. This exercises truncation in the metric sum gatherer's
+    // influencer bucket sum restore path.
+
+    constexpr core_t::TTime startTime = 0;
+    constexpr core_t::TTime bucketLength = 600;
+    SModelParams params(bucketLength);
+    params.s_LatencyBuckets = 2;
+    params.s_SampleCountFactor = 1;
+    params.s_SampleQueueGrowthFactor = 0.1;
+
+    TFeatureVec features;
+    features.push_back(model_t::E_IndividualSumByBucketAndPerson);
+    TStrVec const influencerNames{"i1"};
+
+    CDataGatherer gatherer =
+        CDataGathererBuilder(model_t::E_Metric, features, params, KEY, startTime)
+            .influenceFieldNames(influencerNames)
+            .sampleCountOverride(2U)
+            .build();
+
+    BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor, 1));
+
+    // Add arrivals with an oversized influencer value (bypasses CAnomalyJob input truncation).
+    std::string const oversizedInfluencer(500, 'y');
+    addArrival(gatherer, m_ResourceMonitor, startTime + 1, "p", 1.0, oversizedInfluencer);
+    addArrival(gatherer, m_ResourceMonitor, startTime + 2, "p", 2.0, oversizedInfluencer);
+
+    // Advance past the first bucket so influencer sums are flushed to the persistable queue.
+    gatherer.timeNow(startTime + bucketLength);
+
+    // Persist — the JSON will contain the oversized influencer value.
+    std::ostringstream origJson;
+    core::CJsonStatePersistInserter::persist(
+        origJson, [&gatherer](core::CJsonStatePersistInserter& inserter) {
+            gatherer.acceptPersistInserter(inserter);
+        });
+
+    // Sanity check: the persisted JSON contains the full oversized value.
+    BOOST_TEST_REQUIRE(origJson.str().find(oversizedInfluencer) != std::string::npos);
+
+    // Restore from persisted JSON — truncation should apply.
+    std::istringstream origJsonStrm{"{\"topLevel\" : " + origJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser(origJsonStrm);
+
+    CBucketGatherer::SBucketGathererInitData bucketGathererInitData{
+        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {}, 0, 0};
+    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+                                   KEY, bucketGathererInitData, traverser);
+
+    // Persist restored gatherer — should NOT contain the oversized value.
+    std::ostringstream restoredJson;
+    core::CJsonStatePersistInserter::persist(
+        restoredJson, [&restoredGatherer](core::CJsonStatePersistInserter& inserter) {
+            restoredGatherer.acceptPersistInserter(inserter);
+        });
+
+    // The full 500-char string must no longer appear (it was truncated to 256).
+    BOOST_TEST_REQUIRE(restoredJson.str().find(oversizedInfluencer) == std::string::npos);
+    // Restore-path truncation must produce the same format as CFieldValueTruncator::truncated.
+    std::string const expectedTruncated =
+        model::CFieldValueTruncator::truncated(oversizedInfluencer);
+    BOOST_TEST_REQUIRE(restoredJson.str().find(expectedTruncated) != std::string::npos);
+
+    // Verify idempotency: restore again and persist — should be identical.
+    std::istringstream restoredJsonStrm{"{\"topLevel\" : " + restoredJson.str() + "}"};
+    core::CJsonStateRestoreTraverser traverser2(restoredJsonStrm);
+    CDataGatherer restoredGatherer2(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+                                    KEY, bucketGathererInitData, traverser2);
+
+    std::ostringstream restoredJson2;
+    core::CJsonStatePersistInserter::persist(
+        restoredJson2, [&restoredGatherer2](core::CJsonStatePersistInserter& inserter) {
+            restoredGatherer2.acceptPersistInserter(inserter);
+        });
+
+    BOOST_REQUIRE_EQUAL(restoredJson.str(), restoredJson2.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
