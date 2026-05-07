@@ -33,6 +33,11 @@ SNAPSHOT_TMPL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cp
 
 
 def _meta_get(key: str) -> str | None:
+    """Read Buildkite meta-data. Returns None when not on Buildkite or key is unset.
+
+    On BUILDKITE=true, missing ``buildkite-agent`` or unexpected failures exit
+    non-zero so we do not silently skip the DRA wait.
+    """
     if os.environ.get("BUILDKITE") != "true":
         return None
     try:
@@ -40,13 +45,44 @@ def _meta_get(key: str) -> str | None:
             ["buildkite-agent", "meta-data", "get", key],
             capture_output=True,
             text=True,
-            check=True,
             timeout=60,
+            check=False,
         )
-        v = proc.stdout.strip()
-        return v if v else None
-    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+    except FileNotFoundError:
+        print(
+            "ERROR: BUILDKITE=true but buildkite-agent is not available; "
+            "cannot read meta-data for DRA wait gating.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2) from None
+    except subprocess.TimeoutExpired:
+        print(
+            f"ERROR: buildkite-agent meta-data get {key!r} timed out.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2) from None
+
+    err = (proc.stderr or "").strip()
+    out = (proc.stdout or "").strip()
+
+    if proc.returncode == 0:
+        return out if out else None
+
+    err_lower = err.lower()
+    if proc.returncode == 1 and (
+        "not found" in err_lower
+        or "does not exist" in err_lower
+        or "couldn't find" in err_lower
+        or "could not find" in err_lower
+    ):
         return None
+
+    print(
+        f"ERROR: buildkite-agent meta-data get {key!r} failed "
+        f"(exit {proc.returncode}): {err or '(no stderr)'}",
+        file=sys.stderr,
+    )
+    raise SystemExit(2) from None
 
 
 def _fetch_version(url: str) -> str | None:

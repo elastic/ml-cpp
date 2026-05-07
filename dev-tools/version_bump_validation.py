@@ -35,15 +35,23 @@ SEMVER_RE = re.compile(r"^([0-9]+)\.([0-9]+)\.([0-9]+)$")
 BRANCH_RE = re.compile(r"^([0-9]+)\.([0-9]+)$")
 
 
+def _reject_outer_whitespace(label: str, value: str) -> None:
+    """Disallow leading/trailing ASCII whitespace or CR so values match shell expectations."""
+    if value != value.strip(" \t\n\r\v\f"):
+        raise ValueError(
+            f"{label} must not have leading or trailing whitespace, got {value!r}"
+        )
+
+
 def parse_semver(version: str) -> Optional[Tuple[int, int, int]]:
-    m = SEMVER_RE.match(version.strip())
+    m = SEMVER_RE.match(version)
     if not m:
         return None
     return (int(m.group(1)), int(m.group(2)), int(m.group(3)))
 
 
 def parse_release_branch(branch: str) -> Optional[Tuple[int, int]]:
-    m = BRANCH_RE.match(branch.strip())
+    m = BRANCH_RE.match(branch)
     if not m:
         return None
     return (int(m.group(1)), int(m.group(2)))
@@ -59,6 +67,10 @@ def validate_version_bump_params(
 
     When current_version == new_version, the bump is a no-op and always valid.
     """
+    _reject_outer_whitespace("NEW_VERSION", new_version)
+    _reject_outer_whitespace("BRANCH", branch)
+    _reject_outer_whitespace("current_version", current_version)
+
     new_t = parse_semver(new_version)
     if new_t is None:
         raise ValueError(
@@ -86,7 +98,7 @@ def validate_version_bump_params(
         )
     cur_major, cur_minor, cur_patch = cur_t
 
-    if current_version.strip() == new_version.strip():
+    if current_version == new_version:
         return
 
     if cur_major != new_major or cur_minor != new_minor:
@@ -120,8 +132,8 @@ def _cmd_validate_and_report(args: argparse.Namespace) -> int:
     rc = _cmd_validate(args)
     if rc != 0:
         return rc
-    cur = args.current.strip()
-    new = args.new.strip()
+    cur = args.current
+    new = args.new
     if cur == new:
         print(f"OK: branch already at {new} — bump step will no-op.")
     else:

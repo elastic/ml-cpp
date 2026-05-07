@@ -50,6 +50,26 @@ def test_parse_semver_rejects() -> None:
     assert vbu.parse_semver("9.5") is None
     assert vbu.parse_semver("v9.5.0") is None
     assert vbu.parse_semver("9.5.0.1") is None
+    assert vbu.parse_semver(" 9.5.1") is None
+    assert vbu.parse_semver("9.5.1 ") is None
+
+
+def test_validate_rejects_outer_whitespace_new_version() -> None:
+    with pytest.raises(ValueError, match="whitespace"):
+        vbu.validate_version_bump_params(
+            current_version="9.5.0",
+            new_version=" 9.5.1",
+            branch="9.5",
+        )
+
+
+def test_validate_rejects_outer_whitespace_branch() -> None:
+    with pytest.raises(ValueError, match="whitespace"):
+        vbu.validate_version_bump_params(
+            current_version="9.5.0",
+            new_version="9.5.1",
+            branch="9.5 ",
+        )
 
 
 def test_patch_ok_consecutive() -> None:

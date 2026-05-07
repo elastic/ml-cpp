@@ -64,9 +64,33 @@ fi
 TMP=$(mktemp -d)
 trap 'rm -rf "${TMP}"' EXIT
 
-URL="https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_linux_${GH_ARCH}.tar.gz"
+ARCHIVE_BASENAME="gh_${GH_CLI_VERSION}_linux_${GH_ARCH}.tar.gz"
+URL="https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/${ARCHIVE_BASENAME}"
 if ! curl -fsSL "$URL" -o "${TMP}/gh.tgz"; then
     echo "ERROR: failed to download gh ${GH_CLI_VERSION} from GitHub releases (set GH_CLI_VERSION?)." >&2
+    exit 1
+fi
+
+CHECKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_checksums.txt"
+if ! curl -fsSL "$CHECKSUMS_URL" -o "${TMP}/checksums.txt"; then
+    echo "ERROR: failed to download gh ${GH_CLI_VERSION} checksums (set GH_CLI_VERSION?)." >&2
+    exit 1
+fi
+EXPECTED_SHA=""
+EXPECTED_SHA=$(awk -v fn="$ARCHIVE_BASENAME" '$2 == fn { print $1; exit }' "${TMP}/checksums.txt")
+if [[ -z "${EXPECTED_SHA}" ]]; then
+    echo "ERROR: no SHA256 line for ${ARCHIVE_BASENAME} in gh release checksums." >&2
+    exit 1
+fi
+if ! command -v sha256sum >/dev/null 2>&1; then
+    echo "ERROR: sha256sum not found; cannot verify gh tarball integrity." >&2
+    exit 1
+fi
+ACTUAL_SHA=$(sha256sum "${TMP}/gh.tgz" | awk '{ print $1 }')
+if [[ "${ACTUAL_SHA}" != "${EXPECTED_SHA}" ]]; then
+    echo "ERROR: gh tarball SHA256 mismatch (possible corrupt download or supply-chain issue)." >&2
+    echo "  expected: ${EXPECTED_SHA}" >&2
+    echo "  actual:   ${ACTUAL_SHA}" >&2
     exit 1
 fi
 

@@ -53,6 +53,16 @@ fi
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
 
+version_bump_trim_value() {
+    local s=$1
+    s="${s//$'\r'/}"
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+}
+NEW_VERSION="$(version_bump_trim_value "${NEW_VERSION}")"
+BRANCH="$(version_bump_trim_value "${BRANCH}")"
+
 WORKFLOW="${WORKFLOW:-patch}"
 if [[ "$WORKFLOW" != "patch" ]]; then
     echo "ERROR: WORKFLOW must be \"patch\" for this pipeline, got \"${WORKFLOW}\"" >&2
@@ -97,7 +107,7 @@ then
     exit 1
 fi
 
-# Match Python strip() semantics for equality (no-op → skip later pipeline steps).
+# Compare trimmed forms for no-op meta-data (gradle value is already space-stripped).
 cur_trim=$(echo "$CURRENT_VERSION" | tr -d '[:space:]')
 new_trim=$(echo "$NEW_VERSION" | tr -d '[:space:]')
 if [[ "$cur_trim" == "$new_trim" ]]; then

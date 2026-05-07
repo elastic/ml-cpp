@@ -52,6 +52,18 @@ CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
+
+# Normalise env (Buildkite / Windows agents may inject trailing CR or spaces).
+version_bump_trim_value() {
+    local s=$1
+    s="${s//$'\r'/}"
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+}
+NEW_VERSION="$(version_bump_trim_value "${NEW_VERSION}")"
+BRANCH="$(version_bump_trim_value "${BRANCH}")"
+
 DRY_RUN="${DRY_RUN:-false}"
 
 GRADLE_PROPS="gradle.properties"
@@ -85,12 +97,17 @@ topic_branch_name() {
     echo "$tb"
 }
 
+# In-place edit without GNU/BSD/BusyBox `sed -i` differences: write to a temp file then replace.
 sed_inplace() {
-    if sed --version >/dev/null 2>&1; then
-        sed -i "$@"
-    else
-        sed -i '' "$@"
+    local script=$1
+    local target=$2
+    local tmp
+    tmp=$(mktemp "${target}.sedtmp.XXXXXX")
+    if ! sed "${script}" "$target" >"$tmp"; then
+        rm -f "$tmp"
+        return 1
     fi
+    mv "$tmp" "$target"
 }
 
 configure_git() {

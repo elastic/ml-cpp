@@ -136,6 +136,8 @@ def test_mutually_exclusive_merge_flags_script() -> None:
             "h",
             "--title",
             "t",
+            "--body",
+            "body",
             "--merge",
             "--merge-auto",
         ],
@@ -145,3 +147,27 @@ def test_mutually_exclusive_merge_flags_script() -> None:
     )
     assert proc.returncode != 0
     assert "only one of --merge or --merge-auto" in proc.stderr
+
+
+def test_create_pr_script_requires_body() -> None:
+    """create_github_pull_request.sh requires --body alongside other PR fields."""
+    script = _REPO_ROOT / "dev-tools" / "create_github_pull_request.sh"
+    proc = subprocess.run(
+        [
+            "bash",
+            str(script),
+            "--repo",
+            "r/r",
+            "--base",
+            "b",
+            "--head",
+            "h",
+            "--title",
+            "t",
+        ],
+        cwd=str(_REPO_ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode != 0
+    assert "--body" in proc.stderr

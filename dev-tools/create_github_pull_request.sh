@@ -102,8 +102,8 @@ if [[ "$DO_MERGE" == "true" && "$DO_MERGE_AUTO" == "true" ]]; then
     exit 1
 fi
 
-if [[ -z "$REPO" || -z "$BASE" || -z "$HEAD_REF" || -z "$TITLE" ]]; then
-    echo "ERROR: --repo, --base, --head, and --title are required." >&2
+if [[ -z "$REPO" || -z "$BASE" || -z "$HEAD_REF" || -z "$TITLE" || -z "$BODY" ]]; then
+    echo "ERROR: --repo, --base, --head, --title, and --body are required." >&2
     exit 1
 fi
 
