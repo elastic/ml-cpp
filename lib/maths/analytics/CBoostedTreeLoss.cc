@@ -57,7 +57,6 @@ const std::size_t HUBER_OPTIMIZATION_ITERATIONS{15};
 const std::string NUMBER_CLASSES_TAG{"number_classes"};
 const std::string OFFSET_TAG{"offset"};
 const std::string DELTA_TAG{"delta"};
-const std::string NAME_TAG{"name"};
 
 double logOneMinusLogistic(double logOdds) {
     // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))

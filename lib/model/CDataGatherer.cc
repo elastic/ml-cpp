@@ -46,8 +46,6 @@ const std::string DEFAULT_ATTRIBUTE_NAME("-");
 const std::string PERSON("person");
 const std::string ATTRIBUTE("attribute");
 
-const std::string EMPTY_STRING;
-
 namespace detail {
 
 //! Make sure \p features only includes supported features, doesn't

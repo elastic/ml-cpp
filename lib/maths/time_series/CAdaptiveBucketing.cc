@@ -129,7 +129,6 @@ const core::TPersistenceTag LAST_LARGE_ERROR_BUCKET_TAG{"h", "last_large_error_b
 const core::TPersistenceTag LAST_LARGE_ERROR_PERIOD_TAG{"i", "last_large_error_period"};
 const core::TPersistenceTag LARGE_ERROR_COUNT_P_VALUES_TAG{"j", "large_error_counts_p_values"};
 const core::TPersistenceTag MEAN_WEIGHT_TAG{"k", "mean weight"};
-const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
 const std::size_t WIDTH{std::size(SMOOTHING_FUNCTION) / 2};

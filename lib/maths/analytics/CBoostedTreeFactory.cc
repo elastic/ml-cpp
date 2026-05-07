@@ -1903,7 +1903,6 @@ const std::string FACTORY_TAG{"factory"};
 const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
 const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
 const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
-const std::string HYPERPARAMETERS_LOSSES_TAG{"hyperparameters_losses"};
 const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
 const std::string LOSS_GAP_TAG{"loss_gap"};
 const std::string NUMBER_TREES_TAG{"number_trees"};

@@ -630,7 +630,6 @@ const core::TPersistenceTag NUMBER_SAMPLES_TAG("f", "number_samples");
 const core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
-const std::string EMPTY_STRING;
 }
 
 CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType dataType,

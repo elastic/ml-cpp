@@ -27,9 +27,9 @@ namespace model {
 const CSearchKey KEY;
 const std::string EMPTY_STRING;
 
-static void testPersistence(const SModelParams& params,
-                            const CDataGatherer& origGatherer,
-                            model_t::EAnalysisCategory category) {
+[[maybe_unused]] static void testPersistence(const SModelParams& params,
+                                             const CDataGatherer& origGatherer,
+                                             model_t::EAnalysisCategory category) {
     // Test persistence. (We check for idempotency.)
     std::ostringstream origJson;
     core::CJsonStatePersistInserter::persist(
@@ -63,9 +63,9 @@ static void testPersistence(const SModelParams& params,
     BOOST_REQUIRE_EQUAL(origJson.str(), newJson.str());
 }
 
-static void testGathererAttributes(const CDataGatherer& gatherer,
-                                   core_t::TTime startTime,
-                                   core_t::TTime bucketLength) {
+[[maybe_unused]] static void testGathererAttributes(const CDataGatherer& gatherer,
+                                                    core_t::TTime startTime,
+                                                    core_t::TTime bucketLength) {
 
     BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
     BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());

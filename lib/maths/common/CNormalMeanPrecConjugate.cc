@@ -450,7 +450,6 @@ const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
 const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
-const std::string EMPTY_STRING;
 }
 
 CNormalMeanPrecConjugate::CNormalMeanPrecConjugate(maths_t::EDataType dataType,

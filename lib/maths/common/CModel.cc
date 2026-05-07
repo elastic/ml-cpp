@@ -26,7 +26,6 @@ namespace maths {
 namespace common {
 namespace {
 
-const std::string EMPTY_STRING;
 const double EFFECTIVE_COUNT[]{1.0,  0.8,  0.7,  0.65, 0.6,
                                0.57, 0.54, 0.52, 0.51};
 
