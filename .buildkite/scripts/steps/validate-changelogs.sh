@@ -25,6 +25,17 @@ if [[ -n "${BUILDKITE_PULL_REQUEST_LABELS:-}" ]]; then
   done
 fi
 
+# This script diffs docs/changelog/*.yaml against the PR base (BUILDKITE_PULL_REQUEST_BASE_BRANCH,
+# default main). Snapshot and plain branch builds are not PRs (BUILDKITE_PULL_REQUEST is empty or
+# "false") but would still default the base to main. Shallow-fetching main (--depth=1) cannot
+# establish a merge base with long-lived release branches, so `git diff origin/main...HEAD`
+# fails with "fatal: origin/main...HEAD: no merge base" (exit 128) and aborts under set -e
+# before the soft-skip handler below. Skip entirely when not a pull request build.
+if [[ -z "${BUILDKITE_PULL_REQUEST:-}" || "${BUILDKITE_PULL_REQUEST}" == "false" ]]; then
+  echo "Not a pull request build — skipping changelog validation."
+  exit 0
+fi
+
 # Install system and Python dependencies
 if ! command -v git &>/dev/null; then
   apt-get update -qq && apt-get install -y -qq git >/dev/null 2>&1
