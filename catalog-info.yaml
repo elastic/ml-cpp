@@ -266,6 +266,6 @@ spec:
         everyone:
           access_level: READ_ONLY
         ml-core: {}
-        release-eng:
+        artifact-management:
           access_level: BUILD_AND_READ
         
