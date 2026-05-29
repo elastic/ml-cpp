@@ -43,7 +43,11 @@ def main():
             "key": "schedule-version-bump-follow-up",
             "depends_on": "validate-version-bump",
             "agents": {
-                "image": "python",
+                # Wolfi ships buildkite-agent; python image does not (needed for
+                # meta-data get + phase-2 pipeline upload in version_bump_upload_phase2.sh).
+                "image": WOLFI_IMAGE,
+                "cpu": "250m",
+                "memory": "512Mi",
             },
             "command": [
                 "dev-tools/version_bump_upload_phase2.sh",

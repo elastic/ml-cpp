@@ -78,6 +78,15 @@ def test_phase1_schedule_depends_on_validate() -> None:
     assert sched["command"] == ["dev-tools/version_bump_upload_phase2.sh"]
 
 
+def test_phase1_schedule_uses_wolfi_image_like_validate() -> None:
+    """Schedule step needs buildkite-agent for meta-data and pipeline upload."""
+    pipeline = _run_phase1()
+    validate_img = _step_by_key(pipeline, "validate-version-bump")["agents"]["image"]
+    sched_img = _step_by_key(pipeline, "schedule-version-bump-follow-up")["agents"]["image"]
+    assert sched_img == validate_img
+    assert "wolfi" in sched_img
+
+
 def test_phase2_bump_defaults_merge_auto_true() -> None:
     pipeline = _run_phase2()
     bump = _step_by_key(pipeline, "bump-version")
