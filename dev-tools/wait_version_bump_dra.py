@@ -27,6 +27,8 @@ import urllib.request
 
 POLL_SECONDS = 30
 TIMEOUT_SECONDS = 240 * 60
+# Heartbeat in Buildkite logs every N poll iterations (even when fetches return None).
+PROGRESS_LOG_EVERY = 1
 
 STAGING_TMPL = "https://artifacts-staging.elastic.co/ml-cpp/latest/{branch}.json"
 SNAPSHOT_TMPL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/{branch}.json"
@@ -126,13 +128,15 @@ def main() -> int:
     print(f"  snapshot: {want_snapshot!r} <= {snapshot_url}")
 
     deadline = time.monotonic() + TIMEOUT_SECONDS
+    iteration = 0
     while time.monotonic() < deadline:
+        iteration += 1
         st = _fetch_version(staging_url)
         sn = _fetch_version(snapshot_url)
         if st == want_staging and sn == want_snapshot:
             print("OK: staging and snapshot versions matched.")
             return 0
-        if st is not None or sn is not None:
+        if iteration % PROGRESS_LOG_EVERY == 0:
             print(f"  staging={st!r} snapshot={sn!r} (still waiting)")
         time.sleep(POLL_SECONDS)
 
