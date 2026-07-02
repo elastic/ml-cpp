@@ -43,8 +43,11 @@ if [[ "${noop}" == "true" ]]; then
 fi
 
 WORKFLOW="${WORKFLOW:-patch}"
+# Do not use `exec cmd | buildkite-agent pipeline upload`: in bash, exec applies inside
+# the pipeline subshell only, so the script would continue and upload a second phase-2
+# pipeline (duplicate step keys such as queue-slack-notify).
 if [[ "${WORKFLOW}" == "minor" ]]; then
-    exec python3 .buildkite/job-version-bump-phase2-minor.json.py | buildkite-agent pipeline upload
+    python3 .buildkite/job-version-bump-phase2-minor.json.py | buildkite-agent pipeline upload
+else
+    python3 .buildkite/job-version-bump-phase2.json.py | buildkite-agent pipeline upload
 fi
-
-exec python3 .buildkite/job-version-bump-phase2.json.py | buildkite-agent pipeline upload
