@@ -58,11 +58,34 @@ if [[ "${workflow}" == "minor" ]]; then
     elif [[ "${changed}" == "true" ]]; then
         pr_line="DRY RUN — main bump PR simulated (no URL)."
     else
-        pr_line="Main bump: no PR required (already at derived next minor)."
+        pr_line="Main bump — no PR required (already at derived next minor)."
     fi
     slack_title="**Minor feature freeze — action may be required**"
-    slack_body="${branch_line}
-${pr_line}"
+    (
+        cat <<EOF
+steps:
+  - label: "Schedule :slack: notification (version bump)"
+    command: "echo schedule :slack: notification"
+    notify:
+      - slack:
+          channels:
+            - "${CHANNEL}"
+          message: |
+            ${slack_title}
+            ${branch_line}
+            ${pr_line}
+            WORKFLOW: \${WORKFLOW:-"(unset)"}
+            Branch: \${BUILDKITE_BRANCH}
+            NEW_VERSION: \${NEW_VERSION:-"(unset)"}
+            BRANCH (param): \${BRANCH:-"(unset)"}
+            VERSION_BUMP_MERGE_AUTO: \${VERSION_BUMP_MERGE_AUTO:-"(unset)"}
+            DRY_RUN: \${DRY_RUN:-"(unset)"}
+            Pipeline: \${BUILDKITE_BUILD_URL}
+            Build: \${BUILDKITE_BUILD_NUMBER}
+            Please review and approve the main bump pull request when present (subject to branch protection).
+EOF
+    ) | buildkite-agent pipeline upload
+    exit 0
 else
     if [[ -z "${pr_url}" && "${changed}" != "true" ]]; then
         echo "No version-bump PR opened (pr_url empty, ml_cpp_version_bump_changed=${changed}); skipping Slack notification."
