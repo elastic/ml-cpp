@@ -42,4 +42,9 @@ if [[ "${noop}" == "true" ]]; then
     exit 0
 fi
 
+WORKFLOW="${WORKFLOW:-patch}"
+if [[ "${WORKFLOW}" == "minor" ]]; then
+    exec python3 .buildkite/job-version-bump-phase2-minor.json.py | buildkite-agent pipeline upload
+fi
+
 exec python3 .buildkite/job-version-bump-phase2.json.py | buildkite-agent pipeline upload

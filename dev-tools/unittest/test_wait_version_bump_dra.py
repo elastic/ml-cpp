@@ -42,17 +42,25 @@ def test_poll_logs_progress_when_versions_unavailable(capsys) -> None:
         nonlocal t
         t += float(_seconds) + 1.0
 
+    def meta_side_effect(key: str) -> str | None:
+        if key == "ml_cpp_version_bump_noop":
+            return None
+        if key == "ml_cpp_version_bump_changed":
+            return "true"
+        return None
+
     with (
         patch.dict(
             "os.environ",
             {
                 "BRANCH": "9.5",
                 "NEW_VERSION": "9.5.1",
+                "WORKFLOW": "patch",
                 "BUILDKITE": "false",
             },
             clear=False,
         ),
-        patch.object(mod, "_meta_get", return_value="true"),
+        patch.object(mod, "_meta_get", side_effect=meta_side_effect),
         patch.object(mod, "_fetch_version", return_value=None),
         patch.object(mod.time, "monotonic", side_effect=fake_monotonic),
         patch.object(mod.time, "sleep", side_effect=advance_sleep),
@@ -63,4 +71,4 @@ def test_poll_logs_progress_when_versions_unavailable(capsys) -> None:
         assert mod.main() == 1
 
     out = capsys.readouterr().out
-    assert "staging=None snapshot=None (still waiting)" in out
+    assert "still waiting: staging=None, snapshot=None" in out

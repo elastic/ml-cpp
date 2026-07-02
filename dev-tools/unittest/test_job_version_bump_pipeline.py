@@ -21,6 +21,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _PIPELINE_PHASE1 = _REPO_ROOT / ".buildkite" / "job-version-bump.json.py"
 _PIPELINE_PHASE2 = _REPO_ROOT / ".buildkite" / "job-version-bump-phase2.json.py"
+_PIPELINE_PHASE2_MINOR = _REPO_ROOT / ".buildkite" / "job-version-bump-phase2-minor.json.py"
 
 
 def _run_phase1(extra_env: dict[str, str] | None = None) -> dict:
@@ -30,6 +31,20 @@ def _run_phase1(extra_env: dict[str, str] | None = None) -> dict:
         env.update(extra_env)
     out = subprocess.check_output(
         [sys.executable, str(_PIPELINE_PHASE1)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        text=True,
+    )
+    return json.loads(out)
+
+
+def _run_phase2_minor(extra_env: dict[str, str] | None = None) -> dict:
+    env = os.environ.copy()
+    env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    if extra_env:
+        env.update(extra_env)
+    out = subprocess.check_output(
+        [sys.executable, str(_PIPELINE_PHASE2_MINOR)],
         cwd=str(_REPO_ROOT),
         env=env,
         text=True,
@@ -180,3 +195,20 @@ def test_create_pr_script_requires_body() -> None:
     )
     assert proc.returncode != 0
     assert "--body" in proc.stderr
+
+
+def test_phase2_minor_has_parallel_freeze_group() -> None:
+    pipeline = _run_phase2_minor()
+    group = pipeline["steps"][0]
+    assert group["key"] == "minor-freeze"
+    keys = [s["key"] for s in group["steps"]]
+    assert keys == ["create-minor-branch", "bump-main-minor-freeze"]
+
+
+def test_phase2_minor_order_group_then_slack_then_dra() -> None:
+    pipeline = _run_phase2_minor()
+    assert _step_by_key(pipeline, "queue-slack-notify")["depends_on"] == "minor-freeze"
+    assert (
+        _step_by_key(pipeline, "fetch-dra-artifacts")["depends_on"]
+        == "queue-slack-notify"
+    )

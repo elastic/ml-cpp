@@ -16,8 +16,7 @@
 # Environment:
 #   NEW_VERSION — required target stack version (MAJOR.MINOR.PATCH), unless skipped
 #   BRANCH — required release branch (e.g. 9.5), unless skipped
-#   WORKFLOW — optional; defaults to patch. If set by upstream automation, must be
-#              exactly "patch" (this pipeline does not support minor bumps).
+#   WORKFLOW — optional; defaults to patch. Supported: patch, minor (feature freeze).
 #   SKIP_VERSION_VALIDATION — set to "true" to skip (emergency override only)
 #   PYTHON — interpreter (default: python3)
 #
@@ -25,6 +24,28 @@
 # origin/BRANCH already has NEW_VERSION, so downstream Slack/bump steps are skipped.
 
 set -euo pipefail
+
+# shellcheck disable=SC2034
+version_bump_trim_value() {
+    local s=$1
+    s="${s//$'\r'/}"
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+}
+
+version_bump_set_buildkite_meta() {
+    local key="$1"
+    local value="$2"
+    if [[ "${BUILDKITE:-}" != "true" ]]; then
+        return 0
+    fi
+    if ! command -v buildkite-agent >/dev/null 2>&1; then
+        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ${key}=${value}" >&2
+        return 0
+    fi
+    buildkite-agent meta-data set "$key" "$value"
+}
 
 version_bump_set_noop_meta() {
     local noop="$1"
@@ -53,19 +74,87 @@ fi
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
 
-version_bump_trim_value() {
-    local s=$1
-    s="${s//$'\r'/}"
-    s="${s#"${s%%[![:space:]]*}"}"
-    s="${s%"${s##*[![:space:]]}"}"
-    printf '%s' "$s"
-}
 NEW_VERSION="$(version_bump_trim_value "${NEW_VERSION}")"
 BRANCH="$(version_bump_trim_value "${BRANCH}")"
 
 WORKFLOW="${WORKFLOW:-patch}"
+WORKFLOW="$(version_bump_trim_value "${WORKFLOW}")"
+
+if [[ "$WORKFLOW" == "minor" ]]; then
+    echo "=== Version bump validation (minor feature freeze) ==="
+    echo "WORKFLOW:     ${WORKFLOW}"
+    echo "NEW_VERSION:  ${NEW_VERSION} (expected on release branch ${BRANCH})"
+    echo "BRANCH:       ${BRANCH} (release branch to create)"
+
+    echo "Fetching origin/main and checking origin/${BRANCH}..."
+    git fetch origin main
+    if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+        git fetch origin "$BRANCH"
+    fi
+
+    main_version=$(
+        git show origin/main:gradle.properties | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
+    )
+    if [[ -z "$main_version" ]]; then
+        echo "ERROR: could not read elasticsearchVersion from origin/main gradle.properties" >&2
+        exit 1
+    fi
+    echo "Current version on origin/main: ${main_version}"
+
+    release_branch_exists=false
+    release_branch_version=""
+    if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+        release_branch_exists=true
+        release_branch_version=$(
+            git show "origin/${BRANCH}:gradle.properties" | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
+        )
+        echo "Release branch origin/${BRANCH} exists at version: ${release_branch_version:-unknown}"
+    else
+        echo "Release branch origin/${BRANCH} does not exist yet"
+    fi
+
+    minor_validate_args=(
+        "$PYTHON" "$VALIDATION_PY" validate-minor-freeze
+        --main-version "$main_version"
+        --new "$NEW_VERSION"
+        --branch "$BRANCH"
+    )
+    if [[ "$release_branch_exists" == "true" ]]; then
+        minor_validate_args+=(--release-branch-exists --release-branch-version "$release_branch_version")
+    fi
+    if ! "${minor_validate_args[@]}"; then
+        exit 1
+    fi
+
+    MAIN_NEW_VERSION=$("$PYTHON" "$VALIDATION_PY" derive-main-new-version --new "$NEW_VERSION")
+    version_bump_set_buildkite_meta "ml_cpp_version_bump_main_new_version" "$MAIN_NEW_VERSION"
+    echo "Derived MAIN_NEW_VERSION for main bump: ${MAIN_NEW_VERSION}"
+
+    branch_needed=true
+    if [[ "$release_branch_exists" == "true" && "$release_branch_version" == "$NEW_VERSION" ]]; then
+        branch_needed=false
+    fi
+    version_bump_set_buildkite_meta "ml_cpp_minor_branch_needed" "$([[ "$branch_needed" == "true" ]] && echo true || echo false)"
+
+    main_bump_needed=true
+    main_trim=$(echo "$main_version" | tr -d '[:space:]')
+    main_new_trim=$(echo "$MAIN_NEW_VERSION" | tr -d '[:space:]')
+    if [[ "$main_trim" == "$main_new_trim" ]]; then
+        main_bump_needed=false
+    fi
+    version_bump_set_buildkite_meta "ml_cpp_main_bump_needed" "$([[ "$main_bump_needed" == "true" ]] && echo true || echo false)"
+
+    if [[ "$branch_needed" == "false" && "$main_bump_needed" == "false" ]]; then
+        version_bump_set_noop_meta true
+        echo "OK: release branch and main bump already complete — follow-up steps will no-op."
+    else
+        version_bump_set_noop_meta false
+    fi
+    exit 0
+fi
+
 if [[ "$WORKFLOW" != "patch" ]]; then
-    echo "ERROR: WORKFLOW must be \"patch\" for this pipeline, got \"${WORKFLOW}\"" >&2
+    echo "ERROR: WORKFLOW must be \"patch\" or \"minor\", got \"${WORKFLOW}\"" >&2
     exit 1
 fi
 
@@ -74,9 +163,7 @@ echo "WORKFLOW:     ${WORKFLOW}"
 echo "NEW_VERSION:  ${NEW_VERSION}"
 echo "BRANCH:       ${BRANCH}"
 
-# Patch-only pipeline (no WORKFLOW=minor): consecutive patch on this release
-# branch. Current version is read from origin/${BRANCH} by design — there is no
-# minor-line bump mode in dev-tools/version_bump_validation.py or this pipeline.
+# Patch workflow: consecutive patch increment on the release branch named BRANCH.
 
 echo "Fetching origin/${BRANCH}..."
 git fetch origin "$BRANCH"

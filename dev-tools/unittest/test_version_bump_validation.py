@@ -175,14 +175,55 @@ def test_shell_skip_validation_env() -> None:
     assert out.returncode == 0, out.stderr + out.stdout
 
 
+def test_derive_main_new_version() -> None:
+    assert vbu.derive_main_new_version("9.5.0") == "9.6.0"
+
+
+def test_minor_freeze_ok() -> None:
+    main_new = vbu.validate_minor_freeze_params(
+        main_version="9.5.0",
+        new_version="9.5.0",
+        branch="9.5",
+        release_branch_exists=False,
+        release_branch_version=None,
+    )
+    assert main_new == "9.6.0"
+
+
+def test_minor_freeze_rejects_main_not_at_new_version() -> None:
+    with pytest.raises(ValueError, match="main elasticsearchVersion"):
+        vbu.validate_minor_freeze_params(
+            main_version="9.4.0",
+            new_version="9.5.0",
+            branch="9.5",
+            release_branch_exists=False,
+            release_branch_version=None,
+        )
+
+
+def test_main_minor_bump_ok() -> None:
+    vbu.validate_main_minor_bump(
+        current_version="9.5.0",
+        main_new_version="9.6.0",
+        release_branch_version="9.5.0",
+    )
+
+
+def test_main_minor_bump_noop() -> None:
+    vbu.validate_main_minor_bump(
+        current_version="9.6.0",
+        main_new_version="9.6.0",
+        release_branch_version="9.5.0",
+    )
+
+
 @pytest.mark.skipif(
     not _VALIDATOR_SCRIPT.is_file(),
     reason="validate_version_bump_params.sh missing",
 )
-def test_shell_rejects_non_patch_workflow() -> None:
-    """Upstream may send WORKFLOW=minor; fail before git fetch."""
+def test_shell_rejects_unknown_workflow() -> None:
     env = os.environ.copy()
-    env["WORKFLOW"] = "minor"
+    env["WORKFLOW"] = "feature-freeze"
     env["NEW_VERSION"] = "9.5.1"
     env["BRANCH"] = "9.5"
     env.pop("SKIP_VERSION_VALIDATION", None)
