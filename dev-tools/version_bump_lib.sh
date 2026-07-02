@@ -66,6 +66,11 @@ version_bump_set_buildkite_meta_changed() {
     version_bump_set_buildkite_meta "ml_cpp_version_bump_changed" "$1"
 }
 
+version_bump_set_noop_meta() {
+    local noop="$1"
+    version_bump_set_buildkite_meta "ml_cpp_version_bump_noop" "$noop"
+}
+
 version_bump_set_pr_url_meta() {
     local url="${1:-}"
     if [[ -z "${url}" ]]; then

@@ -47,6 +47,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=version_bump_lib.sh
+source "${SCRIPT_DIR}/version_bump_lib.sh"
+
 PYTHON="${PYTHON:-python3}"
 VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
 CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
@@ -55,13 +58,6 @@ CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
 : "${BRANCH:?BRANCH must be set}"
 
 # Normalise env (Buildkite / Windows agents may inject trailing CR or spaces).
-version_bump_trim_value() {
-    local s=$1
-    s="${s//$'\r'/}"
-    s="${s#"${s%%[![:space:]]*}"}"
-    s="${s%"${s##*[![:space:]]}"}"
-    printf '%s' "$s"
-}
 NEW_VERSION="$(version_bump_trim_value "${NEW_VERSION}")"
 BRANCH="$(version_bump_trim_value "${BRANCH}")"
 
@@ -72,18 +68,6 @@ GRADLE_PROPS="gradle.properties"
 if [ "$DRY_RUN" = "true" ]; then
     echo "=== DRY RUN MODE — will not push or create PR ==="
 fi
-
-# Parse elastic/ml-cpp from origin (https://github.com/elastic/ml-cpp.git or git@...)
-github_repo_slug() {
-    local url
-    url=$(git remote get-url origin 2>/dev/null || true)
-    if [[ "$url" =~ github\.com[:/]([^/]+)/([^/.]+)(\.git)?$ ]]; then
-        echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
-        return 0
-    fi
-    echo "ERROR: could not parse owner/repo from git remote url: ${url:-empty}" >&2
-    return 1
-}
 
 topic_branch_name() {
     local tb
@@ -96,54 +80,6 @@ topic_branch_name() {
         tb="${tb}-bk${BUILDKITE_BUILD_NUMBER}"
     fi
     echo "$tb"
-}
-
-# In-place edit without GNU/BSD/BusyBox `sed -i` differences: write to a temp file then replace.
-sed_inplace() {
-    local script=$1
-    local target=$2
-    local tmp
-    tmp=$(mktemp "${target}.sedtmp.XXXXXX")
-    if ! sed "${script}" "$target" >"$tmp"; then
-        rm -f "$tmp"
-        return 1
-    fi
-    mv "$tmp" "$target"
-}
-
-configure_git() {
-    git config user.name elasticsearchmachine
-    git config user.email 'infra-root+elasticsearchmachine@elastic.co'
-}
-
-# Record whether this run actually opened a version-bump PR (for Buildkite DRA wait gating).
-version_bump_set_buildkite_meta_changed() {
-    local changed="$1"
-    if [[ "${BUILDKITE:-}" != "true" ]]; then
-        return 0
-    fi
-    if ! command -v buildkite-agent >/dev/null 2>&1; then
-        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ml_cpp_version_bump_changed=${changed}" >&2
-        return 0
-    fi
-    buildkite-agent meta-data set "ml_cpp_version_bump_changed" "$changed"
-}
-
-# PR URL for the Slack step (after bump). Omit calling when there is no URL — Buildkite
-# rejects meta-data set with an empty value ("value cannot be empty…").
-version_bump_set_pr_url_meta() {
-    local url="${1:-}"
-    if [[ -z "${url}" ]]; then
-        return 0
-    fi
-    if [[ "${BUILDKITE:-}" != "true" ]]; then
-        return 0
-    fi
-    if ! command -v buildkite-agent >/dev/null 2>&1; then
-        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ml_cpp_version_bump_pr_url" >&2
-        return 0
-    fi
-    buildkite-agent meta-data set "ml_cpp_version_bump_pr_url" "$url"
 }
 
 bump_version_via_pr() {
@@ -161,9 +97,7 @@ bump_version_via_pr() {
     # Topic branch starts at release-branch tip (same tree validation uses).
     git checkout -B "$topic_branch" "origin/${target_branch}"
 
-    current_version=$(
-        grep '^elasticsearchVersion=' "$GRADLE_PROPS" | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
-    )
+    current_version=$(read_elasticsearch_version_from_file "$GRADLE_PROPS")
     if [[ -z "$current_version" ]]; then
         echo "ERROR: could not read elasticsearchVersion from ${GRADLE_PROPS} on origin/${target_branch}" >&2
         exit 1

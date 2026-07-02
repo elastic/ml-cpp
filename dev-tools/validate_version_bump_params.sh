@@ -25,41 +25,10 @@
 
 set -euo pipefail
 
-# shellcheck disable=SC2034
-version_bump_trim_value() {
-    local s=$1
-    s="${s//$'\r'/}"
-    s="${s#"${s%%[![:space:]]*}"}"
-    s="${s%"${s##*[![:space:]]}"}"
-    printf '%s' "$s"
-}
-
-version_bump_set_buildkite_meta() {
-    local key="$1"
-    local value="$2"
-    if [[ "${BUILDKITE:-}" != "true" ]]; then
-        return 0
-    fi
-    if ! command -v buildkite-agent >/dev/null 2>&1; then
-        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ${key}=${value}" >&2
-        return 0
-    fi
-    buildkite-agent meta-data set "$key" "$value"
-}
-
-version_bump_set_noop_meta() {
-    local noop="$1"
-    if [[ "${BUILDKITE:-}" != "true" ]]; then
-        return 0
-    fi
-    if ! command -v buildkite-agent >/dev/null 2>&1; then
-        echo "WARNING: BUILDKITE=true but buildkite-agent not in PATH; skipping meta-data ml_cpp_version_bump_noop=${noop}" >&2
-        return 0
-    fi
-    buildkite-agent meta-data set "ml_cpp_version_bump_noop" "$noop"
-}
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=version_bump_lib.sh
+source "${SCRIPT_DIR}/version_bump_lib.sh"
+
 PYTHON="${PYTHON:-python3}"
 VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
 
