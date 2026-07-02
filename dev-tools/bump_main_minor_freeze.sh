@@ -48,6 +48,12 @@ if [ "$DRY_RUN" = "true" ]; then
     echo "=== DRY RUN MODE — will not push or create PR ==="
 fi
 
+version_bump_set_main_bump_changed() {
+    local changed="$1"
+    version_bump_set_buildkite_meta "ml_cpp_main_bump_changed" "$changed"
+    version_bump_set_buildkite_meta_changed "$changed"
+}
+
 if [[ "$BRANCH" == testing-* ]]; then
     echo "Sandbox branch ${BRANCH} — skipping main bump and .backportrc.json update"
     version_bump_set_main_bump_changed false
@@ -64,12 +70,6 @@ main_bump_topic_branch_name() {
         tb="${tb}-bk${BUILDKITE_BUILD_NUMBER}"
     fi
     echo "$tb"
-}
-
-version_bump_set_main_bump_changed() {
-    local changed="$1"
-    version_bump_set_buildkite_meta "ml_cpp_main_bump_changed" "$changed"
-    version_bump_set_buildkite_meta_changed "$changed"
 }
 
 echo "=== Minor freeze Leg B: bump ${TARGET_BRANCH} ${NEW_VERSION} → ${MAIN_NEW_VERSION} ==="
