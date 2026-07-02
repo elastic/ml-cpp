@@ -28,7 +28,8 @@
 #   DRY_RUN — true to skip push and PR creation
 #   BUILDKITE_BUILD_NUMBER — appended to topic branch name for uniqueness
 #   VERSION_BUMP_TOPIC_BRANCH — optional override for topic branch name
-#   GITHUB_TOKEN / VAULT_GITHUB_TOKEN / GH_TOKEN — auth for gh (CI sets Vault token)
+#   VAULT_GITHUB_TOKEN / GH_TOKEN — auth for gh in CI (CI sets Vault token).
+#   Local runs use `gh auth login`; GITHUB_TOKEN is ignored if set in the shell.
 #   VERSION_BUMP_NO_MERGE — set to true to open PR only (no merge / auto-merge step)
 #   VERSION_BUMP_MERGE_AUTO — true: enable GitHub auto-merge (--auto --squash); false/unset with merge: immediate squash
 #   VERSION_BUMP_MERGE_METHOD — merge | squash | rebase (default: squash)
