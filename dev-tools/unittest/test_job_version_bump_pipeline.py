@@ -119,7 +119,7 @@ def test_phase2_dra_uses_wait_script_not_meta_in_if() -> None:
     dra = _step_by_key(pipeline, "fetch-dra-artifacts")
     assert "if" not in dra
     assert "plugins" not in dra
-    assert dra["command"] == ["python3", "dev-tools/wait_version_bump_dra.py"]
+    assert dra["command"] == ["python3 dev-tools/wait_version_bump_dra.py"]
 
 
 def test_phase2_order_bump_then_slack_then_dra() -> None:
@@ -212,3 +212,10 @@ def test_phase2_minor_order_group_then_slack_then_dra() -> None:
         _step_by_key(pipeline, "fetch-dra-artifacts")["depends_on"]
         == "queue-slack-notify"
     )
+
+
+def test_phase2_minor_dra_command_is_single_shell_line() -> None:
+    """Buildkite runs each command array element as a separate shell line."""
+    pipeline = _run_phase2_minor()
+    dra = _step_by_key(pipeline, "fetch-dra-artifacts")
+    assert dra["command"] == ["python3 dev-tools/wait_version_bump_dra.py"]

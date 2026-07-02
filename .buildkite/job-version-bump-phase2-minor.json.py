@@ -72,8 +72,7 @@ def main():
                 "ephemeralStorage": "1Gi",
             },
             "command": [
-                "python3",
-                "dev-tools/wait_version_bump_dra.py",
+                "python3 dev-tools/wait_version_bump_dra.py",
             ],
             "timeout_in_minutes": 240,
             "retry": {
