@@ -72,3 +72,22 @@ def test_poll_logs_progress_when_versions_unavailable(capsys) -> None:
 
     out = capsys.readouterr().out
     assert "still waiting: staging=None, snapshot=None" in out
+
+
+def test_main_skips_dra_wait_for_sandbox_branch(capsys) -> None:
+    mod = _load_wait_module()
+    with patch.dict(
+        "os.environ",
+        {
+            "BRANCH": "testing-9.5",
+            "NEW_VERSION": "9.5.0",
+            "WORKFLOW": "minor",
+            "BUILDKITE": "false",
+        },
+        clear=False,
+    ):
+        assert mod.main() == 0
+
+    err = capsys.readouterr().err
+    assert "Sandbox release branch" in err
+    assert "testing-9.5" in err

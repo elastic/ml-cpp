@@ -85,6 +85,9 @@ if [[ "$WORKFLOW" == "minor" ]]; then
     echo "WORKFLOW:     ${WORKFLOW}"
     echo "NEW_VERSION:  ${NEW_VERSION} (expected on release branch ${BRANCH})"
     echo "BRANCH:       ${BRANCH} (release branch to create)"
+    if [[ "$BRANCH" == testing-* ]]; then
+        echo "              (sandbox: version rules use identity ${BRANCH#testing-})"
+    fi
 
     echo "Fetching origin/main and checking origin/${BRANCH}..."
     git fetch origin main
@@ -141,6 +144,10 @@ if [[ "$WORKFLOW" == "minor" ]]; then
     main_new_trim=$(echo "$MAIN_NEW_VERSION" | tr -d '[:space:]')
     if [[ "$main_trim" == "$main_new_trim" ]]; then
         main_bump_needed=false
+    fi
+    if [[ "$BRANCH" == testing-* ]]; then
+        main_bump_needed=false
+        echo "Sandbox branch ${BRANCH} — main bump will be skipped"
     fi
     version_bump_set_buildkite_meta "ml_cpp_main_bump_needed" "$([[ "$main_bump_needed" == "true" ]] && echo true || echo false)"
 

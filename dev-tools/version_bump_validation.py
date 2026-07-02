@@ -15,6 +15,9 @@ NEW_VERSION, BRANCH, WORKFLOW. For WORKFLOW=minor, NEW_VERSION is the version
 expected on the new release branch (e.g. 9.5.0 on branch 9.5); main is bumped to
 derive_main_new_version(NEW_VERSION) (e.g. 9.6.0).
 
+BRANCH may be MAJOR.MINOR or a sandbox ref ``testing-MAJOR.MINOR`` (e.g. ``testing-9.5``).
+Version rules strip the ``testing-`` prefix; git operations use the full ref name.
+
 Used by dev-tools/validate_version_bump_params.sh and unit-tested under
 dev-tools/unittest/.
 
@@ -38,6 +41,19 @@ from typing import Optional, Tuple
 
 SEMVER_RE = re.compile(r"^([0-9]+)\.([0-9]+)\.([0-9]+)$")
 BRANCH_RE = re.compile(r"^([0-9]+)\.([0-9]+)$")
+SANDBOX_BRANCH_PREFIX = "testing-"
+
+
+def is_sandbox_release_branch(branch: str) -> bool:
+    """True when BRANCH is a manual-test ref (testing-MAJOR.MINOR), not a production line."""
+    return branch.startswith(SANDBOX_BRANCH_PREFIX)
+
+
+def release_branch_identity(branch: str) -> str:
+    """Return MAJOR.MINOR identity for version rules (strip leading testing- prefix)."""
+    if is_sandbox_release_branch(branch):
+        return branch[len(SANDBOX_BRANCH_PREFIX) :]
+    return branch
 
 
 def _reject_outer_whitespace(label: str, value: str) -> None:
@@ -56,7 +72,8 @@ def parse_semver(version: str) -> Optional[Tuple[int, int, int]]:
 
 
 def parse_release_branch(branch: str) -> Optional[Tuple[int, int]]:
-    m = BRANCH_RE.match(branch)
+    identity = release_branch_identity(branch)
+    m = BRANCH_RE.match(identity)
     if not m:
         return None
     return (int(m.group(1)), int(m.group(2)))
@@ -86,7 +103,8 @@ def validate_version_bump_params(
     br = parse_release_branch(branch)
     if br is None:
         raise ValueError(
-            f"BRANCH must be MAJOR.MINOR (e.g. 9.5), got {branch!r}"
+            f"BRANCH must be MAJOR.MINOR (e.g. 9.5) or "
+            f"{SANDBOX_BRANCH_PREFIX}MAJOR.MINOR (e.g. testing-9.5), got {branch!r}"
         )
     br_major, br_minor = br
     if br_major != new_major or br_minor != new_minor:
@@ -167,7 +185,8 @@ def validate_minor_freeze_params(
     br = parse_release_branch(branch)
     if br is None:
         raise ValueError(
-            f"BRANCH must be MAJOR.MINOR (e.g. 9.5), got {branch!r}"
+            f"BRANCH must be MAJOR.MINOR (e.g. 9.5) or "
+            f"{SANDBOX_BRANCH_PREFIX}MAJOR.MINOR (e.g. testing-9.5), got {branch!r}"
         )
     br_major, br_minor = br
     if br_major != new_major or br_minor != new_minor:
@@ -270,7 +289,7 @@ def main() -> int:
     )
     p_val.add_argument("--current", required=True, help="elasticsearchVersion on branch")
     p_val.add_argument("--new", required=True, dest="new", help="NEW_VERSION")
-    p_val.add_argument("--branch", required=True, help="BRANCH (MAJOR.MINOR)")
+    p_val.add_argument("--branch", required=True, help="BRANCH (MAJOR.MINOR or testing-MAJOR.MINOR)")
     p_val.set_defaults(func=_cmd_validate)
 
     p_rep = sub.add_parser(
@@ -314,6 +333,12 @@ def main() -> int:
             print(f"ERROR: {e}", file=sys.stderr)
             return 1
         print(f"OK: minor freeze NEW_VERSION={args_ns.new} on branch {args_ns.branch}")
+        if is_sandbox_release_branch(args_ns.branch):
+            identity = release_branch_identity(args_ns.branch)
+            print(
+                f"OK: sandbox branch (version identity {identity!r}); "
+                "main bump and DRA wait are skipped in CI"
+            )
         print(f"OK: main bump target MAIN_NEW_VERSION={main_new}")
         return 0
 

@@ -80,6 +80,25 @@ def test_patch_ok_consecutive() -> None:
     )
 
 
+def test_patch_ok_with_sandbox_branch_name() -> None:
+    vbu.validate_version_bump_params(
+        current_version="9.5.0",
+        new_version="9.5.1",
+        branch="testing-9.5",
+    )
+
+
+def test_release_branch_identity_strips_testing_prefix() -> None:
+    assert vbu.release_branch_identity("9.5") == "9.5"
+    assert vbu.release_branch_identity("testing-9.5") == "9.5"
+    assert vbu.is_sandbox_release_branch("testing-9.5")
+    assert not vbu.is_sandbox_release_branch("9.5")
+
+
+def test_parse_release_branch_accepts_sandbox_prefix() -> None:
+    assert vbu.parse_release_branch("testing-9.5") == (9, 5)
+
+
 def test_patch_ok_noop_same_version() -> None:
     vbu.validate_version_bump_params(
         current_version="9.5.1",
@@ -184,6 +203,17 @@ def test_minor_freeze_ok() -> None:
         main_version="9.5.0",
         new_version="9.5.0",
         branch="9.5",
+        release_branch_exists=False,
+        release_branch_version=None,
+    )
+    assert main_new == "9.6.0"
+
+
+def test_minor_freeze_ok_sandbox_branch_name() -> None:
+    main_new = vbu.validate_minor_freeze_params(
+        main_version="9.5.0",
+        new_version="9.5.0",
+        branch="testing-9.5",
         release_branch_exists=False,
         release_branch_version=None,
     )

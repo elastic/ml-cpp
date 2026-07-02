@@ -48,6 +48,13 @@ if [ "$DRY_RUN" = "true" ]; then
     echo "=== DRY RUN MODE — will not push or create PR ==="
 fi
 
+if [[ "$BRANCH" == testing-* ]]; then
+    echo "Sandbox branch ${BRANCH} — skipping main bump and .backportrc.json update"
+    version_bump_set_main_bump_changed false
+    version_bump_set_buildkite_meta "ml_cpp_main_bump_needed" "false"
+    exit 0
+fi
+
 MAIN_NEW_VERSION=$("$PYTHON" "$VALIDATION_PY" derive-main-new-version --new "$NEW_VERSION")
 version_bump_set_buildkite_meta "ml_cpp_version_bump_main_new_version" "$MAIN_NEW_VERSION"
 

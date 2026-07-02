@@ -30,6 +30,13 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
+
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+
+import version_bump_validation as vbu
 
 POLL_SECONDS = 30
 TIMEOUT_SECONDS = 240 * 60
@@ -177,6 +184,14 @@ def main() -> int:
     if not branch or not new_version:
         print("ERROR: BRANCH and NEW_VERSION must be set.", file=sys.stderr)
         return 1
+
+    if vbu.is_sandbox_release_branch(branch):
+        print(
+            f"Sandbox release branch {branch!r} — skipping DRA wait "
+            f"(no artifacts published for {vbu.SANDBOX_BRANCH_PREFIX}* refs).",
+            file=sys.stderr,
+        )
+        return 0
 
     if workflow == "minor":
         main_new_version = _meta_get("ml_cpp_version_bump_main_new_version")
