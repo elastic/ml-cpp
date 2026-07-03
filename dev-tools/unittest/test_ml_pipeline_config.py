@@ -45,6 +45,16 @@ def test_normalize_buildkite_branch_fork_and_plus_separator() -> None:
         == "ci/ml-cpp-version-bump-9.5-9.5.1"
     )
     assert (
+        pipeline_config.normalize_buildkite_branch(
+            "edsavage+ci/ml-cpp-version-bump-manual-test-9.5.0"
+        )
+        == "ci/ml-cpp-version-bump-manual-test-9.5.0"
+    )
+    assert (
+        pipeline_config.normalize_buildkite_branch("ci+ml-cpp-minor-freeze-main-9.6.0")
+        == "ci/ml-cpp-minor-freeze-main-9.6.0"
+    )
+    assert (
         pipeline_config.normalize_buildkite_branch("ci/ml-cpp-version-bump-9.5-9.5.1")
         == "ci/ml-cpp-version-bump-9.5-9.5.1"
     )
@@ -76,8 +86,15 @@ def test_skip_es_tests_from_label(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_skip_es_tests_from_topic_branch(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(
         "BUILDKITE_BRANCH",
-        "edsavage:ci/ml-cpp-version-bump-9.5-9.5.1-bk99",
+        "edsavage+ci/ml-cpp-version-bump-manual-test-9.5.0",
     )
+    config = pipeline_config.Config()
+    config.parse()
+    assert config.skip_es_tests is True
+
+
+def test_skip_es_tests_from_github_pr_branch(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GITHUB_PR_BRANCH", "ci/ml-cpp-version-bump-manual-test-9.5.0")
     config = pipeline_config.Config()
     config.parse()
     assert config.skip_es_tests is True
