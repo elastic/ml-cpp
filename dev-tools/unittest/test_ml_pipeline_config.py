@@ -27,15 +27,26 @@ _PIPELINE_JSON = _BUILDKITE_DIR / "pipeline.json.py"
 sys.path.insert(0, str(_BUILDKITE_DIR))
 import ml_pipeline.config as pipeline_config  # noqa: E402
 
+_PR_BRANCH_ENV_KEYS = (
+    "GITHUB_PR_LABELS",
+    "BUILDKITE_PULL_REQUEST_LABELS",
+    "BUILDKITE_BRANCH",
+    "GITHUB_PR_BRANCH",
+    "GITHUB_PR_TRIGGER_COMMENT",
+)
+
+
+def _subprocess_env(**overrides: str) -> dict[str, str]:
+    env = os.environ.copy()
+    for key in _PR_BRANCH_ENV_KEYS:
+        env.pop(key, None)
+    env.update(overrides)
+    return env
+
 
 @pytest.fixture(autouse=True)
 def _clear_skip_es_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    for key in (
-        "GITHUB_PR_LABELS",
-        "BUILDKITE_PULL_REQUEST_LABELS",
-        "BUILDKITE_BRANCH",
-        "GITHUB_PR_TRIGGER_COMMENT",
-    ):
+    for key in _PR_BRANCH_ENV_KEYS:
         monkeypatch.delenv(key, raising=False)
 
 
@@ -111,15 +122,13 @@ def test_skip_es_tests_false_for_normal_pr(monkeypatch: pytest.MonkeyPatch) -> N
 def test_pipeline_json_omits_es_test_upload_steps_when_skip_set(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("GITHUB_PR_LABELS", "ci:skip-es-tests")
-    env = os.environ.copy()
     proc = subprocess.run(
         [sys.executable, str(_PIPELINE_JSON)],
         check=True,
         capture_output=True,
         text=True,
         cwd=str(_REPO_ROOT),
-        env=env,
+        env=_subprocess_env(GITHUB_PR_LABELS="ci:skip-es-tests"),
     )
     pipeline = json.loads(proc.stdout)
     labels = [step.get("label", "") for step in pipeline["steps"]]
@@ -127,19 +136,14 @@ def test_pipeline_json_omits_es_test_upload_steps_when_skip_set(
     assert not any("Inference Integration Tests" in label for label in labels)
 
 
-def test_pipeline_json_includes_es_test_upload_steps_by_default(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.delenv("GITHUB_PR_LABELS", raising=False)
-    monkeypatch.delenv("BUILDKITE_BRANCH", raising=False)
-    env = {k: v for k, v in os.environ.items() if k != "GITHUB_PR_TRIGGER_COMMENT"}
+def test_pipeline_json_includes_es_test_upload_steps_by_default() -> None:
     proc = subprocess.run(
         [sys.executable, str(_PIPELINE_JSON)],
         check=True,
         capture_output=True,
         text=True,
         cwd=str(_REPO_ROOT),
-        env=env,
+        env=_subprocess_env(),
     )
     pipeline = json.loads(proc.stdout)
     labels = [step.get("label", "") for step in pipeline["steps"]]
