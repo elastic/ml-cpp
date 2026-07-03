@@ -166,6 +166,7 @@ EOF
         --head "$topic_branch"
         --title "[ML] Bump version to ${target_version}"
         --body "$pr_body"
+        --label "ci:skip-es-tests"
     )
     if [[ "${VERSION_BUMP_NO_MERGE:-}" != "true" ]]; then
         if [[ "${VERSION_BUMP_MERGE_AUTO:-}" == "true" ]]; then

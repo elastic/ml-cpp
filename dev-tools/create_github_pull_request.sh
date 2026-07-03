@@ -20,7 +20,7 @@
 #
 # Usage:
 #   create_github_pull_request.sh --repo ORG/REPO --base BASE --head HEAD \
-#       --title T --body B [--merge | --merge-auto] [--merge-method merge|squash|rebase]
+#       --title T --body B [--label NAME] [--merge | --merge-auto] [--merge-method merge|squash|rebase]
 #
 # On success, prints the PR URL to stdout (single line). Merge progress to stderr.
 #
@@ -57,6 +57,7 @@ BODY=""
 DO_MERGE="false"
 DO_MERGE_AUTO="false"
 MERGE_METHOD="${VERSION_BUMP_MERGE_METHOD:-squash}"
+LABELS=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -78,6 +79,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --body)
             BODY="$2"
+            shift 2
+            ;;
+        --label)
+            LABELS+=("$2")
             shift 2
             ;;
         --merge)
@@ -133,12 +138,19 @@ if ! gh auth status >/dev/null 2>&1; then
     exit 1
 fi
 
-PR_URL=$(gh pr create \
-    --repo "$REPO" \
-    --base "$BASE" \
-    --head "$HEAD_REF" \
-    --title "$TITLE" \
-    --body "$BODY")
+declare -a create_cmd=(
+    gh pr create
+    --repo "$REPO"
+    --base "$BASE"
+    --head "$HEAD_REF"
+    --title "$TITLE"
+    --body "$BODY"
+)
+for label in "${LABELS[@]}"; do
+    create_cmd+=(--label "$label")
+done
+
+PR_URL=$("${create_cmd[@]}")
 
 echo "$PR_URL"
 
