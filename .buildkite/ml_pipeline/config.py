@@ -260,14 +260,6 @@ class Config:
                 self.skip_version_bump_pr_ci = True
                 return
 
-
-def should_skip_version_bump_pr_ci() -> bool:
-    """Return True when PR CI should omit Java ITs and Linux x86_64 debug steps."""
-
-    config = Config()
-    config.parse()
-    return config.skip_version_bump_pr_ci
-
     def _apply_serverless_kv_from_comment(self):
         """Copy whitelisted KEY=value tokens from the PR comment regex capture into os.environ."""
 
@@ -288,4 +280,12 @@ def should_skip_version_bump_pr_ci() -> bool:
             if key == "ES_SERVERLESS_BRANCH" and not re.fullmatch(r"[A-Za-z0-9_./-]+", value):
                 continue
             os.environ[key] = value
+
+
+def should_skip_version_bump_pr_ci() -> bool:
+    """Return True when PR CI should omit Java ITs and Linux x86_64 debug steps."""
+
+    config = Config()
+    config.parse()
+    return config.skip_version_bump_pr_ci
 

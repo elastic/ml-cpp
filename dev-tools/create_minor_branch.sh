@@ -61,12 +61,16 @@ if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
     release_branch_version=$(read_elasticsearch_version_from_ref "origin/${BRANCH}")
 fi
 
-if ! "$PYTHON" "$VALIDATION_PY" validate-minor-freeze \
-    --main-version "$main_version" \
-    --new "$NEW_VERSION" \
-    --branch "$BRANCH" \
-    $([[ "$release_branch_exists" == "true" ]] && echo --release-branch-exists) \
-    ${release_branch_version:+--release-branch-version "$release_branch_version"}
+minor_validate_args=(
+    --main-version "$main_version"
+    --new "$NEW_VERSION"
+    --branch "$BRANCH"
+)
+if [[ "$release_branch_exists" == "true" ]]; then
+    minor_validate_args+=(--release-branch-exists --release-branch-version "$release_branch_version")
+fi
+
+if ! "$PYTHON" "$VALIDATION_PY" validate-minor-freeze "${minor_validate_args[@]}"
 then
     exit 1
 fi

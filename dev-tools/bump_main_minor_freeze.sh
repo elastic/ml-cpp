@@ -150,7 +150,7 @@ When merging is enabled (\`VERSION_BUMP_NO_MERGE\` not true): **auto-merge** if 
 EOF
 )"
 
-local -a pr_cmd=(
+pr_cmd=(
     "$CREATE_PR_SH"
     --repo "$repo_slug"
     --base "$TARGET_BRANCH"
