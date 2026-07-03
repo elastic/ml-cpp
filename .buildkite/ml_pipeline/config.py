@@ -36,8 +36,14 @@ def normalize_buildkite_branch(branch: str) -> str:
 
     if ":" in branch:
         branch = branch.split(":", 1)[1]
-    # pull-requests.json uses buildkite_branch_name_separator: "+"
-    return branch.replace("+", "/")
+    if "+" in branch:
+        if "/" in branch:
+            # Fork PR: author+branch/with/slashes (only the author separator is "+").
+            branch = branch.split("+", 1)[1]
+        else:
+            # Branch name with "/" encoded as "+" throughout (no fork author prefix).
+            branch = branch.replace("+", "/")
+    return branch
 
 
 def is_version_bump_topic_branch(branch: str) -> bool:
@@ -239,9 +245,11 @@ class Config:
                 self.skip_es_tests = True
                 return
 
-        branch = os.environ.get("BUILDKITE_BRANCH", "")
-        if branch and is_version_bump_topic_branch(branch):
-            self.skip_es_tests = True
+        for env_key in ("GITHUB_PR_BRANCH", "BUILDKITE_BRANCH"):
+            branch = os.environ.get(env_key, "")
+            if branch and is_version_bump_topic_branch(branch):
+                self.skip_es_tests = True
+                return
 
     def _apply_serverless_kv_from_comment(self):
         """Copy whitelisted KEY=value tokens from the PR comment regex capture into os.environ."""
