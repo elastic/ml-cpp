@@ -21,9 +21,12 @@ _SERVERLESS_KV_KEYS = frozenset(
     }
 )
 
-# Skip Elasticsearch Java IT pipelines on automated version-bump PRs (metadata-only
-# changes). Applied via ci:skip-es-tests label and/or version-bump topic branch names.
-SKIP_ES_TESTS_LABEL = "ci:skip-es-tests"
+# Trim PR CI for automated version-bump PRs (metadata-only changes): skip Java ES IT
+# pipelines and the extra Linux x86_64 debug build/test pair. Applied via
+# ci:skip-es-tests label and/or version-bump topic branch names.
+SKIP_VERSION_BUMP_PR_CI_LABEL = "ci:skip-es-tests"
+# Backward-compatible alias for callers/tests that reference the old name.
+SKIP_ES_TESTS_LABEL = SKIP_VERSION_BUMP_PR_CI_LABEL
 
 _VERSION_BUMP_TOPIC_BRANCH_PATTERNS = (
     re.compile(r"^ci/ml-cpp-version-bump-"),
@@ -61,8 +64,14 @@ class Config:
     run_pytorch_tests: bool = False
     run_serverless_tests: bool = False
     deploy_serverless_qa: bool = False
-    skip_es_tests: bool = False
+    skip_version_bump_pr_ci: bool = False
     action: str = "build"
+
+    @property
+    def skip_es_tests(self) -> bool:
+        """Backward-compatible alias for skip_version_bump_pr_ci."""
+
+        return self.skip_version_bump_pr_ci
 
     def parse_comment(self):
         """ Parse environment variables set from GitHub PR comments
@@ -228,12 +237,12 @@ class Config:
             self.build_x86_64 = "--build-x86_64"
             self.run_qa_tests = False
 
-        self._apply_skip_es_tests()
+        self._apply_skip_version_bump_pr_ci()
 
-    def _apply_skip_es_tests(self):
-        """Skip Java ES IT pipelines for automated version-bump PRs."""
+    def _apply_skip_version_bump_pr_ci(self):
+        """Skip extra PR CI (Java ES ITs, Linux x86_64 debug) for version-bump PRs."""
 
-        if self.skip_es_tests:
+        if self.skip_version_bump_pr_ci:
             return
 
         for env_key in ("GITHUB_PR_LABELS", "BUILDKITE_PULL_REQUEST_LABELS"):
@@ -241,15 +250,23 @@ class Config:
             if not raw:
                 continue
             labels = [label.strip().lower() for label in raw.split(",")]
-            if SKIP_ES_TESTS_LABEL in labels:
-                self.skip_es_tests = True
+            if SKIP_VERSION_BUMP_PR_CI_LABEL in labels:
+                self.skip_version_bump_pr_ci = True
                 return
 
         for env_key in ("GITHUB_PR_BRANCH", "BUILDKITE_BRANCH"):
             branch = os.environ.get(env_key, "")
             if branch and is_version_bump_topic_branch(branch):
-                self.skip_es_tests = True
+                self.skip_version_bump_pr_ci = True
                 return
+
+
+def should_skip_version_bump_pr_ci() -> bool:
+    """Return True when PR CI should omit Java ITs and Linux x86_64 debug steps."""
+
+    config = Config()
+    config.parse()
+    return config.skip_version_bump_pr_ci
 
     def _apply_serverless_kv_from_comment(self):
         """Copy whitelisted KEY=value tokens from the PR comment regex capture into os.environ."""

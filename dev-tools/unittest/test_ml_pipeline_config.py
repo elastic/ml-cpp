@@ -23,6 +23,7 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _BUILDKITE_DIR = _REPO_ROOT / ".buildkite"
 _PIPELINE_JSON = _BUILDKITE_DIR / "pipeline.json.py"
+_BUILD_LINUX_JSON = _BUILDKITE_DIR / "pipelines" / "build_linux.json.py"
 
 sys.path.insert(0, str(_BUILDKITE_DIR))
 import ml_pipeline.config as pipeline_config  # noqa: E402
@@ -149,3 +150,37 @@ def test_pipeline_json_includes_es_test_upload_steps_by_default() -> None:
     labels = [step.get("label", "") for step in pipeline["steps"]]
     assert any("ES tests x86_64" in label for label in labels)
     assert any("ES tests aarch64" in label for label in labels)
+
+
+def _run_build_linux_pipeline(**env_overrides: str) -> list[str]:
+    env = _subprocess_env(
+        BUILDKITE_PULL_REQUEST="123",
+        BUILDKITE_PIPELINE_SLUG="ml-cpp-pr-builds",
+        **env_overrides,
+    )
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(_BUILD_LINUX_JSON),
+            "--action=build",
+            "--build-aarch64",
+            "--build-x86_64",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=str(_REPO_ROOT),
+        env=env,
+    )
+    pipeline = json.loads(proc.stdout)
+    return [step.get("label", "") for step in pipeline["steps"]]
+
+
+def test_build_linux_includes_debug_steps_for_normal_pr() -> None:
+    labels = _run_build_linux_pipeline()
+    assert any("RelWithDebInfo (debug)" in label for label in labels)
+
+
+def test_build_linux_omits_debug_steps_when_version_bump_skip_set() -> None:
+    labels = _run_build_linux_pipeline(GITHUB_PR_LABELS="ci:skip-es-tests")
+    assert not any("RelWithDebInfo (debug)" in label for label in labels)

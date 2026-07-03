@@ -75,7 +75,7 @@ def main():
         pipeline_steps.append(build_linux)
 
         if config.build_x86_64:
-            if not config.skip_es_tests:
+            if not config.skip_version_bump_pr_ci:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
                                                                    ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
                 pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
@@ -87,7 +87,7 @@ def main():
             if config.run_pytorch_tests:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload QA PyTorch tests runner pipeline",
                                                                    ".buildkite/pipelines/run_pytorch_tests.yml.sh"))
-        if config.build_aarch64 and not config.skip_es_tests:
+        if config.build_aarch64 and not config.skip_version_bump_pr_ci:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
 
