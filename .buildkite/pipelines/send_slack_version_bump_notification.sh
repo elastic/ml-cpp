@@ -21,6 +21,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# shellcheck source=../../dev-tools/version_bump_lib.sh
+source "${REPO_ROOT}/dev-tools/version_bump_lib.sh"
+
 CHANNEL="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build}"
 
 if [[ "${BUILDKITE:-}" != "true" ]]; then
@@ -37,15 +42,14 @@ fi
 pr_url=""
 changed="false"
 minor_branch_created="false"
-workflow="${WORKFLOW:-patch}"
+workflow="$(version_bump_trim_value "${WORKFLOW:-patch}")"
 pr_url=$(buildkite-agent meta-data get "ml_cpp_version_bump_pr_url" 2>/dev/null || true)
 changed=$(buildkite-agent meta-data get "ml_cpp_version_bump_changed" 2>/dev/null || echo "false")
 minor_branch_created=$(buildkite-agent meta-data get "ml_cpp_minor_branch_created" 2>/dev/null || echo "false")
 # Meta-data values must not contain stray whitespace (breaks truthiness.)
-pr_url=$(echo -n "${pr_url}" | tr -d '\r')
-changed=$(echo -n "${changed}" | tr -d '\r')
-minor_branch_created=$(echo -n "${minor_branch_created}" | tr -d '\r')
-workflow=$(echo -n "${workflow}" | tr -d '\r')
+pr_url="$(version_bump_trim_value "${pr_url}")"
+changed="$(version_bump_trim_value "${changed}")"
+minor_branch_created="$(version_bump_trim_value "${minor_branch_created}")"
 
 if [[ "${workflow}" == "minor" ]]; then
     if [[ "${minor_branch_created}" != "true" && "${changed}" != "true" ]]; then

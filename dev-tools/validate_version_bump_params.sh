@@ -64,9 +64,7 @@ if [[ "$WORKFLOW" == "minor" ]]; then
         git fetch origin "$BRANCH"
     fi
 
-    main_version=$(
-        git show origin/main:gradle.properties | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
-    )
+    main_version=$(read_elasticsearch_version_from_ref "origin/main")
     if [[ -z "$main_version" ]]; then
         echo "ERROR: could not read elasticsearchVersion from origin/main gradle.properties" >&2
         exit 1
@@ -77,9 +75,7 @@ if [[ "$WORKFLOW" == "minor" ]]; then
     release_branch_version=""
     if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
         release_branch_exists=true
-        release_branch_version=$(
-            git show "origin/${BRANCH}:gradle.properties" | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
-        )
+        release_branch_version=$(read_elasticsearch_version_from_ref "origin/${BRANCH}")
         echo "Release branch origin/${BRANCH} exists at version: ${release_branch_version:-unknown}"
     else
         echo "Release branch origin/${BRANCH} does not exist yet"

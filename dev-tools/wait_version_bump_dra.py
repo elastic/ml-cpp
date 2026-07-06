@@ -108,16 +108,6 @@ def _fetch_version(url: str) -> str | None:
         return None
 
 
-def _derive_main_new_version(release_version: str) -> str:
-    parts = release_version.split(".")
-    if len(parts) != 3:
-        raise ValueError(f"invalid semver: {release_version!r}")
-    major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
-    if patch != 0:
-        raise ValueError(f"expected patch 0 for minor freeze, got {release_version!r}")
-    return f"{major}.{minor + 1}.0"
-
-
 def _wait_for_checks(checks: list[tuple[str, str, str]]) -> int:
     """Poll until all (label, url, expected_version) match."""
     print(f"Waiting for DRA artifacts (timeout {TIMEOUT_SECONDS}s, poll {POLL_SECONDS}s)...")
@@ -199,7 +189,7 @@ def main() -> int:
             main_new_version = os.environ.get("MAIN_NEW_VERSION", "").strip()
         if not main_new_version:
             try:
-                main_new_version = _derive_main_new_version(new_version)
+                main_new_version = vbu.derive_main_new_version(new_version)
             except ValueError as exc:
                 print(f"ERROR: {exc}", file=sys.stderr)
                 return 1
