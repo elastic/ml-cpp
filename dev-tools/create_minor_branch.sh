@@ -88,14 +88,14 @@ if [[ "$main_version" != "$NEW_VERSION" ]]; then
 fi
 
 if [ "$DRY_RUN" = "true" ]; then
-    echo "  [DRY RUN] Would push origin ${UPSTREAM_BRANCH}:${BRANCH}"
+    echo "  [DRY RUN] Would push origin/${UPSTREAM_BRANCH} -> refs/heads/${BRANCH}"
     version_bump_set_buildkite_meta "ml_cpp_minor_branch_created" "true"
     version_bump_set_buildkite_meta "ml_cpp_minor_branch_needed" "true"
     exit 0
 fi
 
 configure_git
-git push origin "${UPSTREAM_BRANCH}:refs/heads/${BRANCH}"
+git push origin "origin/${UPSTREAM_BRANCH}:refs/heads/${BRANCH}"
 echo "  Created origin/${BRANCH} from origin/${UPSTREAM_BRANCH}"
 
 git fetch origin "$BRANCH"

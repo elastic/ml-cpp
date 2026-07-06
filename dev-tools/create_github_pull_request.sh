@@ -146,9 +146,11 @@ declare -a create_cmd=(
     --title "$TITLE"
     --body "$BODY"
 )
-for label in "${LABELS[@]}"; do
-    create_cmd+=(--label "$label")
-done
+if ((${#LABELS[@]} > 0)); then
+    for label in "${LABELS[@]}"; do
+        create_cmd+=(--label "$label")
+    done
+fi
 
 PR_URL=$("${create_cmd[@]}")
 
