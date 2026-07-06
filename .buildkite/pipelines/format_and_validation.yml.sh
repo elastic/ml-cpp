@@ -18,4 +18,13 @@ steps:
     notify:
       - github_commit_status:
           context: "Validate formatting with clang-format"
+  - label: "dev-tools pytest"
+    key: "dev_tools_pytest"
+    command: ".buildkite/scripts/steps/dev_tools_pytest.sh"
+    agents:
+      # bookworm (not slim): stable Python minor + curl/git for Buildkite hooks; avoids python:3 tag drift
+      image: "python:3.11-bookworm"
+    notify:
+      - github_commit_status:
+          context: "dev-tools pytest"
 EOL
