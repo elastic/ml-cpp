@@ -63,7 +63,7 @@ steps:
           channels:
             - "${CHANNEL}"
           message: |
-            **Version bump PR — approval required**
+            *Version bump PR — approval required*
             ${body_line}
             Branch: \${BUILDKITE_BRANCH}
             NEW_VERSION: \${NEW_VERSION:-"(unset)"}

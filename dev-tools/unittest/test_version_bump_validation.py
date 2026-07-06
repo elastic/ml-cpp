@@ -72,6 +72,33 @@ def test_validate_rejects_outer_whitespace_branch() -> None:
         )
 
 
+def test_validate_env_ok() -> None:
+    vbu.validate_env_params(new_version="8.19.20", branch="8.19")
+
+
+def test_validate_env_rejects_option_like_branch() -> None:
+    with pytest.raises(ValueError, match="MAJOR.MINOR"):
+        vbu.validate_env_params(new_version="8.19.20", branch="-8.19")
+
+
+def test_validate_env_cli() -> None:
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(_MODULE),
+            "validate-env",
+            "--new",
+            "8.19.20",
+            "--branch",
+            "8.19",
+        ],
+        cwd=str(_REPO_ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, proc.stderr
+
+
 def test_patch_ok_consecutive() -> None:
     vbu.validate_version_bump_params(
         current_version="9.5.0",

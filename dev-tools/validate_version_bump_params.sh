@@ -78,8 +78,12 @@ echo "BRANCH:       ${BRANCH}"
 # branch. Current version is read from origin/${BRANCH} by design — there is no
 # minor-line bump mode in dev-tools/version_bump_validation.py or this pipeline.
 
+if ! "$PYTHON" "$VALIDATION_PY" validate-env --new "$NEW_VERSION" --branch "$BRANCH"; then
+    exit 1
+fi
+
 echo "Fetching origin/${BRANCH}..."
-git fetch origin "$BRANCH"
+git fetch origin -- "$BRANCH"
 
 if ! git cat-file -e FETCH_HEAD:gradle.properties 2>/dev/null; then
     echo "ERROR: gradle.properties missing at FETCH_HEAD (origin/${BRANCH})" >&2

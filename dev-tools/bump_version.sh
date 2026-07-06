@@ -155,7 +155,14 @@ bump_version_via_pr() {
 
     topic_branch=$(topic_branch_name)
 
-    git fetch origin "$target_branch"
+    if ! "$PYTHON" "$VALIDATION_PY" validate-env \
+        --new "$target_version" \
+        --branch "$target_branch"
+    then
+        exit 1
+    fi
+
+    git fetch origin -- "$target_branch"
 
     # Topic branch starts at release-branch tip (same tree validation uses).
     git checkout -B "$topic_branch" "origin/${target_branch}"

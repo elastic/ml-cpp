@@ -36,7 +36,22 @@ if ! command -v buildkite-agent >/dev/null 2>&1; then
     exit 1
 fi
 
-noop=$(buildkite-agent meta-data get "ml_cpp_version_bump_noop" 2>/dev/null || echo "false")
+noop="false"
+meta_err=""
+if meta_out=$(buildkite-agent meta-data get "ml_cpp_version_bump_noop" 2>&1); then
+    noop="${meta_out}"
+else
+    meta_rc=$?
+    if echo "${meta_out}" | grep -qiE 'not found|does not exist|couldn.t find|could not find'; then
+        noop="false"
+    else
+        echo "ERROR: buildkite-agent meta-data get ml_cpp_version_bump_noop failed (exit ${meta_rc}): ${meta_out}" >&2
+        exit 2
+    fi
+fi
+noop="${noop//$'\r'/}"
+noop="${noop#"${noop%%[![:space:]]*}"}"
+noop="${noop%"${noop##*[![:space:]]}"}"
 if [[ "${noop}" == "true" ]]; then
     echo "ml_cpp_version_bump_noop=true — branch already at NEW_VERSION; skipping follow-up steps."
     exit 0

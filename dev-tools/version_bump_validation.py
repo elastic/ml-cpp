@@ -115,6 +115,31 @@ def validate_version_bump_params(
         )
 
 
+def validate_env_params(*, new_version: str, branch: str) -> None:
+    """Validate NEW_VERSION/BRANCH format before git fetch (no remote read)."""
+    _reject_outer_whitespace("NEW_VERSION", new_version)
+    _reject_outer_whitespace("BRANCH", branch)
+
+    new_t = parse_semver(new_version)
+    if new_t is None:
+        raise ValueError(
+            f"NEW_VERSION must be MAJOR.MINOR.PATCH (digits only), got {new_version!r}"
+        )
+    new_major, new_minor, _new_patch = new_t
+
+    br = parse_release_branch(branch)
+    if br is None:
+        raise ValueError(
+            f"BRANCH must be MAJOR.MINOR (e.g. 9.5), got {branch!r}"
+        )
+    br_major, br_minor = br
+    if br_major != new_major or br_minor != new_minor:
+        raise ValueError(
+            f"BRANCH {branch!r} must match MAJOR.MINOR of NEW_VERSION "
+            f"({new_major}.{new_minor}), got NEW_VERSION {new_version!r}"
+        )
+
+
 def _cmd_validate(args: argparse.Namespace) -> int:
     try:
         validate_version_bump_params(
@@ -141,6 +166,15 @@ def _cmd_validate_and_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_validate_env(args: argparse.Namespace) -> int:
+    try:
+        validate_env_params(new_version=args.new, branch=args.branch)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="ml-cpp patch version bump parameter validation"
@@ -164,6 +198,14 @@ def main() -> int:
     p_rep.add_argument("--new", required=True, dest="new")
     p_rep.add_argument("--branch", required=True)
     p_rep.set_defaults(func=_cmd_validate_and_report)
+
+    p_env = sub.add_parser(
+        "validate-env",
+        help="validate NEW_VERSION/BRANCH format before git fetch",
+    )
+    p_env.add_argument("--new", required=True, dest="new", help="NEW_VERSION")
+    p_env.add_argument("--branch", required=True, help="BRANCH (MAJOR.MINOR)")
+    p_env.set_defaults(func=_cmd_validate_env)
 
     args = parser.parse_args()
     return args.func(args)
