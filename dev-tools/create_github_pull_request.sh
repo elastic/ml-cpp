@@ -12,13 +12,15 @@
 # Create a pull request (and optionally merge) using the GitHub CLI.
 #
 # Requires: gh (https://cli.github.com/) in PATH, authenticated via:
-#   GITHUB_TOKEN, VAULT_GITHUB_TOKEN, or GH_TOKEN
+#   `gh auth login` (preferred for local runs), VAULT_GITHUB_TOKEN (CI), or GH_TOKEN.
+#   GITHUB_TOKEN is intentionally ignored so a stale shell export does not override
+#   an interactive gh login session.
 # If gh is missing, dev-tools/ensure_github_cli.sh runs (Wolfi apk, else Linux
 # tarball) unless SKIP_GH_AUTO_INSTALL=true.
 #
 # Usage:
 #   create_github_pull_request.sh --repo ORG/REPO --base BASE --head HEAD \
-#       --title T --body B [--merge | --merge-auto] [--merge-method merge|squash|rebase]
+#       --title T --body B [--label NAME] [--merge | --merge-auto] [--merge-method merge|squash|rebase]
 #
 # On success, prints the PR URL to stdout (single line). Merge progress to stderr.
 #
@@ -55,6 +57,7 @@ BODY=""
 DO_MERGE="false"
 DO_MERGE_AUTO="false"
 MERGE_METHOD="${VERSION_BUMP_MERGE_METHOD:-squash}"
+LABELS=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -76,6 +79,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --body)
             BODY="$2"
+            shift 2
+            ;;
+        --label)
+            LABELS+=("$2")
             shift 2
             ;;
         --merge)
@@ -117,26 +124,35 @@ case "$MERGE_METHOD" in
         ;;
 esac
 
-# gh honors GH_TOKEN; validate after CLI args so invalid flag combinations fail without secrets.
-if [[ -z "${GH_TOKEN:-}" ]]; then
-    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-        export GH_TOKEN="${GITHUB_TOKEN}"
-    elif [[ -n "${VAULT_GITHUB_TOKEN:-}" ]]; then
-        export GH_TOKEN="${VAULT_GITHUB_TOKEN}"
-    fi
+# gh prefers GH_TOKEN over `gh auth login` credentials. Unset GH_TOKEN when the CLI
+# is already logged in so local testing works with `gh auth login` even if GITHUB_TOKEN
+# is exported in the shell. GITHUB_TOKEN is never used as a fallback.
+if gh auth status >/dev/null 2>&1; then
+    unset GH_TOKEN
+elif [[ -z "${GH_TOKEN:-}" && -n "${VAULT_GITHUB_TOKEN:-}" ]]; then
+    export GH_TOKEN="${VAULT_GITHUB_TOKEN}"
 fi
 
-if [[ -z "${GH_TOKEN:-}" ]]; then
-    echo "ERROR: Set GITHUB_TOKEN, VAULT_GITHUB_TOKEN, or GH_TOKEN for gh auth." >&2
+if ! gh auth status >/dev/null 2>&1; then
+    echo "ERROR: gh is not authenticated. Run \`gh auth login\` or set VAULT_GITHUB_TOKEN / GH_TOKEN." >&2
     exit 1
 fi
 
-PR_URL=$(gh pr create \
-    --repo "$REPO" \
-    --base "$BASE" \
-    --head "$HEAD_REF" \
-    --title "$TITLE" \
-    --body "$BODY")
+declare -a create_cmd=(
+    gh pr create
+    --repo "$REPO"
+    --base "$BASE"
+    --head "$HEAD_REF"
+    --title "$TITLE"
+    --body "$BODY"
+)
+if ((${#LABELS[@]} > 0)); then
+    for label in "${LABELS[@]}"; do
+        create_cmd+=(--label "$label")
+    done
+fi
+
+PR_URL=$("${create_cmd[@]}")
 
 echo "$PR_URL"
 

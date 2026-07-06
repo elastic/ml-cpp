@@ -11,8 +11,14 @@
 """Poll DRA staging/snapshot JSON until versions match (replaces json-watcher plugin).
 
 Buildkite step conditionals cannot use build meta-data; this script reads
-ml_cpp_version_bump_changed via ``buildkite-agent meta-data get`` and exits
-immediately when no PR was opened.
+ml_cpp_version_bump_noop / ml_cpp_version_bump_changed via ``buildkite-agent
+meta-data get`` and exits immediately when the wait is not needed.
+
+Patch (WORKFLOW=patch): waits for staging + snapshot on BRANCH at NEW_VERSION.
+
+Minor (WORKFLOW=minor): waits for three artifact sets after feature freeze:
+  - snapshot on main at MAIN_NEW_VERSION-SNAPSHOT
+  - snapshot + staging on release branch BRANCH at NEW_VERSION
 """
 
 from __future__ import annotations
@@ -24,10 +30,16 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
+
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+
+import version_bump_validation as vbu
 
 POLL_SECONDS = 30
 TIMEOUT_SECONDS = 240 * 60
-# Heartbeat in Buildkite logs every N poll iterations (even when fetches return None).
 PROGRESS_LOG_EVERY = 1
 
 STAGING_TMPL = "https://artifacts-staging.elastic.co/ml-cpp/latest/{branch}.json"
@@ -35,11 +47,7 @@ SNAPSHOT_TMPL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cp
 
 
 def _meta_get(key: str) -> str | None:
-    """Read Buildkite meta-data. Returns None when not on Buildkite or key is unset.
-
-    On BUILDKITE=true, missing ``buildkite-agent`` or unexpected failures exit
-    non-zero so we do not silently skip the DRA wait.
-    """
+    """Read Buildkite meta-data. Returns None when not on Buildkite or key is unset."""
     if os.environ.get("BUILDKITE") != "true":
         return None
     try:
@@ -100,10 +108,96 @@ def _fetch_version(url: str) -> str | None:
         return None
 
 
+def _wait_for_checks(checks: list[tuple[str, str, str]]) -> int:
+    """Poll until all (label, url, expected_version) match."""
+    print(f"Waiting for DRA artifacts (timeout {TIMEOUT_SECONDS}s, poll {POLL_SECONDS}s)...")
+    for label, url, expected in checks:
+        print(f"  {label}: {expected!r} <= {url}")
+
+    deadline = time.monotonic() + TIMEOUT_SECONDS
+    iteration = 0
+    while time.monotonic() < deadline:
+        iteration += 1
+        pending = []
+        for label, url, expected in checks:
+            got = _fetch_version(url)
+            if got != expected:
+                pending.append(f"{label}={got!r}")
+        if not pending:
+            print("OK: all DRA artifact versions matched.")
+            return 0
+        if iteration % PROGRESS_LOG_EVERY == 0:
+            print(f"  still waiting: {', '.join(pending)}")
+        time.sleep(POLL_SECONDS)
+
+    print("ERROR: timed out waiting for DRA artifact versions.", file=sys.stderr)
+    return 1
+
+
+def _wait_patch(branch: str, new_version: str) -> int:
+    staging_url = STAGING_TMPL.format(branch=branch)
+    snapshot_url = SNAPSHOT_TMPL.format(branch=branch)
+    checks = [
+        ("staging", staging_url, new_version),
+        ("snapshot", snapshot_url, f"{new_version}-SNAPSHOT"),
+    ]
+    return _wait_for_checks(checks)
+
+
+def _wait_minor(branch: str, new_version: str, main_new_version: str) -> int:
+    main_snapshot_url = SNAPSHOT_TMPL.format(branch="main")
+    branch_staging_url = STAGING_TMPL.format(branch=branch)
+    branch_snapshot_url = SNAPSHOT_TMPL.format(branch=branch)
+    checks = [
+        ("main snapshot", main_snapshot_url, f"{main_new_version}-SNAPSHOT"),
+        ("release snapshot", branch_snapshot_url, f"{new_version}-SNAPSHOT"),
+        ("release staging", branch_staging_url, new_version),
+    ]
+    return _wait_for_checks(checks)
+
+
 def main() -> int:
     if os.environ.get("DRY_RUN") == "true":
         print("DRY_RUN=true — skipping DRA wait.")
         return 0
+
+    if _meta_get("ml_cpp_version_bump_noop") == "true":
+        print(
+            "ml_cpp_version_bump_noop is true — nothing to wait for; skipping DRA wait.",
+            file=sys.stderr,
+        )
+        return 0
+
+    workflow = os.environ.get("WORKFLOW", "patch").strip().lower()
+    branch = os.environ.get("BRANCH", "").strip()
+    new_version = os.environ.get("NEW_VERSION", "").strip()
+    if not branch or not new_version:
+        print("ERROR: BRANCH and NEW_VERSION must be set.", file=sys.stderr)
+        return 1
+
+    if vbu.is_sandbox_release_branch(branch):
+        print(
+            f"Sandbox release branch {branch!r} — skipping DRA wait "
+            f"(no artifacts published for {vbu.SANDBOX_BRANCH_PREFIX}* refs).",
+            file=sys.stderr,
+        )
+        return 0
+
+    if workflow == "minor":
+        main_new_version = _meta_get("ml_cpp_version_bump_main_new_version")
+        if not main_new_version:
+            main_new_version = os.environ.get("MAIN_NEW_VERSION", "").strip()
+        if not main_new_version:
+            try:
+                main_new_version = vbu.derive_main_new_version(new_version)
+            except ValueError as exc:
+                print(f"ERROR: {exc}", file=sys.stderr)
+                return 1
+        print(
+            f"Minor freeze DRA wait: release branch {branch} @ {new_version}, "
+            f"main @ {main_new_version}"
+        )
+        return _wait_minor(branch, new_version, main_new_version)
 
     if _meta_get("ml_cpp_version_bump_changed") != "true":
         print(
@@ -112,36 +206,7 @@ def main() -> int:
         )
         return 0
 
-    branch = os.environ.get("BRANCH", "").strip()
-    new_version = os.environ.get("NEW_VERSION", "").strip()
-    if not branch or not new_version:
-        print("ERROR: BRANCH and NEW_VERSION must be set.", file=sys.stderr)
-        return 1
-
-    staging_url = STAGING_TMPL.format(branch=branch)
-    snapshot_url = SNAPSHOT_TMPL.format(branch=branch)
-    want_staging = new_version
-    want_snapshot = f"{new_version}-SNAPSHOT"
-
-    print(f"Waiting for DRA artifacts (timeout {TIMEOUT_SECONDS}s, poll {POLL_SECONDS}s)...")
-    print(f"  staging:  {want_staging!r}  <= {staging_url}")
-    print(f"  snapshot: {want_snapshot!r} <= {snapshot_url}")
-
-    deadline = time.monotonic() + TIMEOUT_SECONDS
-    iteration = 0
-    while time.monotonic() < deadline:
-        iteration += 1
-        st = _fetch_version(staging_url)
-        sn = _fetch_version(snapshot_url)
-        if st == want_staging and sn == want_snapshot:
-            print("OK: staging and snapshot versions matched.")
-            return 0
-        if iteration % PROGRESS_LOG_EVERY == 0:
-            print(f"  staging={st!r} snapshot={sn!r} (still waiting)")
-        time.sleep(POLL_SECONDS)
-
-    print("ERROR: timed out waiting for DRA artifact versions.", file=sys.stderr)
-    return 1
+    return _wait_patch(branch, new_version)
 
 
 if __name__ == "__main__":

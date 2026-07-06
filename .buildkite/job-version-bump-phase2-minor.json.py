@@ -8,9 +8,8 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Phase 2 of the ml-cpp version-bump pipeline (uploaded by
-# dev-tools/version_bump_upload_phase2.sh after validate). Step-level `if` cannot
-# use Buildkite meta-data; gating is done in that shell script instead.
+# Phase 2 of the ml-cpp version bump pipeline for WORKFLOW=minor (uploaded by
+# dev-tools/version_bump_upload_phase2.sh).
 
 import contextlib
 import json
@@ -21,46 +20,55 @@ WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:l
 
 
 def main():
+    wolfi_agent = {
+        "image": WOLFI_IMAGE,
+        "cpu": "250m",
+        "memory": "512Mi",
+    }
+
     pipeline_steps = [
         {
-            "label": "Bump version to ${NEW_VERSION}",
-            "key": "bump-version",
-            "depends_on": "schedule-version-bump-follow-up",
-            "agents": {
-                "image": WOLFI_IMAGE,
-                "cpu": "250m",
-                "memory": "512Mi",
-            },
-            "env": {
-                "VERSION_BUMP_MERGE_AUTO": os.environ.get("VERSION_BUMP_MERGE_AUTO", "true"),
-            },
-            "command": [
-                "dev-tools/bump_version.sh",
+            "group": "Minor version freeze",
+            "key": "minor-freeze",
+            "steps": [
+                {
+                    "label": "Create release branch ${BRANCH}",
+                    "key": "create-minor-branch",
+                    "agents": dict(wolfi_agent),
+                    "command": [
+                        "dev-tools/create_minor_branch.sh",
+                    ],
+                },
+                {
+                    "label": "Bump main to next minor",
+                    "key": "bump-main-minor-freeze",
+                    "agents": dict(wolfi_agent),
+                    "env": {
+                        "VERSION_BUMP_MERGE_AUTO": os.environ.get(
+                            "VERSION_BUMP_MERGE_AUTO", "true"
+                        ),
+                    },
+                    "command": [
+                        "dev-tools/bump_main_minor_freeze.sh",
+                    ],
+                },
             ],
         },
         {
-            "label": "Notify :slack: — version bump PR needs approval",
+            "label": "Notify :slack: — minor freeze PR needs approval",
             "key": "queue-slack-notify",
-            "depends_on": "bump-version",
+            "depends_on": "minor-freeze",
             "command": [
                 ".buildkite/pipelines/send_slack_version_bump_notification.sh",
             ],
-            "agents": {
-                # Same image as bump-version: the minimal python image does not ship
-                # buildkite-agent, so meta-data get / pipeline upload silently skipped Slack.
-                "image": WOLFI_IMAGE,
-                "cpu": "250m",
-                "memory": "512Mi",
-            },
+            "agents": dict(wolfi_agent),
         },
         {
             "label": "Fetch DRA Artifacts",
             "key": "fetch-dra-artifacts",
             "depends_on": "queue-slack-notify",
             "agents": {
-                "image": WOLFI_IMAGE,
-                "cpu": "250m",
-                "memory": "512Mi",
+                **wolfi_agent,
                 "ephemeralStorage": "1Gi",
             },
             "command": [

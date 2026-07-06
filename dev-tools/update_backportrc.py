@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
+"""Update .backportrc.json for minor release feature freeze."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+
+def update_backportrc_for_minor_freeze(
+    data: dict[str, Any],
+    *,
+    new_release_branch: str,
+    main_new_version: str,
+) -> bool:
+    """Apply minor-freeze updates in place. Returns True if anything changed."""
+    changed = False
+
+    choices: list[str] = list(data.get("targetBranchChoices", []))
+    if new_release_branch not in choices:
+        if "main" in choices:
+            insert_at = choices.index("main") + 1
+        else:
+            insert_at = 0
+        choices.insert(insert_at, new_release_branch)
+        data["targetBranchChoices"] = choices
+        changed = True
+
+    mapping: dict[str, str] = dict(data.get("branchLabelMapping", {}))
+    new_main_key = f"^v{main_new_version}$"
+    old_main_keys = [k for k, v in mapping.items() if v == "main" and k != new_main_key]
+    for key in old_main_keys:
+        del mapping[key]
+        changed = True
+    if mapping.get(new_main_key) != "main":
+        mapping[new_main_key] = "main"
+        changed = True
+    data["branchLabelMapping"] = mapping
+
+    return changed
+
+
+def _cmd_update(args: argparse.Namespace) -> int:
+    path = Path(args.path)
+    if not path.is_file():
+        print(f"ERROR: {path} not found", file=sys.stderr)
+        return 1
+
+    with path.open(encoding="utf-8") as handle:
+        data = json.load(handle)
+
+    changed = update_backportrc_for_minor_freeze(
+        data,
+        new_release_branch=args.new_release_branch,
+        main_new_version=args.main_new_version,
+    )
+    if not changed:
+        print(f"OK: {path} already configured for branch {args.new_release_branch} and main {args.main_new_version}")
+        return 0
+
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2)
+        handle.write("\n")
+
+    print(
+        f"Updated {path}: added branch {args.new_release_branch}, "
+        f"main label mapping v{args.main_new_version}"
+    )
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Update .backportrc.json for minor freeze")
+    parser.add_argument("--path", default=".backportrc.json", help="Path to backportrc file")
+    parser.add_argument("--new-release-branch", required=True, help="New release branch (MAJOR.MINOR)")
+    parser.add_argument("--main-new-version", required=True, help="New version on main (MAJOR.MINOR.PATCH)")
+    args = parser.parse_args()
+    return _cmd_update(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
