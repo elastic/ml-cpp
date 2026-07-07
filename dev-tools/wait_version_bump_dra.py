@@ -45,6 +45,10 @@ PROGRESS_LOG_EVERY = 1
 STAGING_TMPL = "https://artifacts-staging.elastic.co/ml-cpp/latest/{branch}.json"
 SNAPSHOT_TMPL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/{branch}.json"
 
+# release-manager's project-configs dir for main is named "master", not "main", so the
+# DRA "latest" snapshot alias it publishes is .../latest/master.json, never .../latest/main.json.
+MAIN_BRANCH_DRA_ALIAS = "master"
+
 
 def _meta_get(key: str) -> str | None:
     """Read Buildkite meta-data. Returns None when not on Buildkite or key is unset."""
@@ -145,7 +149,7 @@ def _wait_patch(branch: str, new_version: str) -> int:
 
 
 def _wait_minor(branch: str, new_version: str, main_new_version: str) -> int:
-    main_snapshot_url = SNAPSHOT_TMPL.format(branch="main")
+    main_snapshot_url = SNAPSHOT_TMPL.format(branch=MAIN_BRANCH_DRA_ALIAS)
     branch_staging_url = STAGING_TMPL.format(branch=branch)
     branch_snapshot_url = SNAPSHOT_TMPL.format(branch=branch)
     checks = [

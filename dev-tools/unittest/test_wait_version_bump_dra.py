@@ -74,6 +74,27 @@ def test_poll_logs_progress_when_versions_unavailable(capsys) -> None:
     assert "still waiting: staging=None, snapshot=None" in out
 
 
+def test_wait_minor_polls_master_alias_for_main_snapshot() -> None:
+    """release-manager's project-configs dir for main is "master", not "main"; the DRA
+    "latest" snapshot alias it publishes is .../latest/master.json. _wait_minor must poll
+    that alias, not a .../latest/main.json that release-manager never creates."""
+    mod = _load_wait_module()
+    captured: list[tuple[str, str, str]] = []
+
+    def fake_wait_for_checks(checks: list[tuple[str, str, str]]) -> int:
+        captured.extend(checks)
+        return 0
+
+    with patch.object(mod, "_wait_for_checks", side_effect=fake_wait_for_checks):
+        assert mod._wait_minor("9.5", "9.5.0", "9.6.0") == 0
+
+    main_snapshot = next(c for c in captured if c[0] == "main snapshot")
+    _, url, expected = main_snapshot
+    assert url == "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/master.json"
+    assert "latest/main.json" not in url
+    assert expected == "9.6.0-SNAPSHOT"
+
+
 def test_main_skips_dra_wait_for_sandbox_branch(capsys) -> None:
     mod = _load_wait_module()
     with patch.dict(
