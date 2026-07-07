@@ -1,11 +1,22 @@
 {
-  "upstream" : "elastic/ml-cpp",
-  "targetBranchChoices" : [ "main", "9.4", "9.3",  "8.19",  "7.17" ],
-  "targetPRLabels" : [ "backport" ],
-  "branchLabelMapping" : {
-    "^v9.5.0$" : "main",
-    "^v(\\d+).(\\d+).\\d+(?:-(?:alpha|beta|rc)\\d+)?$" : "$1.$2"
+  "upstream": "elastic/ml-cpp",
+  "targetBranchChoices": [
+    "main",
+    "9.5",
+    "9.4",
+    "9.3",
+    "8.19",
+    "7.17"
+  ],
+  "targetPRLabels": [
+    "backport"
+  ],
+  "branchLabelMapping": {
+    "^v(\\d+).(\\d+).\\d+(?:-(?:alpha|beta|rc)\\d+)?$": "$1.$2",
+    "^v9.6.0$": "main"
   },
-  "copySourcePRLabels" : "^(?!backport$)(?!v\\d).*$",
-  "sourcePRLabels" : [ "backport-pending" ]
+  "copySourcePRLabels": "^(?!backport$)(?!v\\d).*$",
+  "sourcePRLabels": [
+    "backport-pending"
+  ]
 }
