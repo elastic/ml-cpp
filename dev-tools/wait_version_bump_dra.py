@@ -45,6 +45,12 @@ PROGRESS_LOG_EVERY = 1
 STAGING_TMPL = "https://artifacts-staging.elastic.co/ml-cpp/latest/{branch}.json"
 SNAPSHOT_TMPL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/{branch}.json"
 
+# release-manager also publishes a version-keyed "latest" alias alongside the branch-keyed
+# one (e.g. latest/9.6.0-SNAPSHOT.json). Main's branch-keyed alias is unreliable — release-
+# manager's project-configs dir for main is named "master", not "main", so it never
+# publishes latest/main.json — so the main-snapshot check below polls by version instead.
+VERSION_SNAPSHOT_TMPL = "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/{version}.json"
+
 
 def _meta_get(key: str) -> str | None:
     """Read Buildkite meta-data. Returns None when not on Buildkite or key is unset."""
@@ -145,7 +151,7 @@ def _wait_patch(branch: str, new_version: str) -> int:
 
 
 def _wait_minor(branch: str, new_version: str, main_new_version: str) -> int:
-    main_snapshot_url = SNAPSHOT_TMPL.format(branch="main")
+    main_snapshot_url = VERSION_SNAPSHOT_TMPL.format(version=f"{main_new_version}-SNAPSHOT")
     branch_staging_url = STAGING_TMPL.format(branch=branch)
     branch_snapshot_url = SNAPSHOT_TMPL.format(branch=branch)
     checks = [

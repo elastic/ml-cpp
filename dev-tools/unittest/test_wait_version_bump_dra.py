@@ -74,6 +74,30 @@ def test_poll_logs_progress_when_versions_unavailable(capsys) -> None:
     assert "still waiting: staging=None, snapshot=None" in out
 
 
+def test_wait_minor_polls_version_keyed_alias_for_main_snapshot() -> None:
+    """release-manager's project-configs dir for main is "master", not "main", so it only
+    ever publishes the branch-keyed "latest" snapshot alias as .../latest/master.json —
+    .../latest/main.json is never created. _wait_minor must poll the version-keyed alias
+    (.../latest/{version}.json) for the main snapshot check instead, sidestepping the
+    branch/master naming mismatch entirely."""
+    mod = _load_wait_module()
+    captured: list[tuple[str, str, str]] = []
+
+    def fake_wait_for_checks(checks: list[tuple[str, str, str]]) -> int:
+        captured.extend(checks)
+        return 0
+
+    with patch.object(mod, "_wait_for_checks", side_effect=fake_wait_for_checks):
+        assert mod._wait_minor("9.5", "9.5.0", "9.6.0") == 0
+
+    main_snapshot = next(c for c in captured if c[0] == "main snapshot")
+    _, url, expected = main_snapshot
+    assert url == "https://storage.googleapis.com/elastic-artifacts-snapshot/ml-cpp/latest/9.6.0-SNAPSHOT.json"
+    assert "latest/main.json" not in url
+    assert "latest/master.json" not in url
+    assert expected == "9.6.0-SNAPSHOT"
+
+
 def test_main_skips_dra_wait_for_sandbox_branch(capsys) -> None:
     mod = _load_wait_module()
     with patch.dict(
