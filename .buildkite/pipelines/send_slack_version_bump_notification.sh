@@ -75,6 +75,7 @@ steps:
           channels:
             - "${CHANNEL}"
           message: |
+            <!subteam^S76JPTCBE|ml-team>
             ${slack_title}
             ${branch_line}
             ${pr_line}
@@ -115,6 +116,7 @@ steps:
           channels:
             - "${CHANNEL}"
           message: |
+            <!subteam^S76JPTCBE|ml-team>
             ${slack_title}
             ${slack_body}
             WORKFLOW: \${WORKFLOW:-"(unset)"}
