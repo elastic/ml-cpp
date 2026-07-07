@@ -8,10 +8,16 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-"""Guard rails for automatic backport of version-bump automation PRs."""
+"""Guard rails for automatic backport of version-bump automation PRs.
+
+Assertions use whitespace/quote-tolerant regexes so cosmetic edits to backport.yml
+(e.g. !(contains(...)) vs !contains(...), or single vs double quotes) do not cause
+noisy failures without an actual behavioral regression.
+"""
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -21,15 +27,28 @@ _BUMP_MAIN_MINOR_FREEZE = _REPO_ROOT / "dev-tools" / "bump_main_minor_freeze.sh"
 
 def test_backport_workflow_skips_no_backport_label() -> None:
     text = _BACKPORT_WORKFLOW.read_text(encoding="utf-8")
-    assert "no-backport" in text
-    assert "!(contains(github.event.pull_request.labels.*.name, 'no-backport'))" in text
+    # Negated contains() over the PR labels for the no-backport label, tolerating
+    # optional wrapping parentheses and either quote style.
+    pattern = re.compile(
+        r"!\s*\(?\s*contains\(\s*github\.event\.pull_request\.labels\.\*\.name\s*,"
+        r"\s*['\"]no-backport['\"]\s*\)",
+    )
+    assert pattern.search(text), text
 
 
-def test_backport_workflow_skips_minor_freeze_title() -> None:
+def test_backport_workflow_skips_minor_freeze_branch() -> None:
     text = _BACKPORT_WORKFLOW.read_text(encoding="utf-8")
-    assert "!contains(github.event.pull_request.title, '(minor freeze)')" in text
+    # Negated startsWith() over the PR head ref for the minor-freeze topic branch,
+    # tolerating optional wrapping parentheses and either quote style.
+    pattern = re.compile(
+        r"!\s*\(?\s*startsWith\(\s*github\.event\.pull_request\.head\.ref\s*,"
+        r"\s*['\"]ci/ml-cpp-minor-freeze-main-['\"]\s*\)",
+    )
+    assert pattern.search(text), text
 
 
 def test_bump_main_minor_freeze_applies_no_backport_label() -> None:
     text = _BUMP_MAIN_MINOR_FREEZE.read_text(encoding="utf-8")
-    assert '--label "no-backport"' in text
+    # Tolerate quote style and surrounding whitespace on the --label argument.
+    pattern = re.compile(r"--label\s+['\"]no-backport['\"]")
+    assert pattern.search(text), text
