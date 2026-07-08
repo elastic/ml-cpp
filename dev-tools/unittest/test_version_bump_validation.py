@@ -231,6 +231,56 @@ def test_minor_freeze_rejects_main_not_at_new_version() -> None:
         )
 
 
+def test_minor_freeze_idempotent_when_already_completed() -> None:
+    # Freeze already done: branch cut at NEW_VERSION and main advanced to MAIN_NEW_VERSION.
+    # Re-running the centralized bump must succeed (no-op), not fail.
+    main_new = vbu.validate_minor_freeze_params(
+        main_version="9.6.0",
+        new_version="9.5.0",
+        branch="9.5",
+        release_branch_exists=True,
+        release_branch_version="9.5.0",
+    )
+    assert main_new == "9.6.0"
+
+
+def test_minor_freeze_branch_exists_main_not_yet_bumped() -> None:
+    # Intermediate state: branch cut but main not yet bumped — still valid.
+    main_new = vbu.validate_minor_freeze_params(
+        main_version="9.5.0",
+        new_version="9.5.0",
+        branch="9.5",
+        release_branch_exists=True,
+        release_branch_version="9.5.0",
+    )
+    assert main_new == "9.6.0"
+
+
+def test_minor_freeze_rejects_main_bumped_without_branch() -> None:
+    # main advanced to MAIN_NEW_VERSION but the release branch was never cut:
+    # a genuinely inconsistent state that must still be rejected.
+    with pytest.raises(ValueError, match="main elasticsearchVersion"):
+        vbu.validate_minor_freeze_params(
+            main_version="9.6.0",
+            new_version="9.5.0",
+            branch="9.5",
+            release_branch_exists=False,
+            release_branch_version=None,
+        )
+
+
+def test_minor_freeze_rejects_unrelated_main_version_with_branch() -> None:
+    # Branch exists at NEW_VERSION but main is at neither NEW_VERSION nor MAIN_NEW_VERSION.
+    with pytest.raises(ValueError, match="main elasticsearchVersion"):
+        vbu.validate_minor_freeze_params(
+            main_version="9.7.0",
+            new_version="9.5.0",
+            branch="9.5",
+            release_branch_exists=True,
+            release_branch_version="9.5.0",
+        )
+
+
 def test_main_minor_bump_ok() -> None:
     vbu.validate_main_minor_bump(
         current_version="9.5.0",
