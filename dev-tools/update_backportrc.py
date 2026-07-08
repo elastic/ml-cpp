@@ -38,16 +38,20 @@ def update_backportrc_for_minor_freeze(
         data["targetBranchChoices"] = choices
         changed = True
 
-    mapping: dict[str, str] = dict(data.get("branchLabelMapping", {}))
+    old_mapping: dict[str, str] = dict(data.get("branchLabelMapping", {}))
     new_main_key = f"^v{main_new_version}$"
-    old_main_keys = [k for k, v in mapping.items() if v == "main" and k != new_main_key]
-    for key in old_main_keys:
-        del mapping[key]
+    # Rebuild the mapping with the main-only override FIRST. The backport tool applies
+    # the first matching branchLabelMapping key, so the specific main override (e.g.
+    # ^v9.6.0$ -> main) must precede the generic ^vX.Y.Z$ -> X.Y rule. Otherwise the
+    # main version label resolves to a non-existent MAJOR.MINOR release branch and the
+    # backport fails (see PR #3071 attempting a non-existent "9.6" branch).
+    non_main = {k: v for k, v in old_mapping.items() if v != "main"}
+    new_mapping: dict[str, str] = {new_main_key: "main"}
+    new_mapping.update(non_main)
+    # dict equality ignores order, so compare item order explicitly to catch reorders.
+    if list(new_mapping.items()) != list(old_mapping.items()):
         changed = True
-    if mapping.get(new_main_key) != "main":
-        mapping[new_main_key] = "main"
-        changed = True
-    data["branchLabelMapping"] = mapping
+    data["branchLabelMapping"] = new_mapping
 
     return changed
 

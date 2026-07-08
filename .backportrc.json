@@ -12,8 +12,8 @@
     "backport"
   ],
   "branchLabelMapping": {
-    "^v(\\d+).(\\d+).\\d+(?:-(?:alpha|beta|rc)\\d+)?$": "$1.$2",
-    "^v9.6.0$": "main"
+    "^v9.6.0$": "main",
+    "^v(\\d+).(\\d+).\\d+(?:-(?:alpha|beta|rc)\\d+)?$": "$1.$2"
   },
   "copySourcePRLabels": "^(?!backport$)(?!v\\d).*$",
   "sourcePRLabels": [
