@@ -227,8 +227,10 @@ def validate_minor_freeze_params(
         pass
     else:
         raise ValueError(
-            "minor freeze requires main elasticsearchVersion to equal NEW_VERSION "
-            f"before branching (main={main_version!r}, NEW_VERSION={new_version!r})"
+            "minor freeze requires main elasticsearchVersion to be NEW_VERSION before branching, "
+            "or MAIN_NEW_VERSION only if the release branch already exists "
+            f"(main={main_version!r}, NEW_VERSION={new_version!r}, MAIN_NEW_VERSION={main_new_version!r}, "
+            f"release_branch_exists={release_branch_exists})"
         )
 
     return main_new_version
