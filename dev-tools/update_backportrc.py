@@ -45,7 +45,9 @@ def update_backportrc_for_minor_freeze(
     # ^v9.6.0$ -> main) must precede the generic ^vX.Y.Z$ -> X.Y rule. Otherwise the
     # main version label resolves to a non-existent MAJOR.MINOR release branch and the
     # backport fails (see PR #3071 attempting a non-existent "9.6" branch).
-    non_main = {k: v for k, v in old_mapping.items() if v != "main"}
+    # Exclude new_main_key so a misconfigured existing entry (e.g. ^v9.6.0$ -> "9.6")
+    # cannot overwrite the correct override below via the update() call.
+    non_main = {k: v for k, v in old_mapping.items() if v != "main" and k != new_main_key}
     new_mapping: dict[str, str] = {new_main_key: "main"}
     new_mapping.update(non_main)
     # dict equality ignores order, so compare item order explicitly to catch reorders.

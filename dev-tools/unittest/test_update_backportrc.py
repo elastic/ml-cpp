@@ -102,3 +102,22 @@ def test_generic_rule_preserved_exactly() -> None:
         data, new_release_branch="9.5", main_new_version="9.6.0"
     )
     assert _GENERIC_KEY in data["branchLabelMapping"]
+
+
+def test_misconfigured_main_key_is_corrected() -> None:
+    # Existing mapping already has the new main key but pointing at a (wrong)
+    # release branch instead of "main". The override must still win.
+    data = {
+        "targetBranchChoices": ["main", "9.5"],
+        "branchLabelMapping": {
+            _GENERIC_KEY: "$1.$2",
+            "^v9.6.0$": "9.6",
+        },
+    }
+    changed = ubrc.update_backportrc_for_minor_freeze(
+        data, new_release_branch="9.5", main_new_version="9.6.0"
+    )
+    assert changed is True
+    keys = list(data["branchLabelMapping"].keys())
+    assert keys[0] == "^v9.6.0$", f"main override must be first, got {keys}"
+    assert data["branchLabelMapping"]["^v9.6.0$"] == "main"
