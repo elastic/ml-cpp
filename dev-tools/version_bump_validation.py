@@ -201,11 +201,6 @@ def validate_minor_freeze_params(
             "elasticsearchVersion on main must be MAJOR.MINOR.PATCH, "
             f"got {main_version!r}"
         )
-    if main_version != new_version:
-        raise ValueError(
-            "minor freeze requires main elasticsearchVersion to equal NEW_VERSION "
-            f"before branching (main={main_version!r}, NEW_VERSION={new_version!r})"
-        )
 
     main_new_version = derive_main_new_version(new_version)
 
@@ -219,6 +214,24 @@ def validate_minor_freeze_params(
                 f"release branch {branch!r} exists with version {release_branch_version!r}, "
                 f"expected {new_version!r}"
             )
+
+    # main may be at NEW_VERSION (freeze not yet applied) or, when the release branch
+    # has already been cut, at MAIN_NEW_VERSION (freeze already completed). Accepting
+    # the latter keeps re-runs of the centralized version bump idempotent instead of
+    # failing after the freeze has already succeeded (see the centralized version-bump
+    # pipeline re-triggering completed bumps). If main has advanced without the branch
+    # being cut, that is a genuinely inconsistent state and is still rejected.
+    if main_version == new_version:
+        pass
+    elif main_version == main_new_version and release_branch_exists:
+        pass
+    else:
+        raise ValueError(
+            "minor freeze requires main elasticsearchVersion to be NEW_VERSION before branching, "
+            "or MAIN_NEW_VERSION only if the release branch already exists "
+            f"(main={main_version!r}, NEW_VERSION={new_version!r}, MAIN_NEW_VERSION={main_new_version!r}, "
+            f"release_branch_exists={release_branch_exists})"
+        )
 
     return main_new_version
 
@@ -333,6 +346,11 @@ def main() -> int:
             print(f"ERROR: {e}", file=sys.stderr)
             return 1
         print(f"OK: minor freeze NEW_VERSION={args_ns.new} on branch {args_ns.branch}")
+        if args_ns.main_version == main_new:
+            print(
+                f"OK: main already bumped to {main_new} and branch {args_ns.branch} "
+                "exists — minor freeze already completed (idempotent no-op)."
+            )
         if is_sandbox_release_branch(args_ns.branch):
             identity = release_branch_identity(args_ns.branch)
             print(
