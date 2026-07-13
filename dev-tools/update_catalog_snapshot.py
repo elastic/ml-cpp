@@ -106,16 +106,22 @@ def _add_schedule(section: str, branch: str) -> Tuple[str, bool]:
         f"{field_indent}message: Daily SNAPSHOT build for {branch}\n"
     )
 
-    # Insert before the "Daily main:" entry so main stays last; otherwise append
-    # after the last schedule entry (before the next same-or-lower indent key).
+    # Insert before the "Daily main:" entry so main stays last.
     main_entry = re.compile(rf"^{re.escape(key_indent)}Daily main:[ \t]*$", re.MULTILINE)
     main_m = main_entry.search(section, m.end())
     if main_m is not None:
         insert_at = main_m.start()
         return section[:insert_at] + block + section[insert_at:], True
 
-    # Fallback: insert right after the schedules: line.
-    insert_at = m.end() + 1  # past the trailing newline of the schedules: line
+    # Fallback (no "Daily main" entry): append after the last schedule entry, i.e.
+    # just before the first following line indented at or below the "schedules:" key
+    # (a sibling mapping key) or the end of the section.
+    schedules_col = len(schedules_indent)
+    insert_at = len(section)
+    for sibling in re.finditer(r"^(?P<indent>[ \t]*)\S", section[m.end() :], re.MULTILINE):
+        if len(sibling.group("indent")) <= schedules_col:
+            insert_at = m.end() + sibling.start()
+            break
     return section[:insert_at] + block + section[insert_at:], True
 
 

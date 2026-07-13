@@ -126,6 +126,49 @@ def test_partial_state_filter_only_is_completed() -> None:
     assert "Daily 9.5:" in completed
 
 
+def test_fallback_appends_after_last_entry_when_no_daily_main() -> None:
+    # A schedules block without a "Daily main" entry: the new schedule must be
+    # appended after the last existing entry, before the next sibling key
+    # (skip_intermediate_builds), not prepended after "schedules:".
+    fixture = """\
+# Declare the snapshot build pipeline
+---
+metadata:
+  name: "ml-cpp-snapshot-builds"
+spec:
+  implementation:
+    spec:
+      provider_settings:
+        filter_condition: build.branch == "main" || build.branch == "9.4"
+      schedules:
+        Daily 9.4:
+          branch: '9.4'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 9.4
+      skip_intermediate_builds: true
+
+# Declare the staging build pipeline
+---
+metadata:
+  name: "other"
+"""
+    new_text, changed = ucs.add_release_branch_to_snapshot(fixture, "9.5")
+    assert changed is True
+    lines = new_text.splitlines()
+    keys = [ln.strip().rstrip(":") for ln in lines if ln.strip().startswith("Daily ")]
+    assert keys == ["Daily 9.4", "Daily 9.5"]
+    # New block sits between the last schedule entry and the sibling key.
+    msg_idx = next(i for i, ln in enumerate(lines) if "Daily SNAPSHOT build for 9.5" in ln)
+    sib_idx = next(i for i, ln in enumerate(lines) if "skip_intermediate_builds:" in ln)
+    assert msg_idx < sib_idx
+    yaml = pytest.importorskip("yaml")
+    docs = list(yaml.safe_load_all(new_text))
+    snap = next(
+        d for d in docs if d and d.get("metadata", {}).get("name") == "ml-cpp-snapshot-builds"
+    )
+    assert snap["spec"]["implementation"]["spec"]["schedules"]["Daily 9.5"]["branch"] == "9.5"
+
+
 def test_rejects_non_semver_branch() -> None:
     with pytest.raises(ValueError, match="MAJOR.MINOR"):
         ucs.add_release_branch_to_snapshot(_FIXTURE, "main")
