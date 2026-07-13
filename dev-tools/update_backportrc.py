@@ -14,9 +14,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
+
+_MAIN_NEW_VERSION_RE = re.compile(r"\d+\.\d+\.\d+")
 
 
 def update_backportrc_for_minor_freeze(
@@ -25,7 +28,18 @@ def update_backportrc_for_minor_freeze(
     new_release_branch: str,
     main_new_version: str,
 ) -> bool:
-    """Apply minor-freeze updates in place. Returns True if anything changed."""
+    """Apply minor-freeze updates in place. Returns True if anything changed.
+
+    Raises ValueError if main_new_version is not MAJOR.MINOR.PATCH: a value like
+    "9.6" would produce the key ^v9.6$, which never matches a v9.6.0 label, so the
+    main override would silently never fire.
+    """
+    if not _MAIN_NEW_VERSION_RE.fullmatch(main_new_version):
+        raise ValueError(
+            "main_new_version must be MAJOR.MINOR.PATCH (e.g. 9.6.0), "
+            f"got {main_new_version!r}"
+        )
+
     changed = False
 
     choices: list[str] = list(data.get("targetBranchChoices", []))
@@ -67,11 +81,15 @@ def _cmd_update(args: argparse.Namespace) -> int:
     with path.open(encoding="utf-8") as handle:
         data = json.load(handle)
 
-    changed = update_backportrc_for_minor_freeze(
-        data,
-        new_release_branch=args.new_release_branch,
-        main_new_version=args.main_new_version,
-    )
+    try:
+        changed = update_backportrc_for_minor_freeze(
+            data,
+            new_release_branch=args.new_release_branch,
+            main_new_version=args.main_new_version,
+        )
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
     if not changed:
         print(f"OK: {path} already configured for branch {args.new_release_branch} and main {args.main_new_version}")
         return 0

@@ -21,6 +21,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 _DEV_TOOLS = Path(__file__).resolve().parents[1]
 if str(_DEV_TOOLS) not in sys.path:
     sys.path.insert(0, str(_DEV_TOOLS))
@@ -121,3 +123,13 @@ def test_misconfigured_main_key_is_corrected() -> None:
     keys = list(data["branchLabelMapping"].keys())
     assert keys[0] == "^v9.6.0$", f"main override must be first, got {keys}"
     assert data["branchLabelMapping"]["^v9.6.0$"] == "main"
+
+
+@pytest.mark.parametrize("bad_version", ["9.6", "v9.6.0", "9", "9.6.0.1", "9.6.x", ""])
+def test_rejects_non_semver_main_new_version(bad_version: str) -> None:
+    # A value like "9.6" would produce key ^v9.6$ and silently never match a
+    # v9.6.0 label, so the main override must be rejected up front.
+    with pytest.raises(ValueError, match="MAJOR.MINOR.PATCH"):
+        ubrc.update_backportrc_for_minor_freeze(
+            _base_data(), new_release_branch="9.5", main_new_version=bad_version
+        )
