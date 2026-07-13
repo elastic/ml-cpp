@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+
+"""Pytest tests for dev-tools/update_catalog_snapshot.py.
+
+Verifies a newly cut release branch is registered in the snapshot build pipeline
+(filter_condition + daily schedule) with a minimal, comment-preserving diff, that
+the operation is idempotent, and that the real catalog-info.yaml stays valid YAML.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pytest
+
+_DEV_TOOLS = Path(__file__).resolve().parents[1]
+if str(_DEV_TOOLS) not in sys.path:
+    sys.path.insert(0, str(_DEV_TOOLS))
+
+import update_catalog_snapshot as ucs  # noqa: E402
+
+_REPO_ROOT = _DEV_TOOLS.parent
+_CATALOG = _REPO_ROOT / "catalog-info.yaml"
+
+# Minimal fixture mirroring the snapshot pipeline block followed by another
+# section, so scoping (only the snapshot block is edited) is exercised.
+_FIXTURE = """\
+# Declare the snapshot build pipeline
+---
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ml-cpp-snapshot-builds"
+spec:
+  implementation:
+    spec:
+      provider_settings:
+        build_branches: true
+        filter_condition: build.branch == "main" || build.branch == "9.4" || build.branch == "7.17"
+        filter_enabled: true
+      schedules:
+        Daily 7_17:
+          branch: '7.17'
+          cronline: 30 04 * * *
+          message: Daily SNAPSHOT build for 7.17
+        Daily 9.4:
+          branch: '9.4'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 9.4
+        Daily main:
+          branch: main
+          cronline: 30 00 * * *
+          message: Daily SNAPSHOT build for main
+      skip_intermediate_builds: true
+
+# Declare the staging build pipeline
+---
+metadata:
+  name: "ml-cpp-staging-builds"
+spec:
+  implementation:
+    spec:
+      provider_settings:
+        filter_condition: 'build.branch == "main"'
+"""
+
+
+def test_adds_branch_to_filter_after_main() -> None:
+    new_text, changed = ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5")
+    assert changed is True
+    filter_line = next(
+        line for line in new_text.splitlines() if "filter_condition:" in line and "build_branches" not in line
+    )
+    # 9.5 must appear immediately after main and before 9.4 (newest-first).
+    assert 'build.branch == "main" || build.branch == "9.5" || build.branch == "9.4"' in filter_line
+
+
+def test_adds_schedule_before_main_with_next_free_hour() -> None:
+    new_text, _ = ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5")
+    lines = new_text.splitlines()
+    # New schedule inserted just before "Daily main:".
+    keys = [ln.strip().rstrip(":") for ln in lines if ln.strip().startswith("Daily ")]
+    assert keys == ["Daily 7_17", "Daily 9.4", "Daily 9.5", "Daily main"]
+    # Next free half-past hour is 05 (max existing is 04).
+    assert "cronline: 30 05 * * *" in new_text
+    assert "message: Daily SNAPSHOT build for 9.5" in new_text
+    assert "branch: '9.5'" in new_text
+
+
+def test_does_not_touch_staging_section() -> None:
+    new_text, _ = ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5")
+    staging = new_text.split("# Declare the staging build pipeline", 1)[1]
+    assert "9.5" not in staging
+
+
+def test_idempotent() -> None:
+    once, changed1 = ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5")
+    assert changed1 is True
+    twice, changed2 = ucs.add_release_branch_to_snapshot(once, "9.5")
+    assert changed2 is False
+    assert twice == once
+
+
+def test_partial_state_filter_only_is_completed() -> None:
+    # Branch already in filter but no schedule yet: the schedule must still be added.
+    text, _ = ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5")
+    # Remove the schedule block we just added, keep the filter entry.
+    without_schedule = text.replace(
+        "        Daily 9.5:\n"
+        "          branch: '9.5'\n"
+        "          cronline: 30 05 * * *\n"
+        "          message: Daily SNAPSHOT build for 9.5\n",
+        "",
+    )
+    completed, changed = ucs.add_release_branch_to_snapshot(without_schedule, "9.5")
+    assert changed is True
+    assert "Daily 9.5:" in completed
+
+
+def test_rejects_non_semver_branch() -> None:
+    with pytest.raises(ValueError, match="MAJOR.MINOR"):
+        ucs.add_release_branch_to_snapshot(_FIXTURE, "main")
+    with pytest.raises(ValueError, match="MAJOR.MINOR"):
+        ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5.0")
+
+
+def test_missing_snapshot_anchor_raises() -> None:
+    with pytest.raises(ValueError, match="anchor not found"):
+        ucs.add_release_branch_to_snapshot("no snapshot pipeline here\n", "9.5")
+
+
+@pytest.mark.skipif(not _CATALOG.is_file(), reason="catalog-info.yaml not found")
+def test_real_catalog_edit_is_valid_yaml_and_unique_crons() -> None:
+    yaml = pytest.importorskip("yaml")
+    text = _CATALOG.read_text(encoding="utf-8")
+    new_text, changed = ucs.add_release_branch_to_snapshot(text, "9.9")
+    assert changed is True
+
+    docs = list(yaml.safe_load_all(new_text))
+    snap = next(
+        d for d in docs if d and d.get("metadata", {}).get("name") == "ml-cpp-snapshot-builds"
+    )
+    spec = snap["spec"]["implementation"]["spec"]
+    assert 'build.branch == "9.9"' in spec["provider_settings"]["filter_condition"]
+    assert spec["schedules"]["Daily 9.9"]["branch"] == "9.9"
+
+    crons = [s["cronline"] for s in spec["schedules"].values()]
+    assert len(crons) == len(set(crons)), f"cronline collision: {crons}"
+
+
+@pytest.mark.skipif(not _CATALOG.is_file(), reason="catalog-info.yaml not found")
+def test_real_catalog_only_snapshot_block_changes() -> None:
+    text = _CATALOG.read_text(encoding="utf-8")
+    new_text, _ = ucs.add_release_branch_to_snapshot(text, "9.9")
+    # The staging section (and everything after it) must be untouched.
+    marker = "# Declare the staging build pipeline"
+    assert text.split(marker, 1)[1] == new_text.split(marker, 1)[1]

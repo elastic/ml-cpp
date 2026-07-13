@@ -31,6 +31,7 @@ source "${SCRIPT_DIR}/version_bump_lib.sh"
 PYTHON="${PYTHON:-python3}"
 VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
 UPDATE_BACKPORTRC_PY="${SCRIPT_DIR}/update_backportrc.py"
+UPDATE_CATALOG_PY="${SCRIPT_DIR}/update_catalog_snapshot.py"
 CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
@@ -43,6 +44,7 @@ TARGET_BRANCH="main"
 
 GRADLE_PROPS="gradle.properties"
 BACKPORTRC=".backportrc.json"
+CATALOG_INFO="catalog-info.yaml"
 
 if [ "$DRY_RUN" = "true" ]; then
     echo "=== DRY RUN MODE — will not push or create PR ==="
@@ -115,14 +117,22 @@ then
     exit 1
 fi
 
+# Register the newly cut release branch in the daily snapshot build pipeline.
+if ! "$PYTHON" "$UPDATE_CATALOG_PY" \
+    --path "$CATALOG_INFO" \
+    --branch "$BRANCH"
+then
+    exit 1
+fi
+
 if git diff-index --quiet HEAD --; then
-    echo "main already at ${MAIN_NEW_VERSION} and .backportrc.json is up to date — nothing to do"
+    echo "main already at ${MAIN_NEW_VERSION}, .backportrc.json and catalog-info.yaml up to date — nothing to do"
     version_bump_set_buildkite_meta "ml_cpp_main_bump_needed" "false"
     exit 0
 fi
 
 configure_git
-git add "$GRADLE_PROPS" "$BACKPORTRC"
+git add "$GRADLE_PROPS" "$BACKPORTRC" "$CATALOG_INFO"
 git commit -m "[ML] Bump version to ${MAIN_NEW_VERSION} (minor freeze)"
 
 if [ "$DRY_RUN" = "true" ]; then
@@ -145,6 +155,7 @@ Automated minor feature-freeze bump for \`${TARGET_BRANCH}\`.
 | **Release branch** | \`${BRANCH}\` @ \`${NEW_VERSION}\` |
 | **elasticsearchVersion on main** | \`${current_version}\` → \`${MAIN_NEW_VERSION}\` |
 | **.backportrc.json** | Adds \`${BRANCH}\`; maps \`v${MAIN_NEW_VERSION}\` → \`main\` |
+| **catalog-info.yaml** | Adds \`${BRANCH}\` to the snapshot pipeline filter and a daily snapshot schedule |
 
 When merging is enabled (\`VERSION_BUMP_NO_MERGE\` not true): **auto-merge** if \`VERSION_BUMP_MERGE_AUTO=true\`.
 EOF
