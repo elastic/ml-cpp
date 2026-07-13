@@ -13,9 +13,16 @@ jobs:
     name: Backport PR
     runs-on: ubuntu-latest
     # Only run for merged PRs that are not themselves backports (avoid loops).
+    # Skip automation PRs (minor-freeze main bumps carry a release version label from
+    # elasticsearchmachine but must not backport to the new release branch). The
+    # head.ref fallback keys off the minor-freeze topic branch created by
+    # dev-tools/bump_main_minor_freeze.sh (ci/ml-cpp-minor-freeze-main-*) so it cannot
+    # accidentally skip an unrelated PR whose title merely mentions a minor freeze.
     if: |
       github.event.pull_request.merged == true &&
-      !(contains(github.event.pull_request.labels.*.name, 'backport'))
+      !(contains(github.event.pull_request.labels.*.name, 'backport')) &&
+      !(contains(github.event.pull_request.labels.*.name, 'no-backport')) &&
+      !startsWith(github.event.pull_request.head.ref, 'ci/ml-cpp-minor-freeze-main-')
     steps:
       - name: Check for version labels
         id: check-labels

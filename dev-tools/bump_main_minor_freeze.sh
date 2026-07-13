@@ -158,6 +158,7 @@ pr_cmd=(
     --title "[ML] Bump version to ${MAIN_NEW_VERSION} (minor freeze)"
     --body "$pr_body"
     --label "ci:skip-es-tests"
+    --label "no-backport"
 )
 if [[ "${VERSION_BUMP_NO_MERGE:-}" != "true" ]]; then
     if [[ "${VERSION_BUMP_MERGE_AUTO:-}" == "true" ]]; then
