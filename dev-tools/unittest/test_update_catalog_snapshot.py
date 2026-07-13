@@ -31,6 +31,10 @@ import update_catalog_snapshot as ucs  # noqa: E402
 _REPO_ROOT = _DEV_TOOLS.parent
 _CATALOG = _REPO_ROOT / "catalog-info.yaml"
 
+# A branch that will never actually ship, so real-catalog tests stay stable and
+# never flip to a no-op (changed == False) once a plausible version is released.
+_SENTINEL_BRANCH = "99.0"
+
 # Minimal fixture mirroring the snapshot pipeline block followed by another
 # section, so scoping (only the snapshot block is edited) is exercised.
 _FIXTURE = """\
@@ -126,6 +130,22 @@ def test_partial_state_filter_only_is_completed() -> None:
     assert "Daily 9.5:" in completed
 
 
+def test_partial_state_schedule_only_is_completed() -> None:
+    # Inverse of the above: branch already scheduled but missing from the filter
+    # (e.g. a hand edit). The filter entry must still be added.
+    text, _ = ucs.add_release_branch_to_snapshot(_FIXTURE, "9.5")
+    # Remove only the filter entry we just added, keep the schedule block.
+    without_filter = text.replace(' || build.branch == "9.5"', "")
+    assert 'build.branch == "9.5"' not in without_filter
+    assert "Daily 9.5:" in without_filter
+
+    completed, changed = ucs.add_release_branch_to_snapshot(without_filter, "9.5")
+    assert changed is True
+    assert 'build.branch == "9.5"' in completed
+    # The schedule must not be duplicated when it was already present.
+    assert completed.count("Daily 9.5:") == 1
+
+
 def test_fallback_appends_after_last_entry_when_no_daily_main() -> None:
     # A schedules block without a "Daily main" entry: the new schedule must be
     # appended after the last existing entry, before the next sibling key
@@ -185,7 +205,7 @@ def test_missing_snapshot_anchor_raises() -> None:
 def test_real_catalog_edit_is_valid_yaml_and_unique_crons() -> None:
     yaml = pytest.importorskip("yaml")
     text = _CATALOG.read_text(encoding="utf-8")
-    new_text, changed = ucs.add_release_branch_to_snapshot(text, "9.9")
+    new_text, changed = ucs.add_release_branch_to_snapshot(text, _SENTINEL_BRANCH)
     assert changed is True
 
     docs = list(yaml.safe_load_all(new_text))
@@ -193,8 +213,8 @@ def test_real_catalog_edit_is_valid_yaml_and_unique_crons() -> None:
         d for d in docs if d and d.get("metadata", {}).get("name") == "ml-cpp-snapshot-builds"
     )
     spec = snap["spec"]["implementation"]["spec"]
-    assert 'build.branch == "9.9"' in spec["provider_settings"]["filter_condition"]
-    assert spec["schedules"]["Daily 9.9"]["branch"] == "9.9"
+    assert f'build.branch == "{_SENTINEL_BRANCH}"' in spec["provider_settings"]["filter_condition"]
+    assert spec["schedules"][f"Daily {_SENTINEL_BRANCH}"]["branch"] == _SENTINEL_BRANCH
 
     crons = [s["cronline"] for s in spec["schedules"].values()]
     assert len(crons) == len(set(crons)), f"cronline collision: {crons}"
@@ -203,7 +223,7 @@ def test_real_catalog_edit_is_valid_yaml_and_unique_crons() -> None:
 @pytest.mark.skipif(not _CATALOG.is_file(), reason="catalog-info.yaml not found")
 def test_real_catalog_only_snapshot_block_changes() -> None:
     text = _CATALOG.read_text(encoding="utf-8")
-    new_text, _ = ucs.add_release_branch_to_snapshot(text, "9.9")
+    new_text, _ = ucs.add_release_branch_to_snapshot(text, _SENTINEL_BRANCH)
     # The staging section (and everything after it) must be untouched.
     marker = "# Declare the staging build pipeline"
     assert text.split(marker, 1)[1] == new_text.split(marker, 1)[1]
