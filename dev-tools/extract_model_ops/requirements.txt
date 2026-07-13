@@ -1,4 +1,10 @@
 torch==2.7.1
+# Pinned to the 4.x line on purpose: transformers 5.0 removed TorchScript
+# support (the torchscript=True config + torch.jit tracing this tool relies on).
+# CVE-2026-5241 (RCE via the LightGlue loading path) is not reachable here -- the
+# configured models are curated NLP encoders, never LightGlue, and this is a
+# dev/CI-only tool. We additionally default trust_remote_code=False (see
+# torchscript_utils.load_and_trace_hf_model) to neutralise that class of issue.
 transformers>=4.40.0,<5.0.0
 sentencepiece>=0.2.0
 protobuf>=5.0.0

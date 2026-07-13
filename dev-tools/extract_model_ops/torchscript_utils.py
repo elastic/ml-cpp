@@ -31,6 +31,10 @@ def load_model_config(config_path: Path) -> dict[str, dict]:
       of ``AutoModel`` (e.g. ``"AutoModelForSequenceClassification"``).
     - ``config_overrides`` (dict) — extra kwargs passed to
       ``AutoConfig.from_pretrained`` (e.g. ``{"use_cache": false}``).
+    - ``trust_remote_code`` (bool, default False) — allow the model repo to
+      execute custom Python during load. Off by default so an untrusted repo
+      cannot run arbitrary code (see CVE-2026-5241); enable it only for a
+      vetted model that genuinely ships a custom architecture.
 
     Keys starting with ``_comment`` are silently skipped.
 
@@ -46,7 +50,8 @@ def load_model_config(config_path: Path) -> dict[str, dict]:
             continue
         if isinstance(value, str):
             models[key] = {"model_id": value, "quantized": False,
-                           "auto_class": None, "config_overrides": {}}
+                           "auto_class": None, "config_overrides": {},
+                           "trust_remote_code": False}
         elif isinstance(value, dict):
             if "model_id" not in value:
                 raise ValueError(
@@ -57,6 +62,7 @@ def load_model_config(config_path: Path) -> dict[str, dict]:
                 "quantized": value.get("quantized", False),
                 "auto_class": value.get("auto_class"),
                 "config_overrides": value.get("config_overrides", {}),
+                "trust_remote_code": value.get("trust_remote_code", False),
             }
         else:
             raise ValueError(
@@ -96,7 +102,8 @@ def _resolve_auto_class(class_name: str | None):
 
 def load_and_trace_hf_model(model_name: str, quantize: bool = False,
                             auto_class: str | None = None,
-                            config_overrides: dict | None = None):
+                            config_overrides: dict | None = None,
+                            trust_remote_code: bool = False):
     """Load a HuggingFace model, tokenize sample input, and trace to TorchScript.
 
     When *quantize* is True the model is dynamically quantized (nn.Linear
@@ -109,6 +116,12 @@ def load_and_trace_hf_model(model_name: str, quantize: bool = False,
     *config_overrides* supplies extra kwargs to ``AutoConfig.from_pretrained``
     (e.g. ``{"use_cache": False}`` for encoder-decoder models like BART).
 
+    *trust_remote_code* allows the model repo to execute custom Python during
+    load. It defaults to False so that an untrusted/compromised repo cannot run
+    arbitrary code on the build machine (see CVE-2026-5241, where a nested
+    config could override the caller's setting). Enable it per-model only for a
+    vetted architecture that genuinely ships custom modeling code.
+
     Returns the traced module, or None if the model could not be loaded or traced.
     """
     token = os.environ.get("HF_TOKEN") or None
@@ -117,13 +130,13 @@ def load_and_trace_hf_model(model_name: str, quantize: bool = False,
 
     try:
         tokenizer = AutoTokenizer.from_pretrained(
-            model_name, token=token, trust_remote_code=True)
+            model_name, token=token, trust_remote_code=trust_remote_code)
         config = AutoConfig.from_pretrained(
             model_name, torchscript=True, token=token,
-            trust_remote_code=True, **overrides)
+            trust_remote_code=trust_remote_code, **overrides)
         model = model_cls.from_pretrained(
             model_name, config=config, token=token,
-            trust_remote_code=True)
+            trust_remote_code=trust_remote_code)
         model.eval()
     except Exception as exc:
         print(f"    LOAD ERROR: {exc}", file=sys.stderr)
