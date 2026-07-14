@@ -59,6 +59,15 @@ def test_dict_entry_opt_in_trust_remote_code(tmp_path: Path) -> None:
     assert models["jina"]["trust_remote_code"] is True
 
 
+@pytest.mark.parametrize("bad_value", ["false", "true", 1, 0, None, ["true"]])
+def test_non_bool_trust_remote_code_is_rejected(tmp_path: Path, bad_value) -> None:
+    # A non-bool must never be silently coerced into enabling remote code:
+    # e.g. the string "false" is truthy and would otherwise turn it on.
+    cfg = _write(tmp_path, {"m": {"model_id": "foo/bar", "trust_remote_code": bad_value}})
+    with pytest.raises(ValueError, match="trust_remote_code"):
+        tsu.load_model_config(cfg)
+
+
 def test_bundled_configs_only_trust_vetted_models() -> None:
     # The real configs must not silently trust arbitrary repos: only models
     # explicitly known to ship custom code may opt in.

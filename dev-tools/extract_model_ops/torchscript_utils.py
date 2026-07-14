@@ -57,12 +57,21 @@ def load_model_config(config_path: Path) -> dict[str, dict]:
                 raise ValueError(
                     f"Config entry {key!r} is a dict but missing required "
                     f"'model_id' key: {value!r}")
+            trust_remote_code = value.get("trust_remote_code", False)
+            # Validate strictly: this flag gates remote code execution, so a
+            # non-bool (e.g. the string "false", which is truthy) must never be
+            # silently coerced into enabling it.
+            if not isinstance(trust_remote_code, bool):
+                raise ValueError(
+                    f"Config entry {key!r} has non-boolean 'trust_remote_code' "
+                    f"{trust_remote_code!r} ({type(trust_remote_code).__name__}); "
+                    f"expected true or false.")
             models[key] = {
                 "model_id": value["model_id"],
                 "quantized": value.get("quantized", False),
                 "auto_class": value.get("auto_class"),
                 "config_overrides": value.get("config_overrides", {}),
-                "trust_remote_code": value.get("trust_remote_code", False),
+                "trust_remote_code": trust_remote_code,
             }
         else:
             raise ValueError(
