@@ -49,7 +49,8 @@ DEFAULT_CONFIG = SCRIPT_DIR / "reference_models.json"
 def extract_ops_for_model(model_name: str,
                           quantize: bool = False,
                           auto_class: str | None = None,
-                          config_overrides: dict | None = None) -> Optional[set[str]]:
+                          config_overrides: dict | None = None,
+                          trust_remote_code: bool = False) -> Optional[set[str]]:
     """Trace a HuggingFace model and return its TorchScript op set.
 
     Returns None if the model could not be loaded or traced.
@@ -58,7 +59,8 @@ def extract_ops_for_model(model_name: str,
     print(f"  Loading {label}...", file=sys.stderr)
     traced = load_and_trace_hf_model(model_name, quantize=quantize,
                                      auto_class=auto_class,
-                                     config_overrides=config_overrides)
+                                     config_overrides=config_overrides,
+                                     trust_remote_code=trust_remote_code)
     if traced is None:
         return None
     return collect_inlined_ops(traced)
@@ -99,7 +101,8 @@ def main():
         ops = extract_ops_for_model(spec["model_id"],
                                     quantize=spec["quantized"],
                                     auto_class=spec["auto_class"],
-                                    config_overrides=spec["config_overrides"])
+                                    config_overrides=spec["config_overrides"],
+                                    trust_remote_code=spec["trust_remote_code"])
         if ops is None:
             failed.append(arch)
             print(f"  {arch}: FAILED", file=sys.stderr)

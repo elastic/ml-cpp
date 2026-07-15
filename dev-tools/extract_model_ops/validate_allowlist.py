@@ -123,6 +123,7 @@ def validate_model(model_name: str,
                    quantize: bool = False,
                    auto_class: str | None = None,
                    config_overrides: dict | None = None,
+                   trust_remote_code: bool = False,
                    timeout: int = MODEL_TIMEOUT_SECONDS) -> str:
     """Validate one HuggingFace model.
 
@@ -139,7 +140,8 @@ def validate_model(model_name: str,
     try:
         traced = load_and_trace_hf_model(model_name, quantize=quantize,
                                          auto_class=auto_class,
-                                         config_overrides=config_overrides)
+                                         config_overrides=config_overrides,
+                                         trust_remote_code=trust_remote_code)
     except ModelTimeoutError:
         print(f"    SKIPPED (timed out after {timeout}s)", file=sys.stderr)
         return "skip"
@@ -212,6 +214,7 @@ def main():
             quantize=spec["quantized"],
             auto_class=spec.get("auto_class"),
             config_overrides=spec.get("config_overrides"),
+            trust_remote_code=spec.get("trust_remote_code", False),
             timeout=args.model_timeout)
 
     if args.pt_dir and args.pt_dir.is_dir():

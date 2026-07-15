@@ -31,7 +31,8 @@
     "es-cross-encoder-ms-marco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
     "es-dpr-question-encoder": "facebook/dpr-question_encoder-single-nq-base",
 
-    "jina-embeddings-v5-text-nano": "jinaai/jina-embeddings-v5-text-nano",
+    "_comment:trust-remote-code": "trust_remote_code defaults to false for safety (see CVE-2026-5241). Enable it only for vetted models that ship custom modeling code; jina-embeddings-v5 is one such model.",
+    "jina-embeddings-v5-text-nano": {"model_id": "jinaai/jina-embeddings-v5-text-nano", "trust_remote_code": true},
 
     "_comment:qa-models": "Models from the Appex QA pytorch_tests suite. BART models require auto_class and config_overrides to trace correctly.",
     "qa-tinyroberta-squad2": {"model_id": "deepset/tinyroberta-squad2", "auto_class": "AutoModelForQuestionAnswering"},
