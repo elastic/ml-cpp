@@ -52,3 +52,26 @@ def test_bump_main_minor_freeze_applies_no_backport_label() -> None:
     # Tolerate quote style and surrounding whitespace on the --label argument.
     pattern = re.compile(r"--label\s+['\"]no-backport['\"]")
     assert pattern.search(text), text
+
+
+def test_backport_workflow_treats_source_branch_only_as_success() -> None:
+    """A current-version label (e.g. v9.6.0 -> main) resolves only to the source
+    branch, so the no-branches-exception it produces must be treated as success
+    rather than a failing Backport check.
+    """
+    text = _BACKPORT_WORKFLOW.read_text(encoding="utf-8")
+    # The exemption keys off isSourceBranch being exclusively true: it must inspect
+    # both the true and false variants (the latter negated) so a real, different
+    # target branch is not silently exempted.
+    assert re.search(r'"isSourceBranch":\[\[:space:\]\]\*true', text), text
+    assert re.search(r'"isSourceBranch":\[\[:space:\]\]\*false', text), text
+    # A negated grep (! grep ...) guards the false variant.
+    assert re.search(r'!\s*grep[^\n]*isSourceBranch[^\n]*false', text), text
+    # The exemption must appear before the version-label hard-failure error, and
+    # exit 0 rather than exit 1.
+    exempt_idx = text.find("resolved only to the source branch")
+    error_idx = text.find("no-branches-exception while this PR had version labels")
+    assert exempt_idx != -1, text
+    assert error_idx != -1 and exempt_idx < error_idx, (
+        "source-branch exemption must be evaluated before the hard-failure error"
+    )

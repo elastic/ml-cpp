@@ -52,7 +52,9 @@ jobs:
         run: cat ~/.backport/backport.info.log
 
       # When version labels were detected we always run the Backport Action. If it fails with
-      # no-branches-exception, backport PRs were not created — fail CI so this is not silent.
+      # no-branches-exception, backport PRs were not created — fail CI so this is not silent,
+      # UNLESS the label resolved only to the source branch (current-version label, e.g.
+      # v9.6.0 -> main), which legitimately has nothing to backport (see step logic).
       - name: Check for real failures
         if: steps.backport.outcome == 'failure'
         env:
@@ -67,6 +69,18 @@ jobs:
 
           if grep -q '"code":"no-branches-exception"' ~/.backport/backport.debug.log 2>/dev/null; then
             if [ "${HAS_VERSION_LABEL}" = "true" ]; then
+              # A version label for the current main version (e.g. v9.6.0 -> main via
+              # branchLabelMapping) resolves only to the source branch, so there is
+              # legitimately nothing to backport. The CLI still raises
+              # no-branches-exception in that case; treat it as success, but ONLY when
+              # every resolved target is the source branch (isSourceBranch:true and no
+              # isSourceBranch:false). A genuine misconfiguration (label mapped to a
+              # real, different, or missing branch) still fails loudly below.
+              if grep -Ehq '"isSourceBranch":[[:space:]]*true' ~/.backport/backport.info.log ~/.backport/backport.debug.log 2>/dev/null \
+                 && ! grep -Ehq '"isSourceBranch":[[:space:]]*false' ~/.backport/backport.info.log ~/.backport/backport.debug.log 2>/dev/null; then
+                echo "Version label resolved only to the source branch — nothing to backport (expected for current-version labels)."
+                exit 0
+              fi
               echo "::error::Backport CLI reported no-branches-exception while this PR had version labels. No backport PRs were opened — check branchLabelMapping / targetBranchChoices in .backportrc.json, review logs above, or open backports manually."
               exit 1
             fi
