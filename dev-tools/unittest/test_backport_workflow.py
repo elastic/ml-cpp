@@ -75,3 +75,11 @@ def test_backport_workflow_treats_source_branch_only_as_success() -> None:
     assert error_idx != -1 and exempt_idx < error_idx, (
         "source-branch exemption must be evaluated before the hard-failure error"
     )
+    # The exemption block itself must exit successfully — otherwise the message
+    # could remain while the step still fails. Scope the check to the text between
+    # the exemption message and the hard-failure error.
+    exemption_block = text[exempt_idx:error_idx]
+    assert re.search(r"\bexit\s+0\b", exemption_block), exemption_block
+    assert not re.search(r"\bexit\s+1\b", exemption_block), (
+        "exemption block must not fail the step"
+    )
