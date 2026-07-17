@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 2873
+summary: Add Sandbox2 security integration for `PyTorch` inference
+type: enhancement
