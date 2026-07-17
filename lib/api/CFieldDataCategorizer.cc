@@ -283,6 +283,16 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
 
     LOG_DEBUG(<< "Restore categorizer state");
 
+    auto handleCorruptRestore = [this](const std::string& message) {
+        LOG_WARN(<< message);
+        // This situation is fatal in terms of the categorizer we attempted to restore,
+        // but returning false here can throw the system into a repeated cycle
+        // of failure.  It's better to reset the categorizer and re-categorize from
+        // scratch.
+        this->resetAfterCorruptRestore();
+        return true;
+    };
+
     try {
         // Restore from Elasticsearch compressed data.
         // (To restore from uncompressed data for testing, comment the next line
@@ -310,17 +320,13 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
         core::CJsonStateRestoreTraverser traverser(*strm);
 
         if (this->acceptRestoreTraverser(traverser) == false) {
-            LOG_ERROR(<< "JSON restore failed");
-            return false;
+            // We used to return false here. Putting it at odds with the exception handling case (below).
+            // We now follow the same logic for both failure branches.
+            return handleCorruptRestore("JSON restore failed");
         }
+        LOG_DEBUG(<< "JSON restore complete");
     } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        // This is fatal in terms of the categorizer we attempted to restore,
-        // but returning false here can throw the system into a repeated cycle
-        // of failure.  It's better to reset the categorizer and re-categorize from
-        // scratch.
-        this->resetAfterCorruptRestore();
-        return true;
+        return handleCorruptRestore("Failed to restore state! " + std::string(e.what()));
     }
 
     return true;
@@ -329,7 +335,7 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
 bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     const std::string& firstFieldName = traverser.name();
     if (traverser.isEof()) {
-        LOG_ERROR(<< "Expected categorizer persisted state but no state exists");
+        LOG_WARN(<< "Expected categorizer persisted state but no state exists");
         return false;
     }
 

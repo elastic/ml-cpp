@@ -54,7 +54,7 @@ const std::string FATAL{"FATAL"};
 // call instance() during the static initialisation phase of the program.  Of
 // course, the instance may already be constructed before this if another static
 // object has used it.
-const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance();
+const ml::core::CLogger& DO_NOT_USE_THIS_LOGGER = ml::core::CLogger::instance();
 
 // These must use boost::shared_ptr, not std, as that's what the Boost.Log interface
 // uses

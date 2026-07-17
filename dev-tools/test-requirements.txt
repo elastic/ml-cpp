@@ -1,0 +1,5 @@
+# Python dependencies for dev-tools/unittest (pytest).
+pytest>=7.0.0,<9
+# Import-time deps for changelog scripts exercised by tests (bundle_changelogs, etc.).
+PyYAML>=6.0
+jsonschema>=4.0.0

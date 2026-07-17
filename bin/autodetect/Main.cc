@@ -26,7 +26,7 @@
 #include <core/CProcessPriority.h>
 #include <core/CProcessStats.h>
 #include <core/CProgramCounters.h>
-#include <core/CStringUtils.h>
+#include <core/CStateFileRemover.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -54,7 +54,6 @@
 #include "CCmdLineParser.h"
 
 #include <chrono>
-#include <cstdio>
 #include <cstdlib>
 #include <functional>
 #include <memory>
@@ -119,14 +118,23 @@ int main(int argc, char** argv) {
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
     bool validElasticLicenseKeyConfirmed{false};
-    if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
-            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
-            timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
-            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe, isPersistInForeground,
-            maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed) == false) {
+    std::unique_ptr<ml::core::CStateFileRemover> removeQuantilesStateOnFailure;
+
+    const bool parseSuccess = ml::autodetect::CCmdLineParser::parse(
+        argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+        modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
+        timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
+        namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
+        isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+        persistFileName, isPersistFileNamedPipe, isPersistInForeground,
+        maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed);
+
+    if (!quantilesStateFile.empty()) {
+        removeQuantilesStateOnFailure = std::make_unique<ml::core::CStateFileRemover>(
+            quantilesStateFile, deleteStateFiles);
+    }
+
+    if (parseSuccess == false) {
         return EXIT_FAILURE;
     }
 
@@ -292,9 +300,6 @@ int main(int argc, char** argv) {
         if (job.initNormalizer(quantilesStateFile) == false) {
             LOG_FATAL(<< "Failed to restore quantiles and initialize normalizer");
             return EXIT_FAILURE;
-        }
-        if (deleteStateFiles) {
-            std::remove(quantilesStateFile.c_str());
         }
     }
 

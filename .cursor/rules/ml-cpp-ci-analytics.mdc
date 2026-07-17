@@ -1,0 +1,59 @@
+---
+description: CI build timing analytics, Elasticsearch integration, and AI failure analysis
+globs: dev-tools/ingest_build_timings.py, dev-tools/check_build_regression.py, dev-tools/analyze_build_failure.py
+---
+
+# ml-cpp CI Analytics & Observability
+
+## Elasticsearch Serverless Cluster
+
+- Project: Elastic Cloud Serverless (Sydney region)
+- Index: `buildkite-build-timings`
+- Credentials in Vault: `secret/ci/elastic-ml-cpp/elasticsearch/ci_analytics` (fields: `endpoint`, `api_key`)
+- Local credential files: `~/.elastic/serverless-endpoint`, `~/.elastic/serverless-api-key`
+
+## Build Timing Ingestion
+
+`dev-tools/ingest_build_timings.py`:
+- Fetches step-level timings from Buildkite API
+- Computes `duration_seconds` and `agent_wait_seconds` per step
+- Infers `platform` and `step_type` from step keys
+- Indexes into `buildkite-build-timings` via bulk API
+- Runs as a post-build step in nightly pipelines
+
+## PR Regression Check
+
+`dev-tools/check_build_regression.py`:
+- Queries ES for 30-day rolling mean + stddev of step durations
+- Compares current PR build against `mean + 2*stddev` threshold
+- Posts Buildkite annotation with `--annotate` flag
+- Runs as soft-fail step in PR pipelines
+
+## AI Failure Analysis
+
+`dev-tools/analyze_build_failure.py`:
+- Fetches failed step logs from Buildkite API
+- Sends to Claude (Sonnet) with repo context and known failure patterns
+- Posts structured annotation: root cause, classification, suggested fix, confidence
+- Optionally posts to Slack via `SLACK_WEBHOOK_URL`
+- Only runs when build is failing (`if: "build.state == 'failed'"`)
+- Claude API key in Vault: `secret/ci/elastic-ml-cpp/anthropic/claude`
+
+## ML Anomaly Detection
+
+- Job: `build-timing-regressions` on the serverless cluster
+- Detector: `high_mean(duration_seconds)` partitioned by `step_key`
+- Bucket span: 12h
+- Processes nightly build data to detect step-level duration anomalies
+
+## Kibana Dashboard
+
+- Data view: `Buildkite Build Timings`
+- Dashboard: `ML-CPP Build Timing Overview` (6 panels)
+- Accessible via the Elastic Cloud Serverless Kibana UI
+
+## Credential Flow
+
+```
+Vault → post-checkout hook → env vars → Python scripts → ES/Buildkite/Claude APIs
+```

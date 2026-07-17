@@ -211,6 +211,10 @@ RUN \
 
 FROM rockylinux:8
 COPY --from=builder /usr/local/gcc133 /usr/local/gcc133
+# Match the builder so dynamically loaded deps (MKL, libtorch_cpu, etc.) resolve when
+# running tools under plain python3 without the full compile-time shell.
+ENV LD_LIBRARY_PATH=/usr/local/gcc133/lib64:/usr/local/gcc133/lib:/usr/lib:/lib
+ENV PATH=/usr/local/gcc133/bin:/usr/bin:/bin:/usr/sbin:/sbin
 RUN \
   dnf -y update && \
   dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \

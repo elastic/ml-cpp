@@ -22,7 +22,7 @@ namespace {
 // call instance() during the static initialisation phase of the program.  Of
 // course, the instance may already be constructed before this if another static
 // object has used it.
-const ml::core::CTimezone& DO_NOT_USE_THIS_VARIABLE = ml::core::CTimezone::instance();
+const ml::core::CTimezone& DO_NOT_USE_THIS_TIMEZONE = ml::core::CTimezone::instance();
 }
 
 namespace ml {

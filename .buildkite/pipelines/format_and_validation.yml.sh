@@ -18,4 +18,31 @@ steps:
     notify:
       - github_commit_status:
           context: "Validate formatting with clang-format"
+  - label: "dev-tools pytest"
+    key: "dev_tools_pytest"
+    command: ".buildkite/scripts/steps/dev_tools_pytest.sh"
+    agents:
+      # bookworm (not slim): stable Python minor + curl/git for Buildkite hooks; avoids python:3 tag drift
+      image: "python:3.11-bookworm"
+    notify:
+      - github_commit_status:
+          context: "dev-tools pytest"
+  - label: "Validate changelog entries"
+    key: "validate_changelogs"
+    command: ".buildkite/scripts/steps/validate-changelogs.sh"
+    agents:
+      # bookworm (not slim): Buildkite agent environment hooks need curl + git before the step runs
+      image: "python:3.11-bookworm"
+    soft_fail: true
+    notify:
+      - github_commit_status:
+          context: "Validate changelog entries"
+  - label: "Unit tests: changelog Python tools"
+    key: "test_changelog_tools"
+    command: ".buildkite/scripts/steps/test-changelog-tools.sh"
+    agents:
+      image: "python:3.11-bookworm"
+    notify:
+      - github_commit_status:
+          context: "Unit tests: changelog Python tools"
 EOL

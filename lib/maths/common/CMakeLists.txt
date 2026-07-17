@@ -15,6 +15,37 @@ set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES}
   MlCore)
 
+set_source_files_properties(
+  CBayesianOptimisation.cc
+  CBjkstUniqueValues.cc
+  CClusterer.cc
+  CConstantPrior.cc
+  CGammaRateConjugate.cc
+  CKMeansOnline1d.cc
+  CKMostCorrelated.cc
+  CLogNormalMeanPrecConjugate.cc
+  CMixtureDistribution.cc
+  CModel.cc
+  CMultimodalPrior.cc
+  CMultinomialConjugate.cc
+  CMultivariateConstantPrior.cc
+  CMultivariateMultimodalPriorFactory.cc
+  CMultivariateNormalConjugateFactory.cc
+  CMultivariateOneOfNPrior.cc
+  CNaiveBayes.cc
+  CNaturalBreaksClassifier.cc
+  CNormalMeanPrecConjugate.cc
+  COneOfNPrior.cc
+  CPoissonMeanConjugate.cc
+  CPriorStateSerialiser.cc
+  CQuantileSketch.cc
+  CSampling.cc
+  CStatisticalTests.cc
+  CXMeansOnline1d.cc
+  ProbabilityAggregators.cc
+  PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
+
 ml_add_library(MlMathsCommon SHARED
   CAgglomerativeClusterer.cc
   CBasicStatistics.cc

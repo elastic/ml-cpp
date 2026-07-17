@@ -33,7 +33,6 @@ list(APPEND ML_C_FLAGS
   "/W4"
   "/EHsc"
   "/Gw"
-  "/FS"
   "/Zc:inline"
   "/diagnostics:caret"
   "/utf-8")

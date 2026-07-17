@@ -61,25 +61,6 @@ used for subsequent builds on this branch.
 ### Build script: dev-tools/docker/build_linux_build_image.sh
 
 
-## Repository: ml-linux-aarch64-cross-build
-
-### Latest version: 16
-
-### Comments
-A Docker image that can be used to compile the machine learning
-C++ code for Linux aarch64 (cross compiled).
-
-This image is not intended to be built regularly.  When changing the tools
-or 3rd party components required to build the machine learning C++ code:
-
- 1. Increment the version 
- 2. Change the Dockerfile and build a new image to be
-used for subsequent builds on this branch.  
- 3. Update the version to be used for builds in *dev-tool/docker/linux_aarch64_cross_builder/Dockerfile.*
-
-### Build script: dev-tools/docker/build_linux_aarch64_cross_build_image.sh
-
-
 ## Repository: ml-linux-aarch64-native-build
 
 ### Latest version: 16

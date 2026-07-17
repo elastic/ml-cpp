@@ -9,11 +9,6 @@
 # limitation.
 #
 
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${TEST_DIR}/*.out)
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${TEST_DIR}/*.failed)
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f boost_test_results*.xml)
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f boost_test_results*.junit)
-
 # Turn the TEST_FLAGS environment variable into a CMake list variable
 if (DEFINED ENV{TEST_FLAGS} AND NOT "$ENV{TEST_FLAGS}" STREQUAL "")
   string(REPLACE " " ";" TEST_FLAGS $ENV{TEST_FLAGS})
@@ -32,6 +27,11 @@ string(REPLACE "boost_test_results" "boost_test_results${SAFE_TEST_NAME}" BOOST_
 set(OUTPUT_FILE "${TEST_DIR}/${TEST_NAME}${SAFE_TEST_NAME}.out")
 set(FAILED_FILE "${TEST_DIR}/${TEST_NAME}${SAFE_TEST_NAME}.failed")
 
+# Clean up only this batch's output files (JUnit cleanup is handled by the
+# parent run-all-tests-parallel.cmake before CTest starts).
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f "${OUTPUT_FILE}")
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f "${FAILED_FILE}")
+
 # If env var RUN_BOOST_TESTS_IN_FOREGROUND is defined run the tests in the foreground
 if(TEST_NAME STREQUAL "ml_test_seccomp")
   execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} ${TEST_FLAGS} ${TESTS} ${BOOST_TEST_OUTPUT_FORMAT_FLAGS} --logger=HRF,all --report_format=HRF --show_progress=no --no_color_output  OUTPUT_FILE ${OUTPUT_FILE} ERROR_FILE ${OUTPUT_FILE} RESULT_VARIABLE TEST_SUCCESS)
@@ -48,5 +48,6 @@ if (NOT TEST_SUCCESS EQUAL 0)
     execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${OUTPUT_FILE})
     file(WRITE "${FAILED_FILE}" "")
   endif()
+  message(FATAL_ERROR "${TEST_NAME}${SAFE_TEST_NAME} failed with exit code ${TEST_SUCCESS}")
 endif()
 

@@ -17,6 +17,31 @@ set(ML_LINK_LIBRARIES
   MlMathsCommon
   MlMathsTimeSeries)
 
+set_source_files_properties(
+  CAnnotatedProbability.cc
+  CAnomalyDetector.cc
+  CAnomalyDetectorModel.cc
+  CAnomalyScore.cc
+  CBucketGatherer.cc
+  CCountingModel.cc
+  CDataGatherer.cc
+  CEventRateBucketGatherer.cc
+  CEventRateModel.cc
+  CEventRatePopulationModel.cc
+  CForecastModelPersist.cc
+  CHierarchicalResultsAggregator.cc
+  CIndividualModel.cc
+  CMetricBucketGatherer.cc
+  CMetricModel.cc
+  CMetricPopulationModel.cc
+  CModelDetailsView.cc
+  CPopulationModel.cc
+  CSampleCounts.cc
+  CSearchKey.cc
+  CSimpleCountDetector.cc
+  PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
+
 ml_add_library(MlModel SHARED
   CAnnotatedProbability.cc
   CAnnotatedProbabilityBuilder.cc

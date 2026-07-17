@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include "../CThreadSettings.h"
+#include <CThreadSettings.h>
 
 #include <boost/test/unit_test.hpp>
 

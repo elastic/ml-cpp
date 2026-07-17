@@ -106,7 +106,7 @@ public:
 
     bool terminatePid(CProcess::TPid pid) {
         if (!this->havePid(pid)) {
-            LOG_ERROR(<< "Will not attempt to kill process " << pid << ": not a child process");
+            LOG_WARN(<< "Will not attempt to kill process " << pid << ": not a child process");
             return false;
         }
 

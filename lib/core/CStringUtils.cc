@@ -52,7 +52,7 @@ const std::locale& locale() {
 // require it, call locale() during the static initialisation phase of the
 // program.  Of course, the locale may already be constructed before this if
 // another static object has used it.
-const std::locale& DO_NOT_USE_THIS_VARIABLE = locale();
+const std::locale& DO_NOT_USE_THIS_LOCALE = locale();
 
 // Constants for parsing & converting memory size strings in standard ES format
 const std::string MEMORY_SIZE_FORMAT{"([\\d]+)(b|k|kb|m|mb|g|gb|t|tb|p|pb)"};

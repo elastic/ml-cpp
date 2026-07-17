@@ -11,6 +11,49 @@
 import os
 import re
 
+# Keys allowed in the optional tail of trigger_comment_regex (group serverless_kv).
+_SERVERLESS_KV_KEYS = frozenset(
+    {
+        "KEEP_DEPLOYMENT",
+        "REGION_ID",
+        "PROJECT_TYPE",
+        "ES_SERVERLESS_BRANCH",
+    }
+)
+
+# Trim PR CI for automated version-bump PRs (metadata-only changes): skip Java ES IT
+# pipelines and the extra Linux x86_64 debug build/test pair. Applied via
+# ci:skip-es-tests label and/or version-bump topic branch names.
+SKIP_VERSION_BUMP_PR_CI_LABEL = "ci:skip-es-tests"
+# Backward-compatible alias for callers/tests that reference the old name.
+SKIP_ES_TESTS_LABEL = SKIP_VERSION_BUMP_PR_CI_LABEL
+
+_VERSION_BUMP_TOPIC_BRANCH_PATTERNS = (
+    re.compile(r"^ci/ml-cpp-version-bump-"),
+    re.compile(r"^ci/ml-cpp-minor-freeze-main-"),
+)
+
+
+def normalize_buildkite_branch(branch: str) -> str:
+    """Return the PR source branch name from BUILDKITE_BRANCH (fork or same-repo)."""
+
+    if ":" in branch:
+        branch = branch.split(":", 1)[1]
+    if "+" in branch:
+        if "/" in branch:
+            # Fork PR: author+branch/with/slashes (only the author separator is "+").
+            branch = branch.split("+", 1)[1]
+        else:
+            # Branch name with "/" encoded as "+" throughout (no fork author prefix).
+            branch = branch.replace("+", "/")
+    return branch
+
+
+def is_version_bump_topic_branch(branch: str) -> bool:
+    normalized = normalize_buildkite_branch(branch)
+    return any(pattern.search(normalized) for pattern in _VERSION_BUMP_TOPIC_BRANCH_PATTERNS)
+
+
 class Config:
     build_windows: bool = False
     build_macos: bool = False
@@ -19,7 +62,16 @@ class Config:
     build_x86_64: str = ""
     run_qa_tests: bool = False
     run_pytorch_tests: bool = False
+    run_serverless_tests: bool = False
+    deploy_serverless_qa: bool = False
+    skip_version_bump_pr_ci: bool = False
     action: str = "build"
+
+    @property
+    def skip_es_tests(self) -> bool:
+        """Backward-compatible alias for skip_version_bump_pr_ci."""
+
+        return self.skip_version_bump_pr_ci
 
     def parse_comment(self):
         """ Parse environment variables set from GitHub PR comments
@@ -37,8 +89,12 @@ class Config:
             self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
             self.run_qa_tests = self.action == "run_qa_tests"
             self.run_pytorch_tests = self.action == "run_pytorch_tests"
-            if self.run_pytorch_tests or self.run_qa_tests:
+            self.run_serverless_tests = self.action == "run_serverless_tests"
+            self.deploy_serverless_qa = self.action == "deploy_serverless_qa"
+            if self.run_pytorch_tests or self.run_qa_tests or self.run_serverless_tests or self.deploy_serverless_qa:
                 self.action = "build"
+
+            self._apply_serverless_kv_from_comment()
 
         # If the ACTION is set to "run_qa_tests" then set some optional variables governing the ES branch to build, the
         # stack version to set and the subset of QA tests to run, depending on whether appropriate variables are set in
@@ -53,10 +109,10 @@ class Config:
             if "GITHUB_PR_COMMENT_VAR_ARGS" in os.environ:
                 os.environ["QAF_TESTS_TO_RUN"] = os.environ["GITHUB_PR_COMMENT_VAR_ARGS"]
 
-        # If the GITHUB_PR_COMMENT_VAR_ARCH environment variable is set then   attemot to parse it
+        # If the GITHUB_PR_COMMENT_VAR_ARCH environment variable is set then attempt to parse it
         # into comma separated values. If the values are one or both of "aarch64" or "x86_64" then set the member
         # variables self.build_aarch64, self.build_x86_64 accordingly. These values will be used to restrict the build
-        # jobs to a particular achitecture.
+        # jobs to a particular architecture.
         if "GITHUB_PR_COMMENT_VAR_ARCH" in os.environ:
             csv_arch = os.environ["GITHUB_PR_COMMENT_VAR_ARCH"]
             for each in [ x.strip().lower() for x in csv_arch.split(",")]:
@@ -64,11 +120,16 @@ class Config:
                     self.build_aarch64 = "--build-aarch64"
                 elif each == "x86_64":
                     self.build_x86_64 = "--build-x86_64"
+        elif self.run_qa_tests or self.run_pytorch_tests:
+            self.build_x86_64 = "--build-x86_64"
+        elif self.run_serverless_tests or self.deploy_serverless_qa:
+            self.build_aarch64 = "--build-aarch64"
+            self.build_x86_64 = "--build-x86_64"
         else:
             self.build_aarch64 = "--build-aarch64"
             self.build_x86_64 = "--build-x86_64"
 
-        # If the GITHUB_PR_COMMENT_VAR_PLATFORM environment variable is set to a non-empty string then attemot to parse it
+        # If the GITHUB_PR_COMMENT_VAR_PLATFORM environment variable is set to a non-empty string then attempt to parse it
         # into comma separated values. If the values are one or a combination of "windows", "mac(os)", "linux"  then set the member
         # variables self.build_windows, self.build_macos, self.build_linux accordingly. These values will be used to restrict the build
         # jobs to a particular platform.
@@ -81,15 +142,40 @@ class Config:
                     self.build_macos = True
                 elif each == "linux":
                     self.build_linux = True
+        elif self.run_qa_tests or self.run_pytorch_tests or self.run_serverless_tests or self.deploy_serverless_qa:
+            self.build_linux = True
         else:
             self.build_windows = True
             self.build_macos = True
             self.build_linux = True
 
+        # Serverless runner pipelines depend on both Linux aarch64 and x86_64
+        # build steps. Normalize after platform/arch parsing so PR comment tails
+        # cannot leave dangling depends_on keys or skip Linux builds.
+        if self.run_serverless_tests or self.deploy_serverless_qa:
+            self.build_aarch64 = "--build-aarch64"
+            self.build_x86_64 = "--build-x86_64"
+            self.build_linux = True
+
+        # If no explicit action was set (e.g. "buildkite test this" via
+        # always_trigger_comment_regex), check PR labels for QA/PyTorch
+        # flags.  This is done after platform/arch defaults so that
+        # label-based flags don't restrict platforms to Linux-only.
+        if "GITHUB_PR_COMMENT_VAR_ACTION" not in os.environ and "GITHUB_PR_LABELS" in os.environ:
+            labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
+            if "ci:run-qa-tests" in labels:
+                self.run_qa_tests = True
+            if "ci:run-pytorch-tests" in labels:
+                self.run_pytorch_tests = True
+            if "ci:run-serverless-tests" in labels:
+                self.run_serverless_tests = True
+            if "ci:deploy-serverless-qa" in labels:
+                self.deploy_serverless_qa = True
+
     def parse_label(self):
         """ Parse labels set on GitHub PR comments."""
 
-        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests','ci:run-pytorch-tests','ci:build-aarch64','ci:build-x86_64']
+        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests','ci:run-pytorch-tests','ci:run-serverless-tests','ci:deploy-serverless-qa','ci:build-aarch64','ci:build-x86_64']
         all_labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
         ci_labels = [label for label in all_labels if re.search("|".join(build_labels), label)]
         if not ci_labels:
@@ -122,6 +208,16 @@ class Config:
                     self.build_macos = True
                     self.build_linux = True
                     self.run_pytorch_tests = True
+                if "ci:run-serverless-tests" == label:
+                    self.build_linux = True
+                    self.build_aarch64 = "--build-aarch64"
+                    self.build_x86_64 = "--build-x86_64"
+                    self.run_serverless_tests = True
+                if "ci:deploy-serverless-qa" == label:
+                    self.build_linux = True
+                    self.build_aarch64 = "--build-aarch64"
+                    self.build_x86_64 = "--build-x86_64"
+                    self.deploy_serverless_qa = True
             if self.build_aarch64 == "" and self.build_x86_64 == "":
                 self.build_aarch64 = "--build-aarch64"
                 self.build_x86_64 = "--build-x86_64"
@@ -140,4 +236,56 @@ class Config:
             self.build_aarch64 = "--build-aarch64"
             self.build_x86_64 = "--build-x86_64"
             self.run_qa_tests = False
+
+        self._apply_skip_version_bump_pr_ci()
+
+    def _apply_skip_version_bump_pr_ci(self):
+        """Skip extra PR CI (Java ES ITs, Linux x86_64 debug) for version-bump PRs."""
+
+        if self.skip_version_bump_pr_ci:
+            return
+
+        for env_key in ("GITHUB_PR_LABELS", "BUILDKITE_PULL_REQUEST_LABELS"):
+            raw = os.environ.get(env_key, "")
+            if not raw:
+                continue
+            labels = [label.strip().lower() for label in raw.split(",")]
+            if SKIP_VERSION_BUMP_PR_CI_LABEL in labels:
+                self.skip_version_bump_pr_ci = True
+                return
+
+        for env_key in ("GITHUB_PR_BRANCH", "BUILDKITE_BRANCH"):
+            branch = os.environ.get(env_key, "")
+            if branch and is_version_bump_topic_branch(branch):
+                self.skip_version_bump_pr_ci = True
+                return
+
+    def _apply_serverless_kv_from_comment(self):
+        """Copy whitelisted KEY=value tokens from the PR comment regex capture into os.environ."""
+
+        env_key = "GITHUB_PR_COMMENT_VAR_SERVERLESS_KV"
+        if env_key not in os.environ:
+            return
+        raw = os.environ[env_key].strip()
+        if not raw:
+            return
+        for token in raw.split():
+            key, sep, value = token.partition("=")
+            if not sep or key not in _SERVERLESS_KV_KEYS:
+                continue
+            if key == "KEEP_DEPLOYMENT" and value.lower() not in ("true", "false"):
+                continue
+            if key in ("REGION_ID", "PROJECT_TYPE") and not re.fullmatch(r"[A-Za-z0-9_.:-]+", value):
+                continue
+            if key == "ES_SERVERLESS_BRANCH" and not re.fullmatch(r"[A-Za-z0-9_./-]+", value):
+                continue
+            os.environ[key] = value
+
+
+def should_skip_version_bump_pr_ci() -> bool:
+    """Return True when PR CI should omit Java ITs and Linux x86_64 debug steps."""
+
+    config = Config()
+    config.parse()
+    return config.skip_version_bump_pr_ci
 

@@ -21,6 +21,7 @@
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CStateFileRemover.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -40,7 +41,6 @@
 #include "CCmdLineParser.h"
 
 #include <chrono>
-#include <cstdio>
 #include <cstdlib>
 #include <functional>
 #include <memory>
@@ -63,11 +63,20 @@ int main(int argc, char** argv) {
     bool deleteStateFiles{false};
     bool writeCsv{false};
     bool validElasticLicenseKeyConfirmed{false};
-    if (ml::normalize::CCmdLineParser::parse(
-            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
-            lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
-            deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed) == false) {
+    std::unique_ptr<ml::core::CStateFileRemover> removeQuantilesStateOnFailure;
+
+    const bool parseSuccess = ml::normalize::CCmdLineParser::parse(
+        argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
+        lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
+        isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
+        deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed);
+
+    if (!quantilesStateFile.empty()) {
+        removeQuantilesStateOnFailure = std::make_unique<ml::core::CStateFileRemover>(
+            quantilesStateFile, deleteStateFiles);
+    }
+
+    if (parseSuccess == false) {
         return EXIT_FAILURE;
     }
 
@@ -157,9 +166,6 @@ int main(int argc, char** argv) {
         if (normalizer.initNormalizer(quantilesStateFile) == false) {
             LOG_FATAL(<< "Failed to initialize normalizer");
             return EXIT_FAILURE;
-        }
-        if (deleteStateFiles) {
-            std::remove(quantilesStateFile.c_str());
         }
     }
 

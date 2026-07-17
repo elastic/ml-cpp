@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include "../CCommandParser.h"
+#include <CCommandParser.h>
 
 #include <boost/test/unit_test.hpp>
 

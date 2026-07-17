@@ -29,43 +29,90 @@ cd "$MY_DIR/../.."
 # Set a consistent environment
 . ./set_env.sh
 
+# Set up sccache with GCS backend if credentials are available.
+# SCCACHE_GCS_BUCKET is exported by the Buildkite post-checkout hook.
+if [ -n "${SCCACHE_GCS_BUCKET:-}" ]; then
+  source ./dev-tools/setup_sccache.sh
+fi
+
+# Detect actual CPU count, respecting cgroup limits (Docker/k8s).
+# nproc may report host CPUs rather than the container's allocation.
+detect_cpus() {
+    local cgroup_cpus=""
+    # Cgroup v2
+    if [ -f /sys/fs/cgroup/cpu.max ]; then
+        local quota period
+        read quota period < /sys/fs/cgroup/cpu.max
+        if [ "$quota" != "max" ] && [ "$period" -gt 0 ] 2>/dev/null; then
+            cgroup_cpus=$(( (quota + period - 1) / period ))
+        fi
+    # Cgroup v1
+    elif [ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]; then
+        local quota=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+        local period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us)
+        if [ "$quota" -gt 0 ] && [ "$period" -gt 0 ] 2>/dev/null; then
+            cgroup_cpus=$(( (quota + period - 1) / period ))
+        fi
+    fi
+    if [ -n "$cgroup_cpus" ] && [ "$cgroup_cpus" -gt 0 ] 2>/dev/null; then
+        echo "$cgroup_cpus"
+    else
+        nproc
+    fi
+}
+
+NCPUS=$(detect_cpus)
+echo "CPU detection: nproc=$(nproc), cgroup-aware=${NCPUS}"
+
 # Note: no need to clean due to the .dockerignore file
 
 # Configure the build
 cmake -B cmake-build-docker ${CMAKE_FLAGS}
 
 # Build the code
-cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j`nproc` -t install
+cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j${NCPUS} -t install
 
-# Strip the binaries
-dev-tools/strip_binaries.sh
+if [ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ] ; then
+    # Strip the binaries
+    cmake -P cmake/strip-binaries.cmake
 
-# Get the version number
-PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
-if [ -n "$VERSION_QUALIFIER" ] ; then
-    PRODUCT_VERSION="$PRODUCT_VERSION-$VERSION_QUALIFIER"
+    # Get the version number
+    PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
+    if [ -n "$VERSION_QUALIFIER" ] ; then
+        PRODUCT_VERSION="$PRODUCT_VERSION-$VERSION_QUALIFIER"
+    fi
+    if [ "$SNAPSHOT" = yes ] ; then
+        PRODUCT_VERSION="$PRODUCT_VERSION-SNAPSHOT"
+    fi
+
+    ARTIFACT_NAME=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^artifactName' | awk -F= '{ print $2 }' | xargs echo`
+
+    # Create the output artifacts
+    cd build/distribution
+    mkdir -p ../distributions
+    ZIP_LEVEL=${ZIP_COMPRESSION_LEVEL:-9}
+    echo "Zip compression level: ${ZIP_LEVEL}"
+    # Exclude import libraries, test support libraries, debug files and core dumps
+    zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
+    # Include only debug files
+    zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
+    cd ../..
 fi
-if [ "$SNAPSHOT" = yes ] ; then
-    PRODUCT_VERSION="$PRODUCT_VERSION-SNAPSHOT"
-fi
 
-ARTIFACT_NAME=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^artifactName' | awk -F= '{ print $2 }' | xargs echo`
-
-# Create the output artifacts
-cd build/distribution
-mkdir -p ../distributions
-# Exclude import libraries, test support libraries, debug files and core dumps
-zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
-# Include only debug files
-zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
-cd ../..
-
-if [ "x$1" = "x--test" ] ; then
-    # Convert any failure of this make command into the word passed or failed in
-    # a status file - this allows the Docker image build to succeed if the only
-    # failure is the unit tests, and then the detailed test results can be
-    # copied from the image
+if [ "x$1" = "x--build-tests" ] ; then
+    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests
+elif [ "x$1" = "x--test" ] ; then
     echo passed > build/test_status.txt
-    cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j $(nproc) -t test_individually || echo failed > build/test_status.txt
+    if ! cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests ; then
+        echo failed > build/test_status.txt
+    else
+        cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
+    fi
+fi
+
+# Print sccache stats if it was used
+if [ -n "${SCCACHE_PATH:-}" ]; then
+  "$SCCACHE_PATH" --show-stats || true
+  "$SCCACHE_PATH" --stop-server || true
 fi
 

@@ -32,7 +32,7 @@ const char PADDING_NODE = '$';
 const char LEAF_NODE = 'l';
 const char BRANCH_NODE = 'b';
 const char LEAF_AND_BRANCH_NODE = '*';
-const std::string EMPTY_STRING = "";
+const std::string EMPTY_PREFIX;
 
 struct SCharNotEqualTo {
     SCharNotEqualTo(char c, std::size_t pos) : s_Char(c), s_Pos(pos) {}
@@ -79,7 +79,7 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
 
     if (prefixes.empty() == false) {
         // Ignore empty string if present
-        std::size_t startIndex = prefixes[0] == EMPTY_STRING ? 1 : 0;
+        std::size_t startIndex = prefixes[0] == EMPTY_PREFIX ? 1 : 0;
         this->buildRecursively(prefixes, startIndex, prefixes.size(), 0);
     }
 

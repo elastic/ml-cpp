@@ -31,35 +31,75 @@ actions = [
     "debug"
 ]
 
+windows_agents = {
+    "provider": "gcp",
+    "machineType": "c2-standard-16",
+    "minCpuPlatform": "Intel Cascade Lake",
+    "image": "family/ml-cpp-5-windows-2022",
+}
+
+common_env = {
+    "ML_DEBUG": "0",
+    "CPP_CROSS_COMPILE": "",
+    "CMAKE_GENERATOR": "Ninja Multi-Config",
+    "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+}
+
 def main(args):
     pipeline_steps = []
     cur_build_types = build_types
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    test_timeout = "120" if args.action == "debug" else "60"
+
     for arch, build_type in product(archs, cur_build_types):
+        build_key = f"build_test_Windows-{arch}-{build_type}"
+
+        step_env = {**common_env, "RUN_TESTS": "false"}
+        if args.action == "debug":
+            step_env["ML_DEBUG"] = "1"
+
+        # Build step
         pipeline_steps.append({
-            "label": f"Build & test :cpp: for Windows-{arch}-{build_type} :windows:",
-            "timeout_in_minutes": "240",
-            "agents": {
-              "provider": "gcp",
-              "machineType": "c2-standard-16",
-              "minCpuPlatform": "Intel Cascade Lake",
-              "image": "family/ml-cpp-5-windows-2022",
-            },
+            "label": f"Build :cpp: for Windows-{arch}-{build_type} :windows:",
+            "timeout_in_minutes": "180",
+            "agents": windows_agents,
             "commands": [
-              f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
-              "& .buildkite\\scripts\\steps\\build_and_test.ps1"
+              "& .buildkite\\scripts\\steps\\build.ps1"
             ],
             "depends_on": "check_style",
-            "key": f"build_test_Windows-{arch}-{build_type}",
-            "env": {
-              "ML_DEBUG": "0",
-              "CPP_CROSS_COMPILE": "",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake",
-              "RUN_TESTS": "true",
-              "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
-            },
+            "key": build_key,
+            "env": step_env,
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": f"Build on Windows {arch} {build_type}",
+                },
+              },
+            ],
+        })
+
+        test_env = {
+            **common_env,
+            "BUILD_STEP_KEY": build_key,
+            "RUN_TESTS": "true",
+            "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
+        }
+        if args.action == "debug":
+            test_env["ML_DEBUG"] = "1"
+
+        # Test step
+        pipeline_steps.append({
+            "label": f"Test :cpp: for Windows-{arch}-{build_type} :windows:",
+            "timeout_in_minutes": test_timeout,
+            "agents": windows_agents,
+            "commands": [
+              "& .buildkite\\scripts\\steps\\run_tests.ps1"
+            ],
+            "depends_on": build_key,
+            "key": f"test_Windows-{arch}-{build_type}",
+            "env": test_env,
             "artifact_paths": ["*/**/unittest/boost_test_results.junit"],
             "plugins": {
               "test-collector#v1.2.0": {
@@ -70,7 +110,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build and test on Windows {arch} {build_type}",
+                  "context": f"Test on Windows {arch} {build_type}",
                 },
               },
             ],

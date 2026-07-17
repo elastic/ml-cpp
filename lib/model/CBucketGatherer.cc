@@ -483,8 +483,10 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime& startTime, core_t::TTim
     }
     for (/**/; startTime < endTime; startTime += this->bucketLength()) {
         if (!this->dataAvailable(startTime)) {
-            LOG_ERROR(<< "No counts available at " << startTime
-                      << ", current bucket = " << this->printCurrentBucket());
+            LOG_WARN(<< "Skipping bucket due to missing counts at " << startTime << " (bucket window: ["
+                     << startTime << "," << startTime + this->bucketLength()
+                     << "], current bucket = " << this->printCurrentBucket()
+                     << ") - continuing to check other buckets");
             continue;
         }
         return true;

@@ -12,6 +12,7 @@
 #include <core/CDataAdder.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
+#include <core/CProcess.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CModelWeight.h>
@@ -37,7 +38,6 @@
 #include <ios>
 #include <iterator>
 #include <memory>
-#include <random> // For random number generation facilities
 #include <sstream>
 #include <string>
 #include <vector>
@@ -102,13 +102,8 @@ void detectorPersistHelper(const std::string& configFileName,
 
     // Persist the detector state to file(s)
 
-    // Create a random number to use to generate a unique file name for each test
-    // this allows tests to be run successfully in parallel
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(1, 100);
     std::ostringstream oss;
-    oss << distrib(gen);
+    oss << ml::core::CProcess::instance().id();
 
     std::string baseOrigOutputFilename(ml::test::CTestTmpDir::tmpDir() +
                                        "/orig_" + oss.str());

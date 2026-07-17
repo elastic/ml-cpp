@@ -10,36 +10,24 @@
 #
 
 # which compilers to use for C and C++
-if(CROSS_TARGET_PLATFORM  STREQUAL "aarch64-linux-gnu")
-  set(CMAKE_C_COMPILER   "/usr/local/gcc133/bin/${CROSS_TARGET_PLATFORM}-gcc")
-  set(CMAKE_CXX_COMPILER "/usr/local/gcc133/bin/${CROSS_TARGET_PLATFORM}-g++")
+set(CMAKE_C_COMPILER   "/usr/local/gcc133/bin/gcc")
+set(CMAKE_CXX_COMPILER "/usr/local/gcc133/bin/g++")
 
+# Detect architecture from ARCHCFLAGS (set by architecture/*.cmake files)
+if(ARCHCFLAGS MATCHES "-march=armv8")
   set(CMAKE_SYSTEM_PROCESSOR "aarch64")
-  set(CMAKE_AR       "/usr/local/gcc133/bin/${CROSS_TARGET_PLATFORM}-ar")
-  set(CMAKE_RANLIB   "/usr/local/gcc133/bin/${CROSS_TARGET_PLATFORM}-ranlib")
-  set(CMAKE_STRIP    "/usr/local/gcc133/bin/${CROSS_TARGET_PLATFORM}-strip")
-  set(CMAKE_LINKER   "/usr/local/gcc133/bin/${CROSS_TARGET_PLATFORM}-ld")
-
-  message(STATUS "CROSS_TARGET_PLATFORM=${CROSS_TARGET_PLATFORM}")
-  message(STATUS "CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD}")
-  set(SYSROOT /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-  set(CROSS_FLAGS "--sysroot=${SYSROOT}")
-
 else()
-  set(CMAKE_C_COMPILER   "/usr/local/gcc133/bin/gcc")
-  set(CMAKE_CXX_COMPILER "/usr/local/gcc133/bin/g++")
-
   set(CMAKE_SYSTEM_PROCESSOR "x86_64")
-  set(CMAKE_AR       "/usr/local/gcc133/bin/ar")
-  set(CMAKE_RANLIB   "/usr/local/gcc133/bin/ranlib")
-  set(CMAKE_STRIP    "/usr/local/gcc133/bin/strip")
-  set(CMAKE_LINKER   "/usr/local/gcc133/bin/ld")
 endif()
+
+set(CMAKE_AR       "/usr/local/gcc133/bin/ar")
+set(CMAKE_RANLIB   "/usr/local/gcc133/bin/ranlib")
+set(CMAKE_STRIP    "/usr/local/gcc133/bin/strip")
+set(CMAKE_LINKER   "/usr/local/gcc133/bin/ld")
 
 SET(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -ru <TARGET> <OBJECTS>")
 
 list(APPEND ML_C_FLAGS
-  ${CROSS_FLAGS}
   ${ARCHCFLAGS}
   "-fstack-protector"
   "-fno-math-errno"

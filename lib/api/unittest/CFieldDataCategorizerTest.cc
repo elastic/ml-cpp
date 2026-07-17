@@ -28,6 +28,7 @@
 #include <set>
 #include <sstream>
 #include <tuple>
+#include <vector>
 
 BOOST_AUTO_TEST_SUITE(CFieldDataCategorizerTest)
 
@@ -208,6 +209,53 @@ std::string setupPerPartitionStopOnWarnTest(bool stopOnWarnAtInit,
     }
     return outputStrm.str();
 }
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
+    core::CLogger::instance().setLoggingLevel(core::CLogger::E_Trace);
+    model::CLimits limits;
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/cat_job_config.json"));
+    CTestChainedProcessor testChainedProcessor;
+
+    std::ostringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
+
+    CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(), limits,
+                                          &testChainedProcessor, wrappedOutputStream};
+
+    std::vector<std::string> badStates = {
+        // "Empty" base64 - []
+        R"({"compressed": ["H4sIAAAAAAAA","/4uOBQApu0wNAgAAAA=="],"eos":true})",
+        // Not compressed base64 - "junk"
+        R"({"compressed": ["anVuawo="],"eos":true})",
+        // Empty compressed array
+        R"({"compressed": [],"eos":true})",
+        // Not a JSON array
+        R"({"compressed": Junk,"eos":true})",
+        // Decompresses to "junk"
+        R"({"compressed": ["H4sIADlIcGkAA8sqzcvmAgAHddRtBQAAAA=="],"eos":true})",
+        // Invalid JSON
+        R"({ "foo: "bar" )",
+        // Missing 'compressed' field
+        R"({"eos":true})",
+        // 'compressed' is not an array
+        R"({"compressed": "a string","eos":true})",
+        // 'compressed' array contains non-string
+        R"({"compressed": [123],"eos":true})",
+        // Invalid base64 content
+        R"({"compressed": ["not-base64"],"eos":true})",
+        // Null state document
+        R"({"compressed": \0,"eos":true})",
+        // NULL character after object end
+        R"({"index":{"_id":"logs_services_count_logs_categories_categorizer_state#1"}})"};
+
+    for (const auto& badState : badStates) {
+        LOG_DEBUG(<< "Restoring from \"" << badState << "\"");
+        CTestDataSearcher restorer{badState};
+        core_t::TTime time{0};
+        BOOST_REQUIRE_EQUAL(true, categorizer.restoreState(restorer, time));
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
@@ -576,7 +624,7 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
     BOOST_REQUIRE_EQUAL(0, output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0,\"refresh_required\":true}}"));
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
+BOOST_AUTO_TEST_CASE(testRestoreStateRecoversWithEmptyState) {
     model::CLimits limits;
     CAnomalyJobConfig config;
     BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
@@ -588,7 +636,7 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
 
     core_t::TTime completeToTime{0};
     CEmptySearcher restoreSearcher;
-    BOOST_TEST_REQUIRE(categorizer.restoreState(restoreSearcher, completeToTime) == false);
+    BOOST_TEST_REQUIRE(categorizer.restoreState(restoreSearcher, completeToTime) == true);
 }
 
 BOOST_AUTO_TEST_CASE(testFlushWritesOnlyChangedCategories) {

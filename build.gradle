@@ -54,8 +54,8 @@ if (cppCrossCompile == null) {
     cppCrossCompile = ''
   }
 }
-if (cppCrossCompile != '' && cppCrossCompile != 'macosx' && cppCrossCompile != 'aarch64') {
-  throw new GradleException("CPP_CROSS_COMPILE property must be empty, 'macosx' or 'aarch64'")
+if (cppCrossCompile != '' && cppCrossCompile != 'macosx') {
+  throw new GradleException("CPP_CROSS_COMPILE property must be empty or 'macosx'")
 }
 
 String osArch = System.properties['os.arch']
@@ -85,6 +85,15 @@ if (isWindows) {
 // where the desired build type is specified at build time with the '--config' option. (It's safe to always specify the
 // '--config' option as it will simply be ignored by a single-config generated build system)
 String cmakeFlags = '--no-warn-unused-cli -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
+// Append any extra CMake flags from the environment (e.g. -DCMAKE_UNITY_BUILD=ON)
+String envCmakeFlags = System.env.CMAKE_FLAGS
+if (envCmakeFlags != null && !envCmakeFlags.isEmpty()) {
+  // Strip any toolchain file flag to avoid duplication
+  envCmakeFlags = envCmakeFlags.replaceAll(/-DCMAKE_TOOLCHAIN_FILE=\\S+/, '').trim()
+  if (!envCmakeFlags.isEmpty()) {
+    cmakeFlags += ' ' + envCmakeFlags
+  }
+}
 project.ext.cmakeBuildDir = "cmake-build-relwithdebinfo"
 project.ext.cmakeBuildType = "RelWithDebInfo"
 if (mlDebug.toBoolean()) {
@@ -98,7 +107,6 @@ if (isWindows && msystem != 'MINGW64') {
   project.ext.setEnv = ".\\set_env.bat"
   project.ext.shellFlag = "/c"
   project.ext.cleanCmd = "if exist ${cmakeBuildDir}\\ (rmdir /s /q ${cmakeBuildDir}) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
-  // Stripping the binaries is not necessary on Windows, execute a no-op command instead
   project.ext.stripCmd = "cd ."
 } else {
   // Use the bash shell for the C++ build (Git bash when on Windows using MinGW)
@@ -106,8 +114,7 @@ if (isWindows && msystem != 'MINGW64') {
   project.ext.setEnv = "source ./set_env.sh"
   project.ext.shellFlag = "-c"
   project.ext.cleanCmd = "rm -rf ${cmakeBuildDir} 3rd_party/eigen"
-  // Stripping the binaries is not necessary on Windows, execute a no-op command instead
-  project.ext.stripCmd = isWindows ? 'true' : "dev-tools/strip_binaries.sh"
+  project.ext.stripCmd = "cmake -P cmake/strip-binaries.cmake"
 }
 
 project.ext.numCpus = Runtime.runtime.availableProcessors()
@@ -159,6 +166,20 @@ task format(type: Exec) {
   commandLine shell
   args shellFlag, "${setEnv} && cmake -P cmake/clang-format.cmake"
   workingDir "${projectDir}"
+}
+
+task validateChangelogs(type: Exec) {
+  commandLine 'python3', 'dev-tools/validate_changelogs.py'
+  workingDir "${projectDir}"
+  description = 'Validate changelog YAML entries against the schema'
+  group = 'verification'
+}
+
+task bundleChangelogs(type: Exec) {
+  commandLine 'python3', 'dev-tools/bundle_changelogs.py', '--version', project.version
+  workingDir "${projectDir}"
+  description = 'Generate consolidated changelog from per-PR YAML entries'
+  group = 'documentation'
 }
 
 task precommit(type: Exec) {
@@ -222,7 +243,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test"
+  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test_all_parallel"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
@@ -430,8 +451,7 @@ task buildDependencyReport(type: Exec) {
   outputs.file("${buildDir}/distributions/dependencies-${version}.csv")
   environment makeEnvironment
   commandLine shell
-  args shellFlag, isWindows ? "${setEnv} && cmake -D OUTPUT_FILE=\"${outputs.files.singleFile}\" -P 3rd_party/dependency_report.cmake"
-                            : "${setEnv} && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
+  args shellFlag, "${setEnv} && cmake -D OUTPUT_FILE=\"${outputs.files.singleFile}\" -P 3rd_party/dependency_report.cmake"
   workingDir "${projectDir}"
   description = 'Create a CSV report on 3rd party dependencies we redistribute'
 }
