@@ -49,6 +49,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(_saved_BUILD_TESTING ${BUILD_TESTING})
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
+  # The vendored Abseil and Sandboxed API sources are not unity-build safe. For
+  # example absl_time_zone defines kDigits in an anonymous namespace in both
+  # time_zone_fixed.cc and time_zone_posix.cc, which collide when those files
+  # are merged into a single unity translation unit. CI configures the top-level
+  # build with -DCMAKE_UNITY_BUILD=ON, so disable unity builds for these
+  # third-party targets and restore the caller's setting afterwards.
+  set(_saved_CMAKE_UNITY_BUILD ${CMAKE_UNITY_BUILD})
+  set(CMAKE_UNITY_BUILD OFF)
   
   # Disable Google Test-related options to avoid dependency issues
   # Set as regular variables first to ensure they're available during FetchContent
@@ -241,4 +250,7 @@ FetchContent_MakeAvailable(absl)
   if(_saved_BUILD_TESTING)
     set(BUILD_TESTING ${_saved_BUILD_TESTING} CACHE BOOL "" FORCE)
   endif()
+
+  # Restore the caller's unity-build setting for the rest of the build.
+  set(CMAKE_UNITY_BUILD ${_saved_CMAKE_UNITY_BUILD})
 endif()
