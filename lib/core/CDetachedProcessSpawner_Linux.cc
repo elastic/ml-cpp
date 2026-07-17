@@ -17,9 +17,11 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <chrono>
 #include <map>
 #include <set>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <errno.h>
@@ -48,6 +50,26 @@ extern char** environ;
 namespace {
 
 const int MAX_NEW_OPEN_FILES{10};
+
+//! Minimal RAII scope guard that runs a callable when it goes out of scope.
+//! Used to guarantee the controller's global TMPDIR is restored on every exit
+//! path of the sandboxed spawn.
+template<typename FUNC>
+class CScopeExit {
+public:
+    explicit CScopeExit(FUNC func) : m_Func(std::move(func)) {}
+    ~CScopeExit() { m_Func(); }
+    CScopeExit(const CScopeExit&) = delete;
+    CScopeExit& operator=(const CScopeExit&) = delete;
+
+private:
+    FUNC m_Func;
+};
+
+template<typename FUNC>
+CScopeExit<FUNC> makeScopeExit(FUNC func) {
+    return CScopeExit<FUNC>{std::move(func)};
+}
 
 //! Attempt to close all file descriptors except the standard ones. The
 //! standard file descriptors will be reopened on /dev/null in the spawned
@@ -253,10 +275,24 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         }
 
         // Sandbox2 forkserver uses Unix sockets with 108 char path limit
+        bool tmpdirOverridden{false};
         if (tmpdir != nullptr && ::strlen(tmpdir) > 80) {
             LOG_WARN(<< "TMPDIR path too long, temporarily overriding to /tmp for forkserver");
             ::setenv("TMPDIR", "/tmp", 1);
+            tmpdirOverridden = true;
         }
+
+        // Restore the controller's global TMPDIR on every exit path. The
+        // override above must remain in effect until the Sandbox2 forkserver has
+        // started (it derives its Unix socket path from TMPDIR), but leaving the
+        // controller's environment mutated corrupts subsequent spawns: they would
+        // observe the short /tmp value, skip the per-process TMPDIR restoration
+        // below, and launch pytorch_inference with the wrong TMPDIR.
+        auto tmpdirRestorer = makeScopeExit([tmpdirOverridden, &originalTmpdir]() {
+            if (tmpdirOverridden) {
+                ::setenv("TMPDIR", originalTmpdir.c_str(), 1);
+            }
+        });
 
         // Resolve to absolute path - Sandbox2 requires absolute paths
         char resolvedPath[PATH_MAX];
@@ -296,9 +332,19 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 if (lastSlash != std::string::npos && lastSlash > 0) {
                     std::string dir = path.substr(0, lastSlash);
                     char resolved[PATH_MAX];
-                    if (::realpath(dir.c_str(), resolved) != nullptr) {
-                        argDirs.insert(resolved);
-                    } else {
+                    std::string canonical =
+                        ::realpath(dir.c_str(), resolved) != nullptr ? resolved : dir;
+                    // Bind-mount the canonical directory, and also the literal
+                    // path the sandboxee actually passes to mkfifo()/open() if it
+                    // differs (e.g. a symlinked path component). If only the
+                    // canonical path is mounted, a mkfifo() against the literal
+                    // path inside the mount namespace can land in the sandbox's
+                    // throw-away rootfs instead of the host directory that
+                    // Elasticsearch is watching, so the FIFO never becomes visible
+                    // and the connection times out.
+                    argDirs.insert(canonical);
+                    struct stat dirStat;
+                    if (dir != canonical && ::stat(dir.c_str(), &dirStat) == 0) {
                         argDirs.insert(dir);
                     }
                 }
@@ -502,6 +548,48 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         }
 
         LOG_INFO(<< "Spawned sandboxed pytorch_inference with PID " << childPid);
+
+        // Diagnostic: the sandboxed process must create its log FIFO at the host
+        // path Elasticsearch is watching. Poll for it from the (host-side)
+        // controller and report whether/when it appears. If it never appears we
+        // have a mount-visibility problem; if it appears late we have a start-up
+        // latency problem that outlives the connect timeout. The poll runs on a
+        // detached thread so it does not delay the controller's start response.
+        std::string logPipePath;
+        for (const auto& arg : args) {
+            const std::string logPipePrefix{"--logPipe="};
+            if (arg.compare(0, logPipePrefix.size(), logPipePrefix) == 0) {
+                logPipePath = arg.substr(logPipePrefix.size());
+                break;
+            }
+        }
+        if (logPipePath.empty() == false) {
+            CProcess::TPid diagPid{childPid};
+            std::thread([logPipePath, diagPid]() {
+                const auto start = std::chrono::steady_clock::now();
+                const auto deadline = start + std::chrono::seconds(30);
+                for (;;) {
+                    struct stat pipeStat;
+                    if (::stat(logPipePath.c_str(), &pipeStat) == 0) {
+                        auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                             std::chrono::steady_clock::now() - start)
+                                             .count();
+                        LOG_INFO(<< "pytorch_inference log pipe " << logPipePath
+                                 << " (PID " << diagPid << ") appeared on host after "
+                                 << elapsedMs << " ms");
+                        return;
+                    }
+                    if (std::chrono::steady_clock::now() >= deadline) {
+                        LOG_WARN(<< "pytorch_inference log pipe " << logPipePath
+                                 << " (PID " << diagPid
+                                 << ") did NOT appear on host within 30000 ms");
+                        return;
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+            })
+                .detach();
+        }
 
         // Store sandbox instance for lifecycle management
         {
