@@ -367,6 +367,40 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             .AllowSyscall(__NR_renameat)
             .AllowSyscall(__NR_mkdirat)
             .AllowSyscall(__NR_mknodat)
+        // On some architectures (notably x86_64) glibc's file-system
+        // wrappers issue the legacy syscalls rather than their *at
+        // equivalents, e.g. mkfifo()->mknod, remove()/unlink()->unlink,
+        // mkdir()->mkdir. pytorch_inference creates and tears down its
+        // named pipes via these wrappers, so the legacy syscalls must be
+        // permitted too or the process is killed with SIGSYS the moment it
+        // touches a pipe. These syscalls do not exist on aarch64 (which is
+        // *at-only), hence the guards. They are exact equivalents of the
+        // *at syscalls already permitted above, so allowing them does not
+        // widen the policy.
+#ifdef __NR_mknod
+            .AllowSyscall(__NR_mknod)
+#endif
+#ifdef __NR_unlink
+            .AllowSyscall(__NR_unlink)
+#endif
+#ifdef __NR_rmdir
+            .AllowSyscall(__NR_rmdir)
+#endif
+#ifdef __NR_mkdir
+            .AllowSyscall(__NR_mkdir)
+#endif
+#ifdef __NR_rename
+            .AllowSyscall(__NR_rename)
+#endif
+#ifdef __NR_readlink
+            .AllowSyscall(__NR_readlink)
+#endif
+#ifdef __NR_access
+            .AllowSyscall(__NR_access)
+#endif
+#ifdef __NR_dup2
+            .AllowSyscall(__NR_dup2)
+#endif
             // Memory management
             .AllowSyscall(__NR_mprotect)
             .AllowSyscall(__NR_mremap)
@@ -390,6 +424,22 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             .AllowSyscall(__NR_getgid)
             .AllowSyscall(__NR_geteuid)
             .AllowSyscall(__NR_getegid)
+            // Process priority: pytorch_inference lowers its own nice value.
+            .AllowSyscall(__NR_setpriority)
+            .AllowSyscall(__NR_getpriority)
+            // Crash handler uses tgkill to re-raise fatal signals.
+            .AllowSyscall(__NR_tgkill)
+            // Misc runtime syscalls exercised by pytorch_inference / libtorch.
+            // These mirror the legacy CSystemCallFilter allowlist that ran the
+            // same binary successfully.
+            .AllowSyscall(__NR_statfs)
+            .AllowSyscall(__NR_connect)
+#ifdef __NR_time
+            .AllowSyscall(__NR_time)
+#endif
+#ifdef __NR_getdents
+            .AllowSyscall(__NR_getdents)
+#endif
             // Filesystem mounts
             .AddDirectory(binDir, /*is_ro=*/true)
             .AddDirectory(libDir, /*is_ro=*/true)
