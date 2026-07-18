@@ -46,6 +46,17 @@ extern char** environ;
 #include <sandboxed_api/sandbox2/result.h>
 #include <sandboxed_api/sandbox2/sandbox2.h>
 #include <sys/syscall.h>
+
+// The CentOS 7 based CI build image has kernel headers that predate clone3, so
+// __NR_clone3 may be undefined at build time even though the runtime glibc uses
+// clone3. clone3 is syscall 435 on every architecture we build for (x86_64 and
+// aarch64), so fall back to that literal to keep the sandbox policy independent
+// of the build image's header version.
+#ifdef __NR_clone3
+#define ML_NR_clone3 __NR_clone3
+#else
+#define ML_NR_clone3 435
+#endif
 #endif
 
 namespace {
@@ -420,9 +431,14 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             .AllowSyscall(__NR_sched_getparam)
             .AllowSyscall(__NR_sched_getscheduler)
             .AllowSyscall(__NR_clone)
-#ifdef __NR_clone3
-            .AllowSyscall(__NR_clone3)
-#endif
+            // clone3 (syscall 435 on both x86_64 and aarch64) must be allowed by
+            // number rather than via __NR_clone3: the CentOS 7 based CI build
+            // image has kernel headers that predate clone3 and therefore leave
+            // __NR_clone3 undefined, yet the newer glibc on the CI runtime uses
+            // clone3 for thread creation. Without this, pytorch_inference is
+            // killed by a seccomp violation the moment libtorch spawns a thread,
+            // long before it can create its log FIFO.
+            .AllowSyscall(ML_NR_clone3)
             .AllowSyscall(__NR_set_tid_address)
             .AllowSyscall(__NR_set_robust_list)
 #ifdef __NR_rseq
