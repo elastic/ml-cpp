@@ -17,8 +17,10 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
 #include <thread>
@@ -113,6 +115,64 @@ namespace {
 // Map to track sandbox instances by PID for proper cleanup
 std::map<core::CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap;
 core::CMutex g_SandboxMapMutex;
+
+// Diagnostic instrumentation for the sandboxed pytorch_inference IPC failure.
+// The Sandbox2 forkserver/monitor writes mount warnings and seccomp violations
+// to the controller's fd 2, and pytorch_inference logs early pipe-setup errors
+// to its own stderr before its logger is attached to the log pipe. Neither is
+// captured by Elasticsearch, so we redirect the controller's fd 2 to a file
+// once (before the global forkserver is started) and surface the collected
+// output through the ml-cpp logger from the diagnostic thread below.
+const char* const DIAG_FORKSERVER_STDERR_PATH{"/tmp/ml_sandbox2_diag_stderr.log"};
+std::atomic<unsigned> g_DiagSeq{0};
+
+void ensureForkserverStderrCaptured() {
+    static std::once_flag once;
+    std::call_once(once, []() {
+        int fd{::open(DIAG_FORKSERVER_STDERR_PATH, O_CREAT | O_WRONLY | O_APPEND, 0600)};
+        if (fd >= 0) {
+            ::dup2(fd, STDERR_FILENO);
+            ::close(fd);
+        }
+    });
+}
+
+off_t diagFileSize(const std::string& path) {
+    struct stat st;
+    return ::stat(path.c_str(), &st) == 0 ? st.st_size : off_t{0};
+}
+
+//! Read the tail (up to maxBytes) of a file from startOffset and emit it via
+//! the ml-cpp logger so it reaches the Elasticsearch node log.
+void logFileTail(const std::string& tag, const std::string& path, off_t startOffset, std::size_t maxBytes) {
+    int fd{::open(path.c_str(), O_RDONLY)};
+    if (fd < 0) {
+        return;
+    }
+    off_t end{::lseek(fd, 0, SEEK_END)};
+    off_t from{startOffset};
+    if (end - from > static_cast<off_t>(maxBytes)) {
+        from = end - static_cast<off_t>(maxBytes);
+    }
+    if (from < 0) {
+        from = 0;
+    }
+    if (end <= from) {
+        ::close(fd);
+        LOG_INFO(<< tag << ": <no output>");
+        return;
+    }
+    std::string buf(static_cast<std::size_t>(end - from), '\0');
+    ::lseek(fd, from, SEEK_SET);
+    ssize_t n{::read(fd, buf.data(), buf.size())};
+    ::close(fd);
+    if (n <= 0) {
+        LOG_INFO(<< tag << ": <no output>");
+        return;
+    }
+    buf.resize(static_cast<std::size_t>(n));
+    LOG_WARN(<< tag << " (" << n << " bytes):\n" << buf);
+}
 }
 #endif
 
@@ -527,6 +587,31 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             executor = std::make_unique<sandbox2::Executor>(absPath, fullArgs);
         }
 
+        // Diagnostic: capture the Sandbox2 forkserver/monitor stderr (mount
+        // warnings, seccomp violations) and the sandboxee's own stdout/stderr so
+        // we can determine why the log FIFO is not visible on the host. Must be
+        // set up before RunAsync starts the (global) forkserver.
+        ensureForkserverStderrCaptured();
+        off_t diagForkserverStderrStart{diagFileSize(DIAG_FORKSERVER_STDERR_PATH)};
+
+        unsigned diagSeq{g_DiagSeq.fetch_add(1)};
+        std::string diagPytorchStdoutPath{"/tmp/ml_pytorch_stdout_" +
+                                          std::to_string(diagSeq) + ".log"};
+        std::string diagPytorchStderrPath{"/tmp/ml_pytorch_stderr_" +
+                                          std::to_string(diagSeq) + ".log"};
+        int diagStdoutFd{::open(diagPytorchStdoutPath.c_str(),
+                                O_CREAT | O_RDWR | O_TRUNC, 0600)};
+        int diagStderrFd{::open(diagPytorchStderrPath.c_str(),
+                                O_CREAT | O_RDWR | O_TRUNC, 0600)};
+        // MapFd takes ownership of the fd; it is closed with the sandbox. We
+        // re-open the paths by name to read them from the diagnostic thread.
+        if (diagStdoutFd >= 0) {
+            executor->ipc()->MapFd(diagStdoutFd, STDOUT_FILENO);
+        }
+        if (diagStderrFd >= 0) {
+            executor->ipc()->MapFd(diagStderrFd, STDERR_FILENO);
+        }
+
         // Apply sandbox before exec since pytorch_inference doesn't use Sandbox2 client library
         executor->set_enable_sandbox_before_exec(true);
         executor->set_cwd(binDir);
@@ -563,30 +648,44 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 break;
             }
         }
-        if (logPipePath.empty() == false) {
+        {
             CProcess::TPid diagPid{childPid};
-            std::thread([logPipePath, diagPid]() {
+            std::thread([logPipePath, diagPid, diagPytorchStdoutPath,
+                         diagPytorchStderrPath, diagForkserverStderrStart]() {
                 const auto start = std::chrono::steady_clock::now();
                 const auto deadline = start + std::chrono::seconds(30);
-                for (;;) {
-                    struct stat pipeStat;
-                    if (::stat(logPipePath.c_str(), &pipeStat) == 0) {
-                        auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                             std::chrono::steady_clock::now() - start)
-                                             .count();
-                        LOG_INFO(<< "pytorch_inference log pipe " << logPipePath
-                                 << " (PID " << diagPid << ") appeared on host after "
-                                 << elapsedMs << " ms");
-                        return;
+                if (logPipePath.empty() == false) {
+                    for (;;) {
+                        struct stat pipeStat;
+                        if (::stat(logPipePath.c_str(), &pipeStat) == 0) {
+                            auto elapsedMs =
+                                std::chrono::duration_cast<std::chrono::milliseconds>(
+                                    std::chrono::steady_clock::now() - start)
+                                    .count();
+                            LOG_INFO(<< "pytorch_inference log pipe " << logPipePath
+                                     << " (PID " << diagPid << ") appeared on host after "
+                                     << elapsedMs << " ms");
+                            break;
+                        }
+                        if (std::chrono::steady_clock::now() >= deadline) {
+                            LOG_WARN(<< "pytorch_inference log pipe "
+                                     << logPipePath << " (PID " << diagPid
+                                     << ") did NOT appear on host within 30000 ms");
+                            break;
+                        }
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     }
-                    if (std::chrono::steady_clock::now() >= deadline) {
-                        LOG_WARN(<< "pytorch_inference log pipe " << logPipePath
-                                 << " (PID " << diagPid
-                                 << ") did NOT appear on host within 30000 ms");
-                        return;
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
+
+                // Surface the captured sandboxee and Sandbox2 output so the
+                // failure cause is visible in the Elasticsearch node log.
+                const std::string pidTag{" (PID " + std::to_string(diagPid) + ")"};
+                logFileTail("pytorch_inference stderr" + pidTag,
+                            diagPytorchStderrPath, 0, 8192);
+                logFileTail("pytorch_inference stdout" + pidTag,
+                            diagPytorchStdoutPath, 0, 4096);
+                logFileTail("Sandbox2 forkserver/monitor stderr" + pidTag,
+                            DIAG_FORKSERVER_STDERR_PATH, diagForkserverStderrStart, 8192);
             })
                 .detach();
         }
