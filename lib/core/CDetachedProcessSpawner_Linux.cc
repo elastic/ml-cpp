@@ -17,9 +17,6 @@
 #include <core/CThread.h>
 
 #include <algorithm>
-#include <atomic>
-#include <chrono>
-#include <map>
 #include <set>
 #include <string>
 #include <thread>
@@ -120,58 +117,6 @@ bool setupFileActions(posix_spawn_file_actions_t* fileActions, int& maxFdHint) {
 namespace ml {
 namespace core {
 
-#ifdef SANDBOX2_AVAILABLE
-namespace {
-// Map to track sandbox instances by PID for proper cleanup
-std::map<core::CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap;
-core::CMutex g_SandboxMapMutex;
-
-// Diagnostic instrumentation for the sandboxed pytorch_inference IPC failure.
-// pytorch_inference logs early pipe-setup errors (e.g. the mkfifo()/open()
-// errno) to its own stderr before its logger is attached to the log pipe, and
-// Elasticsearch does not capture the sandboxee's stderr. We map the sandboxee's
-// stdout/stderr to files via Executor::ipc()->MapFd() and surface them through
-// the ml-cpp logger from the diagnostic thread below.
-//
-// NOTE: we deliberately do NOT redirect the controller's own fd 2: on CI the
-// controller's log stream is read from its stderr, so redirecting it silences
-// all controller logging.
-std::atomic<unsigned> g_DiagSeq{0};
-
-//! Read the tail (up to maxBytes) of a file from startOffset and emit it via
-//! the ml-cpp logger so it reaches the Elasticsearch node log.
-void logFileTail(const std::string& tag, const std::string& path, off_t startOffset, std::size_t maxBytes) {
-    int fd{::open(path.c_str(), O_RDONLY)};
-    if (fd < 0) {
-        return;
-    }
-    off_t end{::lseek(fd, 0, SEEK_END)};
-    off_t from{startOffset};
-    if (end - from > static_cast<off_t>(maxBytes)) {
-        from = end - static_cast<off_t>(maxBytes);
-    }
-    if (from < 0) {
-        from = 0;
-    }
-    if (end <= from) {
-        ::close(fd);
-        LOG_INFO(<< tag << ": <no output>");
-        return;
-    }
-    std::string buf(static_cast<std::size_t>(end - from), '\0');
-    ::lseek(fd, from, SEEK_SET);
-    ssize_t n{::read(fd, buf.data(), buf.size())};
-    ::close(fd);
-    if (n <= 0) {
-        LOG_INFO(<< tag << ": <no output>");
-        return;
-    }
-    buf.resize(static_cast<std::size_t>(n));
-    LOG_WARN(<< tag << " (" << n << " bytes):\n" << buf);
-}
-}
-#endif
-
 namespace detail {
 
 class CTrackerThread : public CThread {
@@ -269,21 +214,6 @@ private:
                                  << " has exited with exit code " << exitCode);
                     }
                 }
-#ifdef SANDBOX2_AVAILABLE
-                // Clean up sandbox instance for terminated process
-                {
-                    CScopedLock sandboxLock(g_SandboxMapMutex);
-                    auto it = g_SandboxMap.find(pid);
-                    if (it != g_SandboxMap.end()) {
-                        sandbox2::Result result = it->second->AwaitResult();
-                        if (result.final_status() == sandbox2::Result::VIOLATION) {
-                            LOG_ERROR(<< "Sandbox2 violation for PID " << pid
-                                      << ": " << result.ToString());
-                        }
-                        g_SandboxMap.erase(it);
-                    }
-                }
-#endif
                 m_Pids.erase(pid);
             }
         }
@@ -588,28 +518,6 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             executor = std::make_unique<sandbox2::Executor>(absPath, fullArgs);
         }
 
-        // Diagnostic: capture the sandboxee's own stdout/stderr so we can see
-        // why pytorch_inference cannot set up its log FIFO (e.g. an mkfifo()/
-        // open() errno). This only maps the sandboxee's descriptors and does not
-        // touch the controller's own fd 2.
-        unsigned diagSeq{g_DiagSeq.fetch_add(1)};
-        std::string diagPytorchStdoutPath{"/tmp/ml_pytorch_stdout_" +
-                                          std::to_string(diagSeq) + ".log"};
-        std::string diagPytorchStderrPath{"/tmp/ml_pytorch_stderr_" +
-                                          std::to_string(diagSeq) + ".log"};
-        int diagStdoutFd{::open(diagPytorchStdoutPath.c_str(),
-                                O_CREAT | O_RDWR | O_TRUNC, 0600)};
-        int diagStderrFd{::open(diagPytorchStderrPath.c_str(),
-                                O_CREAT | O_RDWR | O_TRUNC, 0600)};
-        // MapFd takes ownership of the fd; it is closed with the sandbox. We
-        // re-open the paths by name to read them from the diagnostic thread.
-        if (diagStdoutFd >= 0) {
-            executor->ipc()->MapFd(diagStdoutFd, STDOUT_FILENO);
-        }
-        if (diagStderrFd >= 0) {
-            executor->ipc()->MapFd(diagStderrFd, STDERR_FILENO);
-        }
-
         // Apply sandbox before exec since pytorch_inference doesn't use Sandbox2 client library
         executor->set_enable_sandbox_before_exec(true);
         executor->set_cwd(binDir);
@@ -632,72 +540,28 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         LOG_INFO(<< "Spawned sandboxed pytorch_inference with PID " << childPid);
 
-        // Extract the host path of the log FIFO that Elasticsearch is watching so
-        // the diagnostic thread below can poll for its appearance.
-        std::string logPipePath;
-        for (const auto& arg : args) {
-            const std::string logPipePrefix{"--logPipe="};
-            if (arg.compare(0, logPipePrefix.size(), logPipePrefix) == 0) {
-                logPipePath = arg.substr(logPipePrefix.size());
-                break;
-            }
-        }
         m_TrackerThread->addPid(childPid);
 
-        // Diagnostic: the sandboxed process must create its log FIFO at the host
-        // path Elasticsearch is watching. This thread owns the sandbox instance
-        // (keeping it alive for the lifetime of pytorch_inference), polls the
-        // host for the log FIFO, waits for the Sandbox2 result, and surfaces the
-        // result and the sandboxee's captured stdout/stderr through the ml-cpp
-        // logger so the failure cause reaches the Elasticsearch node log.
+        // The sandboxee is a child of the Sandbox2 forkserver rather than of the
+        // controller, so the tracker's waitpid() never sees it. Own the sandbox
+        // instance on a dedicated thread that keeps it alive for the lifetime of
+        // pytorch_inference and waits for its result, reporting any abnormal
+        // termination (e.g. a seccomp policy violation) to the node log.
         {
-            CProcess::TPid diagPid{childPid};
-            std::thread([
-                logPipePath, diagPid, diagPytorchStdoutPath,
-                diagPytorchStderrPath, sbx = std::move(sandboxPtr)
-            ]() mutable {
-                const auto start = std::chrono::steady_clock::now();
-                const auto deadline = start + std::chrono::seconds(30);
-                if (logPipePath.empty() == false) {
-                    for (;;) {
-                        struct stat pipeStat;
-                        if (::stat(logPipePath.c_str(), &pipeStat) == 0) {
-                            auto elapsedMs =
-                                std::chrono::duration_cast<std::chrono::milliseconds>(
-                                    std::chrono::steady_clock::now() - start)
-                                    .count();
-                            LOG_INFO(<< "pytorch_inference log pipe " << logPipePath
-                                     << " (PID " << diagPid << ") appeared on host after "
-                                     << elapsedMs << " ms");
-                            break;
-                        }
-                        if (std::chrono::steady_clock::now() >= deadline) {
-                            LOG_WARN(<< "pytorch_inference log pipe "
-                                     << logPipePath << " (PID " << diagPid
-                                     << ") did NOT appear on host within 30000 ms");
-                            break;
-                        }
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    }
-                }
-
-                const std::string pidTag{" (PID " + std::to_string(diagPid) + ")"};
-
-                // Wait for the sandbox to terminate and report exactly how it
-                // ended: SETUP_ERROR (namespace/mount failure), VIOLATION
-                // (seccomp), SIGNALED, or an exit code. This is the decisive
-                // signal when the sandboxee produces no output of its own.
+            CProcess::TPid sandboxPid{childPid};
+            std::thread([ sandboxPid, sbx = std::move(sandboxPtr) ]() mutable {
                 sandbox2::Result result{sbx->AwaitResult()};
-                LOG_WARN(<< "Sandbox2 result" << pidTag << ": " << result.ToString() << " [status="
-                         << sandbox2::Result::StatusEnumToString(result.final_status())
-                         << ", reason_code=" << result.reason_code() << "]");
-
-                // Surface the captured sandboxee output (complete now that the
-                // process has exited).
-                logFileTail("pytorch_inference stderr" + pidTag,
-                            diagPytorchStderrPath, 0, 8192);
-                logFileTail("pytorch_inference stdout" + pidTag,
-                            diagPytorchStdoutPath, 0, 4096);
+                // A seccomp violation or a sandbox set-up failure indicates a
+                // real problem with the policy or environment; log it. Normal
+                // shutdown (Elasticsearch terminates the process with SIGTERM)
+                // surfaces as SIGNALED and must not be reported as an error.
+                if (result.final_status() == sandbox2::Result::VIOLATION ||
+                    result.final_status() == sandbox2::Result::SETUP_ERROR) {
+                    LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                              << ") terminated abnormally: " << result.ToString() << " [status="
+                              << sandbox2::Result::StatusEnumToString(result.final_status())
+                              << ", reason_code=" << result.reason_code() << "]");
+                }
             })
                 .detach();
         }

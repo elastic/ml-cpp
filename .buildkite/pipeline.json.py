@@ -36,25 +36,6 @@ def main():
     config = buildConfig.Config()
     config.parse()
 
-    # TEMP (PR #2873 Sandbox2 debugging): force the minimal critical-path
-    # pipeline regardless of labels/comments -- a single Linux x86_64 build plus
-    # the (separately narrowed) multi-node ML integration tests. This disables
-    # the aarch64, macOS and Windows builds and their ES-test steps, and the
-    # secondary ES inference-API test step (see the guard below), so each
-    # round-trip is a single build + one pytorch test class.
-    # REVERT THIS BLOCK (and the guard below) BEFORE MERGE.
-    ML_DEBUG_MINIMAL_PIPELINE = True
-    if ML_DEBUG_MINIMAL_PIPELINE:
-        config.build_windows = False
-        config.build_macos = False
-        config.build_linux = True
-        config.build_aarch64 = ""
-        config.build_x86_64 = "--build-x86_64"
-        config.run_qa_tests = False
-        config.run_pytorch_tests = False
-        config.run_serverless_tests = False
-        config.deploy_serverless_qa = False
-
     # Compute which build step keys will exist so that analytics steps
     # can emit a correct depends_on list (not all platforms are built
     # for every PR, depending on labels/comments).
@@ -97,12 +78,8 @@ def main():
             if not config.skip_version_bump_pr_ci:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
                                                                    ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
-                # TEMP (PR #2873): the secondary ES inference-API test step is
-                # off the critical path (the narrowed multi-node ML ITs already
-                # exercise the sandboxed pytorch_inference spawn). REVERT BEFORE MERGE.
-                if not ML_DEBUG_MINIMAL_PIPELINE:
-                    pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
-                                                                       ".buildkite/pipelines/run_es_inference_tests_x86_64.yml.sh"))
+                pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
+                                                                   ".buildkite/pipelines/run_es_inference_tests_x86_64.yml.sh"))
             # We only use linux x86_64 builds for QA tests.
             if config.run_qa_tests:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
