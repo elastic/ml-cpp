@@ -616,12 +616,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         LOG_INFO(<< "Spawned sandboxed pytorch_inference with PID " << childPid);
 
-        // Diagnostic: the sandboxed process must create its log FIFO at the host
-        // path Elasticsearch is watching. Poll for it from the (host-side)
-        // controller and report whether/when it appears. If it never appears we
-        // have a mount-visibility problem; if it appears late we have a start-up
-        // latency problem that outlives the connect timeout. The poll runs on a
-        // detached thread so it does not delay the controller's start response.
+        // Extract the host path of the log FIFO that Elasticsearch is watching so
+        // the diagnostic thread below can poll for its appearance.
         std::string logPipePath;
         for (const auto& arg : args) {
             const std::string logPipePrefix{"--logPipe="};
@@ -630,9 +626,20 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 break;
             }
         }
+        m_TrackerThread->addPid(childPid);
+
+        // Diagnostic: the sandboxed process must create its log FIFO at the host
+        // path Elasticsearch is watching. This thread owns the sandbox instance
+        // (keeping it alive for the lifetime of pytorch_inference), polls the
+        // host for the log FIFO, waits for the Sandbox2 result, and surfaces the
+        // result and the sandboxee's captured stdout/stderr through the ml-cpp
+        // logger so the failure cause reaches the Elasticsearch node log.
         {
             CProcess::TPid diagPid{childPid};
-            std::thread([logPipePath, diagPid, diagPytorchStdoutPath, diagPytorchStderrPath]() {
+            std::thread([
+                logPipePath, diagPid, diagPytorchStdoutPath,
+                diagPytorchStderrPath, sbx = std::move(sandboxPtr)
+            ]() mutable {
                 const auto start = std::chrono::steady_clock::now();
                 const auto deadline = start + std::chrono::seconds(30);
                 if (logPipePath.empty() == false) {
@@ -658,9 +665,19 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                     }
                 }
 
-                // Surface the captured sandboxee output so the failure cause is
-                // visible in the Elasticsearch node log.
                 const std::string pidTag{" (PID " + std::to_string(diagPid) + ")"};
+
+                // Wait for the sandbox to terminate and report exactly how it
+                // ended: SETUP_ERROR (namespace/mount failure), VIOLATION
+                // (seccomp), SIGNALED, or an exit code. This is the decisive
+                // signal when the sandboxee produces no output of its own.
+                sandbox2::Result result{sbx->AwaitResult()};
+                LOG_WARN(<< "Sandbox2 result" << pidTag << ": " << result.ToString() << " [status="
+                         << sandbox2::Result::StatusEnumToString(result.final_status())
+                         << ", reason_code=" << result.reason_code() << "]");
+
+                // Surface the captured sandboxee output (complete now that the
+                // process has exited).
                 logFileTail("pytorch_inference stderr" + pidTag,
                             diagPytorchStderrPath, 0, 8192);
                 logFileTail("pytorch_inference stdout" + pidTag,
@@ -669,13 +686,6 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 .detach();
         }
 
-        // Store sandbox instance for lifecycle management
-        {
-            CScopedLock lock(g_SandboxMapMutex);
-            g_SandboxMap[childPid] = std::move(sandboxPtr);
-        }
-
-        m_TrackerThread->addPid(childPid);
         return true;
 #else
         LOG_ERROR(<< "Sandbox2 not available - cannot spawn pytorch_inference securely");
