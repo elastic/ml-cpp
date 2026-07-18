@@ -22,6 +22,16 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# TEMP (PR #2873 Sandbox2 debugging): narrow CI to a single pytorch-spawning
+# test class so each round-trip is minutes rather than ~40+ min. The Sandbox2
+# diagnostic fires on the first pytorch_inference spawn and the FIFO-visibility
+# failure is universal, so one deployment test reproduces it. This short-circuits
+# the full suite below.
+# REVERT THIS BLOCK BEFORE MERGE.
+exec "$SCRIPT_DIR/run_es_tests_common.sh" "$1" "$2" \
+    ':x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest' \
+    --tests '*PyTorchModelIT'
+
 case "${ES_TEST_SUITE:-}" in
   javaRestTest)
     exec "$SCRIPT_DIR/run_es_tests_common.sh" "$1" "$2" \
