@@ -20,7 +20,6 @@
 #include <atomic>
 #include <chrono>
 #include <map>
-#include <mutex>
 #include <set>
 #include <string>
 #include <thread>
@@ -117,30 +116,16 @@ std::map<core::CProcess::TPid, std::unique_ptr<sandbox2::Sandbox2>> g_SandboxMap
 core::CMutex g_SandboxMapMutex;
 
 // Diagnostic instrumentation for the sandboxed pytorch_inference IPC failure.
-// The Sandbox2 forkserver/monitor writes mount warnings and seccomp violations
-// to the controller's fd 2, and pytorch_inference logs early pipe-setup errors
-// to its own stderr before its logger is attached to the log pipe. Neither is
-// captured by Elasticsearch, so we redirect the controller's fd 2 to a file
-// once (before the global forkserver is started) and surface the collected
-// output through the ml-cpp logger from the diagnostic thread below.
-const char* const DIAG_FORKSERVER_STDERR_PATH{"/tmp/ml_sandbox2_diag_stderr.log"};
+// pytorch_inference logs early pipe-setup errors (e.g. the mkfifo()/open()
+// errno) to its own stderr before its logger is attached to the log pipe, and
+// Elasticsearch does not capture the sandboxee's stderr. We map the sandboxee's
+// stdout/stderr to files via Executor::ipc()->MapFd() and surface them through
+// the ml-cpp logger from the diagnostic thread below.
+//
+// NOTE: we deliberately do NOT redirect the controller's own fd 2: on CI the
+// controller's log stream is read from its stderr, so redirecting it silences
+// all controller logging.
 std::atomic<unsigned> g_DiagSeq{0};
-
-void ensureForkserverStderrCaptured() {
-    static std::once_flag once;
-    std::call_once(once, []() {
-        int fd{::open(DIAG_FORKSERVER_STDERR_PATH, O_CREAT | O_WRONLY | O_APPEND, 0600)};
-        if (fd >= 0) {
-            ::dup2(fd, STDERR_FILENO);
-            ::close(fd);
-        }
-    });
-}
-
-off_t diagFileSize(const std::string& path) {
-    struct stat st;
-    return ::stat(path.c_str(), &st) == 0 ? st.st_size : off_t{0};
-}
 
 //! Read the tail (up to maxBytes) of a file from startOffset and emit it via
 //! the ml-cpp logger so it reaches the Elasticsearch node log.
@@ -587,13 +572,10 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             executor = std::make_unique<sandbox2::Executor>(absPath, fullArgs);
         }
 
-        // Diagnostic: capture the Sandbox2 forkserver/monitor stderr (mount
-        // warnings, seccomp violations) and the sandboxee's own stdout/stderr so
-        // we can determine why the log FIFO is not visible on the host. Must be
-        // set up before RunAsync starts the (global) forkserver.
-        ensureForkserverStderrCaptured();
-        off_t diagForkserverStderrStart{diagFileSize(DIAG_FORKSERVER_STDERR_PATH)};
-
+        // Diagnostic: capture the sandboxee's own stdout/stderr so we can see
+        // why pytorch_inference cannot set up its log FIFO (e.g. an mkfifo()/
+        // open() errno). This only maps the sandboxee's descriptors and does not
+        // touch the controller's own fd 2.
         unsigned diagSeq{g_DiagSeq.fetch_add(1)};
         std::string diagPytorchStdoutPath{"/tmp/ml_pytorch_stdout_" +
                                           std::to_string(diagSeq) + ".log"};
@@ -650,8 +632,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         }
         {
             CProcess::TPid diagPid{childPid};
-            std::thread([logPipePath, diagPid, diagPytorchStdoutPath,
-                         diagPytorchStderrPath, diagForkserverStderrStart]() {
+            std::thread([logPipePath, diagPid, diagPytorchStdoutPath, diagPytorchStderrPath]() {
                 const auto start = std::chrono::steady_clock::now();
                 const auto deadline = start + std::chrono::seconds(30);
                 if (logPipePath.empty() == false) {
@@ -677,15 +658,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                     }
                 }
 
-                // Surface the captured sandboxee and Sandbox2 output so the
-                // failure cause is visible in the Elasticsearch node log.
+                // Surface the captured sandboxee output so the failure cause is
+                // visible in the Elasticsearch node log.
                 const std::string pidTag{" (PID " + std::to_string(diagPid) + ")"};
                 logFileTail("pytorch_inference stderr" + pidTag,
                             diagPytorchStderrPath, 0, 8192);
                 logFileTail("pytorch_inference stdout" + pidTag,
                             diagPytorchStdoutPath, 0, 4096);
-                logFileTail("Sandbox2 forkserver/monitor stderr" + pidTag,
-                            DIAG_FORKSERVER_STDERR_PATH, diagForkserverStderrStart, 8192);
             })
                 .detach();
         }
