@@ -146,6 +146,16 @@ BOOST_AUTO_TEST_CASE(testPermitted) {
         !spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
+BOOST_AUTO_TEST_CASE(testPytorchInferenceSubstringNotPermitted) {
+    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
+
+    // Must not enter Sandbox2 dispatch merely because the path contains the
+    // pytorch_inference substring when it is not on the exact allowlist.
+    BOOST_TEST_REQUIRE(!spawner.spawn("./evil_pytorch_inference",
+                                      ml::core::CDetachedProcessSpawner::TStrVec()));
+}
+
 BOOST_AUTO_TEST_CASE(testNonExistent) {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, "./does_not_exist");
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);

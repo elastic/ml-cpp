@@ -133,6 +133,11 @@ public:
         m_Condition.signal();
     }
 
+    void removePid(CProcess::TPid pid) {
+        CScopedLock lock(m_Mutex);
+        m_Pids.erase(pid);
+    }
+
     bool terminatePid(CProcess::TPid pid) {
         if (!this->havePid(pid)) {
             LOG_ERROR(<< "Will not attempt to kill process " << pid << ": not a child process");
@@ -249,6 +254,15 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    // Authorization gate: only exact permitted paths may be spawned, whether or
+    // not they are routed through Sandbox2. Must run before any dispatch so a
+    // path merely containing "pytorch_inference" cannot bypass the allowlist.
+    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
+                  processPath) == m_PermittedProcessPaths.end()) {
+        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
+        return false;
+    }
+
 #ifdef __linux__
     // Use Sandbox2 for pytorch_inference to provide security isolation
     if (processPath.find("pytorch_inference") != std::string::npos) {
@@ -545,23 +559,49 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // The sandboxee is a child of the Sandbox2 forkserver rather than of the
         // controller, so the tracker's waitpid() never sees it. Own the sandbox
         // instance on a dedicated thread that keeps it alive for the lifetime of
-        // pytorch_inference and waits for its result, reporting any abnormal
-        // termination (e.g. a seccomp policy violation) to the node log.
+        // pytorch_inference, waits for its result, logs termination the same way
+        // checkForDeadChildren() does for regular children, and removes the PID
+        // from the tracker so PID reuse cannot make terminateChild() signal an
+        // unrelated process.
         {
             CProcess::TPid sandboxPid{childPid};
-            std::thread([ sandboxPid, sbx = std::move(sandboxPtr) ]() mutable {
+            std::thread([
+                sandboxPid, tracker = m_TrackerThread, sbx = std::move(sandboxPtr)
+            ]() mutable {
                 sandbox2::Result result{sbx->AwaitResult()};
-                // A seccomp violation or a sandbox set-up failure indicates a
-                // real problem with the policy or environment; log it. Normal
-                // shutdown (Elasticsearch terminates the process with SIGTERM)
-                // surfaces as SIGNALED and must not be reported as an error.
-                if (result.final_status() == sandbox2::Result::VIOLATION ||
-                    result.final_status() == sandbox2::Result::SETUP_ERROR) {
+                switch (result.final_status()) {
+                case sandbox2::Result::OK:
+                    if (result.reason_code() == 0) {
+                        LOG_DEBUG(<< "Sandboxed pytorch_inference (PID "
+                                  << sandboxPid << ") has exited");
+                    } else {
+                        LOG_WARN(<< "Sandboxed pytorch_inference (PID "
+                                 << sandboxPid << ") has exited with exit code "
+                                 << result.reason_code());
+                    }
+                    break;
+                case sandbox2::Result::SIGNALED:
+                    if (result.reason_code() == SIGTERM) {
+                        LOG_INFO(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                                 << ") was terminated by signal " << SIGTERM);
+                    } else if (result.reason_code() == SIGKILL) {
+                        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                                  << ") was terminated by signal 9 (SIGKILL)."
+                                  << " This is likely due to the OOM killer.");
+                    } else {
+                        LOG_ERROR(<< "Sandboxed pytorch_inference (PID "
+                                  << sandboxPid << ") was terminated by signal "
+                                  << result.reason_code());
+                    }
+                    break;
+                default:
                     LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
                               << ") terminated abnormally: " << result.ToString() << " [status="
                               << sandbox2::Result::StatusEnumToString(result.final_status())
                               << ", reason_code=" << result.reason_code() << "]");
+                    break;
                 }
+                tracker->removePid(sandboxPid);
             })
                 .detach();
         }
@@ -575,12 +615,6 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 #endif
 
     // Standard spawn for other processes (not pytorch_inference)
-    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
-                  processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
-        return false;
-    }
-
     if (::access(processPath.c_str(), X_OK) != 0) {
         LOG_ERROR(<< "Cannot execute '" << processPath << "': " << ::strerror(errno));
         return false;
