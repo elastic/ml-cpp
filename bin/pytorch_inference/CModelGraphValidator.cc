@@ -40,7 +40,8 @@ public:
 
     std::size_t size() const override { return m_Size; }
 
-    std::size_t read(std::uint64_t pos, void* buf, std::size_t n, const char* /*what*/ = "") const override {
+    std::size_t
+    read(std::uint64_t pos, void* buf, std::size_t n, const char* /*what*/ = "") const override {
         if (pos >= m_Size) {
             return 0;
         }
@@ -169,9 +170,9 @@ CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::s
             if (isSerialisedCodeRecord(name) == false) {
                 continue;
             }
-            auto [recordData, recordSize] = reader.getRecord(name);
+            auto[recordData, recordSize] = reader.getRecord(name);
             std::string_view code{static_cast<const char*>(recordData.get()), recordSize};
-            for (const auto& [needle, qualifiedOp] : signatures) {
+            for (const auto & [ needle, qualifiedOp ] : signatures) {
                 if (code.find(needle) != std::string_view::npos) {
                     found.emplace(qualifiedOp);
                 }
@@ -181,7 +182,8 @@ CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::s
         // If the archive cannot be parsed as a stream we do not treat this as a
         // rejection here: torch::jit::load will attempt the same parse and
         // surface a clear error.  The post-load graph validator still applies.
-        LOG_WARN(<< "Pre-load model code scan skipped (could not parse archive): " << e.what());
+        LOG_WARN(<< "Pre-load model code scan skipped (could not parse archive): "
+                 << e.what());
         return {};
     }
 

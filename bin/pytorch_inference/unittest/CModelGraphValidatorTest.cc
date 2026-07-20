@@ -464,8 +464,7 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateFileReader) {
     // aten::from_file lives only in __setstate__; the forward graph is benign,
     // so the post-load validator would miss it. The pre-load scan must catch it
     // without loading (and thus without executing) the model.
-    std::string bytes =
-        readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
+    std::string bytes = readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
     BOOST_REQUIRE(bytes.empty() == false);
 
     auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
@@ -490,15 +489,13 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateFileReaderInSubmodule) {
 BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsForwardForbiddenOps) {
     // The scan is textual, so it also flags forbidden ops that appear in the
     // forward graph (a superset of the load-time surface).
-    std::string fileReader =
-        readFileBytes("testfiles/malicious_models/malicious_file_reader.pt");
+    std::string fileReader = readFileBytes("testfiles/malicious_models/malicious_file_reader.pt");
     BOOST_REQUIRE(fileReader.empty() == false);
     auto forbiddenFileReader = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
         fileReader.data(), fileReader.size());
     BOOST_REQUIRE(scanContains(forbiddenFileReader, "aten::from_file"));
 
-    std::string heapLeak =
-        readFileBytes("testfiles/malicious_models/malicious_heap_leak.pt");
+    std::string heapLeak = readFileBytes("testfiles/malicious_models/malicious_heap_leak.pt");
     BOOST_REQUIRE(heapLeak.empty() == false);
     auto forbiddenHeapLeak = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
         heapLeak.data(), heapLeak.size());

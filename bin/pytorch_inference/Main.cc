@@ -80,8 +80,8 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
 //! too late for an op hidden there.  \p modelData / \p modelSize are the raw
 //! bytes of the buffered .pt archive.
 void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
-    auto forbiddenOps =
-        ml::torch::CModelGraphValidator::scanSerialisedCodeForForbiddenOps(modelData, modelSize);
+    auto forbiddenOps = ml::torch::CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        modelData, modelSize);
     if (forbiddenOps.empty() == false) {
         std::string ops = ml::core::CStringUtils::join(forbiddenOps, ", ");
         HANDLE_FATAL(<< "Model contains forbidden operations: " << ops
