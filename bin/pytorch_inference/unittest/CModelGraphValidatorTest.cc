@@ -522,6 +522,53 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
     BOOST_REQUIRE(forbidden.empty());
 }
 
+BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsReinterpretTensorOobRead) {
+    // Bypass of the as_strided forbid via inductor::_reinterpret_tensor
+    // (elastic/security#12242). Must be caught before load.
+    std::string bytes = readFileBytes(
+        "testfiles/malicious_models/malicious_reinterpret_tensor_oob_read.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(forbidden, "inductor::_reinterpret_tensor"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsReinterpretTensorOobWrite) {
+    std::string bytes = readFileBytes(
+        "testfiles/malicious_models/malicious_reinterpret_tensor_oob_write.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(forbidden, "inductor::_reinterpret_tensor"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateReinterpretTensor) {
+    // Forbidden op only in __setstate__; must be rejected without loading.
+    std::string bytes = readFileBytes(
+        "testfiles/malicious_models/malicious_setstate_reinterpret_tensor.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(forbidden, "inductor::_reinterpret_tensor"));
+}
+
+BOOST_AUTO_TEST_CASE(testMaliciousReinterpretTensorRejectedPostLoad) {
+    // Forward-only fixture: safe to load, then post-load validate must report
+    // the op as forbidden (not merely unrecognised).
+    auto module = ::torch::jit::load(
+        "testfiles/malicious_models/malicious_reinterpret_tensor_oob_read.pt");
+    auto result = CModelGraphValidator::validate(module);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE(hasForbiddenOp(result, "inductor::_reinterpret_tensor"));
+}
+
 // --- Prepacked model compatibility tests ---
 //
 // These load TorchScript models that mirror the ops used by Elasticsearch's

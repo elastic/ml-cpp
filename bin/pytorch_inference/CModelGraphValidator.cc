@@ -148,17 +148,23 @@ CModelGraphValidator::TStringVec
 CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size) {
     TStringSet found;
 
-    // Build the textual signatures we are looking for.  In serialised TorchScript
-    // code an aten op "aten::foo" is printed as a call "torch.foo(".  We only
-    // scan for the aten:: entries of the forbidden set: the prim:: entries
-    // (CallFunction/CallMethod) describe unresolved calls in an inlined graph and
-    // have no stable textual form in the serialised source.
+    // Build the textual signatures we are looking for in serialised TorchScript
+    // source.  Known stable forms:
+    //   aten::foo            -> torch.foo(
+    //   inductor::_reinterpret_tensor -> ops.inductor._reinterpret_tensor(
+    // prim::CallFunction / prim::CallMethod describe unresolved calls in an
+    // inlined graph and have no stable textual form in the serialised source.
     std::vector<std::pair<std::string, std::string>> signatures; // (needle, qualified op)
     constexpr std::string_view ATEN{"aten::"};
+    constexpr std::string_view INDUCTOR{"inductor::"};
     for (const auto& op : CSupportedOperations::FORBIDDEN_OPERATIONS) {
         if (op.size() > ATEN.size() && op.substr(0, ATEN.size()) == ATEN) {
             std::string shortName{op.substr(ATEN.size())};
             signatures.emplace_back("torch." + shortName + "(", std::string{op});
+        } else if (op.size() > INDUCTOR.size() &&
+                   op.substr(0, INDUCTOR.size()) == INDUCTOR) {
+            std::string shortName{op.substr(INDUCTOR.size())};
+            signatures.emplace_back("ops.inductor." + shortName + "(", std::string{op});
         }
     }
 

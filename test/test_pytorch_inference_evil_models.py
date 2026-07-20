@@ -219,6 +219,30 @@ class SetStateFileReaderInSubmodule(torch.nn.Module):
         return x + self.child(x)
 
 
+class ReinterpretTensorOobRead(torch.nn.Module):
+    """OOB heap read via inductor::_reinterpret_tensor (security#12242)."""
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        out: list[str] = [""]
+        for i in range(1, 1000):
+            target = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], i)
+            out.append(hex(target.item()))
+        assert 1 == 2, out
+        return tmp
+
+
+class ReinterpretTensorOobWrite(torch.nn.Module):
+    """OOB heap write via inductor::_reinterpret_tensor + fill_."""
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        acc = torch.zeros(1)
+        for i in range(1, 100):
+            target = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], i)
+            target.fill_(0)
+            acc = acc + target
+        return acc
+
+
 # ---------------------------------------------------------------------------
 # Binary discovery
 # ---------------------------------------------------------------------------
@@ -315,6 +339,18 @@ MODELS = {
         "class": SetStateFileReaderInSubmodule,
         "expect_rejected": True,
         "description": "aten::from_file in a submodule's __setstate__",
+        "expect_stderr_contains": "forbidden operations",
+    },
+    "reinterpret_oob_read": {
+        "class": ReinterpretTensorOobRead,
+        "expect_rejected": True,
+        "description": "OOB read via inductor::_reinterpret_tensor",
+        "expect_stderr_contains": "forbidden operations",
+    },
+    "reinterpret_oob_write": {
+        "class": ReinterpretTensorOobWrite,
+        "expect_rejected": True,
+        "description": "OOB write via inductor::_reinterpret_tensor",
         "expect_stderr_contains": "forbidden operations",
     },
 }

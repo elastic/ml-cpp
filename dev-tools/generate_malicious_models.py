@@ -110,6 +110,37 @@ class _FileReaderChild(torch.nn.Module):
         return torch.from_file("/tmp/secret", size=10)
 
 
+# --- inductor::_reinterpret_tensor OOB models (elastic/security#12242) ---
+#
+# Bypass of the aten::as_strided forbid: TorchInductor's _reinterpret_tensor
+# takes an unchecked storage offset and yields the same class of OOB heap
+# read/write.  Must be in FORBIDDEN_OPERATIONS and caught by the pre-load scan.
+
+
+class ReinterpretTensorOobRead(torch.nn.Module):
+    """OOB heap read via inductor::_reinterpret_tensor (reporter PoC)."""
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        out: list[str] = [""]
+        for i in range(1, 1000):
+            target = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], i)
+            out.append(hex(target.item()))
+        assert 1 == 2, out
+        return tmp
+
+
+class ReinterpretTensorOobWrite(torch.nn.Module):
+    """OOB heap write via inductor::_reinterpret_tensor + fill_ (reporter PoC)."""
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        acc = torch.zeros(1)
+        for i in range(1, 100):
+            target = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], i)
+            target.fill_(0)
+            acc = acc + target
+        return acc
+
+
 # --- Load-time execution models (__setstate__) ---
 #
 # TorchScript serialises a module's __setstate__ method and runs it *during*
@@ -176,6 +207,31 @@ class _SetStateFileReaderChild(torch.nn.Module):
     def __setstate__(self, state: Tuple[Tensor, bool]) -> None:
         leaked = torch.from_file("/tmp/secret", size=10)
         self.w = state[0] + leaked[0]
+        self.training = state[1]
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.w
+
+
+class SetStateReinterpretTensor(torch.nn.Module):
+    """inductor::_reinterpret_tensor in __setstate__ — OOB at load time.
+
+    Forward is benign. Without the pre-load scan this would execute during
+    torch::jit::load() before the post-load validator runs.
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.w = torch.zeros(1)
+
+    @torch.jit.export
+    def __getstate__(self) -> Tuple[Tensor, bool]:
+        return (self.w, self.training)
+
+    @torch.jit.export
+    def __setstate__(self, state: Tuple[Tensor, bool]) -> None:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        leaked = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], 100)
+        self.w = state[0] + leaked
         self.training = state[1]
 
     def forward(self, x: Tensor) -> Tensor:
@@ -318,8 +374,11 @@ MODELS = {
     "malicious_conditional.pt": ConditionalMalicious,
     "malicious_many_unrecognised.pt": ManyUnrecognisedOps,
     "malicious_file_reader_in_submodule.pt": FileReaderInSubmodule,
+    "malicious_reinterpret_tensor_oob_read.pt": ReinterpretTensorOobRead,
+    "malicious_reinterpret_tensor_oob_write.pt": ReinterpretTensorOobWrite,
     "malicious_setstate_file_reader.pt": SetStateFileReaderModel,
     "malicious_setstate_file_reader_in_submodule.pt": SetStateFileReaderInSubmodule,
+    "malicious_setstate_reinterpret_tensor.pt": SetStateReinterpretTensor,
     "malicious_heap_leak.pt": HeapLeakModel,
     "malicious_rop_exploit.pt": RopExploitModel,
 }
