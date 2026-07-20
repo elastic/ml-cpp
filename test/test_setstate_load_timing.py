@@ -139,17 +139,29 @@ def test_setstate_executes_during_load() -> bool:
             capture_output=True, text=True, timeout=120,
         )
         stdout = proc.stdout
+
+        # The benign probe must load *cleanly*: require a zero exit and that
+        # load() actually returned (LOAD_RETURNED). Otherwise a crash that
+        # happened to print the marker first would be a false positive — so we
+        # only accept the marker as proof when the whole load completed and the
+        # marker was printed strictly before load() returned.
+        loaded_cleanly = proc.returncode == 0 and "LOAD_RETURNED" in stdout
         marker_before_return = (
-            _LOAD_MARKER in stdout
+            loaded_cleanly
+            and _LOAD_MARKER in stdout
             and stdout.index(_LOAD_MARKER) < stdout.index("LOAD_RETURNED")
-        ) if "LOAD_RETURNED" in stdout else (_LOAD_MARKER in stdout)
+        )
 
         if marker_before_return:
             print(f"  OK: '{_LOAD_MARKER}' printed during load — "
                   "code ran before load() returned (and before validation).")
         else:
-            print("  FAIL: marker not observed during load.")
+            print("  FAIL: marker not observed during a clean load.")
+            print(f"  returncode: {proc.returncode}")
             print(f"  stdout: {stdout!r}")
+            if proc.stderr.strip():
+                tail = "\n".join(proc.stderr.strip().splitlines()[-5:])
+                print(f"  stderr (tail):\n{tail}")
             ok = False
     print()
     return ok
