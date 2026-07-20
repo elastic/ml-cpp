@@ -26,7 +26,7 @@ from pathlib import Path
 
 import torch
 from torch import Tensor
-from typing import Optional
+from typing import Optional, Tuple
 
 
 # --- Malicious model definitions ---
@@ -108,6 +108,78 @@ class FileReaderInSubmodule(torch.nn.Module):
 class _FileReaderChild(torch.nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         return torch.from_file("/tmp/secret", size=10)
+
+
+# --- Load-time execution models (__setstate__) ---
+#
+# TorchScript serialises a module's __setstate__ method and runs it *during*
+# torch::jit::load(), before the loaded Module is ever handed to
+# CModelGraphValidator.  Because the validator only walks the (inlined) forward
+# graph, a forbidden op hidden in __setstate__ is invisible to it AND has
+# already executed by the time validation would run.  These fixtures reproduce
+# that gap: their forward graphs are benign, so the current validator accepts
+# them, yet loading them triggers aten::from_file at deserialization time.
+
+
+class SetStateFileReaderModel(torch.nn.Module):
+    """aten::from_file hidden in __setstate__ — executes during load.
+
+    The forbidden op never appears in forward(), so the post-load graph
+    validator (which inspects only the forward graph) does not see it.  Worse,
+    torch::jit::load() runs __setstate__ before validation happens at all, so
+    the file read has already fired.  This is the load-time execution gap
+    identified in security review.
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.w = torch.zeros(1)
+
+    @torch.jit.export
+    def __getstate__(self) -> Tuple[Tensor, bool]:
+        return (self.w, self.training)
+
+    @torch.jit.export
+    def __setstate__(self, state: Tuple[Tensor, bool]) -> None:
+        # Runs at deserialization time, before any graph validation.
+        leaked = torch.from_file("/etc/passwd", size=100)
+        self.w = state[0] + leaked[0]
+        self.training = state[1]
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.w
+
+
+class SetStateFileReaderInSubmodule(torch.nn.Module):
+    """Same load-time attack, but hidden in a submodule's __setstate__.
+
+    Confirms that a pre-load scan must recurse into every serialised
+    __setstate__ in the archive, not just the top-level module's.
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.child = _SetStateFileReaderChild()
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.child(x)
+
+
+class _SetStateFileReaderChild(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.w = torch.zeros(1)
+
+    @torch.jit.export
+    def __getstate__(self) -> Tuple[Tensor, bool]:
+        return (self.w, self.training)
+
+    @torch.jit.export
+    def __setstate__(self, state: Tuple[Tensor, bool]) -> None:
+        leaked = torch.from_file("/tmp/secret", size=10)
+        self.w = state[0] + leaked[0]
+        self.training = state[1]
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.w
 
 
 # --- Sandbox2 attack models (PR #2873) ---
@@ -222,6 +294,23 @@ class RopExploitModel(torch.nn.Module):
 # --- Generation logic ---
 
 
+def _collect_setstate_ops(scripted: torch.jit.ScriptModule) -> set:
+    """Collect ops from every __setstate__ in the module tree.
+
+    __setstate__ runs during torch::jit::load(), so ops here execute before
+    (and are invisible to) the forward-graph validator.  Surfacing them makes
+    the load-time attack fixtures self-documenting.
+    """
+    ops: set = set()
+    for submodule in scripted.modules():
+        try:
+            graph = submodule._c._get_method("__setstate__").graph
+        except (RuntimeError, AttributeError):
+            continue
+        ops.update(node.kind() for node in graph.nodes())
+    return ops
+
+
 MODELS = {
     "malicious_file_reader.pt": FileReaderModel,
     "malicious_mixed_file_reader.pt": MixedFileReaderModel,
@@ -229,6 +318,8 @@ MODELS = {
     "malicious_conditional.pt": ConditionalMalicious,
     "malicious_many_unrecognised.pt": ManyUnrecognisedOps,
     "malicious_file_reader_in_submodule.pt": FileReaderInSubmodule,
+    "malicious_setstate_file_reader.pt": SetStateFileReaderModel,
+    "malicious_setstate_file_reader_in_submodule.pt": SetStateFileReaderInSubmodule,
     "malicious_heap_leak.pt": HeapLeakModel,
     "malicious_rop_exploit.pt": RopExploitModel,
 }
@@ -254,7 +345,12 @@ def generate(output_dir: Path):
             graph = scripted.forward.graph.copy()
             torch._C._jit_pass_inline(graph)
             ops = sorted(set(n.kind() for n in graph.nodes()))
-            print(f"    ops: {ops}")
+            print(f"    forward ops: {ops}")
+
+            # Surface ops hidden in __setstate__ (executed at load time).
+            setstate_ops = _collect_setstate_ops(scripted)
+            if setstate_ops:
+                print(f"    __setstate__ ops (run at load): {sorted(setstate_ops)}")
 
             succeeded.append(filename)
         except Exception as exc:
