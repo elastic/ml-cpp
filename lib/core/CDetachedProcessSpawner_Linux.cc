@@ -364,10 +364,20 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             .AllowHandleSignals()
             .AllowTcMalloc()
             .AllowMmap()
+            // glibc/libtorch use futex for mutexes and condition variables. Only
+            // FUTEX_WAIT and FUTEX_WAKE are insufficient under sustained concurrent
+            // load: timed waits use FUTEX_WAIT_BITSET and some broadcast/requeue
+            // paths use FUTEX_CMP_REQUEUE/FUTEX_WAKE_OP. Denying those ops is a
+            // Sandbox2 policy VIOLATION (SIGSYS), which kills pytorch_inference and
+            // surfaces as "Unexpected end of file" in Elasticsearch. PI futex ops
+            // are deliberately excluded — libtorch uses ordinary mutexes only.
             .AllowFutexOp(FUTEX_WAIT)
             .AllowFutexOp(FUTEX_WAKE)
-            .AllowFutexOp(FUTEX_WAIT_PRIVATE)
-            .AllowFutexOp(FUTEX_WAKE_PRIVATE)
+            .AllowFutexOp(FUTEX_WAIT_BITSET)
+            .AllowFutexOp(FUTEX_WAKE_BITSET)
+            .AllowFutexOp(FUTEX_REQUEUE)
+            .AllowFutexOp(FUTEX_CMP_REQUEUE)
+            .AllowFutexOp(FUTEX_WAKE_OP)
             // Threading and scheduling
             .AllowSyscall(__NR_sched_yield)
             .AllowSyscall(__NR_sched_getaffinity)
@@ -535,6 +545,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // Apply sandbox before exec since pytorch_inference doesn't use Sandbox2 client library
         executor->set_enable_sandbox_before_exec(true);
         executor->set_cwd(binDir);
+        // Sandbox2 defaults to rlimit_nofile=1024; libtorch thread pools and pipe I/O
+        // under concurrent inference can approach that on QA clusters.
+        executor->limits()->set_rlimit_nofile(65536);
 
         auto sandboxPtr = std::make_unique<sandbox2::Sandbox2>(
             std::move(executor), std::move(*policy_result));
