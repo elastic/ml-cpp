@@ -99,11 +99,12 @@ BOOST_AUTO_TEST_CASE(testWrapAndWriteInferenceResult) {
     std::ostringstream output;
     {
         ml::torch::CResultWriter resultWriter{output};
-        resultWriter.wrapAndWriteInnerResponse(innerPortion, "req4", true, 123);
+        resultWriter.wrapAndWriteInnerResponse(innerPortion, "req4", true, 123, 111);
     }
-    std::string expected = "[{\"request_id\":\"req4\",\"cache_hit\":true,"
-                           "\"time_ms\":123,\"result\":{\"inference\":"
-                           "[[[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0]]]}}\n]";
+    std::string expected =
+        "[{\"request_id\":\"req4\",\"cache_hit\":true,"
+        "\"time_ms\":123,\"process_stats\":{\"memory_rss\":111},\"result\":{\"inference\":"
+        "[[[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0]]]}}\n]";
     std::string actual = output.str();
 
     LOG_INFO(<< "expected: " << expected);

@@ -58,7 +58,8 @@ void CResultWriter::writeError(const std::string_view& requestId, const std::str
 void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
                                               const std::string& requestId,
                                               bool isCacheHit,
-                                              std::uint64_t timeMs) {
+                                              std::uint64_t timeMs,
+                                              std::size_t residentSize) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.onObjectBegin();
     jsonWriter.onKey(CCommandParser::REQUEST_ID);
@@ -67,6 +68,11 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
     jsonWriter.onBool(isCacheHit);
     jsonWriter.onKey(TIME_MS);
     jsonWriter.onUint64(timeMs);
+    jsonWriter.onKey(PROCESS_STATS);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(MEMORY_RESIDENT_SET_SIZE);
+    jsonWriter.onUint64(residentSize);
+    jsonWriter.onObjectEnd();
     jsonWriter.rawKeyAndValue(innerResponse);
     jsonWriter.onObjectEnd();
 }
