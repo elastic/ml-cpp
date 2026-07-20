@@ -338,6 +338,17 @@ bool hasUnrecognisedOp(const CModelGraphValidator::SResult& result, const std::s
     return std::find(result.s_UnrecognisedOps.begin(), result.s_UnrecognisedOps.end(),
                      op) != result.s_UnrecognisedOps.end();
 }
+
+std::string readFileBytes(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    std::ostringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+bool scanContains(const CModelGraphValidator::TStringVec& ops, const std::string& op) {
+    return std::find(ops.begin(), ops.end(), op) != ops.end();
+}
 }
 
 BOOST_AUTO_TEST_CASE(testMaliciousFileReader) {
@@ -437,6 +448,81 @@ BOOST_AUTO_TEST_CASE(testMaliciousRopExploit) {
 
     BOOST_REQUIRE(result.s_IsValid == false);
     BOOST_REQUIRE(hasForbiddenOp(result, "aten::as_strided"));
+}
+
+// --- Pre-load __setstate__ scan tests ---
+//
+// torch::jit::load executes a module's __setstate__ during deserialization,
+// before CModelGraphValidator::validate (which inspects an already-loaded
+// module) could run.  A forbidden op hidden in __setstate__ therefore never
+// appears in the forward graph AND has already executed by load time.
+// scanSerialisedCodeForForbiddenOps closes this gap by inspecting the
+// serialised code textually, WITHOUT loading the model — so these tests never
+// call torch::jit::load on the attack fixtures.
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateFileReader) {
+    // aten::from_file lives only in __setstate__; the forward graph is benign,
+    // so the post-load validator would miss it. The pre-load scan must catch it
+    // without loading (and thus without executing) the model.
+    std::string bytes =
+        readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(forbidden, "aten::from_file"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateFileReaderInSubmodule) {
+    // The forbidden op is hidden in a submodule's __setstate__; the scan must
+    // inspect every serialised code record, not just the top-level module's.
+    std::string bytes = readFileBytes(
+        "testfiles/malicious_models/malicious_setstate_file_reader_in_submodule.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(forbidden, "aten::from_file"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsForwardForbiddenOps) {
+    // The scan is textual, so it also flags forbidden ops that appear in the
+    // forward graph (a superset of the load-time surface).
+    std::string fileReader =
+        readFileBytes("testfiles/malicious_models/malicious_file_reader.pt");
+    BOOST_REQUIRE(fileReader.empty() == false);
+    auto forbiddenFileReader = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        fileReader.data(), fileReader.size());
+    BOOST_REQUIRE(scanContains(forbiddenFileReader, "aten::from_file"));
+
+    std::string heapLeak =
+        readFileBytes("testfiles/malicious_models/malicious_heap_leak.pt");
+    BOOST_REQUIRE(heapLeak.empty() == false);
+    auto forbiddenHeapLeak = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        heapLeak.data(), heapLeak.size());
+    BOOST_REQUIRE(scanContains(forbiddenHeapLeak, "aten::as_strided"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanAcceptsBenignModel) {
+    // A legitimate model must not trip the scan (no false positives).
+    std::string bytes = readFileBytes("testfiles/e5_with_norm.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(forbidden.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
+    // Non-archive input must not throw or crash; torch::jit::load will surface
+    // the real error later. The scan returns no forbidden ops.
+    std::string garbage = "this is not a valid .pt archive";
+    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+        garbage.data(), garbage.size());
+    BOOST_REQUIRE(forbidden.empty());
 }
 
 // --- Prepacked model compatibility tests ---

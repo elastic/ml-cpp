@@ -15,12 +15,60 @@
 
 #include <core/CLogger.h>
 
+#include <caffe2/serialize/inline_container.h>
+#include <caffe2/serialize/read_adapter_interface.h>
 #include <torch/csrc/jit/passes/inliner.h>
 
 #include <algorithm>
+#include <cstring>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace ml {
 namespace torch {
+namespace {
+
+//! Minimal in-memory ReadAdapterInterface so a PyTorchStreamReader can parse an
+//! archive that is already fully buffered in memory, without taking ownership.
+class CMemoryReadAdapter final : public caffe2::serialize::ReadAdapterInterface {
+public:
+    CMemoryReadAdapter(const char* data, std::size_t size)
+        : m_Data{data}, m_Size{size} {}
+
+    std::size_t size() const override { return m_Size; }
+
+    std::size_t read(std::uint64_t pos, void* buf, std::size_t n, const char* /*what*/ = "") const override {
+        if (pos >= m_Size) {
+            return 0;
+        }
+        n = std::min(n, m_Size - static_cast<std::size_t>(pos));
+        std::memcpy(buf, m_Data + pos, n);
+        return n;
+    }
+
+private:
+    const char* m_Data;
+    std::size_t m_Size;
+};
+
+//! True for the serialised TorchScript source records (code/**/*.py) that hold
+//! the executable code of the module and its submodules — including
+//! __setstate__.  Other records (data.pkl, constants.pkl, version, tensors) are
+//! not executable source and are skipped.
+bool isSerialisedCodeRecord(const std::string& name) {
+    constexpr std::string_view PY_EXT{".py"};
+    if (name.size() < PY_EXT.size() ||
+        name.compare(name.size() - PY_EXT.size(), PY_EXT.size(), PY_EXT) != 0) {
+        return false;
+    }
+    // Archive entries are typically "<root>/code/....py"; accept a leading
+    // "code/" too in case the root prefix is absent.
+    return name.find("/code/") != std::string::npos || name.rfind("code/", 0) == 0;
+}
+}
 
 CModelGraphValidator::SResult CModelGraphValidator::validate(const ::torch::jit::Module& module) {
 
@@ -93,6 +141,53 @@ void CModelGraphValidator::collectBlockOps(const ::torch::jit::Block& block,
             }
         }
     }
+}
+
+CModelGraphValidator::TStringVec
+CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size) {
+    TStringSet found;
+
+    // Build the textual signatures we are looking for.  In serialised TorchScript
+    // code an aten op "aten::foo" is printed as a call "torch.foo(".  We only
+    // scan for the aten:: entries of the forbidden set: the prim:: entries
+    // (CallFunction/CallMethod) describe unresolved calls in an inlined graph and
+    // have no stable textual form in the serialised source.
+    std::vector<std::pair<std::string, std::string>> signatures; // (needle, qualified op)
+    constexpr std::string_view ATEN{"aten::"};
+    for (const auto& op : CSupportedOperations::FORBIDDEN_OPERATIONS) {
+        if (op.size() > ATEN.size() && op.substr(0, ATEN.size()) == ATEN) {
+            std::string shortName{op.substr(ATEN.size())};
+            signatures.emplace_back("torch." + shortName + "(", std::string{op});
+        }
+    }
+
+    try {
+        auto adapter = std::make_shared<CMemoryReadAdapter>(data, size);
+        caffe2::serialize::PyTorchStreamReader reader{adapter};
+
+        for (const auto& name : reader.getAllRecords()) {
+            if (isSerialisedCodeRecord(name) == false) {
+                continue;
+            }
+            auto [recordData, recordSize] = reader.getRecord(name);
+            std::string_view code{static_cast<const char*>(recordData.get()), recordSize};
+            for (const auto& [needle, qualifiedOp] : signatures) {
+                if (code.find(needle) != std::string_view::npos) {
+                    found.emplace(qualifiedOp);
+                }
+            }
+        }
+    } catch (const std::exception& e) {
+        // If the archive cannot be parsed as a stream we do not treat this as a
+        // rejection here: torch::jit::load will attempt the same parse and
+        // surface a clear error.  The post-load graph validator still applies.
+        LOG_WARN(<< "Pre-load model code scan skipped (could not parse archive): " << e.what());
+        return {};
+    }
+
+    TStringVec result{found.begin(), found.end()};
+    std::sort(result.begin(), result.end());
+    return result;
 }
 
 void CModelGraphValidator::collectModuleOps(const ::torch::jit::Module& module,

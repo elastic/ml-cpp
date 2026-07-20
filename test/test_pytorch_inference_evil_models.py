@@ -309,11 +309,13 @@ MODELS = {
         "class": SetStateFileReaderModel,
         "expect_rejected": True,
         "description": "aten::from_file in __setstate__ (runs at load time)",
+        "expect_stderr_contains": "forbidden operations",
     },
     "setstate_file_reader_submodule": {
         "class": SetStateFileReaderInSubmodule,
         "expect_rejected": True,
         "description": "aten::from_file in a submodule's __setstate__",
+        "expect_stderr_contains": "forbidden operations",
     },
 }
 

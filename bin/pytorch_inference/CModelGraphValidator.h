@@ -14,6 +14,7 @@
 
 #include <torch/script.h>
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -70,6 +71,26 @@ public:
     static SResult validate(const TStringSet& observedOps,
                             const std::unordered_set<std::string_view>& allowedOps,
                             const std::unordered_set<std::string_view>& forbiddenOps);
+
+    //! Statically scan the *serialised* TorchScript code inside a model archive
+    //! for forbidden operations, WITHOUT loading the model.
+    //!
+    //! This closes a load-time execution gap: torch::jit::load runs a module's
+    //! __setstate__ during deserialization, before validate() (which inspects an
+    //! already-loaded module) could ever run.  A forbidden op hidden in
+    //! __setstate__ would therefore execute at load time and never appear in the
+    //! forward graph.  Scanning the serialised code first lets us reject such a
+    //! model before any of its code runs.
+    //!
+    //! \p data / \p size are the raw bytes of the .pt (ZIP) archive.  Returns the
+    //! sorted, de-duplicated qualified names of any forbidden operations found in
+    //! the serialised code.  Returns empty if none are found, or if the archive
+    //! cannot be parsed (in which case torch::jit::load will surface the error).
+    //!
+    //! This is a textual, defense-in-depth check targeted at the curated
+    //! forbidden set; the post-load graph validation in validate() remains the
+    //! authoritative allowlist check.
+    static TStringVec scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size);
 
 private:
     //! Collect all operation names from a block, recursing into sub-blocks.

@@ -73,6 +73,21 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
         HANDLE_FATAL(<< "Model graph validation failed: " << e.what());
     }
 }
+
+//! Reject models that carry a forbidden operation in their serialised code
+//! BEFORE the model is loaded.  torch::jit::load executes a module's
+//! __setstate__ during deserialization, so a purely post-load check would run
+//! too late for an op hidden there.  \p modelData / \p modelSize are the raw
+//! bytes of the buffered .pt archive.
+void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
+    auto forbiddenOps =
+        ml::torch::CModelGraphValidator::scanSerialisedCodeForForbiddenOps(modelData, modelSize);
+    if (forbiddenOps.empty() == false) {
+        std::string ops = ml::core::CStringUtils::join(forbiddenOps, ", ");
+        HANDLE_FATAL(<< "Model contains forbidden operations: " << ops
+                     << " (detected in serialised code before load)");
+    }
+}
 }
 
 torch::Tensor infer(torch::jit::script::Module& module_,
@@ -314,6 +329,12 @@ int main(int argc, char** argv) {
             *ioMgr.restoreStream());
         if (readAdapter->init() == false) {
             return EXIT_FAILURE;
+        }
+        if (skipModelValidation == false) {
+            // Scan the serialised code before loading so that a forbidden op
+            // hidden in __setstate__ (which torch::jit::load would execute during
+            // deserialization) is rejected before any of the model's code runs.
+            verifySafeModelBeforeLoad(readAdapter->buffer(), readAdapter->size());
         }
         module_ = torch::jit::load(std::move(readAdapter));
         if (skipModelValidation) {
