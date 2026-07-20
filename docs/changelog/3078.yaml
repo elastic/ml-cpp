@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3078
+summary: Reproduce and fix __setstate__ load-time execution gap in model validation
+type: bug
