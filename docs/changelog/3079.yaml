@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3079
+summary: Forbid inductor::_reinterpret_tensor (as_strided heap-OOB bypass)
+type: bug
