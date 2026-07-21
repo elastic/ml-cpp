@@ -450,27 +450,26 @@ BOOST_AUTO_TEST_CASE(testMaliciousRopExploit) {
     BOOST_REQUIRE(hasForbiddenOp(result, "aten::as_strided"));
 }
 
-// --- Pre-load archive scan tests ---
+// --- Pre-load custom state-hook scan tests ---
 //
 // torch::jit::load executes a module's __setstate__ during deserialization,
 // before CModelGraphValidator::validate (which inspects an already-loaded
 // module) could run.  Matching elastic/security#12621, custom state hooks are
-// rejected outright; forbidden ops in serialised code are also flagged as
-// defense in depth.  These tests never call torch::jit::load on attack fixtures.
+// rejected outright before load.  Ops that only run when methods are invoked
+// remain covered by the post-load allowlist / forbid checks.  These tests
+// never call torch::jit::load on attack fixtures.
 
 BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsCustomStateHooks) {
-    // The HackerOne #12621 RCE uses allowlisted ops inside __setstate__; a
-    // forbidden-op-only scan would miss it.  Rejecting the hooks themselves
-    // is the reporter's remediation and must fire here.
+    // The HackerOne #12621 RCE uses allowlisted ops inside __setstate__;
+    // rejecting the hooks themselves is the reporter's remediation.
     std::string bytes = readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
     BOOST_REQUIRE(bytes.empty() == false);
 
-    auto scan = CModelGraphValidator::scanArchiveBeforeLoad(bytes.data(), bytes.size());
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
 
-    BOOST_REQUIRE(scanContains(scan.s_CustomStateHooks, "__setstate__"));
-    BOOST_REQUIRE(scanContains(scan.s_CustomStateHooks, "__getstate__"));
-    // Defense in depth: the fixture also embeds aten::from_file in setstate.
-    BOOST_REQUIRE(scanContains(scan.s_ForbiddenOps, "aten::from_file"));
+    BOOST_REQUIRE(scanContains(hooks, "__setstate__"));
+    BOOST_REQUIRE(scanContains(hooks, "__getstate__"));
 }
 
 BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsCustomStateHooksInSubmodule) {
@@ -478,76 +477,42 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsCustomStateHooksInSubmodule) {
         "testfiles/malicious_models/malicious_setstate_file_reader_in_submodule.pt");
     BOOST_REQUIRE(bytes.empty() == false);
 
-    auto scan = CModelGraphValidator::scanArchiveBeforeLoad(bytes.data(), bytes.size());
-
-    BOOST_REQUIRE(scanContains(scan.s_CustomStateHooks, "__setstate__"));
-    BOOST_REQUIRE(scanContains(scan.s_ForbiddenOps, "aten::from_file"));
-}
-
-BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateFileReader) {
-    // aten::from_file lives only in __setstate__; the forward graph is benign,
-    // so the post-load validator would miss it. The pre-load scan must catch it
-    // without loading (and thus without executing) the model.
-    std::string bytes = readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
-    BOOST_REQUIRE(bytes.empty() == false);
-
-    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
         bytes.data(), bytes.size());
 
-    BOOST_REQUIRE(scanContains(forbidden, "aten::from_file"));
-}
-
-BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsSetStateFileReaderInSubmodule) {
-    // The forbidden op is hidden in a submodule's __setstate__; the scan must
-    // inspect every serialised code record, not just the top-level module's.
-    std::string bytes = readFileBytes(
-        "testfiles/malicious_models/malicious_setstate_file_reader_in_submodule.pt");
-    BOOST_REQUIRE(bytes.empty() == false);
-
-    auto forbidden = CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
-        bytes.data(), bytes.size());
-
-    BOOST_REQUIRE(scanContains(forbidden, "aten::from_file"));
-}
-
-BOOST_AUTO_TEST_CASE(testPreLoadScanDetectsForwardForbiddenOps) {
-    // The scan is textual, so it also flags forbidden ops that appear in the
-    // forward graph (a superset of the load-time surface).
-    std::string fileReader = readFileBytes("testfiles/malicious_models/malicious_file_reader.pt");
-    BOOST_REQUIRE(fileReader.empty() == false);
-    auto scanFileReader = CModelGraphValidator::scanArchiveBeforeLoad(
-        fileReader.data(), fileReader.size());
-    BOOST_REQUIRE(scanFileReader.s_CustomStateHooks.empty());
-    BOOST_REQUIRE(scanContains(scanFileReader.s_ForbiddenOps, "aten::from_file"));
-
-    std::string heapLeak = readFileBytes("testfiles/malicious_models/malicious_heap_leak.pt");
-    BOOST_REQUIRE(heapLeak.empty() == false);
-    auto scanHeapLeak = CModelGraphValidator::scanArchiveBeforeLoad(
-        heapLeak.data(), heapLeak.size());
-    BOOST_REQUIRE(scanHeapLeak.s_CustomStateHooks.empty());
-    BOOST_REQUIRE(scanContains(scanHeapLeak.s_ForbiddenOps, "aten::as_strided"));
+    BOOST_REQUIRE(scanContains(hooks, "__setstate__"));
 }
 
 BOOST_AUTO_TEST_CASE(testPreLoadScanAcceptsBenignModel) {
-    // A legitimate model must not trip the scan (no false positives on hooks
-    // or forbidden ops — typical scripted transformers do not embed custom
-    // __setstate__/__getstate__).
+    // Typical scripted transformers do not embed custom __setstate__/__getstate__.
     std::string bytes = readFileBytes("testfiles/e5_with_norm.pt");
     BOOST_REQUIRE(bytes.empty() == false);
 
-    auto scan = CModelGraphValidator::scanArchiveBeforeLoad(bytes.data(), bytes.size());
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
 
-    BOOST_REQUIRE(scan.s_CustomStateHooks.empty());
-    BOOST_REQUIRE(scan.s_ForbiddenOps.empty());
+    BOOST_REQUIRE(hooks.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanAcceptsForwardOnlyMaliciousModel) {
+    // Forbidden ops in forward (no custom state hooks) are not a pre-load
+    // concern — they are caught by post-load validate() after jit::load.
+    std::string bytes = readFileBytes("testfiles/malicious_models/malicious_file_reader.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(hooks.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
     // Non-archive input must not throw or crash; torch::jit::load will surface
     // the real error later. The scan returns empty results.
     std::string garbage = "this is not a valid .pt archive";
-    auto scan = CModelGraphValidator::scanArchiveBeforeLoad(garbage.data(), garbage.size());
-    BOOST_REQUIRE(scan.s_CustomStateHooks.empty());
-    BOOST_REQUIRE(scan.s_ForbiddenOps.empty());
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        garbage.data(), garbage.size());
+    BOOST_REQUIRE(hooks.empty());
 }
 
 // --- Prepacked model compatibility tests ---

@@ -23,8 +23,6 @@
 #include <cstring>
 #include <memory>
 #include <string>
-#include <tuple>
-#include <utility>
 #include <vector>
 
 namespace ml {
@@ -54,21 +52,6 @@ private:
     const char* m_Data;
     std::size_t m_Size;
 };
-
-//! True for the serialised TorchScript source records (code/**/*.py) that hold
-//! the executable code of the module and its submodules — including
-//! __setstate__.  Other records (data.pkl, constants.pkl, version, tensors) are
-//! not executable source and are skipped.
-bool isSerialisedCodeRecord(const std::string& name) {
-    constexpr std::string_view PY_EXT{".py"};
-    if (name.size() < PY_EXT.size() ||
-        name.compare(name.size() - PY_EXT.size(), PY_EXT.size(), PY_EXT) != 0) {
-        return false;
-    }
-    // Archive entries are typically "<root>/code/....py"; accept a leading
-    // "code/" too in case the root prefix is absent.
-    return name.find("/code/") != std::string::npos || name.rfind("code/", 0) == 0;
-}
 }
 
 CModelGraphValidator::SResult CModelGraphValidator::validate(const ::torch::jit::Module& module) {
@@ -144,23 +127,9 @@ void CModelGraphValidator::collectBlockOps(const ::torch::jit::Block& block,
     }
 }
 
-CModelGraphValidator::SPreLoadScanResult
-CModelGraphValidator::scanArchiveBeforeLoad(const char* data, std::size_t size) {
-    SPreLoadScanResult result;
+CModelGraphValidator::TStringVec
+CModelGraphValidator::scanArchiveForCustomStateHooks(const char* data, std::size_t size) {
     TStringSet hooks;
-    TStringSet forbidden;
-
-    // In serialised TorchScript code an aten op "aten::foo" is printed as
-    // "torch.foo(".  Only aten:: entries of the forbidden set have a stable
-    // textual form; prim::CallFunction/CallMethod do not.
-    std::vector<std::pair<std::string, std::string>> signatures; // (needle, qualified op)
-    constexpr std::string_view ATEN{"aten::"};
-    for (const auto& op : CSupportedOperations::FORBIDDEN_OPERATIONS) {
-        if (op.size() > ATEN.size() && op.substr(0, ATEN.size()) == ATEN) {
-            std::string shortName{op.substr(ATEN.size())};
-            signatures.emplace_back("torch." + shortName + "(", std::string{op});
-        }
-    }
 
     constexpr std::string_view SETSTATE{"__setstate__"};
     constexpr std::string_view GETSTATE{"__getstate__"};
@@ -182,34 +151,22 @@ CModelGraphValidator::scanArchiveBeforeLoad(const char* data, std::size_t size) 
             if (bytes.find(GETSTATE) != std::string_view::npos) {
                 hooks.emplace("__getstate__");
             }
-
-            if (isSerialisedCodeRecord(name)) {
-                for (const auto & [ needle, qualifiedOp ] : signatures) {
-                    if (bytes.find(needle) != std::string_view::npos) {
-                        forbidden.emplace(qualifiedOp);
-                    }
-                }
+            if (hooks.size() == 2) {
+                break;
             }
         }
     } catch (const std::exception& e) {
         // If the archive cannot be parsed as a stream we do not treat this as a
         // rejection here: torch::jit::load will attempt the same parse and
         // surface a clear error.  The post-load graph validator still applies.
-        LOG_WARN(<< "Pre-load model archive scan skipped (could not parse archive): "
+        LOG_WARN(<< "Pre-load state-hook scan skipped (could not parse archive): "
                  << e.what());
         return {};
     }
 
-    result.s_CustomStateHooks.assign(hooks.begin(), hooks.end());
-    result.s_ForbiddenOps.assign(forbidden.begin(), forbidden.end());
-    std::sort(result.s_CustomStateHooks.begin(), result.s_CustomStateHooks.end());
-    std::sort(result.s_ForbiddenOps.begin(), result.s_ForbiddenOps.end());
+    TStringVec result{hooks.begin(), hooks.end()};
+    std::sort(result.begin(), result.end());
     return result;
-}
-
-CModelGraphValidator::TStringVec
-CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size) {
-    return scanArchiveBeforeLoad(data, size).s_ForbiddenOps;
 }
 
 void CModelGraphValidator::collectModuleOps(const ::torch::jit::Module& module,

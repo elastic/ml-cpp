@@ -72,42 +72,22 @@ public:
                             const std::unordered_set<std::string_view>& allowedOps,
                             const std::unordered_set<std::string_view>& forbiddenOps);
 
-    //! Result of a pre-load archive scan.  Both fields must be empty for the
-    //! model to be considered safe to hand to torch::jit::load.
-    struct SPreLoadScanResult {
-        //! Custom TorchScript state hooks found anywhere in the archive
-        //! ("__setstate__", "__getstate__").  torch::jit::load executes
-        //! __setstate__ during deserialization — before post-load graph
-        //! validation — so any custom hooks are rejected outright.
-        TStringVec s_CustomStateHooks;
-        //! Forbidden operations found in serialised code/**/*.py records
-        //! (textual "torch.<op>(" needles derived from FORBIDDEN_OPERATIONS).
-        TStringVec s_ForbiddenOps;
-    };
-
-    //! Statically scan a model archive BEFORE torch::jit::load, without
+    //! Statically scan a model archive BEFORE torch::jit::load for custom
+    //! TorchScript state hooks ("__setstate__", "__getstate__"), without
     //! executing any of the model's code.
     //!
     //! Closes the load-time execution gap exploited in elastic/security#12621:
     //! torch::jit::load runs a module's __setstate__ during deserialization,
-    //! and an attacker can hide allowlisted-but-dangerous logic (or memory-
-    //! corruption gadgets) there that never appears in the forward graph.
-    //! Matching the reporter's remediation, any archive containing the
-    //! literal substrings "__setstate__" or "__getstate__" is rejected.
-    //! As defense in depth, serialised code is also scanned for the curated
-    //! forbidden-op set (so a forbidden op in forward is still caught here
-    //! even if no custom state hooks are present).
+    //! before post-load graph validation.  Matching the reporter's remediation,
+    //! any archive containing those literal substrings is rejected.  Ops that
+    //! only run when methods are invoked (e.g. forward) remain the job of the
+    //! post-load allowlist / forbid checks in validate().
     //!
     //! \p data / \p size are the raw bytes of the .pt (ZIP) archive.  Returns
-    //! empty vectors if nothing is found, or if the archive cannot be parsed
-    //! (in which case torch::jit::load will surface the error).  The post-load
-    //! graph validation in validate() remains the authoritative allowlist check.
-    static SPreLoadScanResult scanArchiveBeforeLoad(const char* data, std::size_t size);
-
-    //! Convenience wrapper: returns only the forbidden-op half of
-    //! scanArchiveBeforeLoad().  Kept for unit tests that target that check
-    //! in isolation.
-    static TStringVec scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size);
+    //! the sorted names of any hooks found, or empty if none are found / the
+    //! archive cannot be parsed (in which case torch::jit::load will surface
+    //! the error).
+    static TStringVec scanArchiveForCustomStateHooks(const char* data, std::size_t size);
 
 private:
     //! Collect all operation names from a block, recursing into sub-blocks.

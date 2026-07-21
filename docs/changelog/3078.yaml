@@ -1,5 +1,5 @@
 area: Machine Learning
 issues: []
 pr: 3078
-summary: Reject TorchScript custom state hooks before load and scan for forbidden ops
+summary: Reject TorchScript custom state hooks before load
 type: bug

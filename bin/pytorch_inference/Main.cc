@@ -74,22 +74,19 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
     }
 }
 
-//! Reject unsafe models BEFORE torch::jit::load.  Load executes a module's
-//! __setstate__ during deserialization, so a purely post-load check runs too
-//! late.  Matching elastic/security#12621 / the reporter's remediation, any
-//! custom __setstate__/__getstate__ hooks are refused outright; forbidden ops
-//! in serialised code are also refused as defense in depth.
+//! Reject models with custom TorchScript state hooks BEFORE torch::jit::load.
+//! Load executes __setstate__ during deserialization, so post-load graph
+//! validation runs too late.  Matching elastic/security#12621 / the reporter's
+//! remediation, any __setstate__/__getstate__ hooks are refused outright.
+//! Forbidden / unrecognised ops in methods that only run when invoked remain
+//! the job of verifySafeModel() after a successful load.
 //! \p modelData / \p modelSize are the raw bytes of the buffered .pt archive.
 void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
-    auto scan = ml::torch::CModelGraphValidator::scanArchiveBeforeLoad(modelData, modelSize);
-    if (scan.s_CustomStateHooks.empty() == false) {
-        std::string hooks = ml::core::CStringUtils::join(scan.s_CustomStateHooks, ", ");
-        HANDLE_FATAL(<< "Model archive contains custom state hooks: " << hooks);
-    }
-    if (scan.s_ForbiddenOps.empty() == false) {
-        std::string ops = ml::core::CStringUtils::join(scan.s_ForbiddenOps, ", ");
-        HANDLE_FATAL(<< "Model contains forbidden operations: " << ops
-                     << " (detected in serialised code before load)");
+    auto hooks = ml::torch::CModelGraphValidator::scanArchiveForCustomStateHooks(
+        modelData, modelSize);
+    if (hooks.empty() == false) {
+        std::string names = ml::core::CStringUtils::join(hooks, ", ");
+        HANDLE_FATAL(<< "Model archive contains custom state hooks: " << names);
     }
 }
 }
@@ -335,9 +332,9 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         if (skipModelValidation == false) {
-            // Reject custom state hooks and forbidden ops before loading so
-            // that __setstate__ (which torch::jit::load would execute during
-            // deserialization) never runs.
+            // Reject custom state hooks before loading so that __setstate__
+            // (which torch::jit::load would execute during deserialization)
+            // never runs.  Op allowlisting remains a post-load check.
             verifySafeModelBeforeLoad(readAdapter->buffer(), readAdapter->size());
         }
         module_ = torch::jit::load(std::move(readAdapter));
