@@ -141,7 +141,8 @@ BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceRequiresExactAllowlist) {
     ml::core::CDetachedProcessSpawner::TStrVec wrongAllowlist(1, PROCESS_PATH1);
     ml::core::CDetachedProcessSpawner spawner(wrongAllowlist);
 
-    BOOST_TEST_REQUIRE(!spawner.spawn(pytorchPath, ml::core::CDetachedProcessSpawner::TStrVec()));
+    BOOST_TEST_REQUIRE(
+        !spawner.spawn(pytorchPath, ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
 BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceSpawnStartsAndTerminates) {
