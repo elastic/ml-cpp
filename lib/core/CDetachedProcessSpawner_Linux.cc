@@ -595,8 +595,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // unrelated process.
         {
             CProcess::TPid sandboxPid{childPid};
-            std::thread([sandboxPid, tracker = m_TrackerThread,
-                         sbx = std::move(sandboxPtr)]() mutable {
+            std::thread([
+                sandboxPid, tracker = m_TrackerThread, sbx = std::move(sandboxPtr)
+            ]() mutable {
                 sandbox2::Result result{sbx->AwaitResult()};
                 switch (result.final_status()) {
                 case sandbox2::Result::OK:
@@ -631,7 +632,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                     break;
                 }
                 tracker->removePid(sandboxPid);
-            }).detach();
+            })
+                .detach();
         }
 
         return true;
