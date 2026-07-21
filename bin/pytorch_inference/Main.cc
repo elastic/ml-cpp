@@ -74,16 +74,20 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
     }
 }
 
-//! Reject models that carry a forbidden operation in their serialised code
-//! BEFORE the model is loaded.  torch::jit::load executes a module's
-//! __setstate__ during deserialization, so a purely post-load check would run
-//! too late for an op hidden there.  \p modelData / \p modelSize are the raw
-//! bytes of the buffered .pt archive.
+//! Reject unsafe models BEFORE torch::jit::load.  Load executes a module's
+//! __setstate__ during deserialization, so a purely post-load check runs too
+//! late.  Matching elastic/security#12621 / the reporter's remediation, any
+//! custom __setstate__/__getstate__ hooks are refused outright; forbidden ops
+//! in serialised code are also refused as defense in depth.
+//! \p modelData / \p modelSize are the raw bytes of the buffered .pt archive.
 void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
-    auto forbiddenOps = ml::torch::CModelGraphValidator::scanSerialisedCodeForForbiddenOps(
-        modelData, modelSize);
-    if (forbiddenOps.empty() == false) {
-        std::string ops = ml::core::CStringUtils::join(forbiddenOps, ", ");
+    auto scan = ml::torch::CModelGraphValidator::scanArchiveBeforeLoad(modelData, modelSize);
+    if (scan.s_CustomStateHooks.empty() == false) {
+        std::string hooks = ml::core::CStringUtils::join(scan.s_CustomStateHooks, ", ");
+        HANDLE_FATAL(<< "Model archive contains custom state hooks: " << hooks);
+    }
+    if (scan.s_ForbiddenOps.empty() == false) {
+        std::string ops = ml::core::CStringUtils::join(scan.s_ForbiddenOps, ", ");
         HANDLE_FATAL(<< "Model contains forbidden operations: " << ops
                      << " (detected in serialised code before load)");
     }
@@ -331,9 +335,9 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         if (skipModelValidation == false) {
-            // Scan the serialised code before loading so that a forbidden op
-            // hidden in __setstate__ (which torch::jit::load would execute during
-            // deserialization) is rejected before any of the model's code runs.
+            // Reject custom state hooks and forbidden ops before loading so
+            // that __setstate__ (which torch::jit::load would execute during
+            // deserialization) never runs.
             verifySafeModelBeforeLoad(readAdapter->buffer(), readAdapter->size());
         }
         module_ = torch::jit::load(std::move(readAdapter));

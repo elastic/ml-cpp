@@ -144,15 +144,15 @@ void CModelGraphValidator::collectBlockOps(const ::torch::jit::Block& block,
     }
 }
 
-CModelGraphValidator::TStringVec
-CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size) {
-    TStringSet found;
+CModelGraphValidator::SPreLoadScanResult
+CModelGraphValidator::scanArchiveBeforeLoad(const char* data, std::size_t size) {
+    SPreLoadScanResult result;
+    TStringSet hooks;
+    TStringSet forbidden;
 
-    // Build the textual signatures we are looking for.  In serialised TorchScript
-    // code an aten op "aten::foo" is printed as a call "torch.foo(".  We only
-    // scan for the aten:: entries of the forbidden set: the prim:: entries
-    // (CallFunction/CallMethod) describe unresolved calls in an inlined graph and
-    // have no stable textual form in the serialised source.
+    // In serialised TorchScript code an aten op "aten::foo" is printed as
+    // "torch.foo(".  Only aten:: entries of the forbidden set have a stable
+    // textual form; prim::CallFunction/CallMethod do not.
     std::vector<std::pair<std::string, std::string>> signatures; // (needle, qualified op)
     constexpr std::string_view ATEN{"aten::"};
     for (const auto& op : CSupportedOperations::FORBIDDEN_OPERATIONS) {
@@ -162,19 +162,32 @@ CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::s
         }
     }
 
+    constexpr std::string_view SETSTATE{"__setstate__"};
+    constexpr std::string_view GETSTATE{"__getstate__"};
+
     try {
         auto adapter = std::make_shared<CMemoryReadAdapter>(data, size);
         caffe2::serialize::PyTorchStreamReader reader{adapter};
 
         for (const auto& name : reader.getAllRecords()) {
-            if (isSerialisedCodeRecord(name) == false) {
-                continue;
-            }
             auto[recordData, recordSize] = reader.getRecord(name);
-            std::string_view code{static_cast<const char*>(recordData.get()), recordSize};
-            for (const auto & [ needle, qualifiedOp ] : signatures) {
-                if (code.find(needle) != std::string_view::npos) {
-                    found.emplace(qualifiedOp);
+            std::string_view bytes{static_cast<const char*>(recordData.get()), recordSize};
+
+            // Reporter remediation (elastic/security#12621): reject any archive
+            // that embeds custom state hooks.  Scan every record — not just
+            // code/*.py — so hooks cannot hide in debug_pkl / adjacent entries.
+            if (bytes.find(SETSTATE) != std::string_view::npos) {
+                hooks.emplace("__setstate__");
+            }
+            if (bytes.find(GETSTATE) != std::string_view::npos) {
+                hooks.emplace("__getstate__");
+            }
+
+            if (isSerialisedCodeRecord(name)) {
+                for (const auto & [ needle, qualifiedOp ] : signatures) {
+                    if (bytes.find(needle) != std::string_view::npos) {
+                        forbidden.emplace(qualifiedOp);
+                    }
                 }
             }
         }
@@ -182,14 +195,21 @@ CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::s
         // If the archive cannot be parsed as a stream we do not treat this as a
         // rejection here: torch::jit::load will attempt the same parse and
         // surface a clear error.  The post-load graph validator still applies.
-        LOG_WARN(<< "Pre-load model code scan skipped (could not parse archive): "
+        LOG_WARN(<< "Pre-load model archive scan skipped (could not parse archive): "
                  << e.what());
         return {};
     }
 
-    TStringVec result{found.begin(), found.end()};
-    std::sort(result.begin(), result.end());
+    result.s_CustomStateHooks.assign(hooks.begin(), hooks.end());
+    result.s_ForbiddenOps.assign(forbidden.begin(), forbidden.end());
+    std::sort(result.s_CustomStateHooks.begin(), result.s_CustomStateHooks.end());
+    std::sort(result.s_ForbiddenOps.begin(), result.s_ForbiddenOps.end());
     return result;
+}
+
+CModelGraphValidator::TStringVec
+CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::size_t size) {
+    return scanArchiveBeforeLoad(data, size).s_ForbiddenOps;
 }
 
 void CModelGraphValidator::collectModuleOps(const ::torch::jit::Module& module,

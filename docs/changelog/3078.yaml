@@ -1,5 +1,5 @@
 area: Machine Learning
 issues: []
 pr: 3078
-summary: Reproduce and fix __setstate__ load-time execution gap in model validation
+summary: Reject TorchScript custom state hooks before load and scan for forbidden ops
 type: bug
