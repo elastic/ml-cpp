@@ -165,55 +165,57 @@ private:
     //! Reap zombie child processes and adjust the set of live child PIDs
     //! accordingly.  MUST be called with m_Mutex locked.
     void checkForDeadChildren() {
-        int status = 0;
-        for (;;) {
-            CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
-            // 0 means there are child processes but none have died
-            if (pid == 0) {
-                break;
+        TPidSet pidsCopy{m_Pids};
+        for (CProcess::TPid pid : pidsCopy) {
+            int status = 0;
+            CProcess::TPid waited = ::waitpid(pid, &status, WNOHANG);
+            if (waited == 0) {
+                continue;
             }
-            // -1 means error
-            if (pid == -1) {
-                if (errno != EINTR) {
-                    break;
+            if (waited == -1) {
+                if (errno == EINTR) {
+                    continue;
+                }
+                if (errno == ECHILD) {
+                    m_Pids.erase(pid);
+                }
+                continue;
+            }
+            if (WIFSIGNALED(status)) {
+                int signal = WTERMSIG(status);
+                if (signal == SIGTERM) {
+                    // We expect this when a job is force-closed, so log
+                    // at a lower level
+                    LOG_INFO(<< "Child process with PID " << pid
+                             << " was terminated by signal " << signal);
+                } else if (signal == SIGKILL) {
+                    // This should never happen if the system is working
+                    // normally - possible reasons are the Linux OOM
+                    // killer or manual intervention. The latter is highly unlikely
+                    // if running in the cloud.
+                    LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
+                              << " This is likely due to the OOM killer."
+                              << " Please check system logs for more details.");
+                } else {
+                    // This should never happen if the system is working
+                    // normally - possible reasons are bugs that cause
+                    // access violations or manual intervention. The latter is highly unlikely
+                    // if running in the cloud.
+                    LOG_ERROR(<< "Child process with PID " << pid
+                              << " was terminated by signal " << signal
+                              << " Please check system logs for more details.");
                 }
             } else {
-                if (WIFSIGNALED(status)) {
-                    int signal = WTERMSIG(status);
-                    if (signal == SIGTERM) {
-                        // We expect this when a job is force-closed, so log
-                        // at a lower level
-                        LOG_INFO(<< "Child process with PID " << pid
-                                 << " was terminated by signal " << signal);
-                    } else if (signal == SIGKILL) {
-                        // This should never happen if the system is working
-                        // normally - possible reasons are the Linux OOM
-                        // killer or manual intervention. The latter is highly unlikely
-                        // if running in the cloud.
-                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
-                                  << " This is likely due to the OOM killer."
-                                  << " Please check system logs for more details.");
-                    } else {
-                        // This should never happen if the system is working
-                        // normally - possible reasons are bugs that cause
-                        // access violations or manual intervention. The latter is highly unlikely
-                        // if running in the cloud.
-                        LOG_ERROR(<< "Child process with PID " << pid
-                                  << " was terminated by signal " << signal
-                                  << " Please check system logs for more details.");
-                    }
+                int exitCode = WEXITSTATUS(status);
+                if (exitCode == 0) {
+                    // This is the happy case
+                    LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
                 } else {
-                    int exitCode = WEXITSTATUS(status);
-                    if (exitCode == 0) {
-                        // This is the happy case
-                        LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
-                    } else {
-                        LOG_WARN(<< "Child process with PID " << pid
-                                 << " has exited with exit code " << exitCode);
-                    }
+                    LOG_WARN(<< "Child process with PID " << pid
+                             << " has exited with exit code " << exitCode);
                 }
-                m_Pids.erase(pid);
             }
+            m_Pids.erase(pid);
         }
     }
 

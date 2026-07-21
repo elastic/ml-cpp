@@ -1,5 +1,6 @@
 area: Machine Learning
 issues: []
 pr: 2873
-summary: Add Sandbox2 security integration for `PyTorch` inference
+summary: >-
+  Add Sandbox2 namespace and seccomp isolation for PyTorch inference processes
 type: enhancement

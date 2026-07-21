@@ -325,12 +325,16 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         module_ = torch::jit::load(std::move(readAdapter));
+#ifdef ML_ALLOW_SKIP_MODEL_VALIDATION
         if (skipModelValidation) {
             LOG_WARN(<< "Model graph validation SKIPPED — --skipModelValidation flag is set. "
                      << "This disables security checks on model operations.");
         } else {
             verifySafeModel(module_);
         }
+#else
+        verifySafeModel(module_);
+#endif
         module_.eval();
 
         LOG_DEBUG(<< "model loaded");

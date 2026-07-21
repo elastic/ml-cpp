@@ -109,7 +109,7 @@ endif()
 
 # Enable Sandbox2 integration if available
 if(TARGET sandbox2::sandbox2)
-  target_compile_definitions(MlCore PRIVATE SANDBOX2_AVAILABLE)
+  target_compile_definitions(MlCore PUBLIC SANDBOX2_AVAILABLE)
   target_link_libraries(MlCore PRIVATE sandbox2::sandbox2)
   message(STATUS "MlCore: Sandbox2 enabled and linked")
 endif()

@@ -38,6 +38,8 @@
 extern char** environ;
 
 #ifdef SANDBOX2_AVAILABLE
+#include <absl/time/time.h>
+
 #include <sandboxed_api/sandbox2/executor.h>
 #include <sandboxed_api/sandbox2/policybuilder.h>
 #include <sandboxed_api/sandbox2/result.h>
@@ -187,40 +189,44 @@ protected:
 
 private:
     void checkForDeadChildren() {
-        int status = 0;
-        for (;;) {
-            CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
-            if (pid == 0) {
-                break;
+        TPidSet pidsCopy{m_Pids};
+        for (CProcess::TPid pid : pidsCopy) {
+            int status = 0;
+            CProcess::TPid waited = ::waitpid(pid, &status, WNOHANG);
+            if (waited == 0) {
+                continue;
             }
-            if (pid == -1) {
-                if (errno != EINTR) {
-                    break;
+            if (waited == -1) {
+                if (errno == EINTR) {
+                    continue;
+                }
+                if (errno == ECHILD) {
+                    m_Pids.erase(pid);
+                }
+                continue;
+            }
+            if (WIFSIGNALED(status)) {
+                int signal = WTERMSIG(status);
+                if (signal == SIGTERM) {
+                    LOG_INFO(<< "Child process with PID " << pid
+                             << " was terminated by signal " << signal);
+                } else if (signal == SIGKILL) {
+                    LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
+                              << " This is likely due to the OOM killer.");
+                } else {
+                    LOG_ERROR(<< "Child process with PID " << pid
+                              << " was terminated by signal " << signal);
                 }
             } else {
-                if (WIFSIGNALED(status)) {
-                    int signal = WTERMSIG(status);
-                    if (signal == SIGTERM) {
-                        LOG_INFO(<< "Child process with PID " << pid
-                                 << " was terminated by signal " << signal);
-                    } else if (signal == SIGKILL) {
-                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
-                                  << " This is likely due to the OOM killer.");
-                    } else {
-                        LOG_ERROR(<< "Child process with PID " << pid
-                                  << " was terminated by signal " << signal);
-                    }
+                int exitCode = WEXITSTATUS(status);
+                if (exitCode == 0) {
+                    LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
                 } else {
-                    int exitCode = WEXITSTATUS(status);
-                    if (exitCode == 0) {
-                        LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
-                    } else {
-                        LOG_WARN(<< "Child process with PID " << pid
-                                 << " has exited with exit code " << exitCode);
-                    }
+                    LOG_WARN(<< "Child process with PID " << pid
+                             << " has exited with exit code " << exitCode);
                 }
-                m_Pids.erase(pid);
             }
+            m_Pids.erase(pid);
         }
     }
 
@@ -511,7 +517,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             .AddDirectory("/etc", /*is_ro=*/true)
             .AddDirectory("/proc", /*is_ro=*/true)
             .AddDirectory("/sys", /*is_ro=*/true)
-            .AddDirectory("/dev", /*is_ro=*/false)
+            .AddFile("/dev/null", /*is_ro=*/false)
+            .AddFile("/dev/urandom", /*is_ro=*/true)
+            .AddFile("/dev/random", /*is_ro=*/true)
             .AddDirectory("/tmp", /*is_ro=*/false);
 
         // Add directories from command-line arguments (pipe paths)
@@ -527,7 +535,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         // Create executor, restoring original TMPDIR if it was overridden
         std::unique_ptr<sandbox2::Executor> executor;
-        if (!originalTmpdir.empty() && originalTmpdir != ::getenv("TMPDIR")) {
+        const char* currentTmpdir = ::getenv("TMPDIR");
+        if (!originalTmpdir.empty() &&
+            (currentTmpdir == nullptr || originalTmpdir != currentTmpdir)) {
             std::vector<std::string> customEnv;
             for (char** env = environ; *env != nullptr; ++env) {
                 std::string envVar(*env);
@@ -545,6 +555,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // Apply sandbox before exec since pytorch_inference doesn't use Sandbox2 client library
         executor->set_enable_sandbox_before_exec(true);
         executor->set_cwd(binDir);
+        // pytorch_inference is a long-lived daemon that stays up for the whole
+        // lifetime of a deployed model, not a run-to-completion sandboxee.
+        // Sandbox2 defaults to a 120s wall-time limit and a 1024s CPU-time
+        // limit, either of which would kill a healthy inference process (and
+        // did, with Result::TIMEOUT, on the QA clusters). Disarm both.
+        executor->limits()->set_walltime_limit(absl::ZeroDuration());
+        executor->limits()->set_rlimit_cpu(RLIM64_INFINITY);
         // Sandbox2 defaults to rlimit_nofile=1024; libtorch thread pools and pipe I/O
         // under concurrent inference can approach that on QA clusters.
         executor->limits()->set_rlimit_nofile(65536);

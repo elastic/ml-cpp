@@ -242,8 +242,7 @@ FetchContent_MakeAvailable(absl)
     set(SANDBOX2_LIBRARIES sandbox2::sandbox2 CACHE INTERNAL "Sandbox2 libraries")
     message(STATUS "Sandbox2 enabled: using sandbox2::sandbox2")
   else()
-    set(SANDBOX2_LIBRARIES "" CACHE INTERNAL "Sandbox2 libraries not available")
-    message(WARNING "Sandbox2 target not found - Sandbox2 will be disabled")
+    message(FATAL_ERROR "Sandbox2 required on Linux but sandbox2::sandbox2 was not built")
   endif()
   
   # Restore BUILD_TESTING if it was set

@@ -76,7 +76,9 @@ bool CCmdLineParser::parse(int argc,
             ("lowPriority", "Execute process in low priority")
             ("useImmediateExecutor", "Execute requests on the main thread. This mode should only used for "
             "benchmarking purposes to ensure requests are processed in order)")
+#ifdef ML_ALLOW_SKIP_MODEL_VALIDATION
             ("skipModelValidation", "Skip TorchScript model graph validation. WARNING: disables security checks on model operations.")
+#endif
         ;
         // clang-format on
 
@@ -166,9 +168,11 @@ bool CCmdLineParser::parse(int argc,
                 return false;
             }
         }
+#ifdef ML_ALLOW_SKIP_MODEL_VALIDATION
         if (vm.count("skipModelValidation") > 0) {
             skipModelValidation = true;
         }
+#endif
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
