@@ -188,6 +188,12 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     // Install the filter
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
+    // Native allowlisted calls must still work.  Compat-ABI collisions
+    // (e.g. i386 socketcall via int 0x80 matching x86_64 getuid=102) are
+    // rejected by the seccomp_data.arch check at the start of the filter;
+    // that path is not exercised here because it requires issuing a foreign
+    // ABI syscall from the test process.
+
     BOOST_REQUIRE_MESSAGE(systemCall() == false, "Calling std::system should fail");
 
     // Operations that must function after seccomp is initialised

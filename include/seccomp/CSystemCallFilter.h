@@ -31,6 +31,9 @@ namespace seccomp {
 //!
 //! Linux:
 //! Seccomp BPF is used to restrict system calls on kernels since 3.5.
+//! The filter first requires seccomp_data.arch to match the native ABI
+//! (rejecting compat ABIs such as i386 int 0x80 on x86_64, which would
+//! otherwise collide with allowlisted syscall numbers).
 //!
 //! macOs:
 //! The sandbox facility is used to restict access to system resources.

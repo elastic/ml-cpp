@@ -30,10 +30,25 @@ namespace {
 // The x64 ABI should fail these calls
 const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
-// Offset to the nr field in struct seccomp_data
+// Offsets into struct seccomp_data (linux/seccomp.h).
 const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
+const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
 const struct sock_filter FILTER[] = {
+    // Reject non-native ABIs before matching syscall numbers.  Without this,
+    // an x86_64 process can issue int 0x80 (i386) and hit number collisions —
+    // e.g. i386 socketcall (102) matches the allowlisted x86_64 getuid (102).
+    // See elastic/security#12621 / HackerOne report on ML seccomp bypass.
+    // This prefix is self-contained (immediate RET on mismatch) so the relative
+    // jump offsets in the nr allowlist below are unchanged.
+    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_ARCH_OFFSET),
+#ifdef __x86_64__
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
+#elif defined(__aarch64__)
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_AARCH64, 1, 0),
+#endif
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA)),
+
     // Load the system call number into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
 
