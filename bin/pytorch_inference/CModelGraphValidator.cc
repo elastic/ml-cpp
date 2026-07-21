@@ -161,8 +161,7 @@ CModelGraphValidator::scanSerialisedCodeForForbiddenOps(const char* data, std::s
         if (op.size() > ATEN.size() && op.substr(0, ATEN.size()) == ATEN) {
             std::string shortName{op.substr(ATEN.size())};
             signatures.emplace_back("torch." + shortName + "(", std::string{op});
-        } else if (op.size() > INDUCTOR.size() &&
-                   op.substr(0, INDUCTOR.size()) == INDUCTOR) {
+        } else if (op.size() > INDUCTOR.size() && op.substr(0, INDUCTOR.size()) == INDUCTOR) {
             std::string shortName{op.substr(INDUCTOR.size())};
             signatures.emplace_back("ops.inductor." + shortName + "(", std::string{op});
         }
