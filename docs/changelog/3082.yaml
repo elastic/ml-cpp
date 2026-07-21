@@ -1,5 +1,0 @@
-area: Build
-issues: []
-pr: 3083
-summary: Snapshot version-bump helpers before release-branch checkout
-type: bug

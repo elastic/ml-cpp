@@ -111,8 +111,13 @@ version_bump_snapshot_helpers() {
             rm -rf "${dest}"
             return 1
         fi
-        cp "${src_dir}/${name}" "${dest}/${name}"
-        chmod +x "${dest}/${name}"
+        # Handle cp/chmod failure explicitly: under `set -e` an aborted copy would
+        # skip the caller's cleanup trap (not yet installed) and leak ${dest}.
+        if ! cp "${src_dir}/${name}" "${dest}/${name}" || ! chmod +x "${dest}/${name}"; then
+            echo "ERROR: failed to stage helper ${name} into ${dest}" >&2
+            rm -rf "${dest}"
+            return 1
+        fi
     done
     printf '%s' "$dest"
 }
