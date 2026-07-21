@@ -215,8 +215,8 @@ def run_tests() -> bool:
     print("=" * 72)
     if all_passed:
         print("ALL CHECKS PASSED — the load-time gap is reproduced and documented.")
-        print("A fix must statically scan every serialised __setstate__ for")
-        print("forbidden ops BEFORE torch::jit::load() is called.")
+        print("A fix must refuse archives containing __setstate__/__getstate__")
+        print("BEFORE torch::jit::load() is called.")
     else:
         print("SOME CHECKS FAILED — see above.")
     print("=" * 72)
