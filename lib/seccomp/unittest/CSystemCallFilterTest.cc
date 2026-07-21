@@ -28,8 +28,14 @@
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
+#include <cerrno>
 #include <cstdlib>
 #include <string>
+
+#if defined(Linux) && defined(__x86_64__)
+#include <csetjmp>
+#include <csignal>
+#endif
 
 BOOST_AUTO_TEST_SUITE(CSystemCallFilterTest)
 
@@ -162,6 +168,54 @@ bool versionIsBefore3_5(int major, int minor) {
     return false;
 }
 #endif
+
+#if defined(Linux) && defined(__x86_64__)
+// i386 ABI numbers from asm/unistd_32.h.  Not available as macros when
+// compiling a pure x86_64 translation unit, so hard-code the ones we need.
+constexpr long I386_NR_GETUID{24};
+// Collides with allowlisted x86_64 getuid (102) — the HackerOne #12621 case.
+constexpr long I386_NR_SOCKETCALL{102};
+
+sigjmp_buf g_i386ProbeJmpBuf;
+
+void i386ProbeSignalHandler(int /*sig*/) {
+    siglongjmp(g_i386ProbeJmpBuf, 1);
+}
+
+//! Issue a 32-bit ABI syscall via int $0x80.  Returns false if the kernel
+//! lacks IA32 emulation (fault), otherwise writes the syscall result to \p result.
+bool tryI386Syscall(long nr, long& result) {
+    struct sigaction faultHandler {};
+    faultHandler.sa_handler = &i386ProbeSignalHandler;
+    sigemptyset(&faultHandler.sa_mask);
+    faultHandler.sa_flags = 0;
+
+    struct sigaction previousSegv {};
+    struct sigaction previousIll {};
+    BOOST_TEST_REQUIRE(sigaction(SIGSEGV, &faultHandler, &previousSegv) == 0);
+    BOOST_TEST_REQUIRE(sigaction(SIGILL, &faultHandler, &previousIll) == 0);
+
+    bool available{false};
+    if (sigsetjmp(g_i386ProbeJmpBuf, 1) == 0) {
+        long ret;
+        // NOLINTNEXTLINE(hicpp-no-assembler)
+        asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory");
+        result = ret;
+        available = true;
+    }
+
+    BOOST_TEST_REQUIRE(sigaction(SIGSEGV, &previousSegv, nullptr) == 0);
+    BOOST_TEST_REQUIRE(sigaction(SIGILL, &previousIll, nullptr) == 0);
+    return available;
+}
+
+long i386Syscall(long nr) {
+    long ret;
+    // NOLINTNEXTLINE(hicpp-no-assembler)
+    asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory");
+    return ret;
+}
+#endif // Linux && __x86_64__
 }
 
 BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
@@ -185,14 +239,31 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     // system call filters are applied
     BOOST_TEST_REQUIRE(systemCall());
 
+#if defined(Linux) && defined(__x86_64__)
+    // Soft-detect IA32 emulation: kernels without CONFIG_IA32_EMULATION
+    // (or with it disabled at runtime) fault on int $0x80 from a 64-bit
+    // process.  Skip the compat-ABI assertion in that case rather than fail CI.
+    long i386GetuidResult{0};
+    const bool i386EntryAvailable{tryI386Syscall(I386_NR_GETUID, i386GetuidResult)};
+    if (i386EntryAvailable) {
+        BOOST_TEST_REQUIRE(i386GetuidResult >= 0);
+        LOG_INFO(<< "i386 syscall entry available; will assert arch denial after filter install");
+    } else {
+        LOG_INFO(<< "i386 syscall entry unavailable; skipping compat-ABI seccomp assertion");
+    }
+#endif
+
     // Install the filter
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
-    // Native allowlisted calls must still work.  Compat-ABI collisions
-    // (e.g. i386 socketcall via int 0x80 matching x86_64 getuid=102) are
-    // rejected by the seccomp_data.arch check at the start of the filter;
-    // that path is not exercised here because it requires issuing a foreign
-    // ABI syscall from the test process.
+#if defined(Linux) && defined(__x86_64__)
+    if (i386EntryAvailable) {
+        // Without the seccomp_data.arch gate, i386 socketcall (102) matches
+        // allowlisted x86_64 getuid (102) and is wrongly permitted.
+        // Without the arch gate this would be wrongly allowed as x86_64 getuid.
+        BOOST_REQUIRE_EQUAL(-EACCES, i386Syscall(I386_NR_SOCKETCALL));
+    }
+#endif
 
     BOOST_REQUIRE_MESSAGE(systemCall() == false, "Calling std::system should fail");
 
