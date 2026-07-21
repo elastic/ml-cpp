@@ -38,7 +38,6 @@
 
 * Harden pytorch_inference with TorchScript model graph validation. (See {ml-pull}3008[#3008].)
 * Better handling of invalid JSON state documents (See {ml-pull}[]#2895].)
-* Downgrade redundant "Failed to find valid JSON" log in `CStateDecompressor` from ERROR to INFO for empty or missing state documents (See {ml-issue}2875[#2875].)
 * Better error handling regarding quantiles state documents (See {ml-pull}[#2894])
 
 == {es} version 9.3.0
