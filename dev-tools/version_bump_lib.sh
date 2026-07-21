@@ -88,3 +88,31 @@ read_elasticsearch_version_from_ref() {
     local ref=$1
     git show "${ref}:gradle.properties" | grep '^elasticsearchVersion=' | head -1 | cut -d= -f2 | tr -d '[:space:]' || true
 }
+
+# Copy named helper files from \p src_dir into a fresh temp directory and print
+# that path.  Patch/minor bump pipelines check out the *target* release branch
+# tip after starting from main; without a snapshot, later subprocesses would
+# execute older copies of these helpers from the release branch (e.g. a
+# create_github_pull_request.sh that does not accept --label).
+#
+# Usage: dest=$(version_bump_snapshot_helpers "$SCRIPT_DIR" file1 file2 ...)
+version_bump_snapshot_helpers() {
+    local src_dir="$1"
+    shift
+    if [[ $# -lt 1 ]]; then
+        echo "ERROR: version_bump_snapshot_helpers requires at least one file name" >&2
+        return 1
+    fi
+    local dest name
+    dest="$(mktemp -d "${TMPDIR:-/tmp}/ml-cpp-version-bump-helpers.XXXXXX")"
+    for name in "$@"; do
+        if [[ ! -f "${src_dir}/${name}" ]]; then
+            echo "ERROR: missing helper to snapshot: ${src_dir}/${name}" >&2
+            rm -rf "${dest}"
+            return 1
+        fi
+        cp "${src_dir}/${name}" "${dest}/${name}"
+        chmod +x "${dest}/${name}"
+    done
+    printf '%s' "$dest"
+}
