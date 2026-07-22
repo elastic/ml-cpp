@@ -12,6 +12,12 @@ jobs:
   backport:
     name: Backport PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # Required by elastic/ci-gh-actions/fetch-github-token to authenticate to Vault
+      # via OIDC and mint the ephemeral approval token.
+      id-token: write
     # Only run for merged PRs that are not themselves backports (avoid loops).
     # Skip automation PRs (minor-freeze main bumps carry a release version label from
     # elasticsearchmachine but must not backport to the new release branch). The
@@ -91,23 +97,27 @@ jobs:
           echo "::error::Backport failed — see logs above."
           exit 1
 
-      # Mint a short-lived token for the backport-approver GitHub App so its review
-      # counts as an approval from an identity distinct from the PR author
-      # (github-actions[bot]). The release branches require one approving review via an
-      # org-wide ruleset with no bypass actors, so auto-merge cannot complete without a
-      # real approval. This mirrors the Elasticsearch auto-backport-and-merge model.
-      # The step is skipped (leaving backports for manual approval) until the App
-      # credentials are configured, so the workflow is safe to run before provisioning.
-      - name: Generate backport-approver app token
+      # Mint a short-lived token from Elastic's central ephemeral-token GitHub App
+      # (via OIDC -> Vault) so the backport PR can be approved by an identity distinct
+      # from the author (github-actions[bot]). The release branches require one
+      # approving review via the org-wide "[org] Require a PR" ruleset, which has no
+      # bypass actors, so auto-merge cannot complete without a real approval. This
+      # mirrors the Elasticsearch auto-backport-and-merge model but reuses the shared
+      # ephemeral-token service rather than a bespoke App or machine account.
+      #
+      # continue-on-error keeps the workflow safe before the Token Policy is registered
+      # (resources/github-token-policies in elastic/catalog-info): the fetch fails
+      # softly, the approval below is skipped with a warning, and the backport still
+      # opens and arms auto-merge to await a manual approval.
+      - name: Fetch ephemeral GitHub token for approval
         id: approver_token
         if: >-
           steps.backport.outcome == 'success' &&
-          contains(github.event.pull_request.labels.*.name, 'auto-backport') &&
-          vars.ML_BACKPORT_APPROVER_APP_ID != ''
-        uses: actions/create-github-app-token@v1
+          contains(github.event.pull_request.labels.*.name, 'auto-backport')
+        continue-on-error: true
+        uses: elastic/ci-gh-actions/fetch-github-token@v1
         with:
-          app-id: ${{ vars.ML_BACKPORT_APPROVER_APP_ID }}
-          private-key: ${{ secrets.ML_BACKPORT_APPROVER_PRIVATE_KEY }}
+          vault-instance: "ci-prod"
 
       - name: Approve and enable auto-merge on backport PRs
         if: >-
@@ -126,16 +136,16 @@ jobs:
             exit 0
           fi
           for pr in $PR_NUMBERS; do
-            # Auto-approve with the backport-approver App (a distinct, non-author identity)
-            # so the required review is satisfied. The backport is a clean cherry-pick of a
-            # change already reviewed on the source branch.
+            # Auto-approve with the ephemeral-token identity (a distinct, non-author
+            # identity) so the required review is satisfied. The backport is a clean
+            # cherry-pick of a change already reviewed on the source branch.
             if [ -n "$APPROVE_TOKEN" ]; then
-              echo "Approving backport PR #$pr as the backport-approver App"
+              echo "Approving backport PR #$pr with the ephemeral-token identity"
               GH_TOKEN="$APPROVE_TOKEN" gh pr review "$pr" --repo "$REPO" --approve \
                 --body "Automated approval: clean backport of an already-reviewed change." || \
-                echo "::warning::Could not approve #$pr with the backport-approver App"
+                echo "::warning::Could not approve #$pr with the ephemeral token"
             else
-              echo "::warning::No backport-approver App token configured (set the ML_BACKPORT_APPROVER_APP_ID variable and ML_BACKPORT_APPROVER_PRIVATE_KEY secret); #$pr will need a manual approval to merge."
+              echo "::warning::No ephemeral approval token available (is the backport Token Policy registered in elastic/catalog-info?); #$pr will need a manual approval to merge."
             fi
 
             echo "Enabling auto-merge (squash) on PR #$pr"
