@@ -108,10 +108,15 @@ RUN --mount=type=secret,id=gcs_key \
   /usr/local/bin/python3.12 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org -r requirements.txt && \
   /usr/local/bin/python3.12 setup.py install && \
   if command -v sccache &>/dev/null && sccache --show-stats &>/dev/null; then sccache --show-stats; sccache --stop-server; fi && \
+  # Recent PyTorch redirects `setup.py install` to `pip install .`, which installs the
+  # torch package (headers + libs) into site-packages rather than leaving them in the
+  # source tree (see pytorch/pytorch#152276). Resolve the installed package location so
+  # this works whether the build is in-tree (older tags) or a wheel install (newer).
+  TORCH_DIR=$(/usr/local/bin/python3.12 -c "import sysconfig, os; print(os.path.join(sysconfig.get_paths()['platlib'], 'torch'))") && \
   mkdir -p /usr/local/gcc133/include/pytorch && \
-  /bin/cp -rf torch/include/* /usr/local/gcc133/include/pytorch/ && \
-  /bin/cp -f torch/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
-  /bin/cp -f torch/lib/libc10.so /usr/local/gcc133/lib && \
+  /bin/cp -rf "${TORCH_DIR}"/include/* /usr/local/gcc133/include/pytorch/ && \
+  /bin/cp -f "${TORCH_DIR}"/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
+  /bin/cp -f "${TORCH_DIR}"/lib/libc10.so /usr/local/gcc133/lib && \
   cd .. && \
   rm -rf pytorch
 
