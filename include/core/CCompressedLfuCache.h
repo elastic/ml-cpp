@@ -293,9 +293,9 @@ public:
             // under the write lock, a single insert can evict several items, and
             // write updates can time out. They must never be *fabricated* though,
             // so the surviving total may fall short of, but must not exceed, the
-            // number of accounted lookups. When updates cannot time out (the
-            // single-threaded cache) there is no concurrency and the relation is
-            // exact.
+// number of accounted lookups. When updates cannot time out (the
+// single-threaded cache) the relation is exact as long as every lookup
+// results in a successful cache insert or count increment.
             std::uint64_t accountedLookups{m_NumberLookups - m_LostCount};
             bool countInvariantHolds{this->updatesCanTimeOut()
                                          ? totalCount <= accountedLookups
