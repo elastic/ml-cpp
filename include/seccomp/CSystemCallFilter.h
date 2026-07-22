@@ -22,7 +22,7 @@ namespace seccomp {
 //! DESCRIPTION:\n
 //! ML processes require a subset of system calls to function correctly.
 //! These are create a named pipe, connect to a named pipe, read and write
-//! no other system calls are necessary and should be resticted to prevent
+//! no other system calls are necessary and should be restricted to prevent
 //! malicious actions.
 //!
 //! IMPLEMENTATION DECISIONS:\n
@@ -35,8 +35,8 @@ namespace seccomp {
 //! (rejecting compat ABIs such as i386 int 0x80 on x86_64, which would
 //! otherwise collide with allowlisted syscall numbers).
 //!
-//! macOs:
-//! The sandbox facility is used to restict access to system resources.
+//! macOS:
+//! The sandbox facility is used to restrict access to system resources.
 //!
 //! Windows:
 //! Job Objects prevent the process spawning another.

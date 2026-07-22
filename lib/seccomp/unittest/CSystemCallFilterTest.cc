@@ -198,8 +198,10 @@ bool tryI386Syscall(long nr, long& result) {
     bool available{false};
     if (sigsetjmp(g_i386ProbeJmpBuf, 1) == 0) {
         long ret;
+        // "cc" is clobbered because int $0x80 (and the kernel entry path) may
+        // modify the condition-code flags.
         // NOLINTNEXTLINE(hicpp-no-assembler)
-        asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory");
+        asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory", "cc");
         result = ret;
         available = true;
     }
@@ -211,8 +213,10 @@ bool tryI386Syscall(long nr, long& result) {
 
 long i386Syscall(long nr) {
     long ret;
+    // "cc" is clobbered because int $0x80 (and the kernel entry path) may
+    // modify the condition-code flags.
     // NOLINTNEXTLINE(hicpp-no-assembler)
-    asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory");
+    asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory", "cc");
     return ret;
 }
 #endif // Linux && __x86_64__
