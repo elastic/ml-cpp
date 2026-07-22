@@ -170,7 +170,8 @@ public:
 
         CScopedLock lock(m_Mutex);
         const_cast<CTrackerThread*>(this)->checkForDeadChildren();
-        return m_Pids.find(pid) != m_Pids.end() || m_SandboxPids.find(pid) != m_SandboxPids.end();
+        return m_Pids.find(pid) != m_Pids.end() ||
+               m_SandboxPids.find(pid) != m_SandboxPids.end();
     }
 
 protected:
@@ -545,9 +546,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         std::vector<std::string> customEnv;
         bool sandboxMarkerSet{false};
         const char* currentTmpdir = ::getenv("TMPDIR");
-        const bool restoreTmpdir =
-            !originalTmpdir.empty() &&
-            (currentTmpdir == nullptr || originalTmpdir != currentTmpdir);
+        const bool restoreTmpdir = !originalTmpdir.empty() &&
+                                   (currentTmpdir == nullptr || originalTmpdir != currentTmpdir);
         for (char** env = environ; *env != nullptr; ++env) {
             std::string envVar(*env);
             if (restoreTmpdir && envVar.find("TMPDIR=") == 0) {
