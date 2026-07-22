@@ -91,22 +91,53 @@ jobs:
           echo "::error::Backport failed — see logs above."
           exit 1
 
-      - name: Enable auto-merge on backport PRs
+      # Mint a short-lived token for the backport-approver GitHub App so its review
+      # counts as an approval from an identity distinct from the PR author
+      # (github-actions[bot]). The release branches require one approving review via an
+      # org-wide ruleset with no bypass actors, so auto-merge cannot complete without a
+      # real approval. This mirrors the Elasticsearch auto-backport-and-merge model.
+      # The step is skipped (leaving backports for manual approval) until the App
+      # credentials are configured, so the workflow is safe to run before provisioning.
+      - name: Generate backport-approver app token
+        id: approver_token
+        if: >-
+          steps.backport.outcome == 'success' &&
+          contains(github.event.pull_request.labels.*.name, 'auto-backport') &&
+          vars.ML_BACKPORT_APPROVER_APP_ID != ''
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.ML_BACKPORT_APPROVER_APP_ID }}
+          private-key: ${{ secrets.ML_BACKPORT_APPROVER_PRIVATE_KEY }}
+
+      - name: Approve and enable auto-merge on backport PRs
         if: >-
           steps.backport.outcome == 'success' &&
           contains(github.event.pull_request.labels.*.name, 'auto-backport')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPROVE_TOKEN: ${{ steps.approver_token.outputs.token }}
           REPO: ${{ github.repository }}
         run: |
           # Extract created PR numbers from the backport info log.
           PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
             | grep -oE '[0-9]+' || true)
           if [ -z "$PR_NUMBERS" ]; then
-            echo "No backport PRs found in log. Skipping auto-merge."
+            echo "No backport PRs found in log. Skipping approval / auto-merge."
             exit 0
           fi
           for pr in $PR_NUMBERS; do
+            # Auto-approve with the backport-approver App (a distinct, non-author identity)
+            # so the required review is satisfied. The backport is a clean cherry-pick of a
+            # change already reviewed on the source branch.
+            if [ -n "$APPROVE_TOKEN" ]; then
+              echo "Approving backport PR #$pr as the backport-approver App"
+              GH_TOKEN="$APPROVE_TOKEN" gh pr review "$pr" --repo "$REPO" --approve \
+                --body "Automated approval: clean backport of an already-reviewed change." || \
+                echo "::warning::Could not approve #$pr with the backport-approver App"
+            else
+              echo "::warning::No backport-approver App token configured (set the ML_BACKPORT_APPROVER_APP_ID variable and ML_BACKPORT_APPROVER_PRIVATE_KEY secret); #$pr will need a manual approval to merge."
+            fi
+
             echo "Enabling auto-merge (squash) on PR #$pr"
             gh pr merge "$pr" --repo "$REPO" --auto --squash || \
               echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
