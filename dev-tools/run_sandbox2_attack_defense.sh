@@ -9,8 +9,14 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Run the Sandbox2 attack-defense integration test against freshly built
-# controller and pytorch_inference binaries. Linux only.
+# Manual Sandbox2 attack-defense smoke test (not run in CI).
+#
+# Usage (from repo root, after a Linux build that installs controller and
+# pytorch_inference):
+#   ./dev-tools/run_sandbox2_attack_defense.sh
+#
+# Requires: Linux, python3, torch, user namespaces (or root), and built
+# binaries under build/distribution/platform/linux-*/bin/.
 
 set -euo pipefail
 

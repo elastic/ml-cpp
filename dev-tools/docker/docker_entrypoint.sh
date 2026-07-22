@@ -107,10 +107,6 @@ elif [ "x$1" = "x--test" ] ; then
         echo failed > build/test_status.txt
     else
         cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
-        if [ "$(uname -s)" = "Linux" ]; then
-            chmod +x ./dev-tools/run_sandbox2_attack_defense.sh
-            ./dev-tools/run_sandbox2_attack_defense.sh || echo failed > build/test_status.txt
-        fi
     fi
 fi
 

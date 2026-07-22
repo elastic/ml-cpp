@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""
-End-to-end test for Sandbox2 attack defense
+"""Manual integration test: Sandbox2 attack-defense end-to-end smoke test.
 
-This test verifies that sandbox2 can defend against attacks where traced
-PyTorch models attempt to write files outside their allowed scope.
+Verifies that sandbox2 can defend against attacks where traced PyTorch models
+attempt to write files outside their allowed scope. Not run in CI; use after
+local Sandbox2 or policy changes. CI coverage is provided by CModelGraphValidatorTest
+and CDetachedProcessSpawnerTest_Linux.
 
 The test:
 1. Generates a benign model (positive test case)
@@ -11,6 +12,14 @@ The test:
 3. Generates an exploit model (file write attempt via shellcode)
 4. Tests each model through the controller -> pytorch_inference flow
 5. Verifies that file writes to protected paths are blocked
+
+Usage:
+    ./dev-tools/run_sandbox2_attack_defense.sh
+    python3 test/test_sandbox2_attack_defense.py [--test {1,2,3,all}]
+
+Requires: Linux, python3, torch, user namespaces (or root), and built
+controller and pytorch_inference binaries under
+build/distribution/platform/linux-*/bin/.
 """
 
 import os
