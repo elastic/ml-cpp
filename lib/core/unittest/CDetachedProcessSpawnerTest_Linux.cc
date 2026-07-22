@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <limits.h>
 #include <sys/stat.h>
@@ -39,6 +40,10 @@ const std::string PROCESS_ARGS2[] = {"10"};
 bool sandbox2RuntimeSupported() {
     return ::getuid() == 0 ||
            ::access("/proc/sys/kernel/unprivileged_userns_clone", F_OK) == 0;
+}
+
+bool requireSandbox2() {
+    return ::getenv("ML_REQUIRE_SANDBOX2") != nullptr;
 }
 
 std::string findPytorchInferenceBinary() {
@@ -127,17 +132,7 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
 #ifdef SANDBOX2_AVAILABLE
 
 BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceRequiresExactAllowlist) {
-    if (!sandbox2RuntimeSupported()) {
-        BOOST_TEST_MESSAGE("Skipping: user namespaces not available on this host");
-        return;
-    }
-
-    const std::string pytorchPath = findPytorchInferenceBinary();
-    if (pytorchPath.empty()) {
-        BOOST_TEST_MESSAGE("Skipping: pytorch_inference binary not found in build tree");
-        return;
-    }
-
+    const std::string pytorchPath{"/tmp/pytorch_inference"};
     ml::core::CDetachedProcessSpawner::TStrVec wrongAllowlist(1, PROCESS_PATH1);
     ml::core::CDetachedProcessSpawner spawner(wrongAllowlist);
 
@@ -147,12 +142,18 @@ BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceRequiresExactAllowlist) {
 
 BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceSpawnStartsAndTerminates) {
     if (!sandbox2RuntimeSupported()) {
+        if (requireSandbox2()) {
+            BOOST_FAIL("user namespaces not available but ML_REQUIRE_SANDBOX2 is set");
+        }
         BOOST_TEST_MESSAGE("Skipping: user namespaces not available on this host");
         return;
     }
 
     const std::string pytorchPath = findPytorchInferenceBinary();
     if (pytorchPath.empty()) {
+        if (requireSandbox2()) {
+            BOOST_FAIL("pytorch_inference binary not found but ML_REQUIRE_SANDBOX2 is set");
+        }
         BOOST_TEST_MESSAGE("Skipping: pytorch_inference binary not found in build tree");
         return;
     }
@@ -168,6 +169,9 @@ BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceSpawnStartsAndTerminates) {
     ml::core::CProcess::TPid childPid = 0;
     const bool spawned = spawner.spawn(pytorchPath, args, childPid);
     if (!spawned) {
+        if (requireSandbox2()) {
+            BOOST_FAIL("sandboxed pytorch_inference did not start but ML_REQUIRE_SANDBOX2 is set");
+        }
         BOOST_TEST_MESSAGE("Skipping: sandboxed pytorch_inference did not start in this environment");
         return;
     }

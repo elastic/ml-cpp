@@ -130,28 +130,24 @@ CIoManager::~CIoManager() {
 bool CIoManager::initIo() {
     if (!setUpIStream(m_InputFileName, m_IsInputFileNamedPipe,
                       m_CancellerThread, m_InputStream, "input")) {
-        LOG_ERROR(<< "Failed to set up input stream");
         m_IoInitialised = false;
         return false;
     }
 
     if (!setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe,
                       m_CancellerThread, m_OutputStream, "output")) {
-        LOG_ERROR(<< "Failed to set up output stream");
         m_IoInitialised = false;
         return false;
     }
 
     if (!setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe,
                       m_CancellerThread, m_RestoreStream, "restore")) {
-        LOG_ERROR(<< "Failed to set up restore stream");
         m_IoInitialised = false;
         return false;
     }
 
     if (!setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe,
                       m_CancellerThread, m_PersistStream, "persist")) {
-        LOG_ERROR(<< "Failed to set up persist stream");
         m_IoInitialised = false;
         return false;
     }

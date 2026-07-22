@@ -82,6 +82,209 @@ CScopeExit<FUNC> makeScopeExit(FUNC func) {
     return CScopeExit<FUNC>{std::move(func)};
 }
 
+#ifdef SANDBOX2_AVAILABLE
+//! Builds the syscall and filesystem policy for a sandboxed pytorch_inference.
+//! Keep the syscall allowlist in sync with lib/seccomp/CSystemCallFilter_Linux.cc.
+sandbox2::PolicyBuilder buildPytorchInferencePolicy(const std::string& binDir,
+                                                    const std::string& libDir,
+                                                    const std::set<std::string>& argDirs) {
+    sandbox2::PolicyBuilder policyBuilder;
+    policyBuilder.AllowDynamicStartup()
+        .AllowOpen()
+        .AllowRead()
+        .AllowWrite()
+        .AllowExit()
+        .AllowStat()
+        .AllowGetPIDs()
+        .AllowGetRandom()
+        .AllowHandleSignals()
+        .AllowTcMalloc()
+        .AllowMmap()
+        // glibc/libtorch use futex for mutexes and condition variables. Only
+        // FUTEX_WAIT and FUTEX_WAKE are insufficient under sustained concurrent
+        // load: timed waits use FUTEX_WAIT_BITSET and some broadcast/requeue
+        // paths use FUTEX_CMP_REQUEUE/FUTEX_WAKE_OP. Denying those ops is a
+        // Sandbox2 policy VIOLATION (SIGSYS), which kills pytorch_inference and
+        // surfaces as "Unexpected end of file" in Elasticsearch. PI futex ops
+        // are deliberately excluded — libtorch uses ordinary mutexes only.
+        .AllowFutexOp(FUTEX_WAIT)
+        .AllowFutexOp(FUTEX_WAKE)
+        .AllowFutexOp(FUTEX_WAIT_BITSET)
+        .AllowFutexOp(FUTEX_WAKE_BITSET)
+        .AllowFutexOp(FUTEX_REQUEUE)
+        .AllowFutexOp(FUTEX_CMP_REQUEUE)
+        .AllowFutexOp(FUTEX_WAKE_OP)
+        // Threading and scheduling
+        .AllowSyscall(__NR_sched_yield)
+        .AllowSyscall(__NR_sched_getaffinity)
+        .AllowSyscall(__NR_sched_setaffinity)
+        .AllowSyscall(__NR_sched_getparam)
+        .AllowSyscall(__NR_sched_getscheduler)
+        .AllowSyscall(__NR_clone)
+        // clone3 (syscall 435 on both x86_64 and aarch64) must be allowed by
+        // number rather than via __NR_clone3: the CentOS 7 based CI build
+        // image has kernel headers that predate clone3 and therefore leave
+        // __NR_clone3 undefined, yet the newer glibc on the CI runtime uses
+        // clone3 for thread creation. Without this, pytorch_inference is
+        // killed by a seccomp violation the moment libtorch spawns a thread,
+        // long before it can create its log FIFO.
+        .AllowSyscall(ML_NR_clone3)
+        .AllowSyscall(__NR_set_tid_address)
+        .AllowSyscall(__NR_set_robust_list)
+#ifdef __NR_rseq
+        .AllowSyscall(__NR_rseq)
+#endif
+        // Time operations
+        .AllowSyscall(__NR_clock_gettime)
+        .AllowSyscall(__NR_clock_getres)
+        .AllowSyscall(__NR_clock_nanosleep)
+        .AllowSyscall(__NR_gettimeofday)
+        .AllowSyscall(__NR_nanosleep)
+        .AllowSyscall(__NR_times)
+        // I/O multiplexing
+        .AllowSyscall(__NR_epoll_create1)
+        .AllowSyscall(__NR_epoll_ctl)
+        .AllowSyscall(__NR_epoll_pwait)
+        .AllowSyscall(__NR_eventfd2)
+        .AllowSyscall(__NR_ppoll)
+        .AllowSyscall(__NR_pselect6)
+        // File operations
+        .AllowSyscall(__NR_ioctl)
+        .AllowSyscall(__NR_fcntl)
+        .AllowSyscall(__NR_pipe2)
+        .AllowSyscall(__NR_dup)
+        .AllowSyscall(__NR_dup3)
+        .AllowSyscall(__NR_lseek)
+        .AllowSyscall(__NR_ftruncate)
+        .AllowSyscall(__NR_readlinkat)
+        .AllowSyscall(__NR_faccessat)
+        .AllowSyscall(__NR_getdents64)
+        .AllowSyscall(__NR_getcwd)
+        .AllowSyscall(__NR_unlinkat)
+        .AllowSyscall(__NR_renameat)
+        .AllowSyscall(__NR_mkdirat)
+        .AllowSyscall(__NR_mknodat)
+    // On some architectures (notably x86_64) glibc's file-system
+    // wrappers issue the legacy syscalls rather than their *at
+    // equivalents, e.g. mkfifo()->mknod, remove()/unlink()->unlink,
+    // mkdir()->mkdir. pytorch_inference creates and tears down its
+    // named pipes via these wrappers, so the legacy syscalls must be
+    // permitted too or the process is killed with SIGSYS the moment it
+    // touches a pipe. These syscalls do not exist on aarch64 (which is
+    // *at-only), hence the guards. They are exact equivalents of the
+    // *at syscalls already permitted above, so allowing them does not
+    // widen the policy.
+#ifdef __NR_mknod
+        .AllowSyscall(__NR_mknod)
+#endif
+#ifdef __NR_unlink
+        .AllowSyscall(__NR_unlink)
+#endif
+#ifdef __NR_rmdir
+        .AllowSyscall(__NR_rmdir)
+#endif
+#ifdef __NR_mkdir
+        .AllowSyscall(__NR_mkdir)
+#endif
+#ifdef __NR_rename
+        .AllowSyscall(__NR_rename)
+#endif
+#ifdef __NR_readlink
+        .AllowSyscall(__NR_readlink)
+#endif
+#ifdef __NR_access
+        .AllowSyscall(__NR_access)
+#endif
+#ifdef __NR_dup2
+        .AllowSyscall(__NR_dup2)
+#endif
+        // Memory management
+        .AllowSyscall(__NR_mprotect)
+        .AllowSyscall(__NR_mremap)
+        .AllowSyscall(__NR_madvise)
+        .AllowSyscall(__NR_munmap)
+        .AllowSyscall(__NR_brk)
+        // System info
+        .AllowSyscall(__NR_sysinfo)
+        .AllowSyscall(__NR_uname)
+        .AllowSyscall(__NR_prlimit64)
+        .AllowSyscall(__NR_getrusage)
+        // Process control
+        .AllowSyscall(__NR_prctl)
+#ifdef __NR_arch_prctl
+        .AllowSyscall(__NR_arch_prctl)
+#endif
+        .AllowSyscall(__NR_wait4)
+        .AllowSyscall(__NR_exit)
+        // User/group IDs
+        .AllowSyscall(__NR_getuid)
+        .AllowSyscall(__NR_getgid)
+        .AllowSyscall(__NR_geteuid)
+        .AllowSyscall(__NR_getegid)
+        // Process priority: pytorch_inference lowers its own nice value.
+        .AllowSyscall(__NR_setpriority)
+        .AllowSyscall(__NR_getpriority)
+        // Crash handler uses tgkill to re-raise fatal signals.
+        .AllowSyscall(__NR_tgkill)
+        // Misc runtime syscalls exercised by pytorch_inference / libtorch.
+        // These mirror the legacy CSystemCallFilter allowlist that ran the
+        // same binary successfully.
+        .AllowSyscall(__NR_statfs)
+        .AllowSyscall(__NR_connect)
+#ifdef __NR_time
+        .AllowSyscall(__NR_time)
+#endif
+#ifdef __NR_getdents
+        .AllowSyscall(__NR_getdents)
+#endif
+        // Filesystem mounts
+        .AddDirectory(binDir, /*is_ro=*/true)
+        .AddDirectory(libDir, /*is_ro=*/true)
+        .AddDirectory("/lib", /*is_ro=*/true)
+        .AddDirectory("/lib64", /*is_ro=*/true)
+        .AddDirectory("/usr/lib", /*is_ro=*/true)
+        .AddDirectory("/usr/lib64", /*is_ro=*/true)
+        .AddDirectory("/etc", /*is_ro=*/true)
+        .AddDirectory("/proc", /*is_ro=*/true)
+        .AddDirectory("/sys", /*is_ro=*/true)
+        .AddFile("/dev/null", /*is_ro=*/false)
+        .AddFile("/dev/urandom", /*is_ro=*/true)
+        .AddFile("/dev/random", /*is_ro=*/true)
+        .AddDirectory("/tmp", /*is_ro=*/false);
+
+    for (const auto& dir : argDirs) {
+        policyBuilder.AddDirectory(dir, /*is_ro=*/false);
+    }
+
+    return policyBuilder;
+}
+#endif
+
+//! Owned copy of environ with ML_SANDBOXED removed so a stray value in the
+//! controller's environment cannot cause a non-sandboxed child to skip seccomp.
+struct TFilteredEnviron {
+    std::vector<std::string> m_Strings;
+    std::vector<char*> m_Pointers;
+
+    TFilteredEnviron() {
+        m_Strings.reserve(64);
+        for (char** env = environ; *env != nullptr; ++env) {
+            if (::strncmp(*env, "ML_SANDBOXED=", 13) == 0) {
+                continue;
+            }
+            m_Strings.emplace_back(*env);
+        }
+
+        m_Pointers.reserve(m_Strings.size() + 1);
+        for (std::string& envVar : m_Strings) {
+            m_Pointers.push_back(envVar.data());
+        }
+        m_Pointers.push_back(nullptr);
+    }
+
+    char** data() { return m_Pointers.data(); }
+};
+
 //! Attempt to close all file descriptors except the standard ones. The
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process. Returns false if the actions cannot be initialised.
@@ -149,7 +352,7 @@ public:
 
     bool terminatePid(CProcess::TPid pid) {
         if (!this->havePid(pid)) {
-            LOG_ERROR(<< "Will not attempt to kill process " << pid << ": not a child process");
+            LOG_WARN(<< "Will not attempt to kill process " << pid << ": not a child process");
             return false;
         }
 
@@ -282,6 +485,10 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     // Use Sandbox2 for pytorch_inference to provide security isolation
     if (processPath.find("pytorch_inference") != std::string::npos) {
 #ifdef SANDBOX2_AVAILABLE
+        // Serialize TMPDIR mutation and environ walks across concurrent spawns.
+        static CMutex tmpdirMutex;
+        CScopedLock tmpdirLock(tmpdirMutex);
+
         // Save original TMPDIR to restore for the sandboxed process
         std::string originalTmpdir;
         const char* tmpdir = ::getenv("TMPDIR");
@@ -292,7 +499,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // Sandbox2 forkserver uses Unix sockets with 108 char path limit
         bool tmpdirOverridden{false};
         if (tmpdir != nullptr && ::strlen(tmpdir) > 80) {
-            LOG_WARN(<< "TMPDIR path too long, temporarily overriding to /tmp for forkserver");
+            LOG_WARN(<< "TMPDIR path too long for Sandbox2 forkserver Unix socket (108 char limit),"
+                     << " temporarily overriding to /tmp (len=" << ::strlen(tmpdir)
+                     << ", value=" << tmpdir << ")");
             ::setenv("TMPDIR", "/tmp", 1);
             tmpdirOverridden = true;
         }
@@ -367,174 +576,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         }
 
         // Build sandbox policy
-        sandbox2::PolicyBuilder policyBuilder;
-        policyBuilder.AllowDynamicStartup()
-            .AllowOpen()
-            .AllowRead()
-            .AllowWrite()
-            .AllowExit()
-            .AllowStat()
-            .AllowGetPIDs()
-            .AllowGetRandom()
-            .AllowHandleSignals()
-            .AllowTcMalloc()
-            .AllowMmap()
-            // glibc/libtorch use futex for mutexes and condition variables. Only
-            // FUTEX_WAIT and FUTEX_WAKE are insufficient under sustained concurrent
-            // load: timed waits use FUTEX_WAIT_BITSET and some broadcast/requeue
-            // paths use FUTEX_CMP_REQUEUE/FUTEX_WAKE_OP. Denying those ops is a
-            // Sandbox2 policy VIOLATION (SIGSYS), which kills pytorch_inference and
-            // surfaces as "Unexpected end of file" in Elasticsearch. PI futex ops
-            // are deliberately excluded — libtorch uses ordinary mutexes only.
-            .AllowFutexOp(FUTEX_WAIT)
-            .AllowFutexOp(FUTEX_WAKE)
-            .AllowFutexOp(FUTEX_WAIT_BITSET)
-            .AllowFutexOp(FUTEX_WAKE_BITSET)
-            .AllowFutexOp(FUTEX_REQUEUE)
-            .AllowFutexOp(FUTEX_CMP_REQUEUE)
-            .AllowFutexOp(FUTEX_WAKE_OP)
-            // Threading and scheduling
-            .AllowSyscall(__NR_sched_yield)
-            .AllowSyscall(__NR_sched_getaffinity)
-            .AllowSyscall(__NR_sched_setaffinity)
-            .AllowSyscall(__NR_sched_getparam)
-            .AllowSyscall(__NR_sched_getscheduler)
-            .AllowSyscall(__NR_clone)
-            // clone3 (syscall 435 on both x86_64 and aarch64) must be allowed by
-            // number rather than via __NR_clone3: the CentOS 7 based CI build
-            // image has kernel headers that predate clone3 and therefore leave
-            // __NR_clone3 undefined, yet the newer glibc on the CI runtime uses
-            // clone3 for thread creation. Without this, pytorch_inference is
-            // killed by a seccomp violation the moment libtorch spawns a thread,
-            // long before it can create its log FIFO.
-            .AllowSyscall(ML_NR_clone3)
-            .AllowSyscall(__NR_set_tid_address)
-            .AllowSyscall(__NR_set_robust_list)
-#ifdef __NR_rseq
-            .AllowSyscall(__NR_rseq)
-#endif
-            // Time operations
-            .AllowSyscall(__NR_clock_gettime)
-            .AllowSyscall(__NR_clock_getres)
-            .AllowSyscall(__NR_clock_nanosleep)
-            .AllowSyscall(__NR_gettimeofday)
-            .AllowSyscall(__NR_nanosleep)
-            .AllowSyscall(__NR_times)
-            // I/O multiplexing
-            .AllowSyscall(__NR_epoll_create1)
-            .AllowSyscall(__NR_epoll_ctl)
-            .AllowSyscall(__NR_epoll_pwait)
-            .AllowSyscall(__NR_eventfd2)
-            .AllowSyscall(__NR_ppoll)
-            .AllowSyscall(__NR_pselect6)
-            // File operations
-            .AllowSyscall(__NR_ioctl)
-            .AllowSyscall(__NR_fcntl)
-            .AllowSyscall(__NR_pipe2)
-            .AllowSyscall(__NR_dup)
-            .AllowSyscall(__NR_dup3)
-            .AllowSyscall(__NR_lseek)
-            .AllowSyscall(__NR_ftruncate)
-            .AllowSyscall(__NR_readlinkat)
-            .AllowSyscall(__NR_faccessat)
-            .AllowSyscall(__NR_getdents64)
-            .AllowSyscall(__NR_getcwd)
-            .AllowSyscall(__NR_unlinkat)
-            .AllowSyscall(__NR_renameat)
-            .AllowSyscall(__NR_mkdirat)
-            .AllowSyscall(__NR_mknodat)
-        // On some architectures (notably x86_64) glibc's file-system
-        // wrappers issue the legacy syscalls rather than their *at
-        // equivalents, e.g. mkfifo()->mknod, remove()/unlink()->unlink,
-        // mkdir()->mkdir. pytorch_inference creates and tears down its
-        // named pipes via these wrappers, so the legacy syscalls must be
-        // permitted too or the process is killed with SIGSYS the moment it
-        // touches a pipe. These syscalls do not exist on aarch64 (which is
-        // *at-only), hence the guards. They are exact equivalents of the
-        // *at syscalls already permitted above, so allowing them does not
-        // widen the policy.
-#ifdef __NR_mknod
-            .AllowSyscall(__NR_mknod)
-#endif
-#ifdef __NR_unlink
-            .AllowSyscall(__NR_unlink)
-#endif
-#ifdef __NR_rmdir
-            .AllowSyscall(__NR_rmdir)
-#endif
-#ifdef __NR_mkdir
-            .AllowSyscall(__NR_mkdir)
-#endif
-#ifdef __NR_rename
-            .AllowSyscall(__NR_rename)
-#endif
-#ifdef __NR_readlink
-            .AllowSyscall(__NR_readlink)
-#endif
-#ifdef __NR_access
-            .AllowSyscall(__NR_access)
-#endif
-#ifdef __NR_dup2
-            .AllowSyscall(__NR_dup2)
-#endif
-            // Memory management
-            .AllowSyscall(__NR_mprotect)
-            .AllowSyscall(__NR_mremap)
-            .AllowSyscall(__NR_madvise)
-            .AllowSyscall(__NR_munmap)
-            .AllowSyscall(__NR_brk)
-            // System info
-            .AllowSyscall(__NR_sysinfo)
-            .AllowSyscall(__NR_uname)
-            .AllowSyscall(__NR_prlimit64)
-            .AllowSyscall(__NR_getrusage)
-            // Process control
-            .AllowSyscall(__NR_prctl)
-#ifdef __NR_arch_prctl
-            .AllowSyscall(__NR_arch_prctl)
-#endif
-            .AllowSyscall(__NR_wait4)
-            .AllowSyscall(__NR_exit)
-            // User/group IDs
-            .AllowSyscall(__NR_getuid)
-            .AllowSyscall(__NR_getgid)
-            .AllowSyscall(__NR_geteuid)
-            .AllowSyscall(__NR_getegid)
-            // Process priority: pytorch_inference lowers its own nice value.
-            .AllowSyscall(__NR_setpriority)
-            .AllowSyscall(__NR_getpriority)
-            // Crash handler uses tgkill to re-raise fatal signals.
-            .AllowSyscall(__NR_tgkill)
-            // Misc runtime syscalls exercised by pytorch_inference / libtorch.
-            // These mirror the legacy CSystemCallFilter allowlist that ran the
-            // same binary successfully.
-            .AllowSyscall(__NR_statfs)
-            .AllowSyscall(__NR_connect)
-#ifdef __NR_time
-            .AllowSyscall(__NR_time)
-#endif
-#ifdef __NR_getdents
-            .AllowSyscall(__NR_getdents)
-#endif
-            // Filesystem mounts
-            .AddDirectory(binDir, /*is_ro=*/true)
-            .AddDirectory(libDir, /*is_ro=*/true)
-            .AddDirectory("/lib", /*is_ro=*/true)
-            .AddDirectory("/lib64", /*is_ro=*/true)
-            .AddDirectory("/usr/lib", /*is_ro=*/true)
-            .AddDirectory("/usr/lib64", /*is_ro=*/true)
-            .AddDirectory("/etc", /*is_ro=*/true)
-            .AddDirectory("/proc", /*is_ro=*/true)
-            .AddDirectory("/sys", /*is_ro=*/true)
-            .AddFile("/dev/null", /*is_ro=*/false)
-            .AddFile("/dev/urandom", /*is_ro=*/true)
-            .AddFile("/dev/random", /*is_ro=*/true)
-            .AddDirectory("/tmp", /*is_ro=*/false);
-
-        // Add directories from command-line arguments (pipe paths)
-        for (const auto& dir : argDirs) {
-            policyBuilder.AddDirectory(dir, /*is_ro=*/false);
-        }
+        sandbox2::PolicyBuilder policyBuilder{
+            buildPytorchInferencePolicy(binDir, libDir, argDirs)};
 
         auto policy_result = policyBuilder.TryBuild();
         if (!policy_result.ok()) {
@@ -583,7 +626,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             std::move(executor), std::move(*policy_result));
 
         if (!sandboxPtr->RunAsync()) {
-            LOG_ERROR(<< "Sandbox2 failed to start pytorch_inference");
+            LOG_ERROR(<< "Sandbox2 failed to start pytorch_inference - check that unprivileged"
+                     << " user namespaces are enabled and TMPDIR is writable");
             return false;
         }
 
@@ -651,7 +695,10 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         return true;
 #else
-        LOG_ERROR(<< "Sandbox2 not available - cannot spawn pytorch_inference securely");
+        // On Linux, 3rd_party/CMakeLists.txt fails configuration if sandbox2::sandbox2
+        // cannot be built, and MlCore defines SANDBOX2_AVAILABLE whenever that target
+        // exists. This branch is therefore a compile-time safety net only.
+        LOG_ERROR(<< "pytorch_inference built without Sandbox2 support - cannot spawn securely");
         return false;
 #endif
     }
@@ -688,8 +735,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     {
         CScopedLock lock(m_TrackerThread->mutex());
 
+        TFilteredEnviron filteredEnviron;
         int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions,
-                              &spawnAttributes, argv.data(), environ));
+                              &spawnAttributes, argv.data(), filteredEnviron.data()));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);

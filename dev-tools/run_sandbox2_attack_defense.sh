@@ -29,6 +29,10 @@ if [ "$(uname -s)" != "Linux" ]; then
 fi
 
 if [ ! -e /proc/sys/kernel/unprivileged_userns_clone ] && [ "$(id -u)" -ne 0 ]; then
+  if [ -n "${ML_REQUIRE_SANDBOX2:-}" ]; then
+    echo "Sandbox2 attack-defense test required but user namespaces not available" >&2
+    exit 1
+  fi
   echo "Skipping Sandbox2 attack-defense test: user namespaces not available"
   exit 0
 fi

@@ -107,7 +107,9 @@ if (WIN32)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/date_time_zonespec.csv DESTINATION ${ML_RESOURCES_DIR})
 endif()
 
-# Enable Sandbox2 integration if available
+# Enable Sandbox2 integration if available. On Linux, 3rd_party/CMakeLists.txt
+# fails configuration when sandbox2::sandbox2 cannot be built, so this define is
+# always set on successful Linux builds.
 if(TARGET sandbox2::sandbox2)
   target_compile_definitions(MlCore PUBLIC SANDBOX2_AVAILABLE)
   target_link_libraries(MlCore PRIVATE sandbox2::sandbox2)

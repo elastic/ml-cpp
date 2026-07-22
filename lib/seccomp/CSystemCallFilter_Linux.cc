@@ -12,7 +12,7 @@
 /*
  * NOTE: This seccomp filter is being gradually replaced by Sandbox2 policies
  * for processes that are spawned via CDetachedProcessSpawner. See
- * CDetachedProcessSpawner_Linux.cc::applyMlSyscallPolicy() for the Sandbox2
+ * CDetachedProcessSpawner_Linux.cc::buildPytorchInferencePolicy() for the Sandbox2
  * equivalent. The syscall whitelist should be kept in sync between both
  * implementations until all processes are migrated to Sandbox2.
  */
@@ -40,6 +40,18 @@ const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
 const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
+
+// BPF jump-offset maintenance (see also buildPytorchInferencePolicy() in
+// CDetachedProcessSpawner_Linux.cc for the Sandbox2 equivalent allowlist):
+// - Each BPF_JUMP(..., jt, 0) on a syscall row jumps forward jt instructions to
+//   the terminal SECCOMP_RET_ALLOW row. For a row at index i, jt must equal
+//   (indexOfALLOW - i - 1).
+// - The BPF_JGT UPPER_NR_LIMIT guard uses the same numeric offset as the first
+//   syscall row so it lands one slot earlier, on the SECCOMP_RET_ERRNO deny row
+//   (x32 ABI rejection).
+// - When adding or removing a syscall, increment or decrement every jt value on
+//   rows above it by one. The last three rows are fixed: __NR_exit (jt=1), deny,
+//   allow.
 
 const struct sock_filter FILTER[] = {
     // Load the system call number into accumulator

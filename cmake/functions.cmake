@@ -133,6 +133,11 @@ function(ml_add_non_distributed_library _target _type)
 
   add_library(${_target} ${_type} EXCLUDE_FROM_ALL ${PLATFORM_SRCS})
 
+  # Non-distributed libraries may be STATIC and linked into SHARED targets
+  # (e.g. test helpers into MlCore-linked test executables), so they must be PIC.
+  # SHARED targets get PIC implicitly; this keeps STATIC ones correct too.
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
   endif()
