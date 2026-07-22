@@ -44,7 +44,7 @@ execute_process(
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Include FetchContent module
   include(FetchContent)
-  
+
   # Save and disable BUILD_TESTING to prevent CTest from enabling tests
   set(_saved_BUILD_TESTING ${BUILD_TESTING})
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
@@ -58,7 +58,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # third-party targets and restore the caller's setting afterwards.
   set(_saved_CMAKE_UNITY_BUILD ${CMAKE_UNITY_BUILD})
   set(CMAKE_UNITY_BUILD OFF)
-  
+
   # Disable Google Test-related options to avoid dependency issues
   # Set as regular variables first to ensure they're available during FetchContent
   set(ABSL_PROPAGATE_CXX_STD ON)
@@ -67,11 +67,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(ABSL_ENABLE_INSTALL OFF)
   set(ABSL_BUILD_TESTING OFF)
   set(ABSL_BUILD_TEST_HELPERS OFF)
-  
+
   # Sandboxed API options
   set(SAPI_ENABLE_EXAMPLES OFF)
   set(SAPI_ENABLE_TESTS OFF)
-  
+
   # Also cache them to ensure they persist
   set(ABSL_PROPAGATE_CXX_STD ON CACHE INTERNAL "" FORCE)
   set(ABSL_USE_EXTERNAL_GOOGLETEST OFF CACHE INTERNAL "" FORCE)
@@ -81,7 +81,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(ABSL_BUILD_TEST_HELPERS OFF CACHE INTERNAL "" FORCE)
   set(SAPI_ENABLE_EXAMPLES OFF CACHE INTERNAL "" FORCE)
   set(SAPI_ENABLE_TESTS OFF CACHE INTERNAL "" FORCE)
-  
+
   # Declare Sandboxed API dependency
   FetchContent_Declare(
     sandboxed-api
@@ -89,12 +89,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     GIT_TAG v20241008
     GIT_SHALLOW TRUE
   )
-  
+
   # Get the source directory before making it available
   FetchContent_GetProperties(sandboxed-api)
   if(NOT sandboxed-api_POPULATED)
     FetchContent_Populate(sandboxed-api)
-    
+
     # Override the abseil-cpp.cmake file to disable Google Test
     file(WRITE ${sandboxed-api_SOURCE_DIR}/cmake/abseil-cpp.cmake
 "# Copyright 2019 Google LLC
@@ -126,55 +126,55 @@ set(ABSL_USE_GOOGLETEST_HEAD OFF CACHE BOOL \"\" FORCE)
 FetchContent_MakeAvailable(absl)
 ")
   endif()
-  
+
   # Patch sandboxed-api CMakeLists.txt to remove -fno-exceptions PUBLIC flag
   # This prevents it from propagating to our codebase
   file(READ ${sandboxed-api_SOURCE_DIR}/CMakeLists.txt _sapi_cmake_content)
-  string(REPLACE 
+  string(REPLACE
     "target_compile_options(sapi_base PUBLIC\n  -fno-exceptions\n)"
     "# target_compile_options(sapi_base PUBLIC\n#   -fno-exceptions\n# )"
     _sapi_cmake_content "${_sapi_cmake_content}")
   file(WRITE ${sandboxed-api_SOURCE_DIR}/CMakeLists.txt "${_sapi_cmake_content}")
-  
+
   # Patch SapiDeps.cmake to make Python3 optional
   # Python3 is only needed for protobuf code generation, which may not be required
   # if protobuf is already built or if we're using pre-generated code
   if(EXISTS ${sandboxed-api_SOURCE_DIR}/cmake/SapiDeps.cmake)
     file(READ ${sandboxed-api_SOURCE_DIR}/cmake/SapiDeps.cmake _sapi_deps_content)
-    
+
     # Strategy: Insert a safety block at the beginning to ensure Python3_EXECUTABLE is defined,
     # make find_package(Python3) QUIET, and wrap find_package_handle_standard_args in a conditional.
-    
+
     # Step 1: Insert safety block at the very beginning of the file
     # This ensures Python3_EXECUTABLE is always defined before any checks
     string(REGEX REPLACE
       "^([^#])"
       "# Python3 optional patch (inserted by ml-cpp)\n# Ensure Python3_EXECUTABLE is defined to prevent REQUIRED_VARS errors\nif(NOT DEFINED Python3_EXECUTABLE)\n  set(Python3_EXECUTABLE \"\")\nendif()\n\\1"
       _sapi_deps_content "${_sapi_deps_content}")
-    
+
     # Step 2: Make all find_package(Python3) calls QUIET
     string(REGEX REPLACE
       "find_package\\(Python3[^)]*\\)"
       "find_package(Python3 QUIET COMPONENTS Interpreter)"
       _sapi_deps_content "${_sapi_deps_content}")
-    
+
     # Step 3: Wrap find_package_handle_standard_args in a conditional
     # Insert if block before the call
     string(REGEX REPLACE
       "([^\n]*)find_package_handle_standard_args\\(Python3"
       "\\1# Python3 optional check (ml-cpp patch)\n\\1if(Python3_EXECUTABLE)\n\\1  find_package_handle_standard_args(Python3"
       _sapi_deps_content "${_sapi_deps_content}")
-    
+
     # Step 4: Add else/endif after find_package_handle_standard_args calls
     # Match the closing pattern and add the else block
     string(REGEX REPLACE
       "(find_package_handle_standard_args\\(Python3[^)]*REQUIRED_VARS[^)]*Python3_EXECUTABLE[^)]*\\))"
       "\\1\n  else()\n    set(Python3_FOUND FALSE)\n    message(STATUS \"Python3 not found - continuing without it (protobuf code generation may be disabled)\")\n  endif()"
       _sapi_deps_content "${_sapi_deps_content}")
-    
+
     file(WRITE ${sandboxed-api_SOURCE_DIR}/cmake/SapiDeps.cmake "${_sapi_deps_content}")
   endif()
-  
+
   # Pre-set Python3 variables before SapiDeps.cmake is included
   # This prevents "variable not defined" errors
   if(NOT DEFINED Python3_EXECUTABLE)
@@ -183,7 +183,7 @@ FetchContent_MakeAvailable(absl)
   if(NOT DEFINED Python3_FOUND)
     set(Python3_FOUND FALSE CACHE INTERNAL "Python3 found flag")
   endif()
-  
+
   # Patch sandbox2 CMakeLists.txt to link zlib and static libstdc++ to forkserver_bin
   # zlib is needed because libunwind (a dependency of sandboxed-api) requires uncompress from zlib
   # static libstdc++ is needed to avoid GLIBCXX version mismatches at runtime
@@ -191,7 +191,7 @@ FetchContent_MakeAvailable(absl)
   if(EXISTS ${sandboxed-api_SOURCE_DIR}/sandboxed_api/sandbox2/CMakeLists.txt)
     file(READ ${sandboxed-api_SOURCE_DIR}/sandboxed_api/sandbox2/CMakeLists.txt _sandbox2_cmake_content)
     set(_sandbox2_patched FALSE)
-    
+
     # Check if zlib is already linked to forkserver_bin
     if(NOT _sandbox2_cmake_content MATCHES "forkserver_bin.*[^a-zA-Z_]z[^a-zA-Z_]")
       # Find the add_executable line for forkserver_bin and add zlib linking after it
@@ -208,7 +208,7 @@ FetchContent_MakeAvailable(absl)
     else()
       message(STATUS "forkserver_bin already links zlib")
     endif()
-    
+
     # Add static libstdc++ and libgcc linking to forkserver_bin to avoid GLIBCXX version issues
     # This ensures the embedded forkserver binary works regardless of the host's libstdc++ version
     if(NOT _sandbox2_cmake_content MATCHES "forkserver_bin.*static-libstdc\\+\\+")
@@ -225,17 +225,17 @@ FetchContent_MakeAvailable(absl)
     else()
       message(STATUS "forkserver_bin already has static libstdc++ linking")
     endif()
-    
+
     # Write the patched content if any changes were made
     if(_sandbox2_patched)
       file(WRITE ${sandboxed-api_SOURCE_DIR}/sandboxed_api/sandbox2/CMakeLists.txt "${_sandbox2_cmake_content}")
       message(STATUS "Wrote patched sandbox2 CMakeLists.txt")
     endif()
   endif()
-  
+
   # Now add the subdirectory
   add_subdirectory(${sandboxed-api_SOURCE_DIR} ${sandboxed-api_BINARY_DIR} EXCLUDE_FROM_ALL)
-  
+
   # Set SANDBOX2_LIBRARIES after sandboxed-api is available
   # Check if sandbox2::sandbox2 target exists (it should if sandboxed-api built successfully)
   if(TARGET sandbox2::sandbox2)
@@ -244,7 +244,7 @@ FetchContent_MakeAvailable(absl)
   else()
     message(FATAL_ERROR "Sandbox2 required on Linux but sandbox2::sandbox2 was not built")
   endif()
-  
+
   # Restore BUILD_TESTING if it was set
   if(_saved_BUILD_TESTING)
     set(BUILD_TESTING ${_saved_BUILD_TESTING} CACHE BOOL "" FORCE)

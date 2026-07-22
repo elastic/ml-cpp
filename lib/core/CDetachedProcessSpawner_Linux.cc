@@ -135,9 +135,16 @@ public:
         m_Condition.signal();
     }
 
+    void addSandboxPid(CProcess::TPid pid) {
+        CScopedLock lock(m_Mutex);
+        m_SandboxPids.insert(pid);
+        m_Condition.signal();
+    }
+
     void removePid(CProcess::TPid pid) {
         CScopedLock lock(m_Mutex);
         m_Pids.erase(pid);
+        m_SandboxPids.erase(pid);
     }
 
     bool terminatePid(CProcess::TPid pid) {
@@ -163,7 +170,7 @@ public:
 
         CScopedLock lock(m_Mutex);
         const_cast<CTrackerThread*>(this)->checkForDeadChildren();
-        return m_Pids.find(pid) != m_Pids.end();
+        return m_Pids.find(pid) != m_Pids.end() || m_SandboxPids.find(pid) != m_SandboxPids.end();
     }
 
 protected:
@@ -233,6 +240,7 @@ private:
 private:
     bool m_Shutdown;
     TPidSet m_Pids;
+    TPidSet m_SandboxPids;
     mutable CMutex m_Mutex;
     CCondition m_Condition;
 };
@@ -533,24 +541,29 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             return false;
         }
 
-        // Create executor, restoring original TMPDIR if it was overridden
-        std::unique_ptr<sandbox2::Executor> executor;
+        // Create executor with a sandbox marker and restored TMPDIR when needed.
+        std::vector<std::string> customEnv;
+        bool sandboxMarkerSet{false};
         const char* currentTmpdir = ::getenv("TMPDIR");
-        if (!originalTmpdir.empty() &&
-            (currentTmpdir == nullptr || originalTmpdir != currentTmpdir)) {
-            std::vector<std::string> customEnv;
-            for (char** env = environ; *env != nullptr; ++env) {
-                std::string envVar(*env);
-                if (envVar.find("TMPDIR=") == 0) {
-                    customEnv.push_back("TMPDIR=" + originalTmpdir);
-                } else {
-                    customEnv.push_back(envVar);
-                }
+        const bool restoreTmpdir =
+            !originalTmpdir.empty() &&
+            (currentTmpdir == nullptr || originalTmpdir != currentTmpdir);
+        for (char** env = environ; *env != nullptr; ++env) {
+            std::string envVar(*env);
+            if (restoreTmpdir && envVar.find("TMPDIR=") == 0) {
+                customEnv.push_back("TMPDIR=" + originalTmpdir);
+            } else if (envVar.find("ML_SANDBOXED=") == 0) {
+                customEnv.push_back("ML_SANDBOXED=1");
+                sandboxMarkerSet = true;
+            } else {
+                customEnv.push_back(envVar);
             }
-            executor = std::make_unique<sandbox2::Executor>(absPath, fullArgs, customEnv);
-        } else {
-            executor = std::make_unique<sandbox2::Executor>(absPath, fullArgs);
         }
+        if (!sandboxMarkerSet) {
+            customEnv.push_back("ML_SANDBOXED=1");
+        }
+        std::unique_ptr<sandbox2::Executor> executor =
+            std::make_unique<sandbox2::Executor>(absPath, fullArgs, customEnv);
 
         // Apply sandbox before exec since pytorch_inference doesn't use Sandbox2 client library
         executor->set_enable_sandbox_before_exec(true);
@@ -584,7 +597,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         LOG_INFO(<< "Spawned sandboxed pytorch_inference with PID " << childPid);
 
-        m_TrackerThread->addPid(childPid);
+        m_TrackerThread->addSandboxPid(childPid);
 
         // The sandboxee is a child of the Sandbox2 forkserver rather than of the
         // controller, so the tracker's waitpid() never sees it. Own the sandbox
