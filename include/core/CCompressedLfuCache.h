@@ -125,8 +125,14 @@ public:
 
         auto compressedKey = m_CompressKey(m_Dictionary, key);
 
+        // Count every lookup exactly once, even if we fail to acquire the read
+        // lock below. The fall-through miss path can still add a count (or record
+        // a lost update), so counting only inside the read guard would let the
+        // bookkeeping totals exceed the lookup count when the read lock times out
+        // under contention.
+        ++m_NumberLookups;
+
         if (this->guardRead(TIME_OUT, [&] {
-                ++m_NumberLookups;
                 auto hit = this->hit(compressedKey);
                 if (hit != nullptr) {
                     ++m_NumberHits;
@@ -282,9 +288,19 @@ public:
                           << m_ItemsMemoryUsage << ".");
                 result = false;
             }
-            // We may be missing counts if a single addition caused multiple
-            // evictions, or if updates can time out
-            if (m_NumberLookups - m_LostCount != totalCount) {
+            // Counts can legitimately be *lost* under concurrency: an item hit
+            // under the read lock may be evicted before its count is incremented
+            // under the write lock, a single insert can evict several items, and
+            // write updates can time out. They must never be *fabricated* though,
+            // so the surviving total may fall short of, but must not exceed, the
+            // number of accounted lookups. When updates cannot time out (the
+            // single-threaded cache) there is no concurrency and the relation is
+            // exact.
+            std::uint64_t accountedLookups{m_NumberLookups - m_LostCount};
+            bool countInvariantHolds{this->updatesCanTimeOut()
+                                         ? totalCount <= accountedLookups
+                                         : totalCount == accountedLookups};
+            if (countInvariantHolds == false) {
                 LOG_ERROR(<< "Count mismatch " << m_NumberLookups.load() << " (less "
                           << m_LostCount.load() << " lost) vs " << totalCount << ".");
                 result = false;
