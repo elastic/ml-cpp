@@ -22,6 +22,10 @@ const CSupportedOperations::TStringViewSet CSupportedOperations::FORBIDDEN_OPERA
     "aten::as_strided"sv,
     "aten::from_file"sv,
     "aten::save"sv,
+    // Unchecked storage-offset reinterpret (TorchInductor). Same class of OOB
+    // heap read/write as as_strided; used to bypass the as_strided forbid
+    // (privately reported security finding).
+    "inductor::_reinterpret_tensor"sv,
     // After graph inlining, method and function calls should be resolved.
     // Their presence indicates an opaque call that cannot be validated.
     "prim::CallFunction"sv,

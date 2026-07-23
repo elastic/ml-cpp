@@ -73,6 +73,23 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
         HANDLE_FATAL(<< "Model graph validation failed: " << e.what());
     }
 }
+
+//! Reject models with custom TorchScript state hooks BEFORE torch::jit::load.
+//! Load executes __setstate__ during deserialization, so post-load graph
+//! validation runs too late.  Matching the recommended remediation for a
+//! privately reported finding, any __setstate__/__getstate__ hooks are refused
+//! outright.
+//! Forbidden / unrecognised ops in methods that only run when invoked remain
+//! the job of verifySafeModel() after a successful load.
+//! \p modelData / \p modelSize are the raw bytes of the buffered .pt archive.
+void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
+    auto hooks = ml::torch::CModelGraphValidator::scanArchiveForCustomStateHooks(
+        modelData, modelSize);
+    if (hooks.empty() == false) {
+        std::string names = ml::core::CStringUtils::join(hooks, ", ");
+        HANDLE_FATAL(<< "Model archive contains custom state hooks: " << names);
+    }
+}
 }
 
 torch::Tensor infer(torch::jit::script::Module& module_,
@@ -314,6 +331,12 @@ int main(int argc, char** argv) {
             *ioMgr.restoreStream());
         if (readAdapter->init() == false) {
             return EXIT_FAILURE;
+        }
+        if (skipModelValidation == false) {
+            // Reject custom state hooks before loading so that __setstate__
+            // (which torch::jit::load would execute during deserialization)
+            // never runs.  Op allowlisting remains a post-load check.
+            verifySafeModelBeforeLoad(readAdapter->buffer(), readAdapter->size());
         }
         module_ = torch::jit::load(std::move(readAdapter));
         if (skipModelValidation) {

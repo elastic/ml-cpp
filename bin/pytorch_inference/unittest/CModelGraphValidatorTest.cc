@@ -338,6 +338,20 @@ bool hasUnrecognisedOp(const CModelGraphValidator::SResult& result, const std::s
     return std::find(result.s_UnrecognisedOps.begin(), result.s_UnrecognisedOps.end(),
                      op) != result.s_UnrecognisedOps.end();
 }
+
+std::string readFileBytes(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    // Fail loudly (naming the path) if a fixture goes missing, rather than
+    // returning an empty string that trips an opaque "bytes.empty() == false".
+    BOOST_REQUIRE_MESSAGE(file.is_open(), "Could not open fixture: " + path);
+    std::ostringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+bool scanContains(const CModelGraphValidator::TStringVec& ops, const std::string& op) {
+    return std::find(ops.begin(), ops.end(), op) != ops.end();
+}
 }
 
 BOOST_AUTO_TEST_CASE(testMaliciousFileReader) {
@@ -437,6 +451,84 @@ BOOST_AUTO_TEST_CASE(testMaliciousRopExploit) {
 
     BOOST_REQUIRE(result.s_IsValid == false);
     BOOST_REQUIRE(hasForbiddenOp(result, "aten::as_strided"));
+}
+
+// --- Pre-load custom state-hook scan tests ---
+//
+// torch::jit::load executes a module's __setstate__ during deserialization,
+// before CModelGraphValidator::validate (which inspects an already-loaded
+// module) could run.  Matching a privately reported finding, custom state hooks
+// are rejected outright before load.  Ops that only run when methods are invoked
+// remain covered by the post-load allowlist / forbid checks.  These tests
+// never call torch::jit::load on attack fixtures.
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsCustomStateHooks) {
+    // The reported RCE uses allowlisted ops inside __setstate__; rejecting the
+    // hooks themselves is the recommended remediation.
+    std::string bytes = readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(hooks, "__setstate__"));
+    BOOST_REQUIRE(scanContains(hooks, "__getstate__"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsCustomStateHooksInSubmodule) {
+    std::string bytes = readFileBytes(
+        "testfiles/malicious_models/malicious_setstate_file_reader_in_submodule.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(scanContains(hooks, "__setstate__"));
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanAcceptsBenignModel) {
+    // Typical scripted transformers do not embed custom __setstate__/__getstate__.
+    std::string bytes = readFileBytes("testfiles/e5_with_norm.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(hooks.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanAcceptsForwardOnlyMaliciousModel) {
+    // Forbidden ops in forward (no custom state hooks) are not a pre-load
+    // concern — they are caught by post-load validate() after jit::load.
+    std::string bytes = readFileBytes("testfiles/malicious_models/malicious_file_reader.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(hooks.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
+    // Non-archive input must not throw or crash; torch::jit::load will surface
+    // the real error later. The scan returns empty results.
+    std::string garbage = "this is not a valid .pt archive";
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        garbage.data(), garbage.size());
+    BOOST_REQUIRE(hooks.empty());
+}
+
+BOOST_AUTO_TEST_CASE(testMaliciousReinterpretTensorRejectedPostLoad) {
+    // inductor::_reinterpret_tensor is the as_strided heap-OOB bypass
+    // (privately reported finding).  This forward-only fixture carries no custom
+    // state hooks, so it loads cleanly; post-load validate must then report the
+    // op as forbidden (not merely unrecognised).
+    auto module = ::torch::jit::load(
+        "testfiles/malicious_models/malicious_reinterpret_tensor_oob_read.pt");
+    auto result = CModelGraphValidator::validate(module);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE(hasForbiddenOp(result, "inductor::_reinterpret_tensor"));
 }
 
 // --- Prepacked model compatibility tests ---
