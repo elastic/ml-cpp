@@ -226,7 +226,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 // file handles so that we can revert the redirection.
                 CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, 0, 0, &startupInfo,
                 &processInformation) == FALSE) {
-            const std::string reason{"Failed to spawn '" + processPath + "': " + CWindowsError().errorString()};
+            const std::string reason{"Failed to spawn '" + processPath +
+                                     "': " + CWindowsError().errorString()};
             LOG_ERROR(<< reason);
             if (failureReason != nullptr) {
                 *failureReason = reason;

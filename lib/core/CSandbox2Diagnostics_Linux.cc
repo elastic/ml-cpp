@@ -91,8 +91,9 @@ void logSandbox2EnvironmentSelfCheck() {
 
     const char* tmpdir{::getenv("TMPDIR")};
 
-    LOG_INFO(<< "Sandbox2 environment self-check: " << usernsStatus << ", /tmp writable="
-             << (tmpWritable ? "yes" : "no") << ", /tmp noexec=" << (tmpNoexec ? "yes" : "no")
+    LOG_INFO(<< "Sandbox2 environment self-check: " << usernsStatus
+             << ", /tmp writable=" << (tmpWritable ? "yes" : "no")
+             << ", /tmp noexec=" << (tmpNoexec ? "yes" : "no")
              << ", forkserver_socket_path_limit=" << FORKSERVER_SOCKET_PATH_LIMIT_CHARS
              << ", TMPDIR " << describeTmpdir(tmpdir));
 }

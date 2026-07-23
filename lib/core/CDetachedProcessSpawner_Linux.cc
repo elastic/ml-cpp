@@ -20,8 +20,8 @@
 #include <seccomp/CPytorchInferenceSyscallAllowlist.h>
 
 #include <algorithm>
-#include <sstream>
 #include <set>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -147,8 +147,7 @@ SArgDirExtraction extractArgDirs(const std::vector<std::string>& args) {
 
         std::string dir = path.substr(0, lastSlash);
         char resolved[PATH_MAX];
-        std::string canonical =
-            ::realpath(dir.c_str(), resolved) != nullptr ? resolved : dir;
+        std::string canonical = ::realpath(dir.c_str(), resolved) != nullptr ? resolved : dir;
         extraction.m_ArgDirs.insert(canonical);
         struct stat dirStat;
         if (dir != canonical && ::stat(dir.c_str(), &dirStat) == 0) {
@@ -169,7 +168,8 @@ void logSandbox2SpawnContext(const std::string& absPath,
                              const std::string& sandboxeeTmpdir) {
     std::ostringstream fixedMounts;
     fixedMounts << binDir << ',' << libDir;
-    for (const auto& mountPath : ml::seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
+    for (const auto& mountPath :
+         ml::seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
         fixedMounts << ',' << mountPath;
     }
     fixedMounts << ",/tmp";
@@ -184,7 +184,7 @@ void logSandbox2SpawnContext(const std::string& absPath,
              << " rejectedPipeArgs=[" << joinStrings(argDirInfo.m_RejectedPipeArgs) << "]"
              << " controllerTmpdir="
              << (tmpdirOverridden ? "/tmp (overridden for forkserver)"
-                                 : originalTmpdir.empty() ? "(unset)" : originalTmpdir)
+                                  : originalTmpdir.empty() ? "(unset)" : originalTmpdir)
              << " sandboxeeTmpdir=" << (sandboxeeTmpdir.empty() ? "(unset)" : sandboxeeTmpdir)
              << " rlimit_nofile=65536 walltime_limit=disabled cpu_limit=disabled");
 }
@@ -205,7 +205,8 @@ std::string formatSandbox2Result(const sandbox2::Result& result) {
               << sandbox2::Result::StatusEnumToString(result.final_status())
               << ", reason_code=" << result.reason_code() << ']';
     if (result.final_status() == sandbox2::Result::VIOLATION) {
-        formatted << " [syscall=" << result.reason_code() << " arch=" << sandboxPlatformArch() << ']';
+        formatted << " [syscall=" << result.reason_code()
+                  << " arch=" << sandboxPlatformArch() << ']';
     }
     return formatted.str();
 }
@@ -370,7 +371,8 @@ sandbox2::PolicyBuilder buildPytorchInferencePolicy(const std::string& binDir,
         .AddDirectory(binDir, /*is_ro=*/true)
         .AddDirectory(libDir, /*is_ro=*/true);
 
-    for (const auto& mountPath : ml::seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
+    for (const auto& mountPath :
+         ml::seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
         policyBuilder.AddDirectory(mountPath, /*is_ro=*/true);
     }
     for (const auto& mountPath : ml::seccomp::pytorch_inference::fixedSandboxMountFiles()) {
@@ -676,7 +678,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // Resolve to absolute path - Sandbox2 requires absolute paths
         char resolvedPath[PATH_MAX];
         if (::realpath(processPath.c_str(), resolvedPath) == nullptr) {
-            const std::string reason{"Cannot resolve path " + processPath + ": " + ::strerror(errno)};
+            const std::string reason{"Cannot resolve path " + processPath +
+                                     ": " + ::strerror(errno)};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -716,8 +719,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         if (!policy_result.ok()) {
             std::ostringstream statusMessage;
             statusMessage << policy_result.status();
-            const std::string reason{"Failed to build Sandbox2 policy: " + statusMessage.str() +
-                                     SANDBOX2_DISABLE_HINT};
+            const std::string reason{"Failed to build Sandbox2 policy: " +
+                                     statusMessage.str() + SANDBOX2_DISABLE_HINT};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -743,10 +746,12 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         if (!sandboxMarkerSet) {
             customEnv.push_back("ML_SANDBOXED=1");
         }
-        const std::string sandboxeeTmpdir{restoreTmpdir ? originalTmpdir : (currentTmpdir != nullptr ? currentTmpdir : "")};
+        const std::string sandboxeeTmpdir{
+            restoreTmpdir ? originalTmpdir
+                          : (currentTmpdir != nullptr ? currentTmpdir : "")};
 
-        logSandbox2SpawnContext(absPath, binDir, libDir, argDirInfo, originalTmpdir, tmpdirOverridden,
-                                sandboxeeTmpdir);
+        logSandbox2SpawnContext(absPath, binDir, libDir, argDirInfo,
+                                originalTmpdir, tmpdirOverridden, sandboxeeTmpdir);
 
         std::unique_ptr<sandbox2::Executor> executor =
             std::make_unique<sandbox2::Executor>(absPath, fullArgs, customEnv);
@@ -770,10 +775,10 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
         if (!sandboxPtr->RunAsync()) {
             sandbox2::Result result{sandboxPtr->AwaitResult()};
-            const std::string reason{"Sandbox2 failed to start pytorch_inference: " +
-                                     formatSandbox2Result(result) +
-                                     " - check that unprivileged user namespaces are enabled and TMPDIR is writable" +
-                                     SANDBOX2_DISABLE_HINT};
+            const std::string reason{
+                "Sandbox2 failed to start pytorch_inference: " + formatSandbox2Result(result) +
+                " - check that unprivileged user namespaces are enabled and TMPDIR is writable" +
+                SANDBOX2_DISABLE_HINT};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -782,8 +787,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         childPid = sandboxPtr->pid();
         if (childPid <= 0) {
             sandbox2::Result result{sandboxPtr->AwaitResult()};
-            const std::string reason{"Sandbox2 returned invalid PID: " + formatSandbox2Result(result) +
-                                     SANDBOX2_DISABLE_HINT};
+            const std::string reason{"Sandbox2 returned invalid PID: " +
+                                     formatSandbox2Result(result) + SANDBOX2_DISABLE_HINT};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -855,9 +860,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // exists. This branch is therefore a compile-time safety net only.
         LOG_ERROR(<< "pytorch_inference built without Sandbox2 support - cannot spawn securely"
                   << SANDBOX2_DISABLE_HINT);
-        assignFailureReason(failureReason,
-                            "pytorch_inference built without Sandbox2 support - cannot spawn securely" +
-                                SANDBOX2_DISABLE_HINT);
+        assignFailureReason(failureReason, "pytorch_inference built without Sandbox2 support - cannot spawn securely" +
+                                               SANDBOX2_DISABLE_HINT);
         return false;
 #endif
     }
@@ -888,14 +892,16 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions, m_MaxObservedFd) == false) {
-        const std::string reason{"Failed to set up file actions: " + std::string{::strerror(errno)}};
+        const std::string reason{"Failed to set up file actions: " +
+                                 std::string{::strerror(errno)}};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);
         return false;
     }
     posix_spawnattr_t spawnAttributes;
     if (::posix_spawnattr_init(&spawnAttributes) != 0) {
-        const std::string reason{"Failed to set up spawn attributes: " + std::string{::strerror(errno)}};
+        const std::string reason{"Failed to set up spawn attributes: " +
+                                 std::string{::strerror(errno)}};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);
         return false;
@@ -913,7 +919,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         ::posix_spawnattr_destroy(&spawnAttributes);
 
         if (err != 0) {
-            const std::string reason{"Failed to spawn '" + processPath + "': " + ::strerror(err)};
+            const std::string reason{"Failed to spawn '" + processPath +
+                                     "': " + ::strerror(err)};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;

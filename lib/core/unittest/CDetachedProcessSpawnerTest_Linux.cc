@@ -145,10 +145,7 @@ BOOST_AUTO_TEST_CASE(testDisableSandboxUsesLegacyPathAndStripsFlag) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     ml::core::CDetachedProcessSpawner::TStrVec args{
-        "--disableSandbox",
-        "if=" + INPUT_FILE,
-        "of=" + outputFile,
-        "bs=1",
+        "--disableSandbox", "if=" + INPUT_FILE, "of=" + outputFile, "bs=1",
         "count=" + ml::core::CStringUtils::typeToString(EXPECTED_FILE_SIZE)};
 
     BOOST_TEST_REQUIRE(spawner.spawn(linkPath, args));

@@ -23,8 +23,8 @@ namespace pytorch_inference {
 //! excluding the per-install binDir and libDir. Keep in sync with
 //! buildPytorchInferencePolicy() in CDetachedProcessSpawner_Linux.cc.
 inline const std::vector<std::string>& fixedSandboxMountDirectories() {
-    static const std::vector<std::string> PATHS{"/lib", "/lib64", "/usr/lib",
-                                                "/usr/lib64", "/etc", "/proc", "/sys"};
+    static const std::vector<std::string> PATHS{
+        "/lib", "/lib64", "/usr/lib", "/usr/lib64", "/etc", "/proc", "/sys"};
     return PATHS;
 }
 
@@ -49,229 +49,201 @@ namespace detail {
 #endif
 
 inline void appendCommonLegacySyscalls(std::vector<int>& syscalls) {
-    syscalls.insert(syscalls.end(),
-                    {__NR_fcntl,
-                     __NR_getrusage,
-                     __NR_getpid,
+    syscalls.insert(syscalls.end(), {__NR_fcntl,         __NR_getrusage,
+                                     __NR_getpid,
 #ifdef __NR_statx
-                     __NR_statx,
+                                     __NR_statx,
 #endif
-                     __NR_getrandom,
-                     __NR_mknodat,
-                     __NR_newfstatat,
-                     __NR_readlinkat,
-                     __NR_dup3,
-                     __NR_dup,
-                     __NR_getpriority,
-                     __NR_setpriority,
-                     __NR_read,
-                     __NR_write,
-                     __NR_writev,
-                     __NR_lseek,
-                     __NR_clock_gettime,
-                     __NR_gettimeofday,
-                     __NR_fstat,
-                     __NR_close,
-                     __NR_connect,
-                     ML_NR_clone3,
-                     __NR_clone,
-                     __NR_statfs,
-                     __NR_mkdirat,
-                     __NR_unlinkat,
-                     __NR_getdents64,
-                     __NR_openat,
-                     __NR_tgkill,
-                     __NR_rt_sigaction,
-                     __NR_rt_sigreturn,
-                     __NR_rt_sigprocmask,
+                                     __NR_getrandom,     __NR_mknodat,
+                                     __NR_newfstatat,    __NR_readlinkat,
+                                     __NR_dup3,          __NR_dup,
+                                     __NR_getpriority,   __NR_setpriority,
+                                     __NR_read,          __NR_write,
+                                     __NR_writev,        __NR_lseek,
+                                     __NR_clock_gettime, __NR_gettimeofday,
+                                     __NR_fstat,         __NR_close,
+                                     __NR_connect,       ML_NR_clone3,
+                                     __NR_clone,         __NR_statfs,
+                                     __NR_mkdirat,       __NR_unlinkat,
+                                     __NR_getdents64,    __NR_openat,
+                                     __NR_tgkill,        __NR_rt_sigaction,
+                                     __NR_rt_sigreturn,  __NR_rt_sigprocmask,
 #ifdef __NR_rseq
-                     __NR_rseq,
+                                     __NR_rseq,
 #endif
-                     __NR_futex,
-                     __NR_madvise,
-                     __NR_nanosleep,
-                     __NR_set_robust_list,
-                     __NR_mprotect,
-                     __NR_mremap,
-                     __NR_munmap,
-                     __NR_mmap,
-                     __NR_getuid,
-                     __NR_exit_group,
-                     __NR_brk,
-                     __NR_exit});
+                                     __NR_futex,         __NR_madvise,
+                                     __NR_nanosleep,     __NR_set_robust_list,
+                                     __NR_mprotect,      __NR_mremap,
+                                     __NR_munmap,        __NR_mmap,
+                                     __NR_getuid,        __NR_exit_group,
+                                     __NR_brk,           __NR_exit});
 }
 
 inline void appendArchSpecificLegacySyscalls(std::vector<int>& syscalls) {
 #ifdef __x86_64__
-    syscalls.insert(syscalls.end(),
-                    {__NR_access,
-                     __NR_open,
-                     __NR_dup2,
-                     __NR_unlink,
-                     __NR_stat,
-                     __NR_lstat,
+    syscalls.insert(syscalls.end(), {__NR_access, __NR_open, __NR_dup2,
+                                     __NR_unlink, __NR_stat, __NR_lstat,
 #ifdef __NR_time
-                     __NR_time,
+                                     __NR_time,
 #endif
-                     __NR_readlink,
+                                     __NR_readlink,
 #ifdef __NR_getdents
-                     __NR_getdents,
+                                     __NR_getdents,
 #endif
-                     __NR_rmdir,
-                     __NR_mkdir,
+                                     __NR_rmdir, __NR_mkdir,
 #ifdef __NR_mknod
-                     __NR_mknod,
+                                     __NR_mknod,
 #endif
-                     __NR_faccessat});
+                                     __NR_faccessat});
 #elif defined(__aarch64__)
     syscalls.push_back(__NR_faccessat);
 #endif
 }
 
 inline void appendSandbox2ExplicitSyscalls(std::vector<int>& syscalls) {
-    syscalls.insert(syscalls.end(),
-                    {__NR_sched_yield,
-                     __NR_sched_getaffinity,
-                     __NR_sched_setaffinity,
-                     __NR_sched_getparam,
-                     __NR_sched_getscheduler,
-                     __NR_clone,
-                     ML_NR_clone3,
-                     __NR_set_tid_address,
-                     __NR_set_robust_list,
+    syscalls.insert(syscalls.end(), {
+                                        __NR_sched_yield,
+                                        __NR_sched_getaffinity,
+                                        __NR_sched_setaffinity,
+                                        __NR_sched_getparam,
+                                        __NR_sched_getscheduler,
+                                        __NR_clone,
+                                        ML_NR_clone3,
+                                        __NR_set_tid_address,
+                                        __NR_set_robust_list,
 #ifdef __NR_rseq
-                     __NR_rseq,
+                                        __NR_rseq,
 #endif
-                     __NR_clock_gettime,
-                     __NR_clock_getres,
-                     __NR_clock_nanosleep,
-                     __NR_gettimeofday,
-                     __NR_nanosleep,
-                     __NR_times,
-                     __NR_epoll_create1,
-                     __NR_epoll_ctl,
-                     __NR_epoll_pwait,
-                     __NR_eventfd2,
-                     __NR_ppoll,
-                     __NR_pselect6,
-                     __NR_ioctl,
-                     __NR_fcntl,
-                     __NR_pipe2,
-                     __NR_dup,
-                     __NR_dup3,
-                     __NR_lseek,
-                     __NR_ftruncate,
-                     __NR_readlinkat,
-                     __NR_faccessat,
-                     __NR_getdents64,
-                     __NR_getcwd,
-                     __NR_unlinkat,
-                     __NR_renameat,
-                     __NR_mkdirat,
-                     __NR_mknodat,
+                                        __NR_clock_gettime,
+                                        __NR_clock_getres,
+                                        __NR_clock_nanosleep,
+                                        __NR_gettimeofday,
+                                        __NR_nanosleep,
+                                        __NR_times,
+                                        __NR_epoll_create1,
+                                        __NR_epoll_ctl,
+                                        __NR_epoll_pwait,
+                                        __NR_eventfd2,
+                                        __NR_ppoll,
+                                        __NR_pselect6,
+                                        __NR_ioctl,
+                                        __NR_fcntl,
+                                        __NR_pipe2,
+                                        __NR_dup,
+                                        __NR_dup3,
+                                        __NR_lseek,
+                                        __NR_ftruncate,
+                                        __NR_readlinkat,
+                                        __NR_faccessat,
+                                        __NR_getdents64,
+                                        __NR_getcwd,
+                                        __NR_unlinkat,
+                                        __NR_renameat,
+                                        __NR_mkdirat,
+                                        __NR_mknodat,
 #ifdef __NR_mknod
-                     __NR_mknod,
+                                        __NR_mknod,
 #endif
 #ifdef __NR_unlink
-                     __NR_unlink,
+                                        __NR_unlink,
 #endif
 #ifdef __NR_rmdir
-                     __NR_rmdir,
+                                        __NR_rmdir,
 #endif
 #ifdef __NR_mkdir
-                     __NR_mkdir,
+                                        __NR_mkdir,
 #endif
 #ifdef __NR_rename
-                     __NR_rename,
+                                        __NR_rename,
 #endif
 #ifdef __NR_readlink
-                     __NR_readlink,
+                                        __NR_readlink,
 #endif
 #ifdef __NR_access
-                     __NR_access,
+                                        __NR_access,
 #endif
 #ifdef __NR_dup2
-                     __NR_dup2,
+                                        __NR_dup2,
 #endif
-                     __NR_mprotect,
-                     __NR_mremap,
-                     __NR_madvise,
-                     __NR_munmap,
-                     __NR_brk,
-                     __NR_sysinfo,
-                     __NR_uname,
-                     __NR_prlimit64,
-                     __NR_getrusage,
-                     __NR_prctl,
+                                        __NR_mprotect,
+                                        __NR_mremap,
+                                        __NR_madvise,
+                                        __NR_munmap,
+                                        __NR_brk,
+                                        __NR_sysinfo,
+                                        __NR_uname,
+                                        __NR_prlimit64,
+                                        __NR_getrusage,
+                                        __NR_prctl,
 #ifdef __NR_arch_prctl
-                     __NR_arch_prctl,
+                                        __NR_arch_prctl,
 #endif
-                     __NR_wait4,
-                     __NR_exit,
-                     __NR_getuid,
-                     __NR_getgid,
-                     __NR_geteuid,
-                     __NR_getegid,
-                     __NR_setpriority,
-                     __NR_getpriority,
-                     __NR_tgkill,
-                     __NR_statfs,
-                     __NR_connect,
+                                        __NR_wait4,
+                                        __NR_exit,
+                                        __NR_getuid,
+                                        __NR_getgid,
+                                        __NR_geteuid,
+                                        __NR_getegid,
+                                        __NR_setpriority,
+                                        __NR_getpriority,
+                                        __NR_tgkill,
+                                        __NR_statfs,
+                                        __NR_connect,
 #ifdef __NR_time
-                     __NR_time,
+                                        __NR_time,
 #endif
 #ifdef __NR_getdents
-                     __NR_getdents,
+                                        __NR_getdents,
 #endif
-                     });
+                                    });
 }
 
 inline void appendSandbox2HelperCoveredSyscalls(std::vector<int>& syscalls) {
-    syscalls.insert(syscalls.end(),
-                    {__NR_read,
-                     __NR_write,
-                     __NR_writev,
-                     __NR_openat,
+    syscalls.insert(syscalls.end(), {
+                                        __NR_read,
+                                        __NR_write,
+                                        __NR_writev,
+                                        __NR_openat,
 #ifdef __NR_open
-                     __NR_open,
+                                        __NR_open,
 #endif
 #ifdef __NR_stat
-                     __NR_stat,
+                                        __NR_stat,
 #endif
 #ifdef __NR_lstat
-                     __NR_lstat,
+                                        __NR_lstat,
 #endif
-                     __NR_close,
-                     __NR_mmap,
-                     __NR_munmap,
-                     __NR_mprotect,
-                     __NR_mremap,
-                     __NR_madvise,
-                     __NR_brk,
-                     __NR_futex,
-                     __NR_clone,
-                     ML_NR_clone3,
-                     __NR_set_robust_list,
+                                        __NR_close,
+                                        __NR_mmap,
+                                        __NR_munmap,
+                                        __NR_mprotect,
+                                        __NR_mremap,
+                                        __NR_madvise,
+                                        __NR_brk,
+                                        __NR_futex,
+                                        __NR_clone,
+                                        ML_NR_clone3,
+                                        __NR_set_robust_list,
 #ifdef __NR_rseq
-                     __NR_rseq,
+                                        __NR_rseq,
 #endif
-                     __NR_rt_sigaction,
-                     __NR_rt_sigreturn,
-                     __NR_rt_sigprocmask,
-                     __NR_getpid,
-                     __NR_getrandom,
-                     __NR_exit,
-                     __NR_exit_group,
-                     __NR_newfstatat,
-                     __NR_fstat,
-                     __NR_getuid,
-                     __NR_getgid,
-                     __NR_geteuid,
-                     __NR_getegid,
+                                        __NR_rt_sigaction,
+                                        __NR_rt_sigreturn,
+                                        __NR_rt_sigprocmask,
+                                        __NR_getpid,
+                                        __NR_getrandom,
+                                        __NR_exit,
+                                        __NR_exit_group,
+                                        __NR_newfstatat,
+                                        __NR_fstat,
+                                        __NR_getuid,
+                                        __NR_getgid,
+                                        __NR_geteuid,
+                                        __NR_getegid,
 #ifdef __NR_statx
-                     __NR_statx,
+                                        __NR_statx,
 #endif
-                     });
+                                    });
 }
 
 } // namespace detail
