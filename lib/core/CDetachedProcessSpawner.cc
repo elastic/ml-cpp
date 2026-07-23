@@ -275,18 +275,30 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         return false;
     }
 
+    // Operator kill switch: Elasticsearch may append --disableSandbox when
+    // xpack.ml.trained_models.sandbox_enabled=false. Sandbox2 exists only on
+    // Linux; on macOS the controller simply consumes the flag so it never
+    // reaches pytorch_inference (which does not register it).
+    TStrVec effectiveArgs;
+    effectiveArgs.reserve(args.size());
+    for (const auto& arg : args) {
+        if (arg != "--disableSandbox") {
+            effectiveArgs.push_back(arg);
+        }
+    }
+
     using TCharPVec = std::vector<char*>;
     // Size of argv is two bigger than the number of arguments because:
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer
     TCharPVec argv;
-    argv.reserve(args.size() + 2);
+    argv.reserve(effectiveArgs.size() + 2);
 
     // These const_casts may cause const data to get modified BUT only in the
     // child post-fork, so this won't corrupt parent process data
     argv.push_back(const_cast<char*>(processPath.c_str()));
-    for (size_t index = 0; index < args.size(); ++index) {
-        argv.push_back(const_cast<char*>(args[index].c_str()));
+    for (size_t index = 0; index < effectiveArgs.size(); ++index) {
+        argv.push_back(const_cast<char*>(effectiveArgs[index].c_str()));
     }
     argv.push_back(static_cast<char*>(nullptr));
 
