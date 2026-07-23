@@ -341,6 +341,9 @@ bool hasUnrecognisedOp(const CModelGraphValidator::SResult& result, const std::s
 
 std::string readFileBytes(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
+    // Fail loudly (naming the path) if a fixture goes missing, rather than
+    // returning an empty string that trips an opaque "bytes.empty() == false".
+    BOOST_REQUIRE_MESSAGE(file.is_open(), "Could not open fixture: " + path);
     std::ostringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();

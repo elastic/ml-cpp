@@ -134,12 +134,22 @@ CModelGraphValidator::scanArchiveForCustomStateHooks(const char* data, std::size
     constexpr std::string_view SETSTATE{"__setstate__"};
     constexpr std::string_view GETSTATE{"__getstate__"};
 
+    std::unique_ptr<caffe2::serialize::PyTorchStreamReader> reader;
     try {
         auto adapter = std::make_shared<CMemoryReadAdapter>(data, size);
-        caffe2::serialize::PyTorchStreamReader reader{adapter};
+        reader = std::make_unique<caffe2::serialize::PyTorchStreamReader>(std::move(adapter));
+    } catch (const std::exception& e) {
+        // If the archive cannot be parsed as a stream we do not treat this as a
+        // rejection here: torch::jit::load will attempt the same parse and
+        // surface a clear error.  The post-load graph validator still applies.
+        LOG_WARN(<< "Pre-load state-hook scan skipped (could not parse archive): "
+                 << e.what());
+        return {};
+    }
 
-        for (const auto& name : reader.getAllRecords()) {
-            auto[recordData, recordSize] = reader.getRecord(name);
+    for (const auto& name : reader->getAllRecords()) {
+        try {
+            auto[recordData, recordSize] = reader->getRecord(name);
             std::string_view bytes{static_cast<const char*>(recordData.get()), recordSize};
 
             // Remediation for a privately reported finding: reject any archive
@@ -151,17 +161,19 @@ CModelGraphValidator::scanArchiveForCustomStateHooks(const char* data, std::size
             if (bytes.find(GETSTATE) != std::string_view::npos) {
                 hooks.emplace("__getstate__");
             }
-            if (hooks.size() == 2) {
-                break;
-            }
+        } catch (const std::exception& e) {
+            // A single unreadable record (e.g. a deliberately bad CRC) must not
+            // abort the whole scan: an attacker could otherwise hide a
+            // __setstate__ hook in a later record behind a corrupt earlier one,
+            // slip past the scan, and have torch::jit::load run it at load time.
+            // Warn and keep scanning the remaining records.
+            LOG_WARN(<< "Pre-load state-hook scan: skipping unreadable record '"
+                     << name << "': " << e.what());
+            continue;
         }
-    } catch (const std::exception& e) {
-        // If the archive cannot be parsed as a stream we do not treat this as a
-        // rejection here: torch::jit::load will attempt the same parse and
-        // surface a clear error.  The post-load graph validator still applies.
-        LOG_WARN(<< "Pre-load state-hook scan skipped (could not parse archive): "
-                 << e.what());
-        return {};
+        if (hooks.size() == 2) {
+            break;
+        }
     }
 
     TStringVec result{hooks.begin(), hooks.end()};
