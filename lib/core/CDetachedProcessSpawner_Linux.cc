@@ -92,6 +92,11 @@ void assignFailureReason(std::string* failureReason, const std::string& reason) 
     }
 }
 
+const std::string SANDBOX2_DISABLE_HINT{
+    " If this host cannot support Sandbox2, an operator can disable sandboxing"
+    " by setting xpack.ml.trained_models.sandbox_enabled: false, which runs"
+    " pytorch_inference on the legacy path with the in-process seccomp filter."};
+
 std::string joinStrings(const std::set<std::string>& values) {
     std::string joined;
     for (const auto& value : values) {
@@ -711,7 +716,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         if (!policy_result.ok()) {
             std::ostringstream statusMessage;
             statusMessage << policy_result.status();
-            const std::string reason{"Failed to build Sandbox2 policy: " + statusMessage.str()};
+            const std::string reason{"Failed to build Sandbox2 policy: " + statusMessage.str() +
+                                     SANDBOX2_DISABLE_HINT};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -766,7 +772,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             sandbox2::Result result{sandboxPtr->AwaitResult()};
             const std::string reason{"Sandbox2 failed to start pytorch_inference: " +
                                      formatSandbox2Result(result) +
-                                     " - check that unprivileged user namespaces are enabled and TMPDIR is writable"};
+                                     " - check that unprivileged user namespaces are enabled and TMPDIR is writable" +
+                                     SANDBOX2_DISABLE_HINT};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -775,7 +782,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         childPid = sandboxPtr->pid();
         if (childPid <= 0) {
             sandbox2::Result result{sandboxPtr->AwaitResult()};
-            const std::string reason{"Sandbox2 returned invalid PID: " + formatSandbox2Result(result)};
+            const std::string reason{"Sandbox2 returned invalid PID: " + formatSandbox2Result(result) +
+                                     SANDBOX2_DISABLE_HINT};
             LOG_ERROR(<< reason);
             assignFailureReason(failureReason, reason);
             return false;
@@ -845,9 +853,11 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // On Linux, 3rd_party/CMakeLists.txt fails configuration if sandbox2::sandbox2
         // cannot be built, and MlCore defines SANDBOX2_AVAILABLE whenever that target
         // exists. This branch is therefore a compile-time safety net only.
-        LOG_ERROR(<< "pytorch_inference built without Sandbox2 support - cannot spawn securely");
+        LOG_ERROR(<< "pytorch_inference built without Sandbox2 support - cannot spawn securely"
+                  << SANDBOX2_DISABLE_HINT);
         assignFailureReason(failureReason,
-                            "pytorch_inference built without Sandbox2 support - cannot spawn securely");
+                            "pytorch_inference built without Sandbox2 support - cannot spawn securely" +
+                                SANDBOX2_DISABLE_HINT);
         return false;
 #endif
     }
