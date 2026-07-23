@@ -1,5 +1,5 @@
 area: Machine Learning
 issues: []
 pr: 3078
-summary: Reject TorchScript custom state hooks before load
+summary: Reject TorchScript custom state hooks before load and forbid inductor::_reinterpret_tensor
 type: bug

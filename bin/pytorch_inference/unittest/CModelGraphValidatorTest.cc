@@ -515,6 +515,19 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
     BOOST_REQUIRE(hooks.empty());
 }
 
+BOOST_AUTO_TEST_CASE(testMaliciousReinterpretTensorRejectedPostLoad) {
+    // inductor::_reinterpret_tensor is the as_strided heap-OOB bypass
+    // (elastic/security#12242).  This forward-only fixture carries no custom
+    // state hooks, so it loads cleanly; post-load validate must then report the
+    // op as forbidden (not merely unrecognised).
+    auto module = ::torch::jit::load(
+        "testfiles/malicious_models/malicious_reinterpret_tensor_oob_read.pt");
+    auto result = CModelGraphValidator::validate(module);
+
+    BOOST_REQUIRE(result.s_IsValid == false);
+    BOOST_REQUIRE(hasForbiddenOp(result, "inductor::_reinterpret_tensor"));
+}
+
 // --- Prepacked model compatibility tests ---
 //
 // These load TorchScript models that mirror the ops used by Elasticsearch's
