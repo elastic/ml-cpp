@@ -153,15 +153,26 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
-    return this->spawn(processPath, args, dummy);
+    return this->spawn(processPath, args, dummy, nullptr);
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    std::string* failureReason) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
+        const std::string reason{"Spawning process '" + processPath + "' is not permitted"};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 
@@ -203,7 +214,11 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 // file handles so that we can revert the redirection.
                 CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, 0, 0, &startupInfo,
                 &processInformation) == FALSE) {
-            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
+            const std::string reason{"Failed to spawn '" + processPath + "': " + CWindowsError().errorString()};
+            LOG_ERROR(<< reason);
+            if (failureReason != nullptr) {
+                *failureReason = reason;
+            }
             return false;
         }
 

@@ -48,6 +48,7 @@
 #include <core/COsFileFuncs.h>
 #include <core/CProcess.h>
 #include <core/CProgName.h>
+#include <core/CSandbox2Diagnostics.h>
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
 
@@ -122,6 +123,8 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
+
+    ml::core::logSandbox2EnvironmentSelfCheck();
 
     // Unlike other programs we DON'T reduce the process priority here, because
     // the controller is critical to the overall system.  Also its resource

@@ -92,6 +92,13 @@ public:
     //! started.
     bool spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid);
 
+    //! As above, but on failure optionally returns a short reason string that
+    //! can be propagated to the ML controller response.
+    bool spawn(const std::string& processPath,
+               const TStrVec& args,
+               CProcess::TPid& childPid,
+               std::string* failureReason);
+
     //! Kill the child process with the specified PID.  If there is a
     //! process running with the specified PID that was not spawned by this
     //! object then it will NOT be killed.

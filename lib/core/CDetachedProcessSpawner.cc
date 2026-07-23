@@ -243,20 +243,35 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
-    return this->spawn(processPath, args, dummy);
+    return this->spawn(processPath, args, dummy, nullptr);
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    std::string* failureReason) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
+        const std::string reason{"Spawning process '" + processPath + "' is not permitted"};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 
     if (::access(processPath.c_str(), X_OK) != 0) {
-        LOG_ERROR(<< "Cannot execute '" << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Cannot execute '" + processPath + "': " + ::strerror(errno)};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 

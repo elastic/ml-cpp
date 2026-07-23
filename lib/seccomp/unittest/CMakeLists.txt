@@ -14,6 +14,7 @@ project("ML Seccomp unit tests")
 set (SRCS
   Main.cc
   CSystemCallFilterTest.cc
+  CPytorchInferenceSyscallAllowlistTest.cc
   )
 
 set(ML_LINK_LIBRARIES
