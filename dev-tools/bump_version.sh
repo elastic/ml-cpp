@@ -23,6 +23,10 @@
 #   else — immediate gh pr merge --squash (legacy / escape hatch)
 # Does not modify .backportrc.json (reserved for future release automation).
 #
+# Helpers used after `git checkout` of the release branch (validation + PR
+# creation) are snapshotted from this script's directory first so an older
+# branch tip cannot replace them mid-run.
+#
 # Environment:
 #   NEW_VERSION, BRANCH — required
 #   DRY_RUN — true to skip push and PR creation
@@ -51,8 +55,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/version_bump_lib.sh"
 
 PYTHON="${PYTHON:-python3}"
-VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
-CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
+
+# Snapshot before any release-branch checkout replaces worktree helpers.
+HELPERS_DIR="$(version_bump_snapshot_helpers "$SCRIPT_DIR" \
+    version_bump_validation.py \
+    create_github_pull_request.sh \
+    ensure_github_cli.sh)"
+trap 'rm -rf "${HELPERS_DIR}"' EXIT
+VALIDATION_PY="${HELPERS_DIR}/version_bump_validation.py"
+CREATE_PR_SH="${HELPERS_DIR}/create_github_pull_request.sh"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"
