@@ -20,10 +20,10 @@ namespace seccomp {
 //! Installs secure computing modes for Linux, macOS and Windows
 //!
 //! DESCRIPTION:\n
-//! ML processes require a subset of system calls to function correctly.
-//! These are create a named pipe, connect to a named pipe, read and write
-//! no other system calls are necessary and should be restricted to prevent
-//! malicious actions.
+//! ML processes require a subset of system calls to function correctly:
+//! creating a named pipe, connecting to a named pipe, and reading and
+//! writing.  No other system calls are necessary, so the rest should be
+//! restricted to prevent malicious actions.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Implementations are platform specific more details can be found in the

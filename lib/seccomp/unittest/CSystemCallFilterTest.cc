@@ -182,8 +182,8 @@ void i386ProbeSignalHandler(int /*sig*/) {
     siglongjmp(g_i386ProbeJmpBuf, 1);
 }
 
-//! Issue a 32-bit ABI syscall via int $0x80.  Returns false if the kernel
-//! lacks IA32 emulation (fault), otherwise writes the syscall result to \p result.
+// Issue a 32-bit ABI syscall via int $0x80.  Returns false if the kernel
+// lacks IA32 emulation (fault), otherwise writes the syscall result to result.
 bool tryI386Syscall(long nr, long& result) {
     struct sigaction faultHandler {};
     faultHandler.sa_handler = &i386ProbeSignalHandler;
@@ -198,10 +198,17 @@ bool tryI386Syscall(long nr, long& result) {
     bool available{false};
     if (sigsetjmp(g_i386ProbeJmpBuf, 1) == 0) {
         long ret;
-        // "cc" is clobbered because int $0x80 (and the kernel entry path) may
-        // modify the condition-code flags.
+        // The i386 ABI passes arguments in ebx/ecx/edx/esi/edi; zero them so the
+        // probe is deterministic and side-effect free if the syscall is ever
+        // (wrongly) permitted rather than denied.  "cc" is clobbered because
+        // int $0x80 (and the kernel entry path) may modify the condition-code
+        // flags.  (ebp is the rarely-used 6th arg; none of the probed calls use
+        // it, and it has no simple GCC constraint.)
         // NOLINTNEXTLINE(hicpp-no-assembler)
-        asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory", "cc");
+        asm volatile("int $0x80"
+                     : "=a"(ret)
+                     : "a"(nr), "b"(0), "c"(0), "d"(0), "S"(0), "D"(0)
+                     : "memory", "cc");
         result = ret;
         available = true;
     }
@@ -213,10 +220,16 @@ bool tryI386Syscall(long nr, long& result) {
 
 long i386Syscall(long nr) {
     long ret;
-    // "cc" is clobbered because int $0x80 (and the kernel entry path) may
-    // modify the condition-code flags.
+    // Zero the i386 argument registers (ebx/ecx/edx/esi/edi) so the call is
+    // deterministic and side-effect free in the failure mode this test guards
+    // against (the syscall being permitted instead of denied).  "cc" is
+    // clobbered because int $0x80 (and the kernel entry path) may modify the
+    // condition-code flags.
     // NOLINTNEXTLINE(hicpp-no-assembler)
-    asm volatile("int $0x80" : "=a"(ret) : "a"(nr) : "memory", "cc");
+    asm volatile("int $0x80"
+                 : "=a"(ret)
+                 : "a"(nr), "b"(0), "c"(0), "d"(0), "S"(0), "D"(0)
+                 : "memory", "cc");
     return ret;
 }
 #endif // Linux && __x86_64__
@@ -244,13 +257,17 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     BOOST_TEST_REQUIRE(systemCall());
 
 #if defined(Linux) && defined(__x86_64__)
-    // Soft-detect IA32 emulation: kernels without CONFIG_IA32_EMULATION
-    // (or with it disabled at runtime) fault on int $0x80 from a 64-bit
-    // process.  Skip the compat-ABI assertion in that case rather than fail CI.
+    // Soft-detect a *usable* IA32 compat entry.  Kernels without
+    // CONFIG_IA32_EMULATION (or with it disabled at runtime) fault on int $0x80
+    // from a 64-bit process; some configurations instead stub it to return
+    // -ENOSYS.  In either case there is no compat ABI to reject, so skip the
+    // assertion rather than fail CI.
     long i386GetuidResult{0};
     const bool i386EntryAvailable{tryI386Syscall(I386_NR_GETUID, i386GetuidResult)};
-    if (i386EntryAvailable) {
-        BOOST_TEST_REQUIRE(i386GetuidResult >= 0);
+    // i386 getuid cannot fail, so a non-negative result confirms the call was
+    // actually serviced by the 32-bit compat table (rather than stubbed out).
+    const bool i386CompatUsable{i386EntryAvailable && i386GetuidResult >= 0};
+    if (i386CompatUsable) {
         LOG_INFO(<< "i386 syscall entry available; will assert arch denial after filter install");
     } else {
         LOG_INFO(<< "i386 syscall entry unavailable; skipping compat-ABI seccomp assertion");
@@ -261,10 +278,9 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
 #if defined(Linux) && defined(__x86_64__)
-    if (i386EntryAvailable) {
+    if (i386CompatUsable) {
         // Without the seccomp_data.arch gate, i386 socketcall (102) matches
         // allowlisted x86_64 getuid (102) and is wrongly permitted.
-        // Without the arch gate this would be wrongly allowed as x86_64 getuid.
         BOOST_REQUIRE_EQUAL(-EACCES, i386Syscall(I386_NR_SOCKETCALL));
     }
 #endif
