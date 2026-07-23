@@ -173,7 +173,7 @@ bool versionIsBefore3_5(int major, int minor) {
 // i386 ABI numbers from asm/unistd_32.h.  Not available as macros when
 // compiling a pure x86_64 translation unit, so hard-code the ones we need.
 constexpr long I386_NR_GETUID{24};
-// Collides with allowlisted x86_64 getuid (102) — the HackerOne #12621 case.
+// Collides with allowlisted x86_64 getuid (102) — the reported bypass case.
 constexpr long I386_NR_SOCKETCALL{102};
 
 sigjmp_buf g_i386ProbeJmpBuf;

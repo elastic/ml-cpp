@@ -35,7 +35,7 @@ const struct sock_filter FILTER[] = {
     // Reject non-native ABIs before matching syscall numbers.  Without this,
     // an x86_64 process can issue int 0x80 (i386) and hit number collisions —
     // e.g. i386 socketcall (102) matches the allowlisted x86_64 getuid (102).
-    // See elastic/security#12621 / HackerOne report on ML seccomp bypass.
+    // Hardening in response to a privately reported ML seccomp-bypass finding.
     // This prefix is self-contained (immediate RET on mismatch) so the relative
     // jump offsets in the nr allowlist below are unchanged.
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, arch)),
