@@ -71,9 +71,9 @@ namespace {
 
 //! Prevent same-UID peers (e.g. a compromised pytorch_inference / JVM Attach
 //! agent in the shared pod) from writing this process's memory via
-//! /proc/<pid>/mem.  That path was used to overwrite access@GOT and turn a
-//! controller spawn into dlopen (elastic/security#12621).  Fail closed: if we
-//! cannot establish the boundary, refuse to accept commands.
+//! /proc/<pid>/mem.  That path could be used to overwrite access@GOT and turn a
+//! controller spawn into dlopen (privately reported security finding).  Fail
+//! closed: if we cannot establish the boundary, refuse to accept commands.
 bool makeProcessNonDumpable() {
 #ifdef Linux
     if (::prctl(PR_SET_DUMPABLE, 0) != 0) {
