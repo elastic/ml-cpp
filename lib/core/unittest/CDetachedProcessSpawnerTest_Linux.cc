@@ -129,6 +129,40 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
         "./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
+BOOST_AUTO_TEST_CASE(testDisableSandboxUsesLegacyPathAndStripsFlag) {
+    // Unique per-process temp dir (see STYLEGUIDE: use PID, not random).
+    const std::string dir{"/tmp/ml_spawn_test_" +
+                          ml::core::CStringUtils::typeToString(::getpid())};
+    ::mkdir(dir.c_str(), 0700);
+    const std::string linkPath{dir + "/pytorch_inference"};
+    std::remove(linkPath.c_str());
+    BOOST_TEST_REQUIRE(::symlink("/bin/dd", linkPath.c_str()) == 0);
+
+    const std::string outputFile{dir + "/out.xml"};
+    std::remove(outputFile.c_str());
+
+    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, linkPath);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
+
+    ml::core::CDetachedProcessSpawner::TStrVec args{
+        "--disableSandbox",
+        "if=" + INPUT_FILE,
+        "of=" + outputFile,
+        "bs=1",
+        "count=" + ml::core::CStringUtils::typeToString(EXPECTED_FILE_SIZE)};
+
+    BOOST_TEST_REQUIRE(spawner.spawn(linkPath, args));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    ml::core::COsFileFuncs::TStat statBuf;
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(outputFile.c_str(), &statBuf));
+    BOOST_REQUIRE_EQUAL(EXPECTED_FILE_SIZE, static_cast<size_t>(statBuf.st_size));
+
+    std::remove(outputFile.c_str());
+    std::remove(linkPath.c_str());
+    ::rmdir(dir.c_str());
+}
+
 #ifdef SANDBOX2_AVAILABLE
 
 BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceRequiresExactAllowlist) {

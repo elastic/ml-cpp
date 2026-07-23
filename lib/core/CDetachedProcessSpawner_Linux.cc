@@ -611,9 +611,27 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         return false;
     }
 
+    // Operator kill switch: Elasticsearch appends --disableSandbox (from the
+    // xpack.ml.trained_models.sandbox_enabled=false setting) when sandboxing is
+    // operationally impossible. The controller consumes the flag to select the
+    // legacy posix_spawn path and strips it here so it never reaches
+    // pytorch_inference. Fail-safe: the legacy path leaves ML_SANDBOXED unset,
+    // so pytorch_inference still installs its in-process seccomp filter.
+    bool disableSandbox{false};
+    TStrVec effectiveArgs;
+    effectiveArgs.reserve(args.size());
+    for (const auto& arg : args) {
+        if (arg == "--disableSandbox") {
+            disableSandbox = true;
+        } else {
+            effectiveArgs.push_back(arg);
+        }
+    }
+
 #ifdef __linux__
-    // Use Sandbox2 for pytorch_inference to provide security isolation
-    if (processPath.find("pytorch_inference") != std::string::npos) {
+    // Use Sandbox2 for pytorch_inference to provide security isolation, unless
+    // the operator kill switch (--disableSandbox) requested the legacy path.
+    if (processPath.find("pytorch_inference") != std::string::npos && disableSandbox == false) {
 #ifdef SANDBOX2_AVAILABLE
         logSandbox2EnvironmentSelfCheck();
 
@@ -843,13 +861,18 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         return false;
     }
 
+    if (disableSandbox && processPath.find("pytorch_inference") != std::string::npos) {
+        LOG_INFO(<< "Launching '" << processPath << "' without Sandbox2 (operator "
+                 << "kill switch --disableSandbox); the in-process seccomp filter applies");
+    }
+
     using TCharPVec = std::vector<char*>;
     TCharPVec argv;
-    argv.reserve(args.size() + 2);
+    argv.reserve(effectiveArgs.size() + 2);
 
     argv.push_back(const_cast<char*>(processPath.c_str()));
-    for (size_t index = 0; index < args.size(); ++index) {
-        argv.push_back(const_cast<char*>(args[index].c_str()));
+    for (size_t index = 0; index < effectiveArgs.size(); ++index) {
+        argv.push_back(const_cast<char*>(effectiveArgs[index].c_str()));
     }
     argv.push_back(static_cast<char*>(nullptr));
 
