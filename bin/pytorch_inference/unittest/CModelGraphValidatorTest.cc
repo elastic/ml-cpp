@@ -454,14 +454,14 @@ BOOST_AUTO_TEST_CASE(testMaliciousRopExploit) {
 //
 // torch::jit::load executes a module's __setstate__ during deserialization,
 // before CModelGraphValidator::validate (which inspects an already-loaded
-// module) could run.  Matching elastic/security#12621, custom state hooks are
-// rejected outright before load.  Ops that only run when methods are invoked
+// module) could run.  Matching a privately reported finding, custom state hooks
+// are rejected outright before load.  Ops that only run when methods are invoked
 // remain covered by the post-load allowlist / forbid checks.  These tests
 // never call torch::jit::load on attack fixtures.
 
 BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsCustomStateHooks) {
-    // The HackerOne #12621 RCE uses allowlisted ops inside __setstate__;
-    // rejecting the hooks themselves is the reporter's remediation.
+    // The reported RCE uses allowlisted ops inside __setstate__; rejecting the
+    // hooks themselves is the recommended remediation.
     std::string bytes = readFileBytes("testfiles/malicious_models/malicious_setstate_file_reader.pt");
     BOOST_REQUIRE(bytes.empty() == false);
 
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
 
 BOOST_AUTO_TEST_CASE(testMaliciousReinterpretTensorRejectedPostLoad) {
     // inductor::_reinterpret_tensor is the as_strided heap-OOB bypass
-    // (elastic/security#12242).  This forward-only fixture carries no custom
+    // (privately reported finding).  This forward-only fixture carries no custom
     // state hooks, so it loads cleanly; post-load validate must then report the
     // op as forbidden (not merely unrecognised).
     auto module = ::torch::jit::load(

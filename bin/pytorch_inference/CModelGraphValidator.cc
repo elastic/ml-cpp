@@ -142,7 +142,7 @@ CModelGraphValidator::scanArchiveForCustomStateHooks(const char* data, std::size
             auto[recordData, recordSize] = reader.getRecord(name);
             std::string_view bytes{static_cast<const char*>(recordData.get()), recordSize};
 
-            // Reporter remediation (elastic/security#12621): reject any archive
+            // Remediation for a privately reported finding: reject any archive
             // that embeds custom state hooks.  Scan every record — not just
             // code/*.py — so hooks cannot hide in debug_pkl / adjacent entries.
             if (bytes.find(SETSTATE) != std::string_view::npos) {

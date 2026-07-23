@@ -110,7 +110,7 @@ class _FileReaderChild(torch.nn.Module):
         return torch.from_file("/tmp/secret", size=10)
 
 
-# --- inductor::_reinterpret_tensor OOB models (elastic/security#12242) ---
+# --- inductor::_reinterpret_tensor OOB models (privately reported finding) ---
 #
 # Bypass of the aten::as_strided forbid: TorchInductor's _reinterpret_tensor
 # takes an unchecked storage offset and yields the same class of OOB heap

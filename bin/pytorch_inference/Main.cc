@@ -76,8 +76,9 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
 
 //! Reject models with custom TorchScript state hooks BEFORE torch::jit::load.
 //! Load executes __setstate__ during deserialization, so post-load graph
-//! validation runs too late.  Matching elastic/security#12621 / the reporter's
-//! remediation, any __setstate__/__getstate__ hooks are refused outright.
+//! validation runs too late.  Matching the recommended remediation for a
+//! privately reported finding, any __setstate__/__getstate__ hooks are refused
+//! outright.
 //! Forbidden / unrecognised ops in methods that only run when invoked remain
 //! the job of verifySafeModel() after a successful load.
 //! \p modelData / \p modelSize are the raw bytes of the buffered .pt archive.

@@ -76,9 +76,9 @@ public:
     //! TorchScript state hooks ("__setstate__", "__getstate__"), without
     //! executing any of the model's code.
     //!
-    //! Closes the load-time execution gap exploited in elastic/security#12621:
+    //! Closes a load-time execution gap from a privately reported finding:
     //! torch::jit::load runs a module's __setstate__ during deserialization,
-    //! before post-load graph validation.  Matching the reporter's remediation,
+    //! before post-load graph validation.  Matching the recommended remediation,
     //! any archive containing those literal substrings is rejected.  Ops that
     //! only run when methods are invoked (e.g. forward) remain the job of the
     //! post-load allowlist / forbid checks in validate().

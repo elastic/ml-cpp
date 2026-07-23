@@ -220,7 +220,7 @@ class SetStateFileReaderInSubmodule(torch.nn.Module):
 
 
 class ReinterpretTensorOobRead(torch.nn.Module):
-    """OOB heap read via inductor::_reinterpret_tensor (security#12242)."""
+    """OOB heap read via inductor::_reinterpret_tensor (privately reported)."""
     def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
         tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
         out: list[str] = [""]
