@@ -81,8 +81,14 @@ bool makeProcessNonDumpable() {
         return false;
     }
     // Confirm the attribute stuck — a silent no-op would leave the process exposed.
-    if (::prctl(PR_GET_DUMPABLE) != 0) {
-        LOG_ERROR(<< "process remains dumpable after PR_SET_DUMPABLE(0)");
+    const int dumpable{::prctl(PR_GET_DUMPABLE)};
+    if (dumpable == -1) {
+        LOG_ERROR(<< "prctl PR_GET_DUMPABLE failed: " << std::strerror(errno));
+        return false;
+    }
+    if (dumpable != 0) {
+        LOG_ERROR(<< "process remains dumpable (" << dumpable
+                  << ") after PR_SET_DUMPABLE(0)");
         return false;
     }
     return true;
