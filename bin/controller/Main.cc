@@ -87,8 +87,7 @@ bool makeProcessNonDumpable() {
         return false;
     }
     if (dumpable != 0) {
-        LOG_ERROR(<< "process remains dumpable (" << dumpable
-                  << ") after PR_SET_DUMPABLE(0)");
+        LOG_ERROR(<< "process remains dumpable (" << dumpable << ") after PR_SET_DUMPABLE(0)");
         return false;
     }
     return true;
