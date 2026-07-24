@@ -12,6 +12,12 @@ jobs:
   backport:
     name: Backport PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # Required by elastic/ci-gh-actions/fetch-github-token to authenticate to Vault
+      # via OIDC and mint the ephemeral approval token.
+      id-token: write
     # Only run for merged PRs that are not themselves backports (avoid loops).
     # Skip automation PRs (minor-freeze main bumps carry a release version label from
     # elasticsearchmachine but must not backport to the new release branch). The
@@ -39,13 +45,35 @@ jobs:
           echo "No version label matching vN.N.N found — nothing to backport."
           echo "has_version_label=false" >> "$GITHUB_OUTPUT"
 
+      # Mint a short-lived token from Elastic's central ephemeral-token GitHub App
+      # (via OIDC -> Vault) and use it to AUTHOR the backport PRs. This mirrors the
+      # pattern used by elastic/cloud, elastic/elasticsearch-ruby and the ECP GitOps
+      # repos. Authoring with a real token (not the built-in GITHUB_TOKEN) means:
+      #   * the backport PR is opened by a distinct, non-github-actions identity, so
+      #     github-actions[bot] can later approve it (a token cannot approve its own
+      #     PR); and
+      #   * CI actually runs on the backport PR (PRs opened with GITHUB_TOKEN do not
+      #     trigger further workflow runs).
+      #
+      # continue-on-error keeps the workflow safe before the Token Policy is registered
+      # (resources/github-token-policies in elastic/catalog-info): the fetch fails
+      # softly and we fall back to GITHUB_TOKEN below, so backports still open — but CI
+      # is not triggered on them and they will need a manual approval to merge.
+      - name: Fetch ephemeral GitHub token
+        id: ephemeral_token
+        if: steps.check-labels.outputs.has_version_label == 'true'
+        continue-on-error: true
+        uses: elastic/ci-gh-actions/fetch-github-token@v1
+        with:
+          vault-instance: "ci-prod"
+
       - name: Backport Action
         id: backport
         if: steps.check-labels.outputs.has_version_label == 'true'
         uses: sorenlouv/backport-github-action@v10.2.0
         continue-on-error: true
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.ephemeral_token.outputs.token || secrets.GITHUB_TOKEN }}
 
       - name: Info log
         if: steps.backport.outcome == 'success'
@@ -91,22 +119,45 @@ jobs:
           echo "::error::Backport failed — see logs above."
           exit 1
 
-      - name: Enable auto-merge on backport PRs
+      # Approve the backport PRs with GITHUB_TOKEN (github-actions[bot]) and arm
+      # auto-merge. Because the PRs were authored by the ephemeral-token identity above,
+      # github-actions[bot] is a *different* identity and its approval counts (a token
+      # cannot approve its own PR). One approval satisfies the org-wide "[org] Require a
+      # PR" ruleset on the release branches (one review, no code-owner requirement); the
+      # repo has "Allow GitHub Actions to create and approve pull requests" enabled. This
+      # is the same author-with-app / approve-with-GITHUB_TOKEN pattern the ECP GitOps
+      # repos (e.g. elastic/catalog-sync-config) use under the identical ruleset.
+      - name: Approve and enable auto-merge on backport PRs
         if: >-
           steps.backport.outcome == 'success' &&
           contains(github.event.pull_request.labels.*.name, 'auto-backport')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 'true' only when the ephemeral token was minted (Token Policy registered),
+          # i.e. the backport PRs were authored by the ephemeral-token app identity and
+          # can therefore be approved by github-actions[bot].
+          EPHEMERAL_AUTHORED: ${{ steps.ephemeral_token.outputs.token != '' }}
           REPO: ${{ github.repository }}
         run: |
           # Extract created PR numbers from the backport info log.
           PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
             | grep -oE '[0-9]+' || true)
           if [ -z "$PR_NUMBERS" ]; then
-            echo "No backport PRs found in log. Skipping auto-merge."
+            echo "No backport PRs found in log. Skipping approval / auto-merge."
             exit 0
           fi
           for pr in $PR_NUMBERS; do
+            if [ "$EPHEMERAL_AUTHORED" = "true" ]; then
+              # Authored by the ephemeral-token identity, so this github-actions[bot]
+              # approval is from a distinct identity and satisfies the required review.
+              echo "Approving backport PR #$pr as github-actions[bot]"
+              gh pr review "$pr" --repo "$REPO" --approve \
+                --body "Automated approval: clean backport of an already-reviewed change." || \
+                echo "::warning::Could not approve #$pr"
+            else
+              echo "::warning::Ephemeral token was unavailable (is the backport Token Policy registered in elastic/catalog-info?); #$pr was authored by github-actions[bot], so it cannot be auto-approved and will need a manual approval to merge."
+            fi
+
             echo "Enabling auto-merge (squash) on PR #$pr"
             gh pr merge "$pr" --repo "$REPO" --auto --squash || \
               echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
