@@ -119,15 +119,20 @@ jobs:
           echo "::error::Backport failed — see logs above."
           exit 1
 
-      # Approve the backport PRs with GITHUB_TOKEN (github-actions[bot]) and arm
+      # Approve the backport PRs with GITHUB_TOKEN (github-actions[bot]) but do NOT arm
       # auto-merge. Because the PRs were authored by the ephemeral-token identity above,
       # github-actions[bot] is a *different* identity and its approval counts (a token
       # cannot approve its own PR). One approval satisfies the org-wide "[org] Require a
       # PR" ruleset on the release branches (one review, no code-owner requirement); the
-      # repo has "Allow GitHub Actions to create and approve pull requests" enabled. This
-      # is the same author-with-app / approve-with-GITHUB_TOKEN pattern the ECP GitOps
-      # repos (e.g. elastic/catalog-sync-config) use under the identical ruleset.
-      - name: Approve and enable auto-merge on backport PRs
+      # repo has "Allow GitHub Actions to create and approve pull requests" enabled.
+      #
+      # Auto-merge is intentionally disabled: the release branches do not require the
+      # ml-cpp build/test checks, so `gh pr merge --auto` would merge a backport as soon
+      # as the lightweight required checks (CLA, labels, snyk) pass — before the C++
+      # build/test matrix finishes. Approving-but-not-merging leaves each backport as a
+      # one-click merge for a human once its CI build is green. Re-enable auto-merge only
+      # after a required status check gating the full build/test matrix is in place.
+      - name: Approve backport PRs (auto-merge disabled pending required CI check)
         if: >-
           steps.backport.outcome == 'success' &&
           contains(github.event.pull_request.labels.*.name, 'auto-backport')
@@ -143,7 +148,7 @@ jobs:
           PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
             | grep -oE '[0-9]+' || true)
           if [ -z "$PR_NUMBERS" ]; then
-            echo "No backport PRs found in log. Skipping approval / auto-merge."
+            echo "No backport PRs found in log. Skipping approval."
             exit 0
           fi
           for pr in $PR_NUMBERS; do
@@ -152,15 +157,13 @@ jobs:
               # approval is from a distinct identity and satisfies the required review.
               echo "Approving backport PR #$pr as github-actions[bot]"
               gh pr review "$pr" --repo "$REPO" --approve \
-                --body "Automated approval: clean backport of an already-reviewed change." || \
+                --body "Automated approval: clean backport of an already-reviewed change. Auto-merge is disabled — a maintainer should merge once this PR's CI build is green." || \
                 echo "::warning::Could not approve #$pr"
             else
               echo "::warning::Ephemeral token was unavailable (is the backport Token Policy registered in elastic/catalog-info?); #$pr was authored by github-actions[bot], so it cannot be auto-approved and will need a manual approval to merge."
             fi
 
-            echo "Enabling auto-merge (squash) on PR #$pr"
-            gh pr merge "$pr" --repo "$REPO" --auto --squash || \
-              echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
+            echo "Auto-merge is disabled; leaving PR #$pr for a maintainer to merge once CI is green."
           done
 
   remove-backport-pending:
