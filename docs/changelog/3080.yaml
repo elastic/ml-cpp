@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3080
+summary: Reject non-native ABIs in ML seccomp filter (socketcall/getuid collision)
+type: bug
