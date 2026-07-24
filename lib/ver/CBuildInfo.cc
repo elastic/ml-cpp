@@ -18,6 +18,7 @@ namespace ver {
 
 // Initialise static strings
 // Variables are supplied by command line macro definitions
+// (throwaway probe for ml-cpp-ci rollup status verification -- do not merge)
 #ifdef DEV_BUILD
 const std::string CBuildInfo::VERSION_NUMBER("based on " STRINGIFY_MACRO(PRODUCT_VERSION));
 const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by " STRINGIFY_MACRO(ML_USER));
