@@ -66,6 +66,12 @@ jobs:
         uses: elastic/ci-gh-actions/fetch-github-token@v1
         with:
           vault-instance: "ci-prod"
+          # The Token Policy was registered via the Backstage self-service template,
+          # which names the Vault role after the AppRole name (token-policy-ml-cpp-backport)
+          # rather than the SHA-256 hash of the workflow ref that fetch-github-token
+          # derives by default. Pass the role explicitly so the lookup matches the
+          # registered policy (github/token/token-policy-ml-cpp-backport).
+          vault-role: "token-policy-ml-cpp-backport"
 
       - name: Backport Action
         id: backport
