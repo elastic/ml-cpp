@@ -267,6 +267,22 @@ def prepare_restore_file(model_path: Path, restore_path: Path) -> None:
         f.write(model_bytes)
 
 
+def skip_model_validation_compiled(binary: str) -> bool:
+    """Return True when pytorch_inference was built with ML_ALLOW_SKIP_MODEL_VALIDATION."""
+    try:
+        proc = subprocess.run(
+            [binary, "--help"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=15,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    output = proc.stdout.decode("utf-8", errors="replace")
+    return "--skipModelValidation" in output
+
+
 def run_pytorch_inference(binary: str, model_path: Path, tmp_dir: Path,
                           timeout: int = 30, extra_args: list | None = None) -> tuple[int, str, str]:
     """Run pytorch_inference against a model file.
@@ -377,52 +393,51 @@ def run_tests(binary: str) -> bool:
 
             print()
 
-        # --- Kill switch test ---
-        # Verify --skipModelValidation bypasses the graph validator.
-        # Use the leak model (which is normally rejected) and confirm it is
-        # accepted when the flag is set.
-        print("--- kill_switch: --skipModelValidation bypasses validation ---")
-        leak_path = tmp_dir / "model_leak.pt"
-        if leak_path.exists():
-            try:
-                exit_code, stdout, stderr = run_pytorch_inference(
-                    binary, leak_path, tmp_dir,
-                    extra_args=["--skipModelValidation"])
-            except subprocess.TimeoutExpired:
-                exit_code, stderr = -1, ""
-
-            skip_msg = "Model graph validation SKIPPED"
-            if skip_msg in stderr:
-                print(f"  Result: validation skipped (kill switch active)")
-                print(f"  Test: OK")
-            else:
-                print(f"  Result: kill switch did not take effect")
-                print(f"  Exit code: {exit_code}")
-                stderr_lines = stderr.strip().splitlines()[-5:]
-                for line in stderr_lines:
-                    print(f"    {line}")
-                print(f"  Test: FAIL")
-                all_passed = False
-
-            # Also verify without the flag, validation still runs
-            print()
-            print("--- kill_switch_absent: without flag, validation still active ---")
-            try:
-                exit_code, stdout, stderr = run_pytorch_inference(
-                    binary, leak_path, tmp_dir)
-            except subprocess.TimeoutExpired:
-                exit_code, stderr = -1, ""
-
-            was_rejected = any(p in stderr for p in validation_rejection_phrases)
-            if was_rejected:
-                print(f"  Result: model rejected (validation still active)")
-                print(f"  Test: OK")
-            else:
-                print(f"  Result: validation was not active without flag")
-                print(f"  Test: FAIL")
-                all_passed = False
+        # --- Kill switch test (only when compiled with ML_ALLOW_SKIP_MODEL_VALIDATION) ---
+        if not skip_model_validation_compiled(binary):
+            print("--- kill_switch: --skipModelValidation not compiled in; skipping ---")
         else:
-            print("  SKIP: leak model not generated")
+            print("--- kill_switch: --skipModelValidation bypasses validation ---")
+            leak_path = tmp_dir / "model_leak.pt"
+            if leak_path.exists():
+                try:
+                    exit_code, stdout, stderr = run_pytorch_inference(
+                        binary, leak_path, tmp_dir,
+                        extra_args=["--skipModelValidation"])
+                except subprocess.TimeoutExpired:
+                    exit_code, stderr = -1, ""
+
+                skip_msg = "Model graph validation SKIPPED"
+                if skip_msg in stderr:
+                    print(f"  Result: validation skipped (kill switch active)")
+                    print(f"  Test: OK")
+                else:
+                    print(f"  Result: kill switch did not take effect")
+                    print(f"  Exit code: {exit_code}")
+                    stderr_lines = stderr.strip().splitlines()[-5:]
+                    for line in stderr_lines:
+                        print(f"    {line}")
+                    print(f"  Test: FAIL")
+                    all_passed = False
+
+                print()
+                print("--- kill_switch_absent: without flag, validation still active ---")
+                try:
+                    exit_code, stdout, stderr = run_pytorch_inference(
+                        binary, leak_path, tmp_dir)
+                except subprocess.TimeoutExpired:
+                    exit_code, stderr = -1, ""
+
+                was_rejected = any(p in stderr for p in validation_rejection_phrases)
+                if was_rejected:
+                    print(f"  Result: model rejected (validation still active)")
+                    print(f"  Test: OK")
+                else:
+                    print(f"  Result: validation was not active without flag")
+                    print(f"  Test: FAIL")
+                    all_passed = False
+            else:
+                print("  SKIP: leak model not generated")
 
         print()
 

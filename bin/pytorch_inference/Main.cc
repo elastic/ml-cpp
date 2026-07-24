@@ -272,7 +272,25 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
+
+#if defined(__linux__) && !defined(SANDBOX2_DISABLED) && defined(SANDBOX2_AVAILABLE)
+    // ML_SANDBOXED is set only by the controller's Sandbox2 executor
+    // (CDetachedProcessSpawner_Linux.cc). Untrusted model input cannot influence
+    // pre-exec environment. Sandbox2 is the default pytorch_inference spawn route
+    // unless --disableSandbox selects the legacy path. ML_SANDBOXED=1 <=> Sandbox2;
+    // unset ML_SANDBOXED (including on the kill-switch path) installs seccomp here.
+    if (::getenv("ML_SANDBOXED") != nullptr) {
+        // When running under Sandbox2, syscall filtering is enforced at spawn time
+        // by the parent process. Installing seccomp here would be redundant.
+        LOG_DEBUG(<< "Skipping seccomp filter installation (using Sandbox2 policy)");
+    } else {
+        ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+    }
+#else
+    // For non-Linux platforms or when Sandbox2 is not available,
+    // fall back to seccomp filtering
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+#endif
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
@@ -316,12 +334,16 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         module_ = torch::jit::load(std::move(readAdapter));
+#ifdef ML_ALLOW_SKIP_MODEL_VALIDATION
         if (skipModelValidation) {
             LOG_WARN(<< "Model graph validation SKIPPED — --skipModelValidation flag is set. "
                      << "This disables security checks on model operations.");
         } else {
             verifySafeModel(module_);
         }
+#else
+        verifySafeModel(module_);
+#endif
         module_.eval();
 
         LOG_DEBUG(<< "model loaded");

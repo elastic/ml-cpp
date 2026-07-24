@@ -153,26 +153,49 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
-    return this->spawn(processPath, args, dummy);
+    return this->spawn(processPath, args, dummy, nullptr);
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    std::string* failureReason) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
+        const std::string reason{"Spawning process '" + processPath + "' is not permitted"};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 
     bool processPathHasExeExt(processPath.length() > 4 &&
                               processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
 
+    // Operator kill switch: Elasticsearch may append --disableSandbox when
+    // xpack.ml.trained_models.sandbox_enabled=false. Sandbox2 exists only on
+    // Linux; on Windows the controller simply consumes the flag so it never
+    // reaches pytorch_inference (which does not register it).
+    TStrVec effectiveArgs;
+    effectiveArgs.reserve(args.size());
+    for (const auto& arg : args) {
+        if (arg != "--disableSandbox") {
+            effectiveArgs.push_back(arg);
+        }
+    }
+
     // Windows takes command lines as a single string
     std::string cmdLine(CShellArgQuoter::quote(processPath));
-    for (size_t index = 0; index < args.size(); ++index) {
+    for (size_t index = 0; index < effectiveArgs.size(); ++index) {
         cmdLine += ' ';
-        cmdLine += CShellArgQuoter::quote(args[index]);
+        cmdLine += CShellArgQuoter::quote(effectiveArgs[index]);
     }
 
     STARTUPINFO startupInfo;
@@ -203,7 +226,12 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 // file handles so that we can revert the redirection.
                 CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, 0, 0, &startupInfo,
                 &processInformation) == FALSE) {
-            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
+            const std::string reason{"Failed to spawn '" + processPath +
+                                     "': " + CWindowsError().errorString()};
+            LOG_ERROR(<< reason);
+            if (failureReason != nullptr) {
+                *failureReason = reason;
+            }
             return false;
         }
 

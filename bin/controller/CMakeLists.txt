@@ -16,7 +16,8 @@ set(ML_LINK_LIBRARIES
   MlCore
   MlSeccomp
   MlVer
-  )
+  ${SANDBOX2_LIBRARIES}
+)
 
 ml_add_executable(controller
   CBlockingCallCancellingStreamMonitor.cc
