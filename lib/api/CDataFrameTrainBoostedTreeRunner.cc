@@ -340,6 +340,7 @@ std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(
             m_DimensionPrediction);
     }
+    LOG_ABORT(<< "Unexpected task type");
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
@@ -372,6 +373,7 @@ CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame)
     case api_t::E_Update:
         return m_BoostedTree->newTrainingRowMask();
     }
+    LOG_ABORT(<< "Unexpected task type");
 }
 
 const std::string& CDataFrameTrainBoostedTreeRunner::dependentVariableFieldName() const {
@@ -595,6 +597,7 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
         return m_TrainedModelMemoryUsage + m_BoostedTreeFactory->estimateMemoryUsageForPredict(
                                                numberTrainingRows, numberColumns);
     }
+    LOG_ABORT(<< "Unexpected task type");
 }
 
 const CDataFrameAnalysisInstrumentation&

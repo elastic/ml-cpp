@@ -43,9 +43,6 @@ const std::string EXCLUDE_FREQUENT_TAG("g");
 const std::string INFLUENCE_FIELD_NAME_TAG("h");
 const std::string IDENTIFIER_TAG("i");
 
-// AggregateSearchKey
-const std::string KEY_TAG("a");
-
 const std::string EMPTY_STRING;
 }
 

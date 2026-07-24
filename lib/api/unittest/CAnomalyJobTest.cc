@@ -306,8 +306,8 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
         "testfiles/testLogErrors.boost.log.ini"));
 
     // Start by creating a detector with non-trivial state
-    static const core_t::TTime BUCKET_SIZE{900};
-    static const std::string JOB_ID{"pop_sum_bytes_by_status_over_clientip"};
+    static const core_t::TTime testBucketSize{900};
+    static const std::string testJobId{"pop_sum_bytes_by_status_over_clientip"};
 
     // Open the input and output files
     std::ifstream inputStrm{inputFileName.c_str()};
@@ -321,15 +321,15 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
     BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE, model_t::E_None,
-                                                          "", 0, false);
+        model::CAnomalyDetectorModelConfig::defaultConfig(
+            testBucketSize, model_t::E_None, "", 0, false);
 
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
     std::string origSnapshotId;
     std::size_t numOrigDocs{0};
 
-    CTestAnomalyJob origJob{JOB_ID,
+    CTestAnomalyJob origJob{testJobId,
                             limits,
                             jobConfig,
                             modelConfig,
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
     std::size_t numRestoredDocs{0};
 
     CTestAnomalyJob restoredJob{
-        JOB_ID,
+        testJobId,
         limits,
         jobConfig,
         modelConfig,
@@ -879,7 +879,7 @@ BOOST_AUTO_TEST_CASE(testConfigUpdate) {
     auto generateRandomAlpha = [](int strLen) {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution dis(0, 25);
+        std::uniform_int_distribution<int> dis(0, 25);
 
         std::string str;
         for (int i = 0; i < strLen; ++i) {

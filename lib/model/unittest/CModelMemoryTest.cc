@@ -67,8 +67,6 @@ void addArrival(CDataGatherer& gatherer, core_t::TTime time, const std::string& 
     CResourceMonitor resourceMonitor;
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
-
-const std::string EMPTY_STRING;
 }
 
 BOOST_AUTO_TEST_CASE(testOnlineEventRateModel) {

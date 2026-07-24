@@ -56,8 +56,6 @@ void setConstant(std::size_t dimension, TDouble10Vec value, TOptionalDouble10Vec
 
 // We use short field names to reduce the state size
 const std::string CONSTANT_TAG("a");
-
-const std::string EMPTY_STRING;
 }
 
 CMultivariateConstantPrior::CMultivariateConstantPrior(std::size_t dimension,

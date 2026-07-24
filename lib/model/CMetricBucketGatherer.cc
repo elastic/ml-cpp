@@ -108,7 +108,6 @@ const std::string MULTIVARIATE_MAX_TAG("k");
 const std::string MEDIAN_TAG("l");
 const std::string VARIANCE_TAG("m");
 const std::string EMPTY_STRING;
-const TDoubleVec EMPTY_DOUBLE_VEC;
 
 // Nested tags.
 const std::string ATTRIBUTE_TAG("a");

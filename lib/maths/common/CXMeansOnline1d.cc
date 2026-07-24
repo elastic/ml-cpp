@@ -634,8 +634,6 @@ const core::TPersistenceTag HISTORY_LENGTH_TAG("k", "history_length");
 const core::TPersistenceTag INDEX_TAG("a", "index");
 const core::TPersistenceTag STRUCTURE_TAG("b", "structure");
 const core::TPersistenceTag PRIOR_TAG("c", "prior");
-
-const std::string EMPTY_STRING;
 }
 
 CAvailableModeDistributions::CAvailableModeDistributions(int value)

@@ -77,8 +77,6 @@ const std::string DECAY_RATE_OLD_TAG("e");
 const core::TPersistenceTag WEIGHT_TAG("a", "weight");
 const core::TPersistenceTag PRIOR_TAG("b", "prior");
 
-const std::string EMPTY_STRING;
-
 //! Persist state for a models by passing information to \p inserter.
 void modelAcceptPersistInserter(const CModelWeight& weight,
                                 const CPrior& prior,

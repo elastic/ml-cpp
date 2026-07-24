@@ -37,7 +37,6 @@ const core::TPersistenceTag ADAPTIVE_BUCKETING_TAG{"a", "adaptive_bucketing"};
 const core::TPersistenceTag FEATURE_TAG{"b", "feature"};
 const core::TPersistenceTag VALUES_TAG{"c", "values"};
 const core::TPersistenceTag TIME_ZONE_OFFSET_TAG{"d", "time_zone"};
-const std::string EMPTY_STRING;
 }
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing()

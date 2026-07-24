@@ -68,9 +68,9 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
     json::object writer;
     writer[LOGGER_NAME] = LOGGER;
 
-    const auto& timeStamp = boost::log::extract<boost::posix_time::ptime>(
-                                boost::log::aux::default_attribute_names::timestamp(), rec)
-                                .get();
+    const auto timeStamp = boost::log::extract<boost::posix_time::ptime>(
+                               boost::log::aux::default_attribute_names::timestamp(), rec)
+                               .get();
     writer[TIMESTAMP_NAME] = (timeStamp - EPOCH).total_milliseconds();
 
     auto level = boost::log::extract<CLogger::ELevel>(
@@ -102,9 +102,9 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
 
         writer[METHOD_NAME] = methodName;
 
-        const auto& fullFileName = boost::log::extract<std::string>(
-                                       CLogger::instance().fileAttributeName(), rec)
-                                       .get();
+        const auto fullFileName = boost::log::extract<std::string>(
+                                      CLogger::instance().fileAttributeName(), rec)
+                                      .get();
         writer[FILE_NAME] = CJsonLogLayout::cropPath(fullFileName);
 
         writer[LINE_NAME] =

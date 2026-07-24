@@ -58,7 +58,7 @@ public:
     //! The code inside of this lambda is guaranteed to be executed in an atomic fashion.
     template<typename F>
     void operator()(F f) const {
-        m_Queue.push([=] { f(m_Resource); });
+        m_Queue.push([this, f] { f(m_Resource); });
     }
 
     //! Debug the memory used by this component.

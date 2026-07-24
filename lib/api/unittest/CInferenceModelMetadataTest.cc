@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(testDataSummarization) {
 
     // check correct number of rows up to a rounding error
     BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(dataSummarizationNumRows),
-                                 numRows * summarizationFraction, 1.0);
+                                 static_cast<double>(numRows) * summarizationFraction, 1.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

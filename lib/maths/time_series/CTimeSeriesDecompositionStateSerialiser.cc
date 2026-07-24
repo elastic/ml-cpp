@@ -36,7 +36,6 @@ namespace {
 // DO NOT change the existing tags if new sub-classes are added.
 const core::TPersistenceTag TIME_SERIES_DECOMPOSITION_TAG("a", "time_series_decomposition");
 const core::TPersistenceTag TIME_SERIES_DECOMPOSITION_STUB_TAG("b", "time_series_decomposition_stub");
-const std::string EMPTY_STRING;
 
 //! Implements restore for std::shared_ptr.
 template<typename T>

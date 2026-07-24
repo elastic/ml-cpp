@@ -490,7 +490,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
     auto typicalConcentration = m_Probabilities.medianConcentration();
     double actualConcentration;
-    if (m_ProbabilityPrior.concentration(pid, actualConcentration) &&
+    if (m_ProbabilityPrior.concentration(static_cast<double>(pid), actualConcentration) &&
         typicalConcentration.has_value()) {
         anomalyScoreExplanation.s_ByFieldActualConcentration = actualConcentration;
         anomalyScoreExplanation.s_ByFieldTypicalConcentration =

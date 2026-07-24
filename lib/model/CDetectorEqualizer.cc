@@ -36,8 +36,8 @@ void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter& inse
     }
     for (const auto& sketch : m_Sketches) {
         inserter.insertValue(DETECTOR_TAG, sketch.first);
-        inserter.insertLevel(SKETCH_TAG, [& sketch = sketch.second](auto& inserter_) {
-            sketch.acceptPersistInserter(inserter_);
+        inserter.insertLevel(SKETCH_TAG, [& sketch = sketch.second](auto& subInserter) {
+            sketch.acceptPersistInserter(subInserter);
         });
     }
 }
@@ -54,8 +54,8 @@ bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
                 LOG_ABORT(<< "Expected the detector label first");
             }
             m_Sketches.emplace_back(*detector, maths::common::CQuantileSketch{SKETCH_SIZE});
-            if (traverser.traverseSubLevel([& sketch = m_Sketches.back().second](auto& traverser_) {
-                    return sketch.acceptRestoreTraverser(traverser_);
+            if (traverser.traverseSubLevel([& sketch = m_Sketches.back().second](auto& subTraverser) {
+                    return sketch.acceptRestoreTraverser(subTraverser);
                 }) == false) {
                 LOG_ERROR(<< "Failed to restore SKETCH_TAG, got " << traverser.value());
                 m_Sketches.pop_back();

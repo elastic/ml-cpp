@@ -65,7 +65,6 @@ double significance(double lambda) {
 const std::string SIZE_TAG("a");
 const std::string T_TAG("b");
 const std::string F_TAG("c");
-const std::string EMPTY_STRING;
 }
 
 double CStatisticalTests::leftTailFTest(double v0, double v1, double df0, double df1) {

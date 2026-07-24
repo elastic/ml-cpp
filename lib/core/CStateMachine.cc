@@ -31,11 +31,6 @@ namespace {
 //const std::string MACHINE_TAG("a"); No longer used
 const core::TPersistenceTag STATE_TAG("b", "state");
 
-// CStateMachine::SMachine
-const std::string ALPHABET_TAG("a");
-const std::string STATES_TAG("b");
-const std::string TRANSITION_FUNCTION_TAG("c");
-
 std::size_t BAD_MACHINE = std::numeric_limits<std::size_t>::max();
 CFastMutex mutex;
 }

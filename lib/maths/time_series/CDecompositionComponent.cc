@@ -50,8 +50,6 @@ const core::TPersistenceTag ESTIMATED_TAG{"a", "estimated"};
 const core::TPersistenceTag KNOTS_TAG{"b", "knots"};
 const core::TPersistenceTag VALUES_TAG{"c", "values"};
 const core::TPersistenceTag VARIANCES_TAG{"d", "variances"};
-
-const std::string EMPTY_STRING;
 }
 
 CDecompositionComponent::CDecompositionComponent(std::size_t maxSize,

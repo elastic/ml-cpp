@@ -569,7 +569,7 @@ CBoostedTreeHyperparameters::importances() const {
     for (std::size_t i = 0; i < static_cast<std::size_t>(NUMBER_HYPERPARAMETERS); ++i) {
         auto hyperparameter = static_cast<EHyperparameter>(i);
 
-        double hyperparameterValue;
+        double hyperparameterValue{0.0};
         SHyperparameterImportance::EType hyperparameterType{SHyperparameterImportance::E_Double};
         bool skip{false};
         switch (hyperparameter) {

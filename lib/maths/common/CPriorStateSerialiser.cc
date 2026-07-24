@@ -48,8 +48,6 @@ const core::TPersistenceTag POISSON_TAG("f", "poisson");
 const core::TPersistenceTag MULTINOMIAL_TAG("g", "multimonial");
 const core::TPersistenceTag CONSTANT_TAG("h", "constant");
 
-const std::string EMPTY_STRING;
-
 //! Implements restore for std::shared_ptr.
 template<typename T>
 void doRestore(std::shared_ptr<CPrior>& ptr, core::CStateRestoreTraverser& traverser) {
