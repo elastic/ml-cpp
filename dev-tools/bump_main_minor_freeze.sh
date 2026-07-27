@@ -29,10 +29,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/version_bump_lib.sh"
 
 PYTHON="${PYTHON:-python3}"
-VALIDATION_PY="${SCRIPT_DIR}/version_bump_validation.py"
-UPDATE_BACKPORTRC_PY="${SCRIPT_DIR}/update_backportrc.py"
-UPDATE_CATALOG_PY="${SCRIPT_DIR}/update_catalog_snapshot.py"
-CREATE_PR_SH="${SCRIPT_DIR}/create_github_pull_request.sh"
+
+# Snapshot before any release-branch checkout replaces worktree helpers.
+HELPERS_DIR="$(version_bump_snapshot_helpers "$SCRIPT_DIR" \
+    version_bump_validation.py \
+    update_backportrc.py \
+    update_catalog_snapshot.py \
+    create_github_pull_request.sh \
+    ensure_github_cli.sh)"
+trap 'rm -rf "${HELPERS_DIR}"' EXIT
+VALIDATION_PY="${HELPERS_DIR}/version_bump_validation.py"
+UPDATE_BACKPORTRC_PY="${HELPERS_DIR}/update_backportrc.py"
+UPDATE_CATALOG_PY="${HELPERS_DIR}/update_catalog_snapshot.py"
+CREATE_PR_SH="${HELPERS_DIR}/create_github_pull_request.sh"
 
 : "${NEW_VERSION:?NEW_VERSION must be set}"
 : "${BRANCH:?BRANCH must be set}"

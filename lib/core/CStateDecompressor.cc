@@ -149,7 +149,7 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
 
 bool CStateDecompressor::CDechunkFilter::readHeader() {
     if (this->parseNext() == false) {
-        LOG_ERROR(<< "Failed to find valid JSON");
+        LOG_INFO(<< "No valid JSON found in compressed state stream (empty or missing state document)");
         m_Initialised = false;
         m_IStream.reset();
         ++m_CurrentDocNum;
