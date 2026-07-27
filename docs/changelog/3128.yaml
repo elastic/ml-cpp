@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3128
+summary: Fix backport-pending never clearing on auto-merged backports
+type: bug
