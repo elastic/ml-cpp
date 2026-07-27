@@ -14,6 +14,7 @@
 
 #include <torch/script.h>
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -70,6 +71,23 @@ public:
     static SResult validate(const TStringSet& observedOps,
                             const std::unordered_set<std::string_view>& allowedOps,
                             const std::unordered_set<std::string_view>& forbiddenOps);
+
+    //! Statically scan a model archive BEFORE torch::jit::load for custom
+    //! TorchScript state hooks ("__setstate__", "__getstate__"), without
+    //! executing any of the model's code.
+    //!
+    //! Closes a load-time execution gap from a privately reported finding:
+    //! torch::jit::load runs a module's __setstate__ during deserialization,
+    //! before post-load graph validation.  Matching the recommended remediation,
+    //! any archive containing those literal substrings is rejected.  Ops that
+    //! only run when methods are invoked (e.g. forward) remain the job of the
+    //! post-load allowlist / forbid checks in validate().
+    //!
+    //! \p data / \p size are the raw bytes of the .pt (ZIP) archive.  Returns
+    //! the sorted names of any hooks found, or empty if none are found / the
+    //! archive cannot be parsed (in which case torch::jit::load will surface
+    //! the error).
+    static TStringVec scanArchiveForCustomStateHooks(const char* data, std::size_t size);
 
 private:
     //! Collect all operation names from a block, recursing into sub-blocks.

@@ -51,6 +51,11 @@ public:
     std::size_t size() const override;
     std::size_t read(std::uint64_t pos, void* buf, std::size_t n, const char* what = "") const override;
 
+    //! Read-only view of the buffered model bytes.  Valid until this object is
+    //! destroyed.  Used to statically scan the archive before it is handed to
+    //! torch::jit::load (which would otherwise execute __setstate__ code).
+    const char* buffer() const { return m_Buffer.get(); }
+
     CBufferedIStreamAdapter(const CBufferedIStreamAdapter&) = delete;
     CBufferedIStreamAdapter& operator=(const CBufferedIStreamAdapter&) = delete;
 
