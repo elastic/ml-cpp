@@ -57,11 +57,35 @@ if ! git rev-parse --verify "origin/${TARGET_BRANCH}" >/dev/null 2>&1; then
   exit 0
 fi
 
-CHANGED_CHANGELOGS=$(git diff --name-only --diff-filter=ACM "origin/${TARGET_BRANCH}"...HEAD -- 'docs/changelog/*.yaml')
-DIFF_EXIT=$?
-if [[ $DIFF_EXIT -ne 0 ]]; then
-  echo "Warning: git diff failed (exit $DIFF_EXIT), skipping changelog validation"
-  exit 0
+# List changelog files this PR adds/modifies relative to its merge base with
+# the target branch. When the PR branched from an older commit, the shallow
+# (--depth=1) history fetched above shares no common ancestor with HEAD and the
+# three-dot diff fails with "fatal: origin/${TARGET_BRANCH}...HEAD: no merge
+# base" (exit 128). Because it runs in a command substitution under `set -e`,
+# that aborts the whole script before any $? inspection, so it must be guarded
+# with `if` (which suppresses `set -e`). On failure we progressively deepen both
+# histories to recover a merge base and retry; only if that still fails do we
+# soft-skip. This step is a required status check, so a CI clone-depth
+# limitation must never hard-fail an otherwise valid PR.
+changed_changelogs() {
+  git diff --name-only --diff-filter=ACM \
+    "origin/${TARGET_BRANCH}"...HEAD -- 'docs/changelog/*.yaml' 2>/dev/null
+}
+
+if ! CHANGED_CHANGELOGS=$(changed_changelogs); then
+  merge_base_found=false
+  for depth in 50 250 1000; do
+    git fetch origin "${TARGET_BRANCH}" --deepen="${depth}" 2>/dev/null || true
+    git fetch origin --deepen="${depth}" 2>/dev/null || true
+    if CHANGED_CHANGELOGS=$(changed_changelogs); then
+      merge_base_found=true
+      break
+    fi
+  done
+  if [[ "${merge_base_found}" != "true" ]]; then
+    echo "Warning: could not establish a merge base with origin/${TARGET_BRANCH} (shallow clone); skipping changelog validation."
+    exit 0
+  fi
 fi
 
 if [[ -z "${CHANGED_CHANGELOGS}" ]]; then
