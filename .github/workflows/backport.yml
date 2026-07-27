@@ -3,6 +3,12 @@ name: Backport
 on:
   pull_request_target:
     types: ["labeled", "closed"]
+  # Hourly sweep + on-demand run for the sweep-backport-pending backstop job below.
+  # (The pull_request_target jobs are guarded on github.event.pull_request and are
+  # skipped for these events.)
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -177,7 +183,13 @@ jobs:
   remove-backport-pending:
     name: Remove backport-pending label
     runs-on: ubuntu-latest
-    # Run when a backport PR is merged or closed.
+    # Run when a backport PR is merged or closed. NOTE: this event-driven path does NOT
+    # fire when a backport PR is *auto-merged*, because auto-merge armed with
+    # GITHUB_TOKEN attributes the merge to github-actions[bot] and GitHub suppresses
+    # the workflow runs it would otherwise trigger (the same recursion guard that stops
+    # GITHUB_TOKEN-authored PRs from starting CI — see the backport job above). The
+    # scheduled sweep-backport-pending job below is the backstop that covers that case
+    # (and manually-merged / hand-created backports).
     if: |
       github.event.pull_request.merged == true &&
       contains(github.event.pull_request.labels.*.name, 'backport')
@@ -217,3 +229,57 @@ jobs:
           else
             echo "Still $OPEN_BACKPORTS open backport PR(s). Keeping backport-pending label on #$ORIGINAL_PR."
           fi
+
+  sweep-backport-pending:
+    name: Sweep stale backport-pending labels
+    runs-on: ubuntu-latest
+    # Backstop for the event-driven remove-backport-pending job above, which never runs
+    # for auto-merged backports (GITHUB_TOKEN-attributed merges don't trigger workflows).
+    # On a schedule (and on demand) this clears backport-pending from any source PR whose
+    # backport PRs have all merged/closed — regardless of how they merged, and also for
+    # manually created backports.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Clear completed backport-pending labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # The backport-pending label lives on the *source* PR, which is normally
+          # already merged, so search across all states.
+          SOURCES=$(gh pr list --repo "$REPO" --label backport-pending --state all \
+            --limit 200 --json number,mergedAt \
+            --jq '.[] | [(.number|tostring), (.mergedAt // "")] | @tsv')
+          if [ -z "$SOURCES" ]; then
+            echo "No PRs carry backport-pending. Nothing to do."
+            exit 0
+          fi
+
+          now=$(date -u +%s)
+          printf '%s\n' "$SOURCES" | while IFS=$'\t' read -r num merged; do
+            [ -n "$num" ] || continue
+            # Guard against the creation race: a source PR merged moments ago may not
+            # have had its backport PRs opened yet. Skip anything merged <1h ago so we
+            # never strip the label before the backports exist.
+            if [ -n "$merged" ]; then
+              merged_epoch=$(date -u -d "$merged" +%s 2>/dev/null || echo 0)
+              if [ "$merged_epoch" -gt 0 ] && [ $((now - merged_epoch)) -lt 3600 ]; then
+                echo "#$num merged <1h ago; skipping (backports may still be opening)."
+                continue
+              fi
+            fi
+
+            # Count open backport PRs whose title references this source (pattern:
+            # "[9.5] Original title (#<source>)").
+            OPEN=$(gh pr list --repo "$REPO" --label backport --state open \
+              --json title \
+              --jq "[.[] | select(.title | test(\"\\\\(#${num}\\\\)\"))] | length")
+            if [ "$OPEN" -eq 0 ]; then
+              echo "#$num: no open backports remain — removing backport-pending."
+              gh pr edit "$num" --repo "$REPO" --remove-label "backport-pending" || \
+                echo "::warning::Could not remove backport-pending from #$num"
+            else
+              echo "#$num: $OPEN open backport(s) remain — keeping label."
+            fi
+          done
