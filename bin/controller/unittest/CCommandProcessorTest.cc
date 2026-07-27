@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
     std::string jsonEscapedProcessPath{PROCESS_PATH};
     ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
     BOOST_REQUIRE_EQUAL("[{\"id\":2,\"success\":false,\"reason\":\"Failed to start process '" +
-                            jsonEscapedProcessPath +
-                            "'\"}\n"
+                            jsonEscapedProcessPath + "': Spawning process '" + jsonEscapedProcessPath +
+                            "' is not permitted\"}\n"
                             "]",
                         responseStream.str());
 }
@@ -142,9 +142,12 @@ BOOST_AUTO_TEST_CASE(testStartNonExistent) {
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
 
-    BOOST_REQUIRE_EQUAL("[{\"id\":3,\"success\":false,\"reason\":\"Failed to start process 'some other process'\"}\n"
-                        "]",
-                        responseStream.str());
+    // The exec failure reason appended after the prefix is platform and libc
+    // specific, so only the stable prefix can be asserted here.
+    const std::string expectedPrefix{
+        "[{\"id\":3,\"success\":false,\"reason\":\"Failed to start process 'some other process': "};
+    BOOST_REQUIRE_EQUAL(expectedPrefix,
+                        responseStream.str().substr(0, expectedPrefix.length()));
 }
 
 BOOST_AUTO_TEST_CASE(testKillDisallowed) {

@@ -15,6 +15,10 @@
 #include <string>
 #include <vector>
 
+#ifdef __linux__
+#include <sys/syscall.h>
+#endif
+
 namespace ml {
 namespace seccomp {
 namespace pytorch_inference {
@@ -35,8 +39,6 @@ inline const std::vector<std::string>& fixedSandboxMountFiles() {
 }
 
 #ifdef __linux__
-
-#include <sys/syscall.h>
 
 namespace detail {
 

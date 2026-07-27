@@ -15,6 +15,7 @@ set (SRCS
   Main.cc
   CCommandParserTest.cc
   CModelGraphValidatorTest.cc
+  CPytorchInferenceSyscallAllowlistTest.cc
   CResultWriterTest.cc
   CThreadSettingsTest.cc
   )
