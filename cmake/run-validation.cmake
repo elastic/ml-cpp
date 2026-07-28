@@ -20,12 +20,12 @@
 #   VALIDATE_CONFIG  - path to validation_models.json
 #   VALIDATE_PT_DIR  - directory of .pt files to validate
 #   VALIDATE_VERBOSE - if TRUE, pass --verbose to the script
-#   OPTIONAL         - if TRUE, skip gracefully when Python 3 is not
-#                      found or dependency installation fails (instead
-#                      of failing the build).  Intended for use when
-#                      this script is invoked as part of a broader test
-#                      target where the environment may not have Python
-#                      or network access.
+#   OPTIONAL         - if TRUE, skip gracefully when Python >= 3.10 is
+#                      not found or dependency installation fails
+#                      (instead of failing the build).  Intended for use
+#                      when this script is invoked as part of a broader
+#                      test target where the environment may not have
+#                      Python or network access.
 
 cmake_minimum_required(VERSION 3.19.2)
 
@@ -48,22 +48,24 @@ set(_venv_dir "${_tools_dir}/.venv")
 set(_requirements "${_tools_dir}/requirements.txt")
 set(_validate_script "${_tools_dir}/validate_allowlist.py")
 
-# --- Locate a Python 3 interpreter ---
-# Try names in order of preference.  On Linux build machines Python may
-# only be available as python3.12 (installed via make altinstall).
-# On Windows the canonical name is just "python".
+# --- Locate a Python 3.10+ interpreter ---
+# Prefer versioned names first so a PATH "python3" that is 3.8/3.9 is not
+# chosen ahead of python3.10+.  On Linux build machines Python may only be
+# available as python3.12 (installed via make altinstall).  On Windows the
+# canonical name is often just "python".  validate_allowlist.py uses
+# Python >= 3.10 syntax (e.g. X | None), so older 3.x must be rejected.
 find_program(_python_path
-  NAMES python3 python3.12 python3.11 python3.10 python
+  NAMES python3.12 python3.11 python3.10 python3 python
   DOC "Python 3 interpreter (>= 3.10)"
 )
 
 if(NOT _python_path)
   _validation_fail(
     "No Python 3 interpreter found on PATH.\n"
-    "Install Python 3 or ensure it is on your PATH.")
+    "Install Python 3.10 or newer, or ensure it is on your PATH.")
 endif()
 
-# Verify it is actually Python 3 (guards against "python" being Python 2).
+# Verify major.minor >= 3.10 (guards against Python 2 and Python 3.8/3.9).
 execute_process(
   COMMAND "${_python_path}" --version
   OUTPUT_VARIABLE _py_version_out
@@ -71,11 +73,18 @@ execute_process(
   RESULT_VARIABLE _py_rc
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-if(NOT _py_rc EQUAL 0 OR NOT _py_version_out MATCHES "Python 3\\.")
+if(NOT _py_rc EQUAL 0 OR NOT _py_version_out MATCHES "Python ([0-9]+)\\.([0-9]+)")
   _validation_fail(
-    "Found ${_python_path} but it is not Python 3 (${_py_version_out}).")
+    "Found ${_python_path} but could not parse a Python version (${_py_version_out}).")
 endif()
-message(STATUS "Found Python 3: ${_python_path} (${_py_version_out})")
+set(_py_major "${CMAKE_MATCH_1}")
+set(_py_minor "${CMAKE_MATCH_2}")
+if(_py_major LESS 3 OR (_py_major EQUAL 3 AND _py_minor LESS 10))
+  _validation_fail(
+    "Found ${_python_path} (${_py_version_out}) but Python >= 3.10 is required "
+    "for extract_model_ops validation tooling.")
+endif()
+message(STATUS "Found Python ${_py_major}.${_py_minor}: ${_python_path} (${_py_version_out})")
 
 # --- Platform-specific venv paths ---
 if(CMAKE_HOST_WIN32)
