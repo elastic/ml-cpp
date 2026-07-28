@@ -90,11 +90,20 @@ def main():
             if config.run_qa_tests or config.run_pytorch_tests:
                 qa_suites = []
                 if config.run_qa_tests:
-                    qa_suites.append(os.environ.get("QAF_TESTS_TO_RUN") or "ml_cpp_pr")
+                    # QAF_TESTS_TO_RUN may itself be a comma-separated override
+                    # (e.g. a subset of QA markers), so split it into individual
+                    # suites rather than appending the whole string verbatim.
+                    override = os.environ.get("QAF_TESTS_TO_RUN")
+                    if override:
+                        qa_suites.extend(s.strip() for s in override.split(",") if s.strip())
+                    else:
+                        qa_suites.append("ml_cpp_pr")
                 if config.run_pytorch_tests:
                     qa_suites.append("pytorch_tests")
-                env["QAF_TESTS_TO_RUN"] = ",".join(qa_suites)
-                pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
+                # De-duplicate while preserving order so an override that already
+                # includes pytorch_tests does not produce a duplicate suite.
+                env["QAF_TESTS_TO_RUN"] = ",".join(dict.fromkeys(qa_suites))
+                pipeline_steps.append(pipeline_steps.generate_step("Upload QA/PyTorch tests runner pipeline",
                                                                    ".buildkite/pipelines/run_qa_tests.yml.sh"))
         if config.build_aarch64 and not config.skip_version_bump_pr_ci:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
