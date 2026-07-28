@@ -162,9 +162,9 @@ jobs:
           # If we armed auto-merge with GITHUB_TOKEN, the merge would never fire the
           # remove-backport-pending job, so backport-pending would stay stuck on the source
           # PR (it had to be cleared by hand). Arming with the ephemeral App identity makes
-          # the eventual merge trigger that job normally. This is the same reason we author
-          # the PRs with the ephemeral token: so downstream workflows (CI here, cleanup on
-          # merge) actually run. Falls back to GITHUB_TOKEN when the ephemeral token is
+          # the eventual merge trigger that job normally. This is the same reason we don't
+          # arm auto-merge with GITHUB_TOKEN: events attributed to github-actions[bot] won't
+          # start this workflow on merge. Falls back to GITHUB_TOKEN when the ephemeral token is
           # unavailable (Token Policy not registered) — in that degraded case cleanup still
           # needs doing manually, but backports at least open and can be merged by a human.
           MERGE_TOKEN="${EPHEMERAL_TOKEN:-$GH_TOKEN}"
