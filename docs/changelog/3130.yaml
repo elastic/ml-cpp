@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3130
+summary: Port `TorchScript` graph validation and __setstate__ hardening to 8.19
+type: bug
