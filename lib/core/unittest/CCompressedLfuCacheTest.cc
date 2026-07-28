@@ -296,6 +296,56 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
     BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
+BOOST_AUTO_TEST_CASE(testConcurrentCountInvariantWithTimeouts) {
+
+    // Aggressively drive lock timeouts by combining a zero maximum wait with
+    // heavy contention, then check the count bookkeeping invariant still holds.
+    //
+    // Regression test: a lookup whose read lock timed out used to skip counting
+    // the lookup, yet its fall-through miss path could still add a count (or
+    // record a lost update). That let the surviving counts exceed the number of
+    // accounted lookups, tripping checkInvariants() intermittently under load.
+
+    using TTaskVec = std::vector<std::function<void()>>;
+
+    // A zero maximum wait makes every contended lock acquisition time out, so
+    // both the read and write guards fail frequently under load.
+    TConcurrentStrStrCache cache{
+        32 * core::constants::BYTES_IN_KILOBYTES, std::chrono::milliseconds{0},
+        [](const TStrStrCache::TDictionary& dictionary,
+           const std::string& key) { return dictionary.word(key); }};
+
+    std::atomic<std::size_t> errorCount{0};
+
+    // Reuse a modest key space so most keys are cached, exercising the hit path
+    // whose count increment is where fabrication used to occur when the read
+    // lock had already timed out.
+    TTaskVec tasks;
+    for (std::size_t i = 0; i < 5000; ++i) {
+        std::string key{"a_long_key_" + std::to_string(i % 200)};
+        tasks.push_back([&cache, &errorCount, key] {
+            cache.lookup(key, [](std::string key_) { return key_; },
+                         [&](const std::string& value, bool) {
+                             if (value != key) {
+                                 ++errorCount;
+                             }
+                         });
+        });
+    }
+
+    {
+        core::CStaticThreadPool pool{8};
+        for (auto& task : tasks) {
+            pool.schedule(std::move(task));
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(0, errorCount.load());
+    LOG_DEBUG(<< "hit fraction = " << cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+}
+
 BOOST_AUTO_TEST_CASE(testEvictionStrategyFrequency) {
 
     // Check that frequent items are retained.

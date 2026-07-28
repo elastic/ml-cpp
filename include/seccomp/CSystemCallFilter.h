@@ -20,10 +20,10 @@ namespace seccomp {
 //! Installs secure computing modes for Linux, macOS and Windows
 //!
 //! DESCRIPTION:\n
-//! ML processes require a subset of system calls to function correctly.
-//! These are create a named pipe, connect to a named pipe, read and write
-//! no other system calls are necessary and should be resticted to prevent
-//! malicious actions.
+//! ML processes require a subset of system calls to function correctly:
+//! creating a named pipe, connecting to a named pipe, and reading and
+//! writing.  No other system calls are necessary, so the rest should be
+//! restricted to prevent malicious actions.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Implementations are platform specific more details can be found in the
@@ -31,9 +31,12 @@ namespace seccomp {
 //!
 //! Linux:
 //! Seccomp BPF is used to restrict system calls on kernels since 3.5.
+//! The filter first requires seccomp_data.arch to match the native ABI
+//! (rejecting compat ABIs such as i386 int 0x80 on x86_64, which would
+//! otherwise collide with allowlisted syscall numbers).
 //!
-//! macOs:
-//! The sandbox facility is used to restict access to system resources.
+//! macOS:
+//! The sandbox facility is used to restrict access to system resources.
 //!
 //! Windows:
 //! Job Objects prevent the process spawning another.

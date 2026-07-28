@@ -12,6 +12,12 @@ jobs:
   backport:
     name: Backport PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # Required by elastic/ci-gh-actions/fetch-github-token to authenticate to Vault
+      # via OIDC and mint the ephemeral approval token.
+      id-token: write
     # Only run for merged PRs that are not themselves backports (avoid loops).
     # Skip automation PRs (minor-freeze main bumps carry a release version label from
     # elasticsearchmachine but must not backport to the new release branch). The
@@ -39,20 +45,44 @@ jobs:
           echo "No version label matching vN.N.N found — nothing to backport."
           echo "has_version_label=false" >> "$GITHUB_OUTPUT"
 
+      # Mint a short-lived token from Elastic's central ephemeral-token GitHub App
+      # (via OIDC -> Vault) and use it to AUTHOR the backport PRs. This mirrors the
+      # pattern used by elastic/cloud, elastic/elasticsearch-ruby and the ECP GitOps
+      # repos. Authoring with a real token (not the built-in GITHUB_TOKEN) means:
+      #   * the backport PR is opened by a distinct, non-github-actions identity, so
+      #     github-actions[bot] can later approve it (a token cannot approve its own
+      #     PR); and
+      #   * CI actually runs on the backport PR (PRs opened with GITHUB_TOKEN do not
+      #     trigger further workflow runs).
+      #
+      # continue-on-error keeps the workflow safe before the Token Policy is registered
+      # (resources/github-token-policies in elastic/catalog-info): the fetch fails
+      # softly and we fall back to GITHUB_TOKEN below, so backports still open — but CI
+      # is not triggered on them and they will need a manual approval to merge.
+      - name: Fetch ephemeral GitHub token
+        id: ephemeral_token
+        if: steps.check-labels.outputs.has_version_label == 'true'
+        continue-on-error: true
+        uses: elastic/ci-gh-actions/fetch-github-token@v1
+        with:
+          vault-instance: "ci-prod"
+
       - name: Backport Action
         id: backport
         if: steps.check-labels.outputs.has_version_label == 'true'
         uses: sorenlouv/backport-github-action@v10.2.0
         continue-on-error: true
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.ephemeral_token.outputs.token || secrets.GITHUB_TOKEN }}
 
       - name: Info log
         if: steps.backport.outcome == 'success'
         run: cat ~/.backport/backport.info.log
 
       # When version labels were detected we always run the Backport Action. If it fails with
-      # no-branches-exception, backport PRs were not created — fail CI so this is not silent.
+      # no-branches-exception, backport PRs were not created — fail CI so this is not silent,
+      # UNLESS the label resolved only to the source branch (current-version label, e.g.
+      # v9.6.0 -> main), which legitimately has nothing to backport (see step logic).
       - name: Check for real failures
         if: steps.backport.outcome == 'failure'
         env:
@@ -67,6 +97,18 @@ jobs:
 
           if grep -q '"code":"no-branches-exception"' ~/.backport/backport.debug.log 2>/dev/null; then
             if [ "${HAS_VERSION_LABEL}" = "true" ]; then
+              # A version label for the current main version (e.g. v9.6.0 -> main via
+              # branchLabelMapping) resolves only to the source branch, so there is
+              # legitimately nothing to backport. The CLI still raises
+              # no-branches-exception in that case; treat it as success, but ONLY when
+              # every resolved target is the source branch (isSourceBranch:true and no
+              # isSourceBranch:false). A genuine misconfiguration (label mapped to a
+              # real, different, or missing branch) still fails loudly below.
+              if grep -Ehq '"isSourceBranch":[[:space:]]*true' ~/.backport/backport.info.log ~/.backport/backport.debug.log 2>/dev/null \
+                 && ! grep -Ehq '"isSourceBranch":[[:space:]]*false' ~/.backport/backport.info.log ~/.backport/backport.debug.log 2>/dev/null; then
+                echo "Version label resolved only to the source branch — nothing to backport (expected for current-version labels)."
+                exit 0
+              fi
               echo "::error::Backport CLI reported no-branches-exception while this PR had version labels. No backport PRs were opened — check branchLabelMapping / targetBranchChoices in .backportrc.json, review logs above, or open backports manually."
               exit 1
             fi
@@ -77,25 +119,76 @@ jobs:
           echo "::error::Backport failed — see logs above."
           exit 1
 
-      - name: Enable auto-merge on backport PRs
+      # Approve the backport PRs with GITHUB_TOKEN (github-actions[bot]) and arm
+      # auto-merge. Because the PRs were authored by the ephemeral-token identity above,
+      # github-actions[bot] is a *different* identity and its approval counts (a token
+      # cannot approve its own PR). One approval satisfies the org-wide "[org] Require a
+      # PR" ruleset on the release branches (one review, no code-owner requirement); the
+      # repo has "Allow GitHub Actions to create and approve pull requests" enabled.
+      #
+      # Auto-merge is now safe: the release branches (and main) require the
+      # `buildkite/ml-cpp-pr-builds` rollup status, which reflects the whole build/test
+      # matrix — including any triggered QA/PyTorch downstream (their trigger steps are
+      # `async: false`, so their result propagates into the parent build). `gh pr merge
+      # --auto` therefore waits for CI to go green (and the review requirement to be
+      # met) before merging, rather than merging as soon as the lightweight checks (CLA,
+      # snyk) pass. (Auto-merge was temporarily disabled in #3114 until this required
+      # status check existed; re-enabled here now that it does.)
+      - name: Approve and enable auto-merge on backport PRs
         if: >-
           steps.backport.outcome == 'success' &&
           contains(github.event.pull_request.labels.*.name, 'auto-backport')
         env:
+          # github-actions[bot] token: used to APPROVE the backport PRs (a distinct
+          # identity from the ephemeral-token author, so the approval counts).
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The ephemeral App token (elastic-vault-github-plugin-prod[bot]) that authored
+          # the backport PRs, when it was minted (Token Policy registered). Empty on the
+          # fallback path. Used to ARM auto-merge — see the note below.
+          EPHEMERAL_TOKEN: ${{ steps.ephemeral_token.outputs.token }}
           REPO: ${{ github.repository }}
         run: |
           # Extract created PR numbers from the backport info log.
           PR_NUMBERS=$(grep -oE '"pullRequestNumber":[0-9]+' ~/.backport/backport.info.log \
             | grep -oE '[0-9]+' || true)
           if [ -z "$PR_NUMBERS" ]; then
-            echo "No backport PRs found in log. Skipping auto-merge."
+            echo "No backport PRs found in log. Skipping approval."
             exit 0
           fi
+
+          # Choose the token that ARMS auto-merge. GitHub attributes a deferred auto-merge
+          # to whichever identity enabled it, and merges attributed to github-actions[bot]
+          # (i.e. GITHUB_TOKEN) do NOT trigger further workflows — GitHub's recursion guard.
+          # If we armed auto-merge with GITHUB_TOKEN, the merge would never fire the
+          # remove-backport-pending job, so backport-pending would stay stuck on the source
+          # PR (it had to be cleared by hand). Arming with the ephemeral App identity makes
+          # the eventual merge trigger that job normally. This is the same reason we don't
+          # arm auto-merge with GITHUB_TOKEN: events attributed to github-actions[bot] won't
+          # start this workflow on merge. Falls back to GITHUB_TOKEN when the ephemeral token is
+          # unavailable (Token Policy not registered) — in that degraded case cleanup still
+          # needs doing manually, but backports at least open and can be merged by a human.
+          MERGE_TOKEN="${EPHEMERAL_TOKEN:-$GH_TOKEN}"
+
           for pr in $PR_NUMBERS; do
-            echo "Enabling auto-merge (squash) on PR #$pr"
-            gh pr merge "$pr" --repo "$REPO" --auto --squash || \
-              echo "::warning::Could not enable auto-merge on #$pr (is auto-merge enabled in repo settings?)"
+            if [ -n "$EPHEMERAL_TOKEN" ]; then
+              # Authored by the ephemeral-token identity, so this github-actions[bot]
+              # approval (via the step-level GH_TOKEN) is from a distinct identity and
+              # satisfies the required review.
+              echo "Approving backport PR #$pr as github-actions[bot]"
+              gh pr review "$pr" --repo "$REPO" --approve \
+                --body "Automated approval: clean backport of an already-reviewed change. Auto-merge is armed and will merge once the required CI checks are green." || \
+                echo "::warning::Could not approve #$pr"
+            else
+              echo "::warning::Ephemeral token was unavailable (is the backport Token Policy registered in elastic/catalog-info?); #$pr was authored by github-actions[bot], so it cannot be auto-approved and needs a manual approval. Auto-merge is still armed and will merge once approved and CI is green."
+            fi
+
+            # Arm auto-merge (squash) as MERGE_TOKEN. This does NOT merge immediately:
+            # GitHub merges only once every required status check (including
+            # buildkite/ml-cpp-pr-builds) is green and the review requirement is satisfied.
+            # If CI never runs or fails, the PR simply stays open — fail-safe.
+            echo "Enabling auto-merge (squash) on backport PR #$pr"
+            GH_TOKEN="$MERGE_TOKEN" gh pr merge "$pr" --repo "$REPO" --auto --squash || \
+              echo "::warning::Could not enable auto-merge on #$pr"
           done
 
   remove-backport-pending:

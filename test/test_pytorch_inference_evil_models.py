@@ -37,6 +37,7 @@ from pathlib import Path
 
 import torch
 from torch import Tensor
+from typing import Tuple
 
 
 # ---------------------------------------------------------------------------
@@ -157,6 +158,92 @@ class ExploitModel(torch.nn.Module):
 
 
 # ---------------------------------------------------------------------------
+# Load-time execution models (__setstate__)
+# ---------------------------------------------------------------------------
+#
+# TorchScript runs a module's __setstate__ during torch::jit::load(), before the
+# loaded Module reaches CModelGraphValidator (which only walks the forward
+# graph). A forbidden op in __setstate__ is therefore invisible to the current
+# validator AND has already executed by load time. Pre-fix, feeding these models
+# to the binary crashes/errors at load with no validator rejection message
+# (INCONCLUSIVE below). Once a pre-load static scan is added, they must be
+# cleanly REJECTED like the forward-graph attacks.
+
+
+class SetStateFileReaderModel(torch.nn.Module):
+    """aten::from_file hidden in __setstate__; forward() is benign."""
+    def __init__(self) -> None:
+        super().__init__()
+        self.w = torch.zeros(1)
+
+    @torch.jit.export
+    def __getstate__(self) -> Tuple[Tensor, bool]:
+        return (self.w, self.training)
+
+    @torch.jit.export
+    def __setstate__(self, state: Tuple[Tensor, bool]) -> None:
+        leaked = torch.from_file("/etc/passwd", size=100)
+        self.w = state[0] + leaked[0]
+        self.training = state[1]
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.w
+
+
+class _SetStateFileReaderChild(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.w = torch.zeros(1)
+
+    @torch.jit.export
+    def __getstate__(self) -> Tuple[Tensor, bool]:
+        return (self.w, self.training)
+
+    @torch.jit.export
+    def __setstate__(self, state: Tuple[Tensor, bool]) -> None:
+        leaked = torch.from_file("/tmp/secret", size=10)
+        self.w = state[0] + leaked[0]
+        self.training = state[1]
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.w
+
+
+class SetStateFileReaderInSubmodule(torch.nn.Module):
+    """Load-time aten::from_file hidden in a submodule's __setstate__."""
+    def __init__(self) -> None:
+        super().__init__()
+        self.child = _SetStateFileReaderChild()
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.child(x)
+
+
+class ReinterpretTensorOobRead(torch.nn.Module):
+    """OOB heap read via inductor::_reinterpret_tensor (privately reported)."""
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        out: list[str] = [""]
+        for i in range(1, 1000):
+            target = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], i)
+            out.append(hex(target.item()))
+        assert 1 == 2, out
+        return tmp
+
+
+class ReinterpretTensorOobWrite(torch.nn.Module):
+    """OOB heap write via inductor::_reinterpret_tensor + fill_."""
+    def forward(self, a: Tensor, b: Tensor, c: Tensor, d: Tensor) -> Tensor:
+        tmp = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8])
+        acc = torch.zeros(1)
+        for i in range(1, 100):
+            target = torch.ops.inductor._reinterpret_tensor(tmp, [1], [1], i)
+            target.fill_(0)
+            acc = acc + target
+        return acc
+
+
+# ---------------------------------------------------------------------------
 # Binary discovery
 # ---------------------------------------------------------------------------
 
@@ -241,6 +328,31 @@ MODELS = {
         "expect_rejected": True,
         "description": "ROP-chain file-write via aten::as_strided",
         "expect_stderr_contains": "Unrecognised operations",
+    },
+    "setstate_file_reader": {
+        "class": SetStateFileReaderModel,
+        "expect_rejected": True,
+        "description": "aten::from_file in __setstate__ (runs at load time)",
+        # Any custom state hook is refused pre-load, before torch::jit::load.
+        "expect_stderr_contains": "custom state hooks",
+    },
+    "setstate_file_reader_submodule": {
+        "class": SetStateFileReaderInSubmodule,
+        "expect_rejected": True,
+        "description": "aten::from_file in a submodule's __setstate__",
+        "expect_stderr_contains": "custom state hooks",
+    },
+    "reinterpret_oob_read": {
+        "class": ReinterpretTensorOobRead,
+        "expect_rejected": True,
+        "description": "OOB read via inductor::_reinterpret_tensor",
+        "expect_stderr_contains": "forbidden operations",
+    },
+    "reinterpret_oob_write": {
+        "class": ReinterpretTensorOobWrite,
+        "expect_rejected": True,
+        "description": "OOB write via inductor::_reinterpret_tensor",
+        "expect_stderr_contains": "forbidden operations",
     },
 }
 
