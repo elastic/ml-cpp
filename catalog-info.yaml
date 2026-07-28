@@ -35,8 +35,14 @@ spec:
         filter_condition: build.creator.name == 'elasticmachine'
         filter_enabled: true
         publish_blocked_as_pending: true
-        publish_commit_status: false
-        publish_commit_status_per_step: true
+        # Publish a single overall commit status (buildkite/ml-cpp-pr-builds) rather than
+        # one per step. This rollup is the required status check on main and the release
+        # branches, and is what auto-merge (incl. backport auto-merge) waits on. Must stay
+        # true — if it flips to false the required check never posts and every PR/backport
+        # blocks forever. (Do not re-enable per-step statuses: they flood the PR and are
+        # not the required check.)
+        publish_commit_status: true
+        publish_commit_status_per_step: false
         trigger_mode: code
       repository: elastic/ml-cpp
       skip_intermediate_builds: true
