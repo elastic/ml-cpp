@@ -58,6 +58,12 @@ list(APPEND ML_CXX_FLAGS
   # dominance rule resolves the shared methods correctly. GCC/Clang do not warn.
   "/wd4250"
   "/wd4251"
+  # C4324 ("structure was padded due to alignment specifier") is emitted for
+  # types that deliberately over-align members with alignas to avoid false
+  # sharing (e.g. the std::atomic counters in CCompressedLfuCache). The padding
+  # is the intended consequence of the alignment, so the diagnostic is pure
+  # noise here. GCC/Clang do not warn.
+  "/wd4324"
   "/wd4355"
   "/wd4512"
   "/wd4702"
