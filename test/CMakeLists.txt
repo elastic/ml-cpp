@@ -72,18 +72,15 @@ add_custom_target(test_all_parallel
             -DBUILD_DIR=${CMAKE_BINARY_DIR}
             ${_build_type_arg}
             -P ${CMAKE_SOURCE_DIR}/cmake/run-all-tests-parallel.cmake
-        COMMAND ${CMAKE_COMMAND}
-            ${_validation_args}
-            -DOPTIONAL=TRUE
-            -P ${CMAKE_SOURCE_DIR}/cmake/run-validation.cmake
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 # Standalone target for the pytorch_inference allowlist validation.
-# Unlike the invocation inside test_all_parallel (which uses OPTIONAL=TRUE
-# to skip gracefully when Python or network access is unavailable), this
-# target treats failures as hard errors — use it to explicitly verify the
-# allowlist.  See dev-tools/extract_model_ops/README.md for details.
+# This creates a Python venv and may download HuggingFace models, so it
+# is deliberately kept separate from precommit and test_all_parallel to
+# avoid unexpected network/download side-effects.  Run it explicitly:
+#   cmake --build <dir> -t validate_pytorch_inference_models
+# See dev-tools/extract_model_ops/README.md for details.
 add_custom_target(validate_pytorch_inference_models
         COMMAND ${CMAKE_COMMAND}
             ${_validation_args}

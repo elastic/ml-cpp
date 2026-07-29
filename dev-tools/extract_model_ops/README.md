@@ -116,6 +116,25 @@ Each file maps a short architecture name to a HuggingFace model identifier:
 }
 ```
 
+An entry may instead be an object with `model_id` plus optional fields:
+`quantized`, `auto_class`, `config_overrides`, and `trust_remote_code`.
+
+```json
+{
+    "jina-embeddings-v5-text-nano": {
+        "model_id": "jinaai/jina-embeddings-v5-text-nano",
+        "trust_remote_code": true
+    }
+}
+```
+
+`trust_remote_code` defaults to `false` so an untrusted or compromised model
+repo cannot execute arbitrary Python on the build machine during load (see
+CVE-2026-5241, where a nested config could override the caller's setting).
+Enable it only for a vetted model that genuinely ships custom modeling code
+(e.g. the Jina v5 embeddings model above). The bundled reference/validation
+models are otherwise native architectures that load without remote code.
+
 To add a new architecture, append an entry to `reference_models.json`,
 re-run `extract_model_ops.py --cpp`, and update `CSupportedOperations.cc`.
 Then add the same entry (plus any task-specific variants) to

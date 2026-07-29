@@ -17,8 +17,18 @@
 import argparse
 import json
 import os
+import sys
 
 from itertools import product
+
+
+def should_skip_version_bump_pr_ci() -> bool:
+    buildkite_dir = os.path.join(os.path.dirname(__file__), "..")
+    if buildkite_dir not in sys.path:
+        sys.path.insert(0, buildkite_dir)
+    from ml_pipeline.config import should_skip_version_bump_pr_ci as _should_skip
+
+    return _should_skip()
 
 archs = [
     "x86_64",
@@ -210,7 +220,8 @@ def main(args):
 
     # Add debug build/test steps for PR builds to detect compilation errors with optimization disabled
     if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
-            os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
+            os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false" and \
+            not should_skip_version_bump_pr_ci():
         debug_build_key = "build_test_linux-x86_64-RelWithDebInfo-debug"
 
         pipeline_steps.append({

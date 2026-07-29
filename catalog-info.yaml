@@ -35,8 +35,14 @@ spec:
         filter_condition: build.creator.name == 'elasticmachine'
         filter_enabled: true
         publish_blocked_as_pending: true
-        publish_commit_status: false
-        publish_commit_status_per_step: true
+        # Publish a single overall commit status (buildkite/ml-cpp-pr-builds) rather than
+        # one per step. This rollup is the required status check on main and the release
+        # branches, and is what auto-merge (incl. backport auto-merge) waits on. Must stay
+        # true — if it flips to false the required check never posts and every PR/backport
+        # blocks forever. (Do not re-enable per-step statuses: they flood the PR and are
+        # not the required check.)
+        publish_commit_status: true
+        publish_commit_status_per_step: false
         trigger_mode: code
       repository: elastic/ml-cpp
       skip_intermediate_builds: true
@@ -156,7 +162,7 @@ spec:
         build_branches: true
         build_pull_request_forks: false
         cancel_deleted_branch_builds: true
-        filter_condition: build.branch == "main" || build.branch == "9.3" || build.branch == "9.2" || build.branch == "8.19" || build.branch == "7.17"
+        filter_condition: build.branch == "main" || build.branch == "9.5" || build.branch == "9.4" || build.branch == "9.3" || build.branch == "8.19"
         filter_enabled: true
         publish_blocked_as_pending: true
         publish_commit_status: false
@@ -164,22 +170,22 @@ spec:
         trigger_mode: code
       repository: elastic/ml-cpp
       schedules:
-        Daily 7_17:
-          branch: '7.17'
-          cronline: 30 04 * * *
-          message: Daily SNAPSHOT build for 7.17
         Daily 8_19:
           branch: '8.19'
           cronline: 30 03 * * *
           message: Daily SNAPSHOT build for 8.19
-        Daily 9.2:
-          branch: '9.2'
-          cronline: 30 02 * * *
-          message: Daily SNAPSHOT build for 9.2
         Daily 9.3:
           branch: '9.3'
-          cronline: 30 01 * * *
+          cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 9.3
+        Daily 9.4:
+          branch: '9.4'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 9.4
+        Daily 9.5:
+          branch: '9.5'
+          cronline: 30 05 * * *
+          message: Daily SNAPSHOT build for 9.5
         Daily main:
           branch: main
           cronline: 30 00 * * *
@@ -255,15 +261,17 @@ spec:
     spec:
       allow_rebuilds: true
       branch_configuration: main
-      cancel_intermediate_builds: true
+      cancel_intermediate_builds: false
       clone_method: https
       pipeline_file: .buildkite/job-version-bump.json.py
       provider_settings:
         trigger_mode: none
       repository: elastic/ml-cpp
-      skip_intermediate_builds: true
+      skip_intermediate_builds: false
       teams:
         everyone:
           access_level: READ_ONLY
         ml-core: {}
+        artifact-management:
+          access_level: BUILD_AND_READ
         

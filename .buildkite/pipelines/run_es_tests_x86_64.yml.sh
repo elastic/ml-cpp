@@ -10,8 +10,8 @@
 
 cat <<EOL
 steps:
-  - label: "Java :java: Integration Tests for x86_64 :hammer:"
-    key: "java_integration_tests_x86_64"
+  - label: "Java :java: Multi-Node Tests for x86_64 :hammer:"
+    key: "java_multinode_tests_x86_64"
     command:
       - 'sudo rpm --import https://yum.corretto.aws/corretto.key'
       - 'sudo curl -L -o /etc/yum.repos.d/corretto.repo https://yum.corretto.aws/corretto.repo'
@@ -28,7 +28,30 @@ steps:
     env:
       IVY_REPO: "../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+      ES_TEST_SUITE: "javaRestTest"
     notify:
       - github_commit_status:
-          context: "Java Integration Tests for x86_64"
+          context: "Java Multi-Node Tests for x86_64"
+  - label: "Java :java: YAML REST Tests for x86_64 :hammer:"
+    key: "java_yaml_rest_tests_x86_64"
+    command:
+      - 'sudo rpm --import https://yum.corretto.aws/corretto.key'
+      - 'sudo curl -L -o /etc/yum.repos.d/corretto.repo https://yum.corretto.aws/corretto.repo'
+      - 'sudo dnf install -y java-21-amazon-corretto-devel'
+      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
+      - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    agents:
+      provider: aws
+      instanceType: m6i.2xlarge
+      imagePrefix: core-amazonlinux-2023
+      diskSizeGb: 100
+      diskName: '/dev/xvda'
+    env:
+      IVY_REPO: "../ivy"
+      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+      ES_TEST_SUITE: "yamlRestTest"
+    notify:
+      - github_commit_status:
+          context: "Java YAML REST Tests for x86_64"
 EOL

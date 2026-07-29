@@ -1,0 +1,5 @@
+pr: 3008
+summary: "Harden pytorch_inference with TorchScript model graph validation"
+area: Machine Learning
+type: enhancement
+issues: [2890]

@@ -32,28 +32,35 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Optional
 
 import torch
 
-from torchscript_utils import collect_inlined_ops, load_and_trace_hf_model
+from torchscript_utils import (
+    collect_inlined_ops,
+    load_and_trace_hf_model,
+    load_model_config,
+)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = SCRIPT_DIR / "reference_models.json"
 
 
-def load_reference_models(config_path: Path) -> dict[str, str]:
-    """Load the architecture-to-model mapping from a JSON config file."""
-    with open(config_path) as f:
-        return json.load(f)
-
-
-def extract_ops_for_model(model_name: str) -> set[str] | None:
+def extract_ops_for_model(model_name: str,
+                          quantize: bool = False,
+                          auto_class: str | None = None,
+                          config_overrides: dict | None = None,
+                          trust_remote_code: bool = False) -> Optional[set[str]]:
     """Trace a HuggingFace model and return its TorchScript op set.
 
     Returns None if the model could not be loaded or traced.
     """
-    print(f"  Loading {model_name}...", file=sys.stderr)
-    traced = load_and_trace_hf_model(model_name)
+    label = f"{model_name} (quantized)" if quantize else model_name
+    print(f"  Loading {label}...", file=sys.stderr)
+    traced = load_and_trace_hf_model(model_name, quantize=quantize,
+                                     auto_class=auto_class,
+                                     config_overrides=config_overrides,
+                                     trust_remote_code=trust_remote_code)
     if traced is None:
         return None
     return collect_inlined_ops(traced)
@@ -81,7 +88,7 @@ def main():
                         help="Path to reference_models.json config file")
     args = parser.parse_args()
 
-    reference_models = load_reference_models(args.config)
+    reference_models = load_model_config(args.config)
 
     per_model_ops = {}
     union_ops = set()
@@ -90,8 +97,12 @@ def main():
           file=sys.stderr)
 
     failed = []
-    for arch, model_name in reference_models.items():
-        ops = extract_ops_for_model(model_name)
+    for arch, spec in reference_models.items():
+        ops = extract_ops_for_model(spec["model_id"],
+                                    quantize=spec["quantized"],
+                                    auto_class=spec["auto_class"],
+                                    config_overrides=spec["config_overrides"],
+                                    trust_remote_code=spec["trust_remote_code"])
         if ops is None:
             failed.append(arch)
             print(f"  {arch}: FAILED", file=sys.stderr)
@@ -109,7 +120,8 @@ def main():
             "pytorch_version": torch.__version__,
             "models": {
                 arch: {
-                    "model_id": reference_models[arch],
+                    "model_id": reference_models[arch]["model_id"],
+                    "quantized": reference_models[arch]["quantized"],
                     "ops": sorted(ops),
                 }
                 for arch, ops in sorted(per_model_ops.items())
@@ -125,7 +137,11 @@ def main():
 
     if args.per_model:
         for arch, ops in sorted(per_model_ops.items()):
-            print(f"\n=== {arch} ({reference_models[arch]}) ===")
+            spec = reference_models[arch]
+            label = spec["model_id"]
+            if spec["quantized"]:
+                label += " (quantized)"
+            print(f"\n=== {arch} ({label}) ===")
             for op in sorted(ops):
                 print(f"  {op}")
 

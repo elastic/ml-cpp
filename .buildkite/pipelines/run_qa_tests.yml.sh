@@ -8,6 +8,16 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+SAFE_MESSAGE=$(printf '%s' "${BUILDKITE_MESSAGE}" | head -1 | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+
+# Derive STACK_VERSION / ES_BRANCH so release-branch and backport builds test
+# against the matching stack version and ES branch instead of the qaf-tests
+# defaults (main / current-dev SNAPSHOT). Any values already set (e.g. from PR
+# comment vars) are preserved. Silent on stdout by contract.
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/derive_qa_stack_env.sh"
+
 cat <<EOL
 steps:
   - label: "Trigger Appex QA Tests :test_tube:"
@@ -22,7 +32,7 @@ steps:
   - trigger: appex-qa-stateful-custom-ml-cpp-build-testing
     async: false
     build:
-      message: "${BUILDKITE_MESSAGE}"
+      message: "${SAFE_MESSAGE}"
       env:
         QAF_TESTS_TO_RUN: "${QAF_TESTS_TO_RUN:-ml_cpp_pr}"
 EOL

@@ -63,6 +63,41 @@
 #include <iostream>
 #include <string>
 
+#ifdef Linux
+#include <sys/prctl.h>
+#endif
+
+namespace {
+
+//! Prevent same-UID peers (e.g. a compromised pytorch_inference / JVM Attach
+//! agent in the shared pod) from writing this process's memory via
+//! /proc/<pid>/mem.  That path could be used to overwrite access@GOT and turn a
+//! controller spawn into dlopen (privately reported security finding).  Fail
+//! closed: if we cannot establish the boundary, refuse to accept commands.
+bool makeProcessNonDumpable() {
+#ifdef Linux
+    if (::prctl(PR_SET_DUMPABLE, 0) != 0) {
+        LOG_ERROR(<< "prctl PR_SET_DUMPABLE(0) failed: " << std::strerror(errno));
+        return false;
+    }
+    // Confirm the attribute stuck — a silent no-op would leave the process exposed.
+    const int dumpable{::prctl(PR_GET_DUMPABLE)};
+    if (dumpable == -1) {
+        LOG_ERROR(<< "prctl PR_GET_DUMPABLE failed: " << std::strerror(errno));
+        return false;
+    }
+    if (dumpable != 0) {
+        LOG_ERROR(<< "process remains dumpable (" << dumpable << ") after PR_SET_DUMPABLE(0)");
+        return false;
+    }
+    return true;
+#else
+    // /proc/<pid>/mem same-UID writes are a Linux concern; no equivalent gate here.
+    return true;
+#endif
+}
+}
+
 int main(int argc, char** argv) {
     const std::string& defaultNamedPipePath{ml::core::CNamedPipeFactory::defaultPath()};
     const std::string& progName{ml::core::CProgName::progName()};
@@ -121,6 +156,13 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
+
+    // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
+    if (makeProcessNonDumpable() == false) {
+        LOG_FATAL(<< "Could not mark ML controller non-dumpable");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
 
     // Unlike other programs we DON'T reduce the process priority here, because
     // the controller is critical to the overall system.  Also its resource

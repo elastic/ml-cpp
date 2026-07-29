@@ -1,0 +1,5 @@
+pr: 2863
+summary: "Update the PyTorch library to version 2.7.1"
+area: Machine Learning
+type: upgrade
+issues: []

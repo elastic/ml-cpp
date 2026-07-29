@@ -1,0 +1,5 @@
+pr: 3015
+summary: "Add EuroBERT and Jina v5 ops to graph validation allowlist"
+area: Machine Learning
+type: enhancement
+issues: []

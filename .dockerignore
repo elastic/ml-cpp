@@ -78,3 +78,12 @@ cmake_install.cmake
 CMakeCache.txt
 CMakeFiles/
 cmake-build-*/
+
+# Local secrets and credentials -- never commit these
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+*secret*
+kubeconfig

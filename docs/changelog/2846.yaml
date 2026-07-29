@@ -1,0 +1,5 @@
+pr: 2846
+summary: "Report the actual memory usage of the autodetect process"
+area: Machine Learning
+type: enhancement
+issues: []

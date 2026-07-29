@@ -1,0 +1,17 @@
+/*
+ * Gradle init script to enable the local build cache for ES integration test
+ * builds.  Injected via --init-script so that we don't need to modify the
+ * cloned Elasticsearch repository.
+ *
+ * The local build cache stores task outputs keyed on their inputs.  When the
+ * cache directory is persisted between CI runs (e.g. via GCS), subsequent
+ * builds with the same ES commit get near-instant compilation.
+ */
+
+settingsEvaluated { settings ->
+    settings.buildCache {
+        local {
+            enabled = true
+        }
+    }
+}

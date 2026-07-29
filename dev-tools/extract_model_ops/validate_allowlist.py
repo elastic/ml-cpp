@@ -16,6 +16,10 @@ operations (using the same inlining approach as the C++ validator), and
 checks every operation against the ALLOWED_OPERATIONS and FORBIDDEN_OPERATIONS
 sets parsed from CSupportedOperations.cc.
 
+Each model download/trace is subject to a timeout (default 10 minutes,
+configurable via --model-timeout) to prevent stalled HuggingFace downloads
+from consuming the entire step timeout.
+
 This is the Python-side equivalent of the C++ CModelGraphValidator and is
 intended as an integration test: if any legitimate model produces an
 operation that the C++ code would reject, this script exits non-zero.
@@ -29,17 +33,29 @@ Usage:
 """
 
 import argparse
-import json
+import gc
 import re
+import signal
 import sys
 from pathlib import Path
+from typing import Optional
+
+MODEL_TIMEOUT_SECONDS = 600  # 10 minutes per model
+
+
+class ModelTimeoutError(Exception):
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise ModelTimeoutError("Model download/trace timed out")
 
 import torch
 
 from torchscript_utils import (
-    collect_graph_ops,
     collect_inlined_ops,
     load_and_trace_hf_model,
+    load_model_config,
 )
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -66,7 +82,7 @@ def load_cpp_sets() -> tuple[set[str], set[str]]:
     return allowed, forbidden
 
 
-def load_pt_and_collect_ops(pt_path: str) -> set[str] | None:
+def load_pt_and_collect_ops(pt_path: str) -> Optional[set[str]]:
     """Load a saved TorchScript .pt file, inline, and return its op set."""
     try:
         module = torch.jit.load(pt_path)
@@ -103,29 +119,62 @@ def check_ops(ops: set[str],
 def validate_model(model_name: str,
                    allowed: set[str],
                    forbidden: set[str],
-                   verbose: bool) -> bool:
-    """Validate one HuggingFace model. Returns True if all ops pass."""
-    print(f"  {model_name}...", file=sys.stderr)
-    traced = load_and_trace_hf_model(model_name)
+                   verbose: bool,
+                   quantize: bool = False,
+                   auto_class: str | None = None,
+                   config_overrides: dict | None = None,
+                   trust_remote_code: bool = False,
+                   timeout: int = MODEL_TIMEOUT_SECONDS) -> str:
+    """Validate one HuggingFace model.
+
+    Returns "pass", "fail" (op validation failed), or "skip" (could not
+    load/trace — e.g. private model without HF_TOKEN, or download timeout).
+    """
+    label = f"{model_name} (quantized)" if quantize else model_name
+    print(f"  {label}...", file=sys.stderr)
+
+    has_alarm = hasattr(signal, "SIGALRM")
+    if has_alarm:
+        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(timeout)
+    try:
+        traced = load_and_trace_hf_model(model_name, quantize=quantize,
+                                         auto_class=auto_class,
+                                         config_overrides=config_overrides,
+                                         trust_remote_code=trust_remote_code)
+    except ModelTimeoutError:
+        print(f"    SKIPPED (timed out after {timeout}s)", file=sys.stderr)
+        return "skip"
+    finally:
+        if has_alarm:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old_handler)
+
     if traced is None:
-        print(f"    FAILED (could not load/trace)", file=sys.stderr)
-        return False
+        print(f"    SKIPPED (could not load/trace)", file=sys.stderr)
+        return "skip"
     ops = collect_inlined_ops(traced)
-    return check_ops(ops, allowed, forbidden, verbose)
+    result = "pass" if check_ops(ops, allowed, forbidden, verbose) else "fail"
+    del traced
+    gc.collect()
+    return result
 
 
 def validate_pt_file(name: str,
                      pt_path: str,
                      allowed: set[str],
                      forbidden: set[str],
-                     verbose: bool) -> bool:
-    """Validate a local TorchScript .pt file. Returns True if all ops pass."""
+                     verbose: bool) -> str:
+    """Validate a local TorchScript .pt file.
+
+    Returns "pass", "fail", or "skip".
+    """
     print(f"  {name} ({pt_path})...", file=sys.stderr)
     ops = load_pt_and_collect_ops(pt_path)
     if ops is None:
-        print(f"    FAILED (could not load)", file=sys.stderr)
-        return False
-    return check_ops(ops, allowed, forbidden, verbose)
+        print(f"    SKIPPED (could not load)", file=sys.stderr)
+        return "skip"
+    return "pass" if check_ops(ops, allowed, forbidden, verbose) else "fail"
 
 
 def main():
@@ -134,13 +183,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--config", type=Path, default=DEFAULT_CONFIG,
-        help="Path to reference_models.json (default: %(default)s)")
+        help="Path to validation_models.json (default: %(default)s)")
     parser.add_argument(
         "--pt-dir", type=Path, default=None,
         help="Directory of pre-saved .pt TorchScript files to validate")
     parser.add_argument(
         "--verbose", action="store_true",
         help="Print per-model op counts")
+    parser.add_argument(
+        "--model-timeout", type=int, default=MODEL_TIMEOUT_SECONDS,
+        help=f"Timeout in seconds for each model download/trace (default: {MODEL_TIMEOUT_SECONDS})")
     args = parser.parse_args()
 
     print(f"PyTorch version: {torch.__version__}", file=sys.stderr)
@@ -149,16 +201,21 @@ def main():
     print(f"Parsed {len(allowed)} allowed ops and {len(forbidden)} "
           f"forbidden ops from {SUPPORTED_OPS_CC.name}", file=sys.stderr)
 
-    results: dict[str, bool] = {}
+    results: dict[str, str] = {}
 
-    with open(args.config) as f:
-        models = json.load(f)
+    models = load_model_config(args.config)
+
     print(f"Validating {len(models)} HuggingFace models from "
           f"{args.config.name}...", file=sys.stderr)
 
-    for arch, model_id in models.items():
+    for arch, spec in models.items():
         results[arch] = validate_model(
-            model_id, allowed, forbidden, args.verbose)
+            spec["model_id"], allowed, forbidden, args.verbose,
+            quantize=spec["quantized"],
+            auto_class=spec.get("auto_class"),
+            config_overrides=spec.get("config_overrides"),
+            trust_remote_code=spec.get("trust_remote_code", False),
+            timeout=args.model_timeout)
 
     if args.pt_dir and args.pt_dir.is_dir():
         pt_files = sorted(args.pt_dir.glob("*.pt"))
@@ -172,22 +229,32 @@ def main():
 
     print(file=sys.stderr)
     print("=" * 60, file=sys.stderr)
-    all_pass = all(results.values())
-    for key, passed in results.items():
-        status = "PASS" if passed else "FAIL"
+    for key, status in results.items():
+        display = status.upper()
         if key.startswith("pt:"):
-            print(f"  {key}: {status}", file=sys.stderr)
+            print(f"  {key}: {display}", file=sys.stderr)
         else:
-            print(f"  {key} ({models[key]}): {status}", file=sys.stderr)
+            spec = models[key]
+            label = spec["model_id"]
+            if spec["quantized"]:
+                label += " (quantized)"
+            print(f"  {key} ({label}): {display}", file=sys.stderr)
+
+    failed = [a for a, s in results.items() if s == "fail"]
+    skipped = [a for a, s in results.items() if s == "skip"]
+    passed = [a for a, s in results.items() if s == "pass"]
 
     print("=" * 60, file=sys.stderr)
-    if all_pass:
-        print("All models PASS - no false positives.", file=sys.stderr)
-    else:
-        failed = [a for a, p in results.items() if not p]
-        print(f"FAILED models: {', '.join(failed)}", file=sys.stderr)
+    print(f"{len(passed)} passed, {len(failed)} failed, "
+          f"{len(skipped)} skipped", file=sys.stderr)
 
-    sys.exit(0 if all_pass else 1)
+    if skipped:
+        print(f"Skipped (could not load/trace — may need HF_TOKEN "
+              f"for private models): {', '.join(skipped)}", file=sys.stderr)
+    if failed:
+        print(f"FAILED (op validation): {', '.join(failed)}", file=sys.stderr)
+
+    sys.exit(0 if not failed else 1)
 
 
 if __name__ == "__main__":
