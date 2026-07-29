@@ -382,6 +382,16 @@ function(ml_add_test_executable _target)
 
   set_property(TARGET ml_test_${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
+  # Boost.Test's fixture macros generate test classes with external linkage that
+  # derive from fixtures defined in anonymous namespaces (internal linkage). GCC
+  # flags this idiomatic, benign pattern with -Wsubobject-linkage. The anonymous
+  # namespace is deliberate: it keeps each file's fixtures ODR-distinct within
+  # the monolithic per-library test binary. Silence the warning for test targets
+  # only, leaving it active for production code.
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(ml_test_${_target} PRIVATE "-Wno-subobject-linkage")
+  endif()
+
   # Boost.Test's BOOST_TEST_MODULE / BOOST_TEST_NO_MAIN macros are consumed
   # by the subsequent #include <boost/test/unit_test.hpp> but Clang flags
   # them as unused.  Suppress for test targets only.
