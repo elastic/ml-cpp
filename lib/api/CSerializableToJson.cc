@@ -140,7 +140,7 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                 std::string line;
                 std::getline(*inputStream, line);
                 json::value doc;
-                json::error_code ec =
+                boost::system::error_code ec =
                     core::CBoostJsonParser::parse(line.data(), line.length(), doc);
 
                 assertNoParseError(ec);

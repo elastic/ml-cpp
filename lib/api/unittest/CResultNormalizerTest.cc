@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
     std::vector<json::value> resultDocs;
     std::stringstream ss(results);
     std::string docString;
-    json::error_code ec;
+    boost::system::error_code ec;
     while (std::getline(ss, docString)) {
         json::value doc = json::parse(docString.c_str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
     std::vector<json::value> resultDocs;
     std::stringstream ss(results);
     std::string docString;
-    json::error_code ec;
+    boost::system::error_code ec;
     while (std::getline(ss, docString)) {
         json::value doc = json::parse(docString, ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);

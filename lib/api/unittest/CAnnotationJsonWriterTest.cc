@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     }
 
     LOG_DEBUG(<< "annotation: " << sstream.str());
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value jv = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(jv.is_array());

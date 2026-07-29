@@ -26,7 +26,7 @@ CConfigUpdater::CConfigUpdater(CAnomalyJobConfig& jobConfig,
 
 bool CConfigUpdater::update(const std::string& json) {
     json::parser p;
-    json::error_code ec;
+    boost::system::error_code ec;
     p.write_some(json, ec);
     if (ec) {
         LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: "

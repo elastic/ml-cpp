@@ -119,7 +119,7 @@ void testSchema(TLossFunctionType lossType) {
         BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
         std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                                std::istreambuf_iterator<char>());
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value schemaDocument = json::parse(schemaJson, ec);
         BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
 

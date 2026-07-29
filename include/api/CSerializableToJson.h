@@ -131,7 +131,7 @@ protected:
                                      TIStreamPtr inputStream,
                                      std::iostream& buffer);
 
-    static void assertNoParseError(const json::error_code& ec) {
+    static void assertNoParseError(const boost::system::error_code& ec) {
         if (ec) {
             throw std::runtime_error{"Error parsing JSON: " + ec.message()};
         }
@@ -178,7 +178,7 @@ protected:
     }
 
     static std::int64_t getAsInt64From(const json::value& value) {
-        json::error_code ec;
+        boost::system::error_code ec;
         std::int64_t ret = value.to_number<std::int64_t>(ec);
         if (ec) {
             throw std::runtime_error{"is not a int64"};
@@ -187,7 +187,7 @@ protected:
     }
 
     static std::uint64_t getAsUint64From(const json::value& value) {
-        json::error_code ec;
+        boost::system::error_code ec;
         std::uint64_t ret = value.to_number<std::uint64_t>(ec);
         if (ec) {
             throw std::runtime_error{"is not a uint64"};

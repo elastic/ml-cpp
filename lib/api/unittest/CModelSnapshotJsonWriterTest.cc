@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
         writer.write(report);
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(arrayDoc.is_array());

@@ -100,7 +100,7 @@ bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRu
     LOG_DEBUG(<< "Parsing detection rules");
 
     rules.clear();
-    json::error_code ec;
+    boost::system::error_code ec;
     json::parser p;
     p.write(json, ec);
     if (ec) {

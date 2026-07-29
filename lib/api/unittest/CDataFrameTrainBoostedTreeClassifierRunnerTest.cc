@@ -91,7 +91,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                                     dependentVariableField);
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value jsonParameters = json::parse(
         specFactory.predictionParams(
             test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField),

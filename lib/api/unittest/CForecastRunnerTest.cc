@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(outputStrm.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.as_array().size() > 0);
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(outputStrm.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(testRare) {
                         ",\"expires_in\": \"8640000\" }";
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(outputStrm.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(outputStrm.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());

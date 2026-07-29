@@ -157,7 +157,7 @@ private:
 
 size_t countBuckets(const std::string& key, const std::string& output) {
     size_t count = 0;
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output, ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
             }
         }
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(outputStrm.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());

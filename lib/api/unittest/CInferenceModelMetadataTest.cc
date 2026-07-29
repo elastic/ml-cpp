@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
 
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(testDataSummarization) {
 
     analyzer.handleRecord(fieldNames, {"", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
