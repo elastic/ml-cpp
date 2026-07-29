@@ -1420,7 +1420,12 @@ struct SCentralMomentsCustomAdd {
     static inline void add(const U& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
-        moments.add(x, static_cast<double>(n), 0);
+        // n is already SCoordinate<T>::Type (== the moments' TCoordinate), so
+        // pass it through unchanged; casting via double reintroduced a narrowing
+        // TCoordinate -> double -> TCoordinate for float coordinates. The value
+        // is stored as T, so make the U -> T conversion explicit here to
+        // document the intended narrowing (silences -Wconversion / MSVC C4244).
+        moments.add(static_cast<T>(x), n, 0);
     }
 };
 }
