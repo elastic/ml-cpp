@@ -51,6 +51,12 @@ list(APPEND ML_CXX_FLAGS
   "/we4150"
   "/wd4201"
   "/wd4231"
+  # C4250 ("inherits via dominance") is a purely informational MSVC-only
+  # diagnostic. The instrumentation classes use a deliberate virtual-inheritance
+  # mixin (CDataFrameAnalysisInstrumentation supplies the shared implementation
+  # while the per-analysis interfaces add their own pure virtuals); the C++
+  # dominance rule resolves the shared methods correctly. GCC/Clang do not warn.
+  "/wd4250"
   "/wd4251"
   "/wd4355"
   "/wd4512"
