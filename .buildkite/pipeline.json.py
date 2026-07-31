@@ -80,13 +80,31 @@ def main():
                                                                    ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
                 pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
                                                                    ".buildkite/pipelines/run_es_inference_tests_x86_64.yml.sh"))
-            # We only use linux x86_64 builds for QA tests.
-            if config.run_qa_tests:
-                pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
+            # We only use linux x86_64 builds for QA tests. When both the QA
+            # (ml_cpp_pr) and PyTorch suites are requested we trigger a SINGLE
+            # downstream build with a comma-separated QAF_TESTS_TO_RUN so the
+            # appex-qa generator fans them out into concurrent parallel jobs.
+            # A single trigger avoids the same-branch build de-duplication
+            # (skip_queued_branch_builds) on the appex pipeline that otherwise
+            # skipped one of two separately-triggered builds.
+            if config.run_qa_tests or config.run_pytorch_tests:
+                qa_suites = []
+                if config.run_qa_tests:
+                    # QAF_TESTS_TO_RUN may itself be a comma-separated override
+                    # (e.g. a subset of QA markers), so split it into individual
+                    # suites rather than appending the whole string verbatim.
+                    override = os.environ.get("QAF_TESTS_TO_RUN")
+                    if override:
+                        qa_suites.extend(s.strip() for s in override.split(",") if s.strip())
+                    else:
+                        qa_suites.append("ml_cpp_pr")
+                if config.run_pytorch_tests:
+                    qa_suites.append("pytorch_tests")
+                # De-duplicate while preserving order so an override that already
+                # includes pytorch_tests does not produce a duplicate suite.
+                env["QAF_TESTS_TO_RUN"] = ",".join(dict.fromkeys(qa_suites))
+                pipeline_steps.append(pipeline_steps.generate_step("Upload QA/PyTorch tests runner pipeline",
                                                                    ".buildkite/pipelines/run_qa_tests.yml.sh"))
-            if config.run_pytorch_tests:
-                pipeline_steps.append(pipeline_steps.generate_step("Upload QA PyTorch tests runner pipeline",
-                                                                   ".buildkite/pipelines/run_pytorch_tests.yml.sh"))
         if config.build_aarch64 and not config.skip_version_bump_pr_ci:
             pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
                                                                ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
