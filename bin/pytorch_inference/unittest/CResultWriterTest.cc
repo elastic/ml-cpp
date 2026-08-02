@@ -9,9 +9,9 @@
  * limitation.
  */
 
-#include "../CResultWriter.h"
+#include <CResultWriter.h>
 
-#include "../CThreadSettings.h"
+#include <CThreadSettings.h>
 
 #include <boost/test/unit_test.hpp>
 #include <torch/csrc/api/include/torch/types.h>
