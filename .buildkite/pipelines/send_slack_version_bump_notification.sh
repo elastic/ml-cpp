@@ -17,7 +17,8 @@
 # message would appear hours late or never if someone checks earlier.
 #
 # Optional env:
-#   ML_CPP_VERSION_BUMP_SLACK_CHANNEL — override channel (default #machine-learn-build)
+#   ML_CPP_VERSION_BUMP_SLACK_CHANNEL — override channel(s). Comma-separated list
+#     for multiple channels (default "#machine-learn-build,#ml-core").
 
 set -euo pipefail
 
@@ -26,7 +27,24 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 # shellcheck source=../../dev-tools/version_bump_lib.sh
 source "${REPO_ROOT}/dev-tools/version_bump_lib.sh"
 
-CHANNEL="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build}"
+# Buildkite's slack notify accepts a list of channels, so a single build can fan
+# the notification out to several. Accept a comma-separated override and render
+# each entry as its own YAML list item (CHANNELS_YAML) injected into the notify
+# block below. The Buildkite Slack app must be connected to every channel named
+# here or the post is silently dropped for that channel.
+CHANNELS_RAW="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build,#ml-core}"
+CHANNELS_YAML=""
+IFS=',' read -ra _channels <<<"${CHANNELS_RAW}"
+for _ch in "${_channels[@]}"; do
+    _ch="$(version_bump_trim_value "${_ch}")"
+    [[ -z "${_ch}" ]] && continue
+    CHANNELS_YAML+="            - \"${_ch}\""$'\n'
+done
+CHANNELS_YAML="${CHANNELS_YAML%$'\n'}"
+if [[ -z "${CHANNELS_YAML}" ]]; then
+    echo "ERROR: no Slack channels resolved from ML_CPP_VERSION_BUMP_SLACK_CHANNEL='${CHANNELS_RAW}'." >&2
+    exit 1
+fi
 
 if [[ "${BUILDKITE:-}" != "true" ]]; then
     echo "BUILDKITE is not true — skipping Slack notification (local run)."
@@ -73,7 +91,7 @@ steps:
     notify:
       - slack:
           channels:
-            - "${CHANNEL}"
+${CHANNELS_YAML}
           message: |
             <!subteam^S76JPTCBE|ml-team>
             ${slack_title}
@@ -114,7 +132,7 @@ steps:
     notify:
       - slack:
           channels:
-            - "${CHANNEL}"
+${CHANNELS_YAML}
           message: |
             <!subteam^S76JPTCBE|ml-team>
             ${slack_title}
