@@ -197,6 +197,19 @@ def test_create_pr_script_requires_body() -> None:
     assert "--body" in proc.stderr
 
 
+def test_bump_version_pr_applies_required_labels() -> None:
+    """Automated bump PRs must open with the labels repo policy requires.
+
+    :ml is the team label, >build and >non-issue are the type labels marking a
+    no-changelog build change, and ci:skip-es-tests keeps the ES test suite off
+    a pure version bump. Wiring them into bump_version.sh means the PRs open
+    compliant instead of needing a human to add them by hand (e.g. #3135).
+    """
+    script = (_REPO_ROOT / "dev-tools" / "bump_version.sh").read_text()
+    for label in ("ci:skip-es-tests", ":ml", ">build", ">non-issue"):
+        assert f'--label "{label}"' in script, f"missing --label {label}"
+
+
 def test_phase2_minor_has_parallel_freeze_group() -> None:
     pipeline = _run_phase2_minor()
     group = pipeline["steps"][0]
