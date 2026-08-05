@@ -179,6 +179,11 @@ pr_cmd=(
     --body "$pr_body"
     --label "ci:skip-es-tests"
     --label "no-backport"
+    # Repo policy requires a team label and a type label on every PR. :ml is
+    # the team label; >build marks this as a no-changelog build change. Keeping
+    # the automated freeze bump PR compliant on open, same as bump_version.sh.
+    --label ":ml"
+    --label ">build"
 )
 if [[ "${VERSION_BUMP_NO_MERGE:-}" != "true" ]]; then
     if [[ "${VERSION_BUMP_MERGE_AUTO:-}" == "true" ]]; then

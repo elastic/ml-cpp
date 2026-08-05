@@ -178,6 +178,12 @@ EOF
         --title "[ML] Bump version to ${target_version}"
         --body "$pr_body"
         --label "ci:skip-es-tests"
+        # Repo policy requires a team label and a type label on every PR. :ml is
+        # the team label; >build marks this as a no-changelog build change.
+        # Applying them here means the automated bump PRs open compliant rather
+        # than needing a human to add them by hand (e.g. #3135).
+        --label ":ml"
+        --label ">build"
     )
     if [[ "${VERSION_BUMP_NO_MERGE:-}" != "true" ]]; then
         if [[ "${VERSION_BUMP_MERGE_AUTO:-}" == "true" ]]; then
