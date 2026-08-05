@@ -1,0 +1,63 @@
+name: Auto-approve version-bump PRs
+
+# The automated patch/minor version-bump PRs (dev-tools/bump_version.sh) are
+# opened by the elastic-vault-github-plugin-prod[bot] app and already arm
+# auto-merge. The only thing left blocking an unattended merge is the single
+# required approving review. GitHub forbids a token/app from approving its own
+# PR, so github-actions[bot] (this workflow's GITHUB_TOKEN) is used as a
+# distinct identity whose approval counts - the same pattern the Backport
+# workflow uses for backport PRs. Auto-merge then merges once the required CI
+# checks (buildkite/ml-cpp-pr-builds) are green; CI still gates the merge.
+#
+# pull_request_target reads this workflow from the PR's *base* branch, and bump
+# PRs target release branches, so this file must live on each active release
+# branch as well as main (backport it like backport.yml).
+
+on:
+  pull_request_target:
+    types: ["opened", "reopened"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  auto-approve:
+    name: Auto-approve version bump
+    runs-on: ubuntu-latest
+    # Only the automated bump PRs: authored by the vault app and on the topic
+    # branch created by dev-tools/bump_version.sh (topic_branch_name). Both
+    # guards must hold, so an unrelated PR cannot be auto-approved even if it
+    # borrows one of the two traits.
+    if: >-
+      github.event.pull_request.user.login == 'elastic-vault-github-plugin-prod[bot]' &&
+      startsWith(github.event.pull_request.head.ref, 'ci/ml-cpp-version-bump-')
+    steps:
+      - name: Approve iff the diff is only the version bump
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Safety belt: an automated bump only edits elasticsearchVersion in
+          # gradle.properties. Refuse to auto-approve anything broader so a buggy
+          # or tampered bump job cannot land unreviewed changes to other files -
+          # such a PR falls back to needing a human review.
+          mapfile -t files < <(gh pr view "$PR" --repo "$REPO" --json files --jq '.files[].path')
+          if [ "${#files[@]}" -ne 1 ] || [ "${files[0]}" != "gradle.properties" ]; then
+            echo "::warning::PR #$PR changes [${files[*]:-<none>}]; expected only gradle.properties. Skipping auto-approval - a human should review."
+            exit 0
+          fi
+          # Reopened PRs re-trigger this workflow; don't stack duplicate reviews.
+          # The reviews endpoint is paginated (30/page), so --paginate --slurp
+          # gathers every page into one array (of pages) before counting - a
+          # single count across all reviews rather than one per page.
+          approved=$(gh api --paginate --slurp "repos/$REPO/pulls/$PR/reviews" \
+            --jq '[.[][] | select(.user.login == "github-actions[bot]" and .state == "APPROVED")] | length')
+          if [ "$approved" -gt 0 ]; then
+            echo "PR #$PR already approved by github-actions[bot]; nothing to do."
+            exit 0
+          fi
+          gh pr review "$PR" --repo "$REPO" --approve \
+            --body "Automated approval: version-bump PR that only edits \`elasticsearchVersion\` in \`gradle.properties\`. Auto-merge is armed and will merge once the required CI checks are green."
