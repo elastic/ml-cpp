@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -197,17 +198,29 @@ def test_create_pr_script_requires_body() -> None:
     assert "--body" in proc.stderr
 
 
+def _asserts_label(script: str, label: str) -> bool:
+    """True if the script passes ``--label <label>`` in any common quoting style.
+
+    Tolerates double quotes, single quotes, or no quotes so a harmless requote
+    of the argument doesn't fail the guard while the behaviour is unchanged.
+    """
+    pattern = rf"--label\s+(?:\"{re.escape(label)}\"|'{re.escape(label)}'|{re.escape(label)})(?:\s|\))"
+    return re.search(pattern, script) is not None
+
+
 def test_bump_version_pr_applies_required_labels() -> None:
     """Automated bump PRs must open with the labels repo policy requires.
 
     :ml is the team label, >build is the type label marking a no-changelog
     build change, and ci:skip-es-tests keeps the ES test suite off a pure
-    version bump. Wiring them into bump_version.sh means the PRs open compliant
-    instead of needing a human to add them by hand (e.g. #3135).
+    version bump. Both automated PR creators (patch bump and main minor-freeze
+    bump) must open compliant instead of needing a human to add them by hand
+    (e.g. #3135).
     """
-    script = (_REPO_ROOT / "dev-tools" / "bump_version.sh").read_text()
-    for label in ("ci:skip-es-tests", ":ml", ">build"):
-        assert f'--label "{label}"' in script, f"missing --label {label}"
+    for name in ("bump_version.sh", "bump_main_minor_freeze.sh"):
+        script = (_REPO_ROOT / "dev-tools" / name).read_text()
+        for label in ("ci:skip-es-tests", ":ml", ">build"):
+            assert _asserts_label(script, label), f"{name}: missing --label {label}"
 
 
 def test_phase2_minor_has_parallel_freeze_group() -> None:
