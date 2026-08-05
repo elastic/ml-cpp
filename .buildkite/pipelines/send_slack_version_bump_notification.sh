@@ -17,7 +17,8 @@
 # message would appear hours late or never if someone checks earlier.
 #
 # Optional env:
-#   ML_CPP_VERSION_BUMP_SLACK_CHANNEL — override channel (default #machine-learn-build)
+#   ML_CPP_VERSION_BUMP_SLACK_CHANNEL — override channel(s). Comma-separated list
+#     for multiple channels (default "#machine-learn-build,#ml-core").
 
 set -euo pipefail
 
@@ -26,7 +27,36 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 # shellcheck source=../../dev-tools/version_bump_lib.sh
 source "${REPO_ROOT}/dev-tools/version_bump_lib.sh"
 
-CHANNEL="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build}"
+# Buildkite's slack notify accepts a list of channels, so a single build can fan
+# the notification out to several. Accept a comma-separated override and render
+# each entry as its own YAML list item (CHANNELS_YAML) injected into the notify
+# block below. The Buildkite Slack app must be connected to every channel named
+# here or the post is silently dropped for that channel.
+CHANNELS_RAW="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build,#ml-core}"
+CHANNELS_YAML=""
+# Each entry is interpolated into the generated pipeline YAML inside double
+# quotes, so restrict it to characters valid for a Slack notify target: #channel,
+# @user, a channel/user ID, or Buildkite's [token]#channel form. Rejecting
+# anything else (quotes, backslashes, newlines, spaces, ...) fails fast on a
+# malformed override rather than emitting invalid YAML or allowing YAML/step
+# injection. ']' is first and '-' last in the class so both are literal, and no
+# backslash appears in the class so '\' is not accepted.
+_channel_allowed='^[]A-Za-z0-9_.#@[-]+$'
+IFS=',' read -ra _channels <<<"${CHANNELS_RAW}"
+for _ch in "${_channels[@]}"; do
+    _ch="$(version_bump_trim_value "${_ch}")"
+    [[ -z "${_ch}" ]] && continue
+    if [[ ! "${_ch}" =~ $_channel_allowed ]]; then
+        echo "ERROR: invalid Slack channel '${_ch}' in ML_CPP_VERSION_BUMP_SLACK_CHANNEL; allowed characters: letters, digits and '# @ _ . - [ ]'." >&2
+        exit 1
+    fi
+    CHANNELS_YAML+="            - \"${_ch}\""$'\n'
+done
+CHANNELS_YAML="${CHANNELS_YAML%$'\n'}"
+if [[ -z "${CHANNELS_YAML}" ]]; then
+    echo "ERROR: no Slack channels resolved from ML_CPP_VERSION_BUMP_SLACK_CHANNEL='${CHANNELS_RAW}'." >&2
+    exit 1
+fi
 
 if [[ "${BUILDKITE:-}" != "true" ]]; then
     echo "BUILDKITE is not true — skipping Slack notification (local run)."
@@ -73,7 +103,7 @@ steps:
     notify:
       - slack:
           channels:
-            - "${CHANNEL}"
+${CHANNELS_YAML}
           message: |
             <!subteam^S76JPTCBE|ml-team>
             ${slack_title}
@@ -114,7 +144,7 @@ steps:
     notify:
       - slack:
           channels:
-            - "${CHANNEL}"
+${CHANNELS_YAML}
           message: |
             <!subteam^S76JPTCBE|ml-team>
             ${slack_title}
