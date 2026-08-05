@@ -34,10 +34,22 @@ source "${REPO_ROOT}/dev-tools/version_bump_lib.sh"
 # here or the post is silently dropped for that channel.
 CHANNELS_RAW="${ML_CPP_VERSION_BUMP_SLACK_CHANNEL:-#machine-learn-build,#ml-core}"
 CHANNELS_YAML=""
+# Each entry is interpolated into the generated pipeline YAML inside double
+# quotes, so restrict it to characters valid for a Slack notify target: #channel,
+# @user, a channel/user ID, or Buildkite's [token]#channel form. Rejecting
+# anything else (quotes, backslashes, newlines, spaces, ...) fails fast on a
+# malformed override rather than emitting invalid YAML or allowing YAML/step
+# injection. ']' is first and '-' last in the class so both are literal, and no
+# backslash appears in the class so '\' is not accepted.
+_channel_allowed='^[]A-Za-z0-9_.#@[-]+$'
 IFS=',' read -ra _channels <<<"${CHANNELS_RAW}"
 for _ch in "${_channels[@]}"; do
     _ch="$(version_bump_trim_value "${_ch}")"
     [[ -z "${_ch}" ]] && continue
+    if [[ ! "${_ch}" =~ $_channel_allowed ]]; then
+        echo "ERROR: invalid Slack channel '${_ch}' in ML_CPP_VERSION_BUMP_SLACK_CHANNEL; allowed characters: letters, digits and '# @ _ . - [ ]'." >&2
+        exit 1
+    fi
     CHANNELS_YAML+="            - \"${_ch}\""$'\n'
 done
 CHANNELS_YAML="${CHANNELS_YAML%$'\n'}"
