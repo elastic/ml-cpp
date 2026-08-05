@@ -50,8 +50,11 @@ jobs:
             exit 0
           fi
           # Reopened PRs re-trigger this workflow; don't stack duplicate reviews.
-          approved=$(gh api "repos/$REPO/pulls/$PR/reviews" \
-            --jq '[.[] | select(.user.login == "github-actions[bot]" and .state == "APPROVED")] | length')
+          # The reviews endpoint is paginated (30/page), so --paginate --slurp
+          # gathers every page into one array (of pages) before counting - a
+          # single count across all reviews rather than one per page.
+          approved=$(gh api --paginate --slurp "repos/$REPO/pulls/$PR/reviews" \
+            --jq '[.[][] | select(.user.login == "github-actions[bot]" and .state == "APPROVED")] | length')
           if [ "$approved" -gt 0 ]; then
             echo "PR #$PR already approved by github-actions[bot]; nothing to do."
             exit 0
