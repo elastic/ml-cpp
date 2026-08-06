@@ -410,8 +410,7 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
             orderedBounds.second > category.baseTokenIds().size()) {
             LOG_ERROR(<< "Cannot restore categorizer - a category has ordered common token "
                          "bounds ["
-                      << orderedBounds.first << ", " << orderedBounds.second
-                      << ") outside its base token list (size "
+                      << orderedBounds.first << ", " << orderedBounds.second << ") outside its base token list (size "
                       << category.baseTokenIds().size()
                       << "); the state document is inconsistent");
             return false;
