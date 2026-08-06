@@ -541,6 +541,59 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     checkMemoryUsageInstrumentation(restoredCategorizer);
 }
 
+BOOST_FIXTURE_TEST_CASE(testRestoreWithInconsistentTokenIdFailsGracefully, CTestFixture) {
+    // A corrupt or truncated state document can leave a category referencing a
+    // token ID beyond the end of the restored token ID lookup. Such an ID was
+    // previously used to index the lookup unchecked (for example when building a
+    // reverse search), causing an out-of-bounds access and a crash. The restore
+    // must now fail gracefully instead.
+    // See https://github.com/elastic/ml-cpp/issues/2875
+    //
+    // This state has a single token (so index 0 is the only valid token ID) but
+    // a category that references token ID 5 in both its base and common unique
+    // token lists.
+    const std::string inconsistentState{
+        R"({"topLevel":{)"
+        R"("a":"foo","b":1,)"
+        R"("c":{"a":"foo bar","b":5,"c":1,"d":7,"j":0,"e":1,"f":5,"g":1,"h":1,"i":2,"k":7},)"
+        R"("d":0}})"};
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    std::istringstream stateStrm{inconsistentState};
+    ml::core::CJsonStateRestoreTraverser traverser{stateStrm};
+    const bool restored{traverser.traverseSubLevel(
+        [&categorizer](ml::core::CStateRestoreTraverser& traverser_) {
+            return categorizer.acceptRestoreTraverser(traverser_);
+        })};
+
+    BOOST_REQUIRE_EQUAL(false, restored);
+}
+
+BOOST_FIXTURE_TEST_CASE(testRestoreWithConsistentTokenIdSucceeds, CTestFixture) {
+    // Sanity check that the token-ID range validation added for issue #2875 does
+    // not reject a valid, consistent state document. Same shape as the test
+    // above, but the category references the only valid token ID (0).
+    const std::string consistentState{
+        R"({"topLevel":{)"
+        R"("a":"foo","b":1,)"
+        R"("c":{"a":"foo","b":0,"c":1,"d":3,"j":0,"e":1,"f":0,"g":1,"h":1,"i":2,"k":3},)"
+        R"("d":0}})"};
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    std::istringstream stateStrm{consistentState};
+    ml::core::CJsonStateRestoreTraverser traverser{stateStrm};
+    const bool restored{traverser.traverseSubLevel(
+        [&categorizer](ml::core::CStateRestoreTraverser& traverser_) {
+            return categorizer.acceptRestoreTraverser(traverser_);
+        })};
+
+    BOOST_REQUIRE_EQUAL(true, restored);
+}
+
 BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
     TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator{
         new ml::model::CTokenListReverseSearchCreator{"_raw"}};

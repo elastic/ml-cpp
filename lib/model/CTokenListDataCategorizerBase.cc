@@ -378,6 +378,30 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
         }
     } while (traverser.next());
 
+    // Validate that every token ID referenced by a restored category exists in
+    // the restored token ID lookup. An inconsistent or truncated state document
+    // can leave a category referencing a token ID at or beyond the end of
+    // m_TokenIdLookup. Such an ID is later used to index m_TokenIdLookup
+    // unchecked (for example when building a reverse search), which is an
+    // out-of-bounds access resulting in a crash. Fail the restore gracefully
+    // here instead of proceeding with an inconsistent state.
+    const std::size_t numTokens{m_TokenIdLookup.size()};
+    const auto tokenIdsInRange = [numTokens](const TSizeSizePrVec& tokenIds) {
+        return std::all_of(tokenIds.begin(), tokenIds.end(),
+                           [numTokens](const TSizeSizePr& tokenId) {
+                               return tokenId.first < numTokens;
+                           });
+    };
+    for (const auto& category : m_Categories) {
+        if (tokenIdsInRange(category.baseTokenIds()) == false ||
+            tokenIdsInRange(category.commonUniqueTokenIds()) == false) {
+            LOG_ERROR(<< "Cannot restore categorizer - a category references a token ID "
+                         "outside the restored token ID lookup (size "
+                      << numTokens << "); the state document is inconsistent");
+            return false;
+        }
+    }
+
     // Categories are persisted in order of creation, but this list needs to be
     // sorted by descending count instead
     std::stable_sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
