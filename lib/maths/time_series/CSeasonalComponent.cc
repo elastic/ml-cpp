@@ -39,7 +39,6 @@ const core::TPersistenceTag LAST_INTERPOLATION_TAG{"d", "last_interpolation_time
 const core::TPersistenceTag TOTAL_SHIFT_TAG{"e", "total_shift"};
 const core::TPersistenceTag CURRENT_MEAN_SHIFT_TAG{"f", "current_mean"};
 const core::TPersistenceTag MAX_TIME_SHIFT_PER_PERIOD_TAG{"g", "max_time_shift_per_period"};
-const std::string EMPTY_STRING;
 }
 
 CSeasonalComponent::CSeasonalComponent(const CSeasonalTime& time,

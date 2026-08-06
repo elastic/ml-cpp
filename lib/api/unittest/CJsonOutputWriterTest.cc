@@ -213,7 +213,7 @@ void testBucketWriteHelper(bool isInterim) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(isInterim, 10U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(arrayDoc.is_array());
@@ -708,7 +708,7 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(isInterim, 10U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     LOG_DEBUG(<< "Results:\n" << arrayDoc_);
@@ -1033,7 +1033,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value arrayDoc_ = json::parse(sstream.str(), ec);
         // Debug print record
         { LOG_DEBUG(<< "Results:\n" << arrayDoc_); }
@@ -1072,7 +1072,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value arrayDoc_ = json::parse(sstream.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         // Debug print record
@@ -1107,7 +1107,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value arrayDoc_ = json::parse(sstream.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         // Debug print record
@@ -1147,7 +1147,7 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
         writer.finalise();
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record
@@ -1185,7 +1185,7 @@ BOOST_AUTO_TEST_CASE(testFlush) {
         writer.acknowledgeFlush(testId, lastFinalizedBucketEnd);
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(arrayDoc_.is_array());
@@ -1228,7 +1228,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
                                        maxMatchingLength, examples, 0, {});
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(arrayDoc_.is_array());
@@ -1287,7 +1287,7 @@ BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
                                        regex, maxMatchingLength, examples, 0, {});
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(arrayDoc_.is_array());
@@ -1368,7 +1368,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(true, 1U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc_.is_array());
@@ -1482,7 +1482,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc_.is_array());
@@ -1620,7 +1620,7 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record
@@ -1695,7 +1695,7 @@ BOOST_AUTO_TEST_CASE(testPersistNormalizer) {
         writer.finalise();
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record
@@ -1752,7 +1752,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
 
     LOG_DEBUG(<< sstream.str());
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc_.is_array());
@@ -1833,7 +1833,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
 
     LOG_DEBUG(<< sstream.str());
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc_.is_array());
@@ -1919,7 +1919,7 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record
@@ -1991,7 +1991,7 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 10U));
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record

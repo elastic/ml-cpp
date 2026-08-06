@@ -134,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixtur
                                .count()};
 
     json::value results;
-    json::error_code ec;
+    boost::system::error_code ec;
     json::parser p;
     std::size_t written = p.write(outputStream.str(), ec);
     BOOST_TEST_REQUIRE(outputStream.str().size() == written);
@@ -186,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearin
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
 
@@ -307,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(testTrainingClassification, ml::test::CProgramCounterCle
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
 
     BOOST_TEST_REQUIRE(ec.failed() == false);
@@ -382,7 +382,7 @@ BOOST_FIXTURE_TEST_CASE(testOutlierDetection, ml::test::CProgramCounterClearingF
                        expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
 

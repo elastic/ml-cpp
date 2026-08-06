@@ -415,7 +415,6 @@ std::size_t CResourceMonitor::applyMemoryStrategy(std::size_t usage) const {
         modifiedUsage = core::CProcessStats::maxResidentSetSize();
         break;
     }
-    default: { LOG_WARN(<< "Unknown memory strategy"); }
     }
     return modifiedUsage;
 }

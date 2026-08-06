@@ -415,7 +415,9 @@ double CCalendarCyclicTest::errorsPValue(double n, double nl, double nv) const {
 
 double CCalendarCyclicTest::sufficientCountToMeasureLargeErrors() const {
     // Cap the how long we'll wait identify large errors.
-    return std::min(static_cast<double>(20 * core::constants::DAY) / m_BucketLength, 100.0);
+    return std::min(static_cast<double>(20 * core::constants::DAY) /
+                        static_cast<double>(m_BucketLength),
+                    100.0);
 }
 
 double CCalendarCyclicTest::largeErrorPercentile() const {

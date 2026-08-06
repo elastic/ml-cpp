@@ -169,7 +169,6 @@ const core::TPersistenceTag OFFSET_TAG("d", "offset");
 const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
-const std::string EMPTY_STRING;
 }
 
 CPoissonMeanConjugate::CPoissonMeanConjugate(double offset, double shape, double rate, double decayRate /*= 0.0*/)

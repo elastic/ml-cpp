@@ -164,7 +164,7 @@ void testEstimateMemoryUsage(std::int64_t numberRows,
         spec->estimateMemoryUsage(writer);
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value arrayDoc_ = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
 

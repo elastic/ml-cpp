@@ -47,7 +47,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
 
     json::value doc;
     json::stream_parser p;
-    json::error_code ec;
+    boost::system::error_code ec;
     std::string line;
     std::size_t n = 0;
     while (true) {

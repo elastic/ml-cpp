@@ -122,6 +122,24 @@ private:
     unsigned int m_Type;
 };
 
+//! Combine the two orthogonal \c CResultType flag enums into a result type.
+//!
+//! \c EInterimOrFinal and \c EConditionalOrUnconditional occupy disjoint bits,
+//! so callers combine them with e.g. \c E_Unconditional | \c E_Interim. These
+//! overloads make that combination explicit and, being exact matches, are
+//! chosen ahead of the built-in operator - avoiding the C++20 deprecation of
+//! bitwise operations between different enumeration types (GCC
+//! -Wdeprecated-enum-enum-conversion / MSVC C5054).
+inline CResultType operator|(CResultType::EConditionalOrUnconditional lhs,
+                             CResultType::EInterimOrFinal rhs) {
+    return CResultType{static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs)};
+}
+
+inline CResultType operator|(CResultType::EInterimOrFinal lhs,
+                             CResultType::EConditionalOrUnconditional rhs) {
+    return CResultType{static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs)};
+}
+
 //! The feature naming is systematic and all subsequent feature
 //! names should conform to the following syntax:\n
 //!   E_(Individual|Population|Peers)\<feature name\>[By|Of][Bucket][And][Person][And][Attribute]\n

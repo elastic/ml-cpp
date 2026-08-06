@@ -80,7 +80,7 @@ private:
 
     void readFromJsonStream(TIStreamPtr inputStream) {
         if (inputStream != nullptr) {
-            json::error_code ec;
+            boost::system::error_code ec;
             json::parse_options opts;
             opts.numbers = json::number_precision::precise;
             json::value doc = json::parse(*inputStream, ec, {}, opts);
@@ -103,7 +103,7 @@ private:
 
 void arrayToNdJson(std::string array, std::ostream& ndjson) {
     array.erase(std::remove(array.begin(), array.end(), '\n'), array.end());
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(array, ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());

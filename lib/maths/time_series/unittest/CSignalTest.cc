@@ -639,7 +639,8 @@ BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponent) {
         BOOST_REQUIRE_EQUAL(period, actuals[0].size());
 
         TMeanVarAccumulator meanError;
-        double sigma{std::sqrt(4.0 / (static_cast<double>(values.size()) / period))};
+        double sigma{std::sqrt(4.0 / (static_cast<double>(values.size()) /
+                                      static_cast<double>(period)))};
         for (std::size_t i = 0; i < actuals[0].size(); ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected(i), maths::common::CBasicStatistics::mean(actuals[0][i]),
