@@ -92,8 +92,13 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
     std::string processPath{std::move(tokens[0])};
     tokens.erase(tokens.begin());
 
-    if (m_Spawner.spawn(processPath, tokens) == false) {
+    std::string spawnFailureReason;
+    core::CProcess::TPid childPid{0};
+    if (m_Spawner.spawn(processPath, tokens, childPid, &spawnFailureReason) == false) {
         std::string error{"Failed to start process '" + processPath + '\''};
+        if (spawnFailureReason.empty() == false) {
+            error += ": " + spawnFailureReason;
+        }
         LOG_ERROR(<< error << " in command with ID " << id);
         m_ResponseWriter.writeResponse(id, false, error);
         return false;

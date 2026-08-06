@@ -48,6 +48,7 @@
 #include <core/COsFileFuncs.h>
 #include <core/CProcess.h>
 #include <core/CProgName.h>
+#include <core/CSandbox2Diagnostics.h>
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
 
@@ -108,8 +109,9 @@ int main(int argc, char** argv) {
     std::string logPipe;
     std::string commandPipe;
     std::string outputPipe;
-    if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe,
-                                              commandPipe, outputPipe) == false) {
+    std::string propertiesFile;
+    if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe, commandPipe,
+                                              outputPipe, propertiesFile) == false) {
         return EXIT_FAILURE;
     }
 
@@ -141,8 +143,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
-            logPipe, cancellerThread.hasCancelledBlockingCall()) == false) {
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, propertiesFile, cancellerThread.hasCancelledBlockingCall()) == false) {
         if (cancellerThread.hasCancelledBlockingCall().load()) {
             LOG_INFO(<< "Parent process died - ML controller exiting");
         } else {
@@ -156,6 +158,8 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
+
+    ml::core::logSandbox2EnvironmentSelfCheck();
 
     // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
     if (makeProcessNonDumpable() == false) {

@@ -123,6 +123,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(STRPTIME_LIB "${ML_BASE_PATH}/lib/strptime${ML_LIBEXT}")
 endif()
 
+# Sandbox2 libraries for Linux only
+# Set in 3rd_party/CMakeLists.txt after sandboxed-api is fetched and configured
+# If not set, default to empty (Sandbox2 not available)
+if (NOT DEFINED SANDBOX2_LIBRARIES)
+  set(SANDBOX2_LIBRARIES "")
+endif()
+
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)
@@ -221,6 +228,7 @@ if("$ENV{ML_DEBUG}")
 endif()
 
 option(ML_FAST_DEBUG "Use reduced debug info (-g1) and exclude trace logging for faster Debug builds. Intended for CI; local developers should leave this OFF." OFF)
+option(ML_ALLOW_SKIP_MODEL_VALIDATION "Allow --skipModelValidation on pytorch_inference (dev/test builds only)" OFF)
 if(ML_FAST_DEBUG AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CMAKE_CXX_FLAGS_DEBUG "-g1 -DEXCLUDE_TRACE_LOGGING")

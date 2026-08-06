@@ -165,55 +165,57 @@ private:
     //! Reap zombie child processes and adjust the set of live child PIDs
     //! accordingly.  MUST be called with m_Mutex locked.
     void checkForDeadChildren() {
-        int status = 0;
-        for (;;) {
-            CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
-            // 0 means there are child processes but none have died
-            if (pid == 0) {
-                break;
+        TPidSet pidsCopy{m_Pids};
+        for (CProcess::TPid pid : pidsCopy) {
+            int status = 0;
+            CProcess::TPid waited = ::waitpid(pid, &status, WNOHANG);
+            if (waited == 0) {
+                continue;
             }
-            // -1 means error
-            if (pid == -1) {
-                if (errno != EINTR) {
-                    break;
+            if (waited == -1) {
+                if (errno == EINTR) {
+                    continue;
+                }
+                if (errno == ECHILD) {
+                    m_Pids.erase(pid);
+                }
+                continue;
+            }
+            if (WIFSIGNALED(status)) {
+                int signal = WTERMSIG(status);
+                if (signal == SIGTERM) {
+                    // We expect this when a job is force-closed, so log
+                    // at a lower level
+                    LOG_INFO(<< "Child process with PID " << pid
+                             << " was terminated by signal " << signal);
+                } else if (signal == SIGKILL) {
+                    // This should never happen if the system is working
+                    // normally - possible reasons are the Linux OOM
+                    // killer or manual intervention. The latter is highly unlikely
+                    // if running in the cloud.
+                    LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
+                              << " This is likely due to the OOM killer."
+                              << " Please check system logs for more details.");
+                } else {
+                    // This should never happen if the system is working
+                    // normally - possible reasons are bugs that cause
+                    // access violations or manual intervention. The latter is highly unlikely
+                    // if running in the cloud.
+                    LOG_ERROR(<< "Child process with PID " << pid
+                              << " was terminated by signal " << signal
+                              << " Please check system logs for more details.");
                 }
             } else {
-                if (WIFSIGNALED(status)) {
-                    int signal = WTERMSIG(status);
-                    if (signal == SIGTERM) {
-                        // We expect this when a job is force-closed, so log
-                        // at a lower level
-                        LOG_INFO(<< "Child process with PID " << pid
-                                 << " was terminated by signal " << signal);
-                    } else if (signal == SIGKILL) {
-                        // This should never happen if the system is working
-                        // normally - possible reasons are the Linux OOM
-                        // killer or manual intervention. The latter is highly unlikely
-                        // if running in the cloud.
-                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
-                                  << " This is likely due to the OOM killer."
-                                  << " Please check system logs for more details.");
-                    } else {
-                        // This should never happen if the system is working
-                        // normally - possible reasons are bugs that cause
-                        // access violations or manual intervention. The latter is highly unlikely
-                        // if running in the cloud.
-                        LOG_ERROR(<< "Child process with PID " << pid
-                                  << " was terminated by signal " << signal
-                                  << " Please check system logs for more details.");
-                    }
+                int exitCode = WEXITSTATUS(status);
+                if (exitCode == 0) {
+                    // This is the happy case
+                    LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
                 } else {
-                    int exitCode = WEXITSTATUS(status);
-                    if (exitCode == 0) {
-                        // This is the happy case
-                        LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
-                    } else {
-                        LOG_WARN(<< "Child process with PID " << pid
-                                 << " has exited with exit code " << exitCode);
-                    }
+                    LOG_WARN(<< "Child process with PID " << pid
+                             << " has exited with exit code " << exitCode);
                 }
-                m_Pids.erase(pid);
             }
+            m_Pids.erase(pid);
         }
     }
 
@@ -241,21 +243,48 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
-    return this->spawn(processPath, args, dummy);
+    return this->spawn(processPath, args, dummy, nullptr);
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    std::string* failureReason) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
+        const std::string reason{"Spawning process '" + processPath + "' is not permitted"};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 
     if (::access(processPath.c_str(), X_OK) != 0) {
-        LOG_ERROR(<< "Cannot execute '" << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Cannot execute '" + processPath + "': " + ::strerror(errno)};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
+    }
+
+    // Operator kill switch: Elasticsearch may append --disableSandbox when
+    // xpack.ml.trained_models.sandbox_enabled=false. Sandbox2 exists only on
+    // Linux; on macOS the controller simply consumes the flag so it never
+    // reaches pytorch_inference (which does not register it).
+    TStrVec effectiveArgs;
+    effectiveArgs.reserve(args.size());
+    for (const auto& arg : args) {
+        if (arg != "--disableSandbox") {
+            effectiveArgs.push_back(arg);
+        }
     }
 
     using TCharPVec = std::vector<char*>;
@@ -263,13 +292,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer
     TCharPVec argv;
-    argv.reserve(args.size() + 2);
+    argv.reserve(effectiveArgs.size() + 2);
 
     // These const_casts may cause const data to get modified BUT only in the
     // child post-fork, so this won't corrupt parent process data
     argv.push_back(const_cast<char*>(processPath.c_str()));
-    for (size_t index = 0; index < args.size(); ++index) {
-        argv.push_back(const_cast<char*>(args[index].c_str()));
+    for (size_t index = 0; index < effectiveArgs.size(); ++index) {
+        argv.push_back(const_cast<char*>(effectiveArgs[index].c_str()));
     }
     argv.push_back(static_cast<char*>(nullptr));
 

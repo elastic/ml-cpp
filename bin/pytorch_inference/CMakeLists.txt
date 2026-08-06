@@ -41,4 +41,11 @@ ml_add_executable(pytorch_inference
   CThreadSettings.cc
   )
 
+if(ML_ALLOW_SKIP_MODEL_VALIDATION)
+  target_compile_definitions(pytorch_inference PRIVATE ML_ALLOW_SKIP_MODEL_VALIDATION)
+  if(TARGET Mlpytorch_inference)
+    target_compile_definitions(Mlpytorch_inference PRIVATE ML_ALLOW_SKIP_MODEL_VALIDATION)
+  endif()
+endif()
+
 ml_codesign(pytorch_inference)
