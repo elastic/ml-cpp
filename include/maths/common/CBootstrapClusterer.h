@@ -677,8 +677,6 @@ protected:
         this->visit(next, graph, parities, state);
 
         double lowestCost = state.cost();
-        double bestCut = state.s_Cut;
-        std::size_t bestA = state.s_A;
         TBoolVec best = parities;
 
         while (state.s_A + 1 < V) {
@@ -725,8 +723,6 @@ protected:
             double cutCost = state.cost();
             if (cutCost < lowestCost) {
                 lowestCost = cutCost;
-                bestCut = state.s_Cut;
-                bestA = state.s_A;
                 best = parities;
             }
         }
@@ -734,8 +730,18 @@ protected:
         cost = lowestCost;
         parities.swap(best);
 
-        LOG_TRACE(<< "Best cut = " << bestCut << ", |A| = " << bestA << ", |B| = " << V - bestA
-                  << ", cost = " << cost << ", threshold = " << threshold);
+#ifndef EXCLUDE_TRACE_LOGGING
+        {
+            // Count |A| once and derive |B| from it: computing std::count twice
+            // inline would double the O(V) work on this hot path in trace-enabled
+            // builds. The block is guarded so the local isn't an unused variable
+            // when trace logging is compiled out (EXCLUDE_TRACE_LOGGING).
+            std::size_t sizeA{static_cast<std::size_t>(
+                std::count(parities.begin(), parities.end(), true))};
+            LOG_TRACE(<< "Best cut |A| = " << sizeA << ", |B| = " << V - sizeA
+                      << ", cost = " << cost << ", threshold = " << threshold);
+        }
+#endif
 
         return cost < threshold;
     }

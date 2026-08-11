@@ -42,7 +42,7 @@ using namespace ml;
 
 std::set<std::string> getUniqueValues(const std::string& key, const std::string& output) {
     std::set<std::string> values;
-    json::error_code ec;
+    boost::system::error_code ec;
     LOG_DEBUG(<< "Parsing: [ " << output << " ]");
     json::value doc = json::parse(output, ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);

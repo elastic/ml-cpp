@@ -483,7 +483,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     // denote the Eigenvalues of the nullspace. We use a rank revealing decomposition
     // and compute the likelihood on the row space.
 
-    auto minusLogLikelihood = [=](const TVector& a) mutable -> double {
+    auto minusLogLikelihood = [=, this](const TVector& a) mutable -> double {
         K = this->kernel(a, v + eps);
         Kqr.compute(K);
         Kinvf.noalias() = Kqr.solve(f);
@@ -496,7 +496,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
         return 0.5 * (f.transpose() * Kinvf + logAbsDet);
     };
 
-    auto minusLogLikelihoodGradient = [=](const TVector& a) mutable -> TVector {
+    auto minusLogLikelihoodGradient = [=, this](const TVector& a) mutable -> TVector {
         K = this->kernel(a, v + eps);
         Kqr.compute(K);
 
@@ -548,7 +548,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
                          })
             ->second};
 
-    auto EI = [=](const TVector& x) mutable -> double {
+    auto EI = [=, this](const TVector& x) mutable -> double {
         double Kxx;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
         if (CMathsFuncs::isNan(Kxx)) {
@@ -575,7 +575,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         return -sigma * (z * cdfz + pdfz);
     };
 
-    auto EIGradient = [=](const TVector& x) mutable -> TVector {
+    auto EIGradient = [=, this](const TVector& x) mutable -> TVector {
         double Kxx;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
         if (CMathsFuncs::isNan(Kxx)) {

@@ -20,11 +20,23 @@
 
 namespace ml {
 namespace core {
+
+//! C++20-safe replacement for the deprecated \c std::is_pod / \c std::is_pod_v.
+//!
+//! \c std::is_pod was deprecated in C++20. The standard defines a POD type as
+//! one that is both trivial and standard-layout, so this reproduces
+//! \c std::is_pod_v exactly - verified equivalent across fundamentals, cv- and
+//! pointer-qualified types, arrays, enums, unions, aggregates, inheritance
+//! (standard-layout) edge cases and library types - without emitting the
+//! deprecation warning (MSVC C4996 / \c -Wdeprecated-declarations).
+template<typename T>
+inline constexpr bool is_pod_v = std::is_trivial_v<T>&& std::is_standard_layout_v<T>;
+
 namespace memory_detail {
 //! \brief Base implementation checks for POD.
 template<typename T, typename = void>
 struct SDynamicSizeAlwaysZero {
-    static constexpr inline bool value() { return std::is_pod<T>::value; }
+    static constexpr inline bool value() { return is_pod_v<T>; }
 };
 
 //! \brief Checks types in pair.

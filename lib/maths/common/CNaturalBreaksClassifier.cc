@@ -40,7 +40,6 @@ const core::TPersistenceTag SPACE_TAG("a", "space");
 const core::TPersistenceTag CATEGORY_TAG("b", "category");
 const core::TPersistenceTag POINTS_TAG("c", "points");
 const core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
-const std::string EMPTY_STRING;
 const double ALMOST_ONE = 0.99999;
 }
 

@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     auto spec = specFactory.rows(5).columns(6).memoryLimit(13000000).predictionSpec(
         test::CDataFrameAnalysisSpecificationFactory::regression(), "dep_var");
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value jsonParameters = json::parse("{"
                                              "  \"dependent_variable\": \"dep_var\","
                                              "  \"prediction_field_name\": \"is_training\""

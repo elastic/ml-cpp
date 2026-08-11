@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
         writer.writeFlat("job-id", plotData);
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());

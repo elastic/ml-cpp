@@ -131,8 +131,6 @@ const core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
 const core::TPersistenceTag MODE_TAG("c", "mode");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
 const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
-
-const std::string EMPTY_STRING;
 }
 
 //////// CMultimodalPrior Implementation ////////

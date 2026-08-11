@@ -79,7 +79,7 @@ void loggedExpectedMessages(const std::string& logging, const TStrVec& messages)
             continue;
         }
         json::value doc;
-        json::error_code ec;
+        boost::system::error_code ec;
         p.write(line, ec);
         doc = p.release();
         LOG_INFO(<< "doc: " << doc);

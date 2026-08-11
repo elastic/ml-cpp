@@ -244,7 +244,7 @@ struct SFixture {
         BOOST_TEST_REQUIRE(
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(s_Output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());
@@ -297,7 +297,7 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(s_Output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());
@@ -353,7 +353,7 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(s_Output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         return std::make_pair(std::move(results), s_Output.str());
@@ -399,7 +399,7 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(s_Output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         return results;
