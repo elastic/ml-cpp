@@ -865,7 +865,7 @@ BOOST_AUTO_TEST_CASE(testDynamicSizeAlwaysZero) {
     BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int>>::value();
     BOOST_REQUIRE_EQUAL(true, test);
-    test = std::is_pod<SFoo>::value;
+    test = core::is_pod_v<SFoo>;
     BOOST_REQUIRE_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFoo>::value();
     BOOST_REQUIRE_EQUAL(true, test);
@@ -881,6 +881,53 @@ BOOST_AUTO_TEST_CASE(testDynamicSizeAlwaysZero) {
     BOOST_REQUIRE_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFooWrapper>::value();
     BOOST_REQUIRE_EQUAL(false, test);
+}
+
+BOOST_AUTO_TEST_CASE(testIsPodV) {
+    // core::is_pod_v is the C++20-safe replacement for the deprecated
+    // std::is_pod. Guard that it reports the expected POD-ness across the type
+    // categories that matter for memory accounting. Expected values are the
+    // same as std::is_pod would give (trivial && standard-layout).
+    struct SPodLike {
+        int a;
+        double b;
+    };
+    struct SWithCtor {
+        int a;
+        SWithCtor() : a(0) {}
+    };
+    struct SWithVirtual {
+        virtual ~SWithVirtual() = default;
+    };
+    struct SBase {
+        int a;
+    };
+    struct SDerivedNoData : SBase {};
+    struct SDerivedWithData : SBase {
+        int b;
+    };
+    union UPod {
+        int i;
+        float f;
+    };
+
+    // POD types.
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<int>));
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<double>));
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<const int>));
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<int*>));
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<SPodLike>));
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<UPod>));
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<SBase>));
+    // Single base with no own data members is still standard-layout + trivial.
+    BOOST_REQUIRE_EQUAL(true, (core::is_pod_v<SDerivedNoData>));
+
+    // Non-POD types.
+    BOOST_REQUIRE_EQUAL(false, (core::is_pod_v<std::string>));  // non-trivial
+    BOOST_REQUIRE_EQUAL(false, (core::is_pod_v<SWithCtor>));    // user ctor
+    BOOST_REQUIRE_EQUAL(false, (core::is_pod_v<SWithVirtual>)); // vtable
+    BOOST_REQUIRE_EQUAL(false, (core::is_pod_v<SDerivedWithData>)); // data in base and derived
+    BOOST_REQUIRE_EQUAL(false, (core::is_pod_v<std::pair<int, int>>)); // pair has user ctors
 }
 
 BOOST_AUTO_TEST_CASE(testCompress) {

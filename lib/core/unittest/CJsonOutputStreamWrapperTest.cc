@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentWrites) {
         }
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value doc = json::parse(stringStream.str(), ec);
 
     // check that the document isn't malformed (like wrongly interleaved buffers)

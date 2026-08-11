@@ -805,7 +805,7 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     std::string toJson = ss.str();
 
     boost::json::value val;
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::parser p;
     p.write(toJson.c_str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);

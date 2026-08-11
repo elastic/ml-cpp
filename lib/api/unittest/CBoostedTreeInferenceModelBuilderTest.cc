@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value customProcessors = json::parse(
         "[{\"special_processor\":{\"foo\": 42}}, {\"another_special_processor\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]",
         ec);
@@ -393,7 +393,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value customProcessors = json::parse(
         "[{\"special_processor\":{\"foo\": 43}}, {\"another_special\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]",
         ec);
@@ -630,7 +630,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         valijson::adapters::BoostJsonAdapter schemaAdapter(schemaDocument);
         parser.populateSchema(schemaAdapter, schema);
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value doc = json::parse(definition->jsonString(), ec);
         BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Error parsing JSON definition!");
 
@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         valijson::adapters::BoostJsonAdapter schemaAdapter(schemaDocument);
         parser.populateSchema(schemaAdapter, schema);
 
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value doc = json::parse(definition->sizeInfo()->jsonString(), ec);
         BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Error parsing JSON size info!");
 

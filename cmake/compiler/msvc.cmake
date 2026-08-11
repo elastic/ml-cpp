@@ -27,10 +27,14 @@ list(APPEND ML_COMPILE_DEFINITIONS
   _WIN32_WINNT=0x0601
   Windows)
 
+# Treat SYSTEM include directories as external — suppress warnings from
+# third-party headers (Boost, Eigen, PyTorch, etc.).  Requires MSVC 17.0+.
+set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "/external:I ")
 list(APPEND ML_C_FLAGS
   "/X"
   "/nologo"
   "/W4"
+  "/external:W0"
   "/EHsc"
   "/Gw"
   "/Zc:inline"
@@ -47,7 +51,19 @@ list(APPEND ML_CXX_FLAGS
   "/we4150"
   "/wd4201"
   "/wd4231"
+  # C4250 ("inherits via dominance") is a purely informational MSVC-only
+  # diagnostic. The instrumentation classes use a deliberate virtual-inheritance
+  # mixin (CDataFrameAnalysisInstrumentation supplies the shared implementation
+  # while the per-analysis interfaces add their own pure virtuals); the C++
+  # dominance rule resolves the shared methods correctly. GCC/Clang do not warn.
+  "/wd4250"
   "/wd4251"
+  # C4324 ("structure was padded due to alignment specifier") is emitted for
+  # types that deliberately over-align members with alignas to avoid false
+  # sharing (e.g. the std::atomic counters in CCompressedLfuCache). The padding
+  # is the intended consequence of the alignment, so the diagnostic is pure
+  # noise here. GCC/Clang do not warn.
+  "/wd4324"
   "/wd4355"
   "/wd4512"
   "/wd4702"

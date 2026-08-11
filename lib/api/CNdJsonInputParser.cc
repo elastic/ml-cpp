@@ -118,7 +118,7 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
 
 bool CNdJsonInputParser::parseDocument(char* begin, std::size_t length, json::value& document) {
     // Parse JSON string
-    json::error_code ec = core::CBoostJsonParser::parse(begin, length, document);
+    boost::system::error_code ec = core::CBoostJsonParser::parse(begin, length, document);
     if (ec) {
         LOG_ERROR(<< "JSON parse error: " << ec.message());
         return false;

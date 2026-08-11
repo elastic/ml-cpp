@@ -1060,7 +1060,6 @@ const TFeatureVec
                                      END(detail::POPULATION_SUM_VELOCITY_FEATURES));
 
 const TFeatureVec EMPTY_FEATURES;
-const TFunctionVec EMPTY_FUNCTIONS;
 
 #undef BEGIN
 #undef END

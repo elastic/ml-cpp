@@ -603,11 +603,11 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
     // Do NOT pass the captures by reference - they
     // MUST be copied for thread safety
     if (m_PersistenceManager->addPersistFunc([
-            this, partitionFieldValues = std::move(partitionFieldValues),
-            dataCategorizerPersistFuncs = std::move(dataCategorizerPersistFuncs),
+            this, partitionFieldValuesInner = std::move(partitionFieldValues),
+            dataCategorizerPersistFuncsInner = std::move(dataCategorizerPersistFuncs),
             categorizerAllocationFailures = m_CategorizerAllocationFailures
         ](core::CDataAdder & persister) {
-            return this->doPersistState(partitionFieldValues, dataCategorizerPersistFuncs,
+            return this->doPersistState(partitionFieldValuesInner, dataCategorizerPersistFuncsInner,
                                         categorizerAllocationFailures, persister);
         }) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");

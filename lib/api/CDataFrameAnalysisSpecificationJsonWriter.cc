@@ -35,7 +35,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       TBoostJsonLineWriter& writer) {
     json::value analysisParametersDoc;
     if (analysisParameters.empty() == false) {
-        json::error_code ec;
+        boost::system::error_code ec;
         json::parser p;
         p.write(analysisParameters, ec);
         if (ec.failed()) {

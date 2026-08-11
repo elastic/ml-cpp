@@ -104,10 +104,11 @@ CSingleFieldDataCategorizer::makeForegroundPersistFunc() const {
     model::CDataCategorizer::TPersistFunc categorizerPersistFunc{
         m_DataCategorizer->makeForegroundPersistFunc()};
 
-    return [ categorizerPersistFunc = std::move(categorizerPersistFunc),
-             this ](core::CStatePersistInserter & inserter) {
+    return [
+        categorizerPersistFuncInner = std::move(categorizerPersistFunc), this
+    ](core::CStatePersistInserter & inserter) {
         CSingleFieldDataCategorizer::acceptPersistInserter(
-            categorizerPersistFunc, m_DataCategorizer->examplesCollector(),
+            categorizerPersistFuncInner, m_DataCategorizer->examplesCollector(),
             *m_CategoryIdMapper, inserter);
     };
 }
@@ -126,12 +127,13 @@ CSingleFieldDataCategorizer::makeBackgroundPersistFunc() const {
     // function must be able to operate in a different thread on a snapshot of
     // the data at the time it was created.
     return [
-        categorizerPersistFunc = std::move(categorizerPersistFunc),
-        examplesCollector = std::move(examplesCollector),
-        categoryIdMapperClone = std::move(categoryIdMapperClone)
+        categorizerPersistFuncInner = std::move(categorizerPersistFunc),
+        examplesCollectorInner = std::move(examplesCollector),
+        categoryIdMapperCloneInner = std::move(categoryIdMapperClone)
     ](core::CStatePersistInserter & inserter) {
         CSingleFieldDataCategorizer::acceptPersistInserter(
-            categorizerPersistFunc, examplesCollector, *categoryIdMapperClone, inserter);
+            categorizerPersistFuncInner, examplesCollectorInner,
+            *categoryIdMapperCloneInner, inserter);
     };
 }
 
