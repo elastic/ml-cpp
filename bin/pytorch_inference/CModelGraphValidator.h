@@ -83,11 +83,30 @@ public:
     //! only run when methods are invoked (e.g. forward) remain the job of the
     //! post-load allowlist / forbid checks in validate().
     //!
+    //! The scan is fail-closed: if any zip record cannot be read, or any record
+    //! name approaches the PyTorch/miniz filename truncation limit (see
+    //! MAX_SAFE_ARCHIVE_RECORD_NAME_LENGTH), the result contains
+    //! SCAN_INCOMPLETE_MARKER and the caller must refuse to load.  An earlier
+    //! fail-open "skip unreadable record" path was bypassed by archives whose
+    //! hook-bearing paths exceed MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE (512).
+    //!
     //! \p data / \p size are the raw bytes of the .pt (ZIP) archive.  Returns
-    //! the sorted names of any hooks found, or empty if none are found / the
-    //! archive cannot be parsed (in which case torch::jit::load will surface
-    //! the error).
+    //! the sorted names of any hooks found, a single-element vector containing
+    //! SCAN_INCOMPLETE_MARKER if the scan cannot complete safely, or empty if
+    //! none are found / the archive cannot be opened (in which case
+    //! torch::jit::load will surface the parse error).
     static TStringVec scanArchiveForCustomStateHooks(const char* data, std::size_t size);
+
+    //! Sentinel returned by scanArchiveForCustomStateHooks when the archive
+    //! cannot be scanned completely (unreadable or truncated zip record).
+    static constexpr std::string_view SCAN_INCOMPLETE_MARKER{"<unreadable-or-truncated-record>"};
+
+    //! Relative zip record names at or above this length are rejected.  PyTorch
+    //! getAllRecords() copies names into a 512-byte miniz buffer (including the
+    //! archive/ prefix); names near that limit may be truncated so that
+    //! getRecord() fails while torch::jit::load still resolves the real entry.
+    //! Legitimate ML models use paths well under this threshold.
+    static constexpr std::size_t MAX_SAFE_ARCHIVE_RECORD_NAME_LENGTH{256};
 
 private:
     //! Collect all operation names from a block, recursing into sub-blocks.
