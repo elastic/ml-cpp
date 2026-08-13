@@ -149,6 +149,18 @@ CModelGraphValidator::scanArchiveForCustomStateHooks(const char* data, std::size
     }
 
     for (const auto& name : reader->getAllRecords()) {
+        // Fail closed on names that may have been truncated by miniz
+        // (MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE == 512, including archive/).
+        // Observed serverless bypasses used ~499-char relative paths so that
+        // getAllRecords() returned a truncated name, getRecord() failed, and a
+        // prior fail-open skip let torch::jit::load run __setstate__.
+        if (name.size() >= MAX_SAFE_ARCHIVE_RECORD_NAME_LENGTH) {
+            LOG_ERROR(<< "Pre-load state-hook scan: refusing archive — record name "
+                      << "length " << name.size() << " exceeds safe limit "
+                      << MAX_SAFE_ARCHIVE_RECORD_NAME_LENGTH << " ('" << name << "')");
+            return {std::string{SCAN_INCOMPLETE_MARKER}};
+        }
+
         try {
             auto[recordData, recordSize] = reader->getRecord(name);
             std::string_view bytes{static_cast<const char*>(recordData.get()), recordSize};
@@ -163,14 +175,13 @@ CModelGraphValidator::scanArchiveForCustomStateHooks(const char* data, std::size
                 hooks.emplace("__getstate__");
             }
         } catch (const std::exception& e) {
-            // A single unreadable record (e.g. a deliberately bad CRC) must not
-            // abort the whole scan: an attacker could otherwise hide a
-            // __setstate__ hook in a later record behind a corrupt earlier one,
-            // slip past the scan, and have torch::jit::load run it at load time.
-            // Warn and keep scanning the remaining records.
-            LOG_WARN(<< "Pre-load state-hook scan: skipping unreadable record '"
-                     << name << "': " << e.what());
-            continue;
+            // Fail closed.  A previous fail-open "skip and continue" allowed
+            // attackers to hide __setstate__ under zip paths that getAllRecords
+            // truncates (so getRecord fails) while torch::jit::load still
+            // resolves the real entry by full logical path.
+            LOG_ERROR(<< "Pre-load state-hook scan: refusing archive — unreadable record '"
+                      << name << "': " << e.what());
+            return {std::string{SCAN_INCOMPLETE_MARKER}};
         }
         if (hooks.size() == 2) {
             break;

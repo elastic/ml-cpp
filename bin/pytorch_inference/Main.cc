@@ -78,17 +78,23 @@ void verifySafeModel(const torch::jit::script::Module& module_) {
 //! Load executes __setstate__ during deserialization, so post-load graph
 //! validation runs too late.  Matching the recommended remediation for a
 //! privately reported finding, any __setstate__/__getstate__ hooks are refused
-//! outright.
+//! outright.  Incomplete scans (unreadable / truncated zip records) are also
+//! refused — fail closed — so path-length evasions cannot skip the hook check.
 //! Forbidden / unrecognised ops in methods that only run when invoked remain
 //! the job of verifySafeModel() after a successful load.
 //! \p modelData / \p modelSize are the raw bytes of the buffered .pt archive.
 void verifySafeModelBeforeLoad(const char* modelData, std::size_t modelSize) {
     auto hooks = ml::torch::CModelGraphValidator::scanArchiveForCustomStateHooks(
         modelData, modelSize);
-    if (hooks.empty() == false) {
-        std::string names = ml::core::CStringUtils::join(hooks, ", ");
-        HANDLE_FATAL(<< "Model archive contains custom state hooks: " << names);
+    if (hooks.empty()) {
+        return;
     }
+    if (hooks.size() == 1 && hooks[0] == ml::torch::CModelGraphValidator::SCAN_INCOMPLETE_MARKER) {
+        HANDLE_FATAL(<< "Model archive failed pre-load state-hook scan "
+                     << "(unreadable or truncated zip record; possible evasion)");
+    }
+    std::string names = ml::core::CStringUtils::join(hooks, ", ");
+    HANDLE_FATAL(<< "Model archive contains custom state hooks: " << names);
 }
 }
 
