@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3149
+summary: Fail closed on incomplete `TorchScript` pre-load state-hook scan
+type: bug
