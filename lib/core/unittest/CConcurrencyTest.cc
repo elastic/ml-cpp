@@ -30,7 +30,7 @@ namespace {
 using TIntVec = std::vector<int>;
 using TIntVecVec = std::vector<TIntVec>;
 
-double throws() {
+[[noreturn]] double throws() {
     throw std::runtime_error("don't run me");
 };
 

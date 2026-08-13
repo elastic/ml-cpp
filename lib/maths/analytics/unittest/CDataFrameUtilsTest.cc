@@ -704,7 +704,8 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         testRng.generateNormalSamples(0.0, 3.0, numberRows, categories);
 
         testRng.generateUniformSamples(200, 500, 1, desiredNumberSamples);
-        double desiredSamplesFraction{static_cast<double>(desiredNumberSamples[0]) / numberRows};
+        double desiredSamplesFraction{static_cast<double>(desiredNumberSamples[0]) /
+                                      static_cast<double>(numberRows)};
 
         auto frame = core::makeMainStorageDataFrame(numberCols).first;
         frame->categoricalColumns(TBoolVec{true});
@@ -780,7 +781,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
             }
         }
 
-        double percentageStep{1.0 / numberBins * 100.0};
+        double percentageStep{1.0 / static_cast<double>(numberBins) * 100.0};
         double expected;
         double actual;
         for (double percentage = percentageStep; percentage < 100.0;
@@ -845,8 +846,10 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         LOG_TRACE(<< "Actual category count " << actualCategoryCounts);
 
         BOOST_REQUIRE_EQUAL(actualCategoryCounts.size(), expectedCategoryCounts.size());
-        for (std::size_t i = 0; i < expectedCategoryCounts.size(); ++i) {
-            BOOST_REQUIRE_EQUAL(actualCategoryCounts[i], expectedCategoryCounts[i]);
+        for (const auto & [ category, expected ] : expectedCategoryCounts) {
+            auto index = static_cast<std::size_t>(category);
+            BOOST_TEST_REQUIRE(index < actualCategoryCounts.size());
+            BOOST_REQUIRE_EQUAL(actualCategoryCounts[index], expected);
         }
     }
 
@@ -894,7 +897,7 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
             }
         }
 
-        double percentageStep{1.0 / numberBins * 100.0};
+        double percentageStep{1.0 / static_cast<double>(numberBins) * 100.0};
         double expected;
         double actual;
         for (double percentage = percentageStep; percentage < 100.0;

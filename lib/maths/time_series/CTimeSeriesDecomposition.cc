@@ -45,8 +45,6 @@ const core::TPersistenceTag SEASONALITY_TEST_7_11_TAG{"d", "seasonality_test"};
 const core::TPersistenceTag CALENDAR_CYCLIC_TEST_7_11_TAG{"e", "calendar_cyclic_test"};
 const core::TPersistenceTag COMPONENTS_7_11_TAG{"f", "components"};
 const core::TPersistenceTag TIME_SHIFT_7_11_TAG{"g", "time_shift"};
-
-const std::string EMPTY_STRING;
 }
 
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,

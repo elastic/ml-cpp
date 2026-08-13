@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
     analyzer.receivedAllRows();
     analyzer.run();
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
                        expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
                        expectedFeatureInfluences, 990, 10);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
                        maths::analytics::COutliers::E_Ensemble, 0, true);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                                expectedFeatureInfluences, 100, 10, method, k);
             analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-            json::error_code ec;
+            boost::system::error_code ec;
             json::value results = json::parse(output.str(), ec);
             BOOST_TEST_REQUIRE(ec.failed() == false);
             BOOST_TEST_REQUIRE(results.is_array());
@@ -622,7 +622,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(memoryLimitExceed);
 
         // verify memory status change
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value results = json::parse(output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());
@@ -672,7 +672,7 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
     analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                           {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());
@@ -714,7 +714,7 @@ BOOST_AUTO_TEST_CASE(testProgress) {
                        expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    json::error_code ec;
+    boost::system::error_code ec;
     json::value results = json::parse(output.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(results.is_array());

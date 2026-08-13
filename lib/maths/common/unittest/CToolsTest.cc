@@ -1071,7 +1071,8 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
                 double pExpected = pTails;
                 CTruncatedPdf<boost::math::normal> pdf(mixture, std::exp(logFx));
                 for (double xi = a, l = 0, step = 0.5 * (b - a) / std::floor(b - a);
-                     l < 2 * static_cast<std::size_t>(b - a); xi += step, ++l) {
+                     l < static_cast<double>(2 * static_cast<std::size_t>(b - a));
+                     xi += step, ++l) {
                     double pi;
                     maths::common::CIntegration::gaussLegendre<maths::common::CIntegration::OrderThree>(
                         pdf, xi, xi + step, pi);

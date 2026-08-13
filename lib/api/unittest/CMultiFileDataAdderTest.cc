@@ -134,7 +134,7 @@ void detectorPersistHelper(const std::string& configFileName,
         origFileContents[index] = json;
 
         // Ensure that the JSON is valid, by parsing string using boost::json
-        json::error_code ec;
+        boost::system::error_code ec;
         json::value document = json::parse(origFileContents[index].c_str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(document.is_object());

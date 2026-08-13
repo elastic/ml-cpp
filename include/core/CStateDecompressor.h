@@ -111,21 +111,21 @@ public:
             //! @return `true` on success.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_document_begin(json::error_code& ec);
+            bool on_document_begin(boost::system::error_code& ec);
 
             //! Called when the JSON parsing is done.
             //!
             //! @return `true` on success.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_document_end(json::error_code& ec);
+            bool on_document_end(boost::system::error_code& ec);
 
             //! Called when the beginning of an array is encountered.
             //!
             //! @return `true` on success.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_array_begin(json::error_code& ec);
+            bool on_array_begin(boost::system::error_code& ec);
 
             //! Called when the end of the current array is encountered.
             //!
@@ -133,14 +133,14 @@ public:
             //! @param n The number of elements in the array.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_array_end(std::size_t n, json::error_code& ec);
+            bool on_array_end(std::size_t n, boost::system::error_code& ec);
 
             //! Called when the beginning of an object is encountered.
             //!
             //! @return `true` on success.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_object_begin(json::error_code& ec);
+            bool on_object_begin(boost::system::error_code& ec);
 
             //! Called when the end of the current object is encountered.
             //!
@@ -148,7 +148,7 @@ public:
             //! @param n The number of elements in the object.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_object_end(std::size_t n, json::error_code& ec);
+            bool on_object_end(std::size_t n, boost::system::error_code& ec);
 
             //! Called with characters corresponding to part of the current string.
             //!
@@ -157,7 +157,7 @@ public:
             //! @param n The total size of the string thus far
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_string_part(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_string_part(std::string_view s, std::size_t n, boost::system::error_code& ec);
 
             //! Called with the last characters corresponding to the current string.
             //!
@@ -166,7 +166,7 @@ public:
             //! @param n The total size of the string
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_string(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_string(std::string_view s, std::size_t n, boost::system::error_code& ec);
 
             //! Called with characters corresponding to part of the current key.
             //!
@@ -175,7 +175,7 @@ public:
             //! @param n The total size of the key thus far
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_key_part(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_key_part(std::string_view s, std::size_t n, boost::system::error_code& ec);
 
             //! Called with the last characters corresponding to the current key.
             //!
@@ -184,7 +184,7 @@ public:
             //! @param n The total size of the key
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_key(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_key(std::string_view s, std::size_t n, boost::system::error_code& ec);
 
             //! Called with the characters corresponding to part of the current number.
             //!
@@ -192,7 +192,7 @@ public:
             //! @param s The partial characters
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_number_part(std::string_view s, json::error_code& ec);
+            bool on_number_part(std::string_view s, boost::system::error_code& ec);
 
             //! Called when a signed integer is parsed.
             //!
@@ -201,7 +201,7 @@ public:
             //! @param s The remaining characters
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_int64(int64_t i, std::string_view s, json::error_code& ec);
+            bool on_int64(int64_t i, std::string_view s, boost::system::error_code& ec);
 
             //! Called when an unsigend integer is parsed.
             //!
@@ -210,7 +210,7 @@ public:
             //! @param s The remaining characters
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_uint64(uint64_t u, std::string_view s, json::error_code& ec);
+            bool on_uint64(uint64_t u, std::string_view s, boost::system::error_code& ec);
 
             //! Called when a double is parsed.
             //!
@@ -219,7 +219,7 @@ public:
             //! @param s The remaining characters
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_double(double d, std::string_view s, json::error_code& ec);
+            bool on_double(double d, std::string_view s, boost::system::error_code& ec);
 
             //! Called when a boolean is parsed.
             //!
@@ -227,14 +227,14 @@ public:
             //! @param b The value
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_bool(bool b, json::error_code& ec);
+            bool on_bool(bool b, boost::system::error_code& ec);
 
             //! Called when a null is parsed.
             //!
             //! @return `true` on success.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_null(json::error_code& ec);
+            bool on_null(boost::system::error_code& ec);
 
             //! Called with characters corresponding to part of the current comment.
             //!
@@ -242,7 +242,7 @@ public:
             //! @param s The partial characters.
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_comment_part(std::string_view s, json::error_code& ec);
+            bool on_comment_part(std::string_view s, boost::system::error_code& ec);
 
             //! Called with the last characters corresponding to the current comment.
             //!
@@ -250,7 +250,7 @@ public:
             //! @param s The remaining characters
             //! @param ec Set to the error, if any occurred.
             //!
-            bool on_comment(std::string_view s, json::error_code& ec);
+            bool on_comment(std::string_view s, boost::system::error_code& ec);
 
             size_t s_Level[2];
             bool s_IsEndOfLevel[2];
@@ -266,15 +266,15 @@ public:
 
         struct SBoostJsonHandler final : public SBaseBoostJsonHandler {
 
-            bool on_bool(bool b, json::error_code& ec);
-            bool on_string(std::string_view s, std::size_t n, json::error_code& ec);
-            bool on_string_part(std::string_view s, std::size_t n, json::error_code& ec);
-            bool on_object_begin(json::error_code& ec);
-            bool on_key(std::string_view s, std::size_t n, json::error_code& ec);
-            bool on_key_part(std::string_view s, std::size_t n, json::error_code& ec);
-            bool on_object_end(std::size_t n, json::error_code& ec);
-            bool on_array_begin(json::error_code& ec);
-            bool on_array_end(std::size_t n, json::error_code& ec);
+            bool on_bool(bool b, boost::system::error_code& ec);
+            bool on_string(std::string_view s, std::size_t n, boost::system::error_code& ec);
+            bool on_string_part(std::string_view s, std::size_t n, boost::system::error_code& ec);
+            bool on_object_begin(boost::system::error_code& ec);
+            bool on_key(std::string_view s, std::size_t n, boost::system::error_code& ec);
+            bool on_key_part(std::string_view s, std::size_t n, boost::system::error_code& ec);
+            bool on_object_end(std::size_t n, boost::system::error_code& ec);
+            bool on_array_begin(boost::system::error_code& ec);
+            bool on_array_end(std::size_t n, boost::system::error_code& ec);
 
             enum ETokenType {
                 ETokenNull = 0,

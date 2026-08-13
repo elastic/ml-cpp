@@ -382,6 +382,19 @@ function(ml_add_test_executable _target)
 
   set_property(TARGET ml_test_${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
+  # Suppress benign warnings on test targets only (production code keeps them):
+  #  1. -Wsubobject-linkage (GCC): Boost.Test's fixture macros generate test
+  #     classes with external linkage that derive from fixtures defined in
+  #     anonymous namespaces (internal linkage). The anonymous namespace is
+  #     deliberate - it keeps each file's fixtures ODR-distinct within the
+  #     monolithic per-library test binary - so this idiomatic pattern is benign.
+  #  2. -Wunused-macros (Clang): Boost.Test's BOOST_TEST_MODULE /
+  #     BOOST_TEST_NO_MAIN macros are consumed by the subsequent
+  #     #include <boost/test/unit_test.hpp> but Clang flags them as unused.
+  target_compile_options(ml_test_${_target} PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>:-Wno-subobject-linkage>
+    $<$<CXX_COMPILER_ID:AppleClang,Clang>:-Wno-unused-macros>)
+
   if(ML_PCH)
     target_precompile_headers(ml_test_${_target} PRIVATE
       <string>

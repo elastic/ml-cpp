@@ -58,13 +58,13 @@ class custom_parser {
         constexpr static std::size_t max_string_size =
             ml::core::boost_json_constants::MAX_STRING_SIZE;
 
-        bool on_document_begin(json::error_code&) {
+        bool on_document_begin(boost::system::error_code&) {
             s_Value.emplace_object();
             s_CurrentValue.push(&s_Value);
             return true;
         }
-        bool on_document_end(json::error_code&) { return true; }
-        bool on_object_begin(json::error_code&) {
+        bool on_document_end(boost::system::error_code&) { return true; }
+        bool on_object_begin(boost::system::error_code&) {
             LOG_TRACE(<< "on_object_begin: s_Depth = " << s_CurrentValue.size());
             if (s_Keys.empty() == false) {
                 if (s_Keys.top() == "encoding_vector") {
@@ -84,7 +84,7 @@ class custom_parser {
             }
             return true;
         }
-        bool on_object_end(std::size_t, json::error_code&) {
+        bool on_object_end(std::size_t, boost::system::error_code&) {
             LOG_TRACE(<< "on_object_end: s_Depth = " << s_CurrentValue.size());
             s_CurrentValue.pop();
             if (s_Keys.empty() == false && s_EncodingTags.count(s_Keys.top()) > 0) {
@@ -96,7 +96,7 @@ class custom_parser {
             }
             return true;
         }
-        bool on_array_begin(json::error_code&) {
+        bool on_array_begin(boost::system::error_code&) {
             LOG_TRACE(<< "on_array_begin: s_Depth = " << s_CurrentValue.size());
             if (s_CurrentValue.empty() == false) {
                 if (s_CurrentValue.top()->is_array()) {
@@ -111,7 +111,7 @@ class custom_parser {
 
             return true;
         }
-        bool on_array_end(std::size_t, json::error_code&) {
+        bool on_array_end(std::size_t, boost::system::error_code&) {
             LOG_TRACE(<< "on_array_end: s_Depth = " << s_CurrentValue.size());
 
             s_CurrentValue.pop();
@@ -120,10 +120,10 @@ class custom_parser {
             }
             return true;
         }
-        bool on_key_part(std::string_view, std::size_t, json::error_code&) {
+        bool on_key_part(std::string_view, std::size_t, boost::system::error_code&) {
             return true;
         }
-        bool on_key(std::string_view s, std::size_t /*n*/, json::error_code& ec) {
+        bool on_key(std::string_view s, std::size_t /*n*/, boost::system::error_code& ec) {
             std::string str{s};
             s_Keys.push(str);
             if (s_CurrentValue.top()->is_array()) {
@@ -132,10 +132,10 @@ class custom_parser {
             }
             return ec ? false : true;
         }
-        bool on_string_part(std::string_view, std::size_t, json::error_code&) {
+        bool on_string_part(std::string_view, std::size_t, boost::system::error_code&) {
             return true;
         }
-        bool on_string(std::string_view s, std::size_t /*n*/, json::error_code& ec) {
+        bool on_string(std::string_view s, std::size_t /*n*/, boost::system::error_code& ec) {
             if (s_CurrentValue.top()->is_array()) {
                 s_CurrentValue.top()->as_array().push_back(json::string(s));
             } else {
@@ -149,10 +149,10 @@ class custom_parser {
             }
             return ec ? false : true;
         }
-        bool on_number_part(std::string_view, json::error_code&) {
+        bool on_number_part(std::string_view, boost::system::error_code&) {
             return true;
         }
-        bool on_int64(std::int64_t i, std::string_view, json::error_code& ec) {
+        bool on_int64(std::int64_t i, std::string_view, boost::system::error_code& ec) {
             LOG_TRACE(<< "on_int64: " << i);
             if (s_CurrentValue.top()->is_array()) {
                 s_CurrentValue.top()->as_array().push_back(json::value(i));
@@ -164,7 +164,7 @@ class custom_parser {
             }
             return ec ? false : true;
         }
-        bool on_uint64(std::uint64_t u, std::string_view, json::error_code& ec) {
+        bool on_uint64(std::uint64_t u, std::string_view, boost::system::error_code& ec) {
             LOG_TRACE(<< "on_uint64: " << u);
             if (s_CurrentValue.top()->is_array()) {
                 s_CurrentValue.top()->as_array().push_back(json::value(u));
@@ -176,7 +176,7 @@ class custom_parser {
             }
             return ec ? false : true;
         }
-        bool on_double(double d, std::string_view, json::error_code& ec) {
+        bool on_double(double d, std::string_view, boost::system::error_code& ec) {
             LOG_TRACE(<< "on_double: " << d);
             if (s_CurrentValue.top()->is_array()) {
                 s_CurrentValue.top()->as_array().push_back(json::value(d));
@@ -188,7 +188,7 @@ class custom_parser {
             }
             return ec ? false : true;
         }
-        bool on_bool(bool b, json::error_code& ec) {
+        bool on_bool(bool b, boost::system::error_code& ec) {
             LOG_TRACE(<< "on_bool: " << b);
             if (s_CurrentValue.top()->is_array()) {
                 s_CurrentValue.top()->as_array().push_back(json::value(b));
@@ -200,14 +200,16 @@ class custom_parser {
             }
             return ec ? false : true;
         }
-        bool on_null(json::error_code&) {
+        bool on_null(boost::system::error_code&) {
             LOG_TRACE(<< "on_null: ");
             return true;
         }
-        bool on_comment_part(std::string_view, json::error_code&) {
+        bool on_comment_part(std::string_view, boost::system::error_code&) {
             return true;
         }
-        bool on_comment(std::string_view, json::error_code&) { return true; }
+        bool on_comment(std::string_view, boost::system::error_code&) {
+            return true;
+        }
 
         std::stack<std::string> s_Keys;
         json::value s_Value;
@@ -224,7 +226,7 @@ public:
 
     ~custom_parser() {}
 
-    std::size_t write(char const* data, std::size_t size, json::error_code& ec) {
+    std::size_t write(char const* data, std::size_t size, boost::system::error_code& ec) {
         auto const n = p_.write_some(false, data, size, ec);
         if (!ec && n < size)
             ec = json::error::extra_data;
@@ -234,7 +236,7 @@ public:
     json::value release() const { return std::move(p_.handler().s_Value); }
 };
 
-bool parse(std::string_view s, json::value& value, json::error_code& ec) {
+bool parse(std::string_view s, json::value& value, boost::system::error_code& ec) {
     // Parse with the custom parser and return false on error
     custom_parser p;
     p.write(s.data(), s.size(), ec);
@@ -283,7 +285,7 @@ CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& istream,
                                                                core::CDataFrame& frame) {
     json::value doc;
-    json::error_code ec;
+    boost::system::error_code ec;
     std::string line;
     while (std::getline(istream, line) && !ec) {
         LOG_TRACE(<< "Parsing line: " << line);
@@ -386,7 +388,7 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     using TNodeVecVec = maths::analytics::CBoostedTreeFactory::TNodeVecVec;
 
     json::value doc;
-    json::error_code ec = core::CBoostJsonParser::parse(istream, doc);
+    boost::system::error_code ec = core::CBoostJsonParser::parse(istream, doc);
 
     assertNoParseError(ec);
     assertIsJsonObject(doc);

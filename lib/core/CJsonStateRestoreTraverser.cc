@@ -252,7 +252,7 @@ bool CJsonStateRestoreTraverser::parseNext(bool remember) {
             }
         }
 
-        json::error_code ec;
+        boost::system::error_code ec;
         char c = *m_BufferPtr;
         std::size_t written = m_Reader.write_some(true, &c, 1, ec);
         if (ec) {
@@ -319,7 +319,7 @@ bool CJsonStateRestoreTraverser::start() {
         }
 
         // Enhanced error logging with comprehensive debugging information
-        std::string tokenTypeName;
+        std::string tokenTypeName{"unknown"};
         switch (m_Handler.s_Type) {
         case SBoostJsonHandler::E_TokenNull:
             tokenTypeName = "null";
@@ -359,9 +359,6 @@ bool CJsonStateRestoreTraverser::start() {
             break;
         case SBoostJsonHandler::E_TokenStringPart:
             tokenTypeName = "string_part";
-            break;
-        default:
-            tokenTypeName = "unknown";
             break;
         }
 
@@ -426,7 +423,7 @@ CJsonStateRestoreTraverser::SBoostJsonHandler::SBoostJsonHandler()
     s_IsEndOfLevel[1] = false;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_null(json::error_code& ec) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_null(boost::system::error_code& ec) {
     s_Type = E_TokenNull;
     if (ec) {
         LOG_ERROR(<< "on_null: ERROR: " << ec.to_string());
@@ -436,7 +433,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_null(json::error_code& ec
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_bool(bool b, json::error_code& ec) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_bool(bool b, boost::system::error_code& ec) {
     s_Type = E_TokenBool;
     if (ec) {
         LOG_ERROR(<< "on_bool: ERROR: b: " << b << ". " << ec.to_string());
@@ -452,7 +449,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_bool(bool b, json::error_
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_int64(std::int64_t i,
                                                              std::string_view s,
-                                                             json::error_code& ec) {
+                                                             boost::system::error_code& ec) {
     s_Type = E_TokenInt64;
     if (ec) {
         LOG_ERROR(<< "on_int64: ERROR: i: " << i << ", s: '" << s << "'. "
@@ -472,7 +469,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_int64(std::int64_t i,
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_uint64(std::uint64_t u,
                                                               std::string_view s,
-                                                              json::error_code& ec) {
+                                                              boost::system::error_code& ec) {
     s_Type = E_TokenUInt64;
     if (ec) {
         LOG_ERROR(<< "on_uint64: ERROR: u: " << u << ", s: '" << s << "'. "
@@ -492,7 +489,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_uint64(std::uint64_t u,
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_double(double d,
                                                               std::string_view s,
-                                                              json::error_code& ec) {
+                                                              boost::system::error_code& ec) {
     s_Type = E_TokenDouble;
     if (ec) {
         LOG_ERROR(<< "on_double: ERROR: d: " << d << ", s: '" << s << "'. "
@@ -512,7 +509,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_double(double d,
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string_part(std::string_view s,
                                                                    std::size_t n,
-                                                                   json::error_code& ec) {
+                                                                   boost::system::error_code& ec) {
     s_Type = E_TokenStringPart;
     if (ec) {
         LOG_ERROR(<< "on_string_part: ERROR: s: '" << s << "', n: " << n << ". "
@@ -533,7 +530,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string_part(std::string_v
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string(std::string_view s,
                                                               std::size_t n,
-                                                              json::error_code& ec) {
+                                                              boost::system::error_code& ec) {
     if (ec) {
         LOG_ERROR(<< "on_string: ERROR: s: '" << s << "', n: " << n << ". "
                   << ec.to_string());
@@ -555,13 +552,13 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string(std::string_view s
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_document_begin(json::error_code& ec) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_document_begin(boost::system::error_code& ec) {
     LOG_TRACE(<< "on_document_begin");
 
     return (ec) ? false : true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_begin(json::error_code& ec) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_begin(boost::system::error_code& ec) {
     LOG_TRACE(<< "on_object_begin");
     if (ec) {
         return false;
@@ -579,7 +576,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_begin(json::error_
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key_part(std::string_view s,
                                                                 std::size_t n,
-                                                                json::error_code& ec) {
+                                                                boost::system::error_code& ec) {
     s_Type = E_TokenKeyPart;
     if (ec) {
         LOG_ERROR(<< "on_key_part: ERROR: s: '" << s << "', n: " << n << ". "
@@ -600,7 +597,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key_part(std::string_view
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key(std::string_view s,
                                                            std::size_t n,
-                                                           json::error_code& ec) {
+                                                           boost::system::error_code& ec) {
     s_Type = E_TokenKey;
     if (ec) {
         LOG_ERROR(<< "on_key: ERROR: s: '" << s << "', n: " << n << ". " << ec.to_string());
@@ -620,7 +617,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key(std::string_view s,
 }
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_end(std::size_t n,
-                                                                  json::error_code& ec) {
+                                                                  boost::system::error_code& ec) {
     s_Type = E_TokenObjectEnd;
     if (ec) {
         LOG_ERROR(<< "on_object_end: ERROR: n: " << n << ". " << ec.to_string());
@@ -640,7 +637,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_end(std::size_t n,
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_begin(json::error_code& ec) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_begin(boost::system::error_code& ec) {
     s_Type = E_TokenArrayStart;
     if (ec) {
         LOG_ERROR(<< "on_array_begin: ERROR: " << ec.to_string());
@@ -653,7 +650,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_begin(json::error_c
 }
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_end(std::size_t n,
-                                                                 json::error_code& ec) {
+                                                                 boost::system::error_code& ec) {
     s_Type = E_TokenArrayEnd;
     if (ec) {
         LOG_ERROR(<< "on_array_end: ERROR: n: " << n << ". " << ec.to_string());
@@ -665,17 +662,17 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_end(std::size_t n,
 }
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_number_part(std::string_view /* s*/,
-                                                                   json::error_code& ec) {
+                                                                   boost::system::error_code& ec) {
     return (ec) ? false : true;
 }
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_comment_part(std::string_view /* s*/,
-                                                                    json::error_code& ec) {
+                                                                    boost::system::error_code& ec) {
     return (ec) ? false : true;
 }
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_comment(std::string_view /* s*/,
-                                                               json::error_code& ec) {
+                                                               boost::system::error_code& ec) {
     return (ec) ? false : true;
 }
 }
