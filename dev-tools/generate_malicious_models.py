@@ -22,6 +22,7 @@ The output directory defaults to the same directory as this script.
 
 import os
 import sys
+import zipfile
 from pathlib import Path
 
 import torch
@@ -359,6 +360,62 @@ MODELS = {
 }
 
 
+def generate_setstate_long_path_evasion(output_dir: Path, source_name: str) -> bool:
+    """Repack a __setstate__ fixture under zip paths that exceed miniz's 512-byte
+    filename buffer so getAllRecords() truncates and getRecord() fails.
+
+    This reproduces a serverless bypass of the pre-load hook scan: the scanner
+    used to skip unreadable truncated names (fail-open) while torch::jit::load
+    still resolved the real entry.  The fixture is for scanArchiveForCustomStateHooks
+    only — loading it via torch.jit.load is not required.
+    """
+    source = output_dir / source_name
+    if not source.is_file():
+        print(f"  malicious_setstate_long_path_evasion.pt... SKIPPED (missing {source_name})")
+        return False
+
+    # Relative path length chosen so archive_prefix + relative exceeds
+    # MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE (512), matching observed attack paths.
+    long_mid = ("a" * 180) + "/" + ("b" * 180) + "/" + ("c" * 120)
+    dest_name = "malicious_setstate_long_path_evasion.pt"
+    dest = output_dir / dest_name
+    # Short top-level folder maximizes room for the long relative path.
+    archive_root = "x"
+
+    print(f"  {dest_name}...", end=" ")
+    try:
+        with zipfile.ZipFile(source, "r") as zin, zipfile.ZipFile(
+            dest, "w", compression=zipfile.ZIP_STORED
+        ) as zout:
+            for info in zin.infolist():
+                data = zin.read(info.filename)
+                # Strip original archive root; re-home under archive_root with
+                # inflated code/ paths.
+                parts = info.filename.split("/", 1)
+                rel = parts[1] if len(parts) == 2 else parts[0]
+                if rel.startswith("code/"):
+                    # code/__torch__/…/file.py → code/__torch__/<long>/file.py
+                    leaf = rel.rsplit("/", 1)[-1]
+                    new_rel = f"code/__torch__/{long_mid}/{leaf}"
+                else:
+                    new_rel = rel
+                new_name = f"{archive_root}/{new_rel}"
+                zout.writestr(new_name, data)
+
+        # Sanity: at least one full name (with archive root) exceeds 512.
+        with zipfile.ZipFile(dest, "r") as zcheck:
+            max_len = max(len(n) for n in zcheck.namelist())
+        if max_len < 512:
+            raise RuntimeError(
+                f"expected zip entry name length >= 512 for truncation, got {max_len}"
+            )
+        print(f"OK ({dest.stat().st_size} bytes, max entry name {max_len})")
+        return True
+    except Exception as exc:
+        print(f"FAILED: {exc}")
+        return False
+
+
 def generate(output_dir: Path):
     output_dir.mkdir(parents=True, exist_ok=True)
     succeeded = []
@@ -391,7 +448,19 @@ def generate(output_dir: Path):
             print(f"FAILED: {exc}")
             failed.append((filename, str(exc)))
 
-    print(f"\nGenerated {len(succeeded)}/{len(MODELS)} models")
+    if generate_setstate_long_path_evasion(
+        output_dir, "malicious_setstate_file_reader.pt"
+    ):
+        succeeded.append("malicious_setstate_long_path_evasion.pt")
+    else:
+        failed.append(
+            (
+                "malicious_setstate_long_path_evasion.pt",
+                "long-path evasion fixture generation failed",
+            )
+        )
+
+    print(f"\nGenerated {len(succeeded)} models ({len(failed)} failed)")
     if failed:
         print("Failed:")
         for name, err in failed:
