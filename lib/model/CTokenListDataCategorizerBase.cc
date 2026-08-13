@@ -378,6 +378,45 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
         }
     } while (traverser.next());
 
+    // Validate the restored categories against an inconsistent or truncated
+    // state document. Such a document can leave a category referencing data that
+    // is later used to index a container unchecked, which is an out-of-bounds
+    // access resulting in a crash. Fail the restore gracefully here instead of
+    // proceeding with an inconsistent state.
+    const std::size_t numTokens{m_TokenIdLookup.size()};
+    const auto tokenIdsInRange = [numTokens](const TSizeSizePrVec& tokenIds) {
+        return std::all_of(tokenIds.begin(), tokenIds.end(),
+                           [numTokens](const TSizeSizePr& tokenId) {
+                               return tokenId.first < numTokens;
+                           });
+    };
+    for (const auto& category : m_Categories) {
+        // Every token ID referenced by a category must exist in the restored
+        // token ID lookup, as these IDs index m_TokenIdLookup unchecked (for
+        // example when building a reverse search).
+        if (tokenIdsInRange(category.baseTokenIds()) == false ||
+            tokenIdsInRange(category.commonUniqueTokenIds()) == false) {
+            LOG_ERROR(<< "Cannot restore categorizer - a category references a token ID "
+                         "outside the restored token ID lookup (size "
+                      << numTokens << "); the state document is inconsistent");
+            return false;
+        }
+
+        // The ordered common token bounds must describe a valid sub-range of the
+        // category's base token IDs, as they are used to index m_BaseTokenIds
+        // unchecked (for example when matching or updating a category).
+        const TSizeSizePr orderedBounds{category.orderedCommonTokenBounds()};
+        if (orderedBounds.first > orderedBounds.second ||
+            orderedBounds.second > category.baseTokenIds().size()) {
+            LOG_ERROR(<< "Cannot restore categorizer - a category has ordered common token "
+                         "bounds ["
+                      << orderedBounds.first << ", " << orderedBounds.second << ") outside its base token list (size "
+                      << category.baseTokenIds().size()
+                      << "); the state document is inconsistent");
+            return false;
+        }
+    }
+
     // Categories are persisted in order of creation, but this list needs to be
     // sorted by descending count instead
     std::stable_sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),

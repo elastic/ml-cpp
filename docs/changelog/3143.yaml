@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3143
+summary: Fail gracefully when restoring a categorizer with an out-of-range token ID
+type: bug
