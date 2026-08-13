@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDec.h>
 #include <core/CMemoryDef.h>
