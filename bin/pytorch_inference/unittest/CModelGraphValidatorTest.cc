@@ -518,6 +518,30 @@ BOOST_AUTO_TEST_CASE(testPreLoadScanHandlesGarbageInput) {
     BOOST_REQUIRE(hooks.empty());
 }
 
+BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsLongPathEvasion) {
+    // Reproduces a serverless bypass: zip entry names longer than miniz's
+    // MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE (512) cause getAllRecords() to truncate
+    // and getRecord() to fail.  A prior fail-open skip let torch::jit::load run
+    // __setstate__.  The scan must now fail closed.
+    std::string bytes = readFileBytes(
+        "testfiles/malicious_models/malicious_setstate_long_path_evasion.pt");
+    BOOST_REQUIRE(bytes.empty() == false);
+
+    auto hooks = CModelGraphValidator::scanArchiveForCustomStateHooks(
+        bytes.data(), bytes.size());
+
+    BOOST_REQUIRE(hooks.empty() == false);
+    BOOST_REQUIRE_EQUAL(1, hooks.size());
+    BOOST_REQUIRE_EQUAL(std::string{CModelGraphValidator::SCAN_INCOMPLETE_MARKER},
+                        hooks[0]);
+}
+
+BOOST_AUTO_TEST_CASE(testPreLoadScanRejectsOversizedRecordName) {
+    // Even without a getRecord failure, relative names at/above the safe limit
+    // are refused — truncation would make the scan untrustworthy.
+    BOOST_REQUIRE(CModelGraphValidator::MAX_SAFE_ARCHIVE_RECORD_NAME_LENGTH >= 256);
+}
+
 BOOST_AUTO_TEST_CASE(testMaliciousReinterpretTensorRejectedPostLoad) {
     // inductor::_reinterpret_tensor is the as_strided heap-OOB bypass
     // (privately reported finding).  This forward-only fixture carries no custom
