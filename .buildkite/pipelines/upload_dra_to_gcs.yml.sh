@@ -8,20 +8,43 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Upload all artifacts, both platform-specific and all-platforms, to
-# GCS, where release manager builds will download them from.
+# Stage DRA artifacts and trigger unified-release DRA processing via the
+# elastic/dra-prep-buildkite-plugin (replaces the Release Manager Docker step).
 #
 
 . .buildkite/scripts/common/base.sh
 
+STACK_VERSION=$(awk -F= '/^elasticsearchVersion/ {print $2}' gradle.properties | xargs echo)
+
+if [ "${BUILD_SNAPSHOT:-true}" = "false" ] ; then
+    DRA_WORKFLOW=staging
+else
+    DRA_WORKFLOW=snapshot
+fi
+
 cat <<EOL
 steps:
-  - label: ":rocket: Upload DRA artifacts to GCS :gcloud:"
-    key: "upload_dra_artifacts_to_gcs"
+  - label: ":package: DRA Prep"
+    key: "dra-prep"
     depends_on: create_dra_artifacts
-    command:
-      - 'buildkite-agent artifact download "build/distributions/*" --step create_dra_artifacts .'
-      - '.buildkite/scripts/steps/upload_dra_to_gcs.sh'
+    command: ".buildkite/scripts/stage_artifacts.sh"
+    env:
+      DRA_WORKFLOW: "${DRA_WORKFLOW}"
     agents:
       provider: gcp
+    plugins:
+      - elastic/dra-prep#v0.1.5:
+          product_id: "ml-cpp"
+          stack_version: "${STACK_VERSION}"
+          workflow: "${DRA_WORKFLOW}"
+
+  - label: ":pipeline: Trigger DRA processing"
+    trigger: "unified-release-dra-processing"
+    async: true
+    depends_on: "dra-prep"
+    build:
+      env:
+        DRA_PRODUCT_ID: "ml-cpp"
+        DRA_STACK_VERSION: "${STACK_VERSION}"
+        DRA_WORKFLOW: "${DRA_WORKFLOW}"
 EOL
