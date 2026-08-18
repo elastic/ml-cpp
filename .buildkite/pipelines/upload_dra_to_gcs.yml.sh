@@ -16,10 +16,15 @@
 
 STACK_VERSION=$(awk -F= '/^elasticsearchVersion/ {print $2}' gradle.properties | xargs echo)
 
+if [ -n "${VERSION_QUALIFIER:-}" ] ; then
+    STACK_VERSION="${STACK_VERSION}-${VERSION_QUALIFIER}"
+fi
+
 if [ "${BUILD_SNAPSHOT:-true}" = "false" ] ; then
     DRA_WORKFLOW=staging
 else
     DRA_WORKFLOW=snapshot
+    STACK_VERSION="${STACK_VERSION}-SNAPSHOT"
 fi
 
 cat <<EOL
