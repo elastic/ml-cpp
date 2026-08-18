@@ -16,14 +16,13 @@ set -euo pipefail
 WORKFLOW="${DRA_WORKFLOW:?DRA_WORKFLOW is required}"
 
 echo "--- :compression: Downloading ${WORKFLOW} artifacts from create_dra_artifacts step"
-mkdir -p build/distributions/
+rm -rf build/distributions artifacts
+mkdir -p build/distributions artifacts
 
 buildkite-agent artifact download 'build/distributions/*.zip' . --step create_dra_artifacts
 buildkite-agent artifact download 'build/distributions/*.csv' . --step create_dra_artifacts
 
 echo "--- :package: Staging ${WORKFLOW} artifacts"
-mkdir -p artifacts
-
 cp build/distributions/*.zip artifacts/
 cp build/distributions/*.csv artifacts/
 
