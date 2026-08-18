@@ -19,13 +19,13 @@ echo "--- :compression: Downloading ${WORKFLOW} artifacts from create_dra_artifa
 mkdir -p build/distributions/
 
 buildkite-agent artifact download 'build/distributions/*.zip' . --step create_dra_artifacts
-buildkite-agent artifact download 'build/distributions/*.csv' . --step create_dra_artifacts || true
+buildkite-agent artifact download 'build/distributions/*.csv' . --step create_dra_artifacts
 
 echo "--- :package: Staging ${WORKFLOW} artifacts"
 mkdir -p artifacts
 
 cp build/distributions/*.zip artifacts/
-cp build/distributions/*.csv artifacts/ 2>/dev/null || true
+cp build/distributions/*.csv artifacts/
 
 if ! ls artifacts/* 1>/dev/null 2>&1; then
   echo "ERROR: no ${WORKFLOW} artifacts found in artifacts/." >&2
