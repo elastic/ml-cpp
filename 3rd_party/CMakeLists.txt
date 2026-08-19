@@ -248,10 +248,6 @@ FetchContent_MakeAvailable(absl)
   # Set SANDBOX2_LIBRARIES after sandboxed-api is available
   # Check if sandbox2::sandbox2 target exists (it should if sandboxed-api built successfully)
   if(TARGET sandbox2::sandbox2)
-    # libunwind_ptrace (a sandboxed-api dependency) references uncompress from zlib.
-    # Propagate via INTERFACE so consumer link lines place -lz after the archives
-    # (MlCore may already contribute -lz earlier, which --as-needed can drop on aarch64).
-    target_link_libraries(sandbox2::sandbox2 INTERFACE ${ZLIB_LIBRARIES})
     set(SANDBOX2_LIBRARIES sandbox2::sandbox2 CACHE INTERNAL "Sandbox2 libraries")
     message(STATUS "Sandbox2 enabled: using sandbox2::sandbox2")
   else()
