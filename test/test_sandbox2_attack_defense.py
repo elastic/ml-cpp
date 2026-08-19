@@ -4,7 +4,7 @@
 Verifies that sandbox2 can defend against attacks where traced PyTorch models
 attempt to write files outside their allowed scope. Not run in CI; use after
 local Sandbox2 or policy changes. CI coverage is provided by CModelGraphValidatorTest
-and CDetachedProcessSpawnerTest_Linux.
+and CSandboxedProcessSpawnerTest_Linux.
 
 The test:
 1. Generates a benign model (positive test case)
@@ -293,19 +293,12 @@ class ControllerProcess:
     def _start_controller_with_stdin(self, stdin_fd):
         """Start the controller process with a pre-opened stdin file descriptor."""
         try:
-            # Get path to properties file
-            properties_file = str(self.test_dir / 'boost.log.ini')
-
             cmd_args = [
                 self.binary_path,
                 '--logPipe=' + self.pipes['log'],
                 '--commandPipe=' + self.pipes['cmd'],
                 '--outputPipe=' + self.pipes['out'],
             ]
-
-            # Add properties file if it exists
-            if os.path.exists(properties_file):
-                cmd_args.append('--propertiesFile=' + properties_file)
 
             self.process = subprocess.Popen(
                 cmd_args,

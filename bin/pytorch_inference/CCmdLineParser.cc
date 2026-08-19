@@ -76,34 +76,16 @@ bool CCmdLineParser::parse(int argc,
             ("lowPriority", "Execute process in low priority")
             ("useImmediateExecutor", "Execute requests on the main thread. This mode should only used for "
             "benchmarking purposes to ensure requests are processed in order)")
-#ifdef ML_ALLOW_SKIP_MODEL_VALIDATION
             ("skipModelValidation", "Skip TorchScript model graph validation. WARNING: disables security checks on model operations.")
-#endif
         ;
         // clang-format on
 
         boost::program_options::variables_map vm;
-        // Workaround for Sandbox2: if argv[0] is an option (Sandbox2 sets it incorrectly),
-        // parse it as an option using a vector of strings
-        if (argc > 0 && std::string(argv[0]).substr(0, 2) == "--") {
-            // argv[0] is an option, not the program path - parse all args as options
-            std::vector<std::string> all_args;
-            for (int i = 0; i < argc; ++i) {
-                all_args.push_back(argv[i]);
-            }
-            boost::program_options::parsed_options parsed_all =
-                boost::program_options::command_line_parser(all_args)
-                    .options(desc)
-                    .run();
-            boost::program_options::store(parsed_all, vm);
-        } else {
-            // Normal case: argv[0] is the program path
-            boost::program_options::parsed_options parsed =
-                boost::program_options::command_line_parser(argc, argv)
-                    .options(desc)
-                    .run();
-            boost::program_options::store(parsed, vm);
-        }
+        boost::program_options::parsed_options parsed =
+            boost::program_options::command_line_parser(argc, argv)
+                .options(desc)
+                .run();
+        boost::program_options::store(parsed, vm);
 
         if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
@@ -168,11 +150,9 @@ bool CCmdLineParser::parse(int argc,
                 return false;
             }
         }
-#ifdef ML_ALLOW_SKIP_MODEL_VALIDATION
         if (vm.count("skipModelValidation") > 0) {
             skipModelValidation = true;
         }
-#endif
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;

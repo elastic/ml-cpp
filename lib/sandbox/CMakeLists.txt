@@ -8,24 +8,26 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(CMAKE_INSTALL_RPATH $ORIGIN)
+
+project("ML Sandbox")
+
+set(ML_LINK_LIBRARIES
+  MlCore
+  MlSeccomp
+  )
+
+set(SRCS
+  CSandbox2Diagnostics.cc
+  CSandboxedProcessSpawner.cc
+  CPytorchInferenceSandboxPolicy.cc
+  )
+
+ml_add_library(MlSandbox STATIC ${SRCS})
+
+if(TARGET sandbox2::sandbox2)
+  target_compile_definitions(MlSandbox PUBLIC SANDBOX2_AVAILABLE)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(MlSandbox PRIVATE sandbox2::sandbox2)
+    message(STATUS "MlSandbox: Sandbox2 enabled and linked")
+  endif()
 endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CMAKE_MACOSX_RPATH 1)
-  set(CMAKE_INSTALL_RPATH "@loader_path")
-endif()
-
-add_subdirectory(core)
-add_subdirectory(maths/common)
-add_subdirectory(maths/time_series)
-add_subdirectory(maths/analytics)
-add_subdirectory(model)
-add_subdirectory(api)
-add_subdirectory(api/dump_state EXCLUDE_FROM_ALL)
-add_subdirectory(test)
-add_subdirectory(ver)
-add_subdirectory(seccomp)
-add_subdirectory(sandbox)
-

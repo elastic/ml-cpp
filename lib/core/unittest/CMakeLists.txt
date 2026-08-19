@@ -86,7 +86,6 @@ set(ML_LINK_LIBRARIES
   MlCore
   MlMathsCommon
   MlTest
-  ${SANDBOX2_LIBRARIES}
   )
 
 ml_add_test_executable(core ${SRCS})

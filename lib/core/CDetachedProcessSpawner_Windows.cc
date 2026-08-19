@@ -179,23 +179,11 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     bool processPathHasExeExt(processPath.length() > 4 &&
                               processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
 
-    // Operator kill switch: Elasticsearch may append --disableSandbox when
-    // xpack.ml.trained_models.sandbox_enabled=false. Sandbox2 exists only on
-    // Linux; on Windows the controller simply consumes the flag so it never
-    // reaches pytorch_inference (which does not register it).
-    TStrVec effectiveArgs;
-    effectiveArgs.reserve(args.size());
-    for (const auto& arg : args) {
-        if (arg != "--disableSandbox") {
-            effectiveArgs.push_back(arg);
-        }
-    }
-
     // Windows takes command lines as a single string
     std::string cmdLine(CShellArgQuoter::quote(processPath));
-    for (size_t index = 0; index < effectiveArgs.size(); ++index) {
+    for (size_t index = 0; index < args.size(); ++index) {
         cmdLine += ' ';
-        cmdLine += CShellArgQuoter::quote(effectiveArgs[index]);
+        cmdLine += CShellArgQuoter::quote(args[index]);
     }
 
     STARTUPINFO startupInfo;

@@ -30,8 +30,9 @@ const std::string CCommandProcessor::START{"start"};
 const std::string CCommandProcessor::KILL{"kill"};
 
 CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths,
+                                     const TStrVec& sandboxedProcessPaths,
                                      std::ostream& responseStream)
-    : m_Spawner{permittedProcessPaths}, m_ResponseWriter{responseStream} {
+    : m_Spawner{permittedProcessPaths, sandboxedProcessPaths}, m_ResponseWriter{responseStream} {
 }
 
 void CCommandProcessor::processCommands(std::istream& commandStream) {

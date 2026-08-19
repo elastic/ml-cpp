@@ -79,6 +79,13 @@ if [ "$USES_DOCKER" = true ] ; then # linux aarch64 (native)
       (cd ${REPO_ROOT}/cmake-build-docker/test/lib/seccomp/unittest && \
         LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test_seccomp) || TEST_OUTCOME=$?
     fi
+    if [[ $TEST_OUTCOME -eq 0 ]]; then
+      echo "Re-running sandbox unit tests outside of Docker container"
+      (cd ${REPO_ROOT}/cmake-build-docker/test/lib/sandbox/unittest && \
+        ML_SANDBOX2_EXPECT=enforced \
+        LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` \
+        ./ml_test_sandbox) || TEST_OUTCOME=$?
+    fi
   fi
 fi
 

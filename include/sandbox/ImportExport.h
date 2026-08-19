@@ -8,19 +8,21 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#ifndef INCLUDED_ml_core_CSandbox2Diagnostics_h
-#define INCLUDED_ml_core_CSandbox2Diagnostics_h
+#ifndef INCLUDED_ml_sandbox_ImportExport_h
+#define INCLUDED_ml_sandbox_ImportExport_h
 
-#include <core/ImportExport.h>
+#ifdef Windows
 
-namespace ml {
-namespace core {
+#ifdef BUILDING_libMlSandbox
+#define SANDBOX_EXPORT __declspec(dllexport)
+#else
+#define SANDBOX_EXPORT __declspec(dllimport)
+#endif
 
-//! Logs a one-time Sandbox2 environment self-check at INFO level. On platforms
-//! without Sandbox2 support this is a no-op.
-CORE_EXPORT void logSandbox2EnvironmentSelfCheck();
+#else
 
-} // namespace core
-} // namespace ml
+#define SANDBOX_EXPORT
 
-#endif // INCLUDED_ml_core_CSandbox2Diagnostics_h
+#endif
+
+#endif // INCLUDED_ml_sandbox_ImportExport_h

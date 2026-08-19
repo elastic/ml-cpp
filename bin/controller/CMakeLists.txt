@@ -15,13 +15,14 @@ set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES}
   MlCore
   MlSeccomp
+  MlSandbox
   MlVer
-  ${SANDBOX2_LIBRARIES}
 )
 
 ml_add_executable(controller
   CBlockingCallCancellingStreamMonitor.cc
   CCmdLineParser.cc
   CCommandProcessor.cc
+  CProcessSpawnerRouter.cc
   CResponseJsonWriter.cc
   )

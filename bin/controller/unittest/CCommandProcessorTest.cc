@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"1\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
         for (std::size_t index = 0; index < std::size(PROCESS_ARGS1); ++index) {
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"2\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
         for (std::size_t index = 0; index < std::size(PROCESS_ARGS2); ++index) {
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testStartNonExistent) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"3\t" + ml::controller::CCommandProcessor::START + "\tsome other process"};
 
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(testKillDisallowed) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"4\t" + ml::controller::CCommandProcessor::KILL + '\t' + pidStr};
 
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(testInvalidVerb) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"5\tdrive\tsome other process"};
 
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(testTooFewTokens) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{ml::controller::CCommandProcessor::START + "\tsome other process"};
 
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testMissingId) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{ml::controller::CCommandProcessor::START +
                             "\tsome other process\targ1\targ2"};

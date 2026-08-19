@@ -38,6 +38,31 @@ namespace {
 //! Maximum number of newly opened files between calls to setupFileActions().
 const int MAX_NEW_OPEN_FILES{10};
 
+//! Owned copy of environ with ML_SANDBOXED removed so a stray value in the
+//! controller's environment cannot cause a non-sandboxed child to skip seccomp.
+struct SFilteredEnviron {
+    std::vector<std::string> m_Strings;
+    std::vector<char*> m_Pointers;
+
+    SFilteredEnviron() {
+        m_Strings.reserve(64);
+        for (char** env = environ; *env != nullptr; ++env) {
+            if (::strncmp(*env, "ML_SANDBOXED=", 13) == 0) {
+                continue;
+            }
+            m_Strings.emplace_back(*env);
+        }
+
+        m_Pointers.reserve(m_Strings.size() + 1);
+        for (std::string& envVar : m_Strings) {
+            m_Pointers.push_back(envVar.data());
+        }
+        m_Pointers.push_back(nullptr);
+    }
+
+    char** data() { return m_Pointers.data(); }
+};
+
 //! Attempt to close all file descriptors except the standard ones.  The
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process.  Returns false and sets errno if the actions cannot be initialised
@@ -275,43 +300,39 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         return false;
     }
 
-    // Operator kill switch: Elasticsearch may append --disableSandbox when
-    // xpack.ml.trained_models.sandbox_enabled=false. Sandbox2 exists only on
-    // Linux; on macOS the controller simply consumes the flag so it never
-    // reaches pytorch_inference (which does not register it).
-    TStrVec effectiveArgs;
-    effectiveArgs.reserve(args.size());
-    for (const auto& arg : args) {
-        if (arg != "--disableSandbox") {
-            effectiveArgs.push_back(arg);
-        }
-    }
-
     using TCharPVec = std::vector<char*>;
     // Size of argv is two bigger than the number of arguments because:
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer
     TCharPVec argv;
-    argv.reserve(effectiveArgs.size() + 2);
+    argv.reserve(args.size() + 2);
 
     // These const_casts may cause const data to get modified BUT only in the
     // child post-fork, so this won't corrupt parent process data
     argv.push_back(const_cast<char*>(processPath.c_str()));
-    for (size_t index = 0; index < effectiveArgs.size(); ++index) {
-        argv.push_back(const_cast<char*>(effectiveArgs[index].c_str()));
+    for (size_t index = 0; index < args.size(); ++index) {
+        argv.push_back(const_cast<char*>(args[index].c_str()));
     }
     argv.push_back(static_cast<char*>(nullptr));
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions, m_MaxObservedFd) == false) {
-        LOG_ERROR(<< "Failed to set up file actions prior to spawn of '"
-                  << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Failed to set up file actions: " +
+                                 std::string{::strerror(errno)}};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
     posix_spawnattr_t spawnAttributes;
     if (::posix_spawnattr_init(&spawnAttributes) != 0) {
-        LOG_ERROR(<< "Failed to set up spawn attributes prior to spawn of '"
-                  << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Failed to set up spawn attributes: " +
+                                 std::string{::strerror(errno)}};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
     ::posix_spawnattr_setflags(&spawnAttributes, POSIX_SPAWN_SETPGROUP);
@@ -322,14 +343,20 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
+        SFilteredEnviron filteredEnviron;
         int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions,
-                              &spawnAttributes, &argv[0], environ));
+                              &spawnAttributes, argv.data(), filteredEnviron.data()));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);
 
         if (err != 0) {
-            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << ::strerror(err));
+            const std::string reason{"Failed to spawn '" + processPath +
+                                     "': " + ::strerror(err)};
+            LOG_ERROR(<< reason);
+            if (failureReason != nullptr) {
+                *failureReason = reason;
+            }
             return false;
         }
 

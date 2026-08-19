@@ -8,7 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CSandbox2Diagnostics.h>
+#include <sandbox/CSandbox2Diagnostics.h>
 
 #include <core/CLogger.h>
 
@@ -23,7 +23,7 @@
 #include <unistd.h>
 
 namespace ml {
-namespace core {
+namespace sandbox {
 
 namespace {
 
@@ -98,5 +98,5 @@ void logSandbox2EnvironmentSelfCheck() {
              << ", TMPDIR " << describeTmpdir(tmpdir));
 }
 
-} // namespace core
+} // namespace sandbox
 } // namespace ml

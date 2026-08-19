@@ -2,5 +2,7 @@ area: Machine Learning
 issues: []
 pr: 2873
 summary: >-
-  Add Sandbox2 namespace and seccomp isolation for PyTorch inference processes
+  Add Linux-only Sandbox2 namespace and seccomp isolation for PyTorch inference
+  processes, with a sandbox_enabled/--disableSandbox kill switch to fall back to
+  the legacy spawn path
 type: enhancement

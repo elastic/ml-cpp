@@ -15,6 +15,7 @@ set (SRCS
   Main.cc
   CBlockingCallCancellingStreamMonitorTest.cc
   CCommandProcessorTest.cc
+  CProcessSpawnerRouterTest.cc
   CResponseJsonWriterTest.cc
   )
 
@@ -22,6 +23,7 @@ set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES_WITH_UNIT_TEST}
   ${LIBXML2_LIBRARIES}
   MlCore
+  MlSandbox
   MlTest
   MlVer
   )

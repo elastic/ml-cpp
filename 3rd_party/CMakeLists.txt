@@ -48,6 +48,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Save and disable BUILD_TESTING to prevent CTest from enabling tests
   set(_saved_BUILD_TESTING ${BUILD_TESTING})
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+  set(_saved_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
   # The vendored Abseil and Sandboxed API sources are not unity-build safe. For
@@ -127,8 +128,16 @@ FetchContent_MakeAvailable(absl)
 ")
   endif()
 
-  # Patch sandboxed-api CMakeLists.txt to remove -fno-exceptions PUBLIC flag
-  # This prevents it from propagating to our codebase
+  # Sandboxed API source patches (re-apply when bumping GIT_TAG above):
+  # 1. cmake/abseil-cpp.cmake (file WRITE above): disable Google Test in the
+  #    vendored Abseil fetch so FetchContent does not pull gtest.
+  # 2. CMakeLists.txt (-fno-exceptions): stop sapi_base from exporting
+  #    -fno-exceptions PUBLIC, which would propagate into ml-cpp targets.
+  # 3. cmake/SapiDeps.cmake (Python3): make Python3 optional so protobuf code
+  #    generation is skipped when no interpreter is available at configure time.
+  # 4. sandboxed_api/sandbox2/CMakeLists.txt (forkserver_bin): link zlib for
+  #    libunwind and -static-libstdc++/-static-libgcc so the embedded forkserver
+  #    binary runs on hosts with older GLIBCXX.
   file(READ ${sandboxed-api_SOURCE_DIR}/CMakeLists.txt _sapi_cmake_content)
   string(REPLACE
     "target_compile_options(sapi_base PUBLIC\n  -fno-exceptions\n)"
@@ -245,11 +254,8 @@ FetchContent_MakeAvailable(absl)
     message(FATAL_ERROR "Sandbox2 required on Linux but sandbox2::sandbox2 was not built")
   endif()
 
-  # Restore BUILD_TESTING if it was set
-  if(_saved_BUILD_TESTING)
-    set(BUILD_TESTING ${_saved_BUILD_TESTING} CACHE BOOL "" FORCE)
-  endif()
-
-  # Restore the caller's unity-build setting for the rest of the build.
+  # Restore the caller's settings for the rest of the build.
+  set(BUILD_TESTING ${_saved_BUILD_TESTING} CACHE BOOL "" FORCE)
+  set(BUILD_SHARED_LIBS ${_saved_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
   set(CMAKE_UNITY_BUILD ${_saved_CMAKE_UNITY_BUILD})
 endif()

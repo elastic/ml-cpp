@@ -8,14 +8,9 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CSandbox2Diagnostics.h>
 
-namespace ml {
-namespace core {
+#include <boost/test/unit_test.hpp>
 
-void logSandbox2EnvironmentSelfCheck() {
-    // No-op on platforms without Sandbox2 support.
-}
+BOOST_AUTO_TEST_SUITE(CSandboxedProcessSpawnerTest)
 
-} // namespace core
-} // namespace ml
+BOOST_AUTO_TEST_SUITE_END()

@@ -12,7 +12,7 @@
 /*
  * NOTE: This seccomp filter is being gradually replaced by Sandbox2 policies
  * for processes that are spawned via CDetachedProcessSpawner. See
- * CDetachedProcessSpawner_Linux.cc::buildPytorchInferencePolicy() for the Sandbox2
+ * CPytorchInferenceSandboxPolicy_Linux.cc::buildPytorchInferencePolicy() for the Sandbox2
  * equivalent. The syscall whitelist should be kept in sync between both
  * implementations until all processes are migrated to Sandbox2.
  */
@@ -43,7 +43,7 @@ const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
 
 // BPF jump-offset maintenance (see also buildPytorchInferencePolicy() in
-// CDetachedProcessSpawner_Linux.cc for the Sandbox2 equivalent allowlist):
+// CPytorchInferenceSandboxPolicy_Linux.cc for the Sandbox2 equivalent allowlist):
 // - Each BPF_JUMP(..., jt, 0) on a syscall row jumps forward jt instructions to
 //   the terminal SECCOMP_RET_ALLOW row. For a row at index i, jt must equal
 //   (indexOfALLOW - i - 1).

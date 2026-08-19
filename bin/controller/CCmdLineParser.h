@@ -39,8 +39,7 @@ public:
                       std::string& jvmPidStr,
                       std::string& logPipe,
                       std::string& commandPipe,
-                      std::string& outputPipe,
-                      std::string& propertiesFile);
+                      std::string& outputPipe);
 
 private:
     static const std::string DESCRIPTION;
