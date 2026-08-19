@@ -156,10 +156,9 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
 
     if (!sandboxPtr->RunAsync()) {
         sandbox2::Result result{sandboxPtr->AwaitResult()};
-        const std::string reason{"Sandbox2 failed to start pytorch_inference: " +
-                                 formatSandbox2Result(result) +
-                                 " - check that unprivileged user namespaces are enabled" +
-                                 SANDBOX2_DISABLE_HINT};
+        const std::string reason{
+            "Sandbox2 failed to start pytorch_inference: " + formatSandbox2Result(result) +
+            " - check that unprivileged user namespaces are enabled" + SANDBOX2_DISABLE_HINT};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);
         return false;

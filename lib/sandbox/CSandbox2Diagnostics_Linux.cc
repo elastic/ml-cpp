@@ -88,8 +88,8 @@ void logSandbox2EnvironmentSelfCheck() {
 
     LOG_INFO(<< "Sandbox2 environment self-check: " << usernsStatus
              << ", /tmp writable=" << (tmpWritable ? "yes" : "no")
-             << ", /tmp noexec=" << (tmpNoexec ? "yes" : "no")
-             << ", TMPDIR " << describeTmpdir(tmpdir));
+             << ", /tmp noexec=" << (tmpNoexec ? "yes" : "no") << ", TMPDIR "
+             << describeTmpdir(tmpdir));
 }
 
 } // namespace sandbox
