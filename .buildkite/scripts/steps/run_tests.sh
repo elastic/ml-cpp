@@ -61,6 +61,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
         -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
         -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
+        -e ML_SANDBOX2_EXPECT=fail_closed \
         ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
         -w /ml-cpp \
         $BASE_IMAGE bash -c '
@@ -82,6 +83,17 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # kernel, so the kernel's seccomp filters are exercised without needing
     # a separate outside-Docker run.
 
+    # The 'enforced' Sandbox2 path requires a real host that can
+    # unshare(CLONE_NEWUSER) and write uid_map, which the Docker container
+    # cannot. Re-run just the sandbox suite on the aarch64 host to exercise it.
+    if [[ $TEST_OUTCOME -eq 0 ]]; then
+        echo "Re-running sandbox unit tests outside of Docker container"
+        (cd "${REPO_ROOT:-.}/cmake-build-docker/test/lib/sandbox/unittest" && \
+            ML_SANDBOX2_EXPECT=enforced \
+            LD_LIBRARY_PATH=$(cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd) \
+            ./ml_test_sandbox) || TEST_OUTCOME=$?
+    fi
+
 else
     # --- Linux x86_64 / macOS: run tests directly ---
     . ./set_env.sh
@@ -96,6 +108,13 @@ else
         export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     else
         export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+    fi
+
+    # Linux x86_64 CI agents run this script inside the build image (no user
+    # namespace), so fail_closed is expected. macOS has no
+    # CSandboxedProcessSpawnerTest_Linux.cc, so the export is a harmless no-op.
+    if [[ "$(uname)" = "Linux" ]]; then
+        export ML_SANDBOX2_EXPECT=fail_closed
     fi
 
     echo "--- Running tests"
