@@ -16,13 +16,11 @@ or the inference process never appears.
 **Common causes:**
 - Unprivileged user namespaces disabled (`kernel.unprivileged_userns_clone=0`,
   AppArmor/SELinux restrictions)
-- TMPDIR not writable or forkserver Unix socket path unusable
 
 **Action:** Check the controller boot-time `Sandbox2 environment self-check` INFO line
 for userns and `/tmp` status. On spawn failure, the controller response and ERROR log
 include the `sandbox2::Result` status. Verify user namespaces on the host. Check
-controller TMPDIR and `/tmp` permissions. There is currently no runtime fallback to the
-legacy `posix_spawn` + in-process seccomp path.
+`/tmp` permissions when pipe or temp-file creation fails inside the sandbox.
 
 ### FIFO / mount-namespace path mismatch
 
@@ -69,17 +67,6 @@ records `rlimit_nofile=65536`.
 
 **Action:** Monitor open file descriptors on busy clusters. Rely on ES-level
 job limits for runaway processes.
-
-### TMPDIR / forkserver socket
-
-**Symptom:** Spawn fails at controller; TMPDIR override warning in logs.
-
-**Log to search:** `TMPDIR path too long for Sandbox2 forkserver`,
-`Sandbox2 environment self-check`, `forkserver_override_needed=yes` in spawn context
-
-**Notes:** Paths longer than ~80 characters are overridden to `/tmp` for the
-forkserver. If `/tmp` is missing, full, or `noexec`, spawn fails. The spawn context
-INFO line shows `controllerTmpdir` vs `sandboxeeTmpdir`.
 
 ### Filesystem view gaps
 

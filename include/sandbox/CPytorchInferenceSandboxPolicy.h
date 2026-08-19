@@ -37,17 +37,14 @@ SArgDirExtraction extractArgDirs(const std::vector<std::string>& args);
 void logSandbox2SpawnContext(const std::string& absPath,
                              const std::string& binDir,
                              const std::string& libDir,
-                             const SArgDirExtraction& argDirInfo,
-                             const std::string& originalTmpdir,
-                             bool tmpdirOverridden,
-                             const std::string& sandboxeeTmpdir);
+                             const SArgDirExtraction& argDirInfo);
 
 std::string sandboxPlatformArch();
 
 std::string formatSandbox2Result(const sandbox2::Result& result);
 
 //! Builds the syscall and filesystem policy for a sandboxed pytorch_inference.
-//! Keep the syscall allowlist in sync with lib/seccomp/CSystemCallFilter_Linux.cc.
+//! Keep the syscall allowlist in sync with include/seccomp/CPytorchInferenceSyscallAllowlist.h.
 sandbox2::PolicyBuilder buildPytorchInferencePolicy(const std::string& binDir,
                                                     const std::string& libDir,
                                                     const std::set<std::string>& argDirs);

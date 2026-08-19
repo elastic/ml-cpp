@@ -27,9 +27,6 @@ namespace sandbox {
 
 namespace {
 
-const int FORKSERVER_TMPDIR_WARN_CHARS{80};
-const int FORKSERVER_SOCKET_PATH_LIMIT_CHARS{108};
-
 std::string readProcSysValue(const char* path) {
     std::ifstream stream(path);
     std::string value;
@@ -59,8 +56,6 @@ std::string describeTmpdir(const char* tmpdir) {
     description += std::to_string(::strlen(tmpdir));
     description += ", value=";
     description += tmpdir;
-    description += ", forkserver_override_needed=";
-    description += (::strlen(tmpdir) > FORKSERVER_TMPDIR_WARN_CHARS) ? "yes" : "no";
     return description;
 }
 
@@ -94,7 +89,6 @@ void logSandbox2EnvironmentSelfCheck() {
     LOG_INFO(<< "Sandbox2 environment self-check: " << usernsStatus
              << ", /tmp writable=" << (tmpWritable ? "yes" : "no")
              << ", /tmp noexec=" << (tmpNoexec ? "yes" : "no")
-             << ", forkserver_socket_path_limit=" << FORKSERVER_SOCKET_PATH_LIMIT_CHARS
              << ", TMPDIR " << describeTmpdir(tmpdir));
 }
 

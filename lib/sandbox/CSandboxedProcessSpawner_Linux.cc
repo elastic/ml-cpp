@@ -11,8 +11,6 @@
 #include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <core/CLogger.h>
-#include <core/CMutex.h>
-#include <core/CScopedLock.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 #include <sandbox/CSandbox2Diagnostics.h>
 
@@ -52,26 +50,6 @@ void assignFailureReason(std::string* failureReason, const std::string& reason) 
     }
 }
 
-//! Minimal RAII scope guard that runs a callable when it goes out of scope.
-//! Used to guarantee the controller's global TMPDIR is restored on every exit
-//! path of the sandboxed spawn.
-template<typename FUNC>
-class CScopeExit {
-public:
-    explicit CScopeExit(FUNC func) : m_Func(std::move(func)) {}
-    ~CScopeExit() { m_Func(); }
-    CScopeExit(const CScopeExit&) = delete;
-    CScopeExit& operator=(const CScopeExit&) = delete;
-
-private:
-    FUNC m_Func;
-};
-
-template<typename FUNC>
-CScopeExit<FUNC> makeScopeExit(FUNC func) {
-    return CScopeExit<FUNC>{std::move(func)};
-}
-
 } // namespace
 
 namespace ml {
@@ -87,39 +65,6 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                                      std::string* failureReason) {
 #ifdef SANDBOX2_AVAILABLE
     logSandbox2EnvironmentSelfCheck();
-
-    // Serialize TMPDIR mutation and environ walks across concurrent spawns.
-    static core::CMutex tmpdirMutex;
-    core::CScopedLock tmpdirLock(tmpdirMutex);
-
-    // Save original TMPDIR to restore for the sandboxed process
-    std::string originalTmpdir;
-    const char* tmpdir = ::getenv("TMPDIR");
-    if (tmpdir != nullptr) {
-        originalTmpdir = tmpdir;
-    }
-
-    // Sandbox2 forkserver uses Unix sockets with 108 char path limit
-    bool tmpdirOverridden{false};
-    if (tmpdir != nullptr && ::strlen(tmpdir) > 80) {
-        LOG_WARN(<< "TMPDIR path too long for Sandbox2 forkserver Unix socket (108 char limit),"
-                 << " temporarily overriding to /tmp (len=" << ::strlen(tmpdir)
-                 << ", value=" << tmpdir << ")");
-        ::setenv("TMPDIR", "/tmp", 1);
-        tmpdirOverridden = true;
-    }
-
-    // Restore the controller's global TMPDIR on every exit path. The
-    // override above must remain in effect until the Sandbox2 forkserver has
-    // started (it derives its Unix socket path from TMPDIR), but leaving the
-    // controller's environment mutated corrupts subsequent spawns: they would
-    // observe the short /tmp value, skip the per-process TMPDIR restoration
-    // below, and launch pytorch_inference with the wrong TMPDIR.
-    auto tmpdirRestorer = makeScopeExit([tmpdirOverridden, &originalTmpdir]() {
-        if (tmpdirOverridden) {
-            ::setenv("TMPDIR", originalTmpdir.c_str(), 1);
-        }
-    });
 
     // Resolve to absolute path - Sandbox2 requires absolute paths
     char resolvedPath[PATH_MAX];
@@ -171,17 +116,12 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         return false;
     }
 
-    // Create executor with a sandbox marker and restored TMPDIR when needed.
+    // Create executor with a sandbox marker.
     std::vector<std::string> customEnv;
     bool sandboxMarkerSet{false};
-    const char* currentTmpdir = ::getenv("TMPDIR");
-    const bool restoreTmpdir = !originalTmpdir.empty() &&
-                               (currentTmpdir == nullptr || originalTmpdir != currentTmpdir);
     for (char** env = environ; *env != nullptr; ++env) {
         std::string envVar(*env);
-        if (restoreTmpdir && envVar.find("TMPDIR=") == 0) {
-            customEnv.push_back("TMPDIR=" + originalTmpdir);
-        } else if (envVar.find("ML_SANDBOXED=") == 0) {
+        if (envVar.find("ML_SANDBOXED=") == 0) {
             customEnv.push_back("ML_SANDBOXED=1");
             sandboxMarkerSet = true;
         } else {
@@ -191,11 +131,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     if (!sandboxMarkerSet) {
         customEnv.push_back("ML_SANDBOXED=1");
     }
-    const std::string sandboxeeTmpdir{
-        restoreTmpdir ? originalTmpdir : (currentTmpdir != nullptr ? currentTmpdir : "")};
 
-    logSandbox2SpawnContext(absPath, binDir, libDir, argDirInfo, originalTmpdir,
-                            tmpdirOverridden, sandboxeeTmpdir);
+    logSandbox2SpawnContext(absPath, binDir, libDir, argDirInfo);
 
     std::unique_ptr<sandbox2::Executor> executor =
         std::make_unique<sandbox2::Executor>(absPath, fullArgs, customEnv);
@@ -221,8 +158,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         sandbox2::Result result{sandboxPtr->AwaitResult()};
         const std::string reason{"Sandbox2 failed to start pytorch_inference: " +
                                  formatSandbox2Result(result) +
-                                 " - check that unprivileged user namespaces are enabled and "
-                                 "TMPDIR is writable" +
+                                 " - check that unprivileged user namespaces are enabled" +
                                  SANDBOX2_DISABLE_HINT};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);

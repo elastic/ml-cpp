@@ -55,7 +55,7 @@ SArgDirExtraction extractArgDirs(const std::vector<std::string>& args) {
 
         std::string path = arg.substr(eqPos + 1);
         size_t lastSlash = path.rfind('/');
-        if (lastSlash == std::string::npos || lastSlash == 0) {
+        if (lastSlash == 0) {
             extraction.m_RejectedPipeArgs.push_back(arg + " (no mountable directory)");
             continue;
         }
@@ -75,12 +75,8 @@ SArgDirExtraction extractArgDirs(const std::vector<std::string>& args) {
 
 namespace {
 
-std::string joinForLog(const std::set<std::string>& values) {
-    const std::string joined{core::CStringUtils::join(values, ",")};
-    return joined.empty() ? "(none)" : joined;
-}
-
-std::string joinForLog(const std::vector<std::string>& values) {
+template<typename Container>
+std::string joinForLog(const Container& values) {
     const std::string joined{core::CStringUtils::join(values, ",")};
     return joined.empty() ? "(none)" : joined;
 }
@@ -92,10 +88,7 @@ std::string joinForLog(const std::vector<std::string>& values) {
 void logSandbox2SpawnContext(const std::string& absPath,
                              const std::string& binDir,
                              const std::string& libDir,
-                             const SArgDirExtraction& argDirInfo,
-                             const std::string& originalTmpdir,
-                             bool tmpdirOverridden,
-                             const std::string& sandboxeeTmpdir) {
+                             const SArgDirExtraction& argDirInfo) {
     std::ostringstream fixedMounts;
     fixedMounts << binDir << ',' << libDir;
     for (const auto& mountPath : seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
@@ -111,10 +104,6 @@ void logSandbox2SpawnContext(const std::string& absPath,
              << " pipeDirs=[" << joinForLog(argDirInfo.m_ArgDirs) << "]"
              << " pipeDirAliases=[" << joinForLog(argDirInfo.m_PipeDirAliasMappings) << "]"
              << " rejectedPipeArgs=[" << joinForLog(argDirInfo.m_RejectedPipeArgs) << "]"
-             << " controllerTmpdir="
-             << (tmpdirOverridden ? "/tmp (overridden for forkserver)"
-                                  : originalTmpdir.empty() ? "(unset)" : originalTmpdir)
-             << " sandboxeeTmpdir=" << (sandboxeeTmpdir.empty() ? "(unset)" : sandboxeeTmpdir)
              << " rlimit_nofile=65536 walltime_limit=disabled cpu_limit=disabled");
 }
 

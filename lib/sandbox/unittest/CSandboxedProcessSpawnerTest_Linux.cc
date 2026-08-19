@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceSpawnStartsAndTerminates) {
 
     ml::sandbox::CSandboxedProcessSpawner spawner;
     ml::sandbox::CSandboxedProcessSpawner::TStrVec args{
-        "--validElasticLicenseKeyConfirmed",
+        "--validElasticLicenseKeyConfirmed=true",
         "--namedPipeConnectTimeout=1",
     };
 
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(testFailClosedWhenUserNamespacesUnavailable) {
 
     ml::sandbox::CSandboxedProcessSpawner spawner;
     ml::sandbox::CSandboxedProcessSpawner::TStrVec args{
-        "--validElasticLicenseKeyConfirmed",
+        "--validElasticLicenseKeyConfirmed=true",
         "--namedPipeConnectTimeout=1",
     };
 

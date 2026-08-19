@@ -31,7 +31,7 @@ SArgDirExtraction extractArgDirs(const std::vector<std::string>& args) {
 
         std::string path = arg.substr(eqPos + 1);
         size_t lastSlash = path.rfind('/');
-        if (lastSlash == std::string::npos || lastSlash == 0) {
+        if (lastSlash == 0) {
             extraction.m_RejectedPipeArgs.push_back(arg + " (no mountable directory)");
             continue;
         }
