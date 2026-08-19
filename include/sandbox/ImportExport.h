@@ -11,18 +11,9 @@
 #ifndef INCLUDED_ml_sandbox_ImportExport_h
 #define INCLUDED_ml_sandbox_ImportExport_h
 
-#ifdef Windows
-
-#ifdef BUILDING_libMlSandbox
-#define SANDBOX_EXPORT __declspec(dllexport)
-#else
-#define SANDBOX_EXPORT __declspec(dllimport)
-#endif
-
-#else
-
+// MlSandbox is a STATIC library: symbols link directly into consumers, so there
+// is no dllexport/dllimport boundary. Leaving the DLL pattern makes MSVC emit an
+// __imp_ reference that a static archive cannot satisfy (LNK2019).
 #define SANDBOX_EXPORT
-
-#endif
 
 #endif // INCLUDED_ml_sandbox_ImportExport_h

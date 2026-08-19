@@ -110,11 +110,10 @@ else
         export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
     fi
 
-    # Linux x86_64 CI agents run this script inside the build image (no user
-    # namespace), so fail_closed is expected. macOS has no
-    # CSandboxedProcessSpawnerTest_Linux.cc, so the export is a harmless no-op.
+    # Linux x86_64 CI agents can unshare(CLONE_NEWUSER) and write uid_map, so the
+    # sandbox suite expects enforced here. macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
     if [[ "$(uname)" = "Linux" ]]; then
-        export ML_SANDBOX2_EXPECT=fail_closed
+        export ML_SANDBOX2_EXPECT=enforced
     fi
 
     echo "--- Running tests"
