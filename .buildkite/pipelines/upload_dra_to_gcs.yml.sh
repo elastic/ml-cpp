@@ -20,11 +20,14 @@ if [ -n "${VERSION_QUALIFIER:-}" ] ; then
     STACK_VERSION="${STACK_VERSION}-${VERSION_QUALIFIER}"
 fi
 
-if [ "${BUILD_SNAPSHOT:-true}" = "false" ] ; then
-    DRA_WORKFLOW=staging
-else
+if [ -z "$BUILD_SNAPSHOT" ] ; then
+    BUILD_SNAPSHOT=true
+fi
+if [ "$BUILD_SNAPSHOT" = "true" ] ; then
     DRA_WORKFLOW=snapshot
     STACK_VERSION="${STACK_VERSION}-SNAPSHOT"
+else
+    DRA_WORKFLOW=staging
 fi
 
 cat <<EOL
