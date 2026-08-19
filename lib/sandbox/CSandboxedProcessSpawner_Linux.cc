@@ -13,8 +13,8 @@
 #include <core/CLogger.h>
 #include <core/CMutex.h>
 #include <core/CScopedLock.h>
-#include <sandbox/CSandbox2Diagnostics.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
+#include <sandbox/CSandbox2Diagnostics.h>
 
 #include <memory>
 #include <sstream>
@@ -124,7 +124,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // Resolve to absolute path - Sandbox2 requires absolute paths
     char resolvedPath[PATH_MAX];
     if (::realpath(processPath.c_str(), resolvedPath) == nullptr) {
-        const std::string reason{"Cannot resolve path " + processPath + ": " + ::strerror(errno)};
+        const std::string reason{"Cannot resolve path " + processPath + ": " +
+                                 ::strerror(errno)};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);
         return false;
@@ -163,8 +164,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     if (!policyResult.ok()) {
         std::ostringstream statusMessage;
         statusMessage << policyResult.status();
-        const std::string reason{"Failed to build Sandbox2 policy: " + statusMessage.str() +
-                                 SANDBOX2_DISABLE_HINT};
+        const std::string reason{"Failed to build Sandbox2 policy: " +
+                                 statusMessage.str() + SANDBOX2_DISABLE_HINT};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);
         return false;
@@ -190,12 +191,11 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     if (!sandboxMarkerSet) {
         customEnv.push_back("ML_SANDBOXED=1");
     }
-    const std::string sandboxeeTmpdir{restoreTmpdir ? originalTmpdir
-                                                    : (currentTmpdir != nullptr ? currentTmpdir
-                                                                                : "")};
+    const std::string sandboxeeTmpdir{
+        restoreTmpdir ? originalTmpdir : (currentTmpdir != nullptr ? currentTmpdir : "")};
 
-    logSandbox2SpawnContext(absPath, binDir, libDir, argDirInfo, originalTmpdir, tmpdirOverridden,
-                            sandboxeeTmpdir);
+    logSandbox2SpawnContext(absPath, binDir, libDir, argDirInfo, originalTmpdir,
+                            tmpdirOverridden, sandboxeeTmpdir);
 
     std::unique_ptr<sandbox2::Executor> executor =
         std::make_unique<sandbox2::Executor>(absPath, fullArgs, customEnv);
@@ -214,8 +214,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // under concurrent inference can approach that on QA clusters.
     executor->limits()->set_rlimit_nofile(65536);
 
-    auto sandboxPtr =
-        std::make_unique<sandbox2::Sandbox2>(std::move(executor), std::move(*policyResult));
+    auto sandboxPtr = std::make_unique<sandbox2::Sandbox2>(std::move(executor),
+                                                           std::move(*policyResult));
 
     if (!sandboxPtr->RunAsync()) {
         sandbox2::Result result{sandboxPtr->AwaitResult()};
@@ -232,8 +232,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     childPid = sandboxPtr->pid();
     if (childPid <= 0) {
         sandbox2::Result result{sandboxPtr->AwaitResult()};
-        const std::string reason{"Sandbox2 returned invalid PID: " + formatSandbox2Result(result) +
-                                 SANDBOX2_DISABLE_HINT};
+        const std::string reason{"Sandbox2 returned invalid PID: " +
+                                 formatSandbox2Result(result) + SANDBOX2_DISABLE_HINT};
         LOG_ERROR(<< reason);
         assignFailureReason(failureReason, reason);
         return false;
@@ -255,46 +255,50 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     {
         core::CProcess::TPid sandboxPid{childPid};
         CSandboxedProcessSpawner* self = this;
-        std::thread([sandboxPid, self, sbx = std::move(sandboxPtr)]() mutable {
-            sandbox2::Result result{sbx->AwaitResult()};
-            switch (result.final_status()) {
-            case sandbox2::Result::OK:
-                if (result.reason_code() == 0) {
-                    LOG_DEBUG(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                              << ") has exited");
-                } else {
-                    LOG_WARN(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                             << ") has exited with exit code " << result.reason_code());
-                }
-                break;
-            case sandbox2::Result::SIGNALED:
-                if (result.reason_code() == SIGTERM) {
-                    LOG_INFO(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                             << ") was terminated by signal " << SIGTERM);
-                } else if (result.reason_code() == SIGKILL) {
+        std::thread(
+            [ sandboxPid, self, sbx = std::move(sandboxPtr) ]() mutable {
+                sandbox2::Result result{sbx->AwaitResult()};
+                switch (result.final_status()) {
+                case sandbox2::Result::OK:
+                    if (result.reason_code() == 0) {
+                        LOG_DEBUG(<< "Sandboxed pytorch_inference (PID "
+                                  << sandboxPid << ") has exited");
+                    } else {
+                        LOG_WARN(<< "Sandboxed pytorch_inference (PID "
+                                 << sandboxPid << ") has exited with exit code "
+                                 << result.reason_code());
+                    }
+                    break;
+                case sandbox2::Result::SIGNALED:
+                    if (result.reason_code() == SIGTERM) {
+                        LOG_INFO(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                                 << ") was terminated by signal " << SIGTERM);
+                    } else if (result.reason_code() == SIGKILL) {
+                        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                                  << ") was terminated by signal 9 (SIGKILL)."
+                                  << " This is likely due to the OOM killer.");
+                    } else {
+                        LOG_ERROR(<< "Sandboxed pytorch_inference (PID "
+                                  << sandboxPid << ") was terminated by signal "
+                                  << result.reason_code());
+                    }
+                    break;
+                default: {
+                    const std::string details{formatSandbox2Result(result)};
                     LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                              << ") was terminated by signal 9 (SIGKILL)."
-                              << " This is likely due to the OOM killer.");
-                } else {
-                    LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                              << ") was terminated by signal " << result.reason_code());
+                              << ") terminated abnormally: " << details);
+                    if (result.final_status() == sandbox2::Result::VIOLATION) {
+                        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                                  << ") seccomp violation: syscall=" << result.reason_code()
+                                  << " arch=" << sandboxPlatformArch());
+                    }
+                    break;
                 }
-                break;
-            default: {
-                const std::string details{formatSandbox2Result(result)};
-                LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                          << ") terminated abnormally: " << details);
-                if (result.final_status() == sandbox2::Result::VIOLATION) {
-                    LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
-                              << ") seccomp violation: syscall=" << result.reason_code()
-                              << " arch=" << sandboxPlatformArch());
                 }
-                break;
-            }
-            }
-            std::lock_guard<std::mutex> lock(self->m_Mutex);
-            self->m_Pids.erase(sandboxPid);
-        }).detach();
+                std::lock_guard<std::mutex> lock(self->m_Mutex);
+                self->m_Pids.erase(sandboxPid);
+            })
+            .detach();
     }
 
     return true;
@@ -311,13 +315,15 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
 bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     std::lock_guard<std::mutex> lock(m_Mutex);
     if (m_Pids.find(pid) == m_Pids.end()) {
-        LOG_WARN(<< "Will not attempt to kill sandboxed process " << pid << ": not a child process");
+        LOG_WARN(<< "Will not attempt to kill sandboxed process " << pid
+                 << ": not a child process");
         return false;
     }
 
     if (::kill(pid, SIGTERM) == -1) {
         if (errno != ESRCH) {
-            LOG_ERROR(<< "Failed to kill sandboxed process " << pid << ": " << ::strerror(errno));
+            LOG_ERROR(<< "Failed to kill sandboxed process " << pid << ": "
+                      << ::strerror(errno));
         }
         return false;
     }

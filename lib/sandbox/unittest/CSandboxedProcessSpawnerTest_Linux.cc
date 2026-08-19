@@ -23,8 +23,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
-#include <chrono>
 #include <cerrno>
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
@@ -78,7 +78,8 @@ EUserNamespacesProbe probeUserNamespaces() {
         if (uidMapFd < 0) {
             ::_exit(1);
         }
-        const ssize_t uidWritten = ::write(uidMapFd, uidMapping.c_str(), uidMapping.size());
+        const ssize_t uidWritten =
+            ::write(uidMapFd, uidMapping.c_str(), uidMapping.size());
         ::close(uidMapFd);
         if (uidWritten != static_cast<ssize_t>(uidMapping.size())) {
             ::_exit(1);
@@ -99,7 +100,8 @@ EUserNamespacesProbe probeUserNamespaces() {
         if (gidMapFd < 0) {
             ::_exit(1);
         }
-        const ssize_t gidWritten = ::write(gidMapFd, gidMapping.c_str(), gidMapping.size());
+        const ssize_t gidWritten =
+            ::write(gidMapFd, gidMapping.c_str(), gidMapping.size());
         ::close(gidMapFd);
         ::_exit(gidWritten == static_cast<ssize_t>(gidMapping.size()) ? 0 : 1);
     }
@@ -114,8 +116,7 @@ EUserNamespacesProbe probeUserNamespaces() {
         return EUserNamespacesProbe::UNAVAILABLE;
     }
 
-    const bool available =
-        WIFEXITED(status) != 0 && WEXITSTATUS(status) == 0;
+    const bool available = WIFEXITED(status) != 0 && WEXITSTATUS(status) == 0;
     LOG_INFO(<< "Sandbox2 user-namespace probe: "
              << (available ? "available" : "unavailable"));
     return available ? EUserNamespacesProbe::AVAILABLE : EUserNamespacesProbe::UNAVAILABLE;
@@ -125,12 +126,10 @@ void validateSandbox2ExpectMatchesProbe() {
     const ESandbox2Expect expect = sandbox2Expect();
     const EUserNamespacesProbe probe = probeUserNamespaces();
 
-    if (expect == ESandbox2Expect::ENFORCED &&
-        probe == EUserNamespacesProbe::UNAVAILABLE) {
+    if (expect == ESandbox2Expect::ENFORCED && probe == EUserNamespacesProbe::UNAVAILABLE) {
         BOOST_FAIL("ML_SANDBOX2_EXPECT=enforced but user namespaces are unavailable");
     }
-    if (expect == ESandbox2Expect::FAIL_CLOSED &&
-        probe == EUserNamespacesProbe::AVAILABLE) {
+    if (expect == ESandbox2Expect::FAIL_CLOSED && probe == EUserNamespacesProbe::AVAILABLE) {
         BOOST_FAIL("ML_SANDBOX2_EXPECT=fail_closed but user namespaces are available");
     }
 }
@@ -140,8 +139,8 @@ std::string findPytorchInferenceBinary() {
     const char* const architectures[] = {"linux-x86_64", "linux-aarch64"};
 
     for (const char* architecture : architectures) {
-        const std::string candidate{cppRoot + "/build/distribution/platform/" + architecture +
-                                    "/bin/pytorch_inference"};
+        const std::string candidate{cppRoot + "/build/distribution/platform/" +
+                                    architecture + "/bin/pytorch_inference"};
         char resolved[PATH_MAX];
         if (::realpath(candidate.c_str(), resolved) != nullptr &&
             ::access(resolved, X_OK) == 0) {
@@ -168,8 +167,7 @@ bool waitForSandboxChildExit(ml::sandbox::CSandboxedProcessSpawner& spawner,
 }
 
 std::string makeTestDir() {
-    return "/tmp/ml_sandbox_test_" +
-           ml::core::CStringUtils::typeToString(::getpid());
+    return "/tmp/ml_sandbox_test_" + ml::core::CStringUtils::typeToString(::getpid());
 }
 
 bool spawnSandboxedWithTimeout(ml::sandbox::CSandboxedProcessSpawner& spawner,
@@ -227,8 +225,8 @@ BOOST_AUTO_TEST_CASE(testSandbox2PytorchInferenceSpawnStartsAndTerminates) {
 
     std::string failureReason;
     ml::core::CProcess::TPid childPid = 0;
-    BOOST_TEST_REQUIRE(spawnSandboxedWithTimeout(spawner, pytorchPath, args, childPid,
-                                                 failureReason, std::chrono::seconds(30)));
+    BOOST_TEST_REQUIRE(spawnSandboxedWithTimeout(
+        spawner, pytorchPath, args, childPid, failureReason, std::chrono::seconds(30)));
     BOOST_TEST_REQUIRE(failureReason.empty());
     BOOST_TEST_REQUIRE(childPid > 0);
     BOOST_TEST_REQUIRE(spawner.hasChild(childPid));
@@ -254,8 +252,8 @@ BOOST_AUTO_TEST_CASE(testFailClosedWhenUserNamespacesUnavailable) {
 
     std::string failureReason;
     ml::core::CProcess::TPid childPid = 0;
-    const bool spawned = spawnSandboxedWithTimeout(spawner, pytorchPath, args, childPid,
-                                                   failureReason, std::chrono::seconds(30));
+    const bool spawned = spawnSandboxedWithTimeout(
+        spawner, pytorchPath, args, childPid, failureReason, std::chrono::seconds(30));
 
     BOOST_TEST_REQUIRE(!spawned);
     BOOST_TEST_REQUIRE(childPid <= 0);
@@ -306,15 +304,15 @@ BOOST_AUTO_TEST_CASE(testPolicyViolationDifferential) {
 
     std::string failureReason;
     ml::core::CProcess::TPid childPid = 0;
-    const bool spawned = spawnSandboxedWithTimeout(sandboxSpawner, linkPath, sandboxArgs,
-                                                   childPid, failureReason,
+    const bool spawned = spawnSandboxedWithTimeout(sandboxSpawner, linkPath,
+                                                   sandboxArgs, childPid, failureReason,
                                                    std::chrono::seconds(30));
     BOOST_TEST_REQUIRE(spawned);
     BOOST_TEST_REQUIRE(failureReason.empty());
     BOOST_TEST_REQUIRE(childPid > 0);
 
-    BOOST_TEST_REQUIRE(
-        waitForSandboxChildExit(sandboxSpawner, childPid, std::chrono::seconds(10)));
+    BOOST_TEST_REQUIRE(waitForSandboxChildExit(sandboxSpawner, childPid,
+                                               std::chrono::seconds(10)));
 
     ml::core::COsFileFuncs::TStat statBuf;
     BOOST_REQUIRE_NE(0, ml::core::COsFileFuncs::stat(forbiddenPath.c_str(), &statBuf));
@@ -332,8 +330,7 @@ BOOST_AUTO_TEST_CASE(testSandbox2NotAvailable) {
     ml::core::CProcess::TPid childPid = 0;
     BOOST_TEST_REQUIRE(!spawner.spawn("/tmp/pytorch_inference",
                                       ml::sandbox::CSandboxedProcessSpawner::TStrVec(),
-                                      childPid,
-                                      &failureReason));
+                                      childPid, &failureReason));
     BOOST_TEST_REQUIRE(failureReason.find(KILL_SWITCH_HINT) != std::string::npos);
 }
 

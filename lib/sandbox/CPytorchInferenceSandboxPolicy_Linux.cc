@@ -98,8 +98,7 @@ void logSandbox2SpawnContext(const std::string& absPath,
                              const std::string& sandboxeeTmpdir) {
     std::ostringstream fixedMounts;
     fixedMounts << binDir << ',' << libDir;
-    for (const auto& mountPath :
-         seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
+    for (const auto& mountPath : seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
         fixedMounts << ',' << mountPath;
     }
     fixedMounts << ",/tmp";
@@ -300,8 +299,7 @@ sandbox2::PolicyBuilder buildPytorchInferencePolicy(const std::string& binDir,
         .AddDirectory(binDir, /*is_ro=*/true)
         .AddDirectory(libDir, /*is_ro=*/true);
 
-    for (const auto& mountPath :
-         seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
+    for (const auto& mountPath : seccomp::pytorch_inference::fixedSandboxMountDirectories()) {
         policyBuilder.AddDirectory(mountPath, /*is_ro=*/true);
     }
     for (const auto& mountPath : seccomp::pytorch_inference::fixedSandboxMountFiles()) {
