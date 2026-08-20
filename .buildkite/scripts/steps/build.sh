@@ -80,6 +80,12 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
             # Sandbox2 spawn tests need the installed pytorch_inference binary
             # (test bundle previously shipped only .so files).
             find build/distribution -type f -path "*/bin/pytorch_inference" 2>/dev/null
+            # Host-side aarch64 sandbox re-run needs Boost with SONAME suffixes
+            # (*.so.1.86.0). install_libs renames dist copies to bare *.so, which
+            # does not satisfy DT_NEEDED on ml_test_sandbox.
+            mkdir -p cmake-build-docker/lib/boost-host
+            cp -a /usr/local/gcc133/lib/libboost*.so* cmake-build-docker/lib/boost-host/
+            find cmake-build-docker/lib/boost-host -name "libboost*.so*" 2>/dev/null
         } | sort -u > /tmp/bundle-files.txt
         echo "Files in bundle: $(wc -l < /tmp/bundle-files.txt)" >&2
         tar czf - -T /tmp/bundle-files.txt

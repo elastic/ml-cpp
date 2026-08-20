@@ -88,9 +88,15 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # cannot. Re-run just the sandbox suite on the aarch64 host to exercise it.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
         echo "Re-running sandbox unit tests outside of Docker container"
+        # Include cmake-build-docker/lib/boost-host (SONAME *.so.1.86.0 from the
+        # build image) plus dist/Ml libs. Dist alone is not enough: install_libs
+        # renames Boost to bare *.so, which does not match DT_NEEDED.
+        LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
+            \( -name "*.so" -o -name "*.so.*" \) \
+            -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
         (cd "${REPO_ROOT:-.}/cmake-build-docker/test/lib/sandbox/unittest" && \
             ML_SANDBOX2_EXPECT=enforced \
-            LD_LIBRARY_PATH=$(cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd) \
+            LD_LIBRARY_PATH="${LIB_DIRS}" \
             ./ml_test_sandbox) || TEST_OUTCOME=$?
     fi
 

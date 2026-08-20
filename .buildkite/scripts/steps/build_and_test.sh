@@ -81,9 +81,17 @@ if [ "$USES_DOCKER" = true ] ; then # linux aarch64 (native)
     fi
     if [[ $TEST_OUTCOME -eq 0 ]]; then
       echo "Re-running sandbox unit tests outside of Docker container"
+      # Match run_tests.sh: need Boost SONAME libs, not install_libs-renamed *.so.
+      mkdir -p ${REPO_ROOT}/cmake-build-docker/lib/boost-host
+      docker run --rm -v "${REPO_ROOT}/cmake-build-docker/lib/boost-host:/out" \
+        docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 \
+        bash -c 'cp -a /usr/local/gcc133/lib/libboost*.so* /out/'
+      LIB_DIRS=$(find "${REPO_ROOT}/cmake-build-docker/lib" "${REPO_ROOT}/build/distribution" \
+        \( -name "*.so" -o -name "*.so.*" \) \
+        -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
       (cd ${REPO_ROOT}/cmake-build-docker/test/lib/sandbox/unittest && \
         ML_SANDBOX2_EXPECT=enforced \
-        LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` \
+        LD_LIBRARY_PATH="${LIB_DIRS}" \
         ./ml_test_sandbox) || TEST_OUTCOME=$?
     fi
   fi
