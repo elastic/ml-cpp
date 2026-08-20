@@ -81,11 +81,16 @@ if [ "$USES_DOCKER" = true ] ; then # linux aarch64 (native)
     fi
     if [[ $TEST_OUTCOME -eq 0 ]]; then
       echo "Re-running sandbox unit tests outside of Docker container"
-      # Match run_tests.sh: need Boost SONAME libs, not install_libs-renamed *.so.
-      mkdir -p ${REPO_ROOT}/cmake-build-docker/lib/boost-host
-      docker run --rm -v "${REPO_ROOT}/cmake-build-docker/lib/boost-host:/out" \
+      # Match run_tests.sh: Boost SONAMEs + GCC 13 libstdc++/libgcc_s (host
+      # /lib64 is too old; install_libs-renamed Boost bare *.so misses DT_NEEDED).
+      mkdir -p ${REPO_ROOT}/cmake-build-docker/lib/boost-host \
+               ${REPO_ROOT}/cmake-build-docker/lib/gcc-host
+      docker run --rm \
+        -v "${REPO_ROOT}/cmake-build-docker/lib/boost-host:/boost-out" \
+        -v "${REPO_ROOT}/cmake-build-docker/lib/gcc-host:/gcc-out" \
         docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 \
-        bash -c 'cp -a /usr/local/gcc133/lib/libboost*.so* /out/'
+        bash -c 'cp -a /usr/local/gcc133/lib/libboost*.so* /boost-out/
+                 cp -a /usr/local/gcc133/lib64/libstdc++.so* /usr/local/gcc133/lib64/libgcc_s.so* /gcc-out/'
       LIB_DIRS=$(find "${REPO_ROOT}/cmake-build-docker/lib" "${REPO_ROOT}/build/distribution" \
         \( -name "*.so" -o -name "*.so.*" \) \
         -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')

@@ -75,17 +75,29 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c '
         {
             find cmake-build-docker/test -name "ml_test_*" -type f -executable 2>/dev/null
-            find cmake-build-docker/lib -name "*.so" 2>/dev/null
-            find build/distribution -name "*.so" -not -path "*.debug*" 2>/dev/null
+            # Include SONAME variants (*.so.N / *.so.N.M) — bare "*.so" misses
+            # libstdc++.so.6 / libgcc_s.so.1 / Boost *.so.1.86.0 that the host
+            # aarch64 sandbox re-run needs via LD_LIBRARY_PATH.
+            find cmake-build-docker/lib \( -name "*.so" -o -name "*.so.*" \) 2>/dev/null
+            find build/distribution \( -name "*.so" -o -name "*.so.*" \) -not -path "*.debug*" 2>/dev/null
             # Sandbox2 spawn tests need the installed pytorch_inference binary
             # (test bundle previously shipped only .so files).
             find build/distribution -type f -path "*/bin/pytorch_inference" 2>/dev/null
             # Host-side aarch64 sandbox re-run needs Boost with SONAME suffixes
-            # (*.so.1.86.0). install_libs renames dist copies to bare *.so, which
-            # does not satisfy DT_NEEDED on ml_test_sandbox.
+            # (*.so.1.86.0). install_libs renames dist Boost copies to bare *.so,
+            # which does not satisfy DT_NEEDED on ml_test_sandbox.
             mkdir -p cmake-build-docker/lib/boost-host
             cp -a /usr/local/gcc133/lib/libboost*.so* cmake-build-docker/lib/boost-host/
             find cmake-build-docker/lib/boost-host -name "libboost*.so*" 2>/dev/null
+            # Same agents lack GCC 13 libstdc++ (GLIBCXX_3.4.26+). Dist may ship
+            # libstdc++.so.6, but the previous "*.so"-only find dropped it; copy
+            # toolchain runtimes with SONAMEs so the host re-run cannot fall back
+            # to the agent /lib64/libstdc++.so.6.
+            mkdir -p cmake-build-docker/lib/gcc-host
+            cp -a /usr/local/gcc133/lib64/libstdc++.so* \
+                  /usr/local/gcc133/lib64/libgcc_s.so* \
+                  cmake-build-docker/lib/gcc-host/
+            find cmake-build-docker/lib/gcc-host \( -name "libstdc++.so*" -o -name "libgcc_s.so*" \) 2>/dev/null
         } | sort -u > /tmp/bundle-files.txt
         echo "Files in bundle: $(wc -l < /tmp/bundle-files.txt)" >&2
         tar czf - -T /tmp/bundle-files.txt

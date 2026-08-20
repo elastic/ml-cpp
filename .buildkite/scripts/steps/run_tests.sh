@@ -88,9 +88,10 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # cannot. Re-run just the sandbox suite on the aarch64 host to exercise it.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
         echo "Re-running sandbox unit tests outside of Docker container"
-        # Include cmake-build-docker/lib/boost-host (SONAME *.so.1.86.0 from the
-        # build image) plus dist/Ml libs. Dist alone is not enough: install_libs
-        # renames Boost to bare *.so, which does not match DT_NEEDED.
+        # Include boost-host (SONAME *.so.1.86.0) and gcc-host (libstdc++.so.6 /
+        # libgcc_s.so.1 from GCC 13) plus dist/Ml libs. Dist alone is not enough:
+        # install_libs renames Boost to bare *.so, and the bare-metal agent
+        # /lib64/libstdc++.so.6 is too old (missing GLIBCXX_3.4.26+).
         LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
             \( -name "*.so" -o -name "*.so.*" \) \
             -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
