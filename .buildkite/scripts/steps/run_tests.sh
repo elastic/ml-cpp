@@ -83,22 +83,30 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # kernel, so the kernel's seccomp filters are exercised without needing
     # a separate outside-Docker run.
 
-    # The 'enforced' Sandbox2 path requires a real host that can
-    # unshare(CLONE_NEWUSER) and write uid_map, which the Docker container
-    # cannot. Re-run just the sandbox suite on the aarch64 host to exercise it.
+    # The 'enforced' Sandbox2 path requires unshare(CLONE_NEWUSER) + mount(/proc),
+    # which a default `docker run` denies (hence the fail_closed run above). Grant
+    # the minimal capability/seccomp relaxation needed and run inside the SAME
+    # build image instead of the bare host, so the binary always executes against
+    # the exact toolchain (GCC13/Boost 1.86) it was compiled with. This removes the
+    # need to bundle/curate host-side LD_LIBRARY_PATH entries entirely.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
-        echo "Re-running sandbox unit tests outside of Docker container"
-        # Include boost-host (SONAME *.so.1.86.0) and gcc-host (libstdc++.so.6 /
-        # libgcc_s.so.1 from GCC 13) plus dist/Ml libs. Dist alone is not enough:
-        # install_libs renames Boost to bare *.so, and the bare-metal agent
-        # /lib64/libstdc++.so.6 is too old (missing GLIBCXX_3.4.26+).
-        LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
-            \( -name "*.so" -o -name "*.so.*" \) \
-            -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
-        (cd "${REPO_ROOT:-.}/cmake-build-docker/test/lib/sandbox/unittest" && \
-            ML_SANDBOX2_EXPECT=enforced \
-            LD_LIBRARY_PATH="${LIB_DIRS}" \
-            ./ml_test_sandbox) || TEST_OUTCOME=$?
+        echo "--- Re-running sandbox unit tests (Docker, enforced)"
+        docker run --rm \
+            --cap-add SYS_ADMIN \
+            --security-opt seccomp=unconfined \
+            --security-opt apparmor=unconfined \
+            -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
+            -v "$(pwd)/build:/ml-cpp/build" \
+            -e ML_SANDBOX2_EXPECT=enforced \
+            -w /ml-cpp \
+            $BASE_IMAGE bash -c '
+                LIB_DIRS=$(find /ml-cpp/cmake-build-docker/lib /ml-cpp/build/distribution \
+                    -name "*.so" -exec dirname {} \; 2>/dev/null | sort -u | tr "\n" ":")
+                export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib"
+                chmod -R +x cmake-build-docker/test/lib/sandbox/unittest 2>/dev/null
+                cd cmake-build-docker/test/lib/sandbox/unittest
+                ./ml_test_sandbox
+            ' || TEST_OUTCOME=$?
     fi
 
 else
@@ -120,7 +128,7 @@ else
     # Linux x86_64 PR agents are Buildkite k8s pods: user namespaces often work
     # but Sandbox2's mount("", "/proc", "proc", ...) returns EPERM. The probe in
     # CSandboxedProcessSpawnerTest_Linux requires that mount, so expect fail_closed.
-    # aarch64 host re-run above uses enforced where the bare metal agent allows it.
+    # aarch64 enforced sandbox re-run above uses a capability-elevated container.
     # macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
     if [[ "$(uname)" = "Linux" ]]; then
         export ML_SANDBOX2_EXPECT=fail_closed
