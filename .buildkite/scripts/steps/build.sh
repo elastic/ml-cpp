@@ -77,6 +77,9 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
             find cmake-build-docker/test -name "ml_test_*" -type f -executable 2>/dev/null
             find cmake-build-docker/lib -name "*.so" 2>/dev/null
             find build/distribution -name "*.so" -not -path "*.debug*" 2>/dev/null
+            # Sandbox2 spawn tests need the installed pytorch_inference binary
+            # (test bundle previously shipped only .so files).
+            find build/distribution -type f -path "*/bin/pytorch_inference" 2>/dev/null
         } | sort -u > /tmp/bundle-files.txt
         echo "Files in bundle: $(wc -l < /tmp/bundle-files.txt)" >&2
         tar czf - -T /tmp/bundle-files.txt
@@ -109,6 +112,8 @@ elif [[ "$(uname)" = "Linux" ]]; then
         find ${BUILD_DIR}/lib -name "*.so" -o -name "*.dylib" 2>/dev/null
         if [ -d "build/distribution" ]; then
             find build/distribution -type f \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" 2>/dev/null
+            # Sandbox2 spawn tests need the installed pytorch_inference binary.
+            find build/distribution -type f -path "*/bin/pytorch_inference" 2>/dev/null
         fi
     } | sort -u > /tmp/test-bundle-files.txt
 
@@ -151,6 +156,8 @@ else
         find ${BUILD_DIR}/lib -name "*.so" -o -name "*.dylib" 2>/dev/null
         if [ -d "build/distribution" ]; then
             find build/distribution -type f \( -name "*.so" -o -name "*.dylib" \) -not -path "*.dSYM*" 2>/dev/null
+            # Sandbox2 spawn tests need the installed pytorch_inference binary.
+            find build/distribution -type f -path "*/bin/pytorch_inference" 2>/dev/null
         fi
     } | sort -u > /tmp/test-bundle-files.txt
 

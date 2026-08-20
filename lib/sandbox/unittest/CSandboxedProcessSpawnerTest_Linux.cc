@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <sched.h>
+#include <sys/mount.h>
 #include <sys/wait.h>
 #include <thread>
 #include <unistd.h>
@@ -63,16 +64,15 @@ ESandbox2Expect sandbox2Expect() {
 EUserNamespacesProbe probeUserNamespaces() {
     const ml::core::CProcess::TPid probePid = ::fork();
     if (probePid == 0) {
-        // Must capture host ids before unshare(): inside a fresh user namespace
-        // getuid()/getgid() return the overflow id (65534) until uid_map is written.
+        // unshare(CLONE_NEWUSER) alone is insufficient: Sandbox2 must write
+        // uid_map and remount /proc in a new mount namespace. Hosts that allow
+        // CLONE_NEWUSER but deny id mapping (common on GCP dev VMs) or deny
+        // mount(proc) (Buildkite k8s agents) must report unavailable.
         const uid_t uid = ::getuid();
         const gid_t gid = ::getgid();
         if (::unshare(CLONE_NEWUSER) != 0) {
             ::_exit(1);
         }
-        // unshare() alone is insufficient: Sandbox2 must write uid_map. Hosts that
-        // allow CLONE_NEWUSER but deny id mapping (common on GCP dev VMs) pass a
-        // naive unshare probe yet hang inside Sandbox2's forkserver.
         const std::string uidMapping{"0 " + ml::core::CStringUtils::typeToString(uid) + " 1\n"};
         const int uidMapFd = ::open("/proc/self/uid_map", O_WRONLY);
         if (uidMapFd < 0) {
@@ -103,7 +103,24 @@ EUserNamespacesProbe probeUserNamespaces() {
         const ssize_t gidWritten =
             ::write(gidMapFd, gidMapping.c_str(), gidMapping.size());
         ::close(gidMapFd);
-        ::_exit(gidWritten == static_cast<ssize_t>(gidMapping.size()) ? 0 : 1);
+        if (gidWritten != static_cast<ssize_t>(gidMapping.size())) {
+            ::_exit(1);
+        }
+
+        // Sandbox2 also needs a new mount namespace and a fresh /proc. Buildkite
+        // k8s agents allow CLONE_NEWUSER + uid_map but reject mount(proc) with
+        // EPERM — treat that as unavailable so ML_SANDBOX2_EXPECT=fail_closed.
+        if (::unshare(CLONE_NEWNS) != 0) {
+            ::_exit(1);
+        }
+        // Make "/" private so the proc mount stays in this namespace only.
+        if (::mount(nullptr, "/", nullptr, MS_REC | MS_PRIVATE, nullptr) != 0) {
+            ::_exit(1);
+        }
+        if (::mount("proc", "/proc", "proc", MS_NODEV | MS_NOEXEC | MS_NOSUID, nullptr) != 0) {
+            ::_exit(1);
+        }
+        ::_exit(0);
     }
     if (probePid < 0) {
         LOG_WARN(<< "Sandbox2 user-namespace probe fork failed: " << ::strerror(errno));

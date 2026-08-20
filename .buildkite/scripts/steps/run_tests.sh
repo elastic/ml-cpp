@@ -110,10 +110,13 @@ else
         export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
     fi
 
-    # Linux x86_64 CI agents can unshare(CLONE_NEWUSER) and write uid_map, so the
-    # sandbox suite expects enforced here. macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
+    # Linux x86_64 PR agents are Buildkite k8s pods: user namespaces often work
+    # but Sandbox2's mount("", "/proc", "proc", ...) returns EPERM. The probe in
+    # CSandboxedProcessSpawnerTest_Linux requires that mount, so expect fail_closed.
+    # aarch64 host re-run above uses enforced where the bare metal agent allows it.
+    # macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
     if [[ "$(uname)" = "Linux" ]]; then
-        export ML_SANDBOX2_EXPECT=enforced
+        export ML_SANDBOX2_EXPECT=fail_closed
     fi
 
     echo "--- Running tests"
