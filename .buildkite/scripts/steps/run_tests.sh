@@ -83,18 +83,16 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # kernel, so the kernel's seccomp filters are exercised without needing
     # a separate outside-Docker run.
 
-    # The 'enforced' Sandbox2 path requires unshare(CLONE_NEWUSER) + mount(/proc),
-    # which a default `docker run` denies (hence the fail_closed run above). Grant
-    # the minimal capability/seccomp relaxation needed and run inside the SAME
-    # build image instead of the bare host, so the binary always executes against
-    # the exact toolchain (GCC13/Boost 1.86) it was compiled with. This removes the
-    # need to bundle/curate host-side LD_LIBRARY_PATH entries entirely.
+    # The 'enforced' Sandbox2 path requires unshare(CLONE_NEWUSER) + mount(/proc).
+    # SYS_ADMIN + unconfined seccomp/apparmor is still not enough on aarch64 CI
+    # agents (probe: "user namespaces are unavailable"). Nested Docker needs a
+    # full privileged container to create user namespaces. Stay inside the SAME
+    # build image so the binary always runs against the toolchain it was compiled
+    # with (GCC13/Boost 1.86) — no host-side LD_LIBRARY_PATH bundling.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
         echo "--- Re-running sandbox unit tests (Docker, enforced)"
         docker run --rm \
-            --cap-add SYS_ADMIN \
-            --security-opt seccomp=unconfined \
-            --security-opt apparmor=unconfined \
+            --privileged \
             -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
             -v "$(pwd)/build:/ml-cpp/build" \
             -e ML_SANDBOX2_EXPECT=enforced \
@@ -128,7 +126,7 @@ else
     # Linux x86_64 PR agents are Buildkite k8s pods: user namespaces often work
     # but Sandbox2's mount("", "/proc", "proc", ...) returns EPERM. The probe in
     # CSandboxedProcessSpawnerTest_Linux requires that mount, so expect fail_closed.
-    # aarch64 enforced sandbox re-run above uses a capability-elevated container.
+    # aarch64 enforced sandbox re-run above uses a privileged container.
     # macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
     if [[ "$(uname)" = "Linux" ]]; then
         export ML_SANDBOX2_EXPECT=fail_closed
