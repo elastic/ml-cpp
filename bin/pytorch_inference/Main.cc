@@ -37,6 +37,7 @@
 #include <torch/script.h>
 
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <memory>
 #include <optional>
@@ -295,7 +296,24 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
+
+#ifdef __linux__
+    // ML_SANDBOXED=1 is set only by the controller's Sandbox2 executor
+    // (CPytorchInferenceSandboxPolicy_Linux.cc). Untrusted model input cannot influence
+    // pre-exec environment. Sandbox2 is the default pytorch_inference spawn route
+    // unless --disableSandbox selects the legacy path. ML_SANDBOXED=1 <=> Sandbox2;
+    // unset ML_SANDBOXED (including on the kill-switch path) installs seccomp here.
+    const char* sandboxed = ::getenv("ML_SANDBOXED");
+    if (sandboxed != nullptr && ::strcmp(sandboxed, "1") == 0) {
+        // When running under Sandbox2, syscall filtering is enforced at spawn time
+        // by the parent process. Installing seccomp here would be redundant.
+        LOG_DEBUG(<< "Skipping seccomp filter installation (using Sandbox2 policy)");
+    } else {
+        ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+    }
+#else
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+#endif
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");

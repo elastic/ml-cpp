@@ -11,6 +11,9 @@
 
 project("ML Seccomp unit tests")
 
+# CSystemCallFilterTest installs an irreversible seccomp filter, which breaks
+# any test case the parallel runner packs into the same process afterwards.
+# Keep this executable free of unrelated test suites.
 set (SRCS
   Main.cc
   CSystemCallFilterTest.cc

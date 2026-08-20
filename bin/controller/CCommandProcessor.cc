@@ -30,8 +30,9 @@ const std::string CCommandProcessor::START{"start"};
 const std::string CCommandProcessor::KILL{"kill"};
 
 CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths,
+                                     const TStrVec& sandboxedProcessPaths,
                                      std::ostream& responseStream)
-    : m_Spawner{permittedProcessPaths}, m_ResponseWriter{responseStream} {
+    : m_Spawner{permittedProcessPaths, sandboxedProcessPaths}, m_ResponseWriter{responseStream} {
 }
 
 void CCommandProcessor::processCommands(std::istream& commandStream) {
@@ -92,8 +93,13 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
     std::string processPath{std::move(tokens[0])};
     tokens.erase(tokens.begin());
 
-    if (m_Spawner.spawn(processPath, tokens) == false) {
+    std::string spawnFailureReason;
+    core::CProcess::TPid childPid{0};
+    if (m_Spawner.spawn(processPath, tokens, childPid, &spawnFailureReason) == false) {
         std::string error{"Failed to start process '" + processPath + '\''};
+        if (spawnFailureReason.empty() == false) {
+            error += ": " + spawnFailureReason;
+        }
         LOG_ERROR(<< error << " in command with ID " << id);
         m_ResponseWriter.writeResponse(id, false, error);
         return false;

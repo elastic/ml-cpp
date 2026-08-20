@@ -106,6 +106,7 @@ elif [ "x$1" = "x--test" ] ; then
     if ! cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests ; then
         echo failed > build/test_status.txt
     else
+        export ML_SANDBOX2_EXPECT=fail_closed
         cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
     fi
 fi
