@@ -83,28 +83,19 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # kernel, so the kernel's seccomp filters are exercised without needing
     # a separate outside-Docker run.
 
-    # The 'enforced' Sandbox2 path requires unshare(CLONE_NEWUSER) + mount(/proc).
-    # SYS_ADMIN + unconfined seccomp/apparmor is still not enough on aarch64 CI
-    # agents (probe: "user namespaces are unavailable"). Nested Docker needs a
-    # full privileged container to create user namespaces. Stay inside the SAME
-    # build image so the binary always runs against the toolchain it was compiled
-    # with (GCC13/Boost 1.86) — no host-side LD_LIBRARY_PATH bundling.
+    # Docker (even --privileged) cannot create user namespaces on this aarch64
+    # agent; enforced runs on the host using the bundled gcc133 sysroot so the
+    # binary does not see AlmaLinux 8 /lib64.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
-        echo "--- Re-running sandbox unit tests (Docker, enforced)"
-        docker run --rm \
-            --privileged \
-            -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
-            -v "$(pwd)/build:/ml-cpp/build" \
-            -e ML_SANDBOX2_EXPECT=enforced \
-            -w /ml-cpp \
-            $BASE_IMAGE bash -c '
-                LIB_DIRS=$(find /ml-cpp/cmake-build-docker/lib /ml-cpp/build/distribution \
-                    -name "*.so" -exec dirname {} \; 2>/dev/null | sort -u | tr "\n" ":")
-                export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib"
-                chmod -R +x cmake-build-docker/test/lib/sandbox/unittest 2>/dev/null
-                cd cmake-build-docker/test/lib/sandbox/unittest
-                ./ml_test_sandbox
-            ' || TEST_OUTCOME=$?
+        echo "--- Re-running sandbox unit tests on host (enforced)"
+        SYSROOT="$(pwd)/${BUILD_DIR}/lib/sysroot"
+        LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
+            \( -name "*.so" -o -name "*.so.*" \) \
+            -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
+        (cd "${REPO_ROOT:-.}/cmake-build-docker/test/lib/sandbox/unittest" && \
+            ML_SANDBOX2_EXPECT=enforced \
+            LD_LIBRARY_PATH="${SYSROOT}:${LIB_DIRS}" \
+            ./ml_test_sandbox) || TEST_OUTCOME=$?
     fi
 
 else
@@ -126,7 +117,7 @@ else
     # Linux x86_64 PR agents are Buildkite k8s pods: user namespaces often work
     # but Sandbox2's mount("", "/proc", "proc", ...) returns EPERM. The probe in
     # CSandboxedProcessSpawnerTest_Linux requires that mount, so expect fail_closed.
-    # aarch64 enforced sandbox re-run above uses a privileged container.
+    # aarch64 host re-run above uses enforced (Docker cannot unshare user ns).
     # macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
     if [[ "$(uname)" = "Linux" ]]; then
         export ML_SANDBOX2_EXPECT=fail_closed

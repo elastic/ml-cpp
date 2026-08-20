@@ -73,12 +73,31 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     ' | tar xf -
 
     docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c '
+        set -e
+        # Complete GCC133/Boost toolchain runtime for the *host* enforced
+        # sandbox re-run. Do not enumerate individual SONAMEs — copying the
+        # whole gcc133 lib{,64} tree is the point (libstdc++, libgcc_s,
+        # libgomp, all Boost SONAMEs, and anything else the toolchain ships).
+        # Flatten into one sysroot so a single LD_LIBRARY_PATH entry beats
+        # the AlmaLinux 8 agent /lib64.
+        mkdir -p cmake-build-docker/lib/sysroot
+        if [ -d /usr/local/gcc133/lib64 ]; then
+            cp -a /usr/local/gcc133/lib64/. cmake-build-docker/lib/sysroot/
+        fi
+        if [ -d /usr/local/gcc133/lib ]; then
+            cp -a /usr/local/gcc133/lib/. cmake-build-docker/lib/sysroot/
+        fi
+        if [ ! -d /usr/local/gcc133/lib64 ] && [ ! -d /usr/local/gcc133/lib ]; then
+            echo "error: /usr/local/gcc133/lib{,64} missing from build image" >&2
+            exit 1
+        fi
         {
             find cmake-build-docker/test -name "ml_test_*" -type f -executable 2>/dev/null
             find cmake-build-docker/lib \( -name "*.so" -o -name "*.so.*" \) 2>/dev/null
             find build/distribution \( -name "*.so" -o -name "*.so.*" \) -not -path "*.debug*" 2>/dev/null
             # Sandbox2 spawn tests need the installed pytorch_inference binary.
             find build/distribution -type f -path "*/bin/pytorch_inference" 2>/dev/null
+            find cmake-build-docker/lib/sysroot 2>/dev/null
         } | sort -u > /tmp/bundle-files.txt
         echo "Files in bundle: $(wc -l < /tmp/bundle-files.txt)" >&2
         tar czf - -T /tmp/bundle-files.txt
