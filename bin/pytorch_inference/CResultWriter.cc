@@ -30,7 +30,9 @@ const std::string CResultWriter::ACK{"ack"};
 const std::string CResultWriter::ACKNOWLEDGED{"acknowledged"};
 const std::string CResultWriter::NUM_ALLOCATIONS{"num_allocations"};
 const std::string CResultWriter::NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
-const std::string CResultWriter::PROCESS_STATS{"process_stats"};
+// This key must match the field name the Elasticsearch PyTorchResult parser expects
+// for process stats (see InferenceProcessStats / PyTorchResult on the Java side).
+const std::string CResultWriter::PROCESS_STATS{"stats"};
 const std::string CResultWriter::MEMORY_RESIDENT_SET_SIZE{"memory_rss"};
 const std::string CResultWriter::MEMORY_MAX_RESIDENT_SET_SIZE{"memory_max_rss"};
 

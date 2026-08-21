@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 9.6.0
+
+=== Enhancements
+
+* Periodically report the pytorch_inference process resident set size, including the peak (OS high-water mark), so Elasticsearch can track real native memory use per trained model deployment. (See {ml-pull}3160[#3160].)
+
 == {es} version 9.4.0
 
 === Bug Fixes
