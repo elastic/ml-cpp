@@ -46,7 +46,7 @@ STEP_KEY_TO_PLATFORM = {
     "clone_eigen": "linux-x86_64",
     "create_dra_artifacts": "linux-x86_64",
     "upload_dra_artifacts": "linux-x86_64",
-    "upload_dra_artifacts_to_gcs": "linux-x86_64",
+    "dra-prep": "linux-x86_64",
 }
 
 
