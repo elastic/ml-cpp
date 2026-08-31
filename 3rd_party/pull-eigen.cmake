@@ -42,5 +42,9 @@ if(PULL_EIGEN)
   execute_process(
     COMMAND git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    RESULT_VARIABLE GIT_RESULT
     )
+  if(NOT GIT_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to clone Eigen from https://gitlab.com/libeigen/eigen.git: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
+  endif()
 endif()
