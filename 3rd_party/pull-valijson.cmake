@@ -22,6 +22,6 @@ if ( NOT EXISTS valijson )
     RESULT_VARIABLE GIT_RESULT
     )
   if(NOT GIT_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to clone Valijson: git exited with ${GIT_RESULT}. Check network access to github.com.")
+    message(FATAL_ERROR "Failed to clone Valijson from https://github.com/tristanpenman/valijson.git: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
   endif()
 endif()

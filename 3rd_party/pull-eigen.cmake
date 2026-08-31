@@ -45,6 +45,6 @@ if(PULL_EIGEN)
     RESULT_VARIABLE GIT_RESULT
     )
   if(NOT GIT_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to clone Eigen: git exited with ${GIT_RESULT}. Check network access to gitlab.com.")
+    message(FATAL_ERROR "Failed to clone Eigen from https://gitlab.com/libeigen/eigen.git: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
   endif()
 endif()
