@@ -51,7 +51,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # --- Linux aarch64: run tests inside Docker container from base image ---
     BASE_IMAGE="docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
 
-    source dev-tools/docker/prefetch_docker_image.sh
+. ./dev-tools/docker/prefetch_docker_image.sh
     prefetch_docker_image "$BASE_IMAGE"
 
     echo "--- Running tests (Docker)"
