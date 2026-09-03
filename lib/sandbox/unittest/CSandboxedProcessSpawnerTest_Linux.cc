@@ -56,7 +56,8 @@ enum class EProbeStage {
     E_WriteSetgroups,
     E_OpenGidMap,
     E_WriteGidMap,
-    E_UnshareMount,
+    E_UnshareMountPid,
+    E_ForkPidNamespace,
     E_MountRootPrivate,
     E_MountProc,
     E_ChildLost
@@ -86,8 +87,10 @@ const char* probeStageName(EProbeStage stage) {
         return "open(/proc/self/gid_map)";
     case EProbeStage::E_WriteGidMap:
         return "write(/proc/self/gid_map)";
-    case EProbeStage::E_UnshareMount:
-        return "unshare(CLONE_NEWNS)";
+    case EProbeStage::E_UnshareMountPid:
+        return "unshare(CLONE_NEWNS|CLONE_NEWPID)";
+    case EProbeStage::E_ForkPidNamespace:
+        return "fork into the new PID namespace";
     case EProbeStage::E_MountRootPrivate:
         return "mount(/, MS_REC|MS_PRIVATE)";
     case EProbeStage::E_MountProc:
@@ -139,8 +142,7 @@ std::string mountsCoveringProc() {
         std::istringstream fields{line};
         std::string ignored;
         std::string mountPoint;
-        if (static_cast<bool>(fields >> ignored >> ignored >> ignored >>
-                              ignored >> mountPoint) &&
+        if (static_cast<bool>(fields >> ignored >> ignored >> ignored >> ignored >> mountPoint) &&
             mountPoint.compare(0, 6, "/proc/") == 0) {
             if (covering.empty() == false) {
                 covering += ",";
@@ -155,20 +157,20 @@ std::string mountsCoveringProc() {
 // same shape as the controller's boot-time self-check so a CI log and a
 // production log can be compared directly.
 void logSandbox2Environment() {
-    LOG_INFO(<< "Sandbox2 environment self-check: uid=" << ::getuid() << " euid="
-             << ::geteuid() << " user.max_user_namespaces="
-             << readSysctl("/proc/sys/user/max_user_namespaces")
-             << " kernel.unprivileged_userns_clone="
+    LOG_INFO(<< "Sandbox2 environment self-check: uid=" << ::getuid()
+             << " euid=" << ::geteuid() << " user.max_user_namespaces="
+             << readSysctl("/proc/sys/user/max_user_namespaces") << " kernel.unprivileged_userns_clone="
              << readSysctl("/proc/sys/kernel/unprivileged_userns_clone")
              << " selinux.enforce=" << readSysctl("/sys/fs/selinux/enforce")
              << " mountsCoveringProc=" << mountsCoveringProc());
 }
 
 SUserNamespaceProbe probeUserNamespaces() {
-    // unshare(CLONE_NEWUSER) alone is insufficient: Sandbox2 must write
-    // uid_map and remount /proc in a new mount namespace. Hosts that allow
-    // CLONE_NEWUSER but deny id mapping (common on GCP dev VMs) or deny
-    // mount(proc) (Buildkite k8s agents) must report unavailable.
+    // unshare(CLONE_NEWUSER) alone is insufficient: Sandbox2 must also write
+    // uid_map and mount a fresh procfs in new mount and PID namespaces. Every
+    // one of those can be denied independently - id mapping is refused on some
+    // GCP dev VMs, container runtimes deny CLONE_NEWUSER via seccomp - so the
+    // probe reproduces the whole sequence and names the stage that failed.
     int reportFds[2];
     if (::pipe(reportFds) != 0) {
         return {false, EProbeStage::E_Pipe, errno};
@@ -228,20 +230,39 @@ SUserNamespaceProbe probeUserNamespaces() {
             reportAndExit(EProbeStage::E_WriteGidMap);
         }
 
-        // Sandbox2 also needs a new mount namespace and a fresh /proc. Buildkite
-        // k8s agents allow CLONE_NEWUSER + uid_map but reject mount(proc) with
-        // EPERM - the stage name in the report distinguishes the two.
-        if (::unshare(CLONE_NEWNS) != 0) {
-            reportAndExit(EProbeStage::E_UnshareMount);
+        // Sandbox2 also needs a new mount namespace and a fresh /proc - and
+        // CLONE_NEWPID with it. The kernel refuses a procfs instance for a PID
+        // namespace that already has one mounted, so mount(proc) inside a user
+        // namespace fails with EPERM unless the PID namespace is new too.
+        // Sandbox2 unshares CLONE_NEWPID; a probe that omits it reports a false
+        // negative, which is what made this suite look unrunnable on agents that
+        // can in fact sandbox.
+        if (::unshare(CLONE_NEWNS | CLONE_NEWPID) != 0) {
+            reportAndExit(EProbeStage::E_UnshareMountPid);
         }
-        // Make "/" private so the proc mount stays in this namespace only.
-        if (::mount(nullptr, "/", nullptr, MS_REC | MS_PRIVATE, nullptr) != 0) {
-            reportAndExit(EProbeStage::E_MountRootPrivate);
+
+        // CLONE_NEWPID takes effect for children only, so the mounts have to
+        // happen in a fork that is PID 1 of the new namespace.
+        const ml::core::CProcess::TPid mountPid = ::fork();
+        if (mountPid == 0) {
+            // Make "/" private so the proc mount stays in this namespace only.
+            if (::mount(nullptr, "/", nullptr, MS_REC | MS_PRIVATE, nullptr) != 0) {
+                reportAndExit(EProbeStage::E_MountRootPrivate);
+            }
+            if (::mount("proc", "/proc", "proc",
+                        MS_NODEV | MS_NOEXEC | MS_NOSUID, nullptr) != 0) {
+                reportAndExit(EProbeStage::E_MountProc);
+            }
+            reportAndExit(EProbeStage::E_Success);
         }
-        if (::mount("proc", "/proc", "proc", MS_NODEV | MS_NOEXEC | MS_NOSUID, nullptr) != 0) {
-            reportAndExit(EProbeStage::E_MountProc);
+        if (mountPid < 0) {
+            reportAndExit(EProbeStage::E_ForkPidNamespace);
         }
-        reportAndExit(EProbeStage::E_Success);
+
+        // The grandchild reported through the shared pipe; just mirror its status.
+        int mountStatus = 0;
+        ::waitpid(mountPid, &mountStatus, 0);
+        ::_exit(WIFEXITED(mountStatus) != 0 ? WEXITSTATUS(mountStatus) : 1);
     }
 
     const int forkErrno = errno;
@@ -322,9 +343,9 @@ bool sandbox2ModeActive(ESandbox2Mode mode) {
     if (mode == hostMode) {
         return true;
     }
-    LOG_WARN(<< "Skipping " << modeName(mode) << " coverage: this host supports "
-             << modeName(hostMode) << " only; user namespaces "
-             << userNamespaceProbe().diagnosis());
+    LOG_WARN(<< "Skipping " << modeName(mode)
+             << " coverage: this host supports " << modeName(hostMode)
+             << " only; user namespaces " << userNamespaceProbe().diagnosis());
     return false;
 }
 

@@ -236,8 +236,12 @@ def main(args):
                     ],
                 })
 
-    # Add debug build/test steps for PR builds to detect compilation errors with optimization disabled
-    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
+    # Add debug build/test steps for PR builds to detect compilation errors with
+    # optimization disabled. These are x86_64 steps, so they only belong in the
+    # pipeline when x86_64 was actually requested - an aarch64-only build must
+    # not drag an x86_64 pair along with it.
+    if args.build_x86_64 and \
+            os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
             os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false" and \
             not should_skip_version_bump_pr_ci():
         debug_build_key = "build_test_linux-x86_64-RelWithDebInfo-debug"
