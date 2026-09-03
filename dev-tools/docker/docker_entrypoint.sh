@@ -106,6 +106,11 @@ elif [ "x$1" = "x--test" ] ; then
     if ! cmake --build cmake-build-docker ${CMAKE_VERBOSE} -j ${NCPUS} -t build_tests ; then
         echo failed > build/test_status.txt
     else
+        # Deliberately no ML_SANDBOX2_REQUIRE here: whether this container can
+        # create user namespaces depends on the host daemon (a Buildkite agent
+        # cannot, Docker Desktop usually can), so the sandbox tests select
+        # enforced or fail-closed coverage from their own probe. Pin the mode
+        # only in a runner whose namespace support is established.
         cmake -DSOURCE_DIR="$CPP_SRC_HOME" -DBUILD_DIR="$CPP_SRC_HOME/cmake-build-docker" -P cmake/run-all-tests-parallel.cmake || echo failed > build/test_status.txt
     fi
 fi

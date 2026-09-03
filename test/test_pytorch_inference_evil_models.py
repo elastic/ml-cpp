@@ -490,9 +490,6 @@ def run_tests(binary: str) -> bool:
             print()
 
         # --- Kill switch test ---
-        # Verify --skipModelValidation bypasses the graph validator.
-        # Use the leak model (which is normally rejected) and confirm it is
-        # accepted when the flag is set.
         print("--- kill_switch: --skipModelValidation bypasses validation ---")
         leak_path = tmp_dir / "model_leak.pt"
         if leak_path.exists():
@@ -516,7 +513,6 @@ def run_tests(binary: str) -> bool:
                 print(f"  Test: FAIL")
                 all_passed = False
 
-            # Also verify without the flag, validation still runs
             print()
             print("--- kill_switch_absent: without flag, validation still active ---")
             try:

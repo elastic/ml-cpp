@@ -11,7 +11,7 @@
 #ifndef INCLUDED_ml_controller_CCommandProcessor_h
 #define INCLUDED_ml_controller_CCommandProcessor_h
 
-#include <core/CDetachedProcessSpawner.h>
+#include "CProcessSpawnerRouter.h"
 
 #include "CResponseJsonWriter.h"
 
@@ -63,7 +63,9 @@ public:
     static const std::string KILL;
 
 public:
-    CCommandProcessor(const TStrVec& permittedProcessPaths, std::ostream& responseStream);
+    CCommandProcessor(const TStrVec& permittedProcessPaths,
+                      const TStrVec& sandboxedProcessPaths,
+                      std::ostream& responseStream);
 
     //! Action commands read from the supplied \p commandStream until
     //! end-of-file is reached.
@@ -86,7 +88,7 @@ private:
 
 private:
     //! Used to spawn/kill the requested processes.
-    core::CDetachedProcessSpawner m_Spawner;
+    CProcessSpawnerRouter m_Spawner;
 
     //! Used to write responses in JSON format to the response stream.
     CResponseJsonWriter m_ResponseWriter;

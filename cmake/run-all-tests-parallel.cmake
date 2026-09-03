@@ -89,6 +89,7 @@ set(_suites
   "api:lib/api/unittest"
   "ver:lib/ver/unittest"
   "seccomp:lib/seccomp/unittest"
+  "sandbox:lib/sandbox/unittest"
   "controller:bin/controller/unittest"
   "pytorch_inference:bin/pytorch_inference/unittest"
 )
