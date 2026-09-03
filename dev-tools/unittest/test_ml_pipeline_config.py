@@ -137,6 +137,20 @@ def test_pipeline_json_omits_es_test_upload_steps_when_skip_set(
     assert not any("Inference Integration Tests" in label for label in labels)
 
 
+def _sandbox2_ci_trim_active() -> bool:
+    """TEMPORARY (PR #2873): pipeline.json.py is pinned to Linux aarch64 only.
+
+    Read the flag out of the source rather than importing it, so this helper and
+    the trim it tolerates are deleted in the same revert.
+    """
+
+    return "SANDBOX2_CI_TRIM = True" in _PIPELINE_JSON.read_text()
+
+
+@pytest.mark.skipif(
+    _sandbox2_ci_trim_active(),
+    reason="TEMPORARY (PR #2873): SANDBOX2_CI_TRIM pins PR CI to Linux aarch64",
+)
 def test_pipeline_json_includes_es_test_upload_steps_by_default() -> None:
     proc = subprocess.run(
         [sys.executable, str(_PIPELINE_JSON)],

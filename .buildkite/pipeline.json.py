@@ -24,17 +24,40 @@ from ml_pipeline import (
     config as buildConfig,
 )
 
+# TEMPORARY (PR #2873, Sandbox2 CI debug): trim PR CI to the Linux aarch64
+# build/test pair, which is the only leg still failing, plus the format and
+# validation steps that later steps depend on. Cuts an iteration from ~90 to
+# ~50 minutes and stops every push notifying Slack and email. Revert this
+# constant to False - and delete this block - before the PR merges.
+SANDBOX2_CI_TRIM = True
+
+
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([])
-    pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
-                                                       ".buildkite/pipelines/send_slack_notification.sh"))
-    pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
-                                                       ".buildkite/pipelines/send_email_notification.sh"))
+    if not SANDBOX2_CI_TRIM:
+        pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
+                                                           ".buildkite/pipelines/send_slack_notification.sh"))
+        pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
+                                                           ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
     config = buildConfig.Config()
     config.parse()
+
+    if SANDBOX2_CI_TRIM:
+        # Linux aarch64 only. skip_version_bump_pr_ci additionally suppresses the
+        # Java ES IT runner pipelines and the x86_64 debug build/test pair.
+        config.build_windows = False
+        config.build_macos = False
+        config.build_linux = True
+        config.build_aarch64 = "--build-aarch64"
+        config.build_x86_64 = ""
+        config.run_qa_tests = False
+        config.run_pytorch_tests = False
+        config.run_serverless_tests = False
+        config.deploy_serverless_qa = False
+        config.skip_version_bump_pr_ci = True
 
     # Compute which build step keys will exist so that analytics steps
     # can emit a correct depends_on list (not all platforms are built
@@ -103,9 +126,10 @@ def main():
                                                                ".buildkite/pipelines/deploy_serverless_qa.yml.sh"))
 
     # Check for build timing regressions against nightly baseline
-    pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
-                                                       ".buildkite/pipelines/check_build_regression.yml.sh",
-                                                       soft_fail=True))
+    if not SANDBOX2_CI_TRIM:
+        pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
+                                                           ".buildkite/pipelines/check_build_regression.yml.sh",
+                                                           soft_fail=True))
 
     # Validate the PyTorch allowlist against HuggingFace models when
     # triggered from the PyTorch edge pipeline.  Runs in a python:3
