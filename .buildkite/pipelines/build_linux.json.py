@@ -154,6 +154,24 @@ def main(args):
                     ],
                 })
             else:
+                # Reports which user-namespace stage this agent denies, so the
+                # sandbox tests' enforced/fail-closed dispatch can be reasoned
+                # about from evidence. Needs no build artifacts, hence no
+                # depends_on: it answers in ~1 minute rather than behind the
+                # 45 minute compile. soft_fail because it is instrumentation.
+                # TEMPORARY (PR #2873): drop once the agent's namespace support
+                # is settled and recorded in the failure-modes doc.
+                pipeline_steps.append({
+                    "label": f"Diagnose user namespaces for linux-{arch} :linux:",
+                    "timeout_in_minutes": "15",
+                    "agents": test_agents[arch],
+                    "commands": [
+                      ".buildkite/scripts/steps/diagnose_userns.sh"
+                    ],
+                    "key": f"diagnose_userns_linux-{arch}",
+                    "soft_fail": True,
+                })
+
                 # aarch64: split into build and test steps
                 build_key = f"build_test_linux-{arch}-{build_type}"
 

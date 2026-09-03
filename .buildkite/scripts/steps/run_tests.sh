@@ -61,7 +61,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
         -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
         -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
-        -e ML_SANDBOX2_EXPECT=fail_closed \
+        ${ML_SANDBOX2_REQUIRE:+-e ML_SANDBOX2_REQUIRE="${ML_SANDBOX2_REQUIRE}"} \
         ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
         -w /ml-cpp \
         $BASE_IMAGE bash -c '
@@ -83,17 +83,22 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # kernel, so the kernel's seccomp filters are exercised without needing
     # a separate outside-Docker run.
 
-    # Docker (even --privileged) cannot create user namespaces on this aarch64
-    # agent; enforced runs on the host using the bundled gcc133 sysroot so the
-    # binary does not see AlmaLinux 8 /lib64.
+    # The host is a second, distinct namespace environment: the Docker daemon on
+    # this agent denies user namespaces even with --privileged, so the host may
+    # succeed where the container cannot. Re-run the sandbox suite there and let
+    # it select enforced or fail-closed coverage from its own probe - the probe
+    # diagnosis it logs is what tells us whether this agent can ever host
+    # enforced coverage. Set ML_SANDBOX2_REQUIRE=enforced in the pipeline env to
+    # turn that into a hard requirement once an agent is known to support it.
+    # Runs against the bundled gcc133 sysroot so the binary does not resolve
+    # against AlmaLinux 8 /lib64.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
-        echo "--- Re-running sandbox unit tests on host (enforced)"
+        echo "--- Re-running sandbox unit tests on host"
         SYSROOT="$(pwd)/${BUILD_DIR}/lib/sysroot"
         LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
             \( -name "*.so" -o -name "*.so.*" \) \
             -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
-        (cd "${REPO_ROOT:-.}/cmake-build-docker/test/lib/sandbox/unittest" && \
-            ML_SANDBOX2_EXPECT=enforced \
+        (cd "${REPO_ROOT:-.}/${BUILD_DIR}/test/lib/sandbox/unittest" && \
             LD_LIBRARY_PATH="${SYSROOT}:${LIB_DIRS}" \
             ./ml_test_sandbox) || TEST_OUTCOME=$?
     fi
@@ -115,13 +120,10 @@ else
     fi
 
     # Linux x86_64 PR agents are Buildkite k8s pods: user namespaces often work
-    # but Sandbox2's mount("", "/proc", "proc", ...) returns EPERM. The probe in
-    # CSandboxedProcessSpawnerTest_Linux requires that mount, so expect fail_closed.
-    # aarch64 host re-run above uses enforced (Docker cannot unshare user ns).
-    # macOS has no CSandboxedProcessSpawnerTest_Linux.cc.
-    if [[ "$(uname)" = "Linux" ]]; then
-        export ML_SANDBOX2_EXPECT=fail_closed
-    fi
+    # but Sandbox2's mount("proc", "/proc", "proc", ...) returns EPERM, so the
+    # sandbox tests self-select fail-closed coverage here. Nothing is pinned -
+    # these pods' namespace support is a property of the k8s runtime, not of this
+    # repository. macOS has no CSandboxedProcessSpawnerTest_Linux.cc at all.
 
     echo "--- Running tests"
     cmake \

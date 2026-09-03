@@ -91,5 +91,43 @@ window.
 ## CI hardening
 
 Set `ML_REQUIRE_SANDBOX2=1` on Linux CI runners that support user namespaces so
-sandbox integration tests fail instead of silently skipping when the environment
-is misconfigured.
+the attack-defense harness (`dev-tools/run_sandbox2_attack_defense.sh`) fails
+instead of silently skipping when the environment is misconfigured.
+
+### Unit-test coverage modes
+
+`CSandboxedProcessSpawnerTest` covers two mutually exclusive modes, selected from
+a probe of what the runner's kernel actually permits:
+
+| mode | requires | covers |
+|---|---|---|
+| `enforced` | user namespaces available | real sandboxed spawn/terminate, filesystem-policy differential |
+| `fail_closed` | user namespaces unavailable | spawn refusal, kill-switch hint in the failure reason |
+
+The allowlist drift check is mode independent and always runs.
+
+Set `ML_SANDBOX2_REQUIRE=enforced` (or `fail_closed`) on a runner whose namespace
+support is established: the suite then fails rather than quietly covering the
+other mode. Leave it unset elsewhere — developer machines, Docker Desktop, and
+agents we have not characterised each land wherever their kernel puts them.
+
+Without a runner pinned to `enforced`, the two enforced-only cases are covered
+nowhere. That is a coverage gap to close, not a steady state.
+
+**Diagnosing a runner.** The suite logs, once per run:
+
+```
+Sandbox2 environment self-check: uid=.. euid=.. user.max_user_namespaces=..
+  kernel.unprivileged_userns_clone=.. selinux.enforce=.. mountsCoveringProc=..
+Sandbox2 user-namespace probe: unavailable: mount(proc, /proc, proc) failed with errno 1 (...)
+```
+
+The probe reports the first stage the kernel denied out of
+`unshare(CLONE_NEWUSER)`, the uid/gid mapping writes, `unshare(CLONE_NEWNS)`,
+`mount(/, MS_REC|MS_PRIVATE)` and `mount(proc, /proc, proc)`. A non-empty
+`mountsCoveringProc` is the usual cause of an `EPERM` from the last stage: the
+kernel refuses a fresh procfs inside a user namespace while any mount covers
+part of `/proc`.
+
+`.buildkite/scripts/steps/diagnose_userns.sh` reports the same stages, plus the
+host/container comparison, without needing a build.
