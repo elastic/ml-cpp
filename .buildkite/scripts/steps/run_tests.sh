@@ -61,7 +61,6 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
         -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
         -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
-        ${ML_SANDBOX2_REQUIRE:+-e ML_SANDBOX2_REQUIRE="${ML_SANDBOX2_REQUIRE}"} \
         ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
         -w /ml-cpp \
         $BASE_IMAGE bash -c '
@@ -82,23 +81,35 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # Seccomp tests run inside the Docker container which shares the host
     # kernel, so the kernel's seccomp filters are exercised without needing
     # a separate outside-Docker run.
+    #
+    # The container above is left unpinned deliberately. Docker's default seccomp
+    # profile denies unshare(CLONE_NEWUSER), so the sandbox tests select
+    # fail-closed coverage there - which is coverage we want, and which no other
+    # runner on this agent provides.
 
-    # The host is a second, distinct namespace environment: the Docker daemon on
-    # this agent denies user namespaces even with --privileged, so the host may
-    # succeed where the container cannot. Re-run the sandbox suite there and let
-    # it select enforced or fail-closed coverage from its own probe - the probe
-    # diagnosis it logs is what tells us whether this agent can ever host
-    # enforced coverage. Set ML_SANDBOX2_REQUIRE=enforced in the pipeline env to
-    # turn that into a hard requirement once an agent is known to support it.
-    # Runs against the bundled gcc133 sysroot so the binary does not resolve
-    # against AlmaLinux 8 /lib64.
+    # The host is the runner that can do the other half. Measured by
+    # diagnose_userns.sh on this agent (core-almalinux-8-aarch64, kernel 4.18):
+    #
+    #   host                             all stages OK
+    #   docker (default)                 denied at unshare(CLONE_NEWUSER)
+    #   docker + seccomp=unconfined      denied at mount(proc), masked /proc paths
+    #   docker + seccomp + systempaths   all stages OK
+    #   docker --privileged              all stages OK
+    #
+    # The host needs no privilege escalation at all, so it is where the enforced
+    # coverage belongs. Pinned, because these two test cases - a real sandboxed
+    # spawn and the filesystem-policy differential - are the security-critical
+    # ones, and a silent downgrade to fail-closed coverage must fail the build
+    # rather than pass quietly. Runs against the bundled gcc133 sysroot so the
+    # binary does not resolve against AlmaLinux 8 /lib64.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
-        echo "--- Re-running sandbox unit tests on host"
+        echo "--- Re-running sandbox unit tests on host (enforced)"
         SYSROOT="$(pwd)/${BUILD_DIR}/lib/sysroot"
         LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
             \( -name "*.so" -o -name "*.so.*" \) \
             -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
         (cd "${REPO_ROOT:-.}/${BUILD_DIR}/test/lib/sandbox/unittest" && \
+            ML_SANDBOX2_REQUIRE="${ML_SANDBOX2_HOST_REQUIRE:-enforced}" \
             LD_LIBRARY_PATH="${SYSROOT}:${LIB_DIRS}" \
             ./ml_test_sandbox) || TEST_OUTCOME=$?
     fi

@@ -111,11 +111,25 @@ The allowlist drift check is mode independent and always runs.
 
 Set `ML_SANDBOX2_REQUIRE=enforced` (or `fail_closed`) on a runner whose namespace
 support is established: the suite then fails rather than quietly covering the
-other mode. Leave it unset elsewhere — developer machines, Docker Desktop, and
-agents we have not characterised each land wherever their kernel puts them.
+other mode. Leave it unset elsewhere — developer machines and agents we have not
+characterised each land wherever their kernel puts them.
 
-Without a runner pinned to `enforced`, the two enforced-only cases are covered
-nowhere. That is a coverage gap to close, not a steady state.
+**Where each mode is covered on `core-almalinux-8-aarch64` (kernel 4.18),** as
+measured by `diagnose_userns.sh`:
+
+| runner | probe | covers |
+|---|---|---|
+| host | all stages OK | `enforced` — **pinned** in `run_tests.sh` |
+| docker, default | denied at `unshare(CLONE_NEWUSER)` | `fail_closed` |
+| docker + `seccomp=unconfined` | denied at `mount(proc)`, masked `/proc` paths | — |
+| docker + `seccomp` + `systempaths=unconfined` | all stages OK | — |
+| docker `--privileged` | all stages OK | — |
+
+Both modes are therefore covered on one agent, and the enforced half needs no
+privilege escalation: the host runner suffices. The container run is left
+unpinned on purpose — it supplies the fail-closed half, and if a Docker upgrade
+ever permits `CLONE_NEWUSER` it will simply cover enforced instead, while the
+host pin still guarantees enforced coverage exists.
 
 **Diagnosing a runner.** The suite logs, once per run:
 
