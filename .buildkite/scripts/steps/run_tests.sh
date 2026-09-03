@@ -104,11 +104,19 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # binary does not resolve against AlmaLinux 8 /lib64.
     if [[ $TEST_OUTCOME -eq 0 ]]; then
         echo "--- Re-running sandbox unit tests on host (enforced)"
+        REPO_ROOT_ABS="$(pwd)"
         SYSROOT="$(pwd)/${BUILD_DIR}/lib/sysroot"
         LIB_DIRS=$(find "$(pwd)/${BUILD_DIR}/lib" "$(pwd)/build/distribution" \
             \( -name "*.so" -o -name "*.so.*" \) \
             -exec dirname {} \; 2>/dev/null | sort -u | tr '\n' ':')
-        (cd "${REPO_ROOT:-.}/${BUILD_DIR}/test/lib/sandbox/unittest" && \
+        # CPP_SRC_HOME must be set: CResourceLocator::cppRootDir() otherwise
+        # falls back to "../../.." on the assumption that the cwd is a source
+        # unittest directory, whereas this runs from the build tree - so the
+        # spawn test looked for pytorch_inference under cmake-build-docker/ and
+        # did not find it. set_env.sh exports it inside the container; nothing
+        # does on the host.
+        (cd "${REPO_ROOT_ABS}/${BUILD_DIR}/test/lib/sandbox/unittest" && \
+            CPP_SRC_HOME="${REPO_ROOT_ABS}" \
             ML_SANDBOX2_REQUIRE="${ML_SANDBOX2_HOST_REQUIRE:-enforced}" \
             LD_LIBRARY_PATH="${SYSROOT}:${LIB_DIRS}" \
             ./ml_test_sandbox) || TEST_OUTCOME=$?
