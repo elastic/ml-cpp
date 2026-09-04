@@ -36,13 +36,24 @@
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <exception>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
+#include <thread>
 
 namespace {
+//! How often the periodic memory reporter emits the process resident set size.
+//! Elasticsearch aggregates these samples over a longer window, so a short
+//! interval gives several samples per window at negligible cost (a single
+//! resident-set-size read).
+constexpr std::chrono::seconds MEMORY_REPORT_INTERVAL{10};
+
 void verifySafeModel(const torch::jit::script::Module& module_) {
     try {
         auto result = ml::torch::CModelGraphValidator::validate(module_);
@@ -383,6 +394,33 @@ int main(int argc, char** argv) {
         LOG_DEBUG(<< "Using a single allocation");
     }
 
+    // Periodically report the resident set size so Elasticsearch can track the
+    // process's actual (OS-reported) memory use and bound model assignment and
+    // adaptive scaling by real memory rather than an a priori estimate. The
+    // command loop below blocks on input (a getline in CCommandParser::ioLoop),
+    // so the report is emitted from a dedicated timer thread. The concurrent
+    // line writer is safe to use from this thread alongside the inference-result
+    // threads. Shutdown is prompt: the condition variable is signalled the
+    // moment the command loop returns.
+    std::atomic_bool stopMemoryReporter{false};
+    std::mutex memoryReporterMutex;
+    std::condition_variable memoryReporterCondition;
+    std::thread memoryReporterThread{[&] {
+        std::unique_lock<std::mutex> lock{memoryReporterMutex};
+        while (stopMemoryReporter.load() == false) {
+            memoryReporterCondition.wait_for(lock, MEMORY_REPORT_INTERVAL, [&] {
+                return stopMemoryReporter.load();
+            });
+            if (stopMemoryReporter.load()) {
+                break;
+            }
+            resultWriter.writeProcessStats(
+                ml::torch::CCommandParser::RESERVED_REQUEST_ID,
+                ml::core::CProcessStats::residentSetSize(),
+                ml::core::CProcessStats::maxResidentSetSize());
+        }
+    }};
+
     commandParser.ioLoop(
         [&module_, &resultWriter](ml::torch::CCommandParser::CRequestCacheInterface& cache,
                                   ml::torch::CCommandParser::SRequest request) -> bool {
@@ -396,6 +434,17 @@ int main(int argc, char** argv) {
         [&resultWriter](const std::string_view& requestId, const std::string& message) {
             resultWriter.writeError(requestId, message);
         });
+
+    // Stop the periodic memory reporter before tearing down the rest of the
+    // process so it cannot write to a closing output stream.
+    {
+        std::lock_guard<std::mutex> lock{memoryReporterMutex};
+        stopMemoryReporter.store(true);
+    }
+    memoryReporterCondition.notify_all();
+    if (memoryReporterThread.joinable()) {
+        memoryReporterThread.join();
+    }
 
     // Stopping the executor forces this to block until all work is done
     if (useImmediateExecutor == false) {

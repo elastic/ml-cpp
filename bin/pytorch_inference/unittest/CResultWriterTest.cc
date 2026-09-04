@@ -51,10 +51,10 @@ BOOST_AUTO_TEST_CASE(testWriteProcessStats) {
     std::ostringstream output;
     {
         ml::torch::CResultWriter resultWriter{output};
-        resultWriter.writeProcessStats("req3", 42, 54);
+        resultWriter.writeProcessStats("req3", 42, 64);
     }
-    BOOST_REQUIRE_EQUAL("[{\"request_id\":\"req3\",\"process_stats\":"
-                        "{\"memory_rss\":42,\"memory_max_rss\":54}}\n]",
+    BOOST_REQUIRE_EQUAL("[{\"request_id\":\"req3\",\"stats\":"
+                        "{\"memory_rss\":42,\"memory_max_rss\":64}}\n]",
                         output.str());
 }
 
