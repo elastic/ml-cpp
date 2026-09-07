@@ -110,3 +110,17 @@ This image is not intended to be built regularly.  When changing the
  
 ### Build script: dev-tools/docker/build_check_style_image.sh
 
+
+## Repository: ml-check-style-aarch64
+
+### Latest version: 1
+
+### Comments
+The aarch64 counterpart of `ml-check-style`, so `clang-format` can be run
+natively on an aarch64 host rather than under emulation.  `clang-format` 5.0.1
+predates aarch64 release packaging, so the Dockerfile builds it from LLVM
+source and then asserts the resulting version.  Keep the `clang-format` version
+in step with `ml-check-style`, and follow the same procedure when changing it.
+
+### Build script: dev-tools/docker/build_check_style_image_aarch64.sh
+
