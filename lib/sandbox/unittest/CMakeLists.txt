@@ -8,24 +8,20 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(CMAKE_INSTALL_RPATH $ORIGIN)
-endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CMAKE_MACOSX_RPATH 1)
-  set(CMAKE_INSTALL_RPATH "@loader_path")
-endif()
+project("ML Sandbox unit tests")
 
-add_subdirectory(core)
-add_subdirectory(maths/common)
-add_subdirectory(maths/time_series)
-add_subdirectory(maths/analytics)
-add_subdirectory(model)
-add_subdirectory(api)
-add_subdirectory(api/dump_state EXCLUDE_FROM_ALL)
-add_subdirectory(test)
-add_subdirectory(ver)
-add_subdirectory(seccomp)
-add_subdirectory(sandbox)
+set(SRCS
+  CSandboxedProcessSpawnerTest.cc
+  Main.cc
+  )
 
+set(ML_LINK_LIBRARIES
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  MlCore
+  MlSandbox
+  MlSeccomp
+  MlTest
+  )
+
+ml_add_test_executable(sandbox ${SRCS})

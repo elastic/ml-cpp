@@ -50,6 +50,7 @@
 #include <core/CProgName.h>
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
+#include <sandbox/CSandbox2Diagnostics.h>
 
 #include <ver/CBuildInfo.h>
 
@@ -141,8 +142,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
-            logPipe, cancellerThread.hasCancelledBlockingCall()) == false) {
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, std::string{}, cancellerThread.hasCancelledBlockingCall()) == false) {
         if (cancellerThread.hasCancelledBlockingCall().load()) {
             LOG_INFO(<< "Parent process died - ML controller exiting");
         } else {
@@ -156,6 +157,8 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
+
+    ml::sandbox::logSandbox2EnvironmentSelfCheck();
 
     // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
     if (makeProcessNonDumpable() == false) {
@@ -206,8 +209,10 @@ int main(int argc, char** argv) {
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
         "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
         "./pytorch_inference"};
+    ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
+    ml::controller::CCommandProcessor processor{
+        permittedProcessPaths, sandboxedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();

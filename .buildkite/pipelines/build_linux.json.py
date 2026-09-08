@@ -154,6 +154,25 @@ def main(args):
                     ],
                 })
             else:
+                # Regression canary for the enforced Sandbox2 coverage pinned in
+                # run_tests.sh: reports which user-namespace stage this agent
+                # denies, if any. Kept because that pin fails the build when the
+                # agent loses namespace support, and this step is what says which
+                # stage broke - the alternative is another round of guessing.
+                # Needs no build artifacts, hence no depends_on: it answers in
+                # ~1 minute rather than behind the 45 minute compile. soft_fail
+                # because it is instrumentation, not a gate.
+                pipeline_steps.append({
+                    "label": f"Diagnose user namespaces for linux-{arch} :linux:",
+                    "timeout_in_minutes": "15",
+                    "agents": test_agents[arch],
+                    "commands": [
+                      ".buildkite/scripts/steps/diagnose_userns.sh"
+                    ],
+                    "key": f"diagnose_userns_linux-{arch}",
+                    "soft_fail": True,
+                })
+
                 # aarch64: split into build and test steps
                 build_key = f"build_test_linux-{arch}-{build_type}"
 
@@ -218,8 +237,12 @@ def main(args):
                     ],
                 })
 
-    # Add debug build/test steps for PR builds to detect compilation errors with optimization disabled
-    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
+    # Add debug build/test steps for PR builds to detect compilation errors with
+    # optimization disabled. These are x86_64 steps, so they only belong in the
+    # pipeline when x86_64 was actually requested - an aarch64-only build must
+    # not drag an x86_64 pair along with it.
+    if args.build_x86_64 and \
+            os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp-pr-builds") != "ml-cpp-debug-build" and \
             os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false" and \
             not should_skip_version_bump_pr_ci():
         debug_build_key = "build_test_linux-x86_64-RelWithDebInfo-debug"
