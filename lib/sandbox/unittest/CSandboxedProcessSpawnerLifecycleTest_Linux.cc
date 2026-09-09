@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE(testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd)
     // else in the test independently guarantees the payload will ever die.
     auto monitorDonePromise = std::make_shared<std::promise<void>>();
     std::future<void> monitorDoneFuture{monitorDonePromise->get_future()};
-    std::thread monitorThread([body = monitorBody, monitorDonePromise]() mutable {
+    std::thread monitorThread([body = monitorBody, monitorDonePromise, capturedResult]() mutable {
         body();
         monitorDonePromise->set_value();
     });
@@ -460,10 +460,21 @@ BOOST_AUTO_TEST_CASE(testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd)
         // AwaitResult() is still blocked with no bound of its own. Detach
         // instead of join() so this test fails on the assertion below
         // within a few seconds rather than hanging indefinitely - every
-        // object the thread can still reach (capturedResult, the promise,
-        // and monitorBody's own closure, copied above) is heap-owned via
-        // shared_ptr/std::function-by-value, so it stays valid even though
-        // this function is about to return out from under it.
+        // object the thread can still reach (monitorDonePromise, and
+        // monitorBody's own closure, copied above) is heap-owned via
+        // shared_ptr/std::function-by-value. Critically, capturedResult
+        // (the outer shared_ptr) is ALSO captured by value into this
+        // lambda: capturingAwaitResult() only holds a raw pointer into the
+        // heap-allocated inner shared_ptr<Result>, baked into
+        // monitorBody/awaitResultFn's closure by value, so without a
+        // shared_ptr copy of capturedResult riding along in this thread's
+        // own capture list, BOOST_TEST_REQUIRE below failing/unwinding this
+        // stack frame would drop the last reference and free the object
+        // out from under the still-running detached thread - a
+        // use-after-free once the real AwaitResult() unblocks and writes
+        // through that raw pointer. Capturing capturedResult here keeps it
+        // alive for as long as the detached thread might still run,
+        // independent of this function's own lifetime.
         monitorThread.detach();
     }
     // Fails fast (instead of hanging) if terminateChild() regressed to
