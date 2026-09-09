@@ -11,14 +11,19 @@
 
 #include <core/CDetachedProcessSpawner.h>
 #include <core/COsFileFuncs.h>
+#include <core/CSetEnv.h>
 #include <core/CStringUtils.h>
+#include <core/CUnSetEnv.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
+#include <string>
 #include <thread>
+#include <vector>
 
 BOOST_AUTO_TEST_SUITE(CDetachedProcessSpawnerTest)
 
@@ -122,5 +127,74 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
     BOOST_TEST_REQUIRE(!spawner.spawn(
         "./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
+
+#ifndef Windows
+BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironment) {
+    // ML_SANDBOXED=1 is the Sandbox2 sandboxee marker
+    // (lib/sandbox/CSandboxedProcessSpawner_Linux.cc) and pytorch_inference
+    // skips its mandatory in-process seccomp filter when it sees it
+    // (include/seccomp/CSystemCallFilter.h sandbox2LaunchedChild()). A child
+    // spawned by this class is never inside Sandbox2, so it must never
+    // inherit the marker - not even when the spawning process's own
+    // environment carries it.
+    BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv("ML_SANDBOXED", "1", 1));
+    BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv("ML_SANDBOXED_KEEP_ME", "1", 1));
+
+    // Pure form: the array handed to posix_spawn() drops ML_SANDBOXED,
+    // keeps everything else in order, and is NULL terminated. Exact-name
+    // match only, so a different variable sharing the prefix survives.
+    {
+        std::vector<std::string> parentEntries{"PATH=/bin", "ML_SANDBOXED=1",
+                                               "ML_SANDBOXED_KEEP_ME=1", "TMPDIR=/tmp"};
+        std::vector<char*> parentEnv;
+        for (auto& entry : parentEntries) {
+            parentEnv.push_back(const_cast<char*>(entry.c_str()));
+        }
+        parentEnv.push_back(static_cast<char*>(nullptr));
+
+        auto childEnv = ml::core::detail::buildChildEnvironment(&parentEnv[0]);
+        BOOST_REQUIRE_EQUAL(std::size_t(4), childEnv.size());
+        BOOST_REQUIRE_EQUAL(std::string("PATH=/bin"), std::string(childEnv[0]));
+        BOOST_REQUIRE_EQUAL(std::string("ML_SANDBOXED_KEEP_ME=1"), std::string(childEnv[1]));
+        BOOST_REQUIRE_EQUAL(std::string("TMPDIR=/tmp"), std::string(childEnv[2]));
+        BOOST_REQUIRE_EQUAL(static_cast<char*>(nullptr), childEnv[3]);
+    }
+
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED=1"));
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED="));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED_KEEP_ME=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOX=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(nullptr));
+
+    // End to end: a real spawned child reports what it actually inherited.
+    // Its stdout is redirected to /dev/null by the spawner, so the shell
+    // writes the value to a file instead.
+    const std::string envDumpFile{"child_ml_sandboxed.txt"};
+    std::remove(envDumpFile.c_str());
+
+    const std::string shell{"/bin/sh"};
+    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, shell);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
+
+    ml::core::CDetachedProcessSpawner::TStrVec args{
+        "-c", "echo \"[${ML_SANDBOXED-unset}][${ML_SANDBOXED_KEEP_ME-unset}]\" > " + envDumpFile};
+    BOOST_TEST_REQUIRE(spawner.spawn(shell, args));
+
+    std::string dumped;
+    for (int attempt = 0; attempt < 20 && dumped.empty(); ++attempt) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::ifstream ifs{envDumpFile};
+        if (ifs.is_open()) {
+            std::getline(ifs, dumped);
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(std::string("[unset][1]"), dumped);
+
+    std::remove(envDumpFile.c_str());
+    ml::core::CUnSetEnv::unSetEnv("ML_SANDBOXED");
+    ml::core::CUnSetEnv::unSetEnv("ML_SANDBOXED_KEEP_ME");
+}
+#endif // !Windows
 
 BOOST_AUTO_TEST_SUITE_END()
