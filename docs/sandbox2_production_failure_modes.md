@@ -32,8 +32,16 @@ single-line JSON object.
 | `deployment_id`         | string  | `SChildIpcLaunchSpec::s_ChildId`, from a single `sandbox::validateChildIpcLaunchSpec()` call made **once per `spawn()`, before dispatch**, so the value cannot disagree with the state the dispatch decision was taken against and is populated on the `degraded`/`fail_closed` modes too. Empty string (`""`, explicit, never omitted) only when no path-bearing launch option (`input`/`output`/`restore`/`logPipe`) was present at all. Control characters, quotes and backslashes are JSON-escaped so the line stays single-line JSON. |
 | `model_id`              | string  | Scanned from a `--modelid=<value>` launch argument, using the same linear string-prefix scan style as the controller's `--disableSandbox` token scan. Empty string if absent. Escaped as for `deployment_id`. |
 | `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect, `"legacy"` when the controller selected `E_Legacy` - either via the operator kill-switch (`--disableSandbox`) or via the dormant no-token default (see "Dormant no-token default" below). |
+| `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`); **omitted entirely** - never `""`, never `null` - on `route == "sandbox2"`, i.e. on both `enforced` and `fail_closed`. `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"dormant_default"` when no token was needed and `ML_SANDBOX2_DEFAULT_ENFORCED` simply is not enabled. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
 | `sandbox2_established`  | boolean | JSON boolean (`true`/`false`, never the string `"y"`/`"n"`). `true` iff `mode == "enforced"`, else `false`. |
 | `mode`                  | string  | One of `"enforced"`, `"fail_closed"`, `"degraded"` - see mapping below. |
+
+`legacy_reason` exists because `mode == "degraded"` alone conflates a
+deliberate operator kill-switch launch with the dormant default that is in
+effect for the entire rollout window - during that window every ordinary
+launch is `degraded`, so the mode carries no diagnostic information on its
+own. It is additive: `event`/`deployment_id`/`model_id`/`route`/
+`sandbox2_established`/`mode` and their semantics are unchanged.
 
 **`mode` mapping** (binding, PR E Task 4 controller ruling):
 
@@ -44,7 +52,8 @@ single-line JSON object.
   configured as sandboxed but this build has no Sandbox2 support).
 - `degraded` - `route == "legacy"` (operator kill-switch token present and
   validated, or the dormant no-token default in effect), regardless of
-  whether the legacy spawn itself succeeded or failed.
+  whether the legacy spawn itself succeeded or failed. `legacy_reason` names
+  which of the two it was, and is emitted only on this mode.
 
 ### Dormant no-token default
 
@@ -80,10 +89,27 @@ on a launch `sandbox2_launch` reports as `"route":"sandbox2"`. So a
 `"route":"sandbox2"` launch never carries a `seccomp_installed` marker, and
 that absence is expected, not a missing signal.
 
+`ML_SANDBOXED` is a fail-open marker, so it is stripped from the environment
+of every child the legacy spawner launches
+(`lib/core/CDetachedProcessSpawner.cc`, `detail::buildChildEnvironment()`) -
+an inherited or externally injected `ML_SANDBOXED=1` in the controller's own
+environment can therefore never suppress a legacy-route child's mandatory
+in-process filter. Only `CSandboxedProcessSpawner` sets it, and only on real
+sandboxees.
+
+Hard termination on a failed in-process seccomp installation
+(`TERMINATE_ON_DEGRADED_SECCOMP_FAILURE` in
+`bin/pytorch_inference/Main.cc`) is deliberately **off** while the legacy
+route is still the production default: during the dormant window every
+ordinary launch is a degraded-route launch, so terminating would fail every
+launch on a host without usable seccomp BPF. It becomes safe to activate at
+the same time the default stops being legacy.
+
 Example:
 
 ```json
 {"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"sandbox2","sandbox2_established":true,"mode":"enforced"}
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"legacy","legacy_reason":"dormant_default","sandbox2_established":false,"mode":"degraded"}
 ```
 
 Emission site: `bin/controller/CProcessSpawnerRouter.cc`,
@@ -120,6 +146,15 @@ Sandbox2 forkserver, not of the controller, so `/proc` `PPid` filtering
 cannot find it), and a per-case cleanup assertion (`kill <pid>`
 against the controller reports failure once the case ends, proving the
 child was reaped).
+
+Because the shipped no-token default is the legacy route, the harness starts
+the controller with `ML_SANDBOX2_DEFAULT_ENFORCED=1` in its environment, and
+each case asserts the route reported by that launch's own `sandbox2_launch`
+signal (`sandbox2` for the sandboxed cases, `legacy` for the
+`--disableSandbox` control) **before** any target-file assertion. Without
+both, a sandboxed case could route to the legacy path and still show "no
+target file" for entirely the wrong reason - a false pass on the security
+proof.
 
 **Command:**
 

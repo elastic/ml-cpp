@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CLogger.h>
 #include <core/CProcess.h>
 #include <core/CSetEnv.h>
 #include <core/CStringUtils.h>
@@ -16,6 +17,7 @@
 
 #include "../CCommandProcessor.h"
 
+#include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
@@ -67,6 +69,18 @@ public:
     CScopedSandbox2DefaultEnforced(const CScopedSandbox2DefaultEnforced&) = delete;
     CScopedSandbox2DefaultEnforced& operator=(const CScopedSandbox2DefaultEnforced&) = delete;
 };
+
+//! Redirect the logger to a string stream for the duration of \p fn, so a
+//! test can assert on the router's H4 sandbox2_launch signal (the same
+//! capture style bin/controller/unittest/CProcessSpawnerRouterTest.cc uses).
+template<typename FN>
+std::string captureLogged(FN&& fn) {
+    auto stream = boost::make_shared<std::ostringstream>();
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigure(stream));
+    fn();
+    ml::core::CLogger::instance().reset();
+    return stream->str();
+}
 }
 
 BOOST_AUTO_TEST_CASE(testStartPermitted) {
@@ -451,6 +465,59 @@ BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPat
 
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":16,\"success\":true") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
+    // The two legacy-route provenances must arrive at the H4 signal
+    // distinguishable: mode == "degraded" alone cannot separate a deliberate
+    // operator kill switch from the dormant default that is in effect for
+    // the whole rollout window. This asserts the wiring from the route
+    // decision in handleStart() through to the emitted signal.
+    ml::core::CUnSetEnv::unSetEnv("ML_SANDBOX2_DEFAULT_ENFORCED");
+
+    const std::string OUT{"sandbox2_legacy_reason_out.txt"};
+
+    // (a) No token, option off -> dormant_default.
+    std::remove(OUT.c_str());
+    std::ostringstream dormantResponses;
+    std::string dormantLogged{captureLogged([&] {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, dormantResponses};
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
+                                      20, PROCESS_PATH,
+                                      {"-c", "cp " + INPUT_FILE1 + " " + OUT})));
+    })};
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::remove(OUT.c_str());
+
+    BOOST_REQUIRE(dormantLogged.find("\"route\":\"legacy\"") != std::string::npos);
+    BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"dormant_default\"") != std::string::npos);
+    BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"kill_switch\"") == std::string::npos);
+
+    // (b) Validated --disableSandbox token -> kill_switch, whatever the
+    // option's state (here explicitly on, so the token is the only reason
+    // the legacy route could have been selected).
+    CScopedSandbox2DefaultEnforced enforced{"1"};
+    std::remove(OUT.c_str());
+    std::ostringstream killSwitchResponses;
+    std::string killSwitchLogged{captureLogged([&] {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                   killSwitchResponses};
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
+                                      21, PROCESS_PATH,
+                                      {"-c", "cp " + INPUT_FILE1 + " " + OUT,
+                                       "--disableSandbox"})));
+    })};
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::remove(OUT.c_str());
+
+    BOOST_REQUIRE(killSwitchLogged.find("\"route\":\"legacy\"") != std::string::npos);
+    BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"kill_switch\"") != std::string::npos);
+    BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"dormant_default\"") ==
+                  std::string::npos);
 }
 
 #ifndef SANDBOX2_AVAILABLE

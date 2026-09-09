@@ -429,6 +429,77 @@ BOOST_AUTO_TEST_CASE(testH4SignalDegradedOnLegacyRouteFailure) {
     BOOST_REQUIRE(logged.find("\"model_id\":\"deploy-degraded-fail\"") != std::string::npos);
 }
 
+BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonKillSwitch) {
+    // legacy_reason distinguishes the two states mode == "degraded"
+    // conflates. E_KillSwitch: a validated --disableSandbox token was
+    // present, i.e. a deliberate operator/test action.
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // spawn fails deterministically
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{"--modelid=deploy-kill-switch"};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                 PROCESS_PATH, args, childPid,
+                                 ml::controller::CProcessSpawnerRouter::ELegacyReason::E_KillSwitch));
+    })};
+
+    BOOST_REQUIRE(logged.find("\"route\":\"legacy\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"kill_switch\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"dormant_default\"") == std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonDormantDefault) {
+    // E_DormantDefault: no token was needed at all - the legacy route is
+    // simply still the default because ML_SANDBOX2_DEFAULT_ENFORCED is off.
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // spawn fails deterministically
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{"--modelid=deploy-dormant"};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false,
+            router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy, PROCESS_PATH,
+                         args, childPid,
+                         ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
+    })};
+
+    BOOST_REQUIRE(logged.find("\"route\":\"legacy\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"dormant_default\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"kill_switch\"") == std::string::npos);
+}
+
+#ifndef SANDBOX2_AVAILABLE
+BOOST_AUTO_TEST_CASE(testH4SignalNoLegacyReasonOnSandbox2Route) {
+    // legacy_reason is omitted entirely - not emitted as "" or null - on
+    // every route == "sandbox2" signal. On this build that is the
+    // fail_closed mode (route == "sandbox2", spawn failed); mode ==
+    // "enforced" shares the same route value and the same omission, and is
+    // Buildkite-deferred for the reason documented below.
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{"--modelid=deploy-no-legacy-reason"};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                 PROCESS_PATH, args, childPid));
+    })};
+
+    BOOST_REQUIRE(logged.find("\"route\":\"sandbox2\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"mode\":\"fail_closed\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("legacy_reason") == std::string::npos);
+}
+#endif // !SANDBOX2_AVAILABLE
+
 // Buildkite-deferred (Linux + Sandbox2 only): the mode == "enforced" /
 // sandbox2_established == true case requires a real successful Sandbox2
 // launch (route == E_Sandbox2, a sandboxedProcessPaths entry, spawn()

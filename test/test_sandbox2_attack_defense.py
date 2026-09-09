@@ -306,6 +306,38 @@ def find_child_pid(controller, process_path, since_offset, timeout=PID_DISCOVERY
         time.sleep(0.1)
 
 
+#! The controller's H4 structured once-per-launch signal, emitted by
+#! bin/controller/CProcessSpawnerRouter.cc emitLaunchSignal() over the same
+#! log pipe. Boost.Log escapes the embedded quotes, so the raw capture is
+#! unescaped before matching.
+LAUNCH_SIGNAL_ROUTE_RE = re.compile(r'"event":"sandbox2_launch".*?"route":"(?P<route>[a-z0-9_]+)"')
+
+
+def find_launch_route(controller, since_offset, timeout=PID_DISCOVERY_TIMEOUT):
+    """Return the route ("sandbox2" / "legacy") the controller's own H4
+    sandbox2_launch signal reports for the launch issued after since_offset,
+    or None if no such signal appeared within timeout.
+
+    This is the harness's guard against silently invalidating the security
+    proof: a "sandboxed" case that actually routed to the legacy path would
+    still produce "no target file" for entirely the wrong reason (see
+    run_pytorch_case()).
+    """
+    log_path = controller.control_dir / 'controller_log_output.txt'
+    deadline = time.time() + timeout
+    while True:
+        raw = _read_new_content(log_path, since_offset).replace('\\"', '"')
+        route = None
+        for match in LAUNCH_SIGNAL_ROUTE_RE.finditer(raw):
+            # Last match wins, consistent with find_child_pid().
+            route = match.group('route')
+        if route is not None:
+            return route
+        if time.time() >= deadline:
+            return None
+        time.sleep(0.1)
+
+
 def tail_contains(path, needle, deadline):
     """Poll path until it contains needle or deadline (a time.time() value)
     passes."""
@@ -414,6 +446,20 @@ class ControllerProcess:
             # for living outside the "trusted" base the controller believes in.
             env = dict(os.environ)
             env['TMPDIR'] = str(child_tmp_base)
+
+            # The controller's no-token default route is the *legacy*
+            # (unsandboxed) path unless this internal option is exactly "1"
+            # - the shipped, dormant state (see
+            # bin/controller/CCommandProcessor.cc). Every "sandboxed" case
+            # here sends a plain `start` with no --disableSandbox token, so
+            # without this the sandboxed cases would run on the legacy path
+            # and the harness's negative assertion ("the malicious model's
+            # target file must not exist") would be checked against a child
+            # that was never sandboxed at all - a false pass on a security
+            # proof. Set on the controller's own environment rather than
+            # relying on the invoker (dev-tools/run_sandbox2_attack_defense.sh
+            # only execs this script), so the harness is self-contained.
+            env['ML_SANDBOX2_DEFAULT_ENFORCED'] = '1'
 
             self._start_controller_with_stdin(stdin_fd, env)
 
@@ -810,6 +856,33 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
             controller.check_controller_logs()
             return result, reached, target_file_created, response, leaked_address_seen, pid
         result.info(f"Controller accepted start: {response.get('reason')}")
+
+        # Routing assertion, BEFORE any boundary assertion: the case is only
+        # evidence about Sandbox2 if the controller actually routed this
+        # launch the way the case intends. A sandboxed case that silently
+        # landed on the legacy path (e.g. ML_SANDBOX2_DEFAULT_ENFORCED not
+        # reaching the controller, or a route-decision regression) would
+        # still show "no target file" - for the wrong reason. Fail loudly
+        # here instead.
+        expected_route = 'legacy' if unsandboxed else 'sandbox2'
+        actual_route = find_launch_route(controller, log_offset)
+        if actual_route is None:
+            result.fail(
+                "No sandbox2_launch (H4) signal observed on the controller log within "
+                f"{PID_DISCOVERY_TIMEOUT}s of a successful start response - cannot confirm "
+                f"this launch took the '{expected_route}' route; not asserting on target file")
+            controller.check_controller_logs()
+            return result, reached, target_file_created, response, leaked_address_seen, pid
+        if actual_route != expected_route:
+            result.fail(
+                f"Routing regression: controller's sandbox2_launch signal reports "
+                f"\"route\":\"{actual_route}\" but this case requires "
+                f"\"{expected_route}\". The child was not sandboxed as intended, so any "
+                f"target-file assertion below would prove nothing about Sandbox2; "
+                f"not asserting on target file")
+            controller.check_controller_logs()
+            return result, reached, target_file_created, response, leaked_address_seen, pid
+        result.info(f"H4 signal confirms route: {actual_route}")
 
         pid = find_child_pid(controller, f'./{pytorch_name}', log_offset)
         if pid is None:

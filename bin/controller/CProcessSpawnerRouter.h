@@ -60,6 +60,21 @@ public:
         E_Legacy
     };
 
+    //! Why the caller chose ERoute::E_Legacy. The router never derives this
+    //! (it never re-parses args): CCommandProcessor passes the provenance it
+    //! already knows from making the decision, purely so the H4 signal's
+    //! additive "legacy_reason" field can distinguish a deliberate operator
+    //! kill switch from the dormant default that is in effect for the whole
+    //! rollout window - mode == "degraded" alone cannot.
+    enum class ELegacyReason {
+        //! The route is E_Sandbox2; no legacy_reason is emitted at all.
+        E_NotLegacy,
+        //! A validated --disableSandbox token was present.
+        E_KillSwitch,
+        //! No token, and ML_SANDBOX2_DEFAULT_ENFORCED is not enabled.
+        E_DormantDefault
+    };
+
 public:
     CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
                           const TStrVec& sandboxedProcessPaths);
@@ -67,10 +82,14 @@ public:
     //! Dispatch a spawn request per the already-decided \p route. Returns
     //! false immediately on a Sandbox2 failure - never retries via the
     //! legacy spawner (V2, "no automatic fallback").
+    //! \param legacyReason provenance of an E_Legacy \p route, for the H4
+    //!        signal only - never used to dispatch. Must be E_NotLegacy
+    //!        (the default) when \p route is E_Sandbox2.
     bool spawn(ERoute route,
                const std::string& processPath,
                const TStrVec& args,
-               core::CProcess::TPid& childPid);
+               core::CProcess::TPid& childPid,
+               ELegacyReason legacyReason = ELegacyReason::E_NotLegacy);
 
     //! Terminate a child previously spawned by either backend.
     bool terminateChild(core::CProcess::TPid pid);
@@ -102,6 +121,7 @@ private:
     //!        the value in this signal cannot disagree with the value the
     //!        dispatch decision was made against.
     void emitLaunchSignal(ERoute route,
+                          ELegacyReason legacyReason,
                           const std::string& deploymentId,
                           const TStrVec& args,
                           bool spawnSucceeded) const;
