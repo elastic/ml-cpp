@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -29,6 +30,16 @@
 namespace sandbox2 {
 class Sandbox2;
 }
+
+#ifdef SANDBOX2_AVAILABLE
+// The Sandbox2-completion injectable seam (TAwaitResultFn, below) names
+// sandbox2::Result in a std::function signature, which needs the complete
+// type - the forward declaration above is not enough for that one seam.
+// Non-Linux/no-Sandbox2 configures never see this include, matching
+// include/sandbox/CPytorchInferenceSandboxPolicy.h's pattern for the same
+// reason.
+#include <sandboxed_api/sandbox2/sandbox2.h>
+#endif
 
 namespace ml {
 namespace sandbox {
@@ -117,39 +128,34 @@ public:
         std::atomic<EOutcomeState> m_State{EOutcomeState::E_Pending};
     };
 
+    //! Placeholder outcome of the injectable pidfd-acquisition seam (Task 2
+    //! scope only). A simple success/failure signal - Task 3 replaces this
+    //! with full ENOSYS/EMFILE/... classification (design.md gate V9) and
+    //! decides what a classified failure does; nothing here selects a
+    //! numeric-kill(pid) fallback, and nothing should until Task 3 lands.
+    struct SPidFdAcquisitionResult {
+        int s_Fd{-1};
+        int s_Errno{0};
+    };
+
 public:
-    CSandboxedProcessSpawner();
-    ~CSandboxedProcessSpawner();
-
-    //! Spawn a sandboxed process. Returns true only after registry
-    //! insertion and monitor handoff both succeed (LI2); on any other
-    //! outcome returns false with childPid left at 0 and no live unowned
-    //! child, no registry entry, and no leaked descriptor (LI3).
-    bool spawn(const std::string& processPath, const TStrVec& args, core::CProcess::TPid& childPid);
-
-    //! Request termination of a sandboxed child previously started by this
-    //! object, targeting its identity-bound handle rather than a recycled
-    //! numeric PID (LI7).
-    bool terminateChild(core::CProcess::TPid pid);
-
-    //! \return true if this object owns a sandboxed child with the given
-    //! PID that is still live (not yet Reaped or Failed).
-    bool hasChild(core::CProcess::TPid pid) const;
-
-private:
     //! \brief A live sandboxed child and the handles needed to manage it
     //! safely through every lifecycle state.
     //!
     //! DESCRIPTION:\n
-    //! Shape only in this task - no lifecycle logic lands here yet. Carries
-    //! the explicit state, a monotonic generation (so a stale monitor
-    //! cannot erase or mutate a newer registration racing the same PID,
-    //! LI6), the Sandbox2 handle (co-owned with any monitor thread via
-    //! shared_ptr, since a monitor can outlive this spawner and must never
-    //! hold a raw pointer back into it, LI5), the pidfd used for
-    //! identity-bound termination when the kernel provides one, and the
-    //! one-shot outcome latch used to resolve a timeout-vs-completion race
-    //! for this specific child (MG4/V11).
+    //! Shape only in Task 1 - no lifecycle logic landed there. Carries the
+    //! explicit state, a monotonic generation (so a stale monitor cannot
+    //! erase or mutate a newer registration racing the same PID, LI6), the
+    //! Sandbox2 handle (co-owned with any monitor thread via shared_ptr,
+    //! since a monitor can outlive this spawner and must never hold a raw
+    //! pointer back into it, LI5), the pidfd used for identity-bound
+    //! termination when the kernel provides one, and the one-shot outcome
+    //! latch used to resolve a timeout-vs-completion race for this specific
+    //! child (MG4/V11). Public (rather than Task 1's private placement) as
+    //! of Task 2: the registry-allocation seam (TRegistryInsertFn, below)
+    //! and its test-only overrides need to name this type, and a private
+    //! nested type cannot appear in a public alias's signature in a way
+    //! external test code could actually spell.
     struct SSandboxedChild {
         EChildLifecycleState s_State{EChildLifecycleState::E_Prepared};
         std::uint64_t s_Generation{0};
@@ -176,7 +182,89 @@ private:
     };
     using TPidRegistryPtr = std::shared_ptr<SPidRegistry>;
 
+    //! Injectable seams (design.md's PR D plan, Task 2). Each has a
+    //! production default, selected by passing an empty std::function to
+    //! the test-only constructor below (or by using the plain default
+    //! constructor, which never touches these types at all).
+
+    //! pidfd-acquisition seam: wraps the pidfd_open syscall. See
+    //! SPidFdAcquisitionResult's comment - Task 3 replaces the placeholder
+    //! success/failure shape with full classification.
+    using TPidFdOpenFn = std::function<SPidFdAcquisitionResult(core::CProcess::TPid)>;
+
+    //! Registry-allocation seam: performs the locked map insertion
+    //! (replacing any stale entry for the same PID, mirroring the
+    //! production default) and returns the new entry's generation. The
+    //! production default never throws for ordinary insertion; a test
+    //! overriding this seam can throw std::bad_alloc, or return a
+    //! deliberately colliding generation, to exercise LI8 deterministically
+    //! without waiting on real resource exhaustion.
+    using TRegistryInsertFn =
+        std::function<std::uint64_t(SPidRegistry&, core::CProcess::TPid, SSandboxedChild)>;
+
+    //! Monitor-thread creation/detach seam. Returns false - never throws -
+    //! if std::thread construction or detach() failed, so a test can force
+    //! that failure deterministically (LI8) without depending on the OS
+    //! actually running out of threads. The production default constructs
+    //! std::thread(monitorBody) and detaches it, converting any
+    //! std::system_error from either step into a false return.
+    using TMonitorLaunchFn = std::function<bool(std::function<void()> monitorBody)>;
+
+#ifdef SANDBOX2_AVAILABLE
+    //! Sandbox2-completion seam: wraps calling AwaitResult() on the live
+    //! sandbox handle, so a test controls exactly when/what result is
+    //! reported (design.md V11's deterministic timeout-vs-completion test,
+    //! Task 4 scope). Available only where sandbox2::Result is a complete
+    //! type; see the SANDBOX2_AVAILABLE include block above this class.
+    using TAwaitResultFn = std::function<sandbox2::Result(sandbox2::Sandbox2&)>;
+#endif
+
+    CSandboxedProcessSpawner();
+
+    //! Test-only constructor injecting the four seams above. Each parameter
+    //! defaults to an empty std::function; spawn()
+    //! (CSandboxedProcessSpawner_Linux.cc) treats an empty seam as "use the
+    //! production behaviour", so production callers should keep using the
+    //! plain default constructor and never need to name these types.
+    CSandboxedProcessSpawner(TPidFdOpenFn pidFdOpenFn,
+                              TRegistryInsertFn registryInsertFn,
+                              TMonitorLaunchFn monitorLaunchFn
+#ifdef SANDBOX2_AVAILABLE
+                              ,
+                              TAwaitResultFn awaitResultFn
+#endif
+    );
+
+    ~CSandboxedProcessSpawner();
+
+    //! Spawn a sandboxed process. Returns true only after registry
+    //! insertion and monitor handoff both succeed (LI2); on any other
+    //! outcome returns false with childPid left at 0 and no live unowned
+    //! child, no registry entry, and no leaked descriptor (LI3).
+    bool spawn(const std::string& processPath, const TStrVec& args, core::CProcess::TPid& childPid);
+
+    //! Request termination of a sandboxed child previously started by this
+    //! object, targeting its identity-bound handle rather than a recycled
+    //! numeric PID (LI7).
+    bool terminateChild(core::CProcess::TPid pid);
+
+    //! \return true if this object owns a sandboxed child with the given
+    //! PID that is still live (not yet Reaped or Failed).
+    bool hasChild(core::CProcess::TPid pid) const;
+
+private:
     const TPidRegistryPtr m_PidRegistry{std::make_shared<SPidRegistry>()};
+
+    //! Seam storage for the test-only constructor. Left empty (default
+    //! std::function) by the plain default constructor, which
+    //! CSandboxedProcessSpawner_Linux.cc reads as "use the production
+    //! behaviour" for every seam.
+    TPidFdOpenFn m_PidFdOpenFn;
+    TRegistryInsertFn m_RegistryInsertFn;
+    TMonitorLaunchFn m_MonitorLaunchFn;
+#ifdef SANDBOX2_AVAILABLE
+    TAwaitResultFn m_AwaitResultFn;
+#endif
 };
 
 } // namespace sandbox
