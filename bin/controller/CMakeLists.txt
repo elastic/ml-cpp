@@ -11,9 +11,10 @@
 
 project("ML Controller")
 
-set(ML_LINK_LIBRARIES 
+set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES}
   MlCore
+  MlSandbox
   MlSeccomp
   MlVer
   )
@@ -22,5 +23,6 @@ ml_add_executable(controller
   CBlockingCallCancellingStreamMonitor.cc
   CCmdLineParser.cc
   CCommandProcessor.cc
+  CProcessSpawnerRouter.cc
   CResponseJsonWriter.cc
   )
