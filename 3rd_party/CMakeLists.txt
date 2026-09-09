@@ -42,9 +42,8 @@ execute_process(
 
 # Build Abseil and Sandbox2 on Linux only. MlSandbox (lib/sandbox) is a
 # dormant target: it is built everywhere Sandbox2 is available, but nothing
-# in the controller/pytorch_inference wiring routes to it yet. See
-# docs/projects/mlcpp-sandbox2-pr2873 in the elastic-workspace harness for
-# the staged-rollout contract this dependency foundation exists for.
+# in the controller/pytorch_inference wiring routes to it yet. The sandbox
+# policy, spawner, and controller routing land in follow-up PRs.
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   include(FetchContent)
 

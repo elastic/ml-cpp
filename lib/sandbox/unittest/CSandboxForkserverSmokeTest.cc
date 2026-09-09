@@ -10,21 +10,20 @@
  */
 
 // Linux-only forkserver runtime smoke test for the dormant MlSandbox
-// dependency foundation (PR A of docs/projects/mlcpp-sandbox2-pr2873 in the
-// elastic-workspace harness). This is NOT a security test: it uses
+// dependency foundation. This is NOT a security test: it uses
 // PolicyBuilder::DangerDefaultAllowAll(), which imposes no seccomp
 // restriction. Its only purpose is to prove that the vendored Sandbox2
 // forkserver - built via the checked-in patches under
 // 3rd_party/patches/sandboxed-api/ - can actually fork, exec, and reap a
 // child process end-to-end. Typed launch policy and syscall filtering are
-// out of scope here and land in later PRs of that plan.
+// out of scope here and land in follow-up PRs.
 //
 // The payload is dynamically linked, so AddLibrariesForBinary() mounts its
 // shared-library dependencies into the sandbox namespace; without it,
-// Sandbox2's forkserver fails execveat with ENOENT (verified: elastic/ml-cpp
-// CI's build image has no static libc/libm archives, ruling out the
-// simpler static-link approach used by upstream's own
-// examples/static/static_bin.cc).
+// Sandbox2's forkserver fails execveat with ENOENT. A static-linked payload
+// (matching upstream sandboxed-api's own examples/static/static_bin.cc, to
+// sidestep AddLibrariesForBinary entirely) was tried first, but this CI's
+// build image has no static libc/libm archives (`ld: cannot find -lm/-lc`).
 
 #include <sandbox/CMlSandboxAvailability.h>
 

@@ -9,12 +9,10 @@
 # limitation.
 #
 
-# MlSandbox is a dormant dependency foundation (PR A of the Sandbox2 clean
-# rebuild plan, see docs/projects/mlcpp-sandbox2-pr2873 in the
-# elastic-workspace harness). It links Sandbox2/Abseil and builds/tests a
-# runnable Sandbox2 forkserver on Linux, but no controller or
+# MlSandbox is a dormant dependency foundation: it links Sandbox2/Abseil and
+# builds/tests a runnable Sandbox2 forkserver on Linux, but no controller or
 # pytorch_inference routing depends on it yet. The typed launch policy,
-# process spawner, and controller wiring land in later PRs of that plan.
+# process spawner, and controller wiring land in follow-up PRs.
 
 project("ML Sandbox")
 

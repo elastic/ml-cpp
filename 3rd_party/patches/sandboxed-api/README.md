@@ -32,6 +32,6 @@ Pinned tag: `v20241008` (see `3rd_party/CMakeLists.txt`).
    content (clone the tag, make the same edit, `git diff`) rather than
    hand-editing the `.patch` file — hand-edited patches drift from what the
    new tag's file actually contains.
-4. Re-run `lib/sandbox/unittest` (`ml_test_sandbox`), which re-applies every
-   patch against a fresh shallow clone of the pinned tag as part of the
-   patch-drift check, independent of the FetchContent build.
+4. Reconfigure again to confirm every patch now applies cleanly, then
+   rebuild `lib/sandbox` (`ml_test_sandbox`) to confirm the resulting
+   Sandbox2 build still passes.

@@ -14,8 +14,8 @@
 // and reap a child through the full pipeline patched in
 // 3rd_party/patches/sandboxed-api/0004-forkserver-zlib-static-libstdcxx.patch.
 // It carries no ml-cpp library dependencies and no sandbox policy of its
-// own - policy design is out of scope for the dormant PR A foundation and
-// lands in a later PR of docs/projects/mlcpp-sandbox2-pr2873.
+// own - policy design is out of scope for this dormant dependency
+// foundation and lands in a follow-up PR.
 
 #include <cstdio>
 #include <cstdlib>

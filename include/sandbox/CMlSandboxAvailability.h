@@ -22,11 +22,9 @@ namespace sandbox {
 //! DESCRIPTION:\n
 //! MlSandbox is a dormant dependency foundation: it links Sandbox2/Abseil
 //! and builds a runnable forkserver on Linux, but nothing in the controller
-//! or pytorch_inference wiring routes to it yet (see
-//! docs/projects/mlcpp-sandbox2-pr2873 in the elastic-workspace harness).
-//! This query is the only symbol callers outside this library may currently
-//! depend on; the actual sandbox policy, spawner, and controller routing
-//! land in later PRs of that plan.
+//! or pytorch_inference wiring routes to it yet. This query is the only
+//! symbol callers outside this library may currently depend on; the actual
+//! sandbox policy, spawner, and controller routing land in follow-up PRs.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Backed by the SANDBOX2_AVAILABLE compile definition set in
