@@ -72,6 +72,7 @@ import fcntl
 import json
 import os
 import re
+import select
 import shutil
 import stat
 import struct
@@ -117,20 +118,39 @@ class PipeReaderThread(threading.Thread):
         super().__init__(daemon=True)
 
     def run(self):
+        # Opened O_NONBLOCK so this never blocks waiting for a writer to
+        # show up (a plain O_RDONLY open() would) - self.fd is populated
+        # almost immediately either way, which is what lets stop() actually
+        # interrupt this thread instead of racing a still-None self.fd
+        # against a blocking open() that may never return (e.g. when
+        # run_pytorch_case() bails out early because pytorch_inference never
+        # opened the other end of this FIFO for writing).
         try:
-            self.fd = os.open(self.pipe_path, os.O_RDONLY)
+            self.fd = os.open(self.pipe_path, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError as e:
+            self.error = str(e)
+            return
+        try:
             with open(self.output_file, 'w') as f:
                 while self.running:
                     try:
+                        ready, _, _ = select.select([self.fd], [], [], 0.2)
+                    except (OSError, ValueError):
+                        break
+                    if not ready:
+                        continue
+                    try:
                         data = os.read(self.fd, 4096)
-                        if not data:
-                            break
-                        f.write(data.decode('utf-8', errors='replace'))
-                        f.flush()
+                    except BlockingIOError:
+                        continue
                     except OSError as e:
                         if self.running:
                             self.error = str(e)
                         break
+                    if not data:
+                        break
+                    f.write(data.decode('utf-8', errors='replace'))
+                    f.flush()
         except Exception as e:
             self.error = str(e)
         finally:
@@ -329,102 +349,114 @@ class ControllerProcess:
             'stdin': str(self.control_dir / 'controller_stdin'),
         }
 
-        for pipe_path in self.pipes.values():
-            if os.path.exists(pipe_path):
-                os.remove(pipe_path)
-            os.mkfifo(pipe_path, stat.S_IRUSR | stat.S_IWUSR)
+        try:
+            for pipe_path in self.pipes.values():
+                if os.path.exists(pipe_path):
+                    os.remove(pipe_path)
+                os.mkfifo(pipe_path, stat.S_IRUSR | stat.S_IWUSR)
 
-        script_dir = Path(__file__).parent
-        source_config = script_dir / 'boost.log.ini'
-        test_config = self.control_dir / 'boost.log.ini'
-        if source_config.exists():
-            shutil.copy(source_config, test_config)
-        else:
-            with open(test_config, 'w') as f:
-                f.write('[Core]\n')
-                f.write('Filter="%Severity% >= TRACE"\n')
-                f.write('\n')
-                f.write('[Sinks.Stderr]\n')
-                f.write('Destination=Console\n')
+            script_dir = Path(__file__).parent
+            source_config = script_dir / 'boost.log.ini'
+            test_config = self.control_dir / 'boost.log.ini'
+            if source_config.exists():
+                shutil.copy(source_config, test_config)
+            else:
+                with open(test_config, 'w') as f:
+                    f.write('[Core]\n')
+                    f.write('Filter="%Severity% >= TRACE"\n')
+                    f.write('\n')
+                    f.write('[Sinks.Stderr]\n')
+                    f.write('Destination=Console\n')
 
-        log_file = str(self.control_dir / 'controller_log_output.txt')
-        self.log_reader = PipeReaderThread(self.pipes['log'], log_file)
-        self.output_reader = PipeReaderThread(self.pipes['out'], str(self._output_path))
-        self.log_reader.start()
-        self.output_reader.start()
-        time.sleep(0.2)
+            log_file = str(self.control_dir / 'controller_log_output.txt')
+            self.log_reader = PipeReaderThread(self.pipes['log'], log_file)
+            self.output_reader = PipeReaderThread(self.pipes['out'], str(self._output_path))
+            self.log_reader.start()
+            self.output_reader.start()
+            time.sleep(0.2)
 
-        print("Pipe readers started (will connect when controller opens pipes)")
-        sys.stdout.flush()
-        print("Starting controller process...")
-        sys.stdout.flush()
+            print("Pipe readers started (will connect when controller opens pipes)")
+            sys.stdout.flush()
+            print("Starting controller process...")
+            sys.stdout.flush()
 
-        stdin_opened = threading.Event()
-        stdin_fd_holder = {'fd': None}
+            stdin_opened = threading.Event()
+            stdin_fd_holder = {'fd': None}
 
-        def open_stdin_for_controller():
-            stdin_fd_holder['fd'] = os.open(self.pipes['stdin'], os.O_RDONLY)
-            stdin_opened.set()
+            def open_stdin_for_controller():
+                stdin_fd_holder['fd'] = os.open(self.pipes['stdin'], os.O_RDONLY)
+                stdin_opened.set()
 
-        stdin_opener_thread = threading.Thread(target=open_stdin_for_controller, daemon=True)
-        stdin_opener_thread.start()
+            stdin_opener_thread = threading.Thread(target=open_stdin_for_controller, daemon=True)
+            stdin_opener_thread.start()
 
-        self.stdin_keeper = StdinKeeperThread(self.pipes['stdin'])
-        self.stdin_keeper.start()
+            self.stdin_keeper = StdinKeeperThread(self.pipes['stdin'])
+            self.stdin_keeper.start()
 
-        if not stdin_opened.wait(timeout=3.0):
-            raise RuntimeError("Failed to open stdin pipe - stdin_keeper did not connect")
+            if not stdin_opened.wait(timeout=3.0):
+                raise RuntimeError("Failed to open stdin pipe - stdin_keeper did not connect")
 
-        stdin_fd = stdin_fd_holder['fd']
-        if stdin_fd is None:
-            raise RuntimeError("stdin_fd is None after opening")
+            stdin_fd = stdin_fd_holder['fd']
+            if stdin_fd is None:
+                raise RuntimeError("stdin_fd is None after opening")
 
-        print(f"stdin opened: fd={stdin_fd}, stdin_keeper: fd={self.stdin_keeper.fd}")
-        sys.stdout.flush()
+            print(f"stdin opened: fd={stdin_fd}, stdin_keeper: fd={self.stdin_keeper.fd}")
+            sys.stdout.flush()
 
-        # trustedTmpDir for validateChildIpcLaunchSpec() is derived by the
-        # controller itself from its own TMPDIR env var
-        # (CSandboxedProcessSpawner_Linux.cc / CProcessSpawnerRouter.cc both
-        # read getenv("TMPDIR"), defaulting to "/tmp"). child_tmp_base must
-        # therefore be passed as this process's TMPDIR, not merely used
-        # locally to build pipe paths, or every child spawn will be rejected
-        # for living outside the "trusted" base the controller believes in.
-        env = dict(os.environ)
-        env['TMPDIR'] = str(child_tmp_base)
+            # trustedTmpDir for validateChildIpcLaunchSpec() is derived by the
+            # controller itself from its own TMPDIR env var
+            # (CSandboxedProcessSpawner_Linux.cc / CProcessSpawnerRouter.cc both
+            # read getenv("TMPDIR"), defaulting to "/tmp"). child_tmp_base must
+            # therefore be passed as this process's TMPDIR, not merely used
+            # locally to build pipe paths, or every child spawn will be rejected
+            # for living outside the "trusted" base the controller believes in.
+            env = dict(os.environ)
+            env['TMPDIR'] = str(child_tmp_base)
 
-        self._start_controller_with_stdin(stdin_fd, env)
+            self._start_controller_with_stdin(stdin_fd, env)
 
-        time.sleep(0.3)
-        print(f"Controller started (PID: {self.process.pid})")
-        time.sleep(1.0)
+            time.sleep(0.3)
+            print(f"Controller started (PID: {self.process.pid})")
+            time.sleep(1.0)
 
-        print("Opening command pipe...")
-        sys.stdout.flush()
-        cmd_pipe_opened = threading.Event()
-        cmd_pipe_fd_holder = {}
+            print("Opening command pipe...")
+            sys.stdout.flush()
+            cmd_pipe_opened = threading.Event()
+            cmd_pipe_fd_holder = {}
 
-        def open_cmd_pipe():
-            try:
-                cmd_pipe_fd_holder['fd'] = os.open(self.pipes['cmd'], os.O_WRONLY)
-            except Exception as e:
-                cmd_pipe_fd_holder['error'] = e
-            finally:
-                cmd_pipe_opened.set()
+            def open_cmd_pipe():
+                try:
+                    cmd_pipe_fd_holder['fd'] = os.open(self.pipes['cmd'], os.O_WRONLY)
+                except Exception as e:
+                    cmd_pipe_fd_holder['error'] = e
+                finally:
+                    cmd_pipe_opened.set()
 
-        cmd_pipe_thread = threading.Thread(target=open_cmd_pipe, daemon=True)
-        cmd_pipe_thread.start()
+            cmd_pipe_thread = threading.Thread(target=open_cmd_pipe, daemon=True)
+            cmd_pipe_thread.start()
 
-        if not cmd_pipe_opened.wait(timeout=5.0):
-            raise RuntimeError("Timeout waiting for controller to open command pipe")
-        if 'error' in cmd_pipe_fd_holder:
-            raise RuntimeError(f"Failed to open command pipe: {cmd_pipe_fd_holder['error']}")
+            if not cmd_pipe_opened.wait(timeout=5.0):
+                raise RuntimeError("Timeout waiting for controller to open command pipe")
+            if 'error' in cmd_pipe_fd_holder:
+                raise RuntimeError(f"Failed to open command pipe: {cmd_pipe_fd_holder['error']}")
 
-        self.cmd_pipe_fd = cmd_pipe_fd_holder.get('fd')
-        if self.cmd_pipe_fd is None:
-            raise RuntimeError("cmd_pipe_fd is None after opening")
+            self.cmd_pipe_fd = cmd_pipe_fd_holder.get('fd')
+            if self.cmd_pipe_fd is None:
+                raise RuntimeError("cmd_pipe_fd is None after opening")
 
-        print(f"Command pipe opened: fd={self.cmd_pipe_fd}")
-        sys.stdout.flush()
+            print(f"Command pipe opened: fd={self.cmd_pipe_fd}")
+            sys.stdout.flush()
+        except Exception:
+            # Best-effort teardown of whatever was already started
+            # (subprocess, reader threads, pipes) before re-raising. main()
+            # only assigns its `controller` variable after __init__ returns,
+            # so if construction fails partway through, this is the only
+            # place that can reap the already-spawned controller binary and
+            # its reader/stdin-keeper threads - main()'s
+            # `finally: if controller is not None: controller.cleanup()`
+            # never runs for a partially-constructed instance.
+            self.cleanup()
+            raise
 
     def _start_controller_with_stdin(self, stdin_fd, env):
         try:
