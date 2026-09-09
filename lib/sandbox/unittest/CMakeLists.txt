@@ -44,6 +44,7 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND SRCS CSandboxForkserverSmokeTest.cc)
   list(APPEND SRCS CPytorchInferenceSandboxPolicyMechanismTest_Linux.cc)
   list(APPEND SRCS CSandboxedProcessSpawnerLifecycleTest_Linux.cc)
+  list(APPEND SRCS CSandboxUserNamespaceProbeTest_Linux.cc)
   list(APPEND ML_LINK_LIBRARIES sandbox2::sandbox2)
 
   # Deliberately-dependency-free sandboxee payload for the smoke test above.
@@ -96,6 +97,21 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     POSITION_INDEPENDENT_CODE TRUE
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
     )
+
+  # PR E's staged user-namespace capability probe (design.md
+  # ML_SANDBOX2_REQUIRE CI wiring). Same dependency-free, dynamically-linked
+  # pattern as the payloads above, for the same CI-image reason. Unlike
+  # ml_sandbox_probe, this one is never run through a Sandbox2
+  # Executor/policy - CSandboxUserNamespaceProbeTest_Linux execs it directly
+  # as a plain host subprocess, since it probes the ambient CI environment's
+  # userns capability, not a Sandbox2 policy.
+  add_executable(ml_sandbox_userns_probe EXCLUDE_FROM_ALL
+    payloads/ml_sandbox_userns_probe.cc
+    )
+  set_target_properties(ml_sandbox_userns_probe PROPERTIES
+    POSITION_INDEPENDENT_CODE TRUE
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
+    )
 endif()
 
 ml_add_test_executable(sandbox ${SRCS})
@@ -118,5 +134,12 @@ if(TARGET lifecycle_signal_payload)
   add_dependencies(ml_test_sandbox lifecycle_signal_payload)
   target_compile_definitions(ml_test_sandbox PRIVATE
     ML_SANDBOX2_LIFECYCLE_PAYLOAD="$<TARGET_FILE:lifecycle_signal_payload>"
+    )
+endif()
+
+if(TARGET ml_sandbox_userns_probe)
+  add_dependencies(ml_test_sandbox ml_sandbox_userns_probe)
+  target_compile_definitions(ml_test_sandbox PRIVATE
+    ML_SANDBOX2_USERNS_PROBE_PAYLOAD="$<TARGET_FILE:ml_sandbox_userns_probe>"
     )
 endif()

@@ -49,37 +49,48 @@ TEST_OUTCOME=0
 
 if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = Linux ]]; then
     # --- Linux aarch64: run tests inside Docker container from base image ---
+    # aarch64 Buildkite k8s pods are the only runners here with userns
+    # capability (mount("proc", ...) succeeds), so this is the only branch
+    # that can exercise ML_SANDBOX2_REQUIRE=enforced. It also runs
+    # fail_closed as a second pass so both the enforced-capable and
+    # fail-closed-required behaviors get distinct, separately-reported CI
+    # coverage rather than only one being proven per architecture.
+    SANDBOX2_REQUIRE_MODES=(enforced fail_closed)
+
     BASE_IMAGE="docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
 
 . ./dev-tools/docker/prefetch_docker_image.sh
     prefetch_docker_image "$BASE_IMAGE"
 
-    echo "--- Running tests (Docker)"
-    docker run --rm \
-        -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
-        -v "$(pwd)/build:/ml-cpp/build" \
-        -v "$(pwd)/lib:/ml-cpp/lib" \
-        -v "$(pwd)/bin:/ml-cpp/bin" \
-        -v "$(pwd)/cmake:/ml-cpp/cmake:ro" \
-        -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
-        -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
-        -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
-        ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
-        -w /ml-cpp \
-        $BASE_IMAGE bash -c '
-            source ./set_env.sh
+    for MODE in "${SANDBOX2_REQUIRE_MODES[@]}"; do
+        echo "--- Running tests (Docker, ML_SANDBOX2_REQUIRE=${MODE})"
+        docker run --rm \
+            -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
+            -v "$(pwd)/build:/ml-cpp/build" \
+            -v "$(pwd)/lib:/ml-cpp/lib" \
+            -v "$(pwd)/bin:/ml-cpp/bin" \
+            -v "$(pwd)/cmake:/ml-cpp/cmake:ro" \
+            -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
+            -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
+            -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
+            -e ML_SANDBOX2_REQUIRE="${MODE}" \
+            ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
+            -w /ml-cpp \
+            $BASE_IMAGE bash -c '
+                source ./set_env.sh
 
-            LIB_DIRS=$(find /ml-cpp/cmake-build-docker/lib /ml-cpp/build/distribution \
-                -name "*.so" -exec dirname {} \; 2>/dev/null | sort -u | tr "\n" ":")
-            export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib"
+                LIB_DIRS=$(find /ml-cpp/cmake-build-docker/lib /ml-cpp/build/distribution \
+                    -name "*.so" -exec dirname {} \; 2>/dev/null | sort -u | tr "\n" ":")
+                export LD_LIBRARY_PATH="${LIB_DIRS}/usr/local/gcc133/lib64:/usr/local/gcc133/lib"
 
-            chmod -R +x cmake-build-docker/test/ 2>/dev/null
+                chmod -R +x cmake-build-docker/test/ 2>/dev/null
 
-            cmake \
-                -DSOURCE_DIR=/ml-cpp \
-                -DBUILD_DIR=/ml-cpp/cmake-build-docker \
-                -P cmake/run-all-tests-parallel.cmake
-        ' || TEST_OUTCOME=$?
+                cmake \
+                    -DSOURCE_DIR=/ml-cpp \
+                    -DBUILD_DIR=/ml-cpp/cmake-build-docker \
+                    -P cmake/run-all-tests-parallel.cmake
+            ' || TEST_OUTCOME=$?
+    done
 
     # Seccomp tests run inside the Docker container which shares the host
     # kernel, so the kernel's seccomp filters are exercised without needing
@@ -87,6 +98,14 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
 
 else
     # --- Linux x86_64 / macOS: run tests directly ---
+    # x86_64 Buildkite k8s pods get EPERM on mount("proc", ...) - there is no
+    # userns-capable x86_64 runner (accepted risk, see evidence.md MG6). Only
+    # fail_closed runs here; do not add an enforced pass to this branch. This
+    # also covers aarch64 cross-compile builds, which fall through to this
+    # same branch via the "-z ${CPP_CROSS_COMPILE:-}" condition above, so
+    # they get fail_closed coverage too rather than being skipped entirely.
+    SANDBOX2_REQUIRE_MODES=(fail_closed)
+
     . ./set_env.sh
 
     find ${BUILD_DIR}/test -name "ml_test_*" -type f -exec chmod +x {} \;
@@ -101,11 +120,13 @@ else
         export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
     fi
 
-    echo "--- Running tests"
-    cmake \
-        -DSOURCE_DIR="$(pwd)" \
-        -DBUILD_DIR="$(pwd)/${BUILD_DIR}" \
-        -P cmake/run-all-tests-parallel.cmake || TEST_OUTCOME=$?
+    for MODE in "${SANDBOX2_REQUIRE_MODES[@]}"; do
+        echo "--- Running tests (ML_SANDBOX2_REQUIRE=${MODE})"
+        ML_SANDBOX2_REQUIRE="${MODE}" cmake \
+            -DSOURCE_DIR="$(pwd)" \
+            -DBUILD_DIR="$(pwd)/${BUILD_DIR}" \
+            -P cmake/run-all-tests-parallel.cmake || TEST_OUTCOME=$?
+    done
 fi
 
 # Upload test results
