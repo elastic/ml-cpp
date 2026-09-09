@@ -406,14 +406,27 @@ BOOST_AUTO_TEST_CASE(testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd)
     const std::string childRoot{makeChildIpcRoot(tmpEnv.dir(), "case1-enosys")};
 
     TSpawner::SPidRegistry* registry{nullptr};
-    std::shared_ptr<sandbox2::Result> capturedResult;
     std::function<void()> monitorBody;
+
+    // Heap-owned box for the captured sandbox2::Result, not a plain stack
+    // local: monitorBody() below is run with a bounded wait (fixing the
+    // review finding that a terminateChild() regression to a no-op would
+    // otherwise hang this call forever, since production AwaitResult() has
+    // no wall-clock bound of its own - see spawn()'s
+    // set_walltime_limit(absl::ZeroDuration()) in
+    // CSandboxedProcessSpawner_Linux.cc, and there is no seam to override it
+    // for just this test). If the wait times out, the still-running
+    // background thread is detached rather than joined (so this test case,
+    // and the whole suite, fails fast instead of hanging) - anything that
+    // thread can still touch after this function returns must therefore
+    // live on the heap, not on this stack frame.
+    auto capturedResult = std::make_shared<std::shared_ptr<sandbox2::Result>>();
 
     TSpawner::TPidFdOpenFn pidFdOpen = forcedPidFdOutcome({-1, ENOSYS});
     TSpawner::TRegistryInsertFn insertFn =
         capturingRegistryInsert(&registry, nullptr, nullptr, nullptr);
     TSpawner::TMonitorLaunchFn monitorLaunch = captureMonitorBodyWithoutRunning(&monitorBody);
-    TSpawner::TAwaitResultFn awaitResultFn = capturingAwaitResult(&capturedResult);
+    TSpawner::TAwaitResultFn awaitResultFn = capturingAwaitResult(capturedResult.get());
 
     TSpawner spawner{pidFdOpen, insertFn, monitorLaunch, awaitResultFn};
     TPid childPid{0};
@@ -425,10 +438,42 @@ BOOST_AUTO_TEST_CASE(testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd)
     BOOST_TEST_REQUIRE(spawner.terminateChild(childPid));
 
     BOOST_TEST_REQUIRE(static_cast<bool>(monitorBody));
-    monitorBody(); // real cleanup path: calls the (injected) AwaitResult exactly once.
 
-    BOOST_TEST_REQUIRE(capturedResult != nullptr);
-    BOOST_CHECK(capturedResult->final_status() == sandbox2::Result::SIGNALED); // mechanism assertion
+    // Run the real cleanup path (calls the injected AwaitResult() exactly
+    // once) on a separate thread, bounded by a std::promise/future wait -
+    // same synchronization primitive gate 8 already uses in this file, just
+    // with a timeout instead of an unconditional wait(), since here nothing
+    // else in the test independently guarantees the payload will ever die.
+    auto monitorDonePromise = std::make_shared<std::promise<void>>();
+    std::future<void> monitorDoneFuture{monitorDonePromise->get_future()};
+    std::thread monitorThread([body = monitorBody, monitorDonePromise]() mutable {
+        body();
+        monitorDonePromise->set_value();
+    });
+    const std::future_status waitStatus{monitorDoneFuture.wait_for(std::chrono::seconds(5))};
+    if (waitStatus == std::future_status::ready) {
+        monitorThread.join();
+    } else {
+        // Regression path: terminateChild()'s E_KernelUnsupported branch
+        // apparently didn't actually end the payload (e.g. sent the wrong
+        // signal, or Kill() regressed to a no-op), so the injected
+        // AwaitResult() is still blocked with no bound of its own. Detach
+        // instead of join() so this test fails on the assertion below
+        // within a few seconds rather than hanging indefinitely - every
+        // object the thread can still reach (capturedResult, the promise,
+        // and monitorBody's own closure, copied above) is heap-owned via
+        // shared_ptr/std::function-by-value, so it stays valid even though
+        // this function is about to return out from under it.
+        monitorThread.detach();
+    }
+    // Fails fast (instead of hanging) if terminateChild() regressed to
+    // never actually killing the payload: a timeout here IS the failure,
+    // not a hang.
+    BOOST_TEST_REQUIRE(waitStatus == std::future_status::ready);
+
+    BOOST_TEST_REQUIRE(*capturedResult != nullptr);
+    BOOST_CHECK((*capturedResult)->final_status() == sandbox2::Result::SIGNALED); // mechanism: some signal
+    BOOST_CHECK((*capturedResult)->reason_code() == SIGKILL); // mechanism: specifically SIGKILL, i.e. Kill()
     BOOST_CHECK(registry->s_Children.count(childPid) == 0); // cleanup assertion
 }
 
