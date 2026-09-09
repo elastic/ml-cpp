@@ -138,6 +138,39 @@ public:
         int s_Errno{0};
     };
 
+    //! Explicit classification of a pidfd-acquisition attempt (design.md
+    //! gate V9), replacing the Task 2 placeholder's generic "negative fd"
+    //! check with a three-way outcome that decides both whether spawn()
+    //! registers the child at all, and - for a registered child - which of
+    //! terminateChild()'s two mechanisms applies.
+    //!
+    //! E_Acquired: s_Fd >= 0. terminateChild() sends a request via
+    //! pidfd_send_signal(SIGTERM) on the held pidfd.
+    //!
+    //! E_KernelUnsupported: s_Fd < 0 and s_Errno == ENOSYS - the running
+    //! kernel predates pidfd support entirely (pre-5.3). This is the *only*
+    //! classification for which terminateChild() falls back to
+    //! Sandbox2::Kill() (SIGKILL via the owned monitor, identity-safe, no
+    //! numeric-PID lookup). Recorded on the registry entry at registration
+    //! time - terminateChild() must use that recorded value, never
+    //! re-derive it by re-calling pidfd_open.
+    //!
+    //! E_Failed: s_Fd < 0 and s_Errno is anything else (ESRCH, EMFILE,
+    //! ENFILE, ...). Per design.md MG2/LI8, this is a resource or identity
+    //! error, not "no kernel support" - it must never be treated the same
+    //! as E_KernelUnsupported. spawn() fails registration outright on this
+    //! outcome rather than registering a child whose termination would need
+    //! an undefined fallback.
+    enum class EPidFdOutcome { E_Acquired, E_KernelUnsupported, E_Failed };
+
+    //! Pure classification function for a pidfd-acquisition result: no
+    //! syscalls, no I/O, no side effects, so it is unit-testable in
+    //! isolation against synthetic SPidFdAcquisitionResult values (e.g. Task
+    //! 4's ENOSYS/EMFILE/ESRCH/success cases) without a real pidfd or
+    //! kernel. Implemented outside the SANDBOX2_AVAILABLE-gated block in the
+    //! .cc, so it compiles - and is testable - on every platform.
+    static EPidFdOutcome classifyPidFdOutcome(const SPidFdAcquisitionResult& result);
+
 public:
     //! \brief A live sandboxed child and the handles needed to manage it
     //! safely through every lifecycle state.
@@ -161,6 +194,13 @@ public:
         std::uint64_t s_Generation{0};
         std::shared_ptr<sandbox2::Sandbox2> s_Sandbox;
         int s_PidFd{-1};
+        //! Classification recorded at registration time (Task 3, design.md
+        //! V9). Every entry that actually reaches the registry has this set
+        //! to E_Acquired or E_KernelUnsupported - E_Failed never gets
+        //! registered (see EPidFdOutcome's comment) - but the default below
+        //! still resolves to the fail-closed value in case some future path
+        //! forgets to set it explicitly.
+        EPidFdOutcome s_PidFdOutcome{EPidFdOutcome::E_Failed};
         std::shared_ptr<CCasOutcomeLatch> s_Outcome;
     };
 

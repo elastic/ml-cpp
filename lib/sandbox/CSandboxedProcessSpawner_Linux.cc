@@ -13,10 +13,19 @@
 #include <core/CLogger.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 
+#include <cerrno>
 #include <exception>
 #include <sstream>
 #include <thread>
 #include <utility>
+
+// classifyPidFdOutcome (design.md gate V9) is a pure function with no
+// syscalls or Sandbox2 types in its signature, so - unlike the rest of this
+// file - it is defined below outside the SANDBOX2_AVAILABLE-gated block: it
+// must compile, and be unit-testable, on every platform, matching this TU's
+// own "compiled unconditionally" contract (see the comment above the
+// SANDBOX2_AVAILABLE block). <cerrno> (for ENOSYS) is therefore included
+// unconditionally too, rather than inside that block alongside <errno.h>.
 
 // This translation unit is compiled unconditionally (see lib/sandbox/CMakeLists.txt
 // - it is added to SRCS the same way lib/core/CMakeLists.txt unconditionally
@@ -31,6 +40,7 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <signal.h>
 #include <string.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
@@ -59,10 +69,38 @@ extern char** environ;
 #define ML_NR_pidfd_open 434
 #endif
 
+// Same rationale as ML_NR_pidfd_open above: pidfd_send_signal is syscall
+// number 424 on every architecture ml-cpp builds for (x86_64 and aarch64),
+// so fall back to that literal when the build image's kernel headers
+// predate it. Used by terminateChild()'s E_Acquired path (SIGTERM request
+// via the held pidfd) - the only place this file sends a signal to a
+// sandboxee by identity-bound handle rather than by recycled numeric PID.
+#ifdef __NR_pidfd_send_signal
+#define ML_NR_pidfd_send_signal __NR_pidfd_send_signal
+#else
+#define ML_NR_pidfd_send_signal 424
+#endif
+
 #endif // SANDBOX2_AVAILABLE
 
 namespace ml {
 namespace sandbox {
+
+// Defined outside the SANDBOX2_AVAILABLE-gated block below (unlike
+// everything else in this file): a pure function with no syscalls, no
+// Sandbox2 types, and no platform-specific behaviour, so it must compile -
+// and be unit-testable - on every configure, matching this TU's
+// "compiled unconditionally" contract (see the file-level comment above).
+CSandboxedProcessSpawner::EPidFdOutcome CSandboxedProcessSpawner::classifyPidFdOutcome(
+    const CSandboxedProcessSpawner::SPidFdAcquisitionResult& result) {
+    if (result.s_Fd >= 0) {
+        return EPidFdOutcome::E_Acquired;
+    }
+    if (result.s_Errno == ENOSYS) {
+        return EPidFdOutcome::E_KernelUnsupported;
+    }
+    return EPidFdOutcome::E_Failed;
+}
 
 #ifdef SANDBOX2_AVAILABLE
 
@@ -205,9 +243,10 @@ std::unique_ptr<sandbox2::Executor> makeConfiguredExecutor(const std::string& ab
 }
 
 //! Production default for the pidfd-acquisition seam: the raw pidfd_open
-//! syscall, wrapped in the placeholder success/failure shape Task 3 will
-//! replace with full classification (design.md V9). No numeric-kill(pid)
-//! fallback is introduced anywhere by this task.
+//! syscall. classifyPidFdOutcome() (defined below, outside this
+//! SANDBOX2_AVAILABLE block) turns this raw fd/errno pair into the
+//! Acquired/KernelUnsupported/Failed classification spawn() acts on. No
+//! numeric-kill(pid) fallback is introduced anywhere by this file.
 CSandboxedProcessSpawner::SPidFdAcquisitionResult
 defaultPidFdOpen(core::CProcess::TPid pid) {
     CSandboxedProcessSpawner::SPidFdAcquisitionResult result;
@@ -429,15 +468,28 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     const SPidFdAcquisitionResult pidFdResult{m_PidFdOpenFn ? m_PidFdOpenFn(sandboxPid)
                                                              : defaultPidFdOpen(sandboxPid)};
     CScopedPidFd pidFdGuard{pidFdResult.s_Fd};
-    // A negative pidfd (ENOSYS on kernels <5.3, or a resource error) is not
-    // itself a spawn failure in this task's scope - Task 3 owns deciding
-    // whether/what identity-bound fallback a classified failure selects.
-    // Registration proceeds either way with s_PidFd left at -1.
+    const EPidFdOutcome pidFdOutcome{classifyPidFdOutcome(pidFdResult)};
+
+    // MG2/LI8: an errno other than ENOSYS (ESRCH, EMFILE, ENFILE, ...) is a
+    // resource/identity error, not "no kernel support" for pidfd - it must
+    // never be treated the same as E_KernelUnsupported. Fail registration
+    // outright rather than register a child whose termination would need an
+    // undefined fallback. pidFdGuard closes any fd this path somehow still
+    // holds; killAndReapGuard (still armed) Kill()s/awaits the sandboxee.
+    if (pidFdOutcome == EPidFdOutcome::E_Failed) {
+        LOG_ERROR(<< "pidfd_open failed for sandboxed process " << processPath << " (PID "
+                  << sandboxPid << ") with errno " << pidFdResult.s_Errno << " ("
+                  << ::strerror(pidFdResult.s_Errno)
+                  << "); refusing to register a child with an undefined termination fallback");
+        childPid = 0;
+        return false; // killAndReapGuard fires here; pidFdGuard closes any fd on unwind.
+    }
 
     SSandboxedChild child;
     child.s_State = EChildLifecycleState::E_IdentityCaptured;
     child.s_Sandbox = sandbox;
     child.s_PidFd = pidFdGuard.get();
+    child.s_PidFdOutcome = pidFdOutcome;
     child.s_Outcome = std::make_shared<CCasOutcomeLatch>();
 
     std::uint64_t generation{0};
@@ -494,15 +546,33 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         auto monitorBody = [sandboxPid, registry, sandbox, generation, awaitResultFn]() {
             const sandbox2::Result result{awaitResultFn ? awaitResultFn(*sandbox)
                                                           : sandbox->AwaitResult()};
+            // MG4/V11: this thread's completion and a (currently unwired -
+            // Task 3 scope stops at this call site; no external timeout
+            // caller exists yet) timeout path both race to decide who
+            // performs cleanup for the same child. Route that decision
+            // through exactly one tryResolve() call on the child's own CAS
+            // latch rather than an ad-hoc boolean - if a timeout caller
+            // resolves the latch to E_TimedOut first, this call loses the
+            // race and must not also erase the registry entry or log
+            // termination (the timeout path owns that instead).
+            bool completionWonRace{true};
             {
                 std::lock_guard<std::mutex> lock(registry->s_Mutex);
                 const auto it = registry->s_Children.find(sandboxPid);
                 if (it != registry->s_Children.end() && it->second.s_Generation == generation) {
-                    closePidFdIfOpen(it->second.s_PidFd);
-                    registry->s_Children.erase(it);
+                    if (it->second.s_Outcome) {
+                        EOutcomeState desired{EOutcomeState::E_Completed};
+                        completionWonRace = it->second.s_Outcome->tryResolve(desired);
+                    }
+                    if (completionWonRace) {
+                        closePidFdIfOpen(it->second.s_PidFd);
+                        registry->s_Children.erase(it);
+                    }
                 }
             }
-            logSandboxeeTermination(sandboxPid, result);
+            if (completionWonRace) {
+                logSandboxeeTermination(sandboxPid, result);
+            }
         };
 
         monitorStarted = m_MonitorLaunchFn ? m_MonitorLaunchFn(std::move(monitorBody))
@@ -544,14 +614,104 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
 #endif // SANDBOX2_AVAILABLE
 }
 
+#ifdef SANDBOX2_AVAILABLE
+
+bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
+    // Two mechanisms only, selected by the classification recorded on the
+    // registry entry at *registration* time (never re-derived here by
+    // re-calling pidfd_open, per the task brief): pidfd_send_signal(SIGTERM)
+    // - a graceful termination *request* - for E_Acquired, or Sandbox2::Kill()
+    // (SIGKILL via the owned monitor) for E_KernelUnsupported. No numeric
+    // kill(pid) fallback exists anywhere in this file.
+    int pidFdToSignal{-1};
+    std::shared_ptr<sandbox2::Sandbox2> sandboxToKill;
+    {
+        std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
+        const auto it = m_PidRegistry->s_Children.find(pid);
+        if (it == m_PidRegistry->s_Children.end() ||
+            it->second.s_State == EChildLifecycleState::E_Reaped ||
+            it->second.s_State == EChildLifecycleState::E_Failed) {
+            return false;
+        }
+        SSandboxedChild& child{it->second};
+        switch (child.s_PidFdOutcome) {
+        case EPidFdOutcome::E_Acquired:
+            if (child.s_PidFd < 0) {
+                // Logic error (should be structurally unreachable given
+                // spawn()'s fail-closed registration in this task): a
+                // registry entry classified E_Acquired must hold a real
+                // pidfd. Do not silently no-op - log loudly and refuse.
+                LOG_ERROR(<< "Logic error: sandboxed child PID " << pid
+                          << " classified E_Acquired but holds no pidfd");
+                return false;
+            }
+            pidFdToSignal = child.s_PidFd;
+            break;
+        case EPidFdOutcome::E_KernelUnsupported:
+            if (!child.s_Sandbox) {
+                // Same reasoning as above: E_KernelUnsupported without a
+                // Sandbox2 handle to Kill() is a logic error, not a
+                // silent no-op.
+                LOG_ERROR(<< "Logic error: sandboxed child PID " << pid
+                          << " classified E_KernelUnsupported but holds no Sandbox2 handle");
+                return false;
+            }
+            sandboxToKill = child.s_Sandbox;
+            break;
+        case EPidFdOutcome::E_Failed:
+        default:
+            // Structurally unreachable: spawn() never registers an
+            // E_Failed child (see the pidFdOutcome check above it). Assert
+            // in debug builds and refuse rather than silently no-op if it
+            // somehow happened anyway.
+            LOG_ERROR(<< "Logic error: sandboxed child PID " << pid
+                      << " registered with an undefined termination fallback (classification="
+                      << static_cast<int>(child.s_PidFdOutcome) << ')');
+            return false;
+        }
+        child.s_State = EChildLifecycleState::E_TerminationRequested;
+    }
+
+    if (pidFdToSignal >= 0) {
+        if (::syscall(ML_NR_pidfd_send_signal, pidFdToSignal, SIGTERM, nullptr, 0u) != 0) {
+            LOG_ERROR(<< "pidfd_send_signal(SIGTERM) failed for sandboxed child PID " << pid
+                      << ": " << ::strerror(errno));
+            return false;
+        }
+        return true;
+    }
+
+    // sandboxToKill is only ever set on the E_KernelUnsupported branch
+    // above; pidFdToSignal >= 0 is only ever set on the E_Acquired branch.
+    // Exactly one of the two is populated by the switch, so reaching here
+    // with neither would itself be a logic error - defensively refuse
+    // rather than silently no-op.
+    if (!sandboxToKill) {
+        LOG_ERROR(<< "Logic error: terminateChild() for PID " << pid
+                  << " resolved neither a pidfd nor a Sandbox2 handle to kill");
+        return false;
+    }
+
+    try {
+        // Locked design decision (design.md): MonitorBase::Kill() takes no
+        // signal parameter and hard-codes SIGKILL - this is the ENOSYS
+        // forced-kill fallback, never a SIGTERM-via-monitor path.
+        sandboxToKill->Kill();
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Sandbox2::Kill() failed for sandboxed child PID " << pid << ": "
+                  << e.what());
+        return false;
+    }
+    return true;
+}
+
+#else // !SANDBOX2_AVAILABLE
+
 bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid /* pid */) {
-    // Task 3 owns pidfd-based signalling and pidfd-outcome classification
-    // (design.md V9); this task's scope is spawn()'s kill-and-reap guard
-    // and injectable seams only. Deliberately always returns false rather
-    // than a numeric-PID kill(pid) fallback, which the rebuild plan
-    // forbids as a termination mechanism.
     return false;
 }
+
+#endif // SANDBOX2_AVAILABLE
 
 bool CSandboxedProcessSpawner::hasChild(core::CProcess::TPid pid) const {
     std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
