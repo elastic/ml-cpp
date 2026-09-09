@@ -116,6 +116,7 @@ bool CProcessSpawnerRouter::isSandboxedProcessPath(const std::string& processPat
 }
 
 void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
+                                              ELegacyReason legacyReason,
                                               const std::string& deploymentId,
                                               const TStrVec& args,
                                               bool spawnSucceeded) const {
@@ -133,11 +134,33 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     }
     const bool sandbox2Established{mode == "enforced"};
 
+    // Additive field, emitted *only* on the legacy route (route ==
+    // "legacy", i.e. mode == "degraded"): mode alone conflates a deliberate
+    // operator kill switch with the dormant default that is in effect for
+    // the entire rollout window. Omitted entirely - never "" and never null
+    // - on route == "sandbox2", i.e. on both the "enforced" and
+    // "fail_closed" modes, since neither can have a legacy reason.
+    std::string legacyReasonField;
+    if (isLegacyRoute) {
+        const char* reason{legacyReason == ELegacyReason::E_KillSwitch ? "kill_switch"
+                                                                       : "dormant_default"};
+        if (legacyReason == ELegacyReason::E_NotLegacy) {
+            // A caller that routed to legacy without naming why: report the
+            // dormant default (the overwhelmingly common case during the
+            // rollout window) rather than falsely claiming an operator
+            // kill switch.
+            LOG_WARN(<< "Legacy route with no recorded provenance; reporting the "
+                        "dormant default in the sandbox2_launch signal");
+        }
+        legacyReasonField = std::string{",\"legacy_reason\":\""} + reason + "\"";
+    }
+
     std::ostringstream signal;
     signal << "{\"event\":\"sandbox2_launch\""
            << ",\"deployment_id\":\"" << jsonEscape(deploymentId) << "\""
            << ",\"model_id\":\"" << jsonEscape(scanModelId(args)) << "\""
            << ",\"route\":\"" << (isLegacyRoute ? "legacy" : "sandbox2") << "\""
+           << legacyReasonField
            << ",\"sandbox2_established\":" << (sandbox2Established ? "true" : "false")
            << ",\"mode\":\"" << mode << "\""
            << "}";
@@ -147,7 +170,8 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
 bool CProcessSpawnerRouter::spawn(ERoute route,
                                    const std::string& processPath,
                                    const TStrVec& args,
-                                   core::CProcess::TPid& childPid) {
+                                   core::CProcess::TPid& childPid,
+                                   ELegacyReason legacyReason) {
     // The H4 signal (design.md §Failure behavior and observability) fires
     // only for processes actually eligible for sandboxing - never for
     // unrelated permitted processes like autodetect - and exactly once per
@@ -170,9 +194,10 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         // args by CCommandProcessor) or the dormant no-token default. This
         // router never re-parses args to decide anything (unlike the frozen
         // prior art's spawn(), which re-derived disableSandbox from args
-        // itself), so it cannot - and must not - name which of the two it
+        // itself), so it cannot - and must not - derive which of the two it
         // was; CCommandProcessor logs that provenance at the point it is
-        // actually known.
+        // actually known, and passes it in as legacyReason purely so the H4
+        // signal below can report it.
         LOG_INFO(<< "Launching '" << processPath
                  << "' without Sandbox2 (legacy route selected by the controller); "
                  << "the in-process seccomp filter applies");
@@ -204,7 +229,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     }
 
     if (sandboxEligible) {
-        this->emitLaunchSignal(route, deploymentId, args, spawned);
+        this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned);
     }
 
     return spawned;

@@ -148,6 +148,11 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
     const bool isConfiguredSandboxedPath{m_Spawner.isSandboxedProcessPath(processPath)};
 
     CProcessSpawnerRouter::ERoute route{CProcessSpawnerRouter::ERoute::E_Sandbox2};
+    // Provenance of a legacy route, recorded at the one place it is known so
+    // the router's H4 signal can report it as "legacy_reason". Stays
+    // E_NotLegacy for every E_Sandbox2 route, where the field is omitted.
+    CProcessSpawnerRouter::ELegacyReason legacyReason{
+        CProcessSpawnerRouter::ELegacyReason::E_NotLegacy};
     if (disableSandboxCount == 0) {
         // No token: the route is only a decision at all for a configured
         // sandboxed process path (every other permitted process dispatches
@@ -163,6 +168,7 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
         // operator-setting change, not this one.
         if (isConfiguredSandboxedPath && m_Sandbox2DefaultEnabled == false) {
             route = CProcessSpawnerRouter::ERoute::E_Legacy;
+            legacyReason = CProcessSpawnerRouter::ELegacyReason::E_DormantDefault;
             LOG_DEBUG(<< "Routing '" << processPath
                       << "' to the legacy path: no " << DISABLE_SANDBOX_TOKEN
                       << " token and " << SANDBOX2_DEFAULT_ENFORCED_ENV
@@ -187,11 +193,12 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
         LOG_INFO(<< "Routing '" << processPath << "' to the legacy path: operator kill switch "
                  << DISABLE_SANDBOX_TOKEN << " in command with ID " << id);
         route = CProcessSpawnerRouter::ERoute::E_Legacy;
+        legacyReason = CProcessSpawnerRouter::ELegacyReason::E_KillSwitch;
         tokens.erase(firstDisableSandbox);
     }
 
     core::CProcess::TPid childPid{0};
-    if (m_Spawner.spawn(route, processPath, tokens, childPid) == false) {
+    if (m_Spawner.spawn(route, processPath, tokens, childPid, legacyReason) == false) {
         std::string error{"Failed to start process '" + processPath + '\''};
         LOG_ERROR(<< error << " in command with ID " << id);
         m_ResponseWriter.writeResponse(id, false, error);
