@@ -11,14 +11,18 @@
 
 #include <core/CLogger.h>
 #include <core/CProcess.h>
+#include <core/CSetEnv.h>
+#include <core/CUnSetEnv.h>
 
 #include "../CProcessSpawnerRouter.h"
 
+#include <boost/filesystem.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -103,6 +107,62 @@ std::string captureLogged(FN&& fn) {
     ml::core::CLogger::instance().reset();
     return stream->str();
 }
+
+#ifndef Windows
+//! Creates a canonical, existing $TMPDIR/ml-child-ipc/<child-id> directory
+//! and points TMPDIR at that trusted base for the duration of a scope, so
+//! sandbox::validateChildIpcLaunchSpec() (which does live ::realpath() calls
+//! and requires the parent directory to exist) can derive a real
+//! deployment_id. Restores the previous TMPDIR and removes the tree on
+//! destruction.
+class CScopedChildIpcRoot {
+public:
+    explicit CScopedChildIpcRoot(const std::string& childId) : m_ChildId{childId} {
+        const char* previous{std::getenv("TMPDIR")};
+        m_HadPreviousTmpDir = previous != nullptr;
+        if (m_HadPreviousTmpDir) {
+            m_PreviousTmpDir.assign(previous);
+        }
+
+        // boost::filesystem::canonical() so the base itself is already
+        // canonical - validateChildIpcLaunchSpec() compares the literal and
+        // canonical parents and rejects any difference, and on macOS the
+        // system temporary directories are reached through symlinks.
+        m_TrustedTmpDir =
+            (boost::filesystem::canonical(boost::filesystem::current_path()) /
+             ("router_h4_tmp_" + childId))
+                .string();
+        m_ChildIpcRoot = m_TrustedTmpDir + "/ml-child-ipc/" + childId;
+        boost::filesystem::create_directories(m_ChildIpcRoot);
+
+        BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv("TMPDIR", m_TrustedTmpDir.c_str(), 1));
+    }
+
+    ~CScopedChildIpcRoot() {
+        if (m_HadPreviousTmpDir) {
+            ml::core::CSetEnv::setEnv("TMPDIR", m_PreviousTmpDir.c_str(), 1);
+        } else {
+            ml::core::CUnSetEnv::unSetEnv("TMPDIR");
+        }
+        boost::system::error_code ignored;
+        boost::filesystem::remove_all(m_TrustedTmpDir, ignored);
+    }
+
+    //! An --input=<path> argument inside this child's IPC root, i.e. one
+    //! validateChildIpcLaunchSpec() accepts and derives m_ChildId from.
+    std::string inputArg() const { return "--input=" + m_ChildIpcRoot + "/input"; }
+
+    CScopedChildIpcRoot(const CScopedChildIpcRoot&) = delete;
+    CScopedChildIpcRoot& operator=(const CScopedChildIpcRoot&) = delete;
+
+private:
+    std::string m_ChildId;
+    std::string m_TrustedTmpDir;
+    std::string m_ChildIpcRoot;
+    std::string m_PreviousTmpDir;
+    bool m_HadPreviousTmpDir{false};
+};
+#endif // !Windows
 }
 
 BOOST_AUTO_TEST_CASE(testSandbox2RouteDispatchesLegacyForUnsandboxedPath) {
@@ -191,10 +251,123 @@ BOOST_AUTO_TEST_CASE(testH4SignalFailClosedWithoutSandbox2Support) {
     BOOST_REQUIRE(logged.find("\"sandbox2_established\":false") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"model_id\":\"deploy-fail-closed\"") != std::string::npos);
     // No path-bearing (input/output/restore/logPipe) option was present in
-    // args, so deployment_id must be the explicit empty string, not omitted.
+    // args *at all*, which is the only case that still yields an empty
+    // deployment_id - it must be the explicit empty string, not omitted.
+    // When such an option is present, deployment_id is populated in this
+    // same fail_closed mode: see
+    // testH4SignalDeploymentIdPopulatedOnFailClosed below.
     BOOST_REQUIRE(logged.find("\"deployment_id\":\"\"") != std::string::npos);
 }
+
+#ifndef Windows
+BOOST_AUTO_TEST_CASE(testH4SignalDeploymentIdPopulatedOnFailClosed) {
+    // deployment_id is derived once, before dispatch, so it is populated on
+    // the fail_closed mode too - previously the derivation ran after
+    // spawn() had already failed, and reported "" on exactly the modes this
+    // signal exists to make debuggable.
+    const std::string childId{"deployfailclosed"};
+    CScopedChildIpcRoot childIpcRoot{childId};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{childIpcRoot.inputArg()};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                 PROCESS_PATH, args, childPid));
+    })};
+
+    BOOST_REQUIRE(logged.find("\"mode\":\"fail_closed\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"deployment_id\":\"" + childId + "\"") != std::string::npos);
+}
+#endif // !Windows
 #endif // !SANDBOX2_AVAILABLE
+
+#ifndef Windows
+BOOST_AUTO_TEST_CASE(testH4SignalDeploymentIdPopulatedOnDegradedRoute) {
+    // Same single-derivation guarantee on the degraded (legacy-route) mode,
+    // which never reaches CSandboxedProcessSpawner's own validation call at
+    // all - and here the legacy spawn itself also fails (PROCESS_PATH is
+    // deliberately not permitted), so this covers the worst case for the
+    // old post-spawn derivation.
+    const std::string childId{"deploydegraded"};
+    CScopedChildIpcRoot childIpcRoot{childId};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // deliberately empty
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{childIpcRoot.inputArg()};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                 PROCESS_PATH, args, childPid));
+    })};
+
+    BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"deployment_id\":\"" + childId + "\"") != std::string::npos);
+}
+#endif // !Windows
+
+#ifndef Windows
+BOOST_AUTO_TEST_CASE(testH4SignalEscapesControlCharactersInDeploymentId) {
+    // deployment_id is a filesystem path component, so a raw control
+    // character in it would otherwise split what must stay a single-line
+    // JSON object.
+    const std::string childId{"deploy\nid\tx"};
+    CScopedChildIpcRoot childIpcRoot{childId};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // deliberately empty
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{childIpcRoot.inputArg()};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                 PROCESS_PATH, args, childPid));
+    })};
+
+    BOOST_REQUIRE(logged.find("\"deployment_id\":\"deploy\\nid\\tx\"") != std::string::npos);
+    // ...and the raw control characters are gone from the emitted line.
+    const std::size_t signalStart{logged.find("{\"event\":\"sandbox2_launch\"")};
+    BOOST_TEST_REQUIRE(signalStart != std::string::npos);
+    const std::size_t signalEnd{logged.find("\"mode\":\"degraded\"}", signalStart)};
+    BOOST_TEST_REQUIRE(signalEnd != std::string::npos);
+    BOOST_REQUIRE(logged.find('\n', signalStart) > signalEnd);
+}
+#endif // !Windows
+
+BOOST_AUTO_TEST_CASE(testNoH4SignalForUnsandboxedProcessPath) {
+    // Negative assertion: a process path that is not configured as sandboxed
+    // (autodetect, categorize, and every other permitted process) must
+    // produce no sandbox2_launch line at all - not one with route "legacy",
+    // not one with an empty deployment_id, none.
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths; // empty
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    const std::string outputFile{"router_test_no_h4_signal.txt"};
+    std::remove(outputFile.c_str());
+    ml::controller::CProcessSpawnerRouter::TStrVec args{
+        SHELL_FLAG, copyArgsScript(outputFile), "--modelid=deploy-not-sandboxed"};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                PROCESS_PATH, args, childPid));
+    })};
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::remove(outputFile.c_str());
+
+    BOOST_REQUIRE(logged.find("sandbox2_launch") == std::string::npos);
+    BOOST_REQUIRE(logged.find("deploy-not-sandboxed") == std::string::npos);
+}
 
 BOOST_AUTO_TEST_CASE(testH4SignalDegradedOnLegacyRouteSuccess) {
     // Token-present route: mode must be "degraded" and sandbox2_established

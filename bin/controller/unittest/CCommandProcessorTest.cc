@@ -10,7 +10,9 @@
  */
 
 #include <core/CProcess.h>
+#include <core/CSetEnv.h>
 #include <core/CStringUtils.h>
+#include <core/CUnSetEnv.h>
 
 #include "../CCommandProcessor.h"
 
@@ -48,6 +50,23 @@ const std::string PROCESS_ARGS2[]{"-c", "rm " + INPUT_FILE2};
 #endif
 const std::string SLOGAN1{"Elastic is great!"};
 const std::string SLOGAN2{"You know, for search!"};
+
+//! Sets ML_SANDBOX2_DEFAULT_ENFORCED for the duration of a scope and
+//! restores the (unset) state afterwards. CCommandProcessor reads the
+//! variable once in its constructor, so it must be set before the processor
+//! under test is constructed.
+class CScopedSandbox2DefaultEnforced {
+public:
+    explicit CScopedSandbox2DefaultEnforced(const char* value) {
+        BOOST_REQUIRE_EQUAL(
+            0, ml::core::CSetEnv::setEnv("ML_SANDBOX2_DEFAULT_ENFORCED", value, 1));
+    }
+    ~CScopedSandbox2DefaultEnforced() {
+        ml::core::CUnSetEnv::unSetEnv("ML_SANDBOX2_DEFAULT_ENFORCED");
+    }
+    CScopedSandbox2DefaultEnforced(const CScopedSandbox2DefaultEnforced&) = delete;
+    CScopedSandbox2DefaultEnforced& operator=(const CScopedSandbox2DefaultEnforced&) = delete;
+};
 }
 
 BOOST_AUTO_TEST_CASE(testStartPermitted) {
@@ -391,19 +410,67 @@ BOOST_AUTO_TEST_CASE(testStartLeavesArgsUntouchedWhenTokenAbsent) {
     BOOST_TEST_REQUIRE(response.find("\"id\":14,\"success\":true") != std::string::npos);
 }
 
+BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPath) {
+    // SHIPS DORMANT: with ML_SANDBOX2_DEFAULT_ENFORCED unset (the shipped
+    // default), a no-token start command for the configured sandboxed path
+    // must take the *legacy* route - i.e. behave exactly as it did before
+    // typed routing existed. Observed here as the copy succeeding: had the
+    // route been E_Sandbox2, this build (no Sandbox2 support / no real
+    // Sandbox2 policy for /bin/sh) would have failed closed instead.
+    //
+    // Deliberately not gated on !SANDBOX2_AVAILABLE: the dormant default is
+    // platform-independent, and on a Sandbox2 build this still proves the
+    // legacy dispatch (a Sandbox2 launch of /bin/sh with these args would
+    // not produce the file).
+    ml::core::CUnSetEnv::unSetEnv("ML_SANDBOX2_DEFAULT_ENFORCED");
+
+    const std::string OUT{"sandbox2_default_dormant_out.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{
+            startCommand(16, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+
+    std::ifstream ifs{OUT};
+    BOOST_TEST_REQUIRE(ifs.is_open());
+    std::string content;
+    std::getline(ifs, content);
+    ifs.close();
+    std::remove(OUT.c_str());
+    BOOST_REQUIRE_EQUAL(SLOGAN1, content);
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":16,\"success\":true") != std::string::npos);
+}
+
 #ifndef SANDBOX2_AVAILABLE
-BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentOnSandboxedPath) {
-    // No token present on the configured sandboxed path must select the
-    // Sandbox2 route (V2, no automatic legacy fallback). On a build with no
-    // Sandbox2 support, CProcessSpawnerRouter fails closed for that route -
-    // observed here as the command failing rather than the copy succeeding,
-    // which is exactly how we know Sandbox2 (not legacy) was selected: had
-    // the route been E_Legacy, this copy would have succeeded.
+BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentAndDefaultEnforced) {
+    // The opt-in half of the dormant default: with the internal option
+    // explicitly on, no token present on the configured sandboxed path
+    // selects the Sandbox2 route (V2, no automatic legacy fallback). On a
+    // build with no Sandbox2 support, CProcessSpawnerRouter fails closed for
+    // that route - observed here as the command failing rather than the copy
+    // succeeding, which is exactly how we know Sandbox2 (not legacy) was
+    // selected: had the route been E_Legacy, this copy would have succeeded
+    // (see testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPath,
+    // which is the same vector with the option off).
     const std::string OUT{"sandbox2_route_selected_out.txt"};
     std::remove(OUT.c_str());
 
     std::ostringstream responseStream;
     {
+        CScopedSandbox2DefaultEnforced enforced{"1"};
+
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
@@ -419,6 +486,36 @@ BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentOnSandboxedPath
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":15,\"success\":false") != std::string::npos);
     BOOST_TEST_REQUIRE(response.find("Failed to start process") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testNonCanonicalTruthyValuesLeaveDefaultDormant) {
+    // Exactly "1" is the one canonical truthy spelling. Anything else must
+    // leave the option off, i.e. keep the legacy default - proven with the
+    // same fail-closed vector as above: with the option genuinely on the
+    // command fails, so a *succeeding* command is proof it stayed off.
+    for (const char* value : {"true", "TRUE", "yes", "0", ""}) {
+        const std::string OUT{"sandbox2_default_non_canonical_out.txt"};
+        std::remove(OUT.c_str());
+
+        std::ostringstream responseStream;
+        {
+            CScopedSandbox2DefaultEnforced notEnforced{value};
+
+            ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+            ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+            ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                        responseStream};
+
+            std::string command{
+                startCommand(17, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+
+            BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds{1});
+        BOOST_REQUIRE_EQUAL(false, fileAbsent(OUT));
+        std::remove(OUT.c_str());
+    }
 }
 #endif // !SANDBOX2_AVAILABLE
 

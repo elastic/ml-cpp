@@ -29,9 +29,9 @@ single-line JSON object.
 | Field                   | Type    | Meaning |
 |-------------------------|---------|---------|
 | `event`                 | string  | Always `"sandbox2_launch"`. |
-| `deployment_id`         | string  | `SChildIpcLaunchSpec::s_ChildId`, derived by re-running `sandbox::validateChildIpcLaunchSpec()` against the launch args. Empty string (`""`, explicit, never omitted) when no path-bearing launch option (`input`/`output`/`restore`/`logPipe`) was present. |
-| `model_id`              | string  | Scanned from a `--modelid=<value>` launch argument, using the same linear string-prefix scan style as the controller's `--disableSandbox` token scan. Empty string if absent. |
-| `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect, `"legacy"` when the operator kill-switch (`--disableSandbox`) routed to `E_Legacy`. |
+| `deployment_id`         | string  | `SChildIpcLaunchSpec::s_ChildId`, from a single `sandbox::validateChildIpcLaunchSpec()` call made **once per `spawn()`, before dispatch**, so the value cannot disagree with the state the dispatch decision was taken against and is populated on the `degraded`/`fail_closed` modes too. Empty string (`""`, explicit, never omitted) only when no path-bearing launch option (`input`/`output`/`restore`/`logPipe`) was present at all. Control characters, quotes and backslashes are JSON-escaped so the line stays single-line JSON. |
+| `model_id`              | string  | Scanned from a `--modelid=<value>` launch argument, using the same linear string-prefix scan style as the controller's `--disableSandbox` token scan. Empty string if absent. Escaped as for `deployment_id`. |
+| `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect, `"legacy"` when the controller selected `E_Legacy` - either via the operator kill-switch (`--disableSandbox`) or via the dormant no-token default (see "Dormant no-token default" below). |
 | `sandbox2_established`  | boolean | JSON boolean (`true`/`false`, never the string `"y"`/`"n"`). `true` iff `mode == "enforced"`, else `false`. |
 | `mode`                  | string  | One of `"enforced"`, `"fail_closed"`, `"degraded"` - see mapping below. |
 
@@ -43,8 +43,42 @@ single-line JSON object.
   (includes the build/deployment contradiction case where `processPath` is
   configured as sandboxed but this build has no Sandbox2 support).
 - `degraded` - `route == "legacy"` (operator kill-switch token present and
-  validated), regardless of whether the legacy spawn itself succeeded or
-  failed.
+  validated, or the dormant no-token default in effect), regardless of
+  whether the legacy spawn itself succeeded or failed.
+
+### Dormant no-token default
+
+A `start` command with **no** `--disableSandbox` token for a configured
+sandboxed process path selects the **legacy** route unless the internal
+controller option `ML_SANDBOX2_DEFAULT_ENFORCED` is set to exactly `1`.
+Anything else (unset, `""`, `0`, `true`) leaves it off. Off is the shipped
+default, so this rollout starts dormant: a plain `pytorch_inference` launch
+behaves exactly as it did before typed routing existed, on every platform,
+including builds without Sandbox2 support. With the option on, the same
+command requires Sandbox2 and never falls back (V2).
+
+`ML_SANDBOX2_DEFAULT_ENFORCED` is an internal seam, not an operator setting;
+the change that turns it on is the Elasticsearch-side default-false feature
+flag, not ml-cpp.
+
+Provenance lines (`LOG_INFO`/`LOG_DEBUG`, `bin/controller/CCommandProcessor.cc`)
+name which of the two decided a legacy route - the router itself only ever
+sees an already-decided route and never claims a kill switch that was not
+present.
+
+### In-process seccomp is legacy-route only
+
+`pytorch_inference` installs its own in-process seccomp filter - and emits
+`{"ml_sandbox2_route":"legacy","event":"seccomp_installed"}` - only when
+`ML_SANDBOXED` is **not** exactly `1`. On a Sandbox2-launched child
+(`ML_SANDBOXED=1`, set by `CSandboxedProcessSpawner`), the installation, the
+hard-termination decision and the attestation marker are all skipped
+entirely: the executor's own policy is the security boundary, an install
+attempt from inside the sandbox could fail and terminate an otherwise-healthy
+enforced launch, and emitting the marker would attest a legacy-route filter
+on a launch `sandbox2_launch` reports as `"route":"sandbox2"`. So a
+`"route":"sandbox2"` launch never carries a `seccomp_installed` marker, and
+that absence is expected, not a missing signal.
 
 Example:
 
@@ -80,7 +114,10 @@ unsandboxed positive control (`--disableSandbox`), a reached marker (a
 `request_id`-correlated output-pipe response or a confirmed post-load
 process death), a negative assertion (protected file absent under
 Sandbox2), a mechanism assertion (controller `start`/`kill` JSON responses
-and `/proc` PID liveness), and a per-case cleanup assertion (`kill <pid>`
+and `/proc` PID liveness for the PID parsed out of the controller's own
+`Spawned ... with PID <n>` log line - the sandboxee is a child of the
+Sandbox2 forkserver, not of the controller, so `/proc` `PPid` filtering
+cannot find it), and a per-case cleanup assertion (`kill <pid>`
 against the controller reports failure once the case ends, proving the
 child was reaped).
 

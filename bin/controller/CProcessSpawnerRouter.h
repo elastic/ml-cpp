@@ -78,11 +78,18 @@ public:
     //! \return true if either backend owns a still-live child with this PID.
     bool hasChild(core::CProcess::TPid pid) const;
 
-private:
     //! \return true if \p processPath is configured as a sandboxed process
-    //! path - used for dispatch only, never to decide the route itself.
+    //! path. This is the single implementation of that predicate: the router
+    //! uses it for dispatch and H4-signal gating, and CCommandProcessor
+    //! calls it (through its own router member) to decide whether the
+    //! operator kill-switch token is meaningful for a process path and
+    //! whether the dormant-by-default Sandbox2 route applies. Keeping two
+    //! independent std::find copies would let a future change to one (e.g.
+    //! path normalisation) silently desync token validation from signal
+    //! emission.
     bool isSandboxedProcessPath(const std::string& processPath) const;
 
+private:
     //! Emit the H4 structured once-per-launch signal (design.md §Failure
     //! behavior and observability) for a Sandbox2-eligible spawn() call,
     //! after the dispatch outcome is known. Fires on every outcome,
@@ -90,7 +97,14 @@ private:
     //! gated behind the caller's own success handling. Must only be called
     //! when the process path is a configured sandboxed process path; never
     //! for unrelated processes (e.g. autodetect).
-    void emitLaunchSignal(ERoute route, const TStrVec& args, bool spawnSucceeded) const;
+    //! \param deploymentId SChildIpcLaunchSpec::s_ChildId, already derived
+    //!        once by spawn() *before* dispatch - never re-derived here, so
+    //!        the value in this signal cannot disagree with the value the
+    //!        dispatch decision was made against.
+    void emitLaunchSignal(ERoute route,
+                          const std::string& deploymentId,
+                          const TStrVec& args,
+                          bool spawnSucceeded) const;
 
 private:
     core::CDetachedProcessSpawner m_LegacySpawner;
