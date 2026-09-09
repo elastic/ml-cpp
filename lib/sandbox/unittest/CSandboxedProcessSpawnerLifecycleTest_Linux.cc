@@ -302,21 +302,42 @@ TSpawner::TMonitorLaunchFn captureMonitorBodyWithoutRunning(std::function<void()
 //! monitor body - including its registry cleanup - has fully returned, so
 //! a test can block deterministically until that has happened without
 //! polling or joining the (deliberately detached, per LI9) thread itself.
-TSpawner::TMonitorLaunchFn realMonitorLaunchWithCompletionSignal(std::promise<void>* donePromise) {
-    return [donePromise](std::function<void()> body) -> bool {
-        std::thread([body = std::move(body), donePromise]() mutable {
-            // I5: destroy the closure - and therefore its captured
-            // shared_ptr<sandbox2::Sandbox2> - BEFORE signaling completion.
-            // `body` is a member of this thread lambda's own closure, so
-            // without this it is not destroyed until the thread function
-            // returns, which happens AFTER set_value() below; a test
-            // blocked on donePromise's future could then observe "done"
-            // while the sandbox's fds may still be open, racing gates 7/8's
-            // fd-baseline check.
-            {
-                auto b = std::move(body);
-                b();
-            }
+//!
+//! donePromise is heap-owned (shared_ptr), matching the precedent already
+//! established for the ENOSYS case above (capturingAwaitResult's caller):
+//! gates 7 and 8 both call spawn() before blocking on the returned future,
+//! but if a BOOST_TEST_REQUIRE between spawn() and the wait throws, the
+//! stack-local std::promise a raw pointer would have pointed at is
+//! destroyed while this detached thread is still running and will later
+//! call donePromise->set_value() on freed stack memory - self-review round
+//! 2, finding 4.
+//!
+//! bodyKeepAliveOut is an optional extra output: when non-null, the seam
+//! hands the caller its OWN shared_ptr<function<void()>> reference to the
+//! monitor closure (self-review round 2, finding 2). Gate 8 needs this: it
+//! destroys the spawner and then dereferences a raw SPidRegistry* obtained
+//! from this same closure's registry-insert seam. That raw pointer is only
+//! valid for as long as SOME shared_ptr<SPidRegistry> copy - normally the
+//! monitor closure's own - is still alive. Previously the detached thread
+//! destroyed its only copy of the closure immediately after running it and
+//! before signalling completion, so by the time gate 8's test thread woke
+//! up and dereferenced the raw pointer, the registry had already been
+//! freed (a deterministic UAF, not merely racy). Handing the test its own
+//! extra reference here means the object survives regardless of when the
+//! detached thread releases its own copy. This does not change the
+//! fd-baseline story: gates 7/8 already keep the Sandbox2 handle alive via
+//! their own `capturedSandbox` copy for the same span, so this reference
+//! extends nothing that wasn't already being kept alive.
+TSpawner::TMonitorLaunchFn
+realMonitorLaunchWithCompletionSignal(std::shared_ptr<std::promise<void>> donePromise,
+                                       std::shared_ptr<std::function<void()>>* bodyKeepAliveOut = nullptr) {
+    return [donePromise, bodyKeepAliveOut](std::function<void()> body) -> bool {
+        auto bodyPtr = std::make_shared<std::function<void()>>(std::move(body));
+        if (bodyKeepAliveOut != nullptr) {
+            *bodyKeepAliveOut = bodyPtr;
+        }
+        std::thread([bodyPtr, donePromise]() mutable {
+            (*bodyPtr)();
             donePromise->set_value();
         }).detach();
         return true;
@@ -564,8 +585,17 @@ BOOST_AUTO_TEST_CASE(testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd)
     BOOST_TEST_REQUIRE(waitStatus == std::future_status::ready);
 
     BOOST_TEST_REQUIRE(*capturedResult != nullptr);
-    BOOST_CHECK((*capturedResult)->final_status() == sandbox2::Result::SIGNALED); // mechanism: some signal
-    BOOST_CHECK((*capturedResult)->reason_code() == SIGKILL); // mechanism: specifically SIGKILL, i.e. Kill()
+    // Self-review round 2, finding 1: Sandbox2::Kill() does not produce a
+    // WIFSIGNALED-style SIGNALED/SIGKILL result. It sets the monitor's
+    // external-kill flag, and the monitor's status classification (pinned
+    // sandboxed-api v20241008, monitor_ptrace.cc) checks that flag AHEAD of
+    // the WIFSIGNALED path, so a Kill()ed sandboxee is reported as
+    // EXTERNAL_KILL with reason_code() == 0, never SIGNALED/SIGKILL.
+    // EXTERNAL_KILL is actually the STRONGER discriminator here: it is only
+    // reachable via Sandbox2::Kill(), whereas SIGNALED could also be
+    // produced by an external SIGKILL unrelated to this mechanism.
+    BOOST_CHECK((*capturedResult)->final_status() == sandbox2::Result::EXTERNAL_KILL); // mechanism: Kill()
+    BOOST_CHECK((*capturedResult)->reason_code() == 0);
     BOOST_CHECK(registry->s_Children.count(childPid) == 0); // cleanup assertion
 }
 
@@ -749,6 +779,18 @@ BOOST_AUTO_TEST_CASE(testStaleMonitorGenerationCannotEraseNewerRegistration) {
     BOOST_TEST_REQUIRE(it != registry->s_Children.end());
     BOOST_CHECK_EQUAL(it->second.s_Generation, newerGeneration);
     BOOST_CHECK(it->second.s_State == TSpawner::EChildLifecycleState::E_Monitoring);
+
+    // Self-review round 2, finding 3: this case uses the REAL pidfd path
+    // (empty TPidFdOpenFn{}), so the entry above still holds a genuine open
+    // pidfd. The stale monitor body correctly skipped closing it (generation
+    // mismatch - that skip is exactly what LI6 asserts above), but that also
+    // means nothing else in this case ever closes it: production's
+    // defaultRegistryInsert only closes a stale entry's pidfd when a NEWER
+    // spawn() replaces it, which never happens in this fabricated scenario.
+    // Close it explicitly so SFdBaselineFixture's end-of-case descriptor
+    // count matches the suite-wide baseline instead of leaking one fd on
+    // every run.
+    ::close(it->second.s_PidFd);
 }
 
 // =====================================================================
@@ -965,9 +1007,12 @@ BOOST_AUTO_TEST_CASE(testDestructorDoesNotJoinAndReturnsUnderOneSecond) {
     // the suite-wide SFdBaselineFixture's end-of-case descriptor count
     // (the real cleanup closes the child's pidfd on that same thread,
     // asynchronously with respect to this test case's own control flow).
-    std::promise<void> monitorDonePromise;
-    std::future<void> monitorDone{monitorDonePromise.get_future()};
-    TSpawner::TMonitorLaunchFn monitorLaunch = realMonitorLaunchWithCompletionSignal(&monitorDonePromise);
+    // Heap-owned (shared_ptr), not a stack local, so a BOOST_TEST_REQUIRE
+    // throwing before monitorDone.wait() below cannot free this out from
+    // under the still-running detached thread (finding 4).
+    auto monitorDonePromise = std::make_shared<std::promise<void>>();
+    std::future<void> monitorDone{monitorDonePromise->get_future()};
+    TSpawner::TMonitorLaunchFn monitorLaunch = realMonitorLaunchWithCompletionSignal(monitorDonePromise);
 
     auto spawner = std::make_unique<TSpawner>(TSpawner::TPidFdOpenFn{}, insertFn, monitorLaunch,
                                                TSpawner::TAwaitResultFn{});
@@ -1008,14 +1053,31 @@ BOOST_AUTO_TEST_CASE(testMonitorCleanupRunsSafelyAfterSpawnerDestruction) {
 
     std::promise<void> gatePromise;
     std::shared_future<void> gate{gatePromise.get_future()};
-    std::promise<void> monitorDonePromise;
-    std::future<void> monitorDone{monitorDonePromise.get_future()};
+    // Heap-owned (shared_ptr), not a stack local, matching gate 7 (finding
+    // 4): a throw between spawn() and monitorDone.wait() below must not free
+    // this out from under the still-running detached thread.
+    auto monitorDonePromise = std::make_shared<std::promise<void>>();
+    std::future<void> monitorDone{monitorDonePromise->get_future()};
 
     TSpawner::TAwaitResultFn awaitResultFn = [gate](sandbox2::Sandbox2& sandbox) -> sandbox2::Result {
         gate.wait(); // test-controlled synchronization point - never sleep().
         return sandbox.AwaitResult();
     };
-    TSpawner::TMonitorLaunchFn monitorLaunch = realMonitorLaunchWithCompletionSignal(&monitorDonePromise);
+    // Self-review round 2, finding 2: also request the seam's own extra
+    // shared_ptr<function<void()>> reference to the monitor closure
+    // (monitorBodyKeepAlive), held by this test until after the registryRaw
+    // dereference below. Previously the ONLY surviving
+    // shared_ptr<SPidRegistry> once the spawner block below exits was the
+    // detached thread's own copy inside that closure, and the thread
+    // destroyed its copy immediately after running the body and BEFORE
+    // signalling monitorDone - so by the time this test woke up from
+    // monitorDone.wait() and dereferenced registryRaw, the registry had
+    // already been freed (a deterministic use-after-free, not merely
+    // racy). Holding monitorBodyKeepAlive here keeps the same object alive
+    // regardless of when the detached thread releases its own copy.
+    std::shared_ptr<std::function<void()>> monitorBodyKeepAlive;
+    TSpawner::TMonitorLaunchFn monitorLaunch =
+        realMonitorLaunchWithCompletionSignal(monitorDonePromise, &monitorBodyKeepAlive);
 
     std::shared_ptr<sandbox2::Sandbox2> capturedSandbox;
     TSpawner::SPidRegistry* registryRaw{nullptr};
@@ -1031,12 +1093,14 @@ BOOST_AUTO_TEST_CASE(testMonitorCleanupRunsSafelyAfterSpawnerDestruction) {
         BOOST_CHECK(spawner.hasChild(childPid)); // reached marker
     } // spawner destroyed here; the monitor thread is still genuinely blocked on `gate`.
 
-    // registryRaw is only safe to dereference now because the monitor
-    // thread's own shared_ptr<SPidRegistry> copy (captured in monitorBody's
-    // closure by spawn(), per design) keeps the same object alive - the
-    // spawner's own shared_ptr, which is what made this pointer valid
-    // originally, is gone. That co-ownership is exactly the property this
-    // test exists to exercise.
+    // registryRaw is safe to dereference below because monitorBodyKeepAlive
+    // (captured just above) holds its own shared_ptr<SPidRegistry> reference
+    // via the monitor closure - independent of whatever the detached monitor
+    // thread's own copy of that same closure does or does not still hold by
+    // this point. The spawner's own shared_ptr, which is what made this
+    // pointer valid originally, is gone; this test-owned reference is what
+    // now keeps the object alive, exercising the same underlying
+    // co-ownership property the monitor thread relies on in production.
 
     // Release the gate and make the sandboxee actually exit, so the
     // now-unblocked real AwaitResult() call inside the monitor thread can
@@ -1056,6 +1120,12 @@ BOOST_AUTO_TEST_CASE(testMonitorCleanupRunsSafelyAfterSpawnerDestruction) {
     BOOST_TEST_REQUIRE(registryRaw != nullptr);
     std::lock_guard<std::mutex> lock(registryRaw->s_Mutex);
     BOOST_CHECK(registryRaw->s_Children.count(childPid) == 0);
+    // monitorBodyKeepAlive is not explicitly reset: it goes out of scope
+    // here, after every dereference of registryRaw above, which is all that
+    // matters for finding 2. Its (and capturedSandbox's) destruction here
+    // still runs on this thread, strictly before SFdBaselineFixture's
+    // end-of-case descriptor check, so this does not reintroduce the fd-
+    // baseline race the original early-destroy trick (I5) guarded against.
 }
 
 BOOST_AUTO_TEST_SUITE_END()

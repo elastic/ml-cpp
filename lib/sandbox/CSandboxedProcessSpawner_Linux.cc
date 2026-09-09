@@ -273,6 +273,17 @@ bool defaultMonitorLaunch(std::function<void()> monitorBody) {
 //! Log how a sandboxed pytorch_inference terminated. Runs on the monitor
 //! thread that owns the sandbox instance, so it deliberately takes no
 //! spawner state - the caller does the registry bookkeeping under the lock.
+//!
+//! Review finding 5 (self-review round 2): every StatusEnum value gets its
+//! own case rather than funnelling everything but SIGNALED into one opaque
+//! LOG_ERROR. Two of those previously-generic cases matter operationally:
+//! EXTERNAL_KILL is this file's OWN ENOSYS-fallback success path
+//! (terminateChild()'s E_KernelUnsupported branch calls Sandbox2::Kill(),
+//! which the monitor observes as EXTERNAL_KILL, not SIGNALED - see gate 1's
+//! testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd) and must not
+//! be logged as an abnormal termination; VIOLATION is the most
+//! operationally important signal a sandbox can report and must never be
+//! indistinguishable from an internal error.
 void logSandboxeeTermination(core::CProcess::TPid sandboxPid, const sandbox2::Result& result) {
     switch (result.final_status()) {
     case sandbox2::Result::OK:
@@ -287,7 +298,38 @@ void logSandboxeeTermination(core::CProcess::TPid sandboxPid, const sandbox2::Re
         LOG_INFO(<< "Sandboxed pytorch_inference (PID " << sandboxPid
                  << ") was terminated by signal " << result.reason_code());
         break;
+    case sandbox2::Result::EXTERNAL_KILL:
+        // Expected, successful termination - this is the ENOSYS-fallback
+        // path (Sandbox2::Kill() via terminateChild()'s E_KernelUnsupported
+        // branch), not a failure, so INFO rather than ERROR.
+        LOG_INFO(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                 << ") was force-killed via Sandbox2::Kill()");
+        break;
+    case sandbox2::Result::VIOLATION:
+        // reason_code() carries the violating syscall number for this
+        // status. Logged at ERROR with that detail so a seccomp policy
+        // violation is never mistaken for an opaque internal error.
+        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                  << ") violated the sandbox policy (syscall " << result.reason_code() << ')');
+        break;
+    case sandbox2::Result::TIMEOUT:
+        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                  << ") exceeded its wall-time/CPU limit and was terminated");
+        break;
+    case sandbox2::Result::SETUP_ERROR:
+        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                  << ") failed to set up the sandbox");
+        break;
+    case sandbox2::Result::INTERNAL_ERROR:
+        LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
+                  << ") hit an internal Sandbox2 error");
+        break;
     default:
+        // UNSET (and any future StatusEnum value this file does not yet
+        // know about) - AwaitResult() has already returned by the time this
+        // runs, so UNSET should be structurally unreachable, but keep a
+        // narrow default rather than silently dropping an unrecognized
+        // status.
         LOG_ERROR(<< "Sandboxed pytorch_inference (PID " << sandboxPid
                   << ") terminated abnormally, final_status=" << result.final_status());
         break;
@@ -674,6 +716,13 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(pid);
+        // Considered-and-dropped (self-review round 2): this guard does not
+        // exclude E_TerminationRequested, so a repeated terminateChild()
+        // call on an already-in-flight (or already E_KernelUnsupported-
+        // Kill()ed) child can reach Sandbox2::Kill() a second time. Confirmed
+        // harmless against the pinned sandboxed-api v20241008 tag:
+        // Sandbox2::Kill() is idempotent (sets a flag and issues a null-safe
+        // notify; no double-free/double-signal), so this is not a hazard.
         if (it == m_PidRegistry->s_Children.end() ||
             it->second.s_State == EChildLifecycleState::E_Reaped ||
             it->second.s_State == EChildLifecycleState::E_Failed) {
