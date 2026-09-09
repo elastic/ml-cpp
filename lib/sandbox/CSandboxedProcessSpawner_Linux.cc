@@ -625,6 +625,7 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     // kill(pid) fallback exists anywhere in this file.
     int pidFdToSignal{-1};
     std::shared_ptr<sandbox2::Sandbox2> sandboxToKill;
+    EChildLifecycleState previousState{EChildLifecycleState::E_Failed};
     {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(pid);
@@ -634,6 +635,7 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
             return false;
         }
         SSandboxedChild& child{it->second};
+        previousState = child.s_State;
         switch (child.s_PidFdOutcome) {
         case EPidFdOutcome::E_Acquired:
             if (child.s_PidFd < 0) {
@@ -672,10 +674,26 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
         child.s_State = EChildLifecycleState::E_TerminationRequested;
     }
 
+    // Rolls the registry entry's s_State back to what it was before this
+    // call optimistically set it to E_TerminationRequested, but only if
+    // nothing else has moved the state on in the meantime (e.g. a
+    // concurrent reap). Called on the failure paths below, after the actual
+    // pidfd_send_signal()/Kill() call - re-acquires the lock briefly; the
+    // call itself still happens outside the lock, unchanged.
+    const auto rollBackState = [this, pid, previousState]() {
+        std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
+        const auto it = m_PidRegistry->s_Children.find(pid);
+        if (it != m_PidRegistry->s_Children.end() &&
+            it->second.s_State == EChildLifecycleState::E_TerminationRequested) {
+            it->second.s_State = previousState;
+        }
+    };
+
     if (pidFdToSignal >= 0) {
         if (::syscall(ML_NR_pidfd_send_signal, pidFdToSignal, SIGTERM, nullptr, 0u) != 0) {
             LOG_ERROR(<< "pidfd_send_signal(SIGTERM) failed for sandboxed child PID " << pid
                       << ": " << ::strerror(errno));
+            rollBackState();
             return false;
         }
         return true;
@@ -689,6 +707,7 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     if (!sandboxToKill) {
         LOG_ERROR(<< "Logic error: terminateChild() for PID " << pid
                   << " resolved neither a pidfd nor a Sandbox2 handle to kill");
+        rollBackState();
         return false;
     }
 
@@ -700,6 +719,7 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Sandbox2::Kill() failed for sandboxed child PID " << pid << ": "
                   << e.what());
+        rollBackState();
         return false;
     }
     return true;
