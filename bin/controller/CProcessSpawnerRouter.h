@@ -83,6 +83,15 @@ private:
     //! path - used for dispatch only, never to decide the route itself.
     bool isSandboxedProcessPath(const std::string& processPath) const;
 
+    //! Emit the H4 structured once-per-launch signal (design.md §Failure
+    //! behavior and observability) for a Sandbox2-eligible spawn() call,
+    //! after the dispatch outcome is known. Fires on every outcome,
+    //! including \p spawnSucceeded == false (the fail_closed case) - never
+    //! gated behind the caller's own success handling. Must only be called
+    //! when the process path is a configured sandboxed process path; never
+    //! for unrelated processes (e.g. autodetect).
+    void emitLaunchSignal(ERoute route, const TStrVec& args, bool spawnSucceeded) const;
+
 private:
     core::CDetachedProcessSpawner m_LegacySpawner;
 
