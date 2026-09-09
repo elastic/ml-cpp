@@ -177,7 +177,13 @@ int main(int argc, char** argv) {
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
-    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+    // Policy unchanged: log and continue on a degraded install; this
+    // binary does not process untrusted model input, unlike
+    // pytorch_inference.
+    if (ml::seccomp::CSystemCallFilter::installSystemCallFilter() !=
+        ml::seccomp::ESystemCallFilterInstallOutcome::E_Installed) {
+        LOG_WARN(<< "Continuing without full syscall filtering");
+    }
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
