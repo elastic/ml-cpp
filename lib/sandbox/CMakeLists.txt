@@ -25,6 +25,7 @@ set(ML_LINK_LIBRARIES
 set(SRCS
   CMlSandboxAvailability.cc
   CPytorchInferenceSandboxPolicy.cc
+  CSandboxedProcessSpawner_Linux.cc
   )
 
 ml_add_library(MlSandbox STATIC ${SRCS})
