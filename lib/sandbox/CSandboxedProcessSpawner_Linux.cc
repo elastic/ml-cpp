@@ -631,12 +631,19 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(sandboxPid);
-        if (it != m_PidRegistry->s_Children.end() && it->second.s_Generation == generation) {
+        // Only advance from E_Registered: a registry-scanning terminator
+        // (e.g. a future PR E timeout caller) can race this window and
+        // already have set E_TerminationRequested on the same generation;
+        // an unconditional overwrite here would silently revert that marker.
+        if (it != m_PidRegistry->s_Children.end() && it->second.s_Generation == generation &&
+            it->second.s_State == EChildLifecycleState::E_Registered) {
             it->second.s_State = EChildLifecycleState::E_Monitoring;
         }
     }
 
-    LOG_INFO(<< "Spawned sandboxed process " << processPath << " with PID " << childPid);
+    // Final-review fix: log the live PID, not the not-yet-restored out
+    // parameter (childPid is still 0 here per the I2 fix below).
+    LOG_INFO(<< "Spawned sandboxed process " << processPath << " with PID " << sandboxPid);
 
     // I2: only now, with registration and monitor handoff both confirmed, is
     // it safe to hand the live PID back to the caller.

@@ -385,8 +385,14 @@ struct SForkserverWarmupFixture {
         // deterministic, not to assert anything itself.
         if (spawner.spawn(ML_SANDBOX2_LIFECYCLE_PAYLOAD, childIpcArgs(childRoot), childPid) &&
             childPid > 0) {
-            spawner.terminateChild(childPid);
-            if (monitorBody) {
+            // Only await completion if termination was actually requested
+            // successfully: if Sandbox2::Kill() threw and terminateChild()
+            // returned false, the sandboxee may still be running, and an
+            // unconditional monitorBody() call would block this
+            // BOOST_GLOBAL_FIXTURE - and therefore the entire test binary,
+            // across every suite - inside AwaitResult() with no bound and
+            // no diagnostic (production's wall-time limit is unbounded).
+            if (spawner.terminateChild(childPid) && monitorBody) {
                 monitorBody(); // real cleanup path: closes the pidfd, erases the entry.
             }
         }
