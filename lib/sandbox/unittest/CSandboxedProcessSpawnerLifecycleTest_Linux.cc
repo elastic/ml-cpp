@@ -305,7 +305,18 @@ TSpawner::TMonitorLaunchFn captureMonitorBodyWithoutRunning(std::function<void()
 TSpawner::TMonitorLaunchFn realMonitorLaunchWithCompletionSignal(std::promise<void>* donePromise) {
     return [donePromise](std::function<void()> body) -> bool {
         std::thread([body = std::move(body), donePromise]() mutable {
-            body();
+            // I5: destroy the closure - and therefore its captured
+            // shared_ptr<sandbox2::Sandbox2> - BEFORE signaling completion.
+            // `body` is a member of this thread lambda's own closure, so
+            // without this it is not destroyed until the thread function
+            // returns, which happens AFTER set_value() below; a test
+            // blocked on donePromise's future could then observe "done"
+            // while the sandbox's fds may still be open, racing gates 7/8's
+            // fd-baseline check.
+            {
+                auto b = std::move(body);
+                b();
+            }
             donePromise->set_value();
         }).detach();
         return true;
@@ -328,7 +339,63 @@ TSpawner::TAwaitResultFn capturingAwaitResult(std::shared_ptr<sandbox2::Result>*
     };
 }
 
+// ---------------------------------------------------------------------
+// I6: forkserver / fork() warm-up, run once before ANY per-case fixture.
+// ---------------------------------------------------------------------
+
+//! Sandbox2's global forkserver is created lazily on the first RunAsync()
+//! anywhere in this process, and holds its own comms descriptors for the
+//! rest of the process's lifetime. SFdBaselineFixture (above) snapshots the
+//! fd count before each case's first spawn(); if this test binary/suite
+//! ever runs with this suite as the FIRST thing to spawn anything in the
+//! whole process (e.g. via `--run_test=` filtering, or a future link-order
+//! change), the first case's fd-baseline check would see the forkserver's
+//! descriptors appear mid-case and spuriously fail. This is the same root
+//! cause as the "gate 4 fork() implicit test-ordering dependency" concern
+//! (gate 4 also forks - see testTerminateChildSignalsOnlyTheCurrentlyRegisteredIdentity
+//! - and pays the same one-time lazy-init cost the first time anything in
+//! this binary spawns or forks) - fixed once, here, for both.
+//!
+//! A BOOST_GLOBAL_FIXTURE runs once for the whole test module, before any
+//! test case (and therefore before any per-case SFdBaselineFixture
+//! construction) regardless of `--run_test=` filtering or link order, so
+//! placing the warm-up here - rather than relying on some earlier test
+//! case in this or another suite having already run - makes the forkserver
+//! guaranteed already-started by the time any case's baseline is captured.
+struct SForkserverWarmupFixture {
+    SForkserverWarmupFixture() {
+        CScopedTmpDirEnv tmpEnv;
+        const std::string childRoot{makeChildIpcRoot(tmpEnv.dir(), "forkserver-warmup")};
+
+        std::shared_ptr<sandbox2::Result> capturedResult;
+        std::function<void()> monitorBody;
+        // ENOSYS forces the Sandbox2::Kill() termination path below (rather
+        // than requiring a real pidfd_send_signal/SIGTERM round-trip),
+        // keeping this warm-up simple and unconditional regardless of what
+        // the real kernel supports.
+        TSpawner::TPidFdOpenFn pidFdOpen = forcedPidFdOutcome({-1, ENOSYS});
+        TSpawner::TMonitorLaunchFn monitorLaunch = captureMonitorBodyWithoutRunning(&monitorBody);
+        TSpawner::TAwaitResultFn awaitResultFn = capturingAwaitResult(&capturedResult);
+
+        TSpawner spawner{pidFdOpen, TSpawner::TRegistryInsertFn{}, monitorLaunch, awaitResultFn};
+        TPid childPid{0};
+        // Best-effort: if this somehow fails, every real test case's own
+        // spawn() will surface the underlying problem on its own merits -
+        // this warm-up only exists to make the FIRST case's fd baseline
+        // deterministic, not to assert anything itself.
+        if (spawner.spawn(ML_SANDBOX2_LIFECYCLE_PAYLOAD, childIpcArgs(childRoot), childPid) &&
+            childPid > 0) {
+            spawner.terminateChild(childPid);
+            if (monitorBody) {
+                monitorBody(); // real cleanup path: closes the pidfd, erases the entry.
+            }
+        }
+    }
+};
+
 } // namespace
+
+BOOST_GLOBAL_FIXTURE(SForkserverWarmupFixture);
 
 BOOST_FIXTURE_TEST_SUITE(CSandboxedProcessSpawnerLifecycleTest_Linux, SFdBaselineFixture)
 
@@ -385,10 +452,18 @@ BOOST_AUTO_TEST_CASE(testSpawnFailsClosedOnEveryNonKernelUnsupportedPidfdFailure
         // unwind (before spawn() returned), so the real sandboxee should
         // already be gone - confirm via a test-owned observer pidfd,
         // never a signal.
+        // I4: a fresh pidfd_open() on a PID the kill-and-reap guard has
+        // already Kill()ed and AwaitResult()ed can legitimately fail with
+        // ESRCH (fully reaped already - the common case) rather than
+        // succeed, so accept both outcomes as proof of cleanup instead of
+        // requiring a live pidfd.
         const int observerPidFd{testPidfdOpen(capturedPid)};
-        BOOST_TEST_REQUIRE(observerPidFd >= 0);
-        BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000));
-        ::close(observerPidFd);
+        if (observerPidFd < 0) {
+            BOOST_CHECK_EQUAL(errno, ESRCH); // already fully reaped - this IS proof of cleanup
+        } else {
+            BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000));
+            ::close(observerPidFd);
+        }
     }
 }
 
@@ -564,10 +639,15 @@ BOOST_AUTO_TEST_CASE(testRegistryInsertBadAllocKillsAndReapsCleanly) {
     BOOST_TEST_REQUIRE(capturedPid > 0);
     BOOST_CHECK(spawner.hasChild(capturedPid) == false); // no registry entry
 
+    // I4: accept either ESRCH (already fully reaped) or a live-but-exited
+    // pidfd as proof the guard's Kill()+AwaitResult() already ran.
     const int observerPidFd{testPidfdOpen(capturedPid)};
-    BOOST_TEST_REQUIRE(observerPidFd >= 0);
-    BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000)); // guard's Kill()+AwaitResult() already ran
-    ::close(observerPidFd);
+    if (observerPidFd < 0) {
+        BOOST_CHECK_EQUAL(errno, ESRCH); // already fully reaped - this IS proof of cleanup
+    } else {
+        BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000));
+        ::close(observerPidFd);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testMonitorLaunchFailureKillsAndReapsCleanly) {
@@ -592,10 +672,15 @@ BOOST_AUTO_TEST_CASE(testMonitorLaunchFailureKillsAndReapsCleanly) {
     BOOST_TEST_REQUIRE(capturedPid > 0);
     BOOST_CHECK(spawner.hasChild(capturedPid) == false); // eraseRegistryEntry() ran
 
+    // I4: accept either ESRCH (already fully reaped) or a live-but-exited
+    // pidfd as proof eraseRegistryEntry()/the guard's cleanup already ran.
     const int observerPidFd{testPidfdOpen(capturedPid)};
-    BOOST_TEST_REQUIRE(observerPidFd >= 0);
-    BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000));
-    ::close(observerPidFd);
+    if (observerPidFd < 0) {
+        BOOST_CHECK_EQUAL(errno, ESRCH); // already fully reaped - this IS proof of cleanup
+    } else {
+        BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000));
+        ::close(observerPidFd);
+    }
 }
 
 // =====================================================================

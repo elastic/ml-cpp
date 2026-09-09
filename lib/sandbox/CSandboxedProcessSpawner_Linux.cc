@@ -455,6 +455,19 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     }
 
     const core::CProcess::TPid sandboxPid{childPid};
+    // I2: default the caller's out-parameter back to 0 for the entire span
+    // between capturing sandboxPid and confirmed success (the final `return
+    // true` below). Several calls in that span (e.g.
+    // std::make_shared<CCasOutcomeLatch>() a few lines down) can throw
+    // std::bad_alloc *before* the try/catch blocks further down start, and
+    // an exception there propagates straight out of spawn() uncaught (the
+    // kill-and-reap guard's destructor still cleans up the sandboxee
+    // correctly during unwind). Without this, that throw-only exit would
+    // leave the caller's childPid at the live PID even though spawn() never
+    // returned true. Every explicit `return false` below already sets
+    // childPid = 0 too; this makes 0 the default regardless of whether a
+    // given exit is a return or an uncaught throw.
+    childPid = 0;
 
     // E_IdentityCaptured (LI1): arm the kill-and-reap guard now that the
     // sandboxee is actually running. The guard takes its own shared_ptr
@@ -565,6 +578,14 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                         completionWonRace = it->second.s_Outcome->tryResolve(desired);
                     }
                     if (completionWonRace) {
+                        // I1: record E_Reaped immediately before erasing the
+                        // entry, so a future accessor reading state via the
+                        // lock during this brief window would see E_Reaped
+                        // rather than a stale E_Monitoring. Defensive/
+                        // documentation-only today - nothing reads it before
+                        // the erase below - but matches the state machine's
+                        // declared intent.
+                        it->second.s_State = EChildLifecycleState::E_Reaped;
                         closePidFdIfOpen(it->second.s_PidFd);
                         registry->s_Children.erase(it);
                     }
@@ -601,8 +622,25 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // removing the registry entry. Disarm - the guard must not also reap.
     killAndReapGuard.disarm();
 
+    // I1: record the E_Monitoring transition explicitly, generation-matched
+    // and under the lock, now that handoff is confirmed. Without this,
+    // E_Monitoring was declared in the state machine but never actually
+    // assigned anywhere, so the "explicit state machine, no state skipped"
+    // claim was not true in the code, and a future timeout caller (PR E)
+    // would have nothing correct to branch on.
+    {
+        std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
+        const auto it = m_PidRegistry->s_Children.find(sandboxPid);
+        if (it != m_PidRegistry->s_Children.end() && it->second.s_Generation == generation) {
+            it->second.s_State = EChildLifecycleState::E_Monitoring;
+        }
+    }
+
     LOG_INFO(<< "Spawned sandboxed process " << processPath << " with PID " << childPid);
 
+    // I2: only now, with registration and monitor handoff both confirmed, is
+    // it safe to hand the live PID back to the caller.
+    childPid = sandboxPid;
     return true;
 
 #else // !SANDBOX2_AVAILABLE
@@ -623,9 +661,9 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     // - a graceful termination *request* - for E_Acquired, or Sandbox2::Kill()
     // (SIGKILL via the owned monitor) for E_KernelUnsupported. No numeric
     // kill(pid) fallback exists anywhere in this file.
-    int pidFdToSignal{-1};
     std::shared_ptr<sandbox2::Sandbox2> sandboxToKill;
     EChildLifecycleState previousState{EChildLifecycleState::E_Failed};
+    std::uint64_t capturedGeneration{0};
     {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(pid);
@@ -636,8 +674,14 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
         }
         SSandboxedChild& child{it->second};
         previousState = child.s_State;
+        // C1/I3: capture the generation now, under the same lock acquisition
+        // that decides the termination mechanism, so a failure below can
+        // roll back state only if it still identifies the SAME registration
+        // (not a newer one that reused this numeric PID after this entry
+        // was reaped and erased).
+        capturedGeneration = child.s_Generation;
         switch (child.s_PidFdOutcome) {
-        case EPidFdOutcome::E_Acquired:
+        case EPidFdOutcome::E_Acquired: {
             if (child.s_PidFd < 0) {
                 // Logic error (should be structurally unreachable given
                 // spawn()'s fail-closed registration in this task): a
@@ -647,8 +691,29 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
                           << " classified E_Acquired but holds no pidfd");
                 return false;
             }
-            pidFdToSignal = child.s_PidFd;
-            break;
+            // C1: send the request WHILE STILL HOLDING s_Mutex.
+            // pidfd_send_signal is a non-blocking syscall, so this is safe,
+            // and it is the only way to close the race against monitorBody's
+            // Sandbox2-completion handler, which also takes this same lock
+            // before closing this exact pidfd and erasing the registry entry
+            // (it does not check s_State). Previously the syscall ran
+            // outside the lock: a snapshot-then-signal window let
+            // monitorBody close the pidfd and the kernel recycle that
+            // descriptor number for an unrelated spawn() in between, so a
+            // delayed pidfd_send_signal here could hit the wrong process
+            // (the LI7 "identity, not recycled descriptor" hazard, one layer
+            // below the already-fixed numeric-PID case).
+            if (::syscall(ML_NR_pidfd_send_signal, child.s_PidFd, SIGTERM, nullptr, 0u) != 0) {
+                LOG_ERROR(<< "pidfd_send_signal(SIGTERM) failed for sandboxed child PID " << pid
+                          << ": " << ::strerror(errno));
+                // No state transition happened on this path (the state is
+                // only advanced below, on success), so there is nothing to
+                // roll back.
+                return false;
+            }
+            child.s_State = EChildLifecycleState::E_TerminationRequested;
+            return true;
+        }
         case EPidFdOutcome::E_KernelUnsupported:
             if (!child.s_Sandbox) {
                 // Same reasoning as above: E_KernelUnsupported without a
@@ -659,6 +724,7 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
                 return false;
             }
             sandboxToKill = child.s_Sandbox;
+            child.s_State = EChildLifecycleState::E_TerminationRequested;
             break;
         case EPidFdOutcome::E_Failed:
         default:
@@ -671,45 +737,30 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
                       << static_cast<int>(child.s_PidFdOutcome) << ')');
             return false;
         }
-        child.s_State = EChildLifecycleState::E_TerminationRequested;
     }
 
+    // Only the E_KernelUnsupported/Sandbox2::Kill() path reaches here - the
+    // E_Acquired/pidfd path above already returned from inside the locked
+    // block (C1). sandboxToKill is identity-bound via the owned shared_ptr,
+    // so - unlike the pidfd branch - it remains safe to call Kill() outside
+    // s_Mutex, unchanged from before this fix wave.
+
     // Rolls the registry entry's s_State back to what it was before this
-    // call optimistically set it to E_TerminationRequested, but only if
-    // nothing else has moved the state on in the meantime (e.g. a
-    // concurrent reap). Called on the failure paths below, after the actual
-    // pidfd_send_signal()/Kill() call - re-acquires the lock briefly; the
-    // call itself still happens outside the lock, unchanged.
-    const auto rollBackState = [this, pid, previousState]() {
+    // call optimistically set it to E_TerminationRequested, but only if the
+    // entry still matches BOTH the captured generation AND the expected
+    // in-flight state (I3) - guards against a stale rollback clobbering a
+    // different (newer) registration that reused this numeric PID after the
+    // original entry was reaped and erased, and that newer registration
+    // happens to also currently be E_TerminationRequested.
+    const auto rollBackState = [this, pid, previousState, capturedGeneration]() {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(pid);
         if (it != m_PidRegistry->s_Children.end() &&
+            it->second.s_Generation == capturedGeneration &&
             it->second.s_State == EChildLifecycleState::E_TerminationRequested) {
             it->second.s_State = previousState;
         }
     };
-
-    if (pidFdToSignal >= 0) {
-        if (::syscall(ML_NR_pidfd_send_signal, pidFdToSignal, SIGTERM, nullptr, 0u) != 0) {
-            LOG_ERROR(<< "pidfd_send_signal(SIGTERM) failed for sandboxed child PID " << pid
-                      << ": " << ::strerror(errno));
-            rollBackState();
-            return false;
-        }
-        return true;
-    }
-
-    // sandboxToKill is only ever set on the E_KernelUnsupported branch
-    // above; pidFdToSignal >= 0 is only ever set on the E_Acquired branch.
-    // Exactly one of the two is populated by the switch, so reaching here
-    // with neither would itself be a logic error - defensively refuse
-    // rather than silently no-op.
-    if (!sandboxToKill) {
-        LOG_ERROR(<< "Logic error: terminateChild() for PID " << pid
-                  << " resolved neither a pidfd nor a Sandbox2 handle to kill");
-        rollBackState();
-        return false;
-    }
 
     try {
         // Locked design decision (design.md): MonitorBase::Kill() takes no
