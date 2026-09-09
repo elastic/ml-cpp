@@ -20,6 +20,10 @@
 namespace {
 const std::string TAB(1, '\t');
 const std::string EMPTY_STRING;
+//! The only controller-control token design.md names today. Any other
+//! unrecognised "--" prefixed token is passed through to the spawned
+//! process unchanged - this task does not invent a general token schema.
+const std::string DISABLE_SANDBOX_TOKEN{"--disableSandbox"};
 }
 
 namespace ml {
@@ -30,8 +34,10 @@ const std::string CCommandProcessor::START{"start"};
 const std::string CCommandProcessor::KILL{"kill"};
 
 CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths,
+                                     const TStrVec& sandboxedProcessPaths,
                                      std::ostream& responseStream)
-    : m_Spawner{permittedProcessPaths}, m_ResponseWriter{responseStream} {
+    : m_Spawner{permittedProcessPaths, sandboxedProcessPaths},
+      m_SandboxedProcessPaths{sandboxedProcessPaths}, m_ResponseWriter{responseStream} {
 }
 
 void CCommandProcessor::processCommands(std::istream& commandStream) {
@@ -92,7 +98,52 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
     std::string processPath{std::move(tokens[0])};
     tokens.erase(tokens.begin());
 
-    if (m_Spawner.spawn(processPath, tokens) == false) {
+    // Scan for the operator kill-switch token before any spawn decision is
+    // made. Never "last one wins"/"first one wins" on duplicates - count
+    // them all and reject outright if there's more than one.
+    std::size_t disableSandboxCount{0};
+    TStrVec::iterator firstDisableSandbox{tokens.end()};
+    for (auto iter = tokens.begin(); iter != tokens.end(); ++iter) {
+        if (*iter == DISABLE_SANDBOX_TOKEN) {
+            if (disableSandboxCount == 0) {
+                firstDisableSandbox = iter;
+            }
+            ++disableSandboxCount;
+        }
+    }
+
+    if (disableSandboxCount >= 2) {
+        std::string error{"Rejecting command: '" + DISABLE_SANDBOX_TOKEN + "' specified " +
+                          core::CStringUtils::typeToString(disableSandboxCount) +
+                          " times for process '" + processPath + '\''};
+        LOG_ERROR(<< error << " in command with ID " << id);
+        m_ResponseWriter.writeResponse(id, false, error);
+        return false;
+    }
+
+    CProcessSpawnerRouter::ERoute route{CProcessSpawnerRouter::ERoute::E_Sandbox2};
+    if (disableSandboxCount == 1) {
+        bool isConfiguredSandboxedPath{std::find(m_SandboxedProcessPaths.begin(),
+                                                  m_SandboxedProcessPaths.end(),
+                                                  processPath) != m_SandboxedProcessPaths.end()};
+        if (isConfiguredSandboxedPath == false) {
+            std::string error{"Rejecting command: '" + DISABLE_SANDBOX_TOKEN +
+                              "' is only valid for the configured sandboxed process, "
+                              "not '" +
+                              processPath + '\''};
+            LOG_ERROR(<< error << " in command with ID " << id);
+            m_ResponseWriter.writeResponse(id, false, error);
+            return false;
+        }
+
+        // Operator kill-switch validated against this exact processPath:
+        // strip it before it reaches the spawner and route to legacy.
+        route = CProcessSpawnerRouter::ERoute::E_Legacy;
+        tokens.erase(firstDisableSandbox);
+    }
+
+    core::CProcess::TPid childPid{0};
+    if (m_Spawner.spawn(route, processPath, tokens, childPid) == false) {
         std::string error{"Failed to start process '" + processPath + '\''};
         LOG_ERROR(<< error << " in command with ID " << id);
         m_ResponseWriter.writeResponse(id, false, error);

@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"1\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
         for (std::size_t index = 0; index < std::size(PROCESS_ARGS1); ++index) {
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"2\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
         for (std::size_t index = 0; index < std::size(PROCESS_ARGS2); ++index) {
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testStartNonExistent) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"3\t" + ml::controller::CCommandProcessor::START + "\tsome other process"};
 
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testKillDisallowed) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"4\t" + ml::controller::CCommandProcessor::KILL + '\t' + pidStr};
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testInvalidVerb) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{"5\tdrive\tsome other process"};
 
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(testTooFewTokens) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{ml::controller::CCommandProcessor::START + "\tsome other process"};
 
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(testMissingId) {
     std::ostringstream responseStream;
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
-        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, {}, responseStream};
 
         std::string command{ml::controller::CCommandProcessor::START +
                             "\tsome other process\targ1\targ2"};
@@ -216,5 +216,210 @@ BOOST_AUTO_TEST_CASE(testMissingId) {
     // It's not possible to respond without an ID
     BOOST_REQUIRE_EQUAL("[]", responseStream.str());
 }
+
+namespace {
+//! Build a tab-separated "start" command for \p processPath with \p args.
+std::string startCommand(std::uint32_t id, const std::string& processPath,
+                         const std::vector<std::string>& args) {
+    std::string command{ml::core::CStringUtils::typeToString(id) + '\t' +
+                        ml::controller::CCommandProcessor::START + '\t' + processPath};
+    for (const auto& arg : args) {
+        command += '\t';
+        command += arg;
+    }
+    return command;
+}
+
+//! \return true if \p file does not exist / could not be opened.
+bool fileAbsent(const std::string& file) {
+    std::ifstream ifs{file};
+    return ifs.is_open() == false;
+}
+}
+
+BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath) {
+    // Two occurrences of the token must be rejected outright, even when
+    // processPath IS the configured sandboxed path - never "last one
+    // wins"/"first one wins".
+    const std::string OUT{"duplicate_reject_sandboxed_out.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{startCommand(
+            10, PROCESS_PATH,
+            {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox", "--disableSandbox"})};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    // Rejected before any spawn: the copy must never have happened.
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":10,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("specified 2 times") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnNonSandboxedPath) {
+    // Duplicate-token rejection applies regardless of whether processPath
+    // matches a configured sandboxed path.
+    const std::string OUT{"duplicate_reject_nonsandboxed_out.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths; // empty
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{startCommand(
+            11, PROCESS_PATH,
+            {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox", "--disableSandbox"})};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":11,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("specified 2 times") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testStartRejectsDisableSandboxTokenOnNonSandboxedPath) {
+    // A single --disableSandbox token is only meaningful for the exact
+    // configured sandboxed path; on any other permitted process it must be
+    // rejected rather than silently ignored or passed through.
+    const std::string OUT{"single_reject_nonsandboxed_out.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths; // empty: PROCESS_PATH not sandboxed
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{startCommand(
+            12, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox"})};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":12,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("only valid for the configured sandboxed process") !=
+                       std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testStartStripsDisableSandboxTokenForConfiguredSandboxedPath) {
+    // A single --disableSandbox token on the configured sandboxed path must
+    // be stripped before the underlying spawner ever sees it. Verified via
+    // an observable side effect (arg count reaching the shell), not just
+    // the response: if the token leaked through, $# would be 1 instead of 0.
+    const std::string OUT{"strip_token_arg_count.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{startCommand(
+            13, PROCESS_PATH,
+            {"-c", "echo $# > " + OUT, "argv0name", "--disableSandbox"})};
+
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+
+    std::ifstream ifs{OUT};
+    BOOST_TEST_REQUIRE(ifs.is_open());
+    std::string content;
+    std::getline(ifs, content);
+    ifs.close();
+    std::remove(OUT.c_str());
+
+    // If the token had NOT been stripped, argv0name and --disableSandbox
+    // would both reach the shell as positional args and $# would be 1.
+    BOOST_REQUIRE_EQUAL(std::string{"0"}, content);
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":13,\"success\":true") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testStartLeavesArgsUntouchedWhenTokenAbsent) {
+    // With zero occurrences of --disableSandbox, args must reach the
+    // spawner completely unmodified (default route is Sandbox2, but this
+    // processPath isn't configured as sandboxed so it still dispatches to
+    // the legacy spawner, same as pre-existing behaviour).
+    const std::string OUT{"absent_token_arg_count.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths; // empty
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{startCommand(
+            14, PROCESS_PATH, {"-c", "echo $# > " + OUT, "argv0name", "extraArg"})};
+
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+
+    std::ifstream ifs{OUT};
+    BOOST_TEST_REQUIRE(ifs.is_open());
+    std::string content;
+    std::getline(ifs, content);
+    ifs.close();
+    std::remove(OUT.c_str());
+
+    BOOST_REQUIRE_EQUAL(std::string{"1"}, content);
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":14,\"success\":true") != std::string::npos);
+}
+
+#ifndef SANDBOX2_AVAILABLE
+BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentOnSandboxedPath) {
+    // No token present on the configured sandboxed path must select the
+    // Sandbox2 route (V2, no automatic legacy fallback). On a build with no
+    // Sandbox2 support, CProcessSpawnerRouter fails closed for that route -
+    // observed here as the command failing rather than the copy succeeding,
+    // which is exactly how we know Sandbox2 (not legacy) was selected: had
+    // the route been E_Legacy, this copy would have succeeded.
+    const std::string OUT{"sandbox2_route_selected_out.txt"};
+    std::remove(OUT.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+
+        std::string command{
+            startCommand(15, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":15,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("Failed to start process") != std::string::npos);
+}
+#endif // !SANDBOX2_AVAILABLE
 
 BOOST_AUTO_TEST_SUITE_END()

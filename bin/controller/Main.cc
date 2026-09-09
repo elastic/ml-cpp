@@ -206,8 +206,10 @@ int main(int argc, char** argv) {
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
         "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
         "./pytorch_inference"};
+    ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
+    ml::controller::CCommandProcessor processor{permittedProcessPaths, sandboxedProcessPaths,
+                                                *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();
