@@ -35,6 +35,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -47,9 +48,24 @@
 
 namespace {
 
+//! Outcome of running the userns probe payload, distinguishing a genuine
+//! staged probe failure (the payload ran and its own stage logic reported
+//! failure, pipe/exit code EXIT_FAILURE) from an exec/setup failure (the
+//! payload binary could not be launched at all - missing, wrong
+//! permissions, bad path). The two must never be conflated: fail_closed's
+//! job is confirming the *ambient environment* lacks userns capability, not
+//! masking a broken test harness (missing build artifact, CMake wiring
+//! regression) as that same "expected absence" result.
+enum class EProbeOutcome { E_Success, E_StagedFailure, E_ExecFailure };
+
 //! Forks/execs the userns probe payload directly (no Sandbox2 involved) and
-//! reports whether it exited 0 (all 7 stages succeeded).
-bool runProbe() {
+//! classifies the result. POSIX convention: an exec failure surfaces as
+//! exit code 126 (found but not executable) or 127 (not found/exec
+//! otherwise failed) - the payload's own staged-failure exit code is
+//! EXIT_FAILURE (1), which never collides with 126/127. A signal death, or
+//! any other non-zero exit, is treated as a staged failure: only 126/127
+//! are reserved here for "the child never ran the probe's own logic".
+EProbeOutcome runProbe() {
     const std::string payloadPath{ML_SANDBOX2_USERNS_PROBE_PAYLOAD};
 
     const pid_t child = ::fork();
@@ -57,13 +73,28 @@ bool runProbe() {
 
     if (child == 0) {
         ::execl(payloadPath.c_str(), payloadPath.c_str(), static_cast<char*>(nullptr));
-        // execl only returns on failure.
-        ::_exit(127);
+        // execl only returns on failure. Distinguish "found but not
+        // executable" (126) from "not found/exec otherwise failed" (127),
+        // matching shell convention, so the parent can tell an exec/setup
+        // failure apart from the payload's own staged-failure exit code.
+        ::_exit(errno == EACCES ? 126 : 127);
     }
 
     int status = 0;
     BOOST_TEST_REQUIRE(::waitpid(child, &status, 0) == child);
-    return WIFEXITED(status) != 0 && WEXITSTATUS(status) == 0;
+
+    if (WIFEXITED(status) == 0) {
+        // Killed by a signal: not a meaningful staged result, but also not
+        // the specific exec-failure signature (126/127) - treat as a
+        // staged failure rather than a hard harness-broken failure.
+        return EProbeOutcome::E_StagedFailure;
+    }
+
+    const int exitStatus = WEXITSTATUS(status);
+    if (exitStatus == 126 || exitStatus == 127) {
+        return EProbeOutcome::E_ExecFailure;
+    }
+    return exitStatus == 0 ? EProbeOutcome::E_Success : EProbeOutcome::E_StagedFailure;
 }
 
 } // namespace
@@ -72,7 +103,21 @@ BOOST_AUTO_TEST_SUITE(CSandboxUserNamespaceProbeTest_Linux)
 
 BOOST_AUTO_TEST_CASE(testMatchesRequiredMode) {
     const char* mode = std::getenv("ML_SANDBOX2_REQUIRE");
-    const bool probeSucceeded = runProbe();
+    const EProbeOutcome outcome = runProbe();
+
+    // An exec/setup failure means the payload never ran at all - a broken
+    // test harness (missing build artifact, CMake wiring regression, bad
+    // permissions), not a probe result. Never meaningful in any mode, so
+    // fail outright before consulting ML_SANDBOX2_REQUIRE - in particular,
+    // this must never be allowed to satisfy fail_closed's "probe failed"
+    // check vacuously.
+    if (outcome == EProbeOutcome::E_ExecFailure) {
+        BOOST_FAIL("ml_sandbox_userns_probe payload could not be exec'd "
+                   "(exit 126/127) - test harness is broken, not a "
+                   "genuine probe result");
+    }
+
+    const bool probeSucceeded = outcome == EProbeOutcome::E_Success;
 
     if (mode == nullptr) {
         // Ambient mode: diagnostic only - never load-bearing.
