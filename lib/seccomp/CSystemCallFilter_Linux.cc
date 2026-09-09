@@ -8,9 +8,21 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
+/*
+ * NOTE: This seccomp filter is being gradually replaced by Sandbox2 policies
+ * for processes that are spawned via CDetachedProcessSpawner. The allowed
+ * syscall set lives in CPytorchInferenceSyscallAllowlist.h, the single
+ * machine-readable declaration this filter is generated from; a future
+ * Sandbox2 policy is expected to consume the same declaration for its
+ * explicit grants.
+ */
 #include <seccomp/CSystemCallFilter.h>
 
 #include <core/CLogger.h>
+
+#include <seccomp/CPytorchInferenceSyscallAllowlist.h>
+#include <seccomp/CSeccompFilterBuilder.h>
 
 #include <cerrno>
 #include <cstddef>
@@ -30,125 +42,64 @@ namespace {
 // The old x32 ABI always has bit 30 set in the sys call numbers.
 // The x64 ABI should fail these calls
 const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
+}
 
-const struct sock_filter FILTER[] = {
+std::vector<sock_filter> buildSyscallAllowlistProgram(const std::vector<int>& allowedSyscalls) {
+    const auto numSyscalls = static_cast<std::uint32_t>(allowedSyscalls.size());
+
+    std::vector<sock_filter> program;
+    program.reserve(numSyscalls + 6);
+
     // Reject non-native ABIs before matching syscall numbers.  Without this,
     // an x86_64 process can issue int 0x80 (i386) and hit number collisions —
-    // e.g. i386 socketcall (102) matches the allowlisted x86_64 getuid (102).
-    // Hardening in response to a privately reported ML seccomp-bypass finding.
-    // This prefix is self-contained (immediate RET on mismatch) so the relative
-    // jump offsets in the nr allowlist below are unchanged.
-    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, arch)),
+    // e.g. i386 socketcall (102) matches an allowlisted x86_64 syscall with
+    // the same number. Hardening in response to a privately reported ML
+    // seccomp-bypass finding. This prefix is self-contained (immediate RET
+    // on mismatch), so it never affects the jump offsets below.
+    program.push_back(
+        BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, arch)));
 #ifdef __x86_64__
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
+    program.push_back(BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0));
 #elif defined(__aarch64__)
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_AARCH64, 1, 0),
-#endif
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA)),
-
-    // Load the system call number into accumulator
-    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
-
-#ifdef __x86_64__
-// The statx, rseq and clone3 syscalls won't be defined on a RHEL/CentOS 7 build
-// machine, but might exist on the kernel we run on
-#ifndef __NR_statx
-#define __NR_statx 332
-#endif
-#ifndef __NR_rseq
-#define __NR_rseq 334
-#endif
-#ifndef __NR_clone3
-#define __NR_clone3 435
-#endif
-    // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 56, 0),
-    // If any sys call filters are added or removed then the jump
-    // destination for each statement including the one above must
-    // be updated accordingly
-
-    // Allowed architecture-specific sys calls, jump to return allow on match
-    // Some of these are not used in latest glibc, and not supported in Linux
-    // kernels for recent architectures, but in a few cases different sys calls
-    // are used on different architectures
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 56, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 55, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 54, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 53, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 52, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 51, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 50, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 49, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 48, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 47, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 46, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 45, 0),
-#elif defined(__aarch64__)
-// The statx, rseq and clone3 syscalls won't be defined on a RHEL/CentOS 7 build
-// machine, but might exist on the kernel we run on
-#ifndef __NR_statx
-#define __NR_statx 291
-#endif
-#ifndef __NR_rseq
-#define __NR_rseq 293
-#endif
-#ifndef __NR_clone3
-#define __NR_clone3 435
-#endif
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 45, 0),
+    program.push_back(BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_AARCH64, 1, 0));
 #else
 #error Unsupported hardware architecture
 #endif
+    program.push_back(BPF_STMT(BPF_RET | BPF_K,
+                               SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA)));
 
-    // Allowed sys calls for all architectures, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fcntl, 44, 0), // for fdopendir
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrusage, 43, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpid, 42, 0), // for pthread_kill
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statx, 41, 0), // for create_directories
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 40, 0), // for unique_path
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 39, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 38, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 37, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 36, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpriority, 35, 0), // for nice
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setpriority, 34, 0), // for nice
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 33, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 32, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 31, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 30, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 29, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 28, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 27, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 26, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 25, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone3, 24, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 23, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 22, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdirat, 21, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlinkat, 20, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 19, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 18, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_tgkill, 17, 0), // for the crash handler
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigaction, 16, 0), // for the crash handler
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 15, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigprocmask, 14, 0), // for recent pthread_create
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rseq, 13, 0), // for recent pthread_create
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_futex, 12, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_madvise, 11, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_nanosleep, 10, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_set_robust_list, 9, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mprotect, 8, 0), // for malloc arenas and pthread stacks
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mremap, 7, 0), // for malloc arenas
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_munmap, 6, 0), // for malloc arenas
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mmap, 5, 0),   // for malloc arenas
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getuid, 4, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit_group, 3, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_brk, 2, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit, 1, 0),
+    // Load the system call number into accumulator
+    program.push_back(BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)));
+
+#ifdef __x86_64__
+    // Jump to the deny row (immediately after the last syscall row below,
+    // i.e. numSyscalls rows ahead) for calls using the x32 ABI, without
+    // checking any allowlisted syscall.
+    program.push_back(BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT,
+                               static_cast<std::uint8_t>(numSyscalls), 0));
+#endif
+
+    // Every syscall row jumps to the terminal SECCOMP_RET_ALLOW row on match.
+    // The jump distance is derived from the row's own index and the total
+    // count, so adding, removing or reordering an entry in allowedSyscalls
+    // never requires touching any other row.
+    for (std::uint32_t i = 0; i < numSyscalls; ++i) {
+        const auto jumpToAllow = static_cast<std::uint8_t>(numSyscalls - i);
+        program.push_back(BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K,
+                                   static_cast<std::uint32_t>(allowedSyscalls[i]),
+                                   jumpToAllow, 0));
+    }
+
     // Disallow call with error code EACCES
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA)),
+    program.push_back(BPF_STMT(BPF_RET | BPF_K,
+                               SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA)));
     // Allow call
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW)};
+    program.push_back(BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW));
+
+    return program;
+}
+
+namespace {
 
 bool canUseSeccompBpf() {
     // This call is expected to fail due to the nullptr argument
@@ -170,40 +121,44 @@ bool canUseSeccompBpf() {
 }
 }
 
-void CSystemCallFilter::installSystemCallFilter() {
-    if (canUseSeccompBpf()) {
-        LOG_DEBUG(<< "Seccomp BPF filters available");
-
-        // Ensure more permissive privileges cannot be set in future.
-        // This must be set before installing the filter.
-        // PR_SET_NO_NEW_PRIVS was aded in kernel 3.5
-        if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
-            LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::strerror(errno));
-            return;
-        }
-
-        struct sock_fprog prog = {
-            .len = static_cast<unsigned short>(sizeof(FILTER) / sizeof(FILTER[0])),
-            .filter = const_cast<sock_filter*>(FILTER)};
-
-        // Install the filter.
-        // prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, filter) was introduced
-        // in kernel 3.5. This is functionally equivalent to
-        // seccomp(SECCOMP_SET_MODE_FILTER, 0, filter) which was added in
-        // kernel 3.17. We choose the older more compatible function.
-        // Note this precludes the use of calling seccomp() with the
-        // SECCOMP_FILTER_FLAG_TSYNC which is acceptable if the filter
-        // is installed by the main thread before any other threads are
-        // spawned.
-        if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
-            LOG_ERROR(<< "Unable to install Seccomp BPF: " << std::strerror(errno));
-        } else {
-            LOG_DEBUG(<< "Seccomp BPF installed");
-        }
-
-    } else {
+ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
+    if (canUseSeccompBpf() == false) {
         LOG_DEBUG(<< "Seccomp BPF not available");
+        return ESystemCallFilterInstallOutcome::E_MechanismUnavailable;
     }
+    LOG_DEBUG(<< "Seccomp BPF filters available");
+
+    // Ensure more permissive privileges cannot be set in future.
+    // This must be set before installing the filter.
+    // PR_SET_NO_NEW_PRIVS was added in kernel 3.5
+    if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+        LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::strerror(errno));
+        return ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed;
+    }
+
+    const std::vector<sock_filter> program{
+        buildSyscallAllowlistProgram(pytorch_inference::legacyBpfAllowedSyscalls())};
+
+    struct sock_fprog prog = {.len = static_cast<unsigned short>(program.size()),
+                              .filter = const_cast<sock_filter*>(program.data())};
+
+    // Install the filter.
+    // prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, filter) was introduced
+    // in kernel 3.5. This is functionally equivalent to
+    // seccomp(SECCOMP_SET_MODE_FILTER, 0, filter) which was added in
+    // kernel 3.17. We choose the older more compatible function.
+    // Note this precludes the use of calling seccomp() with the
+    // SECCOMP_FILTER_FLAG_TSYNC which is acceptable if the filter
+    // is installed by the main thread before any other threads are
+    // spawned.
+    if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
+        LOG_ERROR(<< "Unable to install Seccomp BPF: " << std::strerror(errno));
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
+    }
+
+    LOG_DEBUG(<< "Seccomp BPF installed");
+    LOG_INFO(<< "ml.seccomp.installed");
+    return ESystemCallFilterInstallOutcome::E_Installed;
 }
 }
 }
