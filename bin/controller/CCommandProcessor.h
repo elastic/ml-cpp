@@ -11,8 +11,7 @@
 #ifndef INCLUDED_ml_controller_CCommandProcessor_h
 #define INCLUDED_ml_controller_CCommandProcessor_h
 
-#include <core/CDetachedProcessSpawner.h>
-
+#include "CProcessSpawnerRouter.h"
 #include "CResponseJsonWriter.h"
 
 #include <cstdint>
@@ -63,7 +62,16 @@ public:
     static const std::string KILL;
 
 public:
-    CCommandProcessor(const TStrVec& permittedProcessPaths, std::ostream& responseStream);
+    //! \param permittedProcessPaths Processes that may be started/killed.
+    //! \param sandboxedProcessPaths Subset of \p permittedProcessPaths for
+    //!        which the operator kill-switch token (\c --disableSandbox) is
+    //!        meaningful. Pass an explicit (possibly empty) list - there is
+    //!        no default that reuses \p permittedProcessPaths, because doing
+    //!        so would silently make every permitted process
+    //!        sandboxed-eligible.
+    CCommandProcessor(const TStrVec& permittedProcessPaths,
+                      const TStrVec& sandboxedProcessPaths,
+                      std::ostream& responseStream);
 
     //! Action commands read from the supplied \p commandStream until
     //! end-of-file is reached.
@@ -86,7 +94,13 @@ private:
 
 private:
     //! Used to spawn/kill the requested processes.
-    core::CDetachedProcessSpawner m_Spawner;
+    CProcessSpawnerRouter m_Spawner;
+
+    //! Processes for which the \c --disableSandbox controller-control token
+    //! is meaningful (see handleStart()). Kept separately from whatever
+    //! m_Spawner stores internally, since this is used to validate/reject
+    //! the token *before* any spawn decision is made.
+    TStrVec m_SandboxedProcessPaths;
 
     //! Used to write responses in JSON format to the response stream.
     CResponseJsonWriter m_ResponseWriter;
