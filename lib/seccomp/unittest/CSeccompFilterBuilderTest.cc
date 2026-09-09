@@ -259,4 +259,88 @@ BOOST_AUTO_TEST_CASE(testDecideDegradedModeActionFaultInjection) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testSandbox2LaunchedChildRecognisesOnlyExactlyOne) {
+    using ml::seccomp::sandbox2LaunchedChild;
+
+    // Exactly "1" - the value CSandboxedProcessSpawner_Linux.cc sets on a
+    // sandboxee - and nothing else.
+    BOOST_REQUIRE_EQUAL(true, sandbox2LaunchedChild("1"));
+
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild(nullptr));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild(""));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild("0"));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild("true"));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild("10"));
+    BOOST_REQUIRE_EQUAL(false, sandbox2LaunchedChild(" 1"));
+}
+
+BOOST_AUTO_TEST_CASE(testInProcessFilterSkippedEntirelyForSandbox2LaunchedChild) {
+    using ml::seccomp::applyInProcessSeccompFilter;
+    using ml::seccomp::EDegradedModeAction;
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+
+    // ML_SANDBOXED=1: the installer must never be invoked, no degraded-mode
+    // termination may be derived and no attestation marker may be produced -
+    // and that must hold for every outcome an installation attempt could
+    // have returned, including the failure classes that would otherwise
+    // terminate the launch now that hard termination is active.
+    const ESystemCallFilterInstallOutcome allOutcomes[]{
+        ESystemCallFilterInstallOutcome::E_Installed,
+        ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
+        ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
+        ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
+
+    for (const auto wouldHaveReturned : allOutcomes) {
+        bool installerCalled{false};
+        const auto result = applyInProcessSeccompFilter(
+            true, true, [&installerCalled, wouldHaveReturned] {
+                installerCalled = true;
+                return wouldHaveReturned;
+            });
+
+        BOOST_REQUIRE_EQUAL(false, installerCalled);
+        BOOST_REQUIRE_EQUAL(false, result.s_Attempted);
+        BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_ContinueDespiteFailure),
+                            static_cast<int>(result.s_Action));
+        BOOST_TEST_REQUIRE(result.s_AttestationMarker.empty());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
+    using ml::seccomp::applyInProcessSeccompFilter;
+    using ml::seccomp::EDegradedModeAction;
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+
+    // ML_SANDBOXED unset/not "1": behaviour is exactly the pre-existing
+    // install + decide + attest sequence, i.e. the Task 3 fault-injection
+    // coverage above still describes this path.
+    bool installerCalled{false};
+    const auto installed = applyInProcessSeccompFilter(false, true, [&installerCalled] {
+        installerCalled = true;
+        return ESystemCallFilterInstallOutcome::E_Installed;
+    });
+    BOOST_REQUIRE_EQUAL(true, installerCalled);
+    BOOST_REQUIRE_EQUAL(true, installed.s_Attempted);
+    BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_ContinueDespiteFailure),
+                        static_cast<int>(installed.s_Action));
+    BOOST_REQUIRE_EQUAL(
+        std::string("{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}"),
+        installed.s_AttestationMarker);
+
+    const ESystemCallFilterInstallOutcome failureModes[]{
+        ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
+        ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
+        ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
+
+    for (const auto outcome : failureModes) {
+        const auto failed =
+            applyInProcessSeccompFilter(false, true, [outcome] { return outcome; });
+        BOOST_REQUIRE_EQUAL(true, failed.s_Attempted);
+        BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_TerminateBeforeIo),
+                            static_cast<int>(failed.s_Action));
+        // A failed install attests nothing, exactly as before.
+        BOOST_TEST_REQUIRE(failed.s_AttestationMarker.empty());
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

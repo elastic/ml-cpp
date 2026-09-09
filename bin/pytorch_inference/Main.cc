@@ -304,23 +304,36 @@ int main(int argc, char** argv) {
     // an operator choice, never an unintended execution path.
     constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{true};
 
-    const ml::seccomp::ESystemCallFilterInstallOutcome seccompOutcome{
-        ml::seccomp::CSystemCallFilter::installSystemCallFilter()};
+    // The in-process filter belongs to the legacy/non-sandboxed route only.
+    // On the Sandbox2 route the executor's own policy is already the
+    // security boundary and ML_SANDBOXED is exactly "1" (design.md §Routing
+    // and degraded-mode contract point 5), so the whole step - install,
+    // degraded-mode decision, attestation marker - is skipped. Attempting
+    // it from inside an already-sandboxed environment would either fail
+    // (terminating every enforced-route launch, now that hard termination
+    // above is active) or succeed and emit the legacy-route attestation
+    // marker on a launch the controller's H4 signal reports as
+    // "route":"sandbox2".
+    const bool sandbox2Launched{ml::seccomp::sandbox2LaunchedChild()};
+    const ml::seccomp::SInProcessFilterResult seccompResult{ml::seccomp::applyInProcessSeccompFilter(
+        sandbox2Launched, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE,
+        [] { return ml::seccomp::CSystemCallFilter::installSystemCallFilter(); })};
 
-    if (ml::seccomp::decideDegradedModeAction(seccompOutcome, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE) ==
-        ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
-        LOG_FATAL(<< "Seccomp installation " << ml::seccomp::describe(seccompOutcome)
+    if (seccompResult.s_Attempted == false) {
+        LOG_DEBUG(<< "ML_SANDBOXED=1: skipping in-process system call filter "
+                     "installation; the Sandbox2 executor policy applies");
+    } else if (seccompResult.s_Action == ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
+        LOG_FATAL(<< "Seccomp installation " << ml::seccomp::describe(seccompResult.s_Outcome)
                   << "; terminating before untrusted model processing");
         return EXIT_FAILURE;
     }
 
     // Explicit structured attestation the controller/Elasticsearch can
     // assert on directly, rather than inferring readiness from the absence
-    // of a fatal log line above.
-    const std::string degradedModeMarker{
-        ml::seccomp::degradedModeAttestationMarker(seccompOutcome)};
-    if (degradedModeMarker.empty() == false) {
-        LOG_INFO(<< degradedModeMarker);
+    // of a fatal log line above. Empty (never emitted) on the Sandbox2
+    // route, which installs no in-process filter to attest.
+    if (seccompResult.s_AttestationMarker.empty() == false) {
+        LOG_INFO(<< seccompResult.s_AttestationMarker);
     }
 
     if (ioMgr.initIo() == false) {
