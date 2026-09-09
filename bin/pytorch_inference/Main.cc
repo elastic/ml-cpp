@@ -296,13 +296,13 @@ int main(int argc, char** argv) {
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
-    // Internal switch, not an operator setting: it stays false until the
-    // controller can route around Sandbox2 explicitly and guarantee that a
-    // degraded-mode (no-Sandbox2) launch was a deliberate operator choice
-    // rather than the only option this process has. Flipping it on today
-    // would terminate every launch on a host lacking seccomp BPF, with no
-    // operator fallback to select instead.
-    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
+    // Internal switch now enabled: CProcessSpawnerRouter (Task 2) guarantees
+    // that a degraded-mode (no-Sandbox2) launch is never an accidental
+    // fallback from a failed Sandbox2 attempt, only ever an explicit
+    // --disableSandbox route decision by the controller. This invariant makes
+    // termination on seccomp failure safe: a failed degraded launch is always
+    // an operator choice, never an unintended execution path.
+    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{true};
 
     const ml::seccomp::ESystemCallFilterInstallOutcome seccompOutcome{
         ml::seccomp::CSystemCallFilter::installSystemCallFilter()};
