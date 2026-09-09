@@ -296,13 +296,32 @@ int main(int argc, char** argv) {
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
-    // Internal switch now enabled: CProcessSpawnerRouter (Task 2) guarantees
-    // that a degraded-mode (no-Sandbox2) launch is never an accidental
-    // fallback from a failed Sandbox2 attempt, only ever an explicit
-    // --disableSandbox route decision by the controller. This invariant makes
-    // termination on seccomp failure safe: a failed degraded launch is always
-    // an operator choice, never an unintended execution path.
-    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{true};
+    // Internal switch, deliberately still OFF (log-and-continue on a failed
+    // in-process seccomp installation, exactly as before typed routing).
+    //
+    // Turning it on is only safe once a degraded/legacy-route launch is
+    // guaranteed to be a deliberate decision rather than the production
+    // default. CProcessSpawnerRouter (Task 2) supplies half of that
+    // guarantee - it never falls back to the legacy spawner after a failed
+    // Sandbox2 attempt - but the controller currently *defaults* the
+    // no-token case to the legacy route while ML_SANDBOX2_DEFAULT_ENFORCED
+    // is off (the shipped, dormant state; see
+    // bin/controller/CCommandProcessor.cc). So during the dormant window
+    // every ordinary pytorch_inference launch is a degraded-route launch,
+    // and terminating on seccomp-install failure would fail every launch on
+    // a host lacking usable seccomp BPF (restricted containers, some CI
+    // images) with no operator fallback setting to select instead - a
+    // regression on exactly the launches the dormant window must leave
+    // untouched.
+    //
+    // Activate this together with the change that stops the legacy route
+    // being the default - i.e. when this constant is tied to the same
+    // ML_SANDBOX2_DEFAULT_ENFORCED-style gating, or when the Elasticsearch
+    // operator setting lands and flips the default to Sandbox2. At that
+    // point a degraded launch really is only ever reachable via an
+    // explicit, controller-validated --disableSandbox token, which is what
+    // makes hard termination safe.
+    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
 
     // The in-process filter belongs to the legacy/non-sandboxed route only.
     // On the Sandbox2 route the executor's own policy is already the
@@ -310,9 +329,9 @@ int main(int argc, char** argv) {
     // and degraded-mode contract point 5), so the whole step - install,
     // degraded-mode decision, attestation marker - is skipped. Attempting
     // it from inside an already-sandboxed environment would either fail
-    // (terminating every enforced-route launch, now that hard termination
-    // above is active) or succeed and emit the legacy-route attestation
-    // marker on a launch the controller's H4 signal reports as
+    // (which would terminate every enforced-route launch once hard
+    // termination above is activated) or succeed and emit the legacy-route
+    // attestation marker on a launch the controller's H4 signal reports as
     // "route":"sandbox2".
     const bool sandbox2Launched{ml::seccomp::sandbox2LaunchedChild()};
     const ml::seccomp::SInProcessFilterResult seccompResult{ml::seccomp::applyInProcessSeccompFilter(

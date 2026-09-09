@@ -90,11 +90,15 @@ enum class EDegradedModeAction {
 //! launch was a deliberate operator choice would fail every launch on a
 //! host lacking seccomp BPF, with no operator fallback setting to select
 //! instead. It is only safe to pass true where a degraded-mode launch is
-//! guaranteed to be a deliberate route decision rather than an accidental
-//! fallback from a failed Sandbox2 attempt; bin/controller's
-//! CProcessSpawnerRouter provides that guarantee (it never retries a failed
-//! Sandbox2 spawn through the legacy spawner), which is why
-//! bin/pytorch_inference/Main.cc passes true. This decision only ever
+//! guaranteed to be a deliberate route decision rather than the production
+//! default. bin/controller's CProcessSpawnerRouter provides half of that
+//! guarantee (it never retries a failed Sandbox2 spawn through the legacy
+//! spawner), but while CCommandProcessor's no-token default is still the
+//! legacy route - the shipped, dormant state, gated on
+//! ML_SANDBOX2_DEFAULT_ENFORCED - an ordinary launch *is* a degraded-route
+//! launch, so bin/pytorch_inference/Main.cc passes false. See the comment
+//! at TERMINATE_ON_DEGRADED_SECCOMP_FAILURE there for when it flips.
+//! This decision only ever
 //! applies to a launch that installs its own in-process filter at all - see
 //! sandbox2LaunchedChild() and applyInProcessSeccompFilter() below.
 inline EDegradedModeAction decideDegradedModeAction(ESystemCallFilterInstallOutcome outcome,
@@ -130,8 +134,12 @@ inline std::string degradedModeAttestationMarker(ESystemCallFilterInstallOutcome
 //! design.md §Routing and degraded-mode contract point 5: pytorch_inference
 //! skips in-process seccomp only when ML_SANDBOXED is *exactly* "1", the
 //! value CSandboxedProcessSpawner_Linux.cc sets on a Sandbox2-launched
-//! child (and which CDetachedProcessSpawner strips from every legacy-route
-//! child's environment). Any other value - unset, "", "0", "true", "10" -
+//! child. It is stripped from every legacy-route child's environment by
+//! lib/core/CDetachedProcessSpawner.cc (detail::buildChildEnvironment(),
+//! declared in include/core/CDetachedProcessSpawner.h), so an inherited or
+//! injected ML_SANDBOXED in the controller's own environment can never
+//! suppress a legacy-route child's mandatory in-process filter. Any other
+//! value - unset, "", "0", "true", "10" -
 //! is a legacy/non-sandboxed launch that must install its own filter.
 inline bool sandbox2LaunchedChild(const char* mlSandboxedEnv) {
     return mlSandboxedEnv != nullptr && std::string{mlSandboxedEnv} == "1";
