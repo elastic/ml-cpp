@@ -9,19 +9,22 @@
 # limitation.
 #
 
-# MlSandbox is a dormant dependency foundation: it links Sandbox2/Abseil and
-# builds/tests a runnable Sandbox2 forkserver on Linux, but no controller or
-# pytorch_inference routing depends on it yet. The typed launch policy,
-# process spawner, and controller wiring land in follow-up PRs.
+# MlSandbox links Sandbox2/Abseil and builds a runnable Sandbox2 forkserver
+# on Linux, and now a typed filesystem/network launch policy for a
+# pytorch_inference child. No controller or pytorch_inference routing
+# depends on it yet - the process spawner and controller wiring land in
+# follow-up PRs.
 
 project("ML Sandbox")
 
 set(ML_LINK_LIBRARIES
   MlCore
+  MlSeccomp
   )
 
 set(SRCS
   CMlSandboxAvailability.cc
+  CPytorchInferenceSandboxPolicy.cc
   )
 
 ml_add_library(MlSandbox STATIC ${SRCS})
