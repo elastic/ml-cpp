@@ -43,17 +43,24 @@ namespace sandbox {
 //! be reused by an unrelated process while a stale monitor or a delayed
 //! terminateChild() call is still in flight (design.md §"Spawn lifecycle
 //! and ownership", LI7). The lifecycle below is the explicit state machine
-//! every live registry entry moves through; see design.md's mermaid
-//! diagram for the full transition set. This header declares the state
-//! shape and public API only - spawn()'s kill-and-reap guard, injectable
-//! seams, and pidfd outcome classification land in later tasks of
+//! every live registry entry moves through; see the Sandbox2 rebuild plan's
+//! (docs/projects/mlcpp-sandbox2-pr2873/sandbox2_clean_rebuild_3df1182e.plan.md)
+//! Prepared->Launched->IdentityCaptured->Registered->Monitoring->Reaped
+//! sequence for the full transition set, and design.md's mermaid diagram for
+//! the related-but-not-identical high-level lifecycle. This header declares
+//! the state shape and public API only - spawn()'s kill-and-reap guard,
+//! injectable seams, and pidfd outcome classification land in later tasks of
 //! docs/projects/mlcpp-sandbox2-pr2873/pr-d-lifecycle.plan.md.
 class CSandboxedProcessSpawner {
 public:
     using TStrVec = std::vector<std::string>;
 
     //! Explicit lifecycle states a registry entry moves through, mirroring
-    //! design.md's mermaid diagram one-for-one. No state is skipped and no
+    //! the state machine described in the Sandbox2 rebuild plan (PR D scope)
+    //! -- design.md's mermaid diagram covers the same overall lifecycle but
+    //! does not include E_IdentityCaptured, which is added here per the
+    //! rebuild plan's explicit Prepared->Launched->IdentityCaptured->
+    //! Registered->Monitoring->Reaped sequence. No state is skipped and no
     //! state is inferred from a combination of booleans.
     enum class EChildLifecycleState {
         E_Prepared,             //!< Launch spec validated; process not yet started.
