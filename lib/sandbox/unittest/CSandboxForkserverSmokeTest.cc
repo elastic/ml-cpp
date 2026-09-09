@@ -18,6 +18,13 @@
 // 3rd_party/patches/sandboxed-api/ - can actually fork, exec, and reap a
 // child process end-to-end. Typed launch policy and syscall filtering are
 // out of scope here and land in later PRs of that plan.
+//
+// The payload is dynamically linked, so AddLibrariesForBinary() mounts its
+// shared-library dependencies into the sandbox namespace; without it,
+// Sandbox2's forkserver fails execveat with ENOENT (verified: elastic/ml-cpp
+// CI's build image has no static libc/libm archives, ruling out the
+// simpler static-link approach used by upstream's own
+// examples/static/static_bin.cc).
 
 #include <sandbox/CMlSandboxAvailability.h>
 
@@ -52,8 +59,13 @@ BOOST_AUTO_TEST_CASE(testForkserverRunsPayloadToCompletion) {
     // DangerDefaultAllowAll is deliberately permissive: this test exercises
     // the forkserver plumbing only, not the (not-yet-implemented) sandbox
     // policy. Do not copy this policy into production or security-relevant
-    // test code.
-    auto policy = sandbox2::PolicyBuilder().DangerDefaultAllowAll().BuildOrDie();
+    // test code. AddLibrariesForBinary mounts the payload's shared-library
+    // dependencies (ldd-derived) so the dynamic loader can find them inside
+    // the sandbox namespace.
+    auto policy = sandbox2::PolicyBuilder()
+                      .DangerDefaultAllowAll()
+                      .AddLibrariesForBinary(payloadPath)
+                      .BuildOrDie();
 
     sandbox2::Sandbox2 s2(std::move(executor), std::move(policy));
     sandbox2::Result result = s2.Run();

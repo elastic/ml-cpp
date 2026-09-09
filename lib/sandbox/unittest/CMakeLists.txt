@@ -36,19 +36,19 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Deliberately-dependency-free sandboxee payload for the smoke test above.
   # Built with plain add_executable rather than ml_add_non_distributed_executable:
   # it has no ml-cpp library dependencies, no ML_LINK_LIBRARIES, and must not
-  # be confused with a distributable ml-cpp binary. Statically linked (as
-  # upstream sandboxed-api's own examples/static/static_bin.cc is) so the
-  # sandboxee has no dynamic-loader dependency for Sandbox2 to mount -
-  # PolicyBuilder::AddLibrariesForBinary() ldd-mounting is real production
-  # policy work that belongs to a later PR, not this dormant-foundation smoke
-  # test.
+  # be confused with a distributable ml-cpp binary. Dynamically linked (the
+  # default) - a static build was tried first to sidestep
+  # PolicyBuilder::AddLibrariesForBinary(), matching upstream sandboxed-api's
+  # own examples/static/static_bin.cc, but the ml-cpp CI build image
+  # (docker.elastic.co/ml-dev/ml-linux-build) has no static libc/libm
+  # archives (`ld: cannot find -lm/-lc`), so the smoke test itself now calls
+  # AddLibrariesForBinary() on the dynamically-linked payload instead.
   add_executable(sandbox2_smoke_payload EXCLUDE_FROM_ALL
     payloads/sandbox_smoke_payload.cc
     )
   set_target_properties(sandbox2_smoke_payload PROPERTIES
-    POSITION_INDEPENDENT_CODE FALSE
+    POSITION_INDEPENDENT_CODE TRUE
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
-    LINK_FLAGS "-static"
     )
 endif()
 
