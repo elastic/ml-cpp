@@ -254,54 +254,56 @@ def _parse_json_objects(new_content):
 
 
 def pid_alive(pid):
-    """Best-effort liveness check via /proc - works for the sandboxed child
-    even though it lives in its own PID namespace, because Sandbox2 forks it
-    directly from a monitor thread inside the controller process, so it is
-    always visible under its real host PID from the host's own /proc."""
+    """Best-effort liveness check via /proc. Works for the Sandbox2 sandboxee
+    too: it runs in its own PID namespace but is still visible under its real
+    host PID in the host's own /proc, which is the PID the controller logs and
+    the PID the controller's own registry keys kill/reap on."""
     return os.path.exists(f'/proc/{pid}')
 
 
-def find_child_pid(parent_pid, exe_name, not_before, timeout=PID_DISCOVERY_TIMEOUT):
-    """Find a process whose PPid is parent_pid and whose comm matches
-    exe_name, created no earlier than not_before (a time.time() value).
+#! Both spawner backends log the child's host PID on a successful spawn, and
+#! both lines are captured on the controller's log pipe:
+#!   lib/sandbox/CSandboxedProcessSpawner_Linux.cc
+#!     LOG_INFO(<< "Spawned sandboxed process " << processPath << " with PID " << sandboxPid)
+#!   lib/core/CDetachedProcessSpawner.cc
+#!     LOG_DEBUG(<< "Spawned '" << processPath << "' with PID " << childPid)
+SPAWNED_PID_RE = re.compile(
+    r"Spawned (?:sandboxed process )?'?(?P<path>[^'\s]+)'? with PID (?P<pid>\d+)")
 
-    This is the only way to learn the sandboxed child's PID: the controller
-    protocol's 'start' response never returns one (see
-    bin/controller/CCommandProcessor.cc handleStart()), so per-case
-    kill/reap cleanup assertions (Oracle rule #5) have to discover it
-    out-of-band the same way an operator debugging a stuck deployment would.
+
+def find_child_pid(controller, process_path, since_offset, timeout=PID_DISCOVERY_TIMEOUT):
+    """Discover the child's host PID by parsing the controller's own log
+    output, scoped to the bytes appended since since_offset (the offset taken
+    immediately before the 'start' command was sent).
+
+    Why not /proc PPid filtering: the Sandbox2 sandboxee is *not* a direct
+    child of the controller process - it is forked by the Sandbox2 forkserver
+    (see lib/sandbox/CSandboxedProcessSpawner_Linux.cc), so a
+    `PPid == controller.process.pid` filter never matches on the sandboxed
+    route and every sandboxed case would fail at PID discovery. Only the
+    unsandboxed control (a real CDetachedProcessSpawner posix_spawn child)
+    would ever pass such a filter.
+
+    The controller's 'start' response carries no PID (see
+    bin/controller/CCommandProcessor.cc handleStart()), so the log line each
+    spawner already emits is the discovery channel - the same one an operator
+    debugging a stuck deployment reads. Deliberately uniform across both
+    routes: one mechanism, exercised by every case including the control.
     """
+    log_path = controller.control_dir / 'controller_log_output.txt'
     deadline = time.time() + timeout
-    comm_target = exe_name[:15]  # /proc/<pid>/comm truncates to TASK_COMM_LEN-1
-    while time.time() < deadline:
-        try:
-            pid_entries = [p for p in os.listdir('/proc') if p.isdigit()]
-        except OSError:
-            pid_entries = []
-        for pid_str in pid_entries:
-            try:
-                with open(f'/proc/{pid_str}/status') as f:
-                    status = f.read()
-            except OSError:
-                continue
-            match = re.search(r'^PPid:\s*(\d+)', status, re.MULTILINE)
-            if match is None or int(match.group(1)) != parent_pid:
-                continue
-            try:
-                with open(f'/proc/{pid_str}/comm') as f:
-                    comm = f.read().strip()
-            except OSError:
-                continue
-            if comm != comm_target:
-                continue
-            try:
-                ctime = os.stat(f'/proc/{pid_str}').st_ctime
-            except OSError:
-                ctime = time.time()
-            if ctime >= not_before - 1:
-                return int(pid_str)
+    while True:
+        pid = None
+        for match in SPAWNED_PID_RE.finditer(_read_new_content(log_path, since_offset)):
+            if match.group('path') == process_path:
+                # Last match wins: within one case only one start command is
+                # issued, but a retry would append a newer line.
+                pid = int(match.group('pid'))
+        if pid is not None:
+            return pid
+        if time.time() >= deadline:
+            return None
         time.sleep(0.1)
-    return None
 
 
 def tail_contains(path, needle, deadline):
@@ -534,6 +536,12 @@ class ControllerProcess:
         bin/controller/CCommandProcessor.cc handleKill() ->
         CSandboxedProcessSpawner::terminateChild())."""
         return self.send_command_and_wait(command_id, 'kill', [str(pid)], timeout=timeout)
+
+    def log_offset(self):
+        """Current size of the captured controller log, for scoping a later
+        find_child_pid() scan to one command's own output."""
+        log_file = self.control_dir / 'controller_log_output.txt'
+        return log_file.stat().st_size if log_file.exists() else 0
 
     def check_controller_logs(self, max_lines=50):
         log_file = self.control_dir / 'controller_log_output.txt'
@@ -772,7 +780,10 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
     pid = None
 
     try:
-        launch_start = time.time()
+        # Taken before the start command so find_child_pid() only ever sees
+        # this case's own "Spawned ... with PID" line, never a previous
+        # case's.
+        log_offset = controller.log_offset()
         cmd_args = [
             f'./{pytorch_name}',
             f'--restore={restore_path}',
@@ -800,11 +811,12 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
             return result, reached, target_file_created, response, leaked_address_seen, pid
         result.info(f"Controller accepted start: {response.get('reason')}")
 
-        pid = find_child_pid(controller.process.pid, pytorch_name, launch_start)
+        pid = find_child_pid(controller, f'./{pytorch_name}', log_offset)
         if pid is None:
             result.fail(
-                "Could not discover pytorch_inference child PID under /proc within "
-                f"{PID_DISCOVERY_TIMEOUT}s of a successful start response")
+                "Could not discover pytorch_inference child PID from the controller's "
+                f"'Spawned ... with PID' log line within {PID_DISCOVERY_TIMEOUT}s of a "
+                "successful start response")
         else:
             result.info(f"Discovered child PID: {pid}")
 
