@@ -338,6 +338,11 @@ realMonitorLaunchWithCompletionSignal(std::shared_ptr<std::promise<void>> donePr
         }
         std::thread([bodyPtr, donePromise]() mutable {
             (*bodyPtr)();
+            bodyPtr.reset(); // release this thread's reference BEFORE signalling, so a waiter
+                              // observing "done" is guaranteed this thread no longer holds the
+                              // closure (and therefore the Sandbox2 handle it captured) - restores
+                              // the ordering guarantee an earlier round's I5 fix established
+                              // (self-review round 3, finding S1).
             donePromise->set_value();
         }).detach();
         return true;
@@ -974,6 +979,17 @@ BOOST_AUTO_TEST_CASE(testDescriptorCountReturnsToBaselineAfterSpawnTerminateClea
     BOOST_TEST_REQUIRE(spawner.terminateChild(childPid));
     BOOST_TEST_REQUIRE(static_cast<bool>(monitorBody));
     monitorBody(); // real cleanup path: closes the pidfd, erases the entry.
+
+    // Self-review round 3, finding M1: monitorBody's closure (built by
+    // spawn()'s defaultMonitorLaunch path) captures `sandbox` -
+    // shared_ptr<sandbox2::Sandbox2> - BY VALUE and never releases it during
+    // execution; invoking the closure does not destroy the closure itself.
+    // This `monitorBody` local therefore still keeps the Sandbox2 instance
+    // (and its supervisor-side comms socketpair fd, only closed by
+    // ~Comms()/~Sandbox2()) alive until it goes out of scope. Release it
+    // explicitly here, BEFORE the fd-baseline check, so ~Sandbox2() (and the
+    // comms fd close) has already run when openFdCount() is taken.
+    monitorBody = nullptr;
 
     BOOST_CHECK_EQUAL(openFdCount(), before);
 }
