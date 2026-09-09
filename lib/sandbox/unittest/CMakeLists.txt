@@ -43,6 +43,7 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # are unavailable on non-Linux configure runs.
   list(APPEND SRCS CSandboxForkserverSmokeTest.cc)
   list(APPEND SRCS CPytorchInferenceSandboxPolicyMechanismTest_Linux.cc)
+  list(APPEND SRCS CSandboxedProcessSpawnerLifecycleTest_Linux.cc)
   list(APPEND ML_LINK_LIBRARIES sandbox2::sandbox2)
 
   # Deliberately-dependency-free sandboxee payload for the smoke test above.
@@ -73,6 +74,28 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     POSITION_INDEPENDENT_CODE TRUE
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
     )
+
+  # Long-lived sandboxee for CSandboxedProcessSpawnerLifecycleTest_Linux
+  # (Task 4). Unlike the two payloads above, this one is launched through
+  # CSandboxedProcessSpawner::spawn() itself (not a hand-built Sandbox2
+  # policy), which derives its filesystem policy's binDir/libDir from the
+  # payload's own resolved path: binDir is this payload's directory
+  # (payloads/) and libDir is binDir's *sibling* "lib" directory
+  # (${CMAKE_CURRENT_BINARY_DIR}/lib), matching the <install>/bin +
+  # <install>/lib pytorch_inference distribution layout spawn() assumes.
+  # That sibling directory does not otherwise exist in the unit test build
+  # tree; create it at configure time so PolicyBuilder::AddDirectory() never
+  # has to bind-mount a missing path. Empty is fine - the payload's actual
+  # shared-library dependencies (libc, libpthread, ld-linux) resolve via the
+  # fixed /lib, /lib64, /usr/lib, /usr/lib64 mounts the policy already adds.
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+  add_executable(lifecycle_signal_payload EXCLUDE_FROM_ALL
+    payloads/lifecycle_signal_payload.cc
+    )
+  set_target_properties(lifecycle_signal_payload PROPERTIES
+    POSITION_INDEPENDENT_CODE TRUE
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
+    )
 endif()
 
 ml_add_test_executable(sandbox ${SRCS})
@@ -88,5 +111,12 @@ if(TARGET ml_sandbox_probe)
   add_dependencies(ml_test_sandbox ml_sandbox_probe)
   target_compile_definitions(ml_test_sandbox PRIVATE
     ML_SANDBOX2_PROBE_PAYLOAD="$<TARGET_FILE:ml_sandbox_probe>"
+    )
+endif()
+
+if(TARGET lifecycle_signal_payload)
+  add_dependencies(ml_test_sandbox lifecycle_signal_payload)
+  target_compile_definitions(ml_test_sandbox PRIVATE
+    ML_SANDBOX2_LIFECYCLE_PAYLOAD="$<TARGET_FILE:lifecycle_signal_payload>"
     )
 endif()
