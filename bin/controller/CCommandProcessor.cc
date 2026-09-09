@@ -15,7 +15,9 @@
 #include <core/CStringUtils.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <istream>
+#include <string>
 
 namespace {
 const std::string TAB(1, '\t');
@@ -24,6 +26,20 @@ const std::string EMPTY_STRING;
 //! unrecognised "--" prefixed token is passed through to the spawned
 //! process unchanged - this task does not invent a general token schema.
 const std::string DISABLE_SANDBOX_TOKEN{"--disableSandbox"};
+
+//! Internal controller option gating the no-token default route. Not an
+//! operator setting and not part of the command wire format: it exists so
+//! the typed-routing machinery can ship dormant (legacy default) until
+//! Elasticsearch owns the setting that turns mandatory Sandbox2 on.
+const char* SANDBOX2_DEFAULT_ENFORCED_ENV{"ML_SANDBOX2_DEFAULT_ENFORCED"};
+
+//! Exactly "1" and nothing else is truthy - one canonical spelling, the
+//! same one the sandboxee's own ML_SANDBOXED=1 contract uses. Anything else
+//! (unset, "", "0", "true", "TRUE", "yes") leaves the option off.
+bool sandbox2DefaultEnforced() {
+    const char* value{::getenv(SANDBOX2_DEFAULT_ENFORCED_ENV)};
+    return value != nullptr && std::string{value} == "1";
+}
 }
 
 namespace ml {
@@ -37,7 +53,12 @@ CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths,
                                      const TStrVec& sandboxedProcessPaths,
                                      std::ostream& responseStream)
     : m_Spawner{permittedProcessPaths, sandboxedProcessPaths},
-      m_SandboxedProcessPaths{sandboxedProcessPaths}, m_ResponseWriter{responseStream} {
+      m_Sandbox2DefaultEnabled{sandbox2DefaultEnforced()}, m_ResponseWriter{responseStream} {
+    if (m_Sandbox2DefaultEnabled) {
+        LOG_INFO(<< SANDBOX2_DEFAULT_ENFORCED_ENV
+                 << "=1: a start command with no " << DISABLE_SANDBOX_TOKEN
+                 << " token requires Sandbox2 for configured sandboxed process paths");
+    }
 }
 
 void CCommandProcessor::processCommands(std::istream& commandStream) {
@@ -121,11 +142,33 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
         return false;
     }
 
+    // One shared predicate with the router (which uses the same call to gate
+    // dispatch and H4-signal emission), never a second std::find over a
+    // second copy of the list.
+    const bool isConfiguredSandboxedPath{m_Spawner.isSandboxedProcessPath(processPath)};
+
     CProcessSpawnerRouter::ERoute route{CProcessSpawnerRouter::ERoute::E_Sandbox2};
-    if (disableSandboxCount == 1) {
-        bool isConfiguredSandboxedPath{std::find(m_SandboxedProcessPaths.begin(),
-                                                  m_SandboxedProcessPaths.end(),
-                                                  processPath) != m_SandboxedProcessPaths.end()};
+    if (disableSandboxCount == 0) {
+        // No token: the route is only a decision at all for a configured
+        // sandboxed process path (every other permitted process dispatches
+        // to the legacy spawner either way, and must not be described as an
+        // explicitly-selected legacy route in the log).
+        //
+        // Ships dormant: with the internal option off (the default), the
+        // no-token case stays on the legacy route - byte-for-byte the
+        // pre-typed-routing behaviour on every platform, including builds
+        // with no Sandbox2 support at all. With the option on it becomes
+        // mandatory Sandbox2 (E_Sandbox2, no automatic fallback, V2). The
+        // follow-up that flips the option is the Elasticsearch-side
+        // operator-setting change, not this one.
+        if (isConfiguredSandboxedPath && m_Sandbox2DefaultEnabled == false) {
+            route = CProcessSpawnerRouter::ERoute::E_Legacy;
+            LOG_DEBUG(<< "Routing '" << processPath
+                      << "' to the legacy path: no " << DISABLE_SANDBOX_TOKEN
+                      << " token and " << SANDBOX2_DEFAULT_ENFORCED_ENV
+                      << " is not set to 1");
+        }
+    } else if (disableSandboxCount == 1) {
         if (isConfiguredSandboxedPath == false) {
             std::string error{"Rejecting command: '" + DISABLE_SANDBOX_TOKEN +
                               "' is only valid for the configured sandboxed process, "
@@ -137,7 +180,12 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
         }
 
         // Operator kill-switch validated against this exact processPath:
-        // strip it before it reaches the spawner and route to legacy.
+        // strip it before it reaches the spawner and route to legacy. This
+        // is the one place the route's operator provenance is known
+        // (design.md point 6), so it is logged here rather than in the
+        // router, which only ever sees an already-decided route.
+        LOG_INFO(<< "Routing '" << processPath << "' to the legacy path: operator kill switch "
+                 << DISABLE_SANDBOX_TOKEN << " in command with ID " << id);
         route = CProcessSpawnerRouter::ERoute::E_Legacy;
         tokens.erase(firstDisableSandbox);
     }
