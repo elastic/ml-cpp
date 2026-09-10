@@ -430,6 +430,15 @@ def noDependenciesSpec(source) {
       include "**/date_time_zonespec.csv"
       // Copy licenses
       include "**/licenses/**"
+      // Copy the controller protocol/capability token (published at the
+      // zip root by buildZip - see its comment) into the nodeps zip too:
+      // the controller binary the token makes claims about ships only in
+      // this zip, so a build combining a locally-built nodeps with a
+      // downloaded deps snapshot must not assert the token from a
+      // different ml-cpp revision than the actual controller. dependenciesSpec
+      // above ships it too, via its lack of a matching exclude - this makes
+      // it present in BOTH zips, excluded from neither.
+      include "controller-protocol.version"
       includeEmptyDirs = false
     }
   }
