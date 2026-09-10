@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath
     // Two occurrences of the token must be rejected outright, even when
     // processPath IS the configured sandboxed path - never "last one
     // wins"/"first one wins".
-    const std::string OUT{"duplicate_reject_sandboxed_out.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"duplicate_reject_sandboxed_out.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -298,14 +298,14 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath
                                                     responseStream};
 
         std::string command{startCommand(10, PROCESS_PATH,
-                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT,
+                                         {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE,
                                           "--disableSandbox", "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
 
     // Rejected before any spawn: the copy must never have happened.
-    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
 
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":10,\"success\":false") != std::string::npos);
@@ -315,8 +315,8 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath
 BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnNonSandboxedPath) {
     // Duplicate-token rejection applies regardless of whether processPath
     // matches a configured sandboxed path.
-    const std::string OUT{"duplicate_reject_nonsandboxed_out.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"duplicate_reject_nonsandboxed_out.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -326,13 +326,13 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnNonSandboxedP
                                                     responseStream};
 
         std::string command{startCommand(11, PROCESS_PATH,
-                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT,
+                                         {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE,
                                           "--disableSandbox", "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
 
-    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
 
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":11,\"success\":false") != std::string::npos);
@@ -343,8 +343,8 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDisableSandboxTokenOnNonSandboxedPath) {
     // A single --disableSandbox token is only meaningful for the exact
     // configured sandboxed path; on any other permitted process it must be
     // rejected rather than silently ignored or passed through.
-    const std::string OUT{"single_reject_nonsandboxed_out.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"single_reject_nonsandboxed_out.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -354,12 +354,13 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDisableSandboxTokenOnNonSandboxedPath) {
                                                     responseStream};
 
         std::string command{startCommand(
-            12, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox"})};
+            12, PROCESS_PATH,
+            {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE, "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
 
-    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
 
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":12,\"success\":false") != std::string::npos);
@@ -372,8 +373,8 @@ BOOST_AUTO_TEST_CASE(testStartStripsDisableSandboxTokenForConfiguredSandboxedPat
     // be stripped before the underlying spawner ever sees it. Verified via
     // an observable side effect (arg count reaching the shell), not just
     // the response: if the token leaked through, $# would be 1 instead of 0.
-    const std::string OUT{"strip_token_arg_count.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"strip_token_arg_count.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -383,19 +384,20 @@ BOOST_AUTO_TEST_CASE(testStartStripsDisableSandboxTokenForConfiguredSandboxedPat
                                                     responseStream};
 
         std::string command{startCommand(
-            13, PROCESS_PATH, {"-c", "echo $# > " + OUT, "argv0name", "--disableSandbox"})};
+            13, PROCESS_PATH,
+            {"-c", "echo $# > " + TARGET_FILE, "argv0name", "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
     }
 
     std::this_thread::sleep_for(std::chrono::seconds{1});
 
-    std::ifstream ifs{OUT};
+    std::ifstream ifs{TARGET_FILE};
     BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
 
     // If the token had NOT been stripped, argv0name and --disableSandbox
     // would both reach the shell as positional args and $# would be 1.
@@ -410,8 +412,8 @@ BOOST_AUTO_TEST_CASE(testStartLeavesArgsUntouchedWhenTokenAbsent) {
     // spawner completely unmodified (default route is Sandbox2, but this
     // processPath isn't configured as sandboxed so it still dispatches to
     // the legacy spawner, same as pre-existing behaviour).
-    const std::string OUT{"absent_token_arg_count.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"absent_token_arg_count.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -421,19 +423,19 @@ BOOST_AUTO_TEST_CASE(testStartLeavesArgsUntouchedWhenTokenAbsent) {
                                                     responseStream};
 
         std::string command{startCommand(
-            14, PROCESS_PATH, {"-c", "echo $# > " + OUT, "argv0name", "extraArg"})};
+            14, PROCESS_PATH, {"-c", "echo $# > " + TARGET_FILE, "argv0name", "extraArg"})};
 
         BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
     }
 
     std::this_thread::sleep_for(std::chrono::seconds{1});
 
-    std::ifstream ifs{OUT};
+    std::ifstream ifs{TARGET_FILE};
     BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
 
     BOOST_REQUIRE_EQUAL(std::string{"1"}, content);
 
@@ -455,8 +457,8 @@ BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPat
     // not produce the file).
     ml::core::CUnSetEnv::unSetEnv("ML_SANDBOX2_DEFAULT_ENFORCED");
 
-    const std::string OUT{"sandbox2_default_dormant_out.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"sandbox2_default_dormant_out.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -465,20 +467,20 @@ BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPat
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{startCommand(16, PROCESS_PATH,
-                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+        std::string command{startCommand(
+            16, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})};
 
         BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
     }
 
     std::this_thread::sleep_for(std::chrono::seconds{1});
 
-    std::ifstream ifs{OUT};
+    std::ifstream ifs{TARGET_FILE};
     BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
     BOOST_REQUIRE_EQUAL(SLOGAN1, content);
 
     std::string response{responseStream.str()};
@@ -493,10 +495,10 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
     // decision in handleStart() through to the emitted signal.
     ml::core::CUnSetEnv::unSetEnv("ML_SANDBOX2_DEFAULT_ENFORCED");
 
-    const std::string OUT{"sandbox2_legacy_reason_out.txt"};
+    const std::string TARGET_FILE{"sandbox2_legacy_reason_out.txt"};
 
     // (a) No token, option off -> dormant_default.
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
     std::ostringstream dormantResponses;
     std::string dormantLogged{captureLogged([&] {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
@@ -505,10 +507,10 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
                                                     dormantResponses};
         BOOST_REQUIRE_EQUAL(
             true, processor.handleCommand(startCommand(
-                      20, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})));
+                      20, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
 
     BOOST_REQUIRE(dormantLogged.find("\"route\":\"legacy\"") != std::string::npos);
     BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"dormant_default\"") !=
@@ -520,20 +522,20 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
     // option's state (here explicitly on, so the token is the only reason
     // the legacy route could have been selected).
     CScopedSandbox2DefaultEnforced enforced{"1"};
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
     std::ostringstream killSwitchResponses;
     std::string killSwitchLogged{captureLogged([&] {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     killSwitchResponses};
-        BOOST_REQUIRE_EQUAL(
-            true, processor.handleCommand(startCommand(
-                      21, PROCESS_PATH,
-                      {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox"})));
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
+                                      21, PROCESS_PATH,
+                                      {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE,
+                                       "--disableSandbox"})));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
-    std::remove(OUT.c_str());
+    std::remove(TARGET_FILE.c_str());
 
     BOOST_REQUIRE(killSwitchLogged.find("\"route\":\"legacy\"") != std::string::npos);
     BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"kill_switch\"") !=
@@ -553,8 +555,8 @@ BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentAndDefaultEnfor
     // selected: had the route been E_Legacy, this copy would have succeeded
     // (see testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPath,
     // which is the same vector with the option off).
-    const std::string OUT{"sandbox2_route_selected_out.txt"};
-    std::remove(OUT.c_str());
+    const std::string TARGET_FILE{"sandbox2_route_selected_out.txt"};
+    std::remove(TARGET_FILE.c_str());
 
     std::ostringstream responseStream;
     {
@@ -565,13 +567,13 @@ BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentAndDefaultEnfor
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{startCommand(15, PROCESS_PATH,
-                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+        std::string command{startCommand(
+            15, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
 
-    BOOST_REQUIRE_EQUAL(true, fileAbsent(OUT));
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
 
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":15,\"success\":false") != std::string::npos);
@@ -584,8 +586,8 @@ BOOST_AUTO_TEST_CASE(testNonCanonicalTruthyValuesLeaveDefaultDormant) {
     // same fail-closed vector as above: with the option genuinely on the
     // command fails, so a *succeeding* command is proof it stayed off.
     for (const char* value : {"true", "TRUE", "yes", "0", ""}) {
-        const std::string OUT{"sandbox2_default_non_canonical_out.txt"};
-        std::remove(OUT.c_str());
+        const std::string TARGET_FILE{"sandbox2_default_non_canonical_out.txt"};
+        std::remove(TARGET_FILE.c_str());
 
         std::ostringstream responseStream;
         {
@@ -597,14 +599,14 @@ BOOST_AUTO_TEST_CASE(testNonCanonicalTruthyValuesLeaveDefaultDormant) {
                                                         responseStream};
 
             std::string command{startCommand(
-                17, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+                17, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})};
 
             BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
         }
 
         std::this_thread::sleep_for(std::chrono::seconds{1});
-        BOOST_REQUIRE_EQUAL(false, fileAbsent(OUT));
-        std::remove(OUT.c_str());
+        BOOST_REQUIRE_EQUAL(false, fileAbsent(TARGET_FILE));
+        std::remove(TARGET_FILE.c_str());
     }
 }
 #endif // !SANDBOX2_AVAILABLE
