@@ -19,7 +19,10 @@
 #include <core/CWindowsError.h>
 #include <core/WindowsSafe.h>
 
+#include <core/CStringUtils.h>
+
 #include <cstring>
+#include <cwchar>
 #include <map>
 
 namespace {
@@ -27,38 +30,38 @@ namespace {
 //! Environment variable name (without '=') that must never be inherited by a
 //! child spawned by this class. See
 //! ml::core::detail::isStrippedChildEnvEntry().
-const char* SANDBOXEE_MARKER_ENV_NAME{"ML_SANDBOXED"};
+const wchar_t* SANDBOXEE_MARKER_ENV_NAME{L"ML_SANDBOXED"};
 }
 
 namespace ml {
 namespace core {
 namespace detail {
 
-bool isStrippedChildEnvEntry(const char* entry) {
+bool isStrippedChildEnvEntry(const wchar_t* entry) {
     if (entry == nullptr) {
         return false;
     }
-    const std::size_t nameLength{::strlen(SANDBOXEE_MARKER_ENV_NAME)};
+    const std::size_t nameLength{::wcslen(SANDBOXEE_MARKER_ENV_NAME)};
     // Exact name match only: "ML_SANDBOXED=..." is stripped,
     // "ML_SANDBOXED_FOO=..." (a different variable that merely shares the
     // prefix) is not. Windows environment variable names are
     // case-INSENSITIVE OS-wide (GetEnvironmentVariable/SetEnvironmentVariable
     // and the CRT's getenv all normalise case internally on this platform),
     // and the child-side reader (CSystemCallFilter::sandbox2LaunchedChild(),
-    // via std::getenv) inherits that case-insensitivity. Use ::_strnicmp
-    // (the MSVC/Windows CRT case-insensitive strncmp) so a differently-cased
+    // via std::getenv) inherits that case-insensitivity. Use ::_wcsnicmp
+    // (the MSVC/Windows CRT case-insensitive wcsncmp) so a differently-cased
     // marker such as "ml_sandboxed=1" is still stripped here and cannot
     // bypass the filter.
-    return ::_strnicmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
-           entry[nameLength] == '=';
+    return ::_wcsnicmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
+           entry[nameLength] == L'=';
 }
 
-std::string buildChildEnvironmentBlock(const char* parentEnvironmentBlock) {
-    std::string block;
+std::wstring buildChildEnvironmentBlock(const wchar_t* parentEnvironmentBlock) {
+    std::wstring block;
     if (parentEnvironmentBlock != nullptr) {
-        const char* entry{parentEnvironmentBlock};
-        while (*entry != '\0') {
-            std::size_t entryLength{::strlen(entry)};
+        const wchar_t* entry{parentEnvironmentBlock};
+        while (*entry != L'\0') {
+            std::size_t entryLength{::wcslen(entry)};
             if (isStrippedChildEnvEntry(entry) == false) {
                 // Include the entry's own terminating NUL.
                 block.append(entry, entryLength + 1);
@@ -70,9 +73,9 @@ std::string buildChildEnvironmentBlock(const char* parentEnvironmentBlock) {
     // entry's own terminator. Handle the (unlikely) empty-block case
     // explicitly so it is still correctly double-NUL-terminated.
     if (block.empty()) {
-        block.append(std::size_t(2), '\0');
+        block.append(std::size_t(2), L'\0');
     } else {
-        block.push_back('\0');
+        block.push_back(L'\0');
     }
     return block;
 }
@@ -227,12 +230,24 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         cmdLine += CShellArgQuoter::quote(args[index]);
     }
 
-    STARTUPINFO startupInfo;
-    ::memset(&startupInfo, 0, sizeof(STARTUPINFO));
-    startupInfo.cb = sizeof(STARTUPINFO);
+    STARTUPINFOW startupInfo;
+    ::memset(&startupInfo, 0, sizeof(STARTUPINFOW));
+    startupInfo.cb = sizeof(STARTUPINFOW);
 
     PROCESS_INFORMATION processInformation;
     ::memset(&processInformation, 0, sizeof(PROCESS_INFORMATION));
+
+    // CreateProcessW (not CreateProcessA) is used throughout this function
+    // because lpEnvironment below must be a native UTF-16 block passed with
+    // CREATE_UNICODE_ENVIRONMENT - CreateProcess() does not support mixing
+    // an ANSI command line/application name with a Unicode environment
+    // block. processPath/cmdLine are converted to wide strings with
+    // CStringUtils::narrowToWide() (the established conversion helper in
+    // this codebase) purely for this call; they are not the source of the
+    // regression this switch fixes (see below).
+    const std::wstring wideProcessPath{CStringUtils::narrowToWide(
+        processPathHasExeExt ? processPath : processPath + ".exe")};
+    std::wstring wideCmdLine{CStringUtils::narrowToWide(cmdLine)};
 
     // The child inherits this process's environment with ML_SANDBOXED
     // removed. That variable is the Sandbox2 sandboxee marker (see
@@ -249,11 +264,19 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     // lpEnvironment (rather than 0, which would make CreateProcess()
     // inherit this process's environment completely unfiltered) is what
     // makes this stripping effective.
-    LPSTR parentEnvironmentBlock{::GetEnvironmentStringsA()};
-    std::string childEnvironmentBlock{
+    //
+    // GetEnvironmentStringsW()/CreateProcessW() end to end, deliberately:
+    // the parent's environment is native UTF-16, and reading it via the
+    // ANSI GetEnvironmentStringsA() (as this used to) round-trips it
+    // through the ANSI code page, which silently mangles any value not
+    // representable there (e.g. TEMP/USERPROFILE under a non-ASCII Windows
+    // username) to '?' for every Windows child - a regression the addition
+    // of this stripping logic must not introduce as a side effect.
+    LPWSTR parentEnvironmentBlock{::GetEnvironmentStringsW()};
+    std::wstring childEnvironmentBlock{
         detail::buildChildEnvironmentBlock(parentEnvironmentBlock)};
     if (parentEnvironmentBlock != 0) {
-        ::FreeEnvironmentStringsA(parentEnvironmentBlock);
+        ::FreeEnvironmentStringsW(parentEnvironmentBlock);
     }
 
     {
@@ -262,9 +285,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
-        if (CreateProcess(
-                (processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
-                const_cast<char*>(cmdLine.c_str()), 0, 0, FALSE,
+        if (CreateProcessW(
+                wideProcessPath.c_str(), const_cast<wchar_t*>(wideCmdLine.c_str()), 0,
+                0, FALSE,
                 // The CREATE_NO_WINDOW flag is used instead of
                 // DETACHED_PROCESS, as Windows does not create the file handles
                 // that underlie stdin, stdout and stderr if a process has no
@@ -275,8 +298,12 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 // None of this would be a problem if we redirected stderr using
                 // freopen(), but instead we redirect the underlying OS level
                 // file handles so that we can revert the redirection.
-                CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
-                const_cast<char*>(childEnvironmentBlock.data()), 0, &startupInfo,
+                // CREATE_UNICODE_ENVIRONMENT tells CreateProcessW() that
+                // lpEnvironment below is a native UTF-16 block (the default,
+                // without this flag, is an ANSI block, which would silently
+                // misinterpret it).
+                CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+                const_cast<wchar_t*>(childEnvironmentBlock.data()), 0, &startupInfo,
                 &processInformation) == FALSE) {
             LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
             return false;

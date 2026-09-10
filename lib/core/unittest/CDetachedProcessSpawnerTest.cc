@@ -51,6 +51,47 @@ const std::string PROCESS_ARGS1[] = {
 const std::string PROCESS_PATH2("/bin/sleep");
 const std::string PROCESS_ARGS2[] = {"10"};
 #endif
+
+#ifndef Windows
+//! RAII guard that sets an environment variable for the duration of a scope
+//! and restores whatever was there before (or unsets it, if it was unset)
+//! on destruction - including when the scope is exited via an exception,
+//! e.g. a failed BOOST_REQUIRE* mid-test. Without this, an early test
+//! failure could skip a manual unSetEnv() call at the end of a test
+//! function and leak the variable into every subsequent test in this
+//! binary's process. Same idiom as
+//! bin/controller/unittest/CCommandProcessorTest.cc's
+//! CScopedSandbox2DefaultEnforced and
+//! bin/controller/unittest/CProcessSpawnerRouterTest.cc's
+//! CScopedChildIpcRoot.
+class CScopedEnvVar {
+public:
+    CScopedEnvVar(std::string name, const char* value) : m_Name(std::move(name)) {
+        const char* previous{std::getenv(m_Name.c_str())};
+        m_HadPreviousValue = previous != nullptr;
+        if (m_HadPreviousValue) {
+            m_PreviousValue.assign(previous);
+        }
+        BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv(m_Name.c_str(), value, 1));
+    }
+
+    ~CScopedEnvVar() {
+        if (m_HadPreviousValue) {
+            ml::core::CSetEnv::setEnv(m_Name.c_str(), m_PreviousValue.c_str(), 1);
+        } else {
+            ml::core::CUnSetEnv::unSetEnv(m_Name.c_str());
+        }
+    }
+
+    CScopedEnvVar(const CScopedEnvVar&) = delete;
+    CScopedEnvVar& operator=(const CScopedEnvVar&) = delete;
+
+private:
+    std::string m_Name;
+    std::string m_PreviousValue;
+    bool m_HadPreviousValue{false};
+};
+#endif // !Windows
 }
 
 BOOST_AUTO_TEST_CASE(testSpawn) {
@@ -137,8 +178,8 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironment) {
     // spawned by this class is never inside Sandbox2, so it must never
     // inherit the marker - not even when the spawning process's own
     // environment carries it.
-    BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv("ML_SANDBOXED", "1", 1));
-    BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv("ML_SANDBOXED_KEEP_ME", "1", 1));
+    CScopedEnvVar scopedSandboxed{"ML_SANDBOXED", "1"};
+    CScopedEnvVar scopedKeepMe{"ML_SANDBOXED_KEEP_ME", "1"};
 
     // Pure form: the array handed to posix_spawn() drops ML_SANDBOXED,
     // keeps everything else in order, and is NULL terminated. Exact-name
@@ -192,8 +233,8 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironment) {
     BOOST_REQUIRE_EQUAL(std::string("[unset][1]"), dumped);
 
     std::remove(envDumpFile.c_str());
-    ml::core::CUnSetEnv::unSetEnv("ML_SANDBOXED");
-    ml::core::CUnSetEnv::unSetEnv("ML_SANDBOXED_KEEP_ME");
+    // scopedSandboxed/scopedKeepMe restore the environment on scope exit,
+    // including if a BOOST_REQUIRE* above already failed.
 }
 #endif // !Windows
 
@@ -205,47 +246,53 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironmentBlock) {
     // include/seccomp/CSystemCallFilter.h sandbox2LaunchedChild()). A child
     // spawned by this class is never inside Sandbox2, so it must never
     // inherit the marker via the environment block passed to
-    // CreateProcess()'s lpEnvironment parameter - not even when the
+    // CreateProcessW()'s lpEnvironment parameter - not even when the
     // spawning process's own environment carries it.
-    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED=1"));
-    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED="));
-    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED_KEEP_ME=1"));
-    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOX=1"));
+    //
+    // Operates on wchar_t/std::wstring throughout, matching
+    // GetEnvironmentStringsW()/CreateProcessW() end to end - not the ANSI
+    // GetEnvironmentStringsA()/CreateProcessA() this used to test, which
+    // round-tripped the parent's native UTF-16 environment through the ANSI
+    // code page and could silently mangle non-ASCII values.
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry(L"ML_SANDBOXED=1"));
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry(L"ML_SANDBOXED="));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(L"ML_SANDBOXED_KEEP_ME=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(L"ML_SANDBOX=1"));
     BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(nullptr));
     // Windows environment variable names are case-INSENSITIVE OS-wide, and
     // the child-side reader (std::getenv, via CSystemCallFilter's
     // sandbox2LaunchedChild()) matches case-insensitively too. A
     // differently-cased marker must still be recognised and stripped here,
     // or it would survive the filter and still be found by the child.
-    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ml_sandboxed=1"));
-    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("Ml_Sandboxed=1"));
-    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ml_sandboxed_keep_me=1"));
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry(L"ml_sandboxed=1"));
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry(L"Ml_Sandboxed=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(L"ml_sandboxed_keep_me=1"));
 
     // Build a synthetic Windows environment block: NUL-terminated
     // "NAME=VALUE" strings back to back, with an extra terminating NUL after
     // the last entry's own NUL.
-    auto appendEntry = [](std::string& block, const std::string& entry) {
+    auto appendEntry = [](std::wstring& block, const std::wstring& entry) {
         block.append(entry);
-        block.push_back('\0');
+        block.push_back(L'\0');
     };
-    std::string parentBlock;
-    appendEntry(parentBlock, "PATH=C:\\Windows");
-    appendEntry(parentBlock, "ML_SANDBOXED=1");
-    appendEntry(parentBlock, "ML_SANDBOXED_KEEP_ME=1");
-    appendEntry(parentBlock, "ml_sandboxed=2");
-    appendEntry(parentBlock, "TMP=C:\\Temp");
-    parentBlock.push_back('\0');
+    std::wstring parentBlock;
+    appendEntry(parentBlock, L"PATH=C:\\Windows");
+    appendEntry(parentBlock, L"ML_SANDBOXED=1");
+    appendEntry(parentBlock, L"ML_SANDBOXED_KEEP_ME=1");
+    appendEntry(parentBlock, L"ml_sandboxed=2");
+    appendEntry(parentBlock, L"TMP=C:\\Temp");
+    parentBlock.push_back(L'\0');
 
-    std::string childBlock{
+    std::wstring childBlock{
         ml::core::detail::buildChildEnvironmentBlock(parentBlock.c_str())};
 
     // Walk the resulting block and confirm ML_SANDBOXED is gone but
     // everything else survives, in order, and the block is still
     // double-NUL-terminated.
-    std::vector<std::string> childEntries;
-    const char* entry{childBlock.c_str()};
-    while (*entry != '\0') {
-        std::string entryStr(entry);
+    std::vector<std::wstring> childEntries;
+    const wchar_t* entry{childBlock.c_str()};
+    while (*entry != L'\0') {
+        std::wstring entryStr(entry);
         childEntries.push_back(entryStr);
         entry += entryStr.length() + 1;
     }
@@ -255,22 +302,22 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironmentBlock) {
     // case-insensitive, so either form would still be visible to the
     // child's std::getenv("ML_SANDBOXED") if it survived here.
     BOOST_REQUIRE_EQUAL(std::size_t(3), childEntries.size());
-    BOOST_REQUIRE_EQUAL(std::string("PATH=C:\\Windows"), childEntries[0]);
-    BOOST_REQUIRE_EQUAL(std::string("ML_SANDBOXED_KEEP_ME=1"), childEntries[1]);
-    BOOST_REQUIRE_EQUAL(std::string("TMP=C:\\Temp"), childEntries[2]);
+    BOOST_REQUIRE(std::wstring(L"PATH=C:\\Windows") == childEntries[0]);
+    BOOST_REQUIRE(std::wstring(L"ML_SANDBOXED_KEEP_ME=1") == childEntries[1]);
+    BOOST_REQUIRE(std::wstring(L"TMP=C:\\Temp") == childEntries[2]);
     // Two-NUL block terminator: the last byte and the one before it are NUL.
     BOOST_TEST_REQUIRE(childBlock.size() >= 2);
-    BOOST_REQUIRE_EQUAL('\0', childBlock[childBlock.size() - 1]);
-    BOOST_REQUIRE_EQUAL('\0', childBlock[childBlock.size() - 2]);
+    BOOST_REQUIRE(L'\0' == childBlock[childBlock.size() - 1]);
+    BOOST_REQUIRE(L'\0' == childBlock[childBlock.size() - 2]);
 
     // Empty-environment edge case still produces a valid double-NUL block.
-    std::string emptyParentBlock;
-    emptyParentBlock.push_back('\0');
-    std::string emptyChildBlock{
+    std::wstring emptyParentBlock;
+    emptyParentBlock.push_back(L'\0');
+    std::wstring emptyChildBlock{
         ml::core::detail::buildChildEnvironmentBlock(emptyParentBlock.c_str())};
     BOOST_REQUIRE_EQUAL(std::size_t(2), emptyChildBlock.size());
-    BOOST_REQUIRE_EQUAL('\0', emptyChildBlock[0]);
-    BOOST_REQUIRE_EQUAL('\0', emptyChildBlock[1]);
+    BOOST_REQUIRE(L'\0' == emptyChildBlock[0]);
+    BOOST_REQUIRE(L'\0' == emptyChildBlock[1]);
 }
 #endif // Windows
 

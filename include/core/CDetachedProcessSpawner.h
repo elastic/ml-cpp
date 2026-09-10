@@ -23,25 +23,31 @@ namespace core {
 namespace detail {
 class CTrackerThread;
 
-//! \return true if \p entry (a "NAME=VALUE" environment entry, or nullptr) is
-//! one this class must never pass on to a spawned child.
-//!
-//! Today that is exactly \c ML_SANDBOXED, the Sandbox2 sandboxee marker set
-//! by lib/sandbox/CSandboxedProcessSpawner_Linux.cc. A child spawned by
-//! CDetachedProcessSpawner is never inside Sandbox2, and pytorch_inference
-//! skips its own mandatory in-process seccomp filter when it sees
-//! \c ML_SANDBOXED=1 (see include/seccomp/CSystemCallFilter.h
-//! sandbox2LaunchedChild()), so inheriting the marker would fail open.
-//! Matched on the exact name: \c ML_SANDBOXED_ANYTHING is not stripped.
-//! Exposed for unit testing; not part of this class's public contract.
-//!
 //! Platform note: the two CDetachedProcessSpawner_*.cc source files are
 //! alternatives selected by ml_generate_platform_sources() at build time,
 //! not compiled together, so each platform source file defines its own
-//! copy of this function.
-CORE_EXPORT bool isStrippedChildEnvEntry(const char* entry);
+//! copy of isStrippedChildEnvEntry() (and the platform-appropriate builder
+//! below it) - on *nix over \c char environment entries (the encoding
+//! \c environ / \c posix_spawn() use), on Windows over \c wchar_t
+//! environment entries (the encoding \c GetEnvironmentStringsW() /
+//! \c CreateProcessW() use - see the Windows branch below for why the ANSI
+//! APIs are not used).
+//!
+//! Today the entry stripped is exactly \c ML_SANDBOXED, the Sandbox2
+//! sandboxee marker set by lib/sandbox/CSandboxedProcessSpawner_Linux.cc. A
+//! child spawned by CDetachedProcessSpawner is never inside Sandbox2, and
+//! pytorch_inference skips its own mandatory in-process seccomp filter when
+//! it sees \c ML_SANDBOXED=1 (see include/seccomp/CSystemCallFilter.h
+//! sandbox2LaunchedChild()), so inheriting the marker would fail open.
+//! Matched on the exact name: \c ML_SANDBOXED_ANYTHING is not stripped.
+//! Exposed for unit testing; not part of this class's public contract.
 
 #ifndef Windows
+//! \return true if \p entry (a "NAME=VALUE" environment entry, or nullptr)
+//! is one this class must never pass on to a spawned child. See the
+//! namespace-level comment above.
+CORE_EXPORT bool isStrippedChildEnvEntry(const char* entry);
+
 //! Build the environment array handed to \c posix_spawn() from
 //! \p parentEnvironment (normally \c environ): every entry for which
 //! isStrippedChildEnvEntry() is false, in order, then a NULL terminator. The
@@ -49,15 +55,34 @@ CORE_EXPORT bool isStrippedChildEnvEntry(const char* entry);
 //! so the result must not outlive it. Exposed for unit testing.
 CORE_EXPORT std::vector<char*> buildChildEnvironment(char** parentEnvironment);
 #else
-//! Build the environment block handed to \c CreateProcess() via its
+//! \return true if \p entry (a "NAME=VALUE" environment entry, or nullptr,
+//! encoded as UTF-16 like the rest of this platform's environment block) is
+//! one this class must never pass on to a spawned child. See the
+//! namespace-level comment above. Case-insensitive: Windows environment
+//! variable names are case-INSENSITIVE OS-wide, and the child-side reader
+//! (std::getenv, via CSystemCallFilter::sandbox2LaunchedChild()) matches
+//! case-insensitively too, so a differently-cased marker must still be
+//! stripped here or it would survive and still be found by the child.
+CORE_EXPORT bool isStrippedChildEnvEntry(const wchar_t* entry);
+
+//! Build the environment block handed to \c CreateProcessW() via its
 //! \c lpEnvironment parameter from \p parentEnvironmentBlock (normally the
-//! result of \c GetEnvironmentStringsA()): a new buffer containing every
+//! result of \c GetEnvironmentStringsW()): a new buffer containing every
 //! "NAME=VALUE" entry from \p parentEnvironmentBlock for which
-//! isStrippedChildEnvEntry() is false, in order, formatted per the ANSI
-//! environment block convention CreateProcess() requires (a sequence of
-//! NUL-terminated strings followed by one extra terminating NUL). Exposed
-//! for unit testing.
-CORE_EXPORT std::string buildChildEnvironmentBlock(const char* parentEnvironmentBlock);
+//! isStrippedChildEnvEntry() is false, in order, formatted per the Unicode
+//! environment block convention \c CreateProcessW() requires with
+//! \c CREATE_UNICODE_ENVIRONMENT (a sequence of NUL-terminated wide strings
+//! followed by one extra terminating NUL).
+//!
+//! Deliberately native UTF-16 end to end (\c GetEnvironmentStringsW() in,
+//! \c CreateProcessW() out, no narrow/wide round trip in between): the
+//! previous \c GetEnvironmentStringsA()-based implementation round-tripped
+//! the parent's native UTF-16 environment through the ANSI code page, which
+//! silently mangles any value not representable in that code page (e.g.
+//! \c TEMP / \c USERPROFILE under a non-ASCII Windows username) to '?' for
+//! every Windows child - a regression this class must not reintroduce.
+//! Exposed for unit testing.
+CORE_EXPORT std::wstring buildChildEnvironmentBlock(const wchar_t* parentEnvironmentBlock);
 #endif
 }
 
