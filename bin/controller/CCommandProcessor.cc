@@ -22,8 +22,9 @@
 namespace {
 const std::string TAB(1, '\t');
 const std::string EMPTY_STRING;
-//! The only controller-control token design.md names today. Any other
-//! unrecognised "--" prefixed token is passed through to the spawned
+//! The only controller-control token the command wire format defines
+//! today. Any other unrecognised "--" prefixed token is passed through to
+//! the spawned
 //! process unchanged - this task does not invent a general token schema.
 const std::string DISABLE_SANDBOX_TOKEN{"--disableSandbox"};
 
@@ -142,13 +143,13 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
     }
 
     // One shared predicate with the router (which uses the same call to gate
-    // dispatch and H4-signal emission), never a second std::find over a
+    // dispatch and sandbox2_launch-signal emission), never a second std::find over a
     // second copy of the list.
     const bool isConfiguredSandboxedPath{m_Spawner.isSandboxedProcessPath(processPath)};
 
     CProcessSpawnerRouter::ERoute route{CProcessSpawnerRouter::ERoute::E_Sandbox2};
     // Provenance of a legacy route, recorded at the one place it is known so
-    // the router's H4 signal can report it as "legacy_reason". Stays
+    // the router's sandbox2_launch signal can report it as "legacy_reason". Stays
     // E_NotLegacy for every E_Sandbox2 route, where the field is omitted.
     CProcessSpawnerRouter::ELegacyReason legacyReason{
         CProcessSpawnerRouter::ELegacyReason::E_NotLegacy};
@@ -162,7 +163,7 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
         // no-token case stays on the legacy route - byte-for-byte the
         // pre-typed-routing behaviour on every platform, including builds
         // with no Sandbox2 support at all. With the option on it becomes
-        // mandatory Sandbox2 (E_Sandbox2, no automatic fallback, V2). The
+        // mandatory Sandbox2 (E_Sandbox2, no automatic fallback). The
         // follow-up that flips the option is the Elasticsearch-side
         // operator-setting change, not this one.
         if (isConfiguredSandboxedPath && m_Sandbox2DefaultEnabled == false) {
@@ -185,9 +186,9 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
 
         // Operator kill-switch validated against this exact processPath:
         // strip it before it reaches the spawner and route to legacy. This
-        // is the one place the route's operator provenance is known
-        // (design.md point 6), so it is logged here rather than in the
-        // router, which only ever sees an already-decided route.
+        // is the one place the route's operator provenance is known, so it
+        // is logged here rather than in the router, which only ever sees an
+        // already-decided route.
         LOG_INFO(<< "Routing '" << processPath << "' to the legacy path: operator kill switch "
                  << DISABLE_SANDBOX_TOKEN << " in command with ID " << id);
         route = CProcessSpawnerRouter::ERoute::E_Legacy;

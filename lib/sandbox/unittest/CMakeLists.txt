@@ -76,8 +76,8 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
     )
 
-  # Long-lived sandboxee for CSandboxedProcessSpawnerLifecycleTest_Linux
-  # (Task 4). Unlike the two payloads above, this one is launched through
+  # Long-lived sandboxee for CSandboxedProcessSpawnerLifecycleTest_Linux.
+  # Unlike the two payloads above, this one is launched through
   # CSandboxedProcessSpawner::spawn() itself (not a hand-built Sandbox2
   # policy), which derives its filesystem policy's binDir/libDir from the
   # payload's own resolved path: binDir is this payload's directory
@@ -98,9 +98,9 @@ if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/payloads
     )
 
-  # PR E's staged user-namespace capability probe (design.md
-  # ML_SANDBOX2_REQUIRE CI wiring). Same dependency-free, dynamically-linked
-  # pattern as the payloads above, for the same CI-image reason. Unlike
+  # Staged user-namespace capability probe for the ML_SANDBOX2_REQUIRE CI
+  # wiring. Same dependency-free, dynamically-linked pattern as the payloads
+  # above, for the same CI-image reason. Unlike
   # ml_sandbox_probe, this one is never run through a Sandbox2
   # Executor/policy - CSandboxUserNamespaceProbeTest_Linux execs it directly
   # as a plain host subprocess, since it probes the ambient CI environment's

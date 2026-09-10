@@ -131,8 +131,8 @@ inline std::string degradedModeAttestationMarker(ESystemCallFilterInstallOutcome
 //! test, taking the raw ML_SANDBOXED environment value (nullptr when unset)
 //! so it is testable on every platform without mutating the environment.
 //!
-//! design.md §Routing and degraded-mode contract point 5: pytorch_inference
-//! skips in-process seccomp only when ML_SANDBOXED is *exactly* "1", the
+//! pytorch_inference skips in-process seccomp only when ML_SANDBOXED is
+//! *exactly* "1", the
 //! value CSandboxedProcessSpawner_Linux.cc sets on a Sandbox2-launched
 //! child. It is stripped from every legacy-route child's environment by
 //! lib/core/CDetachedProcessSpawner.cc (detail::buildChildEnvironment(),
@@ -168,8 +168,8 @@ struct SInProcessFilterResult {
     //! is attested. Always empty when s_Attempted == false: that marker
     //! describes the *legacy* route's own filter installation, so emitting
     //! it on a Sandbox2-route launch would both attest a filter that was
-    //! never installed and contradict the H4 signal's "route":"sandbox2"
-    //! for the same launch.
+    //! never installed and contradict the sandbox2_launch signal's
+    //! "route":"sandbox2" for the same launch.
     std::string s_AttestationMarker;
 };
 

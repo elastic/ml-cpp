@@ -9,9 +9,9 @@
  * limitation.
  */
 
-// Linux-only controller-side (host-process) test for PR E's
-// ML_SANDBOX2_REQUIRE CI wiring (design.md Sandbox2 clean rebuild plan).
-// Runs ml_sandbox_userns_probe as a plain subprocess - deliberately NOT
+// Linux-only controller-side (host-process) test for the
+// ML_SANDBOX2_REQUIRE CI wiring. Runs ml_sandbox_userns_probe as a plain
+// subprocess - deliberately NOT
 // through a Sandbox2 Executor/policy, since this test is checking the
 // *ambient* CI environment's userns capability (e.g. whether a Buildkite
 // k8s pod's runtime permits mount("proc", ...)), not any Sandbox2 policy;
@@ -19,19 +19,19 @@
 //
 // Three modes, selected by the ML_SANDBOX2_REQUIRE environment variable:
 //   unset       -> "ambient" mode: run the probe once, log its outcome, do
-//                  not fail the test either way (design.md: "Ambient Docker
-//                  seccomp behavior is diagnostic, never load-bearing
-//                  coverage").
+//                  not fail the test either way. Ambient Docker seccomp
+//                  behavior is diagnostic, never load-bearing coverage.
 //   enforced    -> the probe must succeed (all 7 stages complete); fail the
 //                  test if any stage fails. Wired into run_tests.sh's
-//                  aarch64/Docker branch only (H3 accepted risk: no
-//                  userns-capable x86_64 CI runner exists).
+//                  aarch64/Docker branch only: there is no userns-capable
+//                  x86_64 CI runner today, so enforced coverage is accepted
+//                  as aarch64-only for now.
 //   fail_closed -> pins the *absence* of userns capability as the tested
 //                  condition: assert the probe fails at some stage (the
 //                  specific stage isn't load-bearing). This mode's job is
 //                  confirming the CI environment matches what the existing
-//                  fail-closed spawn path (V2) expects, not re-testing V2
-//                  itself.
+//                  fail-closed spawn path expects, not re-testing the
+//                  fail-closed spawn path itself.
 
 #include <boost/test/unit_test.hpp>
 
@@ -133,11 +133,11 @@ BOOST_AUTO_TEST_CASE(testMatchesRequiredMode) {
 
     if (std::strcmp(mode, "fail_closed") == 0) {
         // fail_closed pins the *absence* of userns capability as the tested
-        // condition (see the file-level comment). MG6's accepted risk names
-        // its own revisit trigger as "when a userns-capable x86_64 CI
-        // runner becomes available" - the day that happens, a runner
-        // acquiring a capability is an environment improvement, not a
-        // regression, so it must not look like this test broke. Distinguish
+        // condition (see the file-level comment). The accepted revisit
+        // trigger is "when a userns-capable x86_64 CI runner becomes
+        // available" - the day that happens, a runner acquiring a
+        // capability is an environment improvement, not a regression, so it
+        // must not look like this test broke. Distinguish
         // three outcomes rather than a single BOOST_TEST_REQUIRE(!probeSucceeded):
         //   - harness/exec broken: already a hard failure via the
         //     E_ExecFailure branch above, unaffected by this branch.
@@ -149,8 +149,8 @@ BOOST_AUTO_TEST_CASE(testMatchesRequiredMode) {
         if (probeSucceeded) {
             BOOST_TEST_MESSAGE("userns capability is now available on this host (ml_sandbox_userns_probe "
                                "succeeded under ML_SANDBOX2_REQUIRE=fail_closed); consider re-pinning "
-                               "enforced coverage here per the MG6 accepted-risk's revisit trigger "
-                               "(no userns-capable x86_64 CI runner exists yet)");
+                               "enforced coverage here now that a userns-capable x86_64 CI runner "
+                               "exists (none did as of this test's introduction)");
         } else {
             BOOST_TEST_MESSAGE("ml_sandbox_userns_probe fail_closed check: userns capability "
                                "genuinely absent, as expected");

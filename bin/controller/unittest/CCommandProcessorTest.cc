@@ -71,7 +71,7 @@ public:
 };
 
 //! Redirect the logger to a string stream for the duration of \p fn, so a
-//! test can assert on the router's H4 sandbox2_launch signal (the same
+//! test can assert on the router's sandbox2_launch signal (the same
 //! capture style bin/controller/unittest/CProcessSpawnerRouterTest.cc uses).
 
 //! RAII guard ensuring ml::core::CLogger::instance().reset() always runs,
@@ -486,8 +486,8 @@ BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPat
 }
 
 BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
-    // The two legacy-route provenances must arrive at the H4 signal
-    // distinguishable: mode == "degraded" alone cannot separate a deliberate
+    // The two legacy-route provenances must arrive at the sandbox2_launch
+    // signal distinguishable: mode == "degraded" alone cannot separate a deliberate
     // operator kill switch from the dormant default that is in effect for
     // the whole rollout window. This asserts the wiring from the route
     // decision in handleStart() through to the emitted signal.
@@ -546,7 +546,7 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
 BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentAndDefaultEnforced) {
     // The opt-in half of the dormant default: with the internal option
     // explicitly on, no token present on the configured sandboxed path
-    // selects the Sandbox2 route (V2, no automatic legacy fallback). On a
+    // selects the Sandbox2 route (no automatic legacy fallback). On a
     // build with no Sandbox2 support, CProcessSpawnerRouter fails closed for
     // that route - observed here as the command failing rather than the copy
     // succeeding, which is exactly how we know Sandbox2 (not legacy) was

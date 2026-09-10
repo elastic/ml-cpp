@@ -301,7 +301,7 @@ int main(int argc, char** argv) {
     //
     // Turning it on is only safe once a degraded/legacy-route launch is
     // guaranteed to be a deliberate decision rather than the production
-    // default. CProcessSpawnerRouter (Task 2) supplies half of that
+    // default. CProcessSpawnerRouter supplies half of that
     // guarantee - it never falls back to the legacy spawner after a failed
     // Sandbox2 attempt - but the controller currently *defaults* the
     // no-token case to the legacy route while ML_SANDBOX2_DEFAULT_ENFORCED
@@ -325,14 +325,13 @@ int main(int argc, char** argv) {
 
     // The in-process filter belongs to the legacy/non-sandboxed route only.
     // On the Sandbox2 route the executor's own policy is already the
-    // security boundary and ML_SANDBOXED is exactly "1" (design.md §Routing
-    // and degraded-mode contract point 5), so the whole step - install,
-    // degraded-mode decision, attestation marker - is skipped. Attempting
-    // it from inside an already-sandboxed environment would either fail
-    // (which would terminate every enforced-route launch once hard
-    // termination above is activated) or succeed and emit the legacy-route
-    // attestation marker on a launch the controller's H4 signal reports as
-    // "route":"sandbox2".
+    // security boundary and ML_SANDBOXED is exactly "1", so the whole step -
+    // install, degraded-mode decision, attestation marker - is skipped.
+    // Attempting it from inside an already-sandboxed environment would
+    // either fail (which would terminate every enforced-route launch once
+    // hard termination above is activated) or succeed and emit the
+    // legacy-route attestation marker on a launch the controller's
+    // sandbox2_launch signal reports as "route":"sandbox2".
     const bool sandbox2Launched{ml::seccomp::sandbox2LaunchedChild()};
     const ml::seccomp::SInProcessFilterResult seccompResult{ml::seccomp::applyInProcessSeccompFilter(
         sandbox2Launched, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE,

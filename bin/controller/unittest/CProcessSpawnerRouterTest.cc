@@ -35,7 +35,7 @@
 // SANDBOX2_AVAILABLE - the same macro CProcessSpawnerRouter::spawn() itself
 // branches on - rather than the coarser `Linux`.
 //
-// H4 (PR E Task 4) signal assertions redirect ml::core::CLogger to an
+// sandbox2_launch signal assertions redirect ml::core::CLogger to an
 // in-memory stream (the same technique CBoostedTreeTest.cc uses for its own
 // LOG_ERROR assertions) and inspect the emitted JSON line as a substring
 // match per field, rather than parsing JSON - this avoids pulling in a JSON
@@ -99,7 +99,7 @@ void assertDispatchCopiesFile(ml::controller::CProcessSpawnerRouter& router,
 //! \p fn, then reset() it back to its default configuration before
 //! returning - callers must not leak the redirect into later test cases.
 //! \return everything logged while \p fn ran, so the caller can search for
-//! the H4 signal's JSON line as a substring.
+//! the sandbox2_launch signal's JSON line as a substring.
 
 //! RAII guard ensuring ml::core::CLogger::instance().reset() always runs,
 //! even if the captured function throws (e.g. a failed BOOST_REQUIRE*
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteFailsClosedWithoutSandbox2Support) {
 BOOST_AUTO_TEST_CASE(testH4SignalFailClosedWithoutSandbox2Support) {
     // Reuses the exact non-Linux fail-closed vector above (route ==
     // E_Sandbox2 for a sandboxedProcessPaths entry, no SANDBOX2_AVAILABLE)
-    // to assert the H4 signal itself: mode == "fail_closed",
+    // to assert the sandbox2_launch signal itself: mode == "fail_closed",
     // sandbox2_established == false (a JSON boolean, not the string
     // "false"), route == "sandbox2", and the signal fires even though
     // spawn() returns false - it must not be gated behind a success check.
@@ -551,10 +551,11 @@ BOOST_AUTO_TEST_CASE(testH4SignalNoLegacyReasonOnSandbox2Route) {
 // fails closed for it (see testH4SignalFailClosedWithoutSandbox2Support
 // immediately above). This is the same platform limitation the pre-existing
 // Buildkite-deferred note below documents for the router's own Sandbox2
-// dispatch; the H4 "enforced" case needs the identical Linux + Sandbox2
-// scaffolding once a Sandbox2-aware controller unittest target exists.
+// dispatch; the sandbox2_launch "enforced" case needs the identical Linux +
+// Sandbox2 scaffolding once a Sandbox2-aware controller unittest target
+// exists.
 
-// Buildkite-deferred (Linux + Sandbox2 only, design.md V2): asserting that
+// Buildkite-deferred (Linux + Sandbox2 only): asserting that
 // an E_Sandbox2 route for a sandboxedProcessPaths entry reaches
 // CSandboxedProcessSpawner::spawn(), and that a failure there returns false
 // without any retry through the legacy spawner, needs a real Sandbox2

@@ -9,9 +9,9 @@
  * limitation.
  */
 
-// Staged user-namespace capability probe for PR E's ML_SANDBOX2_REQUIRE CI
-// wiring (design.md Sandbox2 clean rebuild plan). Unlike ml_sandbox_probe.cc
-// (PR C's *policy* mechanism probe, which runs inside an already-built
+// Staged user-namespace capability probe for the ML_SANDBOX2_REQUIRE CI
+// wiring. Unlike ml_sandbox_probe.cc (the typed filesystem/network launch
+// policy's own *policy* mechanism probe, which runs inside an already-built
 // Sandbox2 sandbox) this payload exercises the raw kernel primitives
 // Sandbox2's own forkserver depends on - unshare(CLONE_NEWUSER), uid/gid
 // mapping, unshare(CLONE_NEWNS | CLONE_NEWPID), and a proc mount inside the
@@ -22,7 +22,7 @@
 // dependency-free, like ml_sandbox_probe.cc and sandbox_smoke_payload.cc: no
 // ml-cpp library dependencies, no sandbox policy of its own.
 //
-// Runs design.md's 7 numbered stages in order and reports the first failed
+// Runs the following 7 stages in order and reports the first failed
 // stage and errno on any failure; success only if all 7 complete:
 //   1. probe pipe + fork
 //   2. unshare(CLONE_NEWUSER)
@@ -32,9 +32,9 @@
 //   6. mount("/", MS_REC | MS_PRIVATE)
 //   7. mount("proc", "/proc", "proc", ...)
 //
-// Stage 7 MUST run after the stage-5 fork - matching PR C's SHA-keyed
-// carry-forward fix for 50bacc2b (proc mount after fork into the new PID
-// namespace). A proc mount issued by the stage-4 unshare()'d process itself,
+// Stage 7 MUST run after the stage-5 fork, matching the existing fix
+// (commit 50bacc2b) that mounts proc only after the fork into the new PID
+// namespace. A proc mount issued by the stage-4 unshare()'d process itself,
 // before forking into the namespace, would mount /proc for the wrong PID
 // namespace view. Do not reorder stages 5 and 7.
 
