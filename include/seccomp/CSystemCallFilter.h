@@ -181,7 +181,7 @@ struct SInProcessFilterResult {
 //!        marker is produced, regardless of what an installation attempt
 //!        would have returned. Installing an in-process filter from inside
 //!        an already-sandboxed environment can fail (which would kill every
-//!        enforced-route launch now that hard termination is active) or
+//!        enforced-route launch once TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is activated) or
 //!        succeed and mislabel the launch as legacy.
 //! \param terminateOnFailure passed through to decideDegradedModeAction().
 //! \param installer invoked at most once; normally

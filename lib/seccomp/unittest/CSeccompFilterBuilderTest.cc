@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterSkippedEntirelyForSandbox2LaunchedChild)
     // termination may be derived and no attestation marker may be produced -
     // and that must hold for every outcome an installation attempt could
     // have returned, including the failure classes that would otherwise
-    // terminate the launch now that hard termination is active.
+    // terminate the launch once TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is activated.
     const ESystemCallFilterInstallOutcome allOutcomes[]{
         ESystemCallFilterInstallOutcome::E_Installed,
         ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
