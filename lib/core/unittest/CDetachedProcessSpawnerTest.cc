@@ -212,6 +212,14 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironmentBlock) {
     BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED_KEEP_ME=1"));
     BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOX=1"));
     BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(nullptr));
+    // Windows environment variable names are case-INSENSITIVE OS-wide, and
+    // the child-side reader (std::getenv, via CSystemCallFilter's
+    // sandbox2LaunchedChild()) matches case-insensitively too. A
+    // differently-cased marker must still be recognised and stripped here,
+    // or it would survive the filter and still be found by the child.
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ml_sandboxed=1"));
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("Ml_Sandboxed=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ml_sandboxed_keep_me=1"));
 
     // Build a synthetic Windows environment block: NUL-terminated
     // "NAME=VALUE" strings back to back, with an extra terminating NUL after
@@ -224,6 +232,7 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironmentBlock) {
     appendEntry(parentBlock, "PATH=C:\\Windows");
     appendEntry(parentBlock, "ML_SANDBOXED=1");
     appendEntry(parentBlock, "ML_SANDBOXED_KEEP_ME=1");
+    appendEntry(parentBlock, "ml_sandboxed=2");
     appendEntry(parentBlock, "TMP=C:\\Temp");
     parentBlock.push_back('\0');
 
@@ -241,6 +250,10 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironmentBlock) {
         entry += entryStr.length() + 1;
     }
 
+    // Both the canonically-cased and the differently-cased marker
+    // ("ml_sandboxed=2") must be stripped: Windows env var lookups are
+    // case-insensitive, so either form would still be visible to the
+    // child's std::getenv("ML_SANDBOXED") if it survived here.
     BOOST_REQUIRE_EQUAL(std::size_t(3), childEntries.size());
     BOOST_REQUIRE_EQUAL(std::string("PATH=C:\\Windows"), childEntries[0]);
     BOOST_REQUIRE_EQUAL(std::string("ML_SANDBOXED_KEEP_ME=1"), childEntries[1]);

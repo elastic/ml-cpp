@@ -41,8 +41,15 @@ bool isStrippedChildEnvEntry(const char* entry) {
     const std::size_t nameLength{::strlen(SANDBOXEE_MARKER_ENV_NAME)};
     // Exact name match only: "ML_SANDBOXED=..." is stripped,
     // "ML_SANDBOXED_FOO=..." (a different variable that merely shares the
-    // prefix) is not.
-    return ::strncmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
+    // prefix) is not. Windows environment variable names are
+    // case-INSENSITIVE OS-wide (GetEnvironmentVariable/SetEnvironmentVariable
+    // and the CRT's getenv all normalise case internally on this platform),
+    // and the child-side reader (CSystemCallFilter::sandbox2LaunchedChild(),
+    // via std::getenv) inherits that case-insensitivity. Use ::_strnicmp
+    // (the MSVC/Windows CRT case-insensitive strncmp) so a differently-cased
+    // marker such as "ml_sandboxed=1" is still stripped here and cannot
+    // bypass the filter.
+    return ::_strnicmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
            entry[nameLength] == '=';
 }
 
