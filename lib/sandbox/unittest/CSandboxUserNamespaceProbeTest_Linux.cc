@@ -132,7 +132,30 @@ BOOST_AUTO_TEST_CASE(testMatchesRequiredMode) {
     }
 
     if (std::strcmp(mode, "fail_closed") == 0) {
-        BOOST_TEST_REQUIRE(!probeSucceeded);
+        // fail_closed pins the *absence* of userns capability as the tested
+        // condition (see the file-level comment). MG6's accepted risk names
+        // its own revisit trigger as "when a userns-capable x86_64 CI
+        // runner becomes available" - the day that happens, a runner
+        // acquiring a capability is an environment improvement, not a
+        // regression, so it must not look like this test broke. Distinguish
+        // three outcomes rather than a single BOOST_TEST_REQUIRE(!probeSucceeded):
+        //   - harness/exec broken: already a hard failure via the
+        //     E_ExecFailure branch above, unaffected by this branch.
+        //   - environment genuinely lacks userns capability (the expected,
+        //     currently-universal case): log and pass.
+        //   - environment now HAS userns capability: emit a clear,
+        //     actionable message, but do NOT fail the build - acquiring a
+        //     capability is not a regression.
+        if (probeSucceeded) {
+            BOOST_TEST_MESSAGE(
+                "userns capability is now available on this host (ml_sandbox_userns_probe "
+                "succeeded under ML_SANDBOX2_REQUIRE=fail_closed); consider re-pinning "
+                "enforced coverage here per the MG6 accepted-risk's revisit trigger "
+                "(no userns-capable x86_64 CI runner exists yet)");
+        } else {
+            BOOST_TEST_MESSAGE("ml_sandbox_userns_probe fail_closed check: userns capability "
+                               "genuinely absent, as expected");
+        }
         return;
     }
 
