@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <memory>
 #include <sstream>
 
 namespace {
@@ -227,10 +228,21 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // route == ERoute::E_Sandbox2, and processPath is configured as
     // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
+        // First - and only - point at which any Sandbox2 machinery is
+        // constructed. A router that never reaches this branch (every
+        // router while the Sandbox2 default is dormant, and every router in
+        // a build without Sandbox2 support) never creates a
+        // CSandboxedProcessSpawner at all, so no Sandbox2 state enters its
+        // construction or teardown path. Single-threaded by the same
+        // contract as the legacy spawner - see the member's declaration.
+        if (m_SandboxSpawner == nullptr) {
+            m_SandboxSpawner = std::make_unique<sandbox::CSandboxedProcessSpawner>();
+        }
+
         // No automatic fallback to the legacy spawner on a Sandbox2
         // failure: a process that must be sandboxed either
         // launches inside Sandbox2 or does not launch at all.
-        spawned = m_SandboxSpawner.spawn(processPath, args, childPid);
+        spawned = m_SandboxSpawner->spawn(processPath, args, childPid);
 #else
         // Build/deployment contradiction: processPath is configured as
         // sandboxed, but this build has no Sandbox2 support (non-Linux).
@@ -260,7 +272,11 @@ bool CProcessSpawnerRouter::terminateChild(core::CProcess::TPid pid) {
         return true;
     }
 #ifdef SANDBOX2_AVAILABLE
-    if (m_SandboxSpawner.terminateChild(pid)) {
+    // A null m_SandboxSpawner means no spawn() call ever dispatched to the
+    // Sandbox2 route, so there can be no sandboxed child to terminate. Ask
+    // rather than construct: creating the spawner here would defeat the
+    // lazy lifecycle and could only ever return false anyway.
+    if (m_SandboxSpawner != nullptr && m_SandboxSpawner->terminateChild(pid)) {
         return true;
     }
 #endif
@@ -272,7 +288,8 @@ bool CProcessSpawnerRouter::hasChild(core::CProcess::TPid pid) const {
         return true;
     }
 #ifdef SANDBOX2_AVAILABLE
-    if (m_SandboxSpawner.hasChild(pid)) {
+    // Null means no sandboxed child was ever spawned - see terminateChild().
+    if (m_SandboxSpawner != nullptr && m_SandboxSpawner->hasChild(pid)) {
         return true;
     }
 #endif
