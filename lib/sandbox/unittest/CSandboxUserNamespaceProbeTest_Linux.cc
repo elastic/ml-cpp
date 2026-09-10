@@ -147,11 +147,10 @@ BOOST_AUTO_TEST_CASE(testMatchesRequiredMode) {
         //     actionable message, but do NOT fail the build - acquiring a
         //     capability is not a regression.
         if (probeSucceeded) {
-            BOOST_TEST_MESSAGE(
-                "userns capability is now available on this host (ml_sandbox_userns_probe "
-                "succeeded under ML_SANDBOX2_REQUIRE=fail_closed); consider re-pinning "
-                "enforced coverage here per the MG6 accepted-risk's revisit trigger "
-                "(no userns-capable x86_64 CI runner exists yet)");
+            BOOST_TEST_MESSAGE("userns capability is now available on this host (ml_sandbox_userns_probe "
+                               "succeeded under ML_SANDBOX2_REQUIRE=fail_closed); consider re-pinning "
+                               "enforced coverage here per the MG6 accepted-risk's revisit trigger "
+                               "(no userns-capable x86_64 CI runner exists yet)");
         } else {
             BOOST_TEST_MESSAGE("ml_sandbox_userns_probe fail_closed check: userns capability "
                                "genuinely absent, as expected");

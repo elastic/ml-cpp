@@ -275,9 +275,9 @@ BOOST_AUTO_TEST_CASE(testSandbox2LaunchedChildRecognisesOnlyExactlyOne) {
 }
 
 BOOST_AUTO_TEST_CASE(testInProcessFilterSkippedEntirelyForSandbox2LaunchedChild) {
-    using ml::seccomp::applyInProcessSeccompFilter;
     using ml::seccomp::EDegradedModeAction;
     using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
 
     // ML_SANDBOXED=1: the installer must never be invoked, no degraded-mode
     // termination may be derived and no attestation marker may be produced -
@@ -307,9 +307,9 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterSkippedEntirelyForSandbox2LaunchedChild)
 }
 
 BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
-    using ml::seccomp::applyInProcessSeccompFilter;
     using ml::seccomp::EDegradedModeAction;
     using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
 
     // ML_SANDBOXED unset/not "1": behaviour is exactly the pre-existing
     // install + decide + attest sequence, i.e. the Task 3 fault-injection
@@ -323,9 +323,8 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
     BOOST_REQUIRE_EQUAL(true, installed.s_Attempted);
     BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_ContinueDespiteFailure),
                         static_cast<int>(installed.s_Action));
-    BOOST_REQUIRE_EQUAL(
-        std::string("{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}"),
-        installed.s_AttestationMarker);
+    BOOST_REQUIRE_EQUAL(std::string("{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}"),
+                        installed.s_AttestationMarker);
 
     const ESystemCallFilterInstallOutcome failureModes[]{
         ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
@@ -333,8 +332,8 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
         ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
 
     for (const auto outcome : failureModes) {
-        const auto failed =
-            applyInProcessSeccompFilter(false, true, [outcome] { return outcome; });
+        const auto failed = applyInProcessSeccompFilter(
+            false, true, [outcome] { return outcome; });
         BOOST_REQUIRE_EQUAL(true, failed.s_Attempted);
         BOOST_REQUIRE_EQUAL(static_cast<int>(EDegradedModeAction::E_TerminateBeforeIo),
                             static_cast<int>(failed.s_Action));

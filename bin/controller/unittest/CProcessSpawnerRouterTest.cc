@@ -49,8 +49,9 @@ namespace {
 // forward slash path separators
 const std::string INPUT_FILE{"testfiles\\slogan1.txt"};
 const char* winDir{std::getenv("windir")};
-const std::string PROCESS_PATH{winDir != nullptr ? std::string{winDir} + "\\System32\\cmd"
-                                                  : std::string{"C:\\Windows\\System32\\cmd"}};
+const std::string PROCESS_PATH{winDir != nullptr
+                                   ? std::string{winDir} + "\\System32\\cmd"
+                                   : std::string{"C:\\Windows\\System32\\cmd"}};
 std::string copyArgsScript(const std::string& outputFile) {
     return "copy " + INPUT_FILE + " " + outputFile;
 }
@@ -70,8 +71,8 @@ const std::string SLOGAN1{"Elastic is great!"};
 //! was dispatched to a working spawner backend, not just that spawn()
 //! returned true.
 void assertDispatchCopiesFile(ml::controller::CProcessSpawnerRouter& router,
-                               ml::controller::CProcessSpawnerRouter::ERoute route,
-                               const std::string& outputFile) {
+                              ml::controller::CProcessSpawnerRouter::ERoute route,
+                              const std::string& outputFile) {
     std::remove(outputFile.c_str());
 
     ml::controller::CProcessSpawnerRouter::TStrVec args{SHELL_FLAG, copyArgsScript(outputFile)};
@@ -129,7 +130,8 @@ std::string captureLogged(FN&& fn) {
 //! destruction.
 class CScopedChildIpcRoot {
 public:
-    explicit CScopedChildIpcRoot(const std::string& childId) : m_ChildId{childId} {
+    explicit CScopedChildIpcRoot(const std::string& childId)
+        : m_ChildId{childId} {
         const char* previous{std::getenv("TMPDIR")};
         m_HadPreviousTmpDir = previous != nullptr;
         if (m_HadPreviousTmpDir) {
@@ -140,14 +142,14 @@ public:
         // canonical - validateChildIpcLaunchSpec() compares the literal and
         // canonical parents and rejects any difference, and on macOS the
         // system temporary directories are reached through symlinks.
-        m_TrustedTmpDir =
-            (boost::filesystem::canonical(boost::filesystem::current_path()) /
-             ("router_h4_tmp_" + childId))
-                .string();
+        m_TrustedTmpDir = (boost::filesystem::canonical(boost::filesystem::current_path()) /
+                           ("router_h4_tmp_" + childId))
+                              .string();
         m_ChildIpcRoot = m_TrustedTmpDir + "/ml-child-ipc/" + childId;
         boost::filesystem::create_directories(m_ChildIpcRoot);
 
-        BOOST_REQUIRE_EQUAL(0, ml::core::CSetEnv::setEnv("TMPDIR", m_TrustedTmpDir.c_str(), 1));
+        BOOST_REQUIRE_EQUAL(
+            0, ml::core::CSetEnv::setEnv("TMPDIR", m_TrustedTmpDir.c_str(), 1));
     }
 
     ~CScopedChildIpcRoot() {
@@ -162,7 +164,9 @@ public:
 
     //! An --input=<path> argument inside this child's IPC root, i.e. one
     //! validateChildIpcLaunchSpec() accepts and derives m_ChildId from.
-    std::string inputArg() const { return "--input=" + m_ChildIpcRoot + "/input"; }
+    std::string inputArg() const {
+        return "--input=" + m_ChildIpcRoot + "/input";
+    }
 
     CScopedChildIpcRoot(const CScopedChildIpcRoot&) = delete;
     CScopedChildIpcRoot& operator=(const CScopedChildIpcRoot&) = delete;
@@ -186,7 +190,7 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteDispatchesLegacyForUnsandboxedPath) {
     ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
 
     assertDispatchCopiesFile(router, ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
-                              "router_test_never_sandboxed.txt");
+                             "router_test_never_sandboxed.txt");
 }
 
 BOOST_AUTO_TEST_CASE(testLegacyRouteDispatchesLegacyForSandboxedPath) {
@@ -199,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testLegacyRouteDispatchesLegacyForSandboxedPath) {
     ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
 
     assertDispatchCopiesFile(router, ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
-                              "router_test_legacy_route.txt");
+                             "router_test_legacy_route.txt");
 }
 
 BOOST_AUTO_TEST_CASE(testTerminateAndHasChildCoverBothBackends) {
@@ -223,11 +227,11 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteFailsClosedWithoutSandbox2Support) {
     ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
     ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
 
-    ml::controller::CProcessSpawnerRouter::TStrVec args{SHELL_FLAG, copyArgsScript("router_test_should_not_run.txt")};
+    ml::controller::CProcessSpawnerRouter::TStrVec args{
+        SHELL_FLAG, copyArgsScript("router_test_should_not_run.txt")};
     ml::core::CProcess::TPid childPid{0};
-    BOOST_REQUIRE_EQUAL(
-        false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
-                             PROCESS_PATH, args, childPid));
+    BOOST_REQUIRE_EQUAL(false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                            PROCESS_PATH, args, childPid));
 
     // No child was ever registered with either backend for this attempt.
     BOOST_REQUIRE_EQUAL(false, router.hasChild(childPid));
@@ -254,7 +258,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalFailClosedWithoutSandbox2Support) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
-                                 PROCESS_PATH, args, childPid));
+                                PROCESS_PATH, args, childPid));
     })};
 
     BOOST_REQUIRE(logged.find("\"event\":\"sandbox2_launch\"") != std::string::npos);
@@ -289,7 +293,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalDeploymentIdPopulatedOnFailClosed) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
-                                 PROCESS_PATH, args, childPid));
+                                PROCESS_PATH, args, childPid));
     })};
 
     BOOST_REQUIRE(logged.find("\"mode\":\"fail_closed\"") != std::string::npos);
@@ -317,7 +321,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalDeploymentIdPopulatedOnDegradedRoute) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
-                                 PROCESS_PATH, args, childPid));
+                                PROCESS_PATH, args, childPid));
     })};
 
     BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
@@ -342,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalEscapesControlCharactersInDeploymentId) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
-                                 PROCESS_PATH, args, childPid));
+                                PROCESS_PATH, args, childPid));
     })};
 
     BOOST_REQUIRE(logged.find("\"deployment_id\":\"deploy\\nid\\tx\"") != std::string::npos);
@@ -373,9 +377,8 @@ BOOST_AUTO_TEST_CASE(testNoH4SignalForUnsandboxedProcessPath) {
         SHELL_FLAG, copyArgsScript(outputFile), "--modelid=deploy-not-sandboxed"};
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
-        BOOST_REQUIRE_EQUAL(
-            true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
-                                PROCESS_PATH, args, childPid));
+        BOOST_REQUIRE_EQUAL(true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                               PROCESS_PATH, args, childPid));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
     std::remove(outputFile.c_str());
@@ -399,9 +402,8 @@ BOOST_AUTO_TEST_CASE(testH4SignalDegradedOnLegacyRouteSuccess) {
         SHELL_FLAG, copyArgsScript(outputFile), "--modelid=deploy-degraded-ok"};
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
-        BOOST_REQUIRE_EQUAL(
-            true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
-                                PROCESS_PATH, args, childPid));
+        BOOST_REQUIRE_EQUAL(true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                               PROCESS_PATH, args, childPid));
     })};
     // The copy runs in the detached child asynchronously - give it the same
     // grace period assertDispatchCopiesFile above uses before cleaning up,
@@ -434,7 +436,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalDegradedOnLegacyRouteFailure) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
-                                 PROCESS_PATH, args, childPid));
+                                PROCESS_PATH, args, childPid));
     })};
 
     BOOST_REQUIRE(logged.find("\"event\":\"sandbox2_launch\"") != std::string::npos);
@@ -457,8 +459,8 @@ BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonKillSwitch) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
-                                 PROCESS_PATH, args, childPid,
-                                 ml::controller::CProcessSpawnerRouter::ELegacyReason::E_KillSwitch));
+                                PROCESS_PATH, args, childPid,
+                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_KillSwitch));
     })};
 
     BOOST_REQUIRE(logged.find("\"route\":\"legacy\"") != std::string::npos);
@@ -478,10 +480,9 @@ BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonDormantDefault) {
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
-            false,
-            router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy, PROCESS_PATH,
-                         args, childPid,
-                         ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                PROCESS_PATH, args, childPid,
+                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
     })};
 
     BOOST_REQUIRE(logged.find("\"route\":\"legacy\"") != std::string::npos);
@@ -505,10 +506,9 @@ BOOST_AUTO_TEST_CASE(testH4SignalIncludesSandboxCompiledInField) {
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
-            false,
-            router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy, PROCESS_PATH,
-                         args, childPid,
-                         ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                PROCESS_PATH, args, childPid,
+                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
     })};
 
 #ifdef SANDBOX2_AVAILABLE
@@ -534,7 +534,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalNoLegacyReasonOnSandbox2Route) {
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
-                                 PROCESS_PATH, args, childPid));
+                                PROCESS_PATH, args, childPid));
     })};
 
     BOOST_REQUIRE(logged.find("\"route\":\"sandbox2\"") != std::string::npos);

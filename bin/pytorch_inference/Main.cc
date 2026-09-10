@@ -342,7 +342,8 @@ int main(int argc, char** argv) {
         LOG_DEBUG(<< "ML_SANDBOXED=1: skipping in-process system call filter "
                      "installation; the Sandbox2 executor policy applies");
     } else if (seccompResult.s_Action == ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
-        LOG_FATAL(<< "Seccomp installation " << ml::seccomp::describe(seccompResult.s_Outcome)
+        LOG_FATAL(<< "Seccomp installation "
+                  << ml::seccomp::describe(seccompResult.s_Outcome)
                   << "; terminating before untrusted model processing");
         return EXIT_FAILURE;
     }

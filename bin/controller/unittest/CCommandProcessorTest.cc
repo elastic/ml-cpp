@@ -264,7 +264,8 @@ BOOST_AUTO_TEST_CASE(testMissingId) {
 
 namespace {
 //! Build a tab-separated "start" command for \p processPath with \p args.
-std::string startCommand(std::uint32_t id, const std::string& processPath,
+std::string startCommand(std::uint32_t id,
+                         const std::string& processPath,
                          const std::vector<std::string>& args) {
     std::string command{ml::core::CStringUtils::typeToString(id) + '\t' +
                         ml::controller::CCommandProcessor::START + '\t' + processPath};
@@ -293,11 +294,12 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
-        std::string command{startCommand(
-            10, PROCESS_PATH,
-            {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox", "--disableSandbox"})};
+        std::string command{startCommand(10, PROCESS_PATH,
+                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT,
+                                          "--disableSandbox", "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -320,11 +322,12 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnNonSandboxedP
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths; // empty
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
-        std::string command{startCommand(
-            11, PROCESS_PATH,
-            {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox", "--disableSandbox"})};
+        std::string command{startCommand(11, PROCESS_PATH,
+                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT,
+                                          "--disableSandbox", "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -347,7 +350,8 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDisableSandboxTokenOnNonSandboxedPath) {
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths; // empty: PROCESS_PATH not sandboxed
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
         std::string command{startCommand(
             12, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox"})};
@@ -375,11 +379,11 @@ BOOST_AUTO_TEST_CASE(testStartStripsDisableSandboxTokenForConfiguredSandboxedPat
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
         std::string command{startCommand(
-            13, PROCESS_PATH,
-            {"-c", "echo $# > " + OUT, "argv0name", "--disableSandbox"})};
+            13, PROCESS_PATH, {"-c", "echo $# > " + OUT, "argv0name", "--disableSandbox"})};
 
         BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
     }
@@ -413,7 +417,8 @@ BOOST_AUTO_TEST_CASE(testStartLeavesArgsUntouchedWhenTokenAbsent) {
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths; // empty
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
         std::string command{startCommand(
             14, PROCESS_PATH, {"-c", "echo $# > " + OUT, "argv0name", "extraArg"})};
@@ -457,10 +462,11 @@ BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPat
     {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
-        std::string command{
-            startCommand(16, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+        std::string command{startCommand(16, PROCESS_PATH,
+                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
 
         BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
     }
@@ -495,17 +501,20 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
     std::string dormantLogged{captureLogged([&] {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, dormantResponses};
-        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
-                                      20, PROCESS_PATH,
-                                      {"-c", "cp " + INPUT_FILE1 + " " + OUT})));
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    dormantResponses};
+        BOOST_REQUIRE_EQUAL(
+            true, processor.handleCommand(startCommand(
+                      20, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
     std::remove(OUT.c_str());
 
     BOOST_REQUIRE(dormantLogged.find("\"route\":\"legacy\"") != std::string::npos);
-    BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"dormant_default\"") != std::string::npos);
-    BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"kill_switch\"") == std::string::npos);
+    BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"dormant_default\"") !=
+                  std::string::npos);
+    BOOST_REQUIRE(dormantLogged.find("\"legacy_reason\":\"kill_switch\"") ==
+                  std::string::npos);
 
     // (b) Validated --disableSandbox token -> kill_switch, whatever the
     // option's state (here explicitly on, so the token is the only reason
@@ -517,17 +526,18 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
-                                                   killSwitchResponses};
-        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
-                                      21, PROCESS_PATH,
-                                      {"-c", "cp " + INPUT_FILE1 + " " + OUT,
-                                       "--disableSandbox"})));
+                                                    killSwitchResponses};
+        BOOST_REQUIRE_EQUAL(
+            true, processor.handleCommand(startCommand(
+                      21, PROCESS_PATH,
+                      {"-c", "cp " + INPUT_FILE1 + " " + OUT, "--disableSandbox"})));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
     std::remove(OUT.c_str());
 
     BOOST_REQUIRE(killSwitchLogged.find("\"route\":\"legacy\"") != std::string::npos);
-    BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"kill_switch\"") != std::string::npos);
+    BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"kill_switch\"") !=
+                  std::string::npos);
     BOOST_REQUIRE(killSwitchLogged.find("\"legacy_reason\":\"dormant_default\"") ==
                   std::string::npos);
 }
@@ -552,10 +562,11 @@ BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentAndDefaultEnfor
 
         ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
-        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths, responseStream};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
 
-        std::string command{
-            startCommand(15, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+        std::string command{startCommand(15, PROCESS_PATH,
+                                         {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -585,8 +596,8 @@ BOOST_AUTO_TEST_CASE(testNonCanonicalTruthyValuesLeaveDefaultDormant) {
             ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                         responseStream};
 
-            std::string command{
-                startCommand(17, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
+            std::string command{startCommand(
+                17, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + OUT})};
 
             BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
         }

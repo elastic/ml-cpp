@@ -55,8 +55,7 @@ CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths,
     : m_Spawner{permittedProcessPaths, sandboxedProcessPaths},
       m_Sandbox2DefaultEnabled{sandbox2DefaultEnforced()}, m_ResponseWriter{responseStream} {
     if (m_Sandbox2DefaultEnabled) {
-        LOG_INFO(<< SANDBOX2_DEFAULT_ENFORCED_ENV
-                 << "=1: a start command with no " << DISABLE_SANDBOX_TOKEN
+        LOG_INFO(<< SANDBOX2_DEFAULT_ENFORCED_ENV << "=1: a start command with no " << DISABLE_SANDBOX_TOKEN
                  << " token requires Sandbox2 for configured sandboxed process paths");
     }
 }
@@ -169,10 +168,9 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
         if (isConfiguredSandboxedPath && m_Sandbox2DefaultEnabled == false) {
             route = CProcessSpawnerRouter::ERoute::E_Legacy;
             legacyReason = CProcessSpawnerRouter::ELegacyReason::E_DormantDefault;
-            LOG_DEBUG(<< "Routing '" << processPath
-                      << "' to the legacy path: no " << DISABLE_SANDBOX_TOKEN
-                      << " token and " << SANDBOX2_DEFAULT_ENFORCED_ENV
-                      << " is not set to 1");
+            LOG_DEBUG(<< "Routing '" << processPath << "' to the legacy path: no "
+                      << DISABLE_SANDBOX_TOKEN << " token and "
+                      << SANDBOX2_DEFAULT_ENFORCED_ENV << " is not set to 1");
         }
     } else if (disableSandboxCount == 1) {
         if (isConfiguredSandboxedPath == false) {

@@ -215,8 +215,8 @@ int main(int argc, char** argv) {
     // Windows, or a Linux build without Sandbox2 support.
     ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths, sandboxedProcessPaths,
-                                                *outputStream};
+    ml::controller::CCommandProcessor processor{
+        permittedProcessPaths, sandboxedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();
