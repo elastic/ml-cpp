@@ -73,12 +73,24 @@ public:
 //! Redirect the logger to a string stream for the duration of \p fn, so a
 //! test can assert on the router's H4 sandbox2_launch signal (the same
 //! capture style bin/controller/unittest/CProcessSpawnerRouterTest.cc uses).
+
+//! RAII guard ensuring ml::core::CLogger::instance().reset() always runs,
+//! even if the captured function throws (e.g. a failed BOOST_REQUIRE*
+//! inside it) - without this, an exception mid-fn() would leave the global
+//! logger redirected into a stream nobody reads for the rest of the test
+//! binary process, causing misleading cascading failures/log loss in later,
+//! unrelated tests.
+class CScopedLoggerReset {
+public:
+    ~CScopedLoggerReset() { ml::core::CLogger::instance().reset(); }
+};
+
 template<typename FN>
 std::string captureLogged(FN&& fn) {
     auto stream = boost::make_shared<std::ostringstream>();
     BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigure(stream));
+    CScopedLoggerReset resetOnExit;
     fn();
-    ml::core::CLogger::instance().reset();
     return stream->str();
 }
 }
