@@ -16,6 +16,7 @@
 
 #include <sandbox/CSandboxedProcessSpawner.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -130,13 +131,41 @@ private:
 private:
     core::CDetachedProcessSpawner m_LegacySpawner;
 
-    //! Always present: CSandboxedProcessSpawner compiles - and is safely
-    //! constructible/queryable - on every platform (see
-    //! lib/sandbox/CSandboxedProcessSpawner_Linux.cc), so no #ifdef is
-    //! needed around this member's declaration. Its spawn()/terminateChild()
-    //! are only ever *called* from this router behind an explicit
-    //! SANDBOX2_AVAILABLE check - see the .cc.
-    sandbox::CSandboxedProcessSpawner m_SandboxSpawner;
+    //! Null until - and unless - a spawn() call actually dispatches to the
+    //! Sandbox2 route, at which point spawn() creates it in place (see the
+    //! .cc's SANDBOX2_AVAILABLE branch). A router that only ever takes the
+    //! legacy route - which is every router during the whole dormant-default
+    //! rollout window, and every router in a non-Sandbox2 build - therefore
+    //! never constructs *or* destructs any Sandbox2 machinery.
+    //!
+    //! Held behind a pointer rather than by value for two reasons:
+    //!
+    //! 1. Lifecycle: constructing Sandbox2 state (a PID registry with its
+    //!    own mutex, and, in future tasks, forkserver/monitor resources) for
+    //!    a router that will never launch a sandboxed process is pure
+    //!    liability - it puts Sandbox2 objects into the construction and
+    //!    teardown path of every controller and of every controller unit
+    //!    test, including the ones that predate Sandbox2 entirely.
+    //! 2. ODR safety: sizeof(sandbox::CSandboxedProcessSpawner) *differs*
+    //!    between translation units compiled with and without
+    //!    SANDBOX2_AVAILABLE, because its m_AwaitResultFn seam only exists
+    //!    under that macro (include/sandbox/CSandboxedProcessSpawner.h). A
+    //!    by-value member propagated that difference into
+    //!    sizeof(CProcessSpawnerRouter) and sizeof(CCommandProcessor), so
+    //!    any binary that mixed the two views of this header - as
+    //!    ml_test_controller did on Linux - had inline constructors and
+    //!    destructors disagreeing about member offsets and corrupted memory
+    //!    at teardown. std::unique_ptr is the same size either way, so this
+    //!    class's layout no longer depends on the macro at all. (The
+    //!    underlying macro mismatch is fixed in bin/controller/CMakeLists.txt
+    //!    as well; this member simply stops the layout being sensitive to
+    //!    it.)
+    //!
+    //! Not synchronised: like m_LegacySpawner's own contract, every router
+    //! entry point is called from the controller's single
+    //! command-processing thread (bin/controller/CCommandProcessor.cc), so
+    //! the lazy creation below needs no lock.
+    std::unique_ptr<sandbox::CSandboxedProcessSpawner> m_SandboxSpawner;
 
     TStrVec m_SandboxedProcessPaths;
 };

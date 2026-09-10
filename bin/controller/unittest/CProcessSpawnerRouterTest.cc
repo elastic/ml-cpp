@@ -569,4 +569,65 @@ BOOST_AUTO_TEST_CASE(testH4SignalNoLegacyReasonOnSandbox2Route) {
 // grows the same payload machinery, or as a lib/sandbox-level test that
 // exercises CProcessSpawnerRouter directly.
 
+BOOST_AUTO_TEST_CASE(testRouterLayoutDoesNotDependOnSandbox2Support) {
+    // Regression guard for the deterministic Linux teardown crash this
+    // router's first CI run hit. sizeof(sandbox::CSandboxedProcessSpawner)
+    // differs between translation units compiled with and without
+    // SANDBOX2_AVAILABLE, because its m_AwaitResultFn seam only exists under
+    // that macro (include/sandbox/CSandboxedProcessSpawner.h). While this
+    // router held that class *by value*, the difference propagated into
+    // sizeof(CProcessSpawnerRouter) and sizeof(CCommandProcessor), so a
+    // binary that mixed both views of the header - as ml_test_controller did,
+    // its object files being compiled without the macro and its test
+    // translation units with it - had inline constructors and destructors
+    // disagreeing about member offsets, and corrupted memory when a router
+    // was destroyed.
+    //
+    // Holding the sandboxed spawner behind a pointer makes this class's
+    // layout the same size under either view; the assertion below is the
+    // property that guarantees that, and it fails to compile if the member
+    // ever goes back to being stored by value.
+    static_assert(sizeof(ml::controller::CProcessSpawnerRouter) <
+                      sizeof(ml::core::CDetachedProcessSpawner) +
+                          sizeof(ml::sandbox::CSandboxedProcessSpawner),
+                  "CProcessSpawnerRouter must not store a "
+                  "sandbox::CSandboxedProcessSpawner by value - its size "
+                  "depends on SANDBOX2_AVAILABLE, which would make this "
+                  "class's layout (and CCommandProcessor's) depend on it too");
+    BOOST_TEST_REQUIRE(sizeof(ml::controller::CProcessSpawnerRouter) <
+                       sizeof(ml::core::CDetachedProcessSpawner) +
+                           sizeof(ml::sandbox::CSandboxedProcessSpawner));
+}
+
+BOOST_AUTO_TEST_CASE(testLegacyOnlyRouterNeedsNoSandboxedSpawner) {
+    // A router that only ever dispatches E_Legacy must complete its whole
+    // lifecycle - construction, dispatch, live-child queries, destruction -
+    // without any Sandbox2 machinery being created: the sandboxed spawner is
+    // only constructed inside spawn()'s Sandbox2 branch. Repeated here
+    // because the crash this guards against surfaced at *destruction* of a
+    // router that had only ever taken the legacy route, so a single
+    // construct-and-leak would not have caught it.
+    //
+    // Whether the lazy member was constructed is deliberately not exposed as
+    // public API: what is observable, and what actually matters, is that
+    // terminateChild()/hasChild() answer "no sandboxed child" for a PID this
+    // router never spawned instead of constructing a spawner just to ask,
+    // and that the legacy route keeps working across the whole lifecycle.
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+        BOOST_REQUIRE_EQUAL(false, router.hasChild(0));
+        BOOST_REQUIRE_EQUAL(false, router.terminateChild(0));
+
+        assertDispatchCopiesFile(router, ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                 "router_test_legacy_only_lifecycle.txt");
+
+        // Still nothing sandboxed after a legacy dispatch.
+        BOOST_REQUIRE_EQUAL(false, router.hasChild(0));
+        BOOST_REQUIRE_EQUAL(false, router.terminateChild(0));
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
