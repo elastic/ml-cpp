@@ -281,6 +281,21 @@ bool fileAbsent(const std::string& file) {
     std::ifstream ifs{file};
     return ifs.is_open() == false;
 }
+
+//! Args that copy INPUT_FILE1 to \p dest using this platform's copy command
+//! (mirrors PROCESS_ARGS1's per-platform invocation above), with \p extra
+//! tokens appended verbatim - e.g. to test --disableSandbox rejection or
+//! stripping via the copy's own success/failure as the observable.
+std::vector<std::string> copyArgs(const std::string& dest,
+                                  const std::vector<std::string>& extra = {}) {
+#ifdef Windows
+    std::vector<std::string> args{"/C", "copy " + INPUT_FILE1 + " " + dest};
+#else
+    std::vector<std::string> args{"-c", "cp " + INPUT_FILE1 + " " + dest};
+#endif
+    args.insert(args.end(), extra.begin(), extra.end());
+    return args;
+}
 }
 
 BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath) {
@@ -297,9 +312,9 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnSandboxedPath
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{startCommand(10, PROCESS_PATH,
-                                         {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE,
-                                          "--disableSandbox", "--disableSandbox"})};
+        std::string command{startCommand(
+            10, PROCESS_PATH,
+            copyArgs(TARGET_FILE, {"--disableSandbox", "--disableSandbox"}))};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -325,9 +340,9 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateDisableSandboxTokenOnNonSandboxedP
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{startCommand(11, PROCESS_PATH,
-                                         {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE,
-                                          "--disableSandbox", "--disableSandbox"})};
+        std::string command{startCommand(
+            11, PROCESS_PATH,
+            copyArgs(TARGET_FILE, {"--disableSandbox", "--disableSandbox"}))};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -354,8 +369,7 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDisableSandboxTokenOnNonSandboxedPath) {
                                                     responseStream};
 
         std::string command{startCommand(
-            12, PROCESS_PATH,
-            {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE, "--disableSandbox"})};
+            12, PROCESS_PATH, copyArgs(TARGET_FILE, {"--disableSandbox"}))};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -368,6 +382,17 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDisableSandboxTokenOnNonSandboxedPath) {
                        std::string::npos);
 }
 
+// These two tests distinguish "token stripped" from "token leaked through"
+// by counting the exact number of positional arguments a POSIX shell -c
+// script sees ($#) - a leaked token adds an extra argv entry, a stripped
+// one doesn't. cmd.exe's /C form has no equivalent: it concatenates every
+// argv element into one command-line string for CreateProcess rather than
+// exposing them as separate replaceable parameters, so a copy-success/
+// failure observable (as used elsewhere in this file) can't distinguish
+// the two cases here - a trailing token that isn't actually consumed by
+// the command line has no observable effect either way. Genuinely
+// Windows-untestable with this technique, not merely inconvenient.
+#ifndef Windows
 BOOST_AUTO_TEST_CASE(testStartStripsDisableSandboxTokenForConfiguredSandboxedPath) {
     // A single --disableSandbox token on the configured sandboxed path must
     // be stripped before the underlying spawner ever sees it. Verified via
@@ -442,6 +467,7 @@ BOOST_AUTO_TEST_CASE(testStartLeavesArgsUntouchedWhenTokenAbsent) {
     std::string response{responseStream.str()};
     BOOST_TEST_REQUIRE(response.find("\"id\":14,\"success\":true") != std::string::npos);
 }
+#endif // !Windows
 
 BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPath) {
     // SHIPS DORMANT: with ML_SANDBOX2_DEFAULT_ENFORCED unset (the shipped
@@ -467,8 +493,7 @@ BOOST_AUTO_TEST_CASE(testStartDefaultsToLegacyRouteWhenTokenAbsentOnSandboxedPat
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{startCommand(
-            16, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})};
+        std::string command{startCommand(16, PROCESS_PATH, copyArgs(TARGET_FILE))};
 
         BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
     }
@@ -505,9 +530,8 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     dormantResponses};
-        BOOST_REQUIRE_EQUAL(
-            true, processor.handleCommand(startCommand(
-                      20, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})));
+        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
+                                      20, PROCESS_PATH, copyArgs(TARGET_FILE))));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
     std::remove(TARGET_FILE.c_str());
@@ -529,10 +553,9 @@ BOOST_AUTO_TEST_CASE(testLegacyReasonProvenanceReachesH4Signal) {
         ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     killSwitchResponses};
-        BOOST_REQUIRE_EQUAL(true, processor.handleCommand(startCommand(
-                                      21, PROCESS_PATH,
-                                      {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE,
-                                       "--disableSandbox"})));
+        BOOST_REQUIRE_EQUAL(
+            true, processor.handleCommand(startCommand(
+                      21, PROCESS_PATH, copyArgs(TARGET_FILE, {"--disableSandbox"}))));
     })};
     std::this_thread::sleep_for(std::chrono::seconds{1});
     std::remove(TARGET_FILE.c_str());
@@ -567,8 +590,7 @@ BOOST_AUTO_TEST_CASE(testStartSelectsSandbox2RouteWhenTokenAbsentAndDefaultEnfor
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{startCommand(
-            15, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})};
+        std::string command{startCommand(15, PROCESS_PATH, copyArgs(TARGET_FILE))};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }
@@ -598,8 +620,7 @@ BOOST_AUTO_TEST_CASE(testNonCanonicalTruthyValuesLeaveDefaultDormant) {
             ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                         responseStream};
 
-            std::string command{startCommand(
-                17, PROCESS_PATH, {"-c", "cp " + INPUT_FILE1 + " " + TARGET_FILE})};
+            std::string command{startCommand(17, PROCESS_PATH, copyArgs(TARGET_FILE))};
 
             BOOST_REQUIRE_EQUAL(true, processor.handleCommand(command));
         }
