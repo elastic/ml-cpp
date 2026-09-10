@@ -35,6 +35,7 @@ single-line JSON object.
 | `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`); **omitted entirely** - never `""`, never `null` - on `route == "sandbox2"`, i.e. on both `enforced` and `fail_closed`. `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"dormant_default"` when no token was needed and `ML_SANDBOX2_DEFAULT_ENFORCED` simply is not enabled. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
 | `sandbox2_established`  | boolean | JSON boolean (`true`/`false`, never the string `"y"`/`"n"`). `true` iff `mode == "enforced"`, else `false`. |
 | `mode`                  | string  | One of `"enforced"`, `"fail_closed"`, `"degraded"` - see mapping below. |
+| `sandbox2_compiled_in`  | boolean | JSON boolean. Sourced from `sandbox::CMlSandboxAvailability::isCompiledIn()`, computed once (a build-time-constant fact, not per-launch state) and included on **every** emitted line, unlike `legacy_reason` which is conditional on route. Lets a consumer distinguish "Sandbox2 supported but dormant" (`route == "legacy"`, `legacy_reason == "dormant_default"`, `sandbox2_compiled_in == true`) from "built without Sandbox2 support at all" (`sandbox2_compiled_in == false`) - both otherwise emit identical `legacy`/`dormant_default`/`degraded` signals for every plain launch. |
 
 `legacy_reason` exists because `mode == "degraded"` alone conflates a
 deliberate operator kill-switch launch with the dormant default that is in
@@ -108,8 +109,8 @@ the same time the default stops being legacy.
 Example:
 
 ```json
-{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"sandbox2","sandbox2_established":true,"mode":"enforced"}
-{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"legacy","legacy_reason":"dormant_default","sandbox2_established":false,"mode":"degraded"}
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"sandbox2","sandbox2_established":true,"mode":"enforced","sandbox2_compiled_in":true}
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"legacy","legacy_reason":"dormant_default","sandbox2_established":false,"mode":"degraded","sandbox2_compiled_in":true}
 ```
 
 Emission site: `bin/controller/CProcessSpawnerRouter.cc`,

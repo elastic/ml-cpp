@@ -12,6 +12,7 @@
 
 #include <core/CLogger.h>
 
+#include <sandbox/CMlSandboxAvailability.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 
 #include <algorithm>
@@ -26,6 +27,12 @@ namespace {
 //! boost::program_options for a single optional field. Returns "" if
 //! absent. Independent of any --disableSandbox scan - this never mutates
 //! or consumes \p args.
+//!
+//! Only matches the "=" form ("--modelid=<value>"), not the space-separated
+//! "--modelid <value>" form boost::program_options also accepts elsewhere
+//! in this codebase: the "=" form is the wire contract PR F's ES-side
+//! observability code relies on for model_id in the sandbox2_launch signal
+//! (docs/sandbox2_production_failure_modes.md).
 std::string scanModelId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
     const std::string prefix{"--modelid="};
     for (const auto& arg : args) {
@@ -155,6 +162,18 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
         legacyReasonField = std::string{",\"legacy_reason\":\""} + reason + "\"";
     }
 
+    // Additive field, emitted on *every* signal line regardless of route:
+    // a build-time-constant fact (backed by CMlSandboxAvailability, itself
+    // backed by the SANDBOX2_AVAILABLE compile definition), not per-launch
+    // state, so it is computed once here rather than threaded through as a
+    // parameter. Lets a consumer (PR F's rollout logic) distinguish a
+    // Linux build that has Sandbox2 support but is dormant (route ==
+    // "legacy", legacy_reason == "dormant_default", sandbox2_compiled_in ==
+    // true) from a build with no Sandbox2 support at all
+    // (sandbox2_compiled_in == false) - the two are otherwise
+    // indistinguishable from the H4 signal alone.
+    static const bool sandbox2CompiledIn{sandbox::CMlSandboxAvailability::isCompiledIn()};
+
     std::ostringstream signal;
     signal << "{\"event\":\"sandbox2_launch\""
            << ",\"deployment_id\":\"" << jsonEscape(deploymentId) << "\""
@@ -163,6 +182,7 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
            << legacyReasonField
            << ",\"sandbox2_established\":" << (sandbox2Established ? "true" : "false")
            << ",\"mode\":\"" << mode << "\""
+           << ",\"sandbox2_compiled_in\":" << (sandbox2CompiledIn ? "true" : "false")
            << "}";
     LOG_INFO(<< signal.str());
 }
