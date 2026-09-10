@@ -41,8 +41,12 @@
 // unshare() and the CLONE_NEWUSER/CLONE_NEWNS/CLONE_NEWPID constants are GNU
 // extensions gated behind _GNU_SOURCE in glibc's <sched.h>; define it
 // explicitly (must precede any system header include) rather than relying on
-// libstdc++ defining it implicitly for this translation unit.
+// libstdc++ defining it implicitly for this translation unit. Guarded
+// because g++ already predefines it on glibc targets - an unconditional
+// #define here would trigger a macro-redefinition warning.
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <cerrno>
 #include <cstdio>
