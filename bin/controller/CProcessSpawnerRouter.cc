@@ -113,20 +113,20 @@ namespace ml {
 namespace controller {
 
 CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
-                                              const TStrVec& sandboxedProcessPaths)
+                                             const TStrVec& sandboxedProcessPaths)
     : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths} {
 }
 
 bool CProcessSpawnerRouter::isSandboxedProcessPath(const std::string& processPath) const {
-    return std::find(m_SandboxedProcessPaths.begin(), m_SandboxedProcessPaths.end(), processPath) !=
-           m_SandboxedProcessPaths.end();
+    return std::find(m_SandboxedProcessPaths.begin(), m_SandboxedProcessPaths.end(),
+                     processPath) != m_SandboxedProcessPaths.end();
 }
 
 void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
-                                              ELegacyReason legacyReason,
-                                              const std::string& deploymentId,
-                                              const TStrVec& args,
-                                              bool spawnSucceeded) const {
+                                             ELegacyReason legacyReason,
+                                             const std::string& deploymentId,
+                                             const TStrVec& args,
+                                             bool spawnSucceeded) const {
     const bool isLegacyRoute{route == ERoute::E_Legacy};
 
     // Controller ruling (binding, PR E Task 4): degraded is decided purely
@@ -149,8 +149,7 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     // "fail_closed" modes, since neither can have a legacy reason.
     std::string legacyReasonField;
     if (isLegacyRoute) {
-        const char* reason{legacyReason == ELegacyReason::E_KillSwitch ? "kill_switch"
-                                                                       : "dormant_default"};
+        const char* reason{legacyReason == ELegacyReason::E_KillSwitch ? "kill_switch" : "dormant_default"};
         if (legacyReason == ELegacyReason::E_NotLegacy) {
             // A caller that routed to legacy without naming why: report the
             // dormant default (the overwhelmingly common case during the
@@ -188,10 +187,10 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
 }
 
 bool CProcessSpawnerRouter::spawn(ERoute route,
-                                   const std::string& processPath,
-                                   const TStrVec& args,
-                                   core::CProcess::TPid& childPid,
-                                   ELegacyReason legacyReason) {
+                                  const std::string& processPath,
+                                  const TStrVec& args,
+                                  core::CProcess::TPid& childPid,
+                                  ELegacyReason legacyReason) {
     // The H4 signal (design.md §Failure behavior and observability) fires
     // only for processes actually eligible for sandboxing - never for
     // unrelated permitted processes like autodetect - and exactly once per
@@ -205,7 +204,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // post-spawn second derivation is not equivalent. Skipped entirely for
     // processes that can never emit the signal, so unrelated permitted
     // processes (autodetect etc.) pay no ::realpath() cost.
-    const std::string deploymentId{sandboxEligible ? deriveDeploymentId(args) : std::string()};
+    const std::string deploymentId{sandboxEligible ? deriveDeploymentId(args)
+                                                   : std::string()};
 
     bool spawned{false};
     if (route == ERoute::E_Legacy) {
@@ -218,13 +218,12 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         // was; CCommandProcessor logs that provenance at the point it is
         // actually known, and passes it in as legacyReason purely so the H4
         // signal below can report it.
-        LOG_INFO(<< "Launching '" << processPath
-                 << "' without Sandbox2 (legacy route selected by the controller); "
+        LOG_INFO(<< "Launching '" << processPath << "' without Sandbox2 (legacy route selected by the controller); "
                  << "the in-process seccomp filter applies");
         spawned = m_LegacySpawner.spawn(processPath, args, childPid);
     } else if (sandboxEligible) {
-        // route == ERoute::E_Sandbox2, and processPath is configured as
-        // sandboxed.
+    // route == ERoute::E_Sandbox2, and processPath is configured as
+    // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
         // No automatic fallback to the legacy spawner on a Sandbox2
         // failure (V2, MG1): a process that must be sandboxed either
@@ -237,8 +236,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         // platform - fail closed and say why, rather than silently falling
         // through to the legacy spawner as the frozen router's #ifdef
         // Linux masked this exact case by doing.
-        LOG_ERROR(<< "Refusing to launch '" << processPath
-                  << "': configured as a sandboxed process path, but this "
+        LOG_ERROR(<< "Refusing to launch '" << processPath << "': configured as a sandboxed process path, but this "
                   << "build was not compiled with Sandbox2 support");
         spawned = false;
 #endif

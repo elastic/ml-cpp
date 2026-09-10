@@ -273,8 +273,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     // username) to '?' for every Windows child - a regression the addition
     // of this stripping logic must not introduce as a side effect.
     LPWSTR parentEnvironmentBlock{::GetEnvironmentStringsW()};
-    std::wstring childEnvironmentBlock{
-        detail::buildChildEnvironmentBlock(parentEnvironmentBlock)};
+    std::wstring childEnvironmentBlock{detail::buildChildEnvironmentBlock(parentEnvironmentBlock)};
     if (parentEnvironmentBlock != 0) {
         ::FreeEnvironmentStringsW(parentEnvironmentBlock);
     }
@@ -286,8 +285,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         CScopedLock lock(m_TrackerThread->mutex());
 
         if (CreateProcessW(
-                wideProcessPath.c_str(), const_cast<wchar_t*>(wideCmdLine.c_str()), 0,
-                0, FALSE,
+                wideProcessPath.c_str(),
+                const_cast<wchar_t*>(wideCmdLine.c_str()), 0, 0, FALSE,
                 // The CREATE_NO_WINDOW flag is used instead of
                 // DETACHED_PROCESS, as Windows does not create the file handles
                 // that underlie stdin, stdout and stderr if a process has no
@@ -303,8 +302,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 // without this flag, is an ANSI block, which would silently
                 // misinterpret it).
                 CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
-                const_cast<wchar_t*>(childEnvironmentBlock.data()), 0, &startupInfo,
-                &processInformation) == FALSE) {
+                const_cast<wchar_t*>(childEnvironmentBlock.data()), 0,
+                &startupInfo, &processInformation) == FALSE) {
             LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
             return false;
         }

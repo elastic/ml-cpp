@@ -66,7 +66,8 @@ const std::string PROCESS_ARGS2[] = {"10"};
 //! CScopedChildIpcRoot.
 class CScopedEnvVar {
 public:
-    CScopedEnvVar(std::string name, const char* value) : m_Name(std::move(name)) {
+    CScopedEnvVar(std::string name, const char* value)
+        : m_Name(std::move(name)) {
         const char* previous{std::getenv(m_Name.c_str())};
         m_HadPreviousValue = previous != nullptr;
         if (m_HadPreviousValue) {
@@ -196,7 +197,8 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironment) {
         auto childEnv = ml::core::detail::buildChildEnvironment(&parentEnv[0]);
         BOOST_REQUIRE_EQUAL(std::size_t(4), childEnv.size());
         BOOST_REQUIRE_EQUAL(std::string("PATH=/bin"), std::string(childEnv[0]));
-        BOOST_REQUIRE_EQUAL(std::string("ML_SANDBOXED_KEEP_ME=1"), std::string(childEnv[1]));
+        BOOST_REQUIRE_EQUAL(std::string("ML_SANDBOXED_KEEP_ME=1"),
+                            std::string(childEnv[1]));
         BOOST_REQUIRE_EQUAL(std::string("TMPDIR=/tmp"), std::string(childEnv[2]));
         BOOST_REQUIRE_EQUAL(static_cast<char*>(nullptr), childEnv[3]);
     }

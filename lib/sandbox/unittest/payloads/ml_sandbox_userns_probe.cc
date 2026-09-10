@@ -122,8 +122,8 @@ void runNamespaceStages(int pipeWriteFd) {
     ::close(setgroupsFd);
 
     char uidMapBuf[64];
-    const int uidMapLen =
-        std::snprintf(uidMapBuf, sizeof(uidMapBuf), "0 %d 1\n", static_cast<int>(uid));
+    const int uidMapLen = std::snprintf(uidMapBuf, sizeof(uidMapBuf),
+                                        "0 %d 1\n", static_cast<int>(uid));
     int uidMapFd = ::open("/proc/self/uid_map", O_WRONLY);
     if (uidMapFd < 0 || ::write(uidMapFd, uidMapBuf, uidMapLen) != uidMapLen) {
         const int savedErrno = errno;
@@ -136,8 +136,8 @@ void runNamespaceStages(int pipeWriteFd) {
     ::close(uidMapFd);
 
     char gidMapBuf[64];
-    const int gidMapLen =
-        std::snprintf(gidMapBuf, sizeof(gidMapBuf), "0 %d 1\n", static_cast<int>(gid));
+    const int gidMapLen = std::snprintf(gidMapBuf, sizeof(gidMapBuf),
+                                        "0 %d 1\n", static_cast<int>(gid));
     int gidMapFd = ::open("/proc/self/gid_map", O_WRONLY);
     if (gidMapFd < 0 || ::write(gidMapFd, gidMapBuf, gidMapLen) != gidMapLen) {
         const int savedErrno = errno;
@@ -179,8 +179,8 @@ int main() {
     int pipeFds[2];
     // Stage 1: probe pipe + fork.
     if (::pipe(pipeFds) != 0) {
-        std::printf("ml_sandbox_userns_probe: outcome=failure stage=1 errno=%d detail=%s\n", errno,
-                    std::strerror(errno));
+        std::printf("ml_sandbox_userns_probe: outcome=failure stage=1 errno=%d detail=%s\n",
+                    errno, std::strerror(errno));
         return EXIT_FAILURE;
     }
 
