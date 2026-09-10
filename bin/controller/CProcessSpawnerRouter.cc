@@ -30,9 +30,9 @@ namespace {
 //!
 //! Only matches the "=" form ("--modelid=<value>"), not the space-separated
 //! "--modelid <value>" form boost::program_options also accepts elsewhere
-//! in this codebase: the "=" form is the wire contract PR F's ES-side
-//! observability code relies on for model_id in the sandbox2_launch signal
-//! (docs/sandbox2_production_failure_modes.md).
+//! in this codebase: the "=" form is the wire contract a future change's
+//! ES-side observability code relies on for model_id in the sandbox2_launch
+//! signal (docs/sandbox2_production_failure_modes.md).
 std::string scanModelId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
     const std::string prefix{"--modelid="};
     for (const auto& arg : args) {
@@ -46,8 +46,9 @@ std::string scanModelId(const ml::controller::CProcessSpawnerRouter::TStrVec& ar
 //! Minimal JSON string escaping for the two string fields
 //! (deployment_id/model_id) that are derived from operator/caller-supplied
 //! input (a launch argument and a validated path component) rather than
-//! from a fixed internal vocabulary - PR F's ES-side observability code
-//! parses this line by name and type, so it must stay valid JSON even if
+//! from a fixed internal vocabulary - a future change's ES-side
+//! observability code parses this line by name and type, so it must stay
+//! valid JSON even if
 //! either value contains a quote, a backslash, or a control character.
 //! deployment_id is a filesystem path component and model_id comes straight
 //! off the command line, so a raw newline/tab/NUL in either would otherwise
@@ -94,7 +95,8 @@ std::string jsonEscape(const std::string& s) {
 //! CSandboxedProcessSpawner_Linux.cc does before constructing a Sandbox2
 //! policy (same trustedTmpDir derivation - getenv("TMPDIR"), defaulting to
 //! "/tmp"). Called once per spawn(), *before* either backend runs, so the
-//! H4 signal and the dispatch decision see one and the same filesystem
+//! sandbox2_launch signal and the dispatch decision see one and the same
+//! filesystem
 //! state: validateChildIpcLaunchSpec() does live ::realpath() calls, and a
 //! post-spawn second call could observe a different (or, on the
 //! legacy/degraded and failed-Sandbox2 paths, an absent) per-child IPC
@@ -129,8 +131,8 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
                                              bool spawnSucceeded) const {
     const bool isLegacyRoute{route == ERoute::E_Legacy};
 
-    // Controller ruling (binding, PR E Task 4): degraded is decided purely
-    // by route, regardless of the legacy spawn's own success/failure;
+    // degraded is decided purely by route, regardless of the legacy
+    // spawn's own success/failure;
     // enforced/fail_closed are only decided for the no-token Sandbox2
     // route, keyed off the spawn outcome itself.
     std::string mode;
@@ -165,12 +167,12 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     // a build-time-constant fact (backed by CMlSandboxAvailability, itself
     // backed by the SANDBOX2_AVAILABLE compile definition), not per-launch
     // state, so it is computed once here rather than threaded through as a
-    // parameter. Lets a consumer (PR F's rollout logic) distinguish a
-    // Linux build that has Sandbox2 support but is dormant (route ==
-    // "legacy", legacy_reason == "dormant_default", sandbox2_compiled_in ==
-    // true) from a build with no Sandbox2 support at all
-    // (sandbox2_compiled_in == false) - the two are otherwise
-    // indistinguishable from the H4 signal alone.
+    // parameter. Lets a consumer (e.g. a future ES-side rollout logic)
+    // distinguish a Linux build that has Sandbox2 support but is dormant
+    // (route == "legacy", legacy_reason == "dormant_default",
+    // sandbox2_compiled_in == true) from a build with no Sandbox2 support at
+    // all (sandbox2_compiled_in == false) - the two are otherwise
+    // indistinguishable from the sandbox2_launch signal alone.
     static const bool sandbox2CompiledIn{sandbox::CMlSandboxAvailability::isCompiledIn()};
 
     std::ostringstream signal;
@@ -191,16 +193,16 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
                                   const TStrVec& args,
                                   core::CProcess::TPid& childPid,
                                   ELegacyReason legacyReason) {
-    // The H4 signal (design.md §Failure behavior and observability) fires
-    // only for processes actually eligible for sandboxing - never for
+    // The sandbox2_launch signal fires only for processes actually
+    // eligible for sandboxing - never for
     // unrelated permitted processes like autodetect - and exactly once per
     // spawn() call, on every outcome, computed once up front so neither
     // dispatch branch below can accidentally skip or duplicate it.
     const bool sandboxEligible{this->isSandboxedProcessPath(processPath)};
 
     // Derived exactly once per spawn() call, before either backend runs, so
-    // the H4 signal below reports the same childId the dispatch decision was
-    // taken against - see deriveDeploymentId()'s comment for why a
+    // the sandbox2_launch signal below reports the same childId the
+    // dispatch decision was taken against - see deriveDeploymentId()'s comment for why a
     // post-spawn second derivation is not equivalent. Skipped entirely for
     // processes that can never emit the signal, so unrelated permitted
     // processes (autodetect etc.) pay no ::realpath() cost.
@@ -216,8 +218,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         // prior art's spawn(), which re-derived disableSandbox from args
         // itself), so it cannot - and must not - derive which of the two it
         // was; CCommandProcessor logs that provenance at the point it is
-        // actually known, and passes it in as legacyReason purely so the H4
-        // signal below can report it.
+        // actually known, and passes it in as legacyReason purely so the
+        // sandbox2_launch signal below can report it.
         LOG_INFO(<< "Launching '" << processPath << "' without Sandbox2 (legacy route selected by the controller); "
                  << "the in-process seccomp filter applies");
         spawned = m_LegacySpawner.spawn(processPath, args, childPid);
@@ -226,7 +228,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
         // No automatic fallback to the legacy spawner on a Sandbox2
-        // failure (V2, MG1): a process that must be sandboxed either
+        // failure: a process that must be sandboxed either
         // launches inside Sandbox2 or does not launch at all.
         spawned = m_SandboxSpawner.spawn(processPath, args, childPid);
 #else

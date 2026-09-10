@@ -1,15 +1,14 @@
 # Sandbox2 production failure modes
 
 This document tracks the operational log vocabulary the controller and
-`pytorch_inference` emit around the Sandbox2 rollout. Per
-`docs/projects/mlcpp-sandbox2-pr2873/design.md` §Failure behavior and
-observability, this schema is itself an API: field names and types must not
-change without updating both this document and any downstream consumer
-(notably PR F's ES-side observability work).
+`pytorch_inference` emit around the Sandbox2 rollout. This schema is itself
+an API: field names and types must not change without updating both this
+document and any downstream consumer (notably a future change's ES-side
+observability work).
 
-This file currently documents the log line introduced by PR E Task 4 (the
-H4 structured once-per-launch enforced-mode signal) and, below, the V14
-attack-defense evidence source added by PR E Task 6.
+This file currently documents the `sandbox2_launch` structured
+once-per-launch enforced-mode signal and, below, the attack-defense evidence
+source used to validate the Sandbox2 security boundary.
 
 ## Log vocabulary
 
@@ -23,7 +22,7 @@ including a failed spawn, so it is never gated behind the controller's own
 success handling.
 
 Logged via `LOG_INFO` over the controller's existing log pipe (the same
-channel/style MG8's `degradedModeAttestationMarker()` marker uses), as a
+channel/style `degradedModeAttestationMarker()` marker uses), as a
 single-line JSON object.
 
 | Field                   | Type    | Meaning |
@@ -44,7 +43,7 @@ launch is `degraded`, so the mode carries no diagnostic information on its
 own. It is additive: `event`/`deployment_id`/`model_id`/`route`/
 `sandbox2_established`/`mode` and their semantics are unchanged.
 
-**`mode` mapping** (binding, PR E Task 4 controller ruling):
+**`mode` mapping** (binding rule):
 
 - `enforced` - `route == "sandbox2"` (no operator kill-switch token) and the
   Sandbox2 spawn returned `true`.
@@ -65,7 +64,7 @@ Anything else (unset, `""`, `0`, `true`) leaves it off. Off is the shipped
 default, so this rollout starts dormant: a plain `pytorch_inference` launch
 behaves exactly as it did before typed routing existed, on every platform,
 including builds without Sandbox2 support. With the option on, the same
-command requires Sandbox2 and never falls back (V2).
+command requires Sandbox2 and never falls back to the legacy spawner.
 
 `ML_SANDBOX2_DEFAULT_ENFORCED` is an internal seam, not an operator setting;
 the change that turns it on is the Elasticsearch-side default-false feature
@@ -118,25 +117,29 @@ Emission site: `bin/controller/CProcessSpawnerRouter.cc`,
 helper) - chosen because this class owns both the already-decided route
 parameter and the actual spawn-outcome boolean the `mode` field depends on.
 
-## V14 evidence source: attack-defense harness
+## Attack-defense harness evidence
 
-Per `docs/projects/mlcpp-sandbox2-pr2873/design.md`'s Required proof matrix,
-V14 ("Attack-defense harness blocks maintained malicious models on PR tip
-after proving each model reached execution") closes only with a dated
+The required proof for the Sandbox2 security boundary is that the
+attack-defense harness blocks maintained malicious models on the ml-cpp PR
+tip, after proving each model actually reached execution (not merely that it
+crashed before getting there). This closes only with a dated
 `attack-defense-<ml-cpp-head-sha>.md` record in this directory. This section
 names the harness that produces that evidence and the exact command; it does
-not itself constitute a V14 closure record (no run has been recorded against
-a head SHA yet - the harness requires production-like Linux with Sandbox2,
-so it is Buildkite/manual-devbox-deferred, per design.md: "Permanent CI is
-optional; final-tip evidence is not").
+not itself constitute a closure record (no run has been recorded against a
+head SHA yet - the harness requires production-like Linux with Sandbox2, so
+it runs on Buildkite or a manual devbox rather than as a permanent CI gate;
+permanent CI coverage is optional, but final-tip evidence before a release is
+not).
 
 **Harness:** `test/test_sandbox2_attack_defense.py`, invoked via
 `dev-tools/run_sandbox2_attack_defense.sh`. It drives the real controller /
 `pytorch_inference` binaries through the actual
 `$TMPDIR/ml-child-ipc/<child-id>` per-child IPC layout (see
 `include/sandbox/CPytorchInferenceSandboxPolicy.h`'s `SChildIpcLaunchSpec`),
-and satisfies the Verification contract's Oracle rule for every case: an
-unsandboxed positive control (`--disableSandbox`), a reached marker (a
+and satisfies, for every case, the five-part evidence requirement (a
+positive control, a reached marker, a negative assertion, a mechanism
+assertion, and a cleanup assertion): an unsandboxed positive control
+(`--disableSandbox`), a reached marker (a
 `model loaded` line on the model's own `--logPipe`, plus either a
 `request_id`-correlated output-pipe response or a confirmed post-load
 process death), a negative assertion (protected file absent under
@@ -174,7 +177,7 @@ sandboxed child's allowed scope). `model_leak.pt` is generated by
 harness's `test_exploit_model` docstring for why a standalone leak
 assertion tested nothing beyond the exploit case.
 
-**A closing V14 record must additionally capture:** host/kernel (e.g.
+**A closing record must additionally capture:** host/kernel (e.g.
 `uname -a`), date, pass/fail per model exercised, the cleanup result (each
 case's kill/reap confirmation), and a CI/build link when available, named
 `attack-defense-<ml-cpp-head-sha>.md` in this directory.

@@ -62,8 +62,9 @@ public:
 
     //! Why the caller chose ERoute::E_Legacy. The router never derives this
     //! (it never re-parses args): CCommandProcessor passes the provenance it
-    //! already knows from making the decision, purely so the H4 signal's
-    //! additive "legacy_reason" field can distinguish a deliberate operator
+    //! already knows from making the decision, purely so the
+    //! `sandbox2_launch` signal's additive "legacy_reason" field can
+    //! distinguish a deliberate operator
     //! kill switch from the dormant default that is in effect for the whole
     //! rollout window - mode == "degraded" alone cannot.
     enum class ELegacyReason {
@@ -81,9 +82,9 @@ public:
 
     //! Dispatch a spawn request per the already-decided \p route. Returns
     //! false immediately on a Sandbox2 failure - never retries via the
-    //! legacy spawner (V2, "no automatic fallback").
-    //! \param legacyReason provenance of an E_Legacy \p route, for the H4
-    //!        signal only - never used to dispatch. Must be E_NotLegacy
+    //! legacy spawner ("no automatic fallback").
+    //! \param legacyReason provenance of an E_Legacy \p route, for the
+    //!        `sandbox2_launch` signal only - never used to dispatch. Must be E_NotLegacy
     //!        (the default) when \p route is E_Sandbox2.
     bool spawn(ERoute route,
                const std::string& processPath,
@@ -99,7 +100,7 @@ public:
 
     //! \return true if \p processPath is configured as a sandboxed process
     //! path. This is the single implementation of that predicate: the router
-    //! uses it for dispatch and H4-signal gating, and CCommandProcessor
+    //! uses it for dispatch and `sandbox2_launch`-signal gating, and CCommandProcessor
     //! calls it (through its own router member) to decide whether the
     //! operator kill-switch token is meaningful for a process path and
     //! whether the dormant-by-default Sandbox2 route applies. Keeping two
@@ -109,8 +110,8 @@ public:
     bool isSandboxedProcessPath(const std::string& processPath) const;
 
 private:
-    //! Emit the H4 structured once-per-launch signal (design.md §Failure
-    //! behavior and observability) for a Sandbox2-eligible spawn() call,
+    //! Emit the `sandbox2_launch` structured once-per-launch signal for a
+    //! Sandbox2-eligible spawn() call,
     //! after the dispatch outcome is known. Fires on every outcome,
     //! including \p spawnSucceeded == false (the fail_closed case) - never
     //! gated behind the caller's own success handling. Must only be called

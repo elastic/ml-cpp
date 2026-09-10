@@ -51,8 +51,8 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
     # --- Linux aarch64: run tests inside Docker container from base image ---
     # aarch64 Buildkite k8s pods are the only runners here with userns
     # capability (mount("proc", ...) succeeds), so this is the only branch
-    # that can exercise ML_SANDBOX2_REQUIRE=enforced - and it runs *only*
-    # that mode (H3: "aarch64 enforced (pinned); x86_64 fail-closed"). A
+    # that can exercise ML_SANDBOX2_REQUIRE=enforced - and it runs only that
+    # mode: aarch64 is pinned to enforced, x86_64 stays fail-closed. A
     # second fail_closed pass on this same host/kernel would assert the
     # absence of the very userns capability the enforced pass just proved
     # present, so exactly one of the two could ever pass.
@@ -98,8 +98,9 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
 else
     # --- Linux x86_64 / macOS: run tests directly ---
     # x86_64 Buildkite k8s pods get EPERM on mount("proc", ...) - there is no
-    # userns-capable x86_64 runner (accepted risk, see evidence.md MG6). Only
-    # fail_closed runs here; do not add an enforced pass to this branch. This
+    # userns-capable x86_64 CI runner today, so this is an accepted gap in
+    # enforced-mode coverage on that architecture. Only fail_closed runs
+    # here; do not add an enforced pass to this branch. This
     # also covers aarch64 cross-compile builds, which fall through to this
     # same branch via the "-z ${CPP_CROSS_COMPILE:-}" condition above, so
     # they get fail_closed coverage too rather than being skipped entirely.

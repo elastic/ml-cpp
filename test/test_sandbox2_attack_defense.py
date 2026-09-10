@@ -22,21 +22,21 @@ Not run in CI; use after local Sandbox2 or policy changes. CI coverage for the
 *pre-execution* graph-validator layer is provided by CModelGraphValidatorTest
 and test_pytorch_inference_evil_models.py; CI coverage for the syscall
 inventory is CSandboxedProcessSpawnerTest_Linux. This harness is the only
-proof for V14 (docs/projects/mlcpp-sandbox2-pr2873/design.md): that the
-*runtime* Sandbox2 filesystem/syscall boundary - not the static graph
-validator - stops a malicious model that already got past model load.
+proof that the *runtime* Sandbox2 filesystem/syscall boundary - not the
+static graph validator - stops a malicious model that already got past model
+load.
 
 Every malicious model is launched with `--skipModelValidation`. Without that
 flag, `CModelGraphValidator` rejects these particular models (they use
 `aten::as_strided` with an out-of-bounds offset) before `forward()` ever
 runs - so a run without the flag would report "target file not created" for
 a reason that has nothing to do with Sandbox2, which is exactly the kind of
-crashed-before-reaching-the-boundary false positive the Oracle rule's
-"reached marker" requirement exists to rule out (see MG5's
-`testPolicyViolationDifferential` `getpgid`-crash precedent in design.md).
+crashed-before-reaching-the-boundary false positive the "reached marker"
+requirement below exists to rule out (a crash inside `getpgid` before
+reaching the boundary previously produced exactly this false positive in
+`testPolicyViolationDifferential`).
 
-Each case in this harness satisfies the Oracle rule (design.md
-"Verification contract"):
+Each case in this harness satisfies a five-part evidence requirement:
 1. Positive control: the same model is also run through the controller's
    `--disableSandbox` legacy route (Sandbox2 structurally absent) and must
    demonstrate the payload actually works there.
@@ -306,15 +306,15 @@ def find_child_pid(controller, process_path, since_offset, timeout=PID_DISCOVERY
         time.sleep(0.1)
 
 
-#! The controller's H4 structured once-per-launch signal, emitted by
-#! bin/controller/CProcessSpawnerRouter.cc emitLaunchSignal() over the same
-#! log pipe. Boost.Log escapes the embedded quotes, so the raw capture is
-#! unescaped before matching.
+#! The controller's sandbox2_launch structured once-per-launch signal,
+#! emitted by bin/controller/CProcessSpawnerRouter.cc emitLaunchSignal()
+#! over the same log pipe. Boost.Log escapes the embedded quotes, so the raw
+#! capture is unescaped before matching.
 LAUNCH_SIGNAL_ROUTE_RE = re.compile(r'"event":"sandbox2_launch".*?"route":"(?P<route>[a-z0-9_]+)"')
 
 
 def find_launch_route(controller, since_offset, timeout=PID_DISCOVERY_TIMEOUT):
-    """Return the route ("sandbox2" / "legacy") the controller's own H4
+    """Return the route ("sandbox2" / "legacy") the controller's own
     sandbox2_launch signal reports for the launch issued after since_offset,
     or None if no such signal appeared within timeout.
 
@@ -359,8 +359,7 @@ def tail_contains(path, needle, deadline):
 class ControllerProcess:
     """Manages the controller process and its own command/output/log/stdin
     pipes, kept in control_dir - deliberately separate from any child's
-    `$TMPDIR/ml-child-ipc/<child-id>` directory (design.md's "separate
-    controller/child roots" requirement), so a sandboxed child's mount
+    `$TMPDIR/ml-child-ipc/<child-id>` directory, so a sandboxed child's mount
     policy for its own IPC root can never be confused with, or accidentally
     widened to include, the controller's own command channel.
     """
@@ -578,7 +577,7 @@ class ControllerProcess:
         dict, or None on timeout. response['success'] is False both when
         the PID was never one of the controller's live children and when it
         already exited - exactly the registry-poll cleanup mechanism the
-        Oracle rule's cleanup assertion needs (see
+        cleanup assertion below needs (see
         bin/controller/CCommandProcessor.cc handleKill() ->
         CSandboxedProcessSpawner::terminateChild())."""
         return self.send_command_and_wait(command_id, 'kill', [str(pid)], timeout=timeout)
@@ -868,7 +867,7 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
         actual_route = find_launch_route(controller, log_offset)
         if actual_route is None:
             result.fail(
-                "No sandbox2_launch (H4) signal observed on the controller log within "
+                "No sandbox2_launch signal observed on the controller log within "
                 f"{PID_DISCOVERY_TIMEOUT}s of a successful start response - cannot confirm "
                 f"this launch took the '{expected_route}' route; not asserting on target file")
             controller.check_controller_logs()
@@ -882,7 +881,7 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
                 f"not asserting on target file")
             controller.check_controller_logs()
             return result, reached, target_file_created, response, leaked_address_seen, pid
-        result.info(f"H4 signal confirms route: {actual_route}")
+        result.info(f"sandbox2_launch signal confirms route: {actual_route}")
 
         pid = find_child_pid(controller, f'./{pytorch_name}', log_offset)
         if pid is None:
@@ -978,8 +977,9 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
 
 
 def cleanup_and_verify_reaped(controller, result, pid, base_command_id):
-    """Cleanup assertion (Oracle rule #5): issue kill(pid) via the
-    controller until it reports failure (registry has no such live child),
+    """Cleanup assertion (the fifth part of the evidence requirement): issue
+    kill(pid) via the controller until it reports failure (registry has no
+    such live child),
     proving the case's child is fully reaped before the next case starts.
     If the child is still alive, the first kill() should succeed (True) and
     terminate it; the follow-up kill() must then report failure."""

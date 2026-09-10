@@ -10,12 +10,11 @@
 #
 
 # MlSandbox links Sandbox2/Abseil and builds a runnable Sandbox2 forkserver
-# on Linux (PR A), and now the typed filesystem/network launch policy (PR C
-# of the Sandbox2 clean rebuild plan, see docs/projects/mlcpp-sandbox2-pr2873
-# in the elastic-workspace harness). PR E (bin/controller/CProcessSpawnerRouter,
-# see bin/controller/CMakeLists.txt's MlSandbox link) is that controller
-# wiring; pytorch_inference's in-process seccomp path
-# (include/seccomp/CSystemCallFilter.h) consults this library's
+# on Linux (the dormant Sandbox2/Abseil dependency foundation, ml-cpp#3181),
+# and now the typed filesystem/network launch policy (ml-cpp#3185).
+# bin/controller/CProcessSpawnerRouter (see bin/controller/CMakeLists.txt's
+# MlSandbox link) is that controller wiring; pytorch_inference's in-process
+# seccomp path (include/seccomp/CSystemCallFilter.h) consults this library's
 # CMlSandboxAvailability query too.
 
 project("ML Sandbox")

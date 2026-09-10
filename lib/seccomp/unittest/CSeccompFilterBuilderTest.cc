@@ -331,8 +331,9 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
     using ml::seccomp::applyInProcessSeccompFilter;
 
     // ML_SANDBOXED unset/not "1": behaviour is exactly the pre-existing
-    // install + decide + attest sequence, i.e. the Task 3 fault-injection
-    // coverage above still describes this path.
+    // install + decide + attest sequence, i.e. the fault-injection coverage
+    // above (testDecideDegradedModeActionFaultInjection) still describes
+    // this path.
     bool installerCalled{false};
     const auto installed = applyInProcessSeccompFilter(false, true, [&installerCalled] {
         installerCalled = true;
