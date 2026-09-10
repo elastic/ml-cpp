@@ -197,4 +197,68 @@ BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironment) {
 }
 #endif // !Windows
 
+#ifdef Windows
+BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironmentBlock) {
+    // Windows analog of testMlSandboxedStrippedFromChildEnvironment above:
+    // ML_SANDBOXED=1 is the Sandbox2 sandboxee marker and pytorch_inference
+    // skips its mandatory in-process seccomp filter when it sees it (see
+    // include/seccomp/CSystemCallFilter.h sandbox2LaunchedChild()). A child
+    // spawned by this class is never inside Sandbox2, so it must never
+    // inherit the marker via the environment block passed to
+    // CreateProcess()'s lpEnvironment parameter - not even when the
+    // spawning process's own environment carries it.
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED=1"));
+    BOOST_REQUIRE_EQUAL(true, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED="));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOXED_KEEP_ME=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry("ML_SANDBOX=1"));
+    BOOST_REQUIRE_EQUAL(false, ml::core::detail::isStrippedChildEnvEntry(nullptr));
+
+    // Build a synthetic Windows environment block: NUL-terminated
+    // "NAME=VALUE" strings back to back, with an extra terminating NUL after
+    // the last entry's own NUL.
+    auto appendEntry = [](std::string& block, const std::string& entry) {
+        block.append(entry);
+        block.push_back('\0');
+    };
+    std::string parentBlock;
+    appendEntry(parentBlock, "PATH=C:\\Windows");
+    appendEntry(parentBlock, "ML_SANDBOXED=1");
+    appendEntry(parentBlock, "ML_SANDBOXED_KEEP_ME=1");
+    appendEntry(parentBlock, "TMP=C:\\Temp");
+    parentBlock.push_back('\0');
+
+    std::string childBlock{
+        ml::core::detail::buildChildEnvironmentBlock(parentBlock.c_str())};
+
+    // Walk the resulting block and confirm ML_SANDBOXED is gone but
+    // everything else survives, in order, and the block is still
+    // double-NUL-terminated.
+    std::vector<std::string> childEntries;
+    const char* entry{childBlock.c_str()};
+    while (*entry != '\0') {
+        std::string entryStr(entry);
+        childEntries.push_back(entryStr);
+        entry += entryStr.length() + 1;
+    }
+
+    BOOST_REQUIRE_EQUAL(std::size_t(3), childEntries.size());
+    BOOST_REQUIRE_EQUAL(std::string("PATH=C:\\Windows"), childEntries[0]);
+    BOOST_REQUIRE_EQUAL(std::string("ML_SANDBOXED_KEEP_ME=1"), childEntries[1]);
+    BOOST_REQUIRE_EQUAL(std::string("TMP=C:\\Temp"), childEntries[2]);
+    // Two-NUL block terminator: the last byte and the one before it are NUL.
+    BOOST_TEST_REQUIRE(childBlock.size() >= 2);
+    BOOST_REQUIRE_EQUAL('\0', childBlock[childBlock.size() - 1]);
+    BOOST_REQUIRE_EQUAL('\0', childBlock[childBlock.size() - 2]);
+
+    // Empty-environment edge case still produces a valid double-NUL block.
+    std::string emptyParentBlock;
+    emptyParentBlock.push_back('\0');
+    std::string emptyChildBlock{
+        ml::core::detail::buildChildEnvironmentBlock(emptyParentBlock.c_str())};
+    BOOST_REQUIRE_EQUAL(std::size_t(2), emptyChildBlock.size());
+    BOOST_REQUIRE_EQUAL('\0', emptyChildBlock[0]);
+    BOOST_REQUIRE_EQUAL('\0', emptyChildBlock[1]);
+}
+#endif // Windows
+
 BOOST_AUTO_TEST_SUITE_END()

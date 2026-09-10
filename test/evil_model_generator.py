@@ -19,10 +19,9 @@ This script generates three models:
    read this model performs is an intra-process memory access, not a
    syscall or filesystem boundary Sandbox2 enforces, so it provides no
    independent Sandbox2 signal on its own (see that harness's
-   test_exploit_model docstring, and task-6 defect 3 in
-   .superpowers/sdd/pr-e-typed-routing.plan/task-6-brief.md). Kept here for
-   manual/exploratory use and because model_exploit.pt below reuses the same
-   leak technique as the first stage of its ROP chain.
+   test_exploit_model docstring). Kept here for manual/exploratory use and
+   because model_exploit.pt below reuses the same leak technique as the
+   first stage of its ROP chain.
 3. model_exploit.pt - A model that attempts to write files using shellcode
    manipulation built from the leaked addresses (this is the case
    test_sandbox2_attack_defense.py actually exercises).
