@@ -23,7 +23,6 @@ namespace core {
 namespace detail {
 class CTrackerThread;
 
-#ifndef Windows
 //! \return true if \p entry (a "NAME=VALUE" environment entry, or nullptr) is
 //! one this class must never pass on to a spawned child.
 //!
@@ -35,14 +34,30 @@ class CTrackerThread;
 //! sandbox2LaunchedChild()), so inheriting the marker would fail open.
 //! Matched on the exact name: \c ML_SANDBOXED_ANYTHING is not stripped.
 //! Exposed for unit testing; not part of this class's public contract.
+//!
+//! Platform note: the two CDetachedProcessSpawner_*.cc source files are
+//! alternatives selected by ml_generate_platform_sources() at build time,
+//! not compiled together, so each platform source file defines its own
+//! copy of this function.
 CORE_EXPORT bool isStrippedChildEnvEntry(const char* entry);
 
+#ifndef Windows
 //! Build the environment array handed to \c posix_spawn() from
 //! \p parentEnvironment (normally \c environ): every entry for which
 //! isStrippedChildEnvEntry() is false, in order, then a NULL terminator. The
 //! returned pointers alias \p parentEnvironment's own strings - no copies -
 //! so the result must not outlive it. Exposed for unit testing.
 CORE_EXPORT std::vector<char*> buildChildEnvironment(char** parentEnvironment);
+#else
+//! Build the environment block handed to \c CreateProcess() via its
+//! \c lpEnvironment parameter from \p parentEnvironmentBlock (normally the
+//! result of \c GetEnvironmentStringsA()): a new buffer containing every
+//! "NAME=VALUE" entry from \p parentEnvironmentBlock for which
+//! isStrippedChildEnvEntry() is false, in order, formatted per the ANSI
+//! environment block convention CreateProcess() requires (a sequence of
+//! NUL-terminated strings followed by one extra terminating NUL). Exposed
+//! for unit testing.
+CORE_EXPORT std::string buildChildEnvironmentBlock(const char* parentEnvironmentBlock);
 #endif
 }
 

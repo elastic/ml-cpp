@@ -19,11 +19,56 @@
 #include <core/CWindowsError.h>
 #include <core/WindowsSafe.h>
 
+#include <cstring>
 #include <map>
+
+namespace {
+
+//! Environment variable name (without '=') that must never be inherited by a
+//! child spawned by this class. See
+//! ml::core::detail::isStrippedChildEnvEntry().
+const char* SANDBOXEE_MARKER_ENV_NAME{"ML_SANDBOXED"};
+}
 
 namespace ml {
 namespace core {
 namespace detail {
+
+bool isStrippedChildEnvEntry(const char* entry) {
+    if (entry == nullptr) {
+        return false;
+    }
+    const std::size_t nameLength{::strlen(SANDBOXEE_MARKER_ENV_NAME)};
+    // Exact name match only: "ML_SANDBOXED=..." is stripped,
+    // "ML_SANDBOXED_FOO=..." (a different variable that merely shares the
+    // prefix) is not.
+    return ::strncmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
+           entry[nameLength] == '=';
+}
+
+std::string buildChildEnvironmentBlock(const char* parentEnvironmentBlock) {
+    std::string block;
+    if (parentEnvironmentBlock != nullptr) {
+        const char* entry{parentEnvironmentBlock};
+        while (*entry != '\0') {
+            std::size_t entryLength{::strlen(entry)};
+            if (isStrippedChildEnvEntry(entry) == false) {
+                // Include the entry's own terminating NUL.
+                block.append(entry, entryLength + 1);
+            }
+            entry += entryLength + 1;
+        }
+    }
+    // Windows requires the block to end with an extra NUL beyond the last
+    // entry's own terminator. Handle the (unlikely) empty-block case
+    // explicitly so it is still correctly double-NUL-terminated.
+    if (block.empty()) {
+        block.append(std::size_t(2), '\0');
+    } else {
+        block.push_back('\0');
+    }
+    return block;
+}
 
 class CTrackerThread : public CThread {
 public:
@@ -182,6 +227,28 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     PROCESS_INFORMATION processInformation;
     ::memset(&processInformation, 0, sizeof(PROCESS_INFORMATION));
 
+    // The child inherits this process's environment with ML_SANDBOXED
+    // removed. That variable is the Sandbox2 sandboxee marker (see
+    // lib/sandbox/CSandboxedProcessSpawner_Linux.cc) and pytorch_inference
+    // skips its mandatory in-process seccomp filter when it sees
+    // ML_SANDBOXED=1 (include/seccomp/CSystemCallFilter.h
+    // sandbox2LaunchedChild()). A child spawned here is by definition *not*
+    // inside Sandbox2, so inheriting the marker - however it got into this
+    // process's own environment, e.g. injected by an orchestration layer -
+    // would fail open: the child would run untrusted model code with
+    // neither the executor policy nor its own filter. Stripping it here
+    // makes the legacy route's filter installation unconditional regardless
+    // of the spawning process's environment. Passing an explicit
+    // lpEnvironment (rather than 0, which would make CreateProcess()
+    // inherit this process's environment completely unfiltered) is what
+    // makes this stripping effective.
+    LPSTR parentEnvironmentBlock{::GetEnvironmentStringsA()};
+    std::string childEnvironmentBlock{
+        detail::buildChildEnvironmentBlock(parentEnvironmentBlock)};
+    if (parentEnvironmentBlock != 0) {
+        ::FreeEnvironmentStringsA(parentEnvironmentBlock);
+    }
+
     {
         // Hold the tracker thread mutex until the PID is added to the tracker
         // to avoid a race condition if the process is started but dies really
@@ -201,7 +268,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 // None of this would be a problem if we redirected stderr using
                 // freopen(), but instead we redirect the underlying OS level
                 // file handles so that we can revert the redirection.
-                CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, 0, 0, &startupInfo,
+                CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
+                const_cast<char*>(childEnvironmentBlock.data()), 0, &startupInfo,
                 &processInformation) == FALSE) {
             LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
             return false;
