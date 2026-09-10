@@ -99,12 +99,24 @@ void assertDispatchCopiesFile(ml::controller::CProcessSpawnerRouter& router,
 //! returning - callers must not leak the redirect into later test cases.
 //! \return everything logged while \p fn ran, so the caller can search for
 //! the H4 signal's JSON line as a substring.
+
+//! RAII guard ensuring ml::core::CLogger::instance().reset() always runs,
+//! even if the captured function throws (e.g. a failed BOOST_REQUIRE*
+//! inside it) - without this, an exception mid-fn() would leave the global
+//! logger redirected into a stream nobody reads for the rest of the test
+//! binary process, causing misleading cascading failures/log loss in later,
+//! unrelated tests.
+class CScopedLoggerReset {
+public:
+    ~CScopedLoggerReset() { ml::core::CLogger::instance().reset(); }
+};
+
 template<typename FN>
 std::string captureLogged(FN&& fn) {
     auto stream = boost::make_shared<std::ostringstream>();
     BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigure(stream));
+    CScopedLoggerReset resetOnExit;
     fn();
-    ml::core::CLogger::instance().reset();
     return stream->str();
 }
 
@@ -337,7 +349,10 @@ BOOST_AUTO_TEST_CASE(testH4SignalEscapesControlCharactersInDeploymentId) {
     // ...and the raw control characters are gone from the emitted line.
     const std::size_t signalStart{logged.find("{\"event\":\"sandbox2_launch\"")};
     BOOST_TEST_REQUIRE(signalStart != std::string::npos);
-    const std::size_t signalEnd{logged.find("\"mode\":\"degraded\"}", signalStart)};
+    // "}" (not "degraded\"}") because sandbox2_compiled_in is an additive
+    // field emitted after mode, so the line no longer ends immediately
+    // after "degraded".
+    const std::size_t signalEnd{logged.find('}', signalStart)};
     BOOST_TEST_REQUIRE(signalEnd != std::string::npos);
     BOOST_REQUIRE(logged.find('\n', signalStart) > signalEnd);
 }
@@ -473,6 +488,34 @@ BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonDormantDefault) {
     BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"legacy_reason\":\"dormant_default\"") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"legacy_reason\":\"kill_switch\"") == std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testH4SignalIncludesSandboxCompiledInField) {
+    // sandbox2_compiled_in is a build-time-constant fact (backed by
+    // sandbox::CMlSandboxAvailability::isCompiledIn()), not per-launch
+    // state, so - unlike legacy_reason - it must appear on every emitted
+    // signal line regardless of route/mode. It is what lets a consumer
+    // distinguish "Sandbox2 supported but dormant" from "built without
+    // Sandbox2 support at all", which the other fields alone cannot.
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // spawn fails deterministically
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{"--modelid=deploy-compiled-in"};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false,
+            router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy, PROCESS_PATH,
+                         args, childPid,
+                         ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
+    })};
+
+#ifdef SANDBOX2_AVAILABLE
+    BOOST_REQUIRE(logged.find("\"sandbox2_compiled_in\":true") != std::string::npos);
+#else
+    BOOST_REQUIRE(logged.find("\"sandbox2_compiled_in\":false") != std::string::npos);
+#endif
 }
 
 #ifndef SANDBOX2_AVAILABLE
