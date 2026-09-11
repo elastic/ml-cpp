@@ -421,6 +421,15 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
         policyBuilder.AllowSyscall(syscallNr);
     }
 
+    // Sandbox2's namespace/threading setup exercises syscalls (scheduling,
+    // epoll, pipes, directory management) that the legacy in-process filter
+    // above never needed a grant for - granting only legacyBpfAllowedSyscalls()
+    // here is not sufficient. See sandbox2ExplicitSyscalls()'s doc comment for
+    // why this is a separate list rather than a superset relationship.
+    for (int syscallNr : seccomp::pytorch_inference::sandbox2ExplicitSyscalls()) {
+        policyBuilder.AllowSyscall(syscallNr);
+    }
+
     policyBuilder.AddDirectory(binDir, /*is_ro=*/true);
     policyBuilder.AddDirectory(libDir, /*is_ro=*/true);
 
