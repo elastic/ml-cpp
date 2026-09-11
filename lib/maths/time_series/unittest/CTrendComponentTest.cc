@@ -12,6 +12,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -224,6 +225,18 @@ auto forecastErrors(ITR actual,
                           maths::common::CBasicStatistics::mean(meanErrorAt95));
 }
 
+TDouble3VecVec forecastValues(const maths::time_series::CTrendComponent& component,
+                              core_t::TTime start,
+                              core_t::TTime interval) {
+    TDouble3VecVec result;
+    component.forecast(start, start + interval, BUCKET_LENGTH, 95.0, false,
+                       [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
+                       [&result](core_t::TTime, const TDouble3Vec& value) {
+                           result.push_back(value);
+                       });
+    return result;
+}
+
 BOOST_AUTO_TEST_CASE(testValueAndVariance) {
     // Check that the prediction bias is small in the long run
     // and that the predicted variance approximately matches the
@@ -421,6 +434,131 @@ BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
         BOOST_TEST_REQUIRE(forecast.back()[1] > -0.75 * interval);
         BOOST_TEST_REQUIRE(forecast.back()[1] < 0.75 * interval);
         BOOST_TEST_REQUIRE(forecast.back()[2] - forecast.back()[0] < 3.5 * interval);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testForecastAfterTemporaryDrop) {
+    // Regression for elastic/ml-cpp#2772. This is the isolated trend state for
+    // the affected percentage metric; the full customer model state is not
+    // needed to reproduce the runaway forecast.
+    const std::string state{R"({"a":"0.431100","b":"1719821532","c":"1724549149","d":"1724284800","e":{"7.1":"","a":"250.479599:0.147902533","b":{"a":"8.06102753:1,0.37328211047068233,0.14105012085650631,0.053787408052162582,0.020661131796887847,0.85000006431035102,0.31715800105897174,0.11979260726141326"},"c":"21.1509151:0.0005455305792922573,0.00054112481310964833,0.00053581286394443475"},"e":{"7.1":"","a":"250.479599:0.295805037","b":{"a":"21.1509151:1,0.33215533650146561,0.11703279402852568,0.042270298480796595,0.015581801328682397,0.85148315534083596,0.28270303236397781,0.09957293288043953"},"c":"47.9369965:0.00029250961809147485,0.00028017050058775522,0.00027538121287162256"},"e":{"7.1":"","a":"250.479599:0.526017249","b":{"a":"47.9369965:1,0.25512903552999755,0.089623992769172545,0.027458695894191861,0.011810625854069556,0.85171140682578828,0.21770040684058509,0.076054678533887018"},"c":"99.096405:0.00038084258443694632,0.00025448879813878768,0.0002027623237618853"},"e":{"7.1":"","a":"250.479599:0.545107722","b":{"a":"149.5289:1,-0.067857738998839554,0.26265235133845866,-0.31958018108907954,0.66184621665902565,0.82949782905180303,-0.031475171584892062,0.18032231216902042"},"c":"304.828003:0.0067217006731924078,0.0014471298922769367,0.00093666246244155239"},"e":{"7.1":"","a":"250.479599:0.318530947","b":{"a":"460.967804:1,-1.0519092806127064,3.0049065013656149,-11.027589371621847,49.311893119082001,0.68395954956407923,-0.37799222292729512,0.53565179375735417"},"c":"871.070251:0.067334228268369989,0.0080346444347579263,0.0059031585621117186"},"e":{"7.1":"","a":"250.479599:0.081665419","b":{"a":"1378.00476:1,-2.6519394382590891,11.587463535185339,-59.335884960678762,333.05381708093898,0.38507297594864454,-0.178276008012313,-0.66295740146638527"},"c":"1815.88391:0.15143886325568157,0.015523240531493367,0.012581268734747606"},"e":{"7.1":"","a":"250.479599:0.0204163548","b":{"a":"2111.20581:1,-3.2540533955795321,15.529479742310103,-84.156038814723601,490.41583001013078,0.27535778764295005,-0.011875762868824316,-1.4452510597651793"},"c":"2283.84741:0.17050434863857433,0.019148988230895836,0.014572939799648845"},"e":{"7.1":"","a":"250.479599:0.00408327067","b":{"a":"2396.6521:1,-3.4206889516152468,16.67502492985405,-91.579499722634083,538.43923018928899,0.24570856625052842,0.039130784809345238,-1.6837936619345601"},"c":"2435.90601:0.1744073726021757,0.020301972603092477,0.015104627372535553"},"f":"0.00044498652947708639","g":"2476.01978:0.690303862:0.0145720355","h":"1722770824","i":{"b":"0","c":{"e":"1715.63477","f":{"a":{"d":{"h":"0.00120000006","a":"813662.312","b":"1694.42847","c":"848.214172","d":"189591364491369.41","e":"1694.42847"}}},"f":{"a":{"d":{"h":"0.00120000006","a":"0.69859004","b":"1694.42847","c":"848.214172","d":"19.469362799280617","e":"1694.42847"}}}},"b":"1","c":{"e":"0.990120709","f":{"a":{"d":{"h":"0.00120000006","a":"1310413","b":"1","c":"1.5","d":"0","e":"1"}}},"f":{"a":{"d":{"h":"0.00120000006","a":"0.864572227","b":"1","c":"1.5","d":"0","e":"1"}}}}},"j":{"h":"0.0240000002","a":"-0.31222561","b":"2.13724494","c":"2.06862259","d":"0.094579347425700844","e":"1.04676807"}})"};
+    std::istringstream stateStream{"{\"topLevel\":" + state + "}"};
+    core::CJsonStateRestoreTraverser traverser{stateStream};
+    maths::common::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
+    maths::time_series::CTrendComponent component{0.024};
+
+    BOOST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
+        return component.acceptRestoreTraverser(params, traverser_);
+    }));
+
+    core_t::TTime startTime{1724549400};
+    core_t::TTime endTime{startTime + 30 * core::constants::DAY};
+    TDouble3VecVec forecast;
+    component.forecast(startTime, endTime, 30 * core::constants::MINUTE, 95.0,
+                       true, [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
+                       [&forecast](core_t::TTime, const TDouble3Vec& value) {
+                           forecast.push_back(value);
+                       });
+
+    BOOST_REQUIRE(!forecast.empty());
+    LOG_DEBUG(<< "First forecast = " << forecast.front()[1]
+              << ", last forecast = " << forecast.back()[1]);
+    for (const auto& value : forecast) {
+        BOOST_TEST_REQUIRE(std::isfinite(value[0]));
+        BOOST_TEST_REQUIRE(std::isfinite(value[1]));
+        BOOST_TEST_REQUIRE(std::isfinite(value[2]));
+        BOOST_TEST_REQUIRE(value[0] <= value[1]);
+        BOOST_TEST_REQUIRE(value[1] <= value[2]);
+    }
+    BOOST_TEST_REQUIRE(std::fabs(forecast.back()[1] - forecast.front()[1]) <
+                       0.2 * std::max(std::fabs(forecast.front()[1]), 1.0));
+}
+
+BOOST_AUTO_TEST_CASE(testForecastPreservesSupportedLinearTrendAndPrefix) {
+    // A supported linear signal should keep its short, useful extrapolation;
+    // splitting a request must not change the common prefix.
+    for (double slope : {0.05, 0.2}) {
+        TDoubleVec values;
+        for (std::size_t i = 0; i < 2000; ++i) {
+            values.push_back(10.0 + slope * static_cast<double>(i));
+        }
+        auto[component, start] = trainModel(values.begin(), values.end());
+        auto day = forecastValues(component, start, core::constants::DAY);
+        auto week = forecastValues(component, start, 7 * core::constants::DAY);
+        auto month = forecastValues(component, start, 30 * core::constants::DAY);
+
+        BOOST_REQUIRE_EQUAL(week.size(), 7 * core::constants::DAY / BUCKET_LENGTH);
+        BOOST_REQUIRE(month.size() >= week.size());
+        for (std::size_t i = 0; i < week.size(); ++i) {
+            BOOST_REQUIRE_CLOSE(week[i][1], month[i][1], 1e-10);
+        }
+
+        double expectedChange{slope * static_cast<double>(day.size() - 1)};
+        BOOST_TEST_REQUIRE(day.back()[1] - day.front()[1] > 0.5 * expectedChange);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testForecastPreservesExactLinearTrendWithZeroUncertainty) {
+    // An exact line with zero extrapolation uncertainty must still extrapolate.
+    maths::time_series::CTrendComponent component{0.1};
+    core_t::TTime time{0};
+    for (std::size_t i = 0; i < 2000; ++i, time += BUCKET_LENGTH) {
+        component.add(time, 10.0 + 0.2 * static_cast<double>(i));
+        component.propagateForwardsByTime(BUCKET_LENGTH);
+    }
+    component.shiftOrigin(time);
+
+    std::ostringstream state;
+    core::CJsonStatePersistInserter::persist(
+        state, std::bind_front(&maths::time_series::CTrendComponent::acceptPersistInserter,
+                               &component));
+    std::string zeroVarianceState{state.str()};
+    std::size_t position{0};
+    for (std::size_t i = 0; i < 8; ++i) {
+        position = zeroVarianceState.find("\"e\":{\"7.1\"", position);
+        BOOST_REQUIRE_NE(position, std::string::npos);
+        position = zeroVarianceState.find("\"c\":\"", position);
+        BOOST_REQUIRE_NE(position, std::string::npos);
+        std::size_t end{zeroVarianceState.find('"', position + 5)};
+        BOOST_REQUIRE_NE(end, std::string::npos);
+        zeroVarianceState.replace(position + 5, end - position - 5, "250:1,0,0");
+        position += 5 + std::string{"250:1,0,0"}.size();
+    }
+
+    std::istringstream stateStream{"{\"topLevel\":" + zeroVarianceState + "}"};
+    core::CJsonStateRestoreTraverser traverser{stateStream};
+    maths::common::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
+    maths::time_series::CTrendComponent restored{0.1};
+    BOOST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
+        return restored.acceptRestoreTraverser(params, traverser_);
+    }));
+
+    auto forecast = forecastValues(restored, time, core::constants::DAY);
+
+    BOOST_REQUIRE_EQUAL(forecast.size(), core::constants::DAY / BUCKET_LENGTH);
+    BOOST_TEST_REQUIRE(forecast.back()[1] - forecast.front()[1] >
+                       0.5 * 0.2 * static_cast<double>(forecast.size() - 1));
+}
+
+BOOST_AUTO_TEST_CASE(testForecastIsAffineInvariant) {
+    TDoubleVec values;
+    TDoubleVec transformed;
+    for (std::size_t i = 0; i < 2000; ++i) {
+        double value{4.0 + 0.1 * static_cast<double>(i) +
+                     0.00001 * static_cast<double>(i * i)};
+        values.push_back(value);
+        transformed.push_back(100.0 * value - 37.0);
+    }
+    auto[component, start] = trainModel(values.begin(), values.end());
+    auto[transformedComponent, transformedStart] =
+        trainModel(transformed.begin(), transformed.end());
+    auto forecast = forecastValues(component, start, 7 * core::constants::DAY);
+    auto transformedForecast = forecastValues(transformedComponent, transformedStart,
+                                              7 * core::constants::DAY);
+
+    BOOST_REQUIRE_EQUAL(forecast.size(), transformedForecast.size());
+    for (std::size_t i = 0; i < forecast.size(); ++i) {
+        BOOST_REQUIRE_CLOSE(transformedForecast[i][1], 100.0 * forecast[i][1] - 37.0, 1e-8);
     }
 }
 
