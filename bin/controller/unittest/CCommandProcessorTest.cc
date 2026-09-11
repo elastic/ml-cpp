@@ -667,8 +667,8 @@ BOOST_AUTO_TEST_CASE(testStartRequireSandboxTokenSelectsSandbox2RouteAndFailsClo
         ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
                                                     responseStream};
 
-        std::string command{
-            startCommand(15, PROCESS_PATH, copyArgs(TARGET_FILE, {"--requireSandbox"}))};
+        std::string command{startCommand(
+            15, PROCESS_PATH, copyArgs(TARGET_FILE, {"--requireSandbox"}))};
 
         BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
     }

@@ -148,8 +148,8 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
     }
 
     if (disableSandboxCount == 1 && requireSandboxCount == 1) {
-        std::string error{"Rejecting command: '" + DISABLE_SANDBOX_TOKEN + "' and '" +
-                          REQUIRE_SANDBOX_TOKEN +
+        std::string error{"Rejecting command: '" + DISABLE_SANDBOX_TOKEN +
+                          "' and '" + REQUIRE_SANDBOX_TOKEN +
                           "' are mutually exclusive, both specified for process '" +
                           processPath + '\''};
         LOG_ERROR(<< error << " in command with ID " << id);
@@ -226,8 +226,8 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
             route = CProcessSpawnerRouter::ERoute::E_Legacy;
             legacyReason = CProcessSpawnerRouter::ELegacyReason::E_NoTokenDefault;
             LOG_DEBUG(<< "Routing '" << processPath << "' to the legacy path: neither "
-                      << DISABLE_SANDBOX_TOKEN << " nor " << REQUIRE_SANDBOX_TOKEN
-                      << " token was present");
+                      << DISABLE_SANDBOX_TOKEN << " nor "
+                      << REQUIRE_SANDBOX_TOKEN << " token was present");
         }
     }
 
