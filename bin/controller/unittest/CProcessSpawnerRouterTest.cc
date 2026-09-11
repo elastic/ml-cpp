@@ -466,28 +466,29 @@ BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonKillSwitch) {
     BOOST_REQUIRE(logged.find("\"route\":\"legacy\"") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"legacy_reason\":\"kill_switch\"") != std::string::npos);
-    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"dormant_default\"") == std::string::npos);
+    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"no_token_default\"") == std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonDormantDefault) {
-    // E_DormantDefault: no token was needed at all - the legacy route is
-    // simply still the default because ML_SANDBOX2_DEFAULT_ENFORCED is off.
+BOOST_AUTO_TEST_CASE(testH4SignalLegacyReasonNoTokenDefault) {
+    // E_NoTokenDefault: neither routing token was present at all - this is
+    // the permanent behaviour for a caller that sends no routing token, not
+    // a rollout-dormancy switch.
     ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // spawn fails deterministically
     ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
     ml::controller::CProcessSpawnerRouter router{permittedPaths, sandboxedPaths};
 
-    ml::controller::CProcessSpawnerRouter::TStrVec args{"--modelid=deploy-dormant"};
+    ml::controller::CProcessSpawnerRouter::TStrVec args{"--modelid=deploy-no-token"};
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
                                 PROCESS_PATH, args, childPid,
-                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
+                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_NoTokenDefault));
     })};
 
     BOOST_REQUIRE(logged.find("\"route\":\"legacy\"") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"mode\":\"degraded\"") != std::string::npos);
-    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"dormant_default\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"legacy_reason\":\"no_token_default\"") != std::string::npos);
     BOOST_REQUIRE(logged.find("\"legacy_reason\":\"kill_switch\"") == std::string::npos);
 }
 
@@ -496,7 +497,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalIncludesSandboxCompiledInField) {
     // sandbox::CMlSandboxAvailability::isCompiledIn()), not per-launch
     // state, so - unlike legacy_reason - it must appear on every emitted
     // signal line regardless of route/mode. It is what lets a consumer
-    // distinguish "Sandbox2 supported but dormant" from "built without
+    // distinguish "Sandbox2 supported but no token yet" from "built without
     // Sandbox2 support at all", which the other fields alone cannot.
     ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths; // spawn fails deterministically
     ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
@@ -508,7 +509,7 @@ BOOST_AUTO_TEST_CASE(testH4SignalIncludesSandboxCompiledInField) {
         BOOST_REQUIRE_EQUAL(
             false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
                                 PROCESS_PATH, args, childPid,
-                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_DormantDefault));
+                                ml::controller::CProcessSpawnerRouter::ELegacyReason::E_NoTokenDefault));
     })};
 
 #ifdef SANDBOX2_AVAILABLE

@@ -446,20 +446,6 @@ class ControllerProcess:
             env = dict(os.environ)
             env['TMPDIR'] = str(child_tmp_base)
 
-            # The controller's no-token default route is the *legacy*
-            # (unsandboxed) path unless this internal option is exactly "1"
-            # - the shipped, dormant state (see
-            # bin/controller/CCommandProcessor.cc). Every "sandboxed" case
-            # here sends a plain `start` with no --disableSandbox token, so
-            # without this the sandboxed cases would run on the legacy path
-            # and the harness's negative assertion ("the malicious model's
-            # target file must not exist") would be checked against a child
-            # that was never sandboxed at all - a false pass on a security
-            # proof. Set on the controller's own environment rather than
-            # relying on the invoker (dev-tools/run_sandbox2_attack_defense.sh
-            # only execs this script), so the harness is self-contained.
-            env['ML_SANDBOX2_DEFAULT_ENFORCED'] = '1'
-
             self._start_controller_with_stdin(stdin_fd, env)
 
             time.sleep(0.3)
@@ -841,8 +827,16 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
             '--skipModelValidation',
             f'--modelid={label}',
         ]
-        if unsandboxed:
-            cmd_args.append('--disableSandbox')
+        # Explicit intent instead of a global-default side channel: every
+        # "sandboxed" case sends --requireSandbox rather than relying on a
+        # no-token default, so the routing decision here is the same one
+        # Elasticsearch is expected to make per-launch (see
+        # bin/controller/CCommandProcessor.cc). Without this, a "sandboxed"
+        # case landing on the legacy path would make the harness's negative
+        # assertion ("the malicious model's target file must not exist")
+        # meaningless - checked against a child that was never sandboxed at
+        # all.
+        cmd_args.append('--disableSandbox' if unsandboxed else '--requireSandbox')
 
         result.info(f"Sending start command (id={command_id}) for {label}...")
         response = controller.send_command_and_wait(command_id, 'start', cmd_args)
@@ -859,7 +853,7 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
         # Routing assertion, BEFORE any boundary assertion: the case is only
         # evidence about Sandbox2 if the controller actually routed this
         # launch the way the case intends. A sandboxed case that silently
-        # landed on the legacy path (e.g. ML_SANDBOX2_DEFAULT_ENFORCED not
+        # landed on the legacy path (e.g. --requireSandbox not
         # reaching the controller, or a route-decision regression) would
         # still show "no target file" - for the wrong reason. Fail loudly
         # here instead.

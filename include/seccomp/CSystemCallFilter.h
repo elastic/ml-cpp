@@ -93,11 +93,12 @@ enum class EDegradedModeAction {
 //! guaranteed to be a deliberate route decision rather than the production
 //! default. bin/controller's CProcessSpawnerRouter provides half of that
 //! guarantee (it never retries a failed Sandbox2 spawn through the legacy
-//! spawner), but while CCommandProcessor's no-token default is still the
-//! legacy route - the shipped, dormant state, gated on
-//! ML_SANDBOX2_DEFAULT_ENFORCED - an ordinary launch *is* a degraded-route
-//! launch, so bin/pytorch_inference/Main.cc passes false. See the comment
-//! at TERMINATE_ON_DEGRADED_SECCOMP_FAILURE there for when it flips.
+//! spawner), but while CCommandProcessor's no-token case still always
+//! routes to legacy, and no caller is yet guaranteed to always send an
+//! explicit --disableSandbox/--requireSandbox token, an ordinary launch
+//! *is* a degraded-route launch, so bin/pytorch_inference/Main.cc passes
+//! false. See the comment at TERMINATE_ON_DEGRADED_SECCOMP_FAILURE there
+//! for when it flips.
 //! This decision only ever
 //! applies to a launch that installs its own in-process filter at all - see
 //! sandbox2LaunchedChild() and applyInProcessSeccompFilter() below.

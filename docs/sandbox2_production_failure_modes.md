@@ -30,49 +30,55 @@ single-line JSON object.
 | `event`                 | string  | Always `"sandbox2_launch"`. |
 | `deployment_id`         | string  | `SChildIpcLaunchSpec::s_ChildId`, from a single `sandbox::validateChildIpcLaunchSpec()` call made **once per `spawn()`, before dispatch**, so the value cannot disagree with the state the dispatch decision was taken against and is populated on the `degraded`/`fail_closed` modes too. Empty string (`""`, explicit, never omitted) only when no path-bearing launch option (`input`/`output`/`restore`/`logPipe`) was present at all. Control characters, quotes and backslashes are JSON-escaped so the line stays single-line JSON. |
 | `model_id`              | string  | Scanned from a `--modelid=<value>` launch argument, using the same linear string-prefix scan style as the controller's `--disableSandbox` token scan. Empty string if absent. Escaped as for `deployment_id`. |
-| `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect, `"legacy"` when the controller selected `E_Legacy` - either via the operator kill-switch (`--disableSandbox`) or via the dormant no-token default (see "Dormant no-token default" below). |
-| `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`); **omitted entirely** - never `""`, never `null` - on `route == "sandbox2"`, i.e. on both `enforced` and `fail_closed`. `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"dormant_default"` when no token was needed and `ML_SANDBOX2_DEFAULT_ENFORCED` simply is not enabled. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
+| `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect, `"legacy"` when the controller selected `E_Legacy` - either via the operator kill-switch (`--disableSandbox`), the operator opt-in (`--requireSandbox`) selecting Sandbox2 instead, or the no-token default (see "No-token default" below). |
+| `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`); **omitted entirely** - never `""`, never `null` - on `route == "sandbox2"`, i.e. on both `enforced` and `fail_closed`. `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"no_token_default"` when neither routing token was present. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
 | `sandbox2_established`  | boolean | JSON boolean (`true`/`false`, never the string `"y"`/`"n"`). `true` iff `mode == "enforced"`, else `false`. |
 | `mode`                  | string  | One of `"enforced"`, `"fail_closed"`, `"degraded"` - see mapping below. |
-| `sandbox2_compiled_in`  | boolean | JSON boolean. Sourced from `sandbox::CMlSandboxAvailability::isCompiledIn()`, computed once (a build-time-constant fact, not per-launch state) and included on **every** emitted line, unlike `legacy_reason` which is conditional on route. Lets a consumer distinguish "Sandbox2 supported but dormant" (`route == "legacy"`, `legacy_reason == "dormant_default"`, `sandbox2_compiled_in == true`) from "built without Sandbox2 support at all" (`sandbox2_compiled_in == false`) - both otherwise emit identical `legacy`/`dormant_default`/`degraded` signals for every plain launch. |
+| `sandbox2_compiled_in`  | boolean | JSON boolean. Sourced from `sandbox::CMlSandboxAvailability::isCompiledIn()`, computed once (a build-time-constant fact, not per-launch state) and included on **every** emitted line, unlike `legacy_reason` which is conditional on route. Lets a consumer distinguish "Sandbox2 supported but no routing token sent" (`route == "legacy"`, `legacy_reason == "no_token_default"`, `sandbox2_compiled_in == true`) from "built without Sandbox2 support at all" (`sandbox2_compiled_in == false`) - both otherwise emit identical `legacy`/`no_token_default`/`degraded` signals for every plain launch. |
 
 `legacy_reason` exists because `mode == "degraded"` alone conflates a
-deliberate operator kill-switch launch with the dormant default that is in
-effect for the entire rollout window - during that window every ordinary
-launch is `degraded`, so the mode carries no diagnostic information on its
-own. It is additive: `event`/`deployment_id`/`model_id`/`route`/
+deliberate operator kill-switch launch with the permanent no-token
+default - a caller that never sends either routing token always produces
+`degraded`, so the mode carries no diagnostic information on its own. It is
+additive: `event`/`deployment_id`/`model_id`/`route`/
 `sandbox2_established`/`mode` and their semantics are unchanged.
 
 **`mode` mapping** (binding rule):
 
-- `enforced` - `route == "sandbox2"` (no operator kill-switch token) and the
-  Sandbox2 spawn returned `true`.
+- `enforced` - `route == "sandbox2"` (a validated `--requireSandbox` token,
+  or - historically, before that token existed - the no-token default with
+  the now-removed internal enforcement seam) and the Sandbox2 spawn returned
+  `true`.
 - `fail_closed` - `route == "sandbox2"` and the spawn returned `false`
   (includes the build/deployment contradiction case where `processPath` is
   configured as sandboxed but this build has no Sandbox2 support).
 - `degraded` - `route == "legacy"` (operator kill-switch token present and
-  validated, or the dormant no-token default in effect), regardless of
-  whether the legacy spawn itself succeeded or failed. `legacy_reason` names
-  which of the two it was, and is emitted only on this mode.
+  validated, or the no-token default in effect), regardless of whether the
+  legacy spawn itself succeeded or failed. `legacy_reason` names which of
+  the two it was, and is emitted only on this mode.
 
-### Dormant no-token default
+### No-token default
 
-A `start` command with **no** `--disableSandbox` token for a configured
-sandboxed process path selects the **legacy** route unless the internal
-controller option `ML_SANDBOX2_DEFAULT_ENFORCED` is set to exactly `1`.
-Anything else (unset, `""`, `0`, `true`) leaves it off. Off is the shipped
-default, so this rollout starts dormant: a plain `pytorch_inference` launch
-behaves exactly as it did before typed routing existed, on every platform,
-including builds without Sandbox2 support. With the option on, the same
-command requires Sandbox2 and never falls back to the legacy spawner.
+The command wire format defines exactly two routing tokens:
+`--disableSandbox` (operator kill-switch, forces the legacy route) and
+`--requireSandbox` (operator opt-in, forces the Sandbox2 route - no
+automatic legacy fallback). They are mutually exclusive; a `start` command
+naming both is rejected outright rather than resolved by precedence, and
+each is separately rejected if repeated.
 
-`ML_SANDBOX2_DEFAULT_ENFORCED` is an internal seam, not an operator setting;
-the change that turns it on is the Elasticsearch-side default-false feature
-flag, not ml-cpp.
+A `start` command with **neither** token for a configured sandboxed process
+path always selects the **legacy** route. This is the permanent behaviour
+for any caller that sends no routing token - not a temporary rollout
+seam - so a plain `pytorch_inference` launch behaves exactly as it did
+before typed routing existed, on every platform, including builds without
+Sandbox2 support. Elasticsearch is expected to always send exactly one of
+the two tokens, chosen from the live value of its own operator setting at
+launch time, so this branch exists for non-ES callers (support/debug
+scripts, direct controller invocation) and the test harness.
 
 Provenance lines (`LOG_INFO`/`LOG_DEBUG`, `bin/controller/CCommandProcessor.cc`)
-name which of the two decided a legacy route - the router itself only ever
-sees an already-decided route and never claims a kill switch that was not
+name which token (if any) decided the route - the router itself only ever
+sees an already-decided route and never claims a token that was not
 present.
 
 ### In-process seccomp is legacy-route only
@@ -99,17 +105,17 @@ sandboxees.
 
 Hard termination on a failed in-process seccomp installation
 (`TERMINATE_ON_DEGRADED_SECCOMP_FAILURE` in
-`bin/pytorch_inference/Main.cc`) is deliberately **off** while the legacy
-route is still the production default: during the dormant window every
-ordinary launch is a degraded-route launch, so terminating would fail every
-launch on a host without usable seccomp BPF. It becomes safe to activate at
-the same time the default stops being legacy.
+`bin/pytorch_inference/Main.cc`) is deliberately **off**: an ordinary launch
+with no explicit routing token is a degraded-route launch, so terminating
+would fail every launch on a host without usable seccomp BPF. It becomes
+safe to activate once every caller that matters always sends an explicit
+`--disableSandbox` or `--requireSandbox` token per launch.
 
 Example:
 
 ```json
 {"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"sandbox2","sandbox2_established":true,"mode":"enforced","sandbox2_compiled_in":true}
-{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"legacy","legacy_reason":"dormant_default","sandbox2_established":false,"mode":"degraded","sandbox2_compiled_in":true}
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"legacy","legacy_reason":"no_token_default","sandbox2_established":false,"mode":"degraded","sandbox2_compiled_in":true}
 ```
 
 Emission site: `bin/controller/CProcessSpawnerRouter.cc`,
@@ -151,14 +157,14 @@ cannot find it), and a per-case cleanup assertion (`kill <pid>`
 against the controller reports failure once the case ends, proving the
 child was reaped).
 
-Because the shipped no-token default is the legacy route, the harness starts
-the controller with `ML_SANDBOX2_DEFAULT_ENFORCED=1` in its environment, and
-each case asserts the route reported by that launch's own `sandbox2_launch`
-signal (`sandbox2` for the sandboxed cases, `legacy` for the
-`--disableSandbox` control) **before** any target-file assertion. Without
-both, a sandboxed case could route to the legacy path and still show "no
-target file" for entirely the wrong reason - a false pass on the security
-proof.
+Because the no-token default is always the legacy route, the harness sends
+an explicit `--requireSandbox` token on every sandboxed case's `start`
+command (and `--disableSandbox` on the positive-control case), and each case
+asserts the route reported by that launch's own `sandbox2_launch` signal
+(`sandbox2` for the sandboxed cases, `legacy` for the `--disableSandbox`
+control) **before** any target-file assertion. Without both, a sandboxed
+case could route to the legacy path and still show "no target file" for
+entirely the wrong reason - a false pass on the security proof.
 
 **Command:**
 

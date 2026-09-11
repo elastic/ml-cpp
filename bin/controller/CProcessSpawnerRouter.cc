@@ -146,20 +146,20 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
 
     // Additive field, emitted *only* on the legacy route (route ==
     // "legacy", i.e. mode == "degraded"): mode alone conflates a deliberate
-    // operator kill switch with the dormant default that is in effect for
-    // the entire rollout window. Omitted entirely - never "" and never null
-    // - on route == "sandbox2", i.e. on both the "enforced" and
-    // "fail_closed" modes, since neither can have a legacy reason.
+    // operator kill switch with the permanent no-token default. Omitted
+    // entirely - never "" and never null - on route == "sandbox2", i.e. on
+    // both the "enforced" and "fail_closed" modes, since neither can have a
+    // legacy reason.
     std::string legacyReasonField;
     if (isLegacyRoute) {
-        const char* reason{legacyReason == ELegacyReason::E_KillSwitch ? "kill_switch" : "dormant_default"};
+        const char* reason{legacyReason == ELegacyReason::E_KillSwitch ? "kill_switch" : "no_token_default"};
         if (legacyReason == ELegacyReason::E_NotLegacy) {
             // A caller that routed to legacy without naming why: report the
-            // dormant default (the overwhelmingly common case during the
-            // rollout window) rather than falsely claiming an operator
-            // kill switch.
+            // no-token default (the overwhelmingly common case for callers
+            // that never send either routing token) rather than falsely
+            // claiming an operator kill switch.
             LOG_WARN(<< "Legacy route with no recorded provenance; reporting the "
-                        "dormant default in the sandbox2_launch signal");
+                        "no-token default in the sandbox2_launch signal");
         }
         legacyReasonField = std::string{",\"legacy_reason\":\""} + reason + "\"";
     }
@@ -169,11 +169,11 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     // backed by the SANDBOX2_AVAILABLE compile definition), not per-launch
     // state, so it is computed once here rather than threaded through as a
     // parameter. Lets a consumer (e.g. a future ES-side rollout logic)
-    // distinguish a Linux build that has Sandbox2 support but is dormant
-    // (route == "legacy", legacy_reason == "dormant_default",
-    // sandbox2_compiled_in == true) from a build with no Sandbox2 support at
-    // all (sandbox2_compiled_in == false) - the two are otherwise
-    // indistinguishable from the sandbox2_launch signal alone.
+    // distinguish a Linux build that has Sandbox2 support but a caller sent
+    // no routing token (route == "legacy", legacy_reason ==
+    // "no_token_default", sandbox2_compiled_in == true) from a build with
+    // no Sandbox2 support at all (sandbox2_compiled_in == false) - the two
+    // are otherwise indistinguishable from the sandbox2_launch signal alone.
     static const bool sandbox2CompiledIn{sandbox::CMlSandboxAvailability::isCompiledIn()};
 
     std::ostringstream signal;
@@ -214,7 +214,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     if (route == ERoute::E_Legacy) {
         // Legacy route decided upstream: either the operator kill-switch
         // token (validated against this exact processPath and stripped from
-        // args by CCommandProcessor) or the dormant no-token default. This
+        // args by CCommandProcessor) or the permanent no-token default. This
         // router never re-parses args to decide anything (unlike the frozen
         // prior art's spawn(), which re-derived disableSandbox from args
         // itself), so it cannot - and must not - derive which of the two it
@@ -230,8 +230,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
 #ifdef SANDBOX2_AVAILABLE
         // First - and only - point at which any Sandbox2 machinery is
         // constructed. A router that never reaches this branch (every
-        // router while the Sandbox2 default is dormant, and every router in
-        // a build without Sandbox2 support) never creates a
+        // router that never dispatches a validated --requireSandbox token,
+        // and every router in a build without Sandbox2 support) never creates a
         // CSandboxedProcessSpawner at all, so no Sandbox2 state enters its
         // construction or teardown path. Single-threaded by the same
         // contract as the legacy spawner - see the member's declaration.

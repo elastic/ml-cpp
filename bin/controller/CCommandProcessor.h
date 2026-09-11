@@ -100,23 +100,6 @@ private:
     //! std::find over it.
     CProcessSpawnerRouter m_Spawner;
 
-    //! Internal controller option, read once at construction from the
-    //! \c ML_SANDBOX2_DEFAULT_ENFORCED environment variable and \b off
-    //! unless that variable is exactly "1" (the single canonical truthy
-    //! spelling; any other value, including "true", "yes" or "0", leaves it
-    //! off, matching the ML_SANDBOXED=1 convention
-    //! CSandboxedProcessSpawner_Linux.cc already uses for the child).
-    //!
-    //! Off (the shipped default) means a \c start command with no
-    //! \c --disableSandbox token takes the legacy route for a configured
-    //! sandboxed process path - i.e. exactly the pre-typed-routing
-    //! behaviour. This is deliberate: making the no-token default
-    //! Sandbox2-mandatory would turn every Linux pytorch_inference launch
-    //! into a mandatory-Sandbox2 launch before Elasticsearch has the
-    //! operator setting that controls it, so the typed-routing machinery
-    //! ships dormant and a later change flips this seam on.
-    bool m_Sandbox2DefaultEnabled;
-
     //! Used to write responses in JSON format to the response stream.
     CResponseJsonWriter m_ResponseWriter;
 };

@@ -210,10 +210,10 @@ task buildZip(type: Zip) {
   // nested under 3rd_party/) so Elasticsearch can assert against a
   // well-known top-level path in the -deps zip. Bump the integer inside
   // 3rd_party/controller-protocol.version (not merely its existence) on any
-  // future breaking change to either (a) the controller's --disableSandbox
-  // token semantics (controller-only metadata, never forwarded to the
-  // child), or (b) the per-child IPC route contract
-  // ($TMPDIR/ml-child-ipc/<child-id> -> /run/elastic/ml-ipc).
+  // future breaking change to either (a) the controller's
+  // --disableSandbox/--requireSandbox token semantics (controller-only
+  // metadata, never forwarded to the child), or (b) the per-child IPC route
+  // contract ($TMPDIR/ml-child-ipc/<child-id> -> /run/elastic/ml-ipc).
   from("3rd_party") {
     include "controller-protocol.version"
   }
