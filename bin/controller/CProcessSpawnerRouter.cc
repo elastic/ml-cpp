@@ -107,6 +107,19 @@ std::string jsonEscape(const std::string& s) {
 std::string deriveDeploymentId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
     const char* tmpDirEnv{::getenv("TMPDIR")};
     const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
+    // validateChildIpcLaunchSpec() does live ::realpath() calls, which
+    // require $TMPDIR/ml-child-ipc/<child-id> to already exist. This is the
+    // *other* production call site that reaches that function (the one
+    // inside CSandboxedProcessSpawner_Linux.cc::spawn() is the other), and
+    // it runs strictly before spawn() dispatches to either backend - on the
+    // legacy route just as much as the Sandbox2 route, since the signal
+    // below always wants a real deployment_id. Ensure the directory exists
+    // here too, rather than relying on the Sandbox2 spawner (which may not
+    // even run on this route) to have already done it. A creation failure
+    // is not logged again here: an empty deployment_id in the signal is
+    // itself the observable symptom, and the Sandbox2 spawner (when that
+    // route is actually taken) logs the failure with detail.
+    ml::sandbox::ensureChildIpcDirectory(trustedTmpDir, args);
     return ml::sandbox::validateChildIpcLaunchSpec(trustedTmpDir, args).s_Spec.s_ChildId;
 }
 
