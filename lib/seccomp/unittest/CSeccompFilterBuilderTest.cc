@@ -204,6 +204,30 @@ BOOST_AUTO_TEST_CASE(testCarryForwardSyscallsPresent) {
 #endif
 }
 
+BOOST_AUTO_TEST_CASE(testSandbox2ExplicitSyscallsCarriedForwardFromPr2873) {
+    // The clean rebuild's Sandbox2 policy builder originally granted only
+    // legacyBpfAllowedSyscalls(), which is not sufficient: Sandbox2's
+    // namespace/threading setup exercises syscalls (scheduling, epoll, pipes,
+    // directory management) the legacy in-process filter never needed. PR
+    // #2873's enhancement/sandbox2 branch already had a dedicated
+    // sandbox2ExplicitSyscalls() list for exactly this; this regression test
+    // keeps a future rewrite from dropping it again the same way.
+    const std::set<int> explicitGrants{
+        ml::seccomp::pytorch_inference::sandbox2ExplicitSyscalls().begin(),
+        ml::seccomp::pytorch_inference::sandbox2ExplicitSyscalls().end()};
+
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_getaffinity) == 1);
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_setaffinity) == 1);
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_epoll_pwait) == 1);
+    BOOST_TEST_REQUIRE(explicitGrants.count(__NR_pipe2) == 1);
+
+    // Every syscall the legacy filter allows must also be reachable under
+    // Sandbox2, either explicitly or via a PolicyBuilder helper - otherwise a
+    // future addition to legacyBpfAllowedSyscalls() silently regresses
+    // Sandbox2 support without either declaration noticing.
+    BOOST_TEST_REQUIRE(ml::seccomp::pytorch_inference::sandbox2AllowsAllLegacySyscalls());
+}
+
 #endif // __linux__
 
 BOOST_AUTO_TEST_CASE(testDegradedModeAttestationMarker) {
