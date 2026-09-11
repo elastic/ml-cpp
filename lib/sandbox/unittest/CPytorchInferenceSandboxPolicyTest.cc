@@ -72,6 +72,44 @@ private:
     std::string m_ChildRoot;
 };
 
+//! Creates only the *trusted base* directory ($TMPDIR itself) - deliberately
+//! leaving ml-child-ipc/<childId> absent, matching the real, pre-fix
+//! production bug: Elasticsearch/CCommandProcessor only ever constructs the
+//! --input=/--output=/--restore=/--logPipe= path *strings*; nothing had
+//! created the directory those paths live in by the time
+//! validateChildIpcLaunchSpec()'s realpath() calls ran. Tests using this
+//! fixture drive ensureChildIpcDirectory() themselves, rather than
+//! mkdir()-ing the child directory in setup the way CTempChildIpcFixture
+//! does.
+class CTrustedBaseOnlyFixture {
+public:
+    CTrustedBaseOnlyFixture() {
+        char pathTemplate[] = "/tmp/ml_sandbox_policy_nodir_test_XXXXXX";
+        char* created = ::mkdtemp(pathTemplate);
+        BOOST_TEST_REQUIRE(created != nullptr);
+        m_LiteralBase.assign(created);
+
+        char resolved[PATH_MAX];
+        BOOST_TEST_REQUIRE(::realpath(m_LiteralBase.c_str(), resolved) != nullptr);
+        m_CanonicalBase.assign(resolved);
+    }
+
+    ~CTrustedBaseOnlyFixture() {
+        ::rmdir((m_CanonicalBase + "/ml-child-ipc/child-ensure-1").c_str());
+        ::rmdir((m_CanonicalBase + "/ml-child-ipc").c_str());
+        if (m_LiteralBase != m_CanonicalBase) {
+            ::rmdir(m_LiteralBase.c_str());
+        }
+        ::rmdir(m_CanonicalBase.c_str());
+    }
+
+    const std::string& canonicalTrustedBase() const { return m_CanonicalBase; }
+
+private:
+    std::string m_LiteralBase;
+    std::string m_CanonicalBase;
+};
+
 } // namespace
 
 BOOST_AUTO_TEST_SUITE(CPytorchInferenceSandboxPolicyTest)
@@ -261,6 +299,76 @@ BOOST_AUTO_TEST_CASE(testRejectsEmptyValueForRecognizedPathOptionEvenAmongValidO
     BOOST_REQUIRE_EQUAL(result.s_Rejected[0].s_Arg, "--input=");
     BOOST_REQUIRE(result.s_Rejected[0].s_Reason ==
                   ml::sandbox::EChildIpcPathRejection::E_NotAbsolute);
+}
+
+BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryCreatesMissingDirectoryBeforeValidation) {
+    // Reproduces the real bug: with neither ml-child-ipc nor the per-child
+    // directory created yet, validateChildIpcLaunchSpec() must fail closed
+    // (realpath() has nothing to resolve) - and after
+    // ensureChildIpcDirectory() runs, the exact same validation call must
+    // now succeed, proving the directory-creation step is what was missing,
+    // not a mis-ordering of an already-existing step.
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/child-ensure-1"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo",
+                                        "--output=" + childRoot + "/output.fifo"};
+
+    const ml::sandbox::SChildIpcValidationResult before{
+        ml::sandbox::validateChildIpcLaunchSpec(fixture.canonicalTrustedBase(), args)};
+    BOOST_TEST_REQUIRE(before.s_Ok == false);
+
+    const ml::sandbox::EChildIpcDirectoryOutcome outcome{
+        ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args)};
+    BOOST_REQUIRE(outcome == ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+
+    struct stat childRootStat;
+    BOOST_TEST_REQUIRE(::stat(childRoot.c_str(), &childRootStat) == 0);
+    BOOST_REQUIRE_EQUAL(static_cast<int>(childRootStat.st_mode & 0777), 0700);
+
+    const ml::sandbox::SChildIpcValidationResult after{
+        ml::sandbox::validateChildIpcLaunchSpec(fixture.canonicalTrustedBase(), args)};
+    BOOST_TEST_REQUIRE(after.s_Ok);
+    BOOST_TEST_REQUIRE(after.s_Rejected.empty());
+    BOOST_REQUIRE_EQUAL(after.s_Spec.s_ChildId, "child-ensure-1");
+}
+
+BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryIsIdempotentAcrossRetries) {
+    // A retry/restart for the same child-id must not fail just because the
+    // directory from the earlier attempt is still there.
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/child-ensure-1"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+
+    const ml::sandbox::SChildIpcValidationResult result{
+        ml::sandbox::validateChildIpcLaunchSpec(fixture.canonicalTrustedBase(), args)};
+    BOOST_TEST_REQUIRE(result.s_Ok);
+}
+
+BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryFailsClosedOnCreationFailure) {
+    // A creation failure (here: an unwritable trusted base, standing in for
+    // permissions/ENOSPC on a real host) must report E_CreationFailed - not
+    // crash, and not let validateChildIpcLaunchSpec() somehow still pass.
+    CTrustedBaseOnlyFixture fixture;
+    BOOST_TEST_REQUIRE(::chmod(fixture.canonicalTrustedBase().c_str(), 0500) == 0);
+
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/child-ensure-1"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+
+    const ml::sandbox::EChildIpcDirectoryOutcome outcome{
+        ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args)};
+    BOOST_REQUIRE(outcome == ml::sandbox::EChildIpcDirectoryOutcome::E_CreationFailed);
+
+    const ml::sandbox::SChildIpcValidationResult result{
+        ml::sandbox::validateChildIpcLaunchSpec(fixture.canonicalTrustedBase(), args)};
+    BOOST_TEST_REQUIRE(result.s_Ok == false);
+
+    // Restore write permission so the fixture destructor can clean up.
+    ::chmod(fixture.canonicalTrustedBase().c_str(), 0700);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

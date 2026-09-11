@@ -412,12 +412,28 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         fullArgs.push_back(arg);
     }
 
+    // Create $TMPDIR/ml-child-ipc/<child-id> (mode 0700) before anything
+    // tries to resolve it: validateChildIpcLaunchSpec() below does live
+    // realpath() calls, which require the target to already exist. This is
+    // the native controller's half of the contract - Elasticsearch only
+    // ever constructs the path *strings* it passes on the command line, it
+    // never creates the directory those paths live in. A creation failure
+    // for a reason other than "already exists" (permissions, disk full,
+    // ...) is logged distinctly here, then still flows into the normal
+    // validation call below, which fails closed with a defined rejection
+    // reason (E_CanonicalizationFailed) rather than a crash or a silent
+    // pass.
+    const char* tmpDirEnv{::getenv("TMPDIR")};
+    const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
+    if (ensureChildIpcDirectory(trustedTmpDir, args) == EChildIpcDirectoryOutcome::E_CreationFailed) {
+        LOG_ERROR(<< "Failed to create the per-child IPC directory under " << trustedTmpDir
+                  << "/ml-child-ipc for " << processPath << ": " << ::strerror(errno));
+    }
+
     // Validate every path-bearing launch argument against the pinned
     // child-root contract *before* a policy is ever constructed. s_Ok ==
     // false must fail the spawn outright - never fall back to a
     // partially-built policy.
-    const char* tmpDirEnv{::getenv("TMPDIR")};
-    const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
     const SChildIpcValidationResult validated{validateChildIpcLaunchSpec(trustedTmpDir, args)};
     if (validated.s_Ok == false) {
         std::ostringstream rejected;
