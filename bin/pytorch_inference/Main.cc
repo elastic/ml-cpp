@@ -300,27 +300,23 @@ int main(int argc, char** argv) {
     // in-process seccomp installation, exactly as before typed routing).
     //
     // Turning it on is only safe once a degraded/legacy-route launch is
-    // guaranteed to be a deliberate decision rather than the production
-    // default. CProcessSpawnerRouter supplies half of that
-    // guarantee - it never falls back to the legacy spawner after a failed
-    // Sandbox2 attempt - but the controller currently *defaults* the
-    // no-token case to the legacy route while ML_SANDBOX2_DEFAULT_ENFORCED
-    // is off (the shipped, dormant state; see
-    // bin/controller/CCommandProcessor.cc). So during the dormant window
-    // every ordinary pytorch_inference launch is a degraded-route launch,
-    // and terminating on seccomp-install failure would fail every launch on
-    // a host lacking usable seccomp BPF (restricted containers, some CI
-    // images) with no operator fallback setting to select instead - a
-    // regression on exactly the launches the dormant window must leave
-    // untouched.
+    // guaranteed to be a deliberate decision rather than an unrequested
+    // default. CProcessSpawnerRouter supplies half of that guarantee - it
+    // never falls back to the legacy spawner after a failed Sandbox2
+    // attempt - but the controller's no-token case still always takes the
+    // legacy route (see bin/controller/CCommandProcessor.cc), and a caller
+    // that omits both routing tokens is not necessarily choosing that
+    // deliberately. So an ordinary launch with no explicit token is a
+    // degraded-route launch, and terminating on seccomp-install failure
+    // would fail every launch on a host lacking usable seccomp BPF
+    // (restricted containers, some CI images) with no fallback to select
+    // instead.
     //
-    // Activate this together with the change that stops the legacy route
-    // being the default - i.e. when this constant is tied to the same
-    // ML_SANDBOX2_DEFAULT_ENFORCED-style gating, or when the Elasticsearch
-    // operator setting lands and flips the default to Sandbox2. At that
-    // point a degraded launch really is only ever reachable via an
-    // explicit, controller-validated --disableSandbox token, which is what
-    // makes hard termination safe.
+    // Activate this once every caller that matters (in practice,
+    // Elasticsearch) always sends an explicit --disableSandbox or
+    // --requireSandbox token per launch, so a degraded launch really is
+    // only ever reachable via an explicit, controller-validated
+    // --disableSandbox token, which is what makes hard termination safe.
     constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
 
     // The in-process filter belongs to the legacy/non-sandboxed route only.

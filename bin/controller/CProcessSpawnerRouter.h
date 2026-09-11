@@ -66,15 +66,17 @@ public:
     //! already knows from making the decision, purely so the
     //! `sandbox2_launch` signal's additive "legacy_reason" field can
     //! distinguish a deliberate operator
-    //! kill switch from the dormant default that is in effect for the whole
-    //! rollout window - mode == "degraded" alone cannot.
+    //! kill switch from the permanent no-token default - mode == "degraded"
+    //! alone cannot.
     enum class ELegacyReason {
         //! The route is E_Sandbox2; no legacy_reason is emitted at all.
         E_NotLegacy,
         //! A validated --disableSandbox token was present.
         E_KillSwitch,
-        //! No token, and ML_SANDBOX2_DEFAULT_ENFORCED is not enabled.
-        E_DormantDefault
+        //! Neither --disableSandbox nor --requireSandbox was present. The
+        //! permanent behaviour for any caller that sends no routing token,
+        //! not a temporary rollout state.
+        E_NoTokenDefault
     };
 
 public:
@@ -104,7 +106,7 @@ public:
     //! uses it for dispatch and `sandbox2_launch`-signal gating, and CCommandProcessor
     //! calls it (through its own router member) to decide whether the
     //! operator kill-switch token is meaningful for a process path and
-    //! whether the dormant-by-default Sandbox2 route applies. Keeping two
+    //! whether the --requireSandbox opt-in token applies. Keeping two
     //! independent std::find copies would let a future change to one (e.g.
     //! path normalisation) silently desync token validation from signal
     //! emission.
@@ -134,9 +136,10 @@ private:
     //! Null until - and unless - a spawn() call actually dispatches to the
     //! Sandbox2 route, at which point spawn() creates it in place (see the
     //! .cc's SANDBOX2_AVAILABLE branch). A router that only ever takes the
-    //! legacy route - which is every router during the whole dormant-default
-    //! rollout window, and every router in a non-Sandbox2 build - therefore
-    //! never constructs *or* destructs any Sandbox2 machinery.
+    //! legacy route - every router whose caller never sends a validated
+    //! --requireSandbox token, and every router in a non-Sandbox2
+    //! build - therefore never constructs *or* destructs any Sandbox2
+    //! machinery.
     //!
     //! Held behind a pointer rather than by value for two reasons:
     //!
