@@ -475,7 +475,7 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // above never needed a grant for - granting only legacyBpfAllowedSyscalls()
     // here is not sufficient. See sandbox2ExplicitSyscalls()'s doc comment for
     // why this is a separate list rather than a superset relationship.
-    for (int syscallNr : seccomp::pytorch_inference::sandbox2ExplicitSyscalls()) {
+    for (int syscallNr : seccomp::sandbox2ExplicitSyscalls()) {
         policyBuilder.AllowSyscall(syscallNr);
     }
 
@@ -527,10 +527,13 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // Private, bounded tmpfs - never the host's shared /tmp.
     policyBuilder.AddTmpfs("/tmp", tmpfsSizeBytes);
 
-    // The one per-child IPC root, mapped read-write to a fixed in-sandbox
-    // path. validated.s_Ok and s_ChildIpcRoot shape were checked above.
-    policyBuilder.AddDirectoryAt(validated.s_Spec.s_ChildIpcRoot, "/run/elastic/ml-ipc",
-                                 /*is_ro=*/false);
+    // The one per-child IPC root, mapped read-write at the same path inside
+    // and outside the sandbox. validated.s_Ok and s_ChildIpcRoot shape were
+    // checked above. Same-path (not a remapped in-sandbox path) because
+    // pytorch_inference receives its --input=/--output=/--restore=/--logPipe=
+    // argv from Elasticsearch as host paths under this root; a remap would
+    // leave those paths unresolvable inside the sandbox's own mount namespace.
+    policyBuilder.AddDirectory(validated.s_Spec.s_ChildIpcRoot, /*is_ro=*/false);
 
     return policyBuilder;
 }

@@ -213,7 +213,8 @@ task buildZip(type: Zip) {
   // future breaking change to either (a) the controller's
   // --disableSandbox/--requireSandbox token semantics (controller-only
   // metadata, never forwarded to the child), or (b) the per-child IPC route
-  // contract ($TMPDIR/ml-child-ipc/<child-id> -> /run/elastic/ml-ipc).
+  // contract ($TMPDIR/ml-child-ipc/<child-id>, mounted at the same path
+  // inside and outside the sandbox).
   from("3rd_party") {
     include "controller-protocol.version"
   }
