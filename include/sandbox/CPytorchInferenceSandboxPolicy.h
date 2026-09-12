@@ -57,8 +57,9 @@ struct SChildIpcLaunchSpec {
     std::string s_ChildId;
     //! Canonical $TMPDIR/ml-child-ipc/<child-id> - the directory the native
     //! controller creates (mode 0700) before policy construction, and the
-    //! only host directory CSandboxedProcessSpawner maps to
-    //! /run/elastic/ml-ipc. Empty iff s_ChildId is empty.
+    //! only host directory CSandboxedProcessSpawner mounts into the sandbox
+    //! (at this same path - see buildPytorchInferenceFilesystemPolicy).
+    //! Empty iff s_ChildId is empty.
     std::string s_ChildIpcRoot;
     //! Canonical paths of every accepted path-bearing argument, always
     //! s_ChildIpcRoot plus exactly one leaf component.
@@ -171,7 +172,8 @@ const std::vector<std::string>& allowlistedEtcFiles();
 //! allowlistedEtcFiles - a read-only directory decision is mounted only if
 //! its source actually exists on this host, since Sandbox2 fails the whole
 //! spawn on a missing source), a private bounded tmpfs at /tmp, the one per-child
-//! IPC root mapped to /run/elastic/ml-ipc, and the syscall allowlist shared
+//! IPC root mounted at the same path inside and outside the sandbox (so
+//! Elasticsearch's host-path argv still resolves), and the syscall allowlist shared
 //! with the legacy BPF filter
 //! (seccomp::pytorch_inference::legacyBpfAllowedSyscalls, kept in sync per
 //! that header's own comment). Does not call TryBuild() - the caller owns

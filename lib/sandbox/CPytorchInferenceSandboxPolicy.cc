@@ -478,11 +478,16 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // Private, bounded tmpfs - never the host's shared /tmp.
     policyBuilder.AddTmpfs("/tmp", tmpfsSizeBytes);
 
-    // The one per-child IPC root, mapped read-write to a fixed in-sandbox
-    // path. spec must already be s_Ok (validateChildIpcLaunchSpec), so
-    // s_ChildIpcRoot is exactly $TMPDIR/ml-child-ipc/<child-id> - never
-    // ml-child-ipc itself, never a sibling child's directory.
-    policyBuilder.AddDirectoryAt(spec.s_ChildIpcRoot, "/run/elastic/ml-ipc", /*is_ro=*/false);
+    // The one per-child IPC root, mapped read-write at the same path inside
+    // and outside the sandbox. spec must already be s_Ok
+    // (validateChildIpcLaunchSpec), so s_ChildIpcRoot is exactly
+    // $TMPDIR/ml-child-ipc/<child-id> - never ml-child-ipc itself, never a
+    // sibling child's directory. Same-path (not a remapped in-sandbox path)
+    // because pytorch_inference receives its --input=/--output=/--restore=/
+    // --logPipe= argv from Elasticsearch as host paths under this root; a
+    // remap would leave those paths unresolvable inside the sandbox's own
+    // mount namespace.
+    policyBuilder.AddDirectory(spec.s_ChildIpcRoot, /*is_ro=*/false);
 
     return policyBuilder;
 }
