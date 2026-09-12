@@ -58,8 +58,9 @@ struct SChildIpcLaunchSpec {
     std::string s_ChildId;
     //! Canonical $TMPDIR/ml-child-ipc/<child-id> - the directory the native
     //! controller creates (mode 0700) before policy construction, and the
-    //! only host directory CSandboxedProcessSpawner maps to
-    //! /run/elastic/ml-ipc. Empty iff s_ChildId is empty.
+    //! only host directory CSandboxedProcessSpawner mounts into the sandbox
+    //! (at this same path - see buildPytorchInferenceFilesystemPolicy).
+    //! Empty iff s_ChildId is empty.
     std::string s_ChildIpcRoot;
     //! Canonical paths of every accepted path-bearing argument, always
     //! s_ChildIpcRoot plus exactly one leaf component.
@@ -136,11 +137,15 @@ EChildIpcDirectoryOutcome ensureChildIpcDirectory(const std::string& trustedTmpD
 #ifdef SANDBOX2_AVAILABLE
 
 //! Builds the filesystem and network-shape portion of the pytorch_inference
-//! Sandbox2 policy: minimized fixed mounts, a private bounded tmpfs at /tmp,
-//! the one per-child IPC root mapped to /run/elastic/ml-ipc, and the syscall
-//! allowlist shared with the legacy BPF filter
-//! (seccomp::legacyBpfAllowedSyscalls, kept in sync per that header's own
-//! comment). Does not call TryBuild() - the caller owns final policy
+//! Sandbox2 policy: minimized fixed mounts (fixedMountDecisions,
+//! allowlistedEtcFiles - a read-only directory decision is mounted only if
+//! its source actually exists on this host, since Sandbox2 fails the whole
+//! spawn on a missing source), a private bounded tmpfs at /tmp, the one per-child
+//! IPC root mounted at the same path inside and outside the sandbox (so
+//! Elasticsearch's host-path argv still resolves), and the syscall allowlist shared
+//! with the legacy BPF filter (seccomp::legacyBpfAllowedSyscalls and
+//! seccomp::sandbox2ExplicitSyscalls, kept in sync per those headers' own
+//! comments). Does not call TryBuild() - the caller owns final policy
 //! construction so tests can inspect the builder before commit. Returns an
 //! error when validated.s_Ok is false or s_ChildIpcRoot is not a canonical
 //! $TMPDIR/ml-child-ipc/<child-id> directory.
