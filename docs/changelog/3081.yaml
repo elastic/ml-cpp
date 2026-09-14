@@ -1,5 +1,5 @@
 area: Machine Learning
 issues: []
 pr: 3081
-summary: Mark ML controller non-dumpable before accepting commands
+summary: Mark machine learning controller non-dumpable before accepting commands
 type: bug

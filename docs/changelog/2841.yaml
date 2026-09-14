@@ -1,5 +1,5 @@
 pr: 2841
-summary: "Better messaging regarding OOM process termination"
+summary: "Better messaging regarding out of memory process termination"
 area: Machine Learning
 type: enhancement
 issues: []

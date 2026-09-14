@@ -1,5 +1,5 @@
 area: Machine Learning
 issues: []
 pr: 3080
-summary: Reject non-native ABIs in ML seccomp filter (socketcall/getuid collision)
+summary: Harden the Linux system call filter for machine learning native processes to block non-native instruction set variants
 type: bug
