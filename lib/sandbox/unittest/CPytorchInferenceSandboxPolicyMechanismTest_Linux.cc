@@ -173,6 +173,11 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     BOOST_TEST_REQUIRE(std::stoi(detailFor(resultsContent, "etc_enumeration")) <= 10);
 
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "pid_namespace"), "namespaced");
+
+    // /proc/self/exe must resolve inside the sandbox - the mount whose
+    // absence broke Intel oneMKL's library dispatcher ("Cannot load
+    // <mkl-loader>"). Guards the /proc entry in fixedMountDecisions().
+    BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "proc_self_exe"), "readable");
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "loopback_reachable"), "ok");
 
     ::unlink((childRoot + "/probe.txt").c_str());
