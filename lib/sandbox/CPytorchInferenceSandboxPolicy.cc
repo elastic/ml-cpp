@@ -136,11 +136,24 @@ const std::vector<SFixedMountDecision>& fixedMountDecisions() {
          "individually justified files pytorch_inference/libtorch actually "
          "need instead."},
         {"/proc", EFixedMountAction::E_MountNamespacedProcfs,
-         "Sandbox2 mounts a fresh procfs inside the sandbox's own PID "
-         "namespace; binding the host's /proc would leak every other "
-         "process's memory maps and command lines into the sandbox."},
-        {"/sys", EFixedMountAction::E_MountNamespacedProcfs,
-         "Same reason as /proc: nothing in this policy binds host /sys."},
+         "Bind /proc into the sandbox rootfs. Sandbox2 mounts a fresh "
+         "PID-namespaced procfs at /proc before it builds and pivots into "
+         "the chroot, but that mount lives on the outer root and is detached "
+         "with it, so the pivoted rootfs has no /proc unless we add one. "
+         "Adding /proc here binds that already-namespaced procfs (never the "
+         "host's), exposing only the sandbox's own PID namespace - verified "
+         "inside the sandbox, /proc shows exactly the sandboxee's own PIDs, "
+         "not the host's. Without it readlink(/proc/self/exe) and "
+         "open(/proc/self/maps) both fail with ENOENT, which breaks Intel "
+         "oneMKL's runtime dispatcher: it reads /proc/self/exe to self-locate "
+         "and dlopen its CPU-specific libmkl_*.so.3 kernels, and aborts with "
+         "'Intel oneMKL FATAL ERROR: Cannot load <mkl-loader>' when that "
+         "read fails."},
+        {"/sys", EFixedMountAction::E_Skip,
+         "Not mounted: nothing in this policy binds host /sys, and unlike "
+         "/proc there is no fresh namespaced /sys to bind (Sandbox2 mounts "
+         "one only under a new network namespace). pytorch_inference/libtorch "
+         "run without it."},
     };
     return DECISIONS;
 }
@@ -500,10 +513,15 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
             break;
         }
         case EFixedMountAction::E_MountNamespacedProcfs:
+            // Bind the fresh, PID-namespaced procfs Sandbox2 mounts before
+            // it pivots into the chroot (see the /proc decision comment).
+            // This is a bind of the sandbox's own namespaced /proc, not the
+            // host's, so it does not leak host process state.
+            policyBuilder.AddDirectory(decision.s_Path, /*is_ro=*/true);
+            break;
         case EFixedMountAction::E_Skip:
-            // Sandbox2 supplies its own namespaced procfs/sysfs
-            // automatically; nothing to add here for either case, and
-            // adding decision.s_Path would bind the host directory instead.
+            // Nothing to add; adding decision.s_Path would bind the host
+            // directory instead.
             break;
         }
     }
