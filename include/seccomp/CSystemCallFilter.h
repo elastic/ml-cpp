@@ -13,6 +13,7 @@
 
 #include <core/CNonInstantiatable.h>
 
+#include <cstdlib>
 #include <string>
 
 namespace ml {
@@ -88,8 +89,19 @@ enum class EDegradedModeAction {
 //! ml-cpp/Elasticsearch controller protocol can guarantee a degraded-mode
 //! launch was a deliberate operator choice would fail every launch on a
 //! host lacking seccomp BPF, with no operator fallback setting to select
-//! instead. Callers pass false today; a later change wires the real route
-//! decision through this parameter once that guarantee exists.
+//! instead. It is only safe to pass true where a degraded-mode launch is
+//! guaranteed to be a deliberate route decision rather than the production
+//! default. bin/controller's CProcessSpawnerRouter provides half of that
+//! guarantee (it never retries a failed Sandbox2 spawn through the legacy
+//! spawner), but while CCommandProcessor's no-token case still always
+//! routes to legacy, and no caller is yet guaranteed to always send an
+//! explicit --disableSandbox/--requireSandbox token, an ordinary launch
+//! *is* a degraded-route launch, so bin/pytorch_inference/Main.cc passes
+//! false. See the comment at TERMINATE_ON_DEGRADED_SECCOMP_FAILURE there
+//! for when it flips.
+//! This decision only ever
+//! applies to a launch that installs its own in-process filter at all - see
+//! sandbox2LaunchedChild() and applyInProcessSeccompFilter() below.
 inline EDegradedModeAction decideDegradedModeAction(ESystemCallFilterInstallOutcome outcome,
                                                     bool terminateOnFailure) {
     if (outcome == ESystemCallFilterInstallOutcome::E_Installed || !terminateOnFailure) {
@@ -114,6 +126,80 @@ inline std::string degradedModeAttestationMarker(ESystemCallFilterInstallOutcome
         return std::string();
     }
     return "{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}";
+}
+
+//! Pure form of the "was this process launched by the Sandbox2 executor?"
+//! test, taking the raw ML_SANDBOXED environment value (nullptr when unset)
+//! so it is testable on every platform without mutating the environment.
+//!
+//! pytorch_inference skips in-process seccomp only when ML_SANDBOXED is
+//! *exactly* "1", the
+//! value CSandboxedProcessSpawner_Linux.cc sets on a Sandbox2-launched
+//! child. It is stripped from every legacy-route child's environment by
+//! lib/core/CDetachedProcessSpawner.cc (detail::buildChildEnvironment(),
+//! declared in include/core/CDetachedProcessSpawner.h), so an inherited or
+//! injected ML_SANDBOXED in the controller's own environment can never
+//! suppress a legacy-route child's mandatory in-process filter. Any other
+//! value - unset, "", "0", "true", "10" -
+//! is a legacy/non-sandboxed launch that must install its own filter.
+inline bool sandbox2LaunchedChild(const char* mlSandboxedEnv) {
+    return mlSandboxedEnv != nullptr && std::string{mlSandboxedEnv} == "1";
+}
+
+//! \return true if this process is a Sandbox2-launched sandboxee, per
+//! sandbox2LaunchedChild(const char*) applied to the live environment.
+inline bool sandbox2LaunchedChild() {
+    return sandbox2LaunchedChild(std::getenv("ML_SANDBOXED"));
+}
+
+//! Everything one launch's in-process seccomp startup step decided, so a
+//! caller has no way to attest or terminate on a step that never ran.
+struct SInProcessFilterResult {
+    //! False iff the filter installation was skipped because this process
+    //! is a Sandbox2 sandboxee (the executor's own policy is already the
+    //! security boundary). When false, every other field is the inert
+    //! "nothing happened" value.
+    bool s_Attempted{false};
+    //! What the caller must do before untrusted IO/model processing.
+    EDegradedModeAction s_Action{EDegradedModeAction::E_ContinueDespiteFailure};
+    //! Outcome of the installation attempt; meaningless when
+    //! s_Attempted == false.
+    ESystemCallFilterInstallOutcome s_Outcome{ESystemCallFilterInstallOutcome::E_Installed};
+    //! degradedModeAttestationMarker() for s_Outcome, or empty when nothing
+    //! is attested. Always empty when s_Attempted == false: that marker
+    //! describes the *legacy* route's own filter installation, so emitting
+    //! it on a Sandbox2-route launch would both attest a filter that was
+    //! never installed and contradict the sandbox2_launch signal's
+    //! "route":"sandbox2" for the same launch.
+    std::string s_AttestationMarker;
+};
+
+//! Pure driver for the in-process seccomp startup step of a single launch.
+//!
+//! \param sandbox2Launched typically sandbox2LaunchedChild(); when true the
+//!        filter installation is skipped *entirely* - \p installer is never
+//!        invoked, no degraded-mode action is derived and no attestation
+//!        marker is produced, regardless of what an installation attempt
+//!        would have returned. Installing an in-process filter from inside
+//!        an already-sandboxed environment can fail (which would kill every
+//!        enforced-route launch once TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is activated) or
+//!        succeed and mislabel the launch as legacy.
+//! \param terminateOnFailure passed through to decideDegradedModeAction().
+//! \param installer invoked at most once; normally
+//!        CSystemCallFilter::installSystemCallFilter.
+template<typename INSTALLER>
+SInProcessFilterResult applyInProcessSeccompFilter(bool sandbox2Launched,
+                                                   bool terminateOnFailure,
+                                                   INSTALLER installer) {
+    SInProcessFilterResult result;
+    if (sandbox2Launched) {
+        return result;
+    }
+    result.s_Attempted = true;
+    result.s_Outcome = installer();
+    result.s_Action = decideDegradedModeAction(result.s_Outcome, terminateOnFailure);
+    result.s_AttestationMarker = degradedModeAttestationMarker(result.s_Outcome);
+    return result;
 }
 
 class CSystemCallFilter : private core::CNonInstantiatable {

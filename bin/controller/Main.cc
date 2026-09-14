@@ -206,8 +206,17 @@ int main(int argc, char** argv) {
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
         "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
         "./pytorch_inference"};
+    // Unconditional on every platform, deliberately: this list only
+    // nominates which process path the --disableSandbox/--requireSandbox
+    // controller tokens are meaningful for, it does not by itself require
+    // Sandbox2 for that path. A plain (no-token) launch of
+    // ./pytorch_inference always takes the legacy route (see
+    // CCommandProcessor), so listing it here fails nothing on macOS,
+    // Windows, or a Linux build without Sandbox2 support.
+    ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
+    ml::controller::CCommandProcessor processor{
+        permittedProcessPaths, sandboxedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();
