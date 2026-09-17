@@ -38,6 +38,31 @@ namespace {
 //! Maximum number of newly opened files between calls to setupFileActions().
 const int MAX_NEW_OPEN_FILES{10};
 
+//! Owned copy of environ with ML_SANDBOXED removed so a stray value in the
+//! controller's environment cannot cause a non-sandboxed child to skip seccomp.
+struct SFilteredEnviron {
+    std::vector<std::string> m_Strings;
+    std::vector<char*> m_Pointers;
+
+    SFilteredEnviron() {
+        m_Strings.reserve(64);
+        for (char** env = environ; *env != nullptr; ++env) {
+            if (::strncmp(*env, "ML_SANDBOXED=", 13) == 0) {
+                continue;
+            }
+            m_Strings.emplace_back(*env);
+        }
+
+        m_Pointers.reserve(m_Strings.size() + 1);
+        for (std::string& envVar : m_Strings) {
+            m_Pointers.push_back(envVar.data());
+        }
+        m_Pointers.push_back(nullptr);
+    }
+
+    char** data() { return m_Pointers.data(); }
+};
+
 //! Attempt to close all file descriptors except the standard ones.  The
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process.  Returns false and sets errno if the actions cannot be initialised
@@ -165,55 +190,57 @@ private:
     //! Reap zombie child processes and adjust the set of live child PIDs
     //! accordingly.  MUST be called with m_Mutex locked.
     void checkForDeadChildren() {
-        int status = 0;
-        for (;;) {
-            CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
-            // 0 means there are child processes but none have died
-            if (pid == 0) {
-                break;
+        TPidSet pidsCopy{m_Pids};
+        for (CProcess::TPid pid : pidsCopy) {
+            int status = 0;
+            CProcess::TPid waited = ::waitpid(pid, &status, WNOHANG);
+            if (waited == 0) {
+                continue;
             }
-            // -1 means error
-            if (pid == -1) {
-                if (errno != EINTR) {
-                    break;
+            if (waited == -1) {
+                if (errno == EINTR) {
+                    continue;
+                }
+                if (errno == ECHILD) {
+                    m_Pids.erase(pid);
+                }
+                continue;
+            }
+            if (WIFSIGNALED(status)) {
+                int signal = WTERMSIG(status);
+                if (signal == SIGTERM) {
+                    // We expect this when a job is force-closed, so log
+                    // at a lower level
+                    LOG_INFO(<< "Child process with PID " << pid
+                             << " was terminated by signal " << signal);
+                } else if (signal == SIGKILL) {
+                    // This should never happen if the system is working
+                    // normally - possible reasons are the Linux OOM
+                    // killer or manual intervention. The latter is highly unlikely
+                    // if running in the cloud.
+                    LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
+                              << " This is likely due to the OOM killer."
+                              << " Please check system logs for more details.");
+                } else {
+                    // This should never happen if the system is working
+                    // normally - possible reasons are bugs that cause
+                    // access violations or manual intervention. The latter is highly unlikely
+                    // if running in the cloud.
+                    LOG_ERROR(<< "Child process with PID " << pid
+                              << " was terminated by signal " << signal
+                              << " Please check system logs for more details.");
                 }
             } else {
-                if (WIFSIGNALED(status)) {
-                    int signal = WTERMSIG(status);
-                    if (signal == SIGTERM) {
-                        // We expect this when a job is force-closed, so log
-                        // at a lower level
-                        LOG_INFO(<< "Child process with PID " << pid
-                                 << " was terminated by signal " << signal);
-                    } else if (signal == SIGKILL) {
-                        // This should never happen if the system is working
-                        // normally - possible reasons are the Linux OOM
-                        // killer or manual intervention. The latter is highly unlikely
-                        // if running in the cloud.
-                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal 9 (SIGKILL)."
-                                  << " This is likely due to the OOM killer."
-                                  << " Please check system logs for more details.");
-                    } else {
-                        // This should never happen if the system is working
-                        // normally - possible reasons are bugs that cause
-                        // access violations or manual intervention. The latter is highly unlikely
-                        // if running in the cloud.
-                        LOG_ERROR(<< "Child process with PID " << pid
-                                  << " was terminated by signal " << signal
-                                  << " Please check system logs for more details.");
-                    }
+                int exitCode = WEXITSTATUS(status);
+                if (exitCode == 0) {
+                    // This is the happy case
+                    LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
                 } else {
-                    int exitCode = WEXITSTATUS(status);
-                    if (exitCode == 0) {
-                        // This is the happy case
-                        LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
-                    } else {
-                        LOG_WARN(<< "Child process with PID " << pid
-                                 << " has exited with exit code " << exitCode);
-                    }
+                    LOG_WARN(<< "Child process with PID " << pid
+                             << " has exited with exit code " << exitCode);
                 }
-                m_Pids.erase(pid);
             }
+            m_Pids.erase(pid);
         }
     }
 
@@ -241,20 +268,35 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
-    return this->spawn(processPath, args, dummy);
+    return this->spawn(processPath, args, dummy, nullptr);
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    std::string* failureReason) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
+        const std::string reason{"Spawning process '" + processPath + "' is not permitted"};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 
     if (::access(processPath.c_str(), X_OK) != 0) {
-        LOG_ERROR(<< "Cannot execute '" << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Cannot execute '" + processPath + "': " + ::strerror(errno)};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
 
@@ -275,14 +317,22 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions, m_MaxObservedFd) == false) {
-        LOG_ERROR(<< "Failed to set up file actions prior to spawn of '"
-                  << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Failed to set up file actions: " +
+                                 std::string{::strerror(errno)}};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
     posix_spawnattr_t spawnAttributes;
     if (::posix_spawnattr_init(&spawnAttributes) != 0) {
-        LOG_ERROR(<< "Failed to set up spawn attributes prior to spawn of '"
-                  << processPath << "': " << ::strerror(errno));
+        const std::string reason{"Failed to set up spawn attributes: " +
+                                 std::string{::strerror(errno)}};
+        LOG_ERROR(<< reason);
+        if (failureReason != nullptr) {
+            *failureReason = reason;
+        }
         return false;
     }
     ::posix_spawnattr_setflags(&spawnAttributes, POSIX_SPAWN_SETPGROUP);
@@ -293,14 +343,20 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
+        SFilteredEnviron filteredEnviron;
         int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions,
-                              &spawnAttributes, &argv[0], environ));
+                              &spawnAttributes, argv.data(), filteredEnviron.data()));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);
 
         if (err != 0) {
-            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << ::strerror(err));
+            const std::string reason{"Failed to spawn '" + processPath +
+                                     "': " + ::strerror(err)};
+            LOG_ERROR(<< reason);
+            if (failureReason != nullptr) {
+                *failureReason = reason;
+            }
             return false;
         }
 
