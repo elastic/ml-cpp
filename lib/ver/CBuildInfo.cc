@@ -13,6 +13,8 @@
 #include <core/CProgName.h>
 #include <core/CStringUtils.h>
 
+#warning "deliberate test warning to verify -Werror enforcement — remove before merging"
+
 namespace ml {
 namespace ver {
 
