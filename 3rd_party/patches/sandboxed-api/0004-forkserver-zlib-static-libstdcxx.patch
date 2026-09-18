@@ -1,0 +1,22 @@
+diff --git a/sandboxed_api/sandbox2/CMakeLists.txt b/sandboxed_api/sandbox2/CMakeLists.txt
+index 8246938..0718763 100644
+--- a/sandboxed_api/sandbox2/CMakeLists.txt
++++ b/sandboxed_api/sandbox2/CMakeLists.txt
+@@ -245,6 +245,17 @@ target_link_libraries(sandbox2_forkserver_bin PRIVATE
+   sandbox2::util
+   sapi::base
+   sapi::raw_logging
++  # ml-cpp patch: sandbox2::unwind (libunwind_ptrace) calls uncompress(),
++  # which requires libz; link it explicitly instead of relying on transitive
++  # discovery, which --as-needed can drop.
++  z
++)
++# ml-cpp patch: statically link libstdc++/libgcc so the embedded forkserver
++# binary (sandbox2::forkserver_bin_embed below) does not depend on the
++# host's runtime GLIBCXX version at exec time.
++target_link_options(sandbox2_forkserver_bin PRIVATE
++  -static-libstdc++
++  -static-libgcc
+ )
+ 
+ # sandboxed_api/sandbox2:forkserver_bin_embed
