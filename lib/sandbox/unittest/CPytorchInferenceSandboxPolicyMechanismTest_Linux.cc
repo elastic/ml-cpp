@@ -93,33 +93,60 @@ std::string readFileOrEmpty(const std::string& path) {
     return contents.str();
 }
 
+//! Removes probe artifacts and the per-child IPC tree created by the
+//! mechanism test, even when a BOOST_REQUIRE aborts the case mid-run.
+class CMechanismProbeFixture {
+public:
+    CMechanismProbeFixture() {
+        char pathTemplate[] = "/tmp/ml_sandbox_probe_test_XXXXXX";
+        char* created = ::mkdtemp(pathTemplate);
+        BOOST_TEST_REQUIRE(created != nullptr);
+        m_LiteralTmpDir.assign(created);
+
+        char resolved[PATH_MAX];
+        BOOST_TEST_REQUIRE(::realpath(m_LiteralTmpDir.c_str(), resolved) != nullptr);
+        m_TrustedTmpDir.assign(resolved);
+
+        BOOST_TEST_REQUIRE(::mkdir((m_TrustedTmpDir + "/ml-child-ipc").c_str(), 0700) == 0);
+        m_ChildRoot = m_TrustedTmpDir + "/ml-child-ipc/mechanism-probe-child";
+        BOOST_TEST_REQUIRE(::mkdir(m_ChildRoot.c_str(), 0700) == 0);
+    }
+
+    ~CMechanismProbeFixture() {
+        ::unlink((m_ChildRoot + "/probe.txt").c_str());
+        ::unlink((m_ChildRoot + "/results.txt").c_str());
+        ::rmdir(m_ChildRoot.c_str());
+        ::rmdir((m_TrustedTmpDir + "/ml-child-ipc").c_str());
+        if (m_LiteralTmpDir != m_TrustedTmpDir) {
+            ::rmdir(m_LiteralTmpDir.c_str());
+        }
+        ::rmdir(m_TrustedTmpDir.c_str());
+    }
+
+    CMechanismProbeFixture(const CMechanismProbeFixture&) = delete;
+    CMechanismProbeFixture& operator=(const CMechanismProbeFixture&) = delete;
+
+    const std::string& trustedTmpDir() const { return m_TrustedTmpDir; }
+    const std::string& childRoot() const { return m_ChildRoot; }
+
+private:
+    std::string m_LiteralTmpDir;
+    std::string m_TrustedTmpDir;
+    std::string m_ChildRoot;
+};
+
 } // namespace
 
 BOOST_AUTO_TEST_SUITE(CPytorchInferenceSandboxPolicyMechanismTest_Linux)
 
 BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
-    char tmpDirTemplate[] = "/tmp/ml_sandbox_probe_test_XXXXXX";
-    char* tmpDir = ::mkdtemp(tmpDirTemplate);
-    BOOST_TEST_REQUIRE(tmpDir != nullptr);
-    // Canonicalize before building any arg path from it - same reasoning as
-    // CTempChildIpcFixture in the portable validator suite: on a host where
-    // /tmp is itself a symlink, an uncanonicalized base would make every
-    // literal arg path diverge from its own realpath()'d parent, tripping
-    // E_MutableSymlinkOrAlias for a reason that has nothing to do with what
-    // this test is actually exercising.
-    char resolvedTmpDir[PATH_MAX];
-    BOOST_TEST_REQUIRE(::realpath(tmpDir, resolvedTmpDir) != nullptr);
-    const std::string trustedTmpDir{resolvedTmpDir};
+    CMechanismProbeFixture fixture;
 
-    BOOST_TEST_REQUIRE(::mkdir((trustedTmpDir + "/ml-child-ipc").c_str(), 0700) == 0);
-    const std::string childRoot{trustedTmpDir + "/ml-child-ipc/mechanism-probe-child"};
-    BOOST_TEST_REQUIRE(::mkdir(childRoot.c_str(), 0700) == 0);
-
-    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo",
-                                        "--output=" + childRoot + "/output.fifo",
-                                        "--logPipe=" + childRoot + "/log.fifo"};
+    const std::vector<std::string> args{"--input=" + fixture.childRoot() + "/input.fifo",
+                                        "--output=" + fixture.childRoot() + "/output.fifo",
+                                        "--logPipe=" + fixture.childRoot() + "/log.fifo"};
     const ml::sandbox::SChildIpcValidationResult validated{
-        ml::sandbox::validateChildIpcLaunchSpec(trustedTmpDir, args)};
+        ml::sandbox::validateChildIpcLaunchSpec(fixture.trustedTmpDir(), args)};
     BOOST_TEST_REQUIRE(validated.s_Ok);
 
     const std::string payloadPath{ML_SANDBOX2_PROBE_PAYLOAD};
@@ -129,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     executor->limits()->set_rlimit_cpu(10).set_walltime_limit(absl::Seconds(10));
 
     sandbox2::PolicyBuilder policyBuilder{ml::sandbox::buildPytorchInferenceFilesystemPolicy(
-        "/usr/bin", "/usr/lib", validated.s_Spec, /*tmpfsSizeBytes=*/16 * 1024 * 1024)};
+        "/usr/bin", "/usr/lib", validated, /*tmpfsSizeBytes=*/16 * 1024 * 1024)};
     policyBuilder.AddLibrariesForBinary(payloadPath);
     // legacyBpfAllowedSyscalls() grants __NR_connect but not __NR_socket -
     // real libtorch/pytorch_inference apparently also needs a bare socket()
@@ -153,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     // childRoot path once the sandbox has exited. This IS the "allowed IPC
     // access" proof, not a separate assertion: if the mount/policy were
     // wrong, this file would never appear.
-    const std::string resultsContent{readFileOrEmpty(childRoot + "/results.txt")};
+    const std::string resultsContent{readFileOrEmpty(fixture.childRoot() + "/results.txt")};
     BOOST_TEST_REQUIRE(resultsContent.empty() == false);
     BOOST_TEST_REQUIRE(resultsContent.find("reached=true") != std::string::npos);
 
@@ -171,12 +198,6 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
 
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "pid_namespace"), "namespaced");
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "loopback_reachable"), "ok");
-
-    ::unlink((childRoot + "/probe.txt").c_str());
-    ::unlink((childRoot + "/results.txt").c_str());
-    ::rmdir(childRoot.c_str());
-    ::rmdir((trustedTmpDir + "/ml-child-ipc").c_str());
-    ::rmdir(trustedTmpDir.c_str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

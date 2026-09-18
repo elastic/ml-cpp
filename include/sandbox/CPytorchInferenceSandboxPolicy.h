@@ -90,54 +90,20 @@ SChildIpcValidationResult validateChildIpcLaunchSpec(const std::string& trustedT
 
 #ifdef SANDBOX2_AVAILABLE
 
-//! What buildPytorchInferenceFilesystemPolicy does with one of the seven
-//! historically bulk-mounted fixed directories
-//! (/lib /lib64 /usr/lib /usr/lib64 /etc /proc /sys). Mounting whole /etc or
-//! binding the host's /proc or /sys directly is non-conformant.
-enum class EFixedMountAction {
-    E_MountReadOnlyDirectory, //!< the whole directory is demonstrated necessary read-only.
-    E_MountNamespacedProcfs, //!< Sandbox2 supplies this inside the sandbox's own PID/mount namespace; never bind the host directory.
-    E_Skip //!< not mapped at all; narrower entries (files) are added separately.
-};
-
-//! One fixed-mount decision plus the reason it is scoped that way.
-struct SFixedMountDecision {
-    std::string s_Path;
-    EFixedMountAction s_Action;
-    std::string s_Reason;
-};
-
-//! The minimization decision applied to each of the seven historically
-//! bulk-mounted fixed directories, with its justification. /etc is Skip
-//! (see allowlistedEtcFiles() for the narrower replacement); /proc and /sys
-//! are the Sandbox2-namespaced procfs/sysfs, never a host bind (the
-//! ml_sandbox_probe mechanism test asserts this held for a real launch, via
-//! its pid_namespace check). /lib, /lib64, /usr/lib, /usr/lib64 remain whole
-//! read-only directories: the dynamic loader resolves libtorch/glibc shared
-//! objects from them at runtime from an unbounded, platform-dependent set,
-//! so per-file allowlisting would duplicate the loader's own search logic.
-const std::vector<SFixedMountDecision>& fixedMountDecisions();
-
-//! Individual /etc files pytorch_inference/libtorch are demonstrated to
-//! need, replacing a whole-/etc bind. Extend only with a named consumer.
-const std::vector<std::string>& allowlistedEtcFiles();
-
 //! Builds the filesystem and network-shape portion of the pytorch_inference
-//! Sandbox2 policy: minimized fixed mounts (fixedMountDecisions,
-//! allowlistedEtcFiles - a read-only directory decision is mounted only if
-//! its source actually exists on this host, since Sandbox2 fails the whole
-//! spawn on a missing source), a private bounded tmpfs at /tmp, the one per-child
-//! IPC root mapped to /run/elastic/ml-ipc, and the syscall allowlist shared
-//! with the legacy BPF filter
+//! Sandbox2 policy: minimized fixed mounts, a private bounded tmpfs at /tmp,
+//! the one per-child IPC root mapped to /run/elastic/ml-ipc, and the syscall
+//! allowlist shared with the legacy BPF filter
 //! (seccomp::pytorch_inference::legacyBpfAllowedSyscalls, kept in sync per
 //! that header's own comment). Does not call TryBuild() - the caller owns
 //! final policy construction so tests can inspect the builder before
-//! commit. spec must already be s_Ok from validateChildIpcLaunchSpec; this
-//! function does not re-validate it.
+//! commit. validated must be s_Ok from validateChildIpcLaunchSpec; this
+//! function refuses to mount when s_Ok is false or s_ChildIpcRoot is not a
+//! canonical $TMPDIR/ml-child-ipc/<child-id> directory.
 sandbox2::PolicyBuilder
 buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
                                       const std::string& libDir,
-                                      const SChildIpcLaunchSpec& spec,
+                                      const SChildIpcValidationResult& validated,
                                       std::size_t tmpfsSizeBytes);
 
 #endif // SANDBOX2_AVAILABLE
