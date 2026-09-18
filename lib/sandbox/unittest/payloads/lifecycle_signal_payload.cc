@@ -22,7 +22,7 @@
 //  - Sandbox2::Kill() (the E_KernelUnsupported branch) hard-codes SIGKILL,
 //    which cannot be caught or ignored, so the process actually exits.
 //
-// Only syscalls in seccomp::pytorch_inference::legacyBpfAllowedSyscalls()
+// Only syscalls in seccomp::legacyBpfAllowedSyscalls()
 // are available under the real spawn() policy - notably __NR_pause is NOT
 // in that allowlist, so this cannot simply call pause() in a loop. Blocking
 // on FUTEX_WAIT against a private, never-signalled word uses only
