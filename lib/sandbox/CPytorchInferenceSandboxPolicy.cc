@@ -22,7 +22,7 @@
 
 #ifdef SANDBOX2_AVAILABLE
 #include "absl/status/status.h"
-#include <seccomp/CPytorchInferenceSyscallAllowlist.h>
+#include <seccomp/CMlLegacyBpfSyscallAllowlist.h>
 #endif
 
 #ifdef __linux__
@@ -331,7 +331,7 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // glibc/libtorch use futex for mutexes and condition variables; timed
     // waits and broadcast/requeue paths need more than plain WAIT/WAKE (see
     // the carry-forward note on d9a856d5f in
-    // include/seccomp/CPytorchInferenceSyscallAllowlist.h).
+    // include/seccomp/CMlLegacyBpfSyscallAllowlist.h).
     policyBuilder.AllowFutexOp(FUTEX_WAIT)
         .AllowFutexOp(FUTEX_WAKE)
         .AllowFutexOp(FUTEX_WAIT_BITSET)
