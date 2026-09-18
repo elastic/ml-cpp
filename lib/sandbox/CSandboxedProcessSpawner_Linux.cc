@@ -451,8 +451,13 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // real pytorch_inference workload needs more scratch space.
     const std::size_t tmpfsSizeBytes{16 * 1024 * 1024};
 
-    sandbox2::PolicyBuilder policyBuilder{buildPytorchInferenceFilesystemPolicy(
-        binDir, libDir, validated.s_Spec, tmpfsSizeBytes)};
+    auto built = buildPytorchInferenceFilesystemPolicy(binDir, libDir, validated, tmpfsSizeBytes);
+    if (!built.ok()) {
+        LOG_ERROR(<< "Failed to build Sandbox2 policy for " << processPath
+                  << ": " << built.status());
+        return false;
+    }
+    sandbox2::PolicyBuilder policyBuilder{std::move(*built)};
 
     auto policyResult = policyBuilder.TryBuild();
     if (!policyResult.ok()) {
