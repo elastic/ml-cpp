@@ -11,11 +11,14 @@
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 
 #ifdef _WIN32
+#include <direct.h> // _mkdir
 #include <stdlib.h> // _fullpath, _MAX_PATH
 #else
-#include <limits.h> // PATH_MAX
-#include <sys/stat.h>
+#include <limits.h>   // PATH_MAX
+#include <sys/stat.h> // mkdir
 #endif
+
+#include <cerrno>
 
 #include <algorithm>
 #include <cstdlib>
@@ -133,11 +136,24 @@ const std::vector<SFixedMountDecision>& fixedMountDecisions() {
          "individually justified files pytorch_inference/libtorch actually "
          "need instead."},
         {"/proc", EFixedMountAction::E_MountNamespacedProcfs,
-         "Sandbox2 mounts a fresh procfs inside the sandbox's own PID "
-         "namespace; binding the host's /proc would leak every other "
-         "process's memory maps and command lines into the sandbox."},
-        {"/sys", EFixedMountAction::E_MountNamespacedProcfs,
-         "Same reason as /proc: nothing in this policy binds host /sys."},
+         "Bind /proc into the sandbox rootfs. Sandbox2 mounts a fresh "
+         "PID-namespaced procfs at /proc before it builds and pivots into "
+         "the chroot, but that mount lives on the outer root and is detached "
+         "with it, so the pivoted rootfs has no /proc unless we add one. "
+         "Adding /proc here binds that already-namespaced procfs (never the "
+         "host's), exposing only the sandbox's own PID namespace - verified "
+         "inside the sandbox, /proc shows exactly the sandboxee's own PIDs, "
+         "not the host's. Without it readlink(/proc/self/exe) and "
+         "open(/proc/self/maps) both fail with ENOENT, which breaks Intel "
+         "oneMKL's runtime dispatcher: it reads /proc/self/exe to self-locate "
+         "and dlopen its CPU-specific libmkl_*.so.3 kernels, and aborts with "
+         "'Intel oneMKL FATAL ERROR: Cannot load <mkl-loader>' when that "
+         "read fails."},
+        {"/sys", EFixedMountAction::E_Skip,
+         "Not mounted: nothing in this policy binds host /sys, and unlike "
+         "/proc there is no fresh namespaced /sys to bind (Sandbox2 mounts "
+         "one only under a new network namespace). pytorch_inference/libtorch "
+         "run without it."},
     };
     return DECISIONS;
 }
@@ -168,6 +184,29 @@ bool childIpcRootHasExpectedShape(const std::string& childIpcRoot) {
 
 #endif // SANDBOX2_AVAILABLE
 
+//! mkdir(dir, 0700), tolerating "already exists" as success (a retry/
+//! restart reusing the same child-id must not fail here) so callers can
+//! treat this as idempotent "ensure this directory exists with the right
+//! mode" rather than a one-shot creation. Any other failure (permissions,
+//! ENOSPC, a non-directory already occupying \p dir, a missing parent, ...)
+//! is reported back to the caller rather than silently ignored.
+bool makeChildIpcDirectory(const std::string& dir) {
+#ifdef _WIN32
+    // Nothing wires this up on Windows today (Sandbox2 is Linux-only), but
+    // this TU must still compile everywhere - same rationale as
+    // canonicalize()'s _WIN32 branch above. _mkdir() has no mode parameter;
+    // that is inert until a Windows caller exists.
+    if (::_mkdir(dir.c_str()) == 0) {
+        return true;
+    }
+    return errno == EEXIST;
+#else
+    if (::mkdir(dir.c_str(), 0700) == 0) {
+        return true;
+    }
+    return errno == EEXIST;
+#endif
+}
 } // namespace
 
 SChildIpcValidationResult validateChildIpcLaunchSpec(const std::string& trustedTmpDir,
@@ -311,6 +350,85 @@ SChildIpcValidationResult validateChildIpcLaunchSpec(const std::string& trustedT
     return result;
 }
 
+EChildIpcDirectoryOutcome ensureChildIpcDirectory(const std::string& trustedTmpDir,
+                                                  const std::vector<std::string>& args) {
+    // Strip a trailing slash so the concatenation below never produces "//".
+    std::string base{trustedTmpDir};
+    while (base.empty() == false && base.back() == '/') {
+        base.pop_back();
+    }
+    const std::string mlChildIpcDir{base + "/ml-child-ipc"};
+    const std::string expectedPrefix{mlChildIpcDir + "/"};
+
+    bool sawPathOption{false};
+    std::string childId;
+
+    for (const std::string& arg : args) {
+        const std::size_t eqPos = arg.find('=');
+        if (eqPos == std::string::npos) {
+            continue;
+        }
+
+        std::string optionName{arg.substr(0, eqPos)};
+        while (optionName.empty() == false && optionName[0] == '-') {
+            optionName.erase(0, 1);
+        }
+        if (isPathOptionName(optionName) == false) {
+            continue;
+        }
+        sawPathOption = true;
+
+        const std::string value{eqPos + 1 < arg.size() ? arg.substr(eqPos + 1)
+                                                       : std::string{}};
+        if (value.empty() || value[0] != '/') {
+            // Malformed - validateChildIpcLaunchSpec() below reports the
+            // precise reason (E_NotAbsolute); nothing to create here.
+            continue;
+        }
+
+        const std::vector<std::string> components{splitPathComponents(value)};
+        if (containsDotDot(components) || components.size() < 2) {
+            continue;
+        }
+
+        const std::size_t lastSlash = value.rfind('/');
+        const std::string literalParent{value.substr(0, lastSlash)};
+
+        // A literal (pre-canonicalization) structural match against
+        // trustedTmpDir/ml-child-ipc/<single component>. This is
+        // deliberately not the security check - it only decides what this
+        // function is willing to mkdir(). validateChildIpcLaunchSpec()
+        // still performs the real canonical-base/symlink-alias checks
+        // afterwards against whatever directory this creates or finds.
+        if (literalParent.compare(0, expectedPrefix.size(), expectedPrefix) != 0) {
+            continue;
+        }
+        const std::string candidateChildId{literalParent.substr(expectedPrefix.size())};
+        if (candidateChildId.empty() || candidateChildId.find('/') != std::string::npos) {
+            continue; // not exactly one component below ml-child-ipc.
+        }
+
+        // One child-id per spawn() call: the first path option that matches
+        // the expected shape is enough to know which directory to create.
+        // A second option naming a *different* child-id is a caller bug
+        // that validateChildIpcLaunchSpec() below rejects explicitly
+        // (E_ChildIdMismatch); this function does not need to pre-empt
+        // that here.
+        childId = candidateChildId;
+        break;
+    }
+
+    if (sawPathOption == false || childId.empty()) {
+        return EChildIpcDirectoryOutcome::E_NoPathOptions;
+    }
+
+    if (makeChildIpcDirectory(mlChildIpcDir) == false ||
+        makeChildIpcDirectory(mlChildIpcDir + "/" + childId) == false) {
+        return EChildIpcDirectoryOutcome::E_CreationFailed;
+    }
+    return EChildIpcDirectoryOutcome::E_Ready;
+}
+
 #ifdef SANDBOX2_AVAILABLE
 
 absl::StatusOr<sandbox2::PolicyBuilder>
@@ -365,6 +483,15 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
         policyBuilder.AllowSyscall(syscallNr);
     }
 
+    // Sandbox2's namespace/threading setup exercises syscalls (scheduling,
+    // epoll, pipes, directory management) that the legacy in-process filter
+    // above never needed a grant for - granting only legacyBpfAllowedSyscalls()
+    // here is not sufficient. See sandbox2ExplicitSyscalls()'s doc comment for
+    // why this is a separate list rather than a superset relationship.
+    for (int syscallNr : seccomp::sandbox2ExplicitSyscalls()) {
+        policyBuilder.AllowSyscall(syscallNr);
+    }
+
     policyBuilder.AddDirectory(binDir, /*is_ro=*/true);
     policyBuilder.AddDirectory(libDir, /*is_ro=*/true);
 
@@ -386,10 +513,15 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
             break;
         }
         case EFixedMountAction::E_MountNamespacedProcfs:
+            // Bind the fresh, PID-namespaced procfs Sandbox2 mounts before
+            // it pivots into the chroot (see the /proc decision comment).
+            // This is a bind of the sandbox's own namespaced /proc, not the
+            // host's, so it does not leak host process state.
+            policyBuilder.AddDirectory(decision.s_Path, /*is_ro=*/true);
+            break;
         case EFixedMountAction::E_Skip:
-            // Sandbox2 supplies its own namespaced procfs/sysfs
-            // automatically; nothing to add here for either case, and
-            // adding decision.s_Path would bind the host directory instead.
+            // Nothing to add; adding decision.s_Path would bind the host
+            // directory instead.
             break;
         }
     }
@@ -413,10 +545,13 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // Private, bounded tmpfs - never the host's shared /tmp.
     policyBuilder.AddTmpfs("/tmp", tmpfsSizeBytes);
 
-    // The one per-child IPC root, mapped read-write to a fixed in-sandbox
-    // path. validated.s_Ok and s_ChildIpcRoot shape were checked above.
-    policyBuilder.AddDirectoryAt(validated.s_Spec.s_ChildIpcRoot, "/run/elastic/ml-ipc",
-                                 /*is_ro=*/false);
+    // The one per-child IPC root, mapped read-write at the same path inside
+    // and outside the sandbox. validated.s_Ok and s_ChildIpcRoot shape were
+    // checked above. Same-path (not a remapped in-sandbox path) because
+    // pytorch_inference receives its --input=/--output=/--restore=/--logPipe=
+    // argv from Elasticsearch as host paths under this root; a remap would
+    // leave those paths unresolvable inside the sandbox's own mount namespace.
+    policyBuilder.AddDirectory(validated.s_Spec.s_ChildIpcRoot, /*is_ro=*/false);
 
     return policyBuilder;
 }
