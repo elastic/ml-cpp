@@ -439,7 +439,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // pass.
     const char* tmpDirEnv{::getenv("TMPDIR")};
     const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
-    if (ensureChildIpcDirectory(trustedTmpDir, args) == EChildIpcDirectoryOutcome::E_CreationFailed) {
+    if (ensureChildIpcDirectory(trustedTmpDir, args) ==
+        EChildIpcDirectoryOutcome::E_CreationFailed) {
         LOG_ERROR(<< "Failed to create the per-child IPC directory under " << trustedTmpDir
                   << "/ml-child-ipc for " << processPath << ": " << ::strerror(errno));
     }
