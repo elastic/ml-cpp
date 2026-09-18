@@ -21,11 +21,13 @@
 #include <cstdlib>
 
 #ifdef SANDBOX2_AVAILABLE
+#include "absl/status/status.h"
 #include <seccomp/CPytorchInferenceSyscallAllowlist.h>
 #endif
 
 #ifdef __linux__
 #include <linux/futex.h>
+#include <sys/syscall.h>
 #endif
 
 namespace ml {
@@ -90,6 +92,80 @@ bool canonicalize(const std::string& dir, std::string& canonicalOut) {
     canonicalOut.assign(resolved);
     return true;
 }
+
+#ifdef SANDBOX2_AVAILABLE
+
+//! What buildPytorchInferenceFilesystemPolicy does with one of the seven
+//! historically bulk-mounted fixed directories
+//! (/lib /lib64 /usr/lib /usr/lib64 /etc /proc /sys). Mounting whole /etc or
+//! binding the host's /proc or /sys directly is non-conformant.
+enum class EFixedMountAction {
+    E_MountReadOnlyDirectory, //!< the whole directory is demonstrated necessary read-only.
+    E_MountNamespacedProcfs, //!< Sandbox2 supplies this inside the sandbox's own PID/mount namespace; never bind the host directory.
+    E_Skip //!< not mapped at all; narrower entries (files) are added separately.
+};
+
+//! One fixed-mount decision plus the reason it is scoped that way.
+struct SFixedMountDecision {
+    std::string s_Path;
+    EFixedMountAction s_Action;
+    std::string s_Reason;
+};
+
+const std::vector<SFixedMountDecision>& fixedMountDecisions() {
+    static const std::vector<SFixedMountDecision> DECISIONS{
+        {"/lib", EFixedMountAction::E_MountReadOnlyDirectory,
+         "Dynamic loader resolves libc/libgcc/libstdc++ from here at "
+         "runtime; the set is unbounded and platform-dependent, so "
+         "per-file allowlisting would duplicate the loader's own search "
+         "logic."},
+        {"/lib64", EFixedMountAction::E_MountReadOnlyDirectory,
+         "Same reason as /lib, on the lib64 multilib path used by the "
+         "64-bit dynamic loader on our supported Linux distributions."},
+        {"/usr/lib", EFixedMountAction::E_MountReadOnlyDirectory,
+         "Same reason as /lib: libtorch and its transitive shared-library "
+         "dependencies resolve from here."},
+        {"/usr/lib64", EFixedMountAction::E_MountReadOnlyDirectory,
+         "Same reason as /lib64, for 64-bit multilib packages."},
+        {"/etc", EFixedMountAction::E_Skip,
+         "Whole /etc is never mounted; allowlistedEtcFiles() lists the "
+         "individually justified files pytorch_inference/libtorch actually "
+         "need instead."},
+        {"/proc", EFixedMountAction::E_MountNamespacedProcfs,
+         "Sandbox2 mounts a fresh procfs inside the sandbox's own PID "
+         "namespace; binding the host's /proc would leak every other "
+         "process's memory maps and command lines into the sandbox."},
+        {"/sys", EFixedMountAction::E_MountNamespacedProcfs,
+         "Same reason as /proc: nothing in this policy binds host /sys."},
+    };
+    return DECISIONS;
+}
+
+const std::vector<std::string>& allowlistedEtcFiles() {
+    // NOTE: /etc/ssl/certs/ca-certificates.crt is the Debian/Ubuntu trust
+    // bundle path; the ml-cpp CI build image is CentOS7/RHEL-based, whose
+    // equivalent is /etc/pki/tls/certs/ca-bundle.crt. This list has not yet
+    // been verified against the actual supported-distro trust bundle path -
+    // tracked in elastic/ml-cpp#3200.
+    static const std::vector<std::string> FILES{
+        "/etc/nsswitch.conf", "/etc/resolv.conf", "/etc/hosts",
+        "/etc/localtime",     "/etc/ld.so.cache",
+    };
+    return FILES;
+}
+
+bool childIpcRootHasExpectedShape(const std::string& childIpcRoot) {
+    if (childIpcRoot.empty()) {
+        return false;
+    }
+    const std::vector<std::string> components{splitPathComponents(childIpcRoot)};
+    if (components.size() < 2) {
+        return false;
+    }
+    return components[components.size() - 2] == "ml-child-ipc";
+}
+
+#endif // SANDBOX2_AVAILABLE
 
 } // namespace
 
@@ -236,52 +312,10 @@ SChildIpcValidationResult validateChildIpcLaunchSpec(const std::string& trustedT
 
 #ifdef SANDBOX2_AVAILABLE
 
-const std::vector<SFixedMountDecision>& fixedMountDecisions() {
-    static const std::vector<SFixedMountDecision> DECISIONS{
-        {"/lib", EFixedMountAction::E_MountReadOnlyDirectory,
-         "Dynamic loader resolves libc/libgcc/libstdc++ from here at "
-         "runtime; the set is unbounded and platform-dependent, so "
-         "per-file allowlisting would duplicate the loader's own search "
-         "logic."},
-        {"/lib64", EFixedMountAction::E_MountReadOnlyDirectory,
-         "Same reason as /lib, on the lib64 multilib path used by the "
-         "64-bit dynamic loader on our supported Linux distributions."},
-        {"/usr/lib", EFixedMountAction::E_MountReadOnlyDirectory,
-         "Same reason as /lib: libtorch and its transitive shared-library "
-         "dependencies resolve from here."},
-        {"/usr/lib64", EFixedMountAction::E_MountReadOnlyDirectory,
-         "Same reason as /lib64, for 64-bit multilib packages."},
-        {"/etc", EFixedMountAction::E_Skip,
-         "Whole /etc is never mounted; allowlistedEtcFiles() lists the "
-         "individually justified files pytorch_inference/libtorch actually "
-         "need instead."},
-        {"/proc", EFixedMountAction::E_MountNamespacedProcfs,
-         "Sandbox2 mounts a fresh procfs inside the sandbox's own PID "
-         "namespace; binding the host's /proc would leak every other "
-         "process's memory maps and command lines into the sandbox."},
-        {"/sys", EFixedMountAction::E_MountNamespacedProcfs,
-         "Same reason as /proc: nothing in this policy binds host /sys."},
-    };
-    return DECISIONS;
-}
-
-const std::vector<std::string>& allowlistedEtcFiles() {
-    // NOTE: /etc/ssl/certs/ca-certificates.crt is the Debian/Ubuntu trust
-    // bundle path; the ml-cpp CI build image is CentOS7/RHEL-based, whose
-    // equivalent is /etc/pki/tls/certs/ca-bundle.crt. This list has not yet
-    // been verified against the actual supported-distro trust bundle path -
-    // an open item, not resolved here.
-    static const std::vector<std::string> FILES{
-        "/etc/nsswitch.conf", "/etc/resolv.conf", "/etc/hosts",
-        "/etc/localtime",     "/etc/ld.so.cache",
-    };
-    return FILES;
-}
-
 sandbox2::PolicyBuilder
 buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
                                       const std::string& libDir,
-                                      const SChildIpcLaunchSpec& spec,
+                                      const SChildIpcValidationResult& validated,
                                       std::size_t tmpfsSizeBytes) {
     sandbox2::PolicyBuilder policyBuilder;
 
@@ -310,8 +344,16 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // Consume the one machine-readable syscall declaration shared with the
     // legacy in-process BPF filter instead of hand-maintaining a second list,
     // so a future change to the allowlist keeps both mechanisms in sync
-    // automatically.
+    // automatically. Skip __NR_futex here: AllowFutexOp above is the Sandbox2
+    // grant (listed ops only). AllowSyscall(__NR_futex) would append
+    // SYSCALL(futex, ALLOW) because AllowFutexOp uses AddPolicyOnSyscall and
+    // does not insert into handled_syscalls_.
     for (int syscallNr : seccomp::pytorch_inference::legacyBpfAllowedSyscalls()) {
+#ifdef __linux__
+        if (syscallNr == __NR_futex) {
+            continue;
+        }
+#endif
         policyBuilder.AllowSyscall(syscallNr);
     }
 
@@ -364,10 +406,18 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     policyBuilder.AddTmpfs("/tmp", tmpfsSizeBytes);
 
     // The one per-child IPC root, mapped read-write to a fixed in-sandbox
-    // path. spec must already be s_Ok (validateChildIpcLaunchSpec), so
-    // s_ChildIpcRoot is exactly $TMPDIR/ml-child-ipc/<child-id> - never
-    // ml-child-ipc itself, never a sibling child's directory.
-    policyBuilder.AddDirectoryAt(spec.s_ChildIpcRoot, "/run/elastic/ml-ipc", /*is_ro=*/false);
+    // path. validated must be s_Ok from validateChildIpcLaunchSpec with a
+    // canonical $TMPDIR/ml-child-ipc/<child-id> root - never ml-child-ipc
+    // itself, never a sibling child's directory.
+    if (validated.s_Ok == false ||
+        childIpcRootHasExpectedShape(validated.s_Spec.s_ChildIpcRoot) == false) {
+        policyBuilder.SetError(absl::InvalidArgumentError(
+            "buildPytorchInferenceFilesystemPolicy requires validated.s_Ok and a "
+            "canonical $TMPDIR/ml-child-ipc/<child-id> s_ChildIpcRoot"));
+    } else {
+        policyBuilder.AddDirectoryAt(validated.s_Spec.s_ChildIpcRoot, "/run/elastic/ml-ipc",
+                                     /*is_ro=*/false);
+    }
 
     return policyBuilder;
 }
