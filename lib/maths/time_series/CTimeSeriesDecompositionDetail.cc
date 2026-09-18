@@ -1856,6 +1856,20 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         LOG_DEBUG(<< "Detected change in seasonal components at " << time);
 
         this->addSeasonalComponents(components, message.s_MemoryCircuitBreaker);
+        
+        // Reset prediction error statistics and trend model when seasonality changes significantly
+        // This prevents the model from being stuck with polynomial trend extrapolation when seasonal
+        // patterns return after a period without seasonality
+        if (components.componentsChanged()) {
+            m_PredictionErrorWithoutTrend = TMeanVarAccumulator();
+            m_PredictionErrorWithTrend = TMeanVarAccumulator();
+            m_UsingTrendForPrediction = false; // Force re-evaluation with fresh statistics
+            
+            // Also clear the trend model itself to remove learned polynomial coefficients
+            // that would create incorrect extrapolations when seasonality returns
+            m_Trend.clear();
+        }
+        
         this->apply(SC_ADDED_COMPONENTS, message);
         break;
     }
