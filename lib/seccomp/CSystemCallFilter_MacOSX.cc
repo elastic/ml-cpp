@@ -91,7 +91,7 @@ ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
     std::string profileFilename{writeTempRulesFile()};
     if (profileFilename.empty()) {
         LOG_WARN(<< "Cannot write sandbox rules. macOS sandbox will not be initialized");
-        return ESystemCallFilterInstallOutcome::E_MechanismUnavailable;
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     }
 
     ESystemCallFilterInstallOutcome outcome{ESystemCallFilterInstallOutcome::E_Installed};

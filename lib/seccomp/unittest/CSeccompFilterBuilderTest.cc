@@ -22,10 +22,11 @@
 // #include placed after it would get its declarations nested inside that
 // namespace instead of at global scope, shadowing ::ml::seccomp with an
 // incomplete duplicate.
-#include <seccomp/CPytorchInferenceSyscallAllowlist.h>
+#include <seccomp/CMlLegacyBpfSyscallAllowlist.h>
 #include <seccomp/CSeccompFilterBuilder.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <linux/audit.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>
@@ -64,7 +65,7 @@ std::set<int> decodeAppliedSyscalls(const std::vector<sock_filter>& program) {
 } // namespace
 
 BOOST_AUTO_TEST_CASE(testAppliedProgramMatchesDeclaration) {
-    const std::vector<int> declared{ml::seccomp::pytorch_inference::legacyBpfAllowedSyscalls()};
+    const std::vector<int> declared{ml::seccomp::legacyBpfAllowedSyscalls()};
     const std::vector<sock_filter> program{ml::seccomp::buildSyscallAllowlistProgram(declared)};
 
     const std::set<int> declaredSet{declared.begin(), declared.end()};
@@ -127,6 +128,28 @@ BOOST_AUTO_TEST_CASE(testJumpOffsetsAreDerivedNotHandMaintained) {
     const std::set<int> expected{arbitrarySyscalls.begin(), arbitrarySyscalls.end()};
     BOOST_REQUIRE_EQUAL_COLLECTIONS(expected.begin(), expected.end(),
                                     foundSyscalls.begin(), foundSyscalls.end());
+
+#ifdef __x86_64__
+    // The x32-ABI guard must jump to the deny row (numSyscalls rows ahead of
+    // the JGT instruction), not hand-maintained like the old static FILTER[].
+    constexpr std::uint32_t upperNrLimit{0x3FFFFFFF};
+    bool sawX32Guard{false};
+    sawNrLoad = false;
+    for (std::size_t i = 0; i < program.size(); ++i) {
+        if (program[i].code == (BPF_LD | BPF_W | BPF_ABS) &&
+            program[i].k == offsetof(struct seccomp_data, nr)) {
+            sawNrLoad = true;
+            continue;
+        }
+        if (sawNrLoad && program[i].code == (BPF_JMP | BPF_JGT | BPF_K)) {
+            BOOST_REQUIRE_EQUAL(upperNrLimit, program[i].k);
+            BOOST_REQUIRE_EQUAL(denyIndex, i + program[i].jt + 1);
+            sawX32Guard = true;
+            break;
+        }
+    }
+    BOOST_TEST_REQUIRE(sawX32Guard);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(testArchGuardRejectsNonNativeAbi) {
@@ -152,13 +175,12 @@ BOOST_AUTO_TEST_CASE(testArchGuardRejectsNonNativeAbi) {
 }
 
 BOOST_AUTO_TEST_CASE(testCarryForwardSyscallsPresent) {
-    // PR #2873 fixed these pytorch_inference/libtorch compatibility gaps
-    // the hard way; this declaration is a rewrite from scratch, and must
-    // not silently drop them. Each assertion below is a named regression
-    // test for one carried-forward fix within this file's scope.
-    const std::set<int> declared{
-        ml::seccomp::pytorch_inference::legacyBpfAllowedSyscalls().begin(),
-        ml::seccomp::pytorch_inference::legacyBpfAllowedSyscalls().end()};
+    // This declaration must
+    // not silently drop pytorch_inference/libtorch compatibility fixes.
+    // Each assertion below is a named regression test for one carried-forward
+    // fix within this file's scope.
+    const std::vector<int> syscalls{ml::seccomp::legacyBpfAllowedSyscalls()};
+    const std::set<int> declared{syscalls.begin(), syscalls.end()};
 
     // 57f00ed1b: clone3 must be allowed by its literal syscall number (435 on
     // both x86_64 and aarch64), not only via __NR_clone3, because some build

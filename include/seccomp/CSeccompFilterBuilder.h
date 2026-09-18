@@ -27,7 +27,7 @@ namespace seccomp {
 //! offset is derived from the vector's size and the row's own index, so
 //! adding, removing or reordering a syscall never requires updating any
 //! other row. This is the mechanism that lets CSystemCallFilter_Linux.cc
-//! apply CPytorchInferenceSyscallAllowlist.h's declaration directly, instead
+//! apply CMlLegacyBpfSyscallAllowlist.h's declaration directly, instead
 //! of maintaining a second, hand-written BPF program with manual jump
 //! offsets that can silently drift from the declaration.
 std::vector<sock_filter> buildSyscallAllowlistProgram(const std::vector<int>& allowedSyscalls);

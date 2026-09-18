@@ -12,7 +12,7 @@
 /*
  * NOTE: This seccomp filter is being gradually replaced by Sandbox2 policies
  * for processes that are spawned via CDetachedProcessSpawner. The allowed
- * syscall set lives in CPytorchInferenceSyscallAllowlist.h, the single
+ * syscall set lives in CMlLegacyBpfSyscallAllowlist.h, the single
  * machine-readable declaration this filter is generated from; a future
  * Sandbox2 policy is expected to consume the same declaration for its
  * explicit grants.
@@ -21,7 +21,7 @@
 
 #include <core/CLogger.h>
 
-#include <seccomp/CPytorchInferenceSyscallAllowlist.h>
+#include <seccomp/CMlLegacyBpfSyscallAllowlist.h>
 #include <seccomp/CSeccompFilterBuilder.h>
 
 #include <cerrno>
@@ -137,7 +137,7 @@ ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
     }
 
     const std::vector<sock_filter> program{
-        buildSyscallAllowlistProgram(pytorch_inference::legacyBpfAllowedSyscalls())};
+        buildSyscallAllowlistProgram(legacyBpfAllowedSyscalls())};
 
     struct sock_fprog prog = {.len = static_cast<unsigned short>(program.size()),
                               .filter = const_cast<sock_filter*>(program.data())};

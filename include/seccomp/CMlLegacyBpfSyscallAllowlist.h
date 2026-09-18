@@ -8,9 +8,10 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#ifndef INCLUDED_ml_seccomp_CPytorchInferenceSyscallAllowlist_h
-#define INCLUDED_ml_seccomp_CPytorchInferenceSyscallAllowlist_h
+#ifndef INCLUDED_ml_seccomp_CMlLegacyBpfSyscallAllowlist_h
+#define INCLUDED_ml_seccomp_CMlLegacyBpfSyscallAllowlist_h
 
+#include <cstddef>
 #include <vector>
 
 #ifdef __linux__
@@ -19,7 +20,6 @@
 
 namespace ml {
 namespace seccomp {
-namespace pytorch_inference {
 
 #ifdef __linux__
 
@@ -77,52 +77,56 @@ namespace pytorch_inference {
 //! the Sandbox2 policy and its Buildkite pipeline respectively, not to this
 //! file — carry those forward when that code is written instead of
 //! rediscovering them.
-inline std::vector<int> legacyBpfAllowedSyscalls() {
-    std::vector<int> syscalls {
+inline constexpr int kLegacyBpfAllowedSyscalls[] {
 #if defined(__x86_64__)
-        __NR_access, __NR_open, __NR_dup2, __NR_unlink, __NR_stat, __NR_lstat,
-            __NR_time, __NR_readlink, __NR_getdents, // for forecast temp storage
-            __NR_rmdir, // for forecast temp storage
-            __NR_mkdir, // for forecast temp storage
-            __NR_mknod,
+    __NR_access, __NR_open, __NR_dup2, __NR_unlink, __NR_stat, __NR_lstat,
+        __NR_time, __NR_readlink, __NR_getdents, // for forecast temp storage
+        __NR_rmdir,                              // for forecast temp storage
+        __NR_mkdir,                              // for forecast temp storage
+        __NR_mknod,
 #elif defined(__aarch64__)
-        __NR_faccessat,
+    __NR_faccessat,
 #endif
-            __NR_fcntl, // for fdopendir
-            __NR_getrusage,
-            __NR_getpid,    // for pthread_kill
-            ML_NR_statx,    // for create_directories
-            __NR_getrandom, // for unique_path
-            __NR_mknodat, __NR_newfstatat, __NR_readlinkat, __NR_dup3,
-            __NR_getpriority, // for nice
-            __NR_setpriority, // for nice
-            __NR_read, __NR_write, __NR_writev, __NR_lseek, __NR_clock_gettime,
-            __NR_gettimeofday, __NR_fstat, __NR_close, __NR_connect,
-            ML_NR_clone3, __NR_clone, __NR_statfs,
-            __NR_mkdirat,      // for forecast temp storage
-            __NR_unlinkat,     // for forecast temp storage
-            __NR_getdents64,   // for forecast temp storage
-            __NR_openat,       // for forecast temp storage
-            __NR_tgkill,       // for the crash handler
-            __NR_rt_sigaction, // for the crash handler
-            __NR_rt_sigreturn,
-            __NR_rt_sigprocmask, // for recent pthread_create
-            ML_NR_rseq,          // for recent pthread_create
-            __NR_futex, __NR_madvise, __NR_nanosleep, __NR_set_robust_list,
-            __NR_mprotect, // for malloc arenas and pthread stacks
-            __NR_mremap,   // for malloc arenas
-            __NR_munmap,   // for malloc arenas
-            __NR_mmap,     // for malloc arenas
-            __NR_getuid, __NR_exit_group, __NR_brk, __NR_exit,
-            __NR_prlimit64, // libtorch/Sandbox2-monitor query rlimits under load (03b1ee4a)
-    };
-    return syscalls;
+        __NR_fcntl, // for fdopendir
+        __NR_getrusage,
+        __NR_getpid,    // for pthread_kill
+        ML_NR_statx,    // for create_directories
+        __NR_getrandom, // for unique_path
+        __NR_mknodat, __NR_newfstatat, __NR_readlinkat, __NR_dup3,
+        __NR_getpriority, // for nice
+        __NR_setpriority, // for nice
+        __NR_read, __NR_write, __NR_writev, __NR_lseek, __NR_clock_gettime,
+        __NR_gettimeofday, __NR_fstat, __NR_close, __NR_connect, ML_NR_clone3,
+        __NR_clone, __NR_statfs,
+        __NR_mkdirat,      // for forecast temp storage
+        __NR_unlinkat,     // for forecast temp storage
+        __NR_getdents64,   // for forecast temp storage
+        __NR_openat,       // for forecast temp storage
+        __NR_tgkill,       // for the crash handler
+        __NR_rt_sigaction, // for the crash handler
+        __NR_rt_sigreturn,
+        __NR_rt_sigprocmask, // for recent pthread_create
+        ML_NR_rseq,          // for recent pthread_create
+        __NR_futex, __NR_madvise, __NR_nanosleep, __NR_set_robust_list,
+        __NR_mprotect, // for malloc arenas and pthread stacks
+        __NR_mremap,   // for malloc arenas
+        __NR_munmap,   // for malloc arenas
+        __NR_mmap,     // for malloc arenas
+        __NR_getuid, __NR_exit_group, __NR_brk, __NR_exit,
+        __NR_prlimit64, // libtorch/Sandbox2-monitor query rlimits under load (03b1ee4a)
+};
+
+static_assert(std::size(kLegacyBpfAllowedSyscalls) <= 255,
+              "legacy BPF allowlist exceeds classic BPF jt (8-bit)");
+
+inline std::vector<int> legacyBpfAllowedSyscalls() {
+    return {kLegacyBpfAllowedSyscalls,
+            kLegacyBpfAllowedSyscalls + std::size(kLegacyBpfAllowedSyscalls)};
 }
 
 #endif // __linux__
 
-} // namespace pytorch_inference
 } // namespace seccomp
 } // namespace ml
 
-#endif // INCLUDED_ml_seccomp_CPytorchInferenceSyscallAllowlist_h
+#endif // INCLUDED_ml_seccomp_CMlLegacyBpfSyscallAllowlist_h

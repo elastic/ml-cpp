@@ -103,17 +103,17 @@ inline EDegradedModeAction decideDegradedModeAction(ESystemCallFilterInstallOutc
 //! its in-process seccomp filter before processing untrusted model input.
 //! Replaces attesting readiness by inference — "no fatal log line appeared
 //! before initIo() ran" — with an explicit signal a test or observer can
-//! assert on directly. Returns empty when
-//! installation did not succeed: a failed degraded launch already exits
-//! before initIo() (see decideDegradedModeAction()) and must never emit
-//! this marker, since doing so would falsely attest a filter that isn't
-//! there. Logged over the existing per-process log pipe; this is not a new
-//! startup channel.
+//! assert on directly. Returns empty when installation did not succeed so
+//! this marker can never falsely attest a filter that isn't there.
+//! Terminate-before-initIo() applies only when decideDegradedModeAction()
+//! is called with terminateOnFailure true (not today's production default).
+//! Logged over the existing per-process log pipe; this is not a new startup
+//! channel.
 inline std::string degradedModeAttestationMarker(ESystemCallFilterInstallOutcome outcome) {
     if (outcome != ESystemCallFilterInstallOutcome::E_Installed) {
         return std::string();
     }
-    return "{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}";
+    return R"({"ml_sandbox2_route":"legacy","event":"seccomp_installed"})";
 }
 
 class CSystemCallFilter : private core::CNonInstantiatable {
