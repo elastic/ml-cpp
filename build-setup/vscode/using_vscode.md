@@ -105,10 +105,34 @@ Here is an example of user tasks specified in `tasks.json`:
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "Format changed files (last 20 commits)",
+			"type": "shell",
+			"command": "docker run --rm -v ${workspaceFolder}:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style-aarch64:1 bash -c 'cd /ml-cpp && git diff --name-only --diff-filter=ACMRT HEAD~20 HEAD | grep -E \"\\.(cc|h)$\" | grep -v \"^3rd_party\" | grep -v \"^build-setup\" | xargs -r clang-format -i'",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
 		}
 	]
 }
 ```
+
+### Formatting Changed Files with Docker
+
+You can use a Docker container with the correct clang-format version to format only files that have changed in recent commits. The example task above formats files changed in the last 20 commits. The task:
+
+- Uses the `ml-check-style-aarch64` Docker image with clang-format 5.0.1
+- Mounts the workspace as a volume at `/ml-cpp`
+- Uses `-u $(id -u):$(id -g)` to preserve file ownership
+- Gets files changed in the last 20 commits using `git diff`
+- Filters for `.cc` and `.h` files only
+- Excludes `3rd_party` and `build-setup` directories
+- Runs `clang-format -i` in-place on each file
+
+You can adjust the number of commits by changing `HEAD~20` to your desired value (e.g., `HEAD~10` for the last 10 commits).
 
 ## Debugging
 
