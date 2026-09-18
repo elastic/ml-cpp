@@ -1,0 +1,17 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c2b9704..0af9111 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -111,9 +111,9 @@ target_include_directories(sapi_base PUBLIC
+   "${SAPI_SOURCE_DIR}"
+   "${Protobuf_INCLUDE_DIR}"
+ )
+-target_compile_options(sapi_base PUBLIC
+-  -fno-exceptions
+-)
++# target_compile_options(sapi_base PUBLIC
++#   -fno-exceptions
++# )
+ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+   target_compile_options(sapi_base PUBLIC
+     # The syscall tables in sandbox2/syscall_defs.cc are `std::array`s using
