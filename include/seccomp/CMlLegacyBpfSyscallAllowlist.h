@@ -133,12 +133,12 @@ inline std::vector<int> legacyBpfAllowedSyscalls() {
 //! pipes, directory/file management for forecast temp storage) that the simpler
 //! legacy in-process BPF filter never needed a grant for, so this list is NOT a
 //! subset check against legacyBpfAllowedSyscalls() - it is carried forward from
-//! PR #2873's enhancement/sandbox2 branch (CPytorchInferenceSyscallAllowlist.h,
+//! PR #2873's enhancement/sandbox2 branch (CMlLegacyBpfSyscallAllowlist.h,
 //! appendSandbox2ExplicitSyscalls()), which this clean rebuild's Sandbox2 policy
 //! builder omitted; see CSeccompFilterBuilderTest.cc for the regression test that
 //! keeps it from being silently dropped again.
 inline std::vector<int> sandbox2ExplicitSyscalls() {
-    std::vector<int> syscalls {
+    std::vector<int> syscalls{
         __NR_sched_yield,
         __NR_sched_getaffinity,
         __NR_sched_setaffinity,
@@ -240,7 +240,7 @@ inline std::vector<int> sandbox2ExplicitSyscalls() {
 //! assert Sandbox2 never grants strictly less than the legacy filter without
 //! requiring every one of these to be repeated in sandbox2ExplicitSyscalls().
 inline std::vector<int> sandbox2HelperCoveredSyscalls() {
-    std::vector<int> syscalls {
+    std::vector<int> syscalls{
         __NR_read,
         __NR_write,
         __NR_writev,
