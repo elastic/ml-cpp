@@ -15,6 +15,7 @@
 #include <vector>
 
 #ifdef SANDBOX2_AVAILABLE
+#include "absl/status/statusor.h"
 #include <sandboxed_api/sandbox2/policybuilder.h>
 #endif
 
@@ -94,13 +95,12 @@ SChildIpcValidationResult validateChildIpcLaunchSpec(const std::string& trustedT
 //! Sandbox2 policy: minimized fixed mounts, a private bounded tmpfs at /tmp,
 //! the one per-child IPC root mapped to /run/elastic/ml-ipc, and the syscall
 //! allowlist shared with the legacy BPF filter
-//! (seccomp::pytorch_inference::legacyBpfAllowedSyscalls, kept in sync per
-//! that header's own comment). Does not call TryBuild() - the caller owns
-//! final policy construction so tests can inspect the builder before
-//! commit. validated must be s_Ok from validateChildIpcLaunchSpec; this
-//! function refuses to mount when s_Ok is false or s_ChildIpcRoot is not a
-//! canonical $TMPDIR/ml-child-ipc/<child-id> directory.
-sandbox2::PolicyBuilder
+//! (seccomp::legacyBpfAllowedSyscalls, kept in sync per that header's own
+//! comment). Does not call TryBuild() - the caller owns final policy
+//! construction so tests can inspect the builder before commit. Returns an
+//! error when validated.s_Ok is false or s_ChildIpcRoot is not a canonical
+//! $TMPDIR/ml-child-ipc/<child-id> directory.
+absl::StatusOr<sandbox2::PolicyBuilder>
 buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
                                       const std::string& libDir,
                                       const SChildIpcValidationResult& validated,

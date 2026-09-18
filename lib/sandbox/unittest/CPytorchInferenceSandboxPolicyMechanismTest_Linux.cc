@@ -155,8 +155,10 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     auto executor = std::make_unique<sandbox2::Executor>(payloadPath, probeArgs);
     executor->limits()->set_rlimit_cpu(10).set_walltime_limit(absl::Seconds(10));
 
-    sandbox2::PolicyBuilder policyBuilder{ml::sandbox::buildPytorchInferenceFilesystemPolicy(
-        "/usr/bin", "/usr/lib", validated, /*tmpfsSizeBytes=*/16 * 1024 * 1024)};
+    auto built = ml::sandbox::buildPytorchInferenceFilesystemPolicy(
+        "/usr/bin", "/usr/lib", validated, /*tmpfsSizeBytes=*/16 * 1024 * 1024);
+    BOOST_TEST_REQUIRE(built.ok());
+    sandbox2::PolicyBuilder policyBuilder{std::move(*built)};
     policyBuilder.AddLibrariesForBinary(payloadPath);
     // legacyBpfAllowedSyscalls() grants __NR_connect but not __NR_socket -
     // real libtorch/pytorch_inference apparently also needs a bare socket()
@@ -198,6 +200,13 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
 
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "pid_namespace"), "namespaced");
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "loopback_reachable"), "ok");
+}
+
+BOOST_AUTO_TEST_CASE(testBuildPolicyRejectsInvalidatedLaunchSpec) {
+    const ml::sandbox::SChildIpcValidationResult invalid{};
+    const auto built = ml::sandbox::buildPytorchInferenceFilesystemPolicy(
+        "/usr/bin", "/usr/lib", invalid, /*tmpfsSizeBytes=*/16 * 1024 * 1024);
+    BOOST_TEST_REQUIRE(built.ok() == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
