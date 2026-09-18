@@ -68,10 +68,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(ABSL_ENABLE_INSTALL OFF CACHE INTERNAL "" FORCE)
   set(ABSL_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
   set(ABSL_BUILD_TEST_HELPERS OFF CACHE INTERNAL "" FORCE)
-  set(SAPI_ENABLE_EXAMPLES OFF CACHE INTERNAL "" FORCE)
-  set(SAPI_ENABLE_TESTS OFF CACHE INTERNAL "" FORCE)
+  set(SAPI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+  set(SAPI_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
   set(ML_SANDBOXED_API_TAG v20241008)
+  set(ML_SANDBOXED_API_GIT_SHA 9e07542a03fefa2cf982ba093b099805362df05d)
   set(ML_SANDBOXED_API_PATCH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/patches/sandboxed-api)
   set(ML_SANDBOXED_API_PATCHES
     0001-abseil-cpp-disable-gtest.patch
@@ -83,8 +84,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   FetchContent_Declare(
     sandboxed-api
     GIT_REPOSITORY https://github.com/google/sandboxed-api.git
-    GIT_TAG ${ML_SANDBOXED_API_TAG}
-    GIT_SHALLOW TRUE
+    GIT_TAG ${ML_SANDBOXED_API_GIT_SHA}
   )
 
   FetchContent_GetProperties(sandboxed-api)
@@ -124,9 +124,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
       if(NOT _patch_check_result EQUAL 0)
         message(FATAL_ERROR
           "sandboxed-api patch ${_patch} no longer applies to pinned tag "
-          "${ML_SANDBOXED_API_TAG} - the upstream source has drifted since "
-          "this patch was written. Regenerate it against the current tag "
-          "content (see 3rd_party/patches/sandboxed-api/README.md).\n"
+          "${ML_SANDBOXED_API_TAG} (${ML_SANDBOXED_API_GIT_SHA}) - the "
+          "upstream source has drifted since this patch was written. "
+          "Regenerate it against the current tag content (see "
+          "3rd_party/patches/sandboxed-api/README.md).\n"
           "${_patch_check_error}")
       endif()
       execute_process(

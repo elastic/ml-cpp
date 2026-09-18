@@ -11,7 +11,9 @@ Applying via `git apply` instead means a patch that no longer matches the
 pinned tag's content **fails the configure step loudly** (`FATAL_ERROR`)
 rather than degrading into an unpatched build.
 
-Pinned tag: `v20241008` (see `3rd_party/CMakeLists.txt`).
+Pinned tag: `v20241008` at commit `9e07542a03fefa2cf982ba093b099805362df05d`
+(see `ML_SANDBOXED_API_TAG` / `ML_SANDBOXED_API_GIT_SHA` in
+`3rd_party/CMakeLists.txt`).
 
 ## Patches
 
@@ -24,7 +26,9 @@ Pinned tag: `v20241008` (see `3rd_party/CMakeLists.txt`).
 
 ## Bumping the pinned tag
 
-1. Update `GIT_TAG` in `3rd_party/CMakeLists.txt`.
+1. Update `ML_SANDBOXED_API_TAG`, resolve its commit SHA into
+   `ML_SANDBOXED_API_GIT_SHA`, and update `sandbox2-INFO.csv` `revision`
+   in `3rd_party/CMakeLists.txt`.
 2. Re-run configure. A patch that no longer applies fails with
    `FATAL_ERROR: sandboxed-api patch <name> failed to apply` — this is the
    version-drift signal.

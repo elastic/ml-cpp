@@ -57,6 +57,6 @@ ml_add_test_executable(sandbox ${SRCS})
 if(TARGET sandbox2_smoke_payload)
   add_dependencies(ml_test_sandbox sandbox2_smoke_payload)
   target_compile_definitions(ml_test_sandbox PRIVATE
-    ML_SANDBOX2_SMOKE_PAYLOAD="$<TARGET_FILE:sandbox2_smoke_payload>"
+    "ML_SANDBOX2_SMOKE_PAYLOAD=\"$<TARGET_FILE:sandbox2_smoke_payload>\""
     )
 endif()
