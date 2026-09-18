@@ -131,21 +131,17 @@ public:
         std::atomic<EOutcomeState> m_State{EOutcomeState::E_Pending};
     };
 
-    //! Placeholder outcome of the injectable pidfd-acquisition seam (Task 2
-    //! scope only). A simple success/failure signal - Task 3 replaces this
-    //! with full ENOSYS/EMFILE/... classification and decides what a
-    //! classified failure does; nothing here selects a numeric-kill(pid)
-    //! fallback, and nothing should until Task 3 lands.
+    //! Raw outcome of the injectable pidfd-acquisition seam: the fd returned
+    //! by pidfd_open (or -1) and errno on failure. classifyPidFdOutcome()
+    //! maps this to EPidFdOutcome.
     struct SPidFdAcquisitionResult {
         int s_Fd{-1};
         int s_Errno{0};
     };
 
-    //! Explicit classification of a pidfd-acquisition attempt, replacing
-    //! the Task 2 placeholder's generic "negative fd" check with a
-    //! three-way outcome that decides both whether spawn() registers the
-    //! child at all, and - for a registered child - which of
-    //! terminateChild()'s two mechanisms applies.
+    //! Three-way classification of a pidfd-acquisition attempt: whether
+    //! spawn() registers the child at all, and which terminateChild()
+    //! mechanism applies for a registered child.
     //!
     //! E_Acquired: s_Fd >= 0. terminateChild() sends a request via
     //! pidfd_send_signal(SIGTERM) on the held pidfd.
@@ -166,43 +162,26 @@ public:
     //! an undefined fallback.
     enum class EPidFdOutcome { E_Acquired, E_KernelUnsupported, E_Failed };
 
-    //! Pure classification function for a pidfd-acquisition result: no
-    //! syscalls, no I/O, no side effects, so it is unit-testable in
-    //! isolation against synthetic SPidFdAcquisitionResult values (e.g. Task
-    //! 4's ENOSYS/EMFILE/ESRCH/success cases) without a real pidfd or
-    //! kernel. Implemented outside the SANDBOX2_AVAILABLE-gated block in the
-    //! .cc, so it compiles - and is testable - on every platform.
+    //! Pure classification of SPidFdAcquisitionResult: no syscalls or side
+    //! effects. Implemented outside the SANDBOX2_AVAILABLE block so it
+    //! compiles and is unit-testable on every platform.
     static EPidFdOutcome classifyPidFdOutcome(const SPidFdAcquisitionResult& result);
 
 public:
     //! \brief A live sandboxed child and the handles needed to manage it
     //! safely through every lifecycle state.
     //!
-    //! DESCRIPTION:\n
-    //! Shape only in Task 1 - no lifecycle logic landed there. Carries the
-    //! explicit state, a monotonic generation (so a stale monitor cannot
-    //! erase or mutate a newer registration racing the same PID), the
-    //! Sandbox2 handle (co-owned with any monitor thread via shared_ptr,
-    //! since a monitor can outlive this spawner and must never hold a raw
-    //! pointer back into it), the pidfd used for identity-bound
-    //! termination when the kernel provides one, and the one-shot outcome
-    //! latch used to resolve a timeout-vs-completion race for this specific
-    //! child. Public (rather than Task 1's private placement) as
-    //! of Task 2: the registry-allocation seam (TRegistryInsertFn, below)
-    //! and its test-only overrides need to name this type, and a private
-    //! nested type cannot appear in a public alias's signature in a way
-    //! external test code could actually spell.
+    //! Public so TRegistryInsertFn and test seams can name this type.
+    //! s_Generation lets a stale monitor ignore a newer registration on
+    //! the same numeric PID. s_Sandbox is co-owned with the monitor thread
+    //! via shared_ptr (the monitor can outlive this spawner).
     struct SSandboxedChild {
         EChildLifecycleState s_State{EChildLifecycleState::E_Prepared};
         std::uint64_t s_Generation{0};
         std::shared_ptr<sandbox2::Sandbox2> s_Sandbox;
         int s_PidFd{-1};
-        //! Classification recorded at registration time (Task 3). Every
-        //! entry that actually reaches the registry has this set
-        //! to E_Acquired or E_KernelUnsupported - E_Failed never gets
-        //! registered (see EPidFdOutcome's comment) - but the default below
-        //! still resolves to the fail-closed value in case some future path
-        //! forgets to set it explicitly.
+        //! Classification recorded at registration time. Only E_Acquired
+        //! and E_KernelUnsupported reach the registry; default is fail-closed.
         EPidFdOutcome s_PidFdOutcome{EPidFdOutcome::E_Failed};
         std::shared_ptr<CCasOutcomeLatch> s_Outcome;
     };
@@ -225,14 +204,10 @@ public:
     };
     using TPidRegistryPtr = std::shared_ptr<SPidRegistry>;
 
-    //! Injectable seams, introduced in Task 2. Each has a
-    //! production default, selected by passing an empty std::function to
-    //! the test-only constructor below (or by using the plain default
-    //! constructor, which never touches these types at all).
+    //! Injectable seams for tests. Each has a production default; an empty
+    //! std::function selects it.
 
-    //! pidfd-acquisition seam: wraps the pidfd_open syscall. See
-    //! SPidFdAcquisitionResult's comment - Task 3 replaces the placeholder
-    //! success/failure shape with full classification.
+    //! pidfd-acquisition seam: wraps the pidfd_open syscall.
     using TPidFdOpenFn = std::function<SPidFdAcquisitionResult(core::CProcess::TPid)>;
 
     //! Registry-allocation seam: performs the locked map insertion
@@ -255,11 +230,9 @@ public:
     using TMonitorLaunchFn = std::function<bool(std::function<void()> monitorBody)>;
 
 #ifdef SANDBOX2_AVAILABLE
-    //! Sandbox2-completion seam: wraps calling AwaitResult() on the live
-    //! sandbox handle, so a test controls exactly when/what result is
-    //! reported (for a deterministic timeout-vs-completion test,
-    //! Task 4 scope). Available only where sandbox2::Result is a complete
-    //! type; see the SANDBOX2_AVAILABLE include block above this class.
+    //! Sandbox2-completion seam: wraps AwaitResult() so tests control when
+    //! and what result is reported. Available only where sandbox2::Result is
+    //! a complete type (SANDBOX2_AVAILABLE).
     using TAwaitResultFn = std::function<sandbox2::Result(sandbox2::Sandbox2&)>;
 #endif
 

@@ -60,9 +60,8 @@ extern char** environ;
 // __NR_pidfd_open may be undefined at build time even though the runtime
 // kernel supports it. pidfd_open is syscall number 434 on every architecture
 // ml-cpp builds for (x86_64 and aarch64); fall back to that literal so the
-// spawner does not depend on the build image's header version. Task 3 owns
-// classifying what a failed acquisition means (ENOSYS vs. a resource error);
-// this task only needs the raw syscall wrapped behind the injectable seam.
+// spawner does not depend on the build image's header version.
+// classifyPidFdOutcome() maps the raw fd/errno to EPidFdOutcome.
 #ifdef __NR_pidfd_open
 #define ML_NR_pidfd_open __NR_pidfd_open
 #else
@@ -138,37 +137,48 @@ void closePidFdIfOpen(int pidFd) {
     }
 }
 
-//! Non-throwing kill-and-reap guard, closing the gap between a successful
-//! process launch and the point where ownership is fully handed off to the
-//! registry and monitor thread. Armed immediately when RunAsync() succeeds
-//! and pid() is captured (E_IdentityCaptured) - before any
-//! potentially-throwing operation (registry insertion, monitor-thread
-//! construction, detach()) - and disarmed only after registry insertion AND
-//! monitor handoff both succeed (E_Monitoring). Every early return on the
-//! path between those two points goes through this guard's destructor
-//! rather than a hand-written duplicate cleanup block, so there is exactly
-//! one cleanup owner for "launched but not yet fully handed off".
-//!
-//! Holds its own shared_ptr<Sandbox2> copy (not a raw, non-owning pointer)
-//! so its lifetime is entirely self-sufficient: it does not matter what
-//! order this guard is declared in relative to other shared_ptr-holding
-//! locals in spawn() (e.g. `sandbox`, `child.s_Sandbox`), nor what order
-//! those locals get destroyed in during stack unwinding on a failure path.
-//! A raw pointer previously used here relied on some other local staying
-//! alive for the guard's own destructor to run safely against; if that
-//! local's declaration (and therefore destruction) order ever changed, or
-//! if the object's last owning shared_ptr was destroyed before this guard
-//! during unwinding, the guard's destructor would call Kill() on a dangling
-//! pointer. Holding an owning copy makes that structurally impossible: this
-//! guard is always one of the owners, so the object cannot be freed before
-//! this guard's own destructor has run.
-//!
-//! The destructor must not throw: it runs during stack unwinding on the
-//! failure paths this guard exists to cover, and a second exception there
-//! would call std::terminate. Kill() and the AwaitResult seam are wrapped in
-//! a catch-all for that reason; this task does not classify what Kill()
-//! itself can fail with (Task 3 scope), only ensures a throw from it cannot
-//! escape a destructor.
+using TPidRegistryPtr = CSandboxedProcessSpawner::TPidRegistryPtr;
+
+//! Generation-matched registry erase after a successful AwaitResult().
+//! Returns true when this path won the completion latch and erased the entry.
+bool completeMonitorRegistryCleanup(TPidRegistryPtr registry,
+                                    core::CProcess::TPid sandboxPid,
+                                    std::uint64_t generation) {
+    bool completionWonRace{true};
+    std::lock_guard<std::mutex> lock(registry->s_Mutex);
+    const auto it = registry->s_Children.find(sandboxPid);
+    if (it != registry->s_Children.end() && it->second.s_Generation == generation) {
+        if (it->second.s_Outcome) {
+            CSandboxedProcessSpawner::EOutcomeState desired{
+                CSandboxedProcessSpawner::EOutcomeState::E_Completed};
+            completionWonRace = it->second.s_Outcome->tryResolve(desired);
+        }
+        if (completionWonRace) {
+            it->second.s_State = CSandboxedProcessSpawner::EChildLifecycleState::E_Reaped;
+            closePidFdIfOpen(it->second.s_PidFd);
+            registry->s_Children.erase(it);
+        }
+    }
+    return completionWonRace;
+}
+
+//! Best-effort generation-matched erase when the monitor body fails.
+void eraseRegistryEntryOnMonitorFailure(TPidRegistryPtr registry,
+                                        core::CProcess::TPid sandboxPid,
+                                        std::uint64_t generation) {
+    std::lock_guard<std::mutex> lock(registry->s_Mutex);
+    const auto it = registry->s_Children.find(sandboxPid);
+    if (it != registry->s_Children.end() && it->second.s_Generation == generation) {
+        closePidFdIfOpen(it->second.s_PidFd);
+        registry->s_Children.erase(it);
+    }
+}
+
+//! Kill-and-reap guard for the window between RunAsync() success and
+//! confirmed registry + monitor handoff. Armed at E_IdentityCaptured,
+//! disarmed at E_Monitoring. Holds its own shared_ptr<Sandbox2> so unwind
+//! order cannot dangle. Destructor must not throw (catch-all around
+//! Kill()/AwaitResult).
 class CKillAndReapGuard {
 public:
     CKillAndReapGuard(std::shared_ptr<sandbox2::Sandbox2> sandbox,
@@ -274,16 +284,8 @@ bool defaultMonitorLaunch(std::function<void()> monitorBody) {
 //! thread that owns the sandbox instance, so it deliberately takes no
 //! spawner state - the caller does the registry bookkeeping under the lock.
 //!
-//! Review finding 5 (self-review round 2): every StatusEnum value gets its
-//! own case rather than funnelling everything but SIGNALED into one opaque
-//! LOG_ERROR. Two of those previously-generic cases matter operationally:
-//! EXTERNAL_KILL is this file's OWN ENOSYS-fallback success path
-//! (terminateChild()'s E_KernelUnsupported branch calls Sandbox2::Kill(),
-//! which the monitor observes as EXTERNAL_KILL, not SIGNALED - see gate 1's
-//! testTerminateChildFallsBackToKillWhenKernelUnsupportsPidfd) and must not
-//! be logged as an abnormal termination; VIOLATION is the most
-//! operationally important signal a sandbox can report and must never be
-//! indistinguishable from an internal error.
+//! EXTERNAL_KILL is Sandbox2::Kill() (ENOSYS fallback), not SIGNALED.
+//! VIOLATION gets its own case because it is the primary operational signal.
 void logSandboxeeTermination(core::CProcess::TPid sandboxPid, const sandbox2::Result& result) {
     switch (result.final_status()) {
     case sandbox2::Result::OK:
@@ -498,18 +500,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     }
 
     const core::CProcess::TPid sandboxPid{childPid};
-    // I2: default the caller's out-parameter back to 0 for the entire span
-    // between capturing sandboxPid and confirmed success (the final `return
-    // true` below). Several calls in that span (e.g.
-    // std::make_shared<CCasOutcomeLatch>() a few lines down) can throw
-    // std::bad_alloc *before* the try/catch blocks further down start, and
-    // an exception there propagates straight out of spawn() uncaught (the
-    // kill-and-reap guard's destructor still cleans up the sandboxee
-    // correctly during unwind). Without this, that throw-only exit would
-    // leave the caller's childPid at the live PID even though spawn() never
-    // returned true. Every explicit `return false` below already sets
-    // childPid = 0 too; this makes 0 the default regardless of whether a
-    // given exit is a return or an uncaught throw.
+    // childPid stays 0 until handoff succeeds: uncaught bad_alloc on this
+    // path must not leak a live PID to the caller.
     childPid = 0;
 
     // E_IdentityCaptured: arm the kill-and-reap guard now that the
@@ -601,42 +593,21 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         const TPidRegistryPtr registry{m_PidRegistry};
         const TAwaitResultFn awaitResultFn{m_AwaitResultFn};
         auto monitorBody = [sandboxPid, registry, sandbox, generation, awaitResultFn]() {
-            const sandbox2::Result result{awaitResultFn ? awaitResultFn(*sandbox)
-                                                        : sandbox->AwaitResult()};
-            // This thread's completion and a (currently unwired -
-            // Task 3 scope stops at this call site; no external timeout
-            // caller exists yet) timeout path both race to decide who
-            // performs cleanup for the same child. Route that decision
-            // through exactly one tryResolve() call on the child's own CAS
-            // latch rather than an ad-hoc boolean - if a timeout caller
-            // resolves the latch to E_TimedOut first, this call loses the
-            // race and must not also erase the registry entry or log
-            // termination (the timeout path owns that instead).
-            bool completionWonRace{true};
-            {
-                std::lock_guard<std::mutex> lock(registry->s_Mutex);
-                const auto it = registry->s_Children.find(sandboxPid);
-                if (it != registry->s_Children.end() && it->second.s_Generation == generation) {
-                    if (it->second.s_Outcome) {
-                        EOutcomeState desired{EOutcomeState::E_Completed};
-                        completionWonRace = it->second.s_Outcome->tryResolve(desired);
-                    }
-                    if (completionWonRace) {
-                        // I1: record E_Reaped immediately before erasing the
-                        // entry, so a future accessor reading state via the
-                        // lock during this brief window would see E_Reaped
-                        // rather than a stale E_Monitoring. Defensive/
-                        // documentation-only today - nothing reads it before
-                        // the erase below - but matches the state machine's
-                        // declared intent.
-                        it->second.s_State = EChildLifecycleState::E_Reaped;
-                        closePidFdIfOpen(it->second.s_PidFd);
-                        registry->s_Children.erase(it);
-                    }
+            // Detached threads must not let exceptions escape: std::terminate().
+            try {
+                const sandbox2::Result result{awaitResultFn ? awaitResultFn(*sandbox)
+                                                            : sandbox->AwaitResult()};
+                if (completeMonitorRegistryCleanup(registry, sandboxPid, generation)) {
+                    logSandboxeeTermination(sandboxPid, result);
                 }
-            }
-            if (completionWonRace) {
-                logSandboxeeTermination(sandboxPid, result);
+            } catch (const std::exception& e) {
+                LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
+                          << sandboxPid << " failed: " << e.what());
+                eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
+            } catch (...) {
+                LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
+                          << sandboxPid << " failed with a non-standard exception");
+                eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
             }
         };
 
@@ -667,12 +638,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // removing the registry entry. Disarm - the guard must not also reap.
     killAndReapGuard.disarm();
 
-    // I1: record the E_Monitoring transition explicitly, generation-matched
-    // and under the lock, now that handoff is confirmed. Without this,
-    // E_Monitoring was declared in the state machine but never actually
-    // assigned anywhere, so the "explicit state machine, no state skipped"
-    // claim was not true in the code, and a future timeout caller would
-    // have nothing correct to branch on.
+    // Record E_Monitoring under the lock, generation-matched. Only advance
+    // from E_Registered so a racing terminator is not overwritten.
     {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(sandboxPid);
@@ -686,12 +653,9 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         }
     }
 
-    // Final-review fix: log the live PID, not the not-yet-restored out
-    // parameter (childPid is still 0 here per the I2 fix below).
     LOG_INFO(<< "Spawned sandboxed process " << processPath << " with PID " << sandboxPid);
 
-    // I2: only now, with registration and monitor handoff both confirmed, is
-    // it safe to hand the live PID back to the caller.
+    // Hand the live PID back only after registration and monitor handoff succeed.
     childPid = sandboxPid;
     return true;
 
@@ -718,13 +682,8 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
     {
         std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
         const auto it = m_PidRegistry->s_Children.find(pid);
-        // Considered-and-dropped (self-review round 2): this guard does not
-        // exclude E_TerminationRequested, so a repeated terminateChild()
-        // call on an already-in-flight (or already E_KernelUnsupported-
-        // Kill()ed) child can reach Sandbox2::Kill() a second time. Confirmed
-        // harmless against the pinned sandboxed-api v20241008 tag:
-        // Sandbox2::Kill() is idempotent (sets a flag and issues a null-safe
-        // notify; no double-free/double-signal), so this is not a hazard.
+        // Repeated terminateChild() may call Sandbox2::Kill() again;
+        // Kill() is idempotent (pinned sandboxed-api v20241008).
         if (it == m_PidRegistry->s_Children.end() ||
             it->second.s_State == EChildLifecycleState::E_Reaped ||
             it->second.s_State == EChildLifecycleState::E_Failed) {
@@ -732,11 +691,7 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
         }
         SSandboxedChild& child{it->second};
         previousState = child.s_State;
-        // C1/I3: capture the generation now, under the same lock acquisition
-        // that decides the termination mechanism, so a failure below can
-        // roll back state only if it still identifies the SAME registration
-        // (not a newer one that reused this numeric PID after this entry
-        // was reaped and erased).
+        // Capture generation under the same lock so rollback matches this entry.
         capturedGeneration = child.s_Generation;
         switch (child.s_PidFdOutcome) {
         case EPidFdOutcome::E_Acquired: {
@@ -749,18 +704,9 @@ bool CSandboxedProcessSpawner::terminateChild(core::CProcess::TPid pid) {
                           << " classified E_Acquired but holds no pidfd");
                 return false;
             }
-            // C1: send the request WHILE STILL HOLDING s_Mutex.
-            // pidfd_send_signal is a non-blocking syscall, so this is safe,
-            // and it is the only way to close the race against monitorBody's
-            // Sandbox2-completion handler, which also takes this same lock
-            // before closing this exact pidfd and erasing the registry entry
-            // (it does not check s_State). Previously the syscall ran
-            // outside the lock: a snapshot-then-signal window let
-            // monitorBody close the pidfd and the kernel recycle that
-            // descriptor number for an unrelated spawn() in between, so a
-            // delayed pidfd_send_signal here could hit the wrong process
-            // (an "identity, not recycled descriptor" hazard, one layer
-            // below the already-fixed numeric-PID case).
+            // pidfd_send_signal under s_Mutex: the monitor closes this fd
+            // under the same lock, so signalling outside the lock could
+            // hit a recycled descriptor number.
             if (::syscall(ML_NR_pidfd_send_signal, child.s_PidFd, SIGTERM, nullptr, 0u) != 0) {
                 LOG_ERROR(<< "pidfd_send_signal(SIGTERM) failed for sandboxed child PID "
                           << pid << ": " << ::strerror(errno));
