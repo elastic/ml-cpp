@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 
 #ifdef SANDBOX2_AVAILABLE
 #include "absl/status/status.h"
@@ -312,11 +313,18 @@ SChildIpcValidationResult validateChildIpcLaunchSpec(const std::string& trustedT
 
 #ifdef SANDBOX2_AVAILABLE
 
-sandbox2::PolicyBuilder
+absl::StatusOr<sandbox2::PolicyBuilder>
 buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
                                       const std::string& libDir,
                                       const SChildIpcValidationResult& validated,
                                       std::size_t tmpfsSizeBytes) {
+    if (validated.s_Ok == false ||
+        childIpcRootHasExpectedShape(validated.s_Spec.s_ChildIpcRoot) == false) {
+        return absl::InvalidArgumentError(
+            "buildPytorchInferenceFilesystemPolicy requires validated.s_Ok and a "
+            "canonical $TMPDIR/ml-child-ipc/<child-id> s_ChildIpcRoot");
+    }
+
     sandbox2::PolicyBuilder policyBuilder;
 
     policyBuilder.AllowDynamicStartup()
@@ -348,7 +356,7 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // grant (listed ops only). AllowSyscall(__NR_futex) would append
     // SYSCALL(futex, ALLOW) because AllowFutexOp uses AddPolicyOnSyscall and
     // does not insert into handled_syscalls_.
-    for (int syscallNr : seccomp::pytorch_inference::legacyBpfAllowedSyscalls()) {
+    for (int syscallNr : seccomp::legacyBpfAllowedSyscalls()) {
 #ifdef __linux__
         if (syscallNr == __NR_futex) {
             continue;
@@ -398,26 +406,17 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
         }
     }
 
-    for (const std::string& devFile : {"/dev/null", "/dev/urandom", "/dev/random"}) {
-        policyBuilder.AddFile(devFile, /*is_ro=*/devFile != std::string{"/dev/null"});
+    for (const char* devFile : {"/dev/null", "/dev/urandom", "/dev/random"}) {
+        policyBuilder.AddFile(devFile, /*is_ro=*/std::strcmp(devFile, "/dev/null") != 0);
     }
 
     // Private, bounded tmpfs - never the host's shared /tmp.
     policyBuilder.AddTmpfs("/tmp", tmpfsSizeBytes);
 
     // The one per-child IPC root, mapped read-write to a fixed in-sandbox
-    // path. validated must be s_Ok from validateChildIpcLaunchSpec with a
-    // canonical $TMPDIR/ml-child-ipc/<child-id> root - never ml-child-ipc
-    // itself, never a sibling child's directory.
-    if (validated.s_Ok == false ||
-        childIpcRootHasExpectedShape(validated.s_Spec.s_ChildIpcRoot) == false) {
-        policyBuilder.SetError(absl::InvalidArgumentError(
-            "buildPytorchInferenceFilesystemPolicy requires validated.s_Ok and a "
-            "canonical $TMPDIR/ml-child-ipc/<child-id> s_ChildIpcRoot"));
-    } else {
-        policyBuilder.AddDirectoryAt(validated.s_Spec.s_ChildIpcRoot, "/run/elastic/ml-ipc",
-                                     /*is_ro=*/false);
-    }
+    // path. validated.s_Ok and s_ChildIpcRoot shape were checked above.
+    policyBuilder.AddDirectoryAt(validated.s_Spec.s_ChildIpcRoot, "/run/elastic/ml-ipc",
+                                 /*is_ro=*/false);
 
     return policyBuilder;
 }
