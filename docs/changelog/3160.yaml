@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3160
+summary: Periodically report `pytorch_inference` RSS
+type: enhancement

@@ -73,6 +73,12 @@ public:
     void writeSimpleAck(const std::string_view& requestId);
 
     //! Write memory usage information to the output stream.
+    //!
+    //! Emits both the current resident set size (\c memory_rss) and the peak
+    //! resident set size (\c memory_max_rss, the OS high-water mark). The peak is
+    //! transmitted explicitly rather than derived on the Elasticsearch side from
+    //! the stream of samples, so transient spikes between reports are not lost;
+    //! this is the memory signal used to keep model assignment OOM-safe.
     void writeProcessStats(const std::string_view& requestId,
                            const std::size_t residentSetSize,
                            const std::size_t maxResidentSetSize);
