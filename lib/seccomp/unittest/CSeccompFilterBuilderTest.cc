@@ -231,9 +231,8 @@ BOOST_AUTO_TEST_CASE(testSandbox2ExplicitSyscallsCarriedForwardFromPr2873) {
     // #2873's enhancement/sandbox2 branch already had a dedicated
     // sandbox2ExplicitSyscalls() list for exactly this; this regression test
     // keeps a future rewrite from dropping it again the same way.
-    const std::set<int> explicitGrants{
-        ml::seccomp::sandbox2ExplicitSyscalls().begin(),
-        ml::seccomp::sandbox2ExplicitSyscalls().end()};
+    const std::set<int> explicitGrants{ml::seccomp::sandbox2ExplicitSyscalls().begin(),
+                                       ml::seccomp::sandbox2ExplicitSyscalls().end()};
 
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_getaffinity) == 1);
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_setaffinity) == 1);
