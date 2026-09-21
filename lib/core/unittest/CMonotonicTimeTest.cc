@@ -33,14 +33,18 @@ BOOST_AUTO_TEST_SUITE(CMonotonicTimeTest)
 //      different clock domain (the scheduler's sleep timer) rather than
 //      against another reading of the same underlying counter.
 //
-//   2. A scaling/consistency check. We measure the same interval with
+//   2. A cross-clock consistency check. We measure the same interval with
 //      std::chrono::steady_clock and assert CMonotonicTime agrees with it to
-//      within a small tolerance. On every platform steady_clock and
-//      CMonotonicTime ultimately derive from the same hardware counter, so
-//      this does not re-check the clock's real-time fidelity (that is covered
-//      by check 1); what it validates is CMonotonicTime's own unit-scaling
-//      arithmetic (the mach_timebase / QueryPerformanceFrequency / timespec
-//      conversions), which is the part of this class we can actually break.
+//      within a small tolerance. The two clocks should agree because they
+//      observe the same elapsed real time - on most platforms via the same
+//      underlying counter (macOS mach_absolute_time; the CLOCK_MONOTONIC
+//      nanosecond paths on Linux), though the coarse millisecond paths read a
+//      different source (Linux CLOCK_MONOTONIC_COARSE, Windows GetTickCount64).
+//      This is therefore not an independent re-check of the clock's real-time
+//      fidelity (that is covered by check 1); what it validates is
+//      CMonotonicTime's own unit-scaling arithmetic (the mach_timebase /
+//      QueryPerformanceFrequency / timespec conversions), which is the part of
+//      this class we can actually break.
 //
 // Crucially there is NO upper bound on the elapsed time relative to the
 // nominal sleep duration. sleep_for only promises a *minimum* sleep and can
