@@ -295,7 +295,33 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
-    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+
+    // Internal switch, not an operator setting: it stays false until the
+    // controller can route around Sandbox2 explicitly and guarantee that a
+    // degraded-mode (no-Sandbox2) launch was a deliberate operator choice
+    // rather than the only option this process has. Flipping it on today
+    // would terminate every launch on a host lacking seccomp BPF, with no
+    // operator fallback to select instead.
+    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
+
+    const ml::seccomp::ESystemCallFilterInstallOutcome seccompOutcome{
+        ml::seccomp::CSystemCallFilter::installSystemCallFilter()};
+
+    if (ml::seccomp::decideDegradedModeAction(seccompOutcome, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE) ==
+        ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
+        LOG_FATAL(<< "Seccomp installation " << ml::seccomp::describe(seccompOutcome)
+                  << "; terminating before untrusted model processing");
+        return EXIT_FAILURE;
+    }
+
+    // Explicit structured attestation the controller/Elasticsearch can
+    // assert on directly, rather than inferring readiness from the absence
+    // of a fatal log line above.
+    const std::string degradedModeMarker{
+        ml::seccomp::degradedModeAttestationMarker(seccompOutcome)};
+    if (degradedModeMarker.empty() == false) {
+        LOG_INFO(<< degradedModeMarker);
+    }
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
