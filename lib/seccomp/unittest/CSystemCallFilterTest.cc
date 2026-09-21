@@ -275,7 +275,9 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
 #endif
 
     // Install the filter
-    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+    BOOST_REQUIRE_EQUAL(
+        static_cast<int>(ml::seccomp::ESystemCallFilterInstallOutcome::E_Installed),
+        static_cast<int>(ml::seccomp::CSystemCallFilter::installSystemCallFilter()));
 
 #if defined(Linux) && defined(__x86_64__)
     if (i386CompatUsable) {

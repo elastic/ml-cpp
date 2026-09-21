@@ -87,13 +87,17 @@ std::string writeTempRulesFile() {
 }
 }
 
-void CSystemCallFilter::installSystemCallFilter() {
+ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
     std::string profileFilename{writeTempRulesFile()};
     if (profileFilename.empty()) {
         LOG_WARN(<< "Cannot write sandbox rules. macOS sandbox will not be initialized");
-        return;
+        // mkstemps / temp-file I/O failure is a setup failure. It does not
+        // prove the sandbox facility is absent, so this is not
+        // E_MechanismUnavailable.
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     }
 
+    ESystemCallFilterInstallOutcome outcome{ESystemCallFilterInstallOutcome::E_Installed};
     char* errorbuf{nullptr};
     if (::sandbox_init(profileFilename.c_str(), SANDBOX_NAMED, &errorbuf) != 0) {
         std::string msg("Error initializing macOS sandbox");
@@ -103,11 +107,14 @@ void CSystemCallFilter::installSystemCallFilter() {
             ::sandbox_free_error(errorbuf);
         }
         LOG_ERROR(<< msg);
+        outcome = ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     } else {
         LOG_DEBUG(<< "macOS sandbox initialized");
+        LOG_INFO(<< "ml.seccomp.installed");
     }
 
     std::remove(profileFilename.c_str());
+    return outcome;
 }
 }
 }
