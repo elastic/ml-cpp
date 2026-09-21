@@ -30,6 +30,11 @@ namespace seccomp {
 //! apply CMlLegacyBpfSyscallAllowlist.h's declaration directly, instead
 //! of maintaining a second, hand-written BPF program with manual jump
 //! offsets that can silently drift from the declaration.
+//!
+//! Returns an empty program if allowedSyscalls has more than 255 entries:
+//! classic BPF jt/jf are 8-bit, so a larger list cannot be encoded without
+//! wrapping a matching syscall onto the wrong row. Callers must treat empty
+//! as a failed build and must not install it.
 std::vector<sock_filter> buildSyscallAllowlistProgram(const std::vector<int>& allowedSyscalls);
 }
 }

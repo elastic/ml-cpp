@@ -91,6 +91,9 @@ ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
     std::string profileFilename{writeTempRulesFile()};
     if (profileFilename.empty()) {
         LOG_WARN(<< "Cannot write sandbox rules. macOS sandbox will not be initialized");
+        // mkstemps / temp-file I/O failure is a setup failure. It does not
+        // prove the sandbox facility is absent, so this is not
+        // E_MechanismUnavailable.
         return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     }
 

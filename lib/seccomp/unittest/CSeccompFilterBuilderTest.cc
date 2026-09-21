@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <linux/audit.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>
@@ -150,6 +151,24 @@ BOOST_AUTO_TEST_CASE(testJumpOffsetsAreDerivedNotHandMaintained) {
     }
     BOOST_TEST_REQUIRE(sawX32Guard);
 #endif
+}
+
+BOOST_AUTO_TEST_CASE(testAllowlistAtEightBitJumpLimitStillBuilds) {
+    const std::vector<int> atLimit(std::numeric_limits<std::uint8_t>::max(), 1);
+    const std::vector<sock_filter> program{ml::seccomp::buildSyscallAllowlistProgram(atLimit)};
+    BOOST_TEST_REQUIRE(program.empty() == false);
+    BOOST_REQUIRE_EQUAL(static_cast<unsigned int>(SECCOMP_RET_ALLOW),
+                        program.back().k);
+}
+
+BOOST_AUTO_TEST_CASE(testOversizedAllowlistProducesEmptyProgram) {
+    // The production declaration is compile-time capped at 255, but this
+    // builder accepts an arbitrary vector. A wrapped jt would still look like
+    // a well-formed program; fail closed with empty instead.
+    const std::vector<int> oversized(
+        static_cast<std::size_t>(std::numeric_limits<std::uint8_t>::max()) + 1, 1);
+    const std::vector<sock_filter> program{ml::seccomp::buildSyscallAllowlistProgram(oversized)};
+    BOOST_TEST_REQUIRE(program.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testArchGuardRejectsNonNativeAbi) {

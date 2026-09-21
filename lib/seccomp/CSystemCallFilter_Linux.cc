@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <limits>
 
 #include <linux/audit.h>
 #include <linux/filter.h>
@@ -45,6 +46,11 @@ const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 }
 
 std::vector<sock_filter> buildSyscallAllowlistProgram(const std::vector<int>& allowedSyscalls) {
+    // BPF_JMP jt/jf are 8-bit. Casting a larger count to uint8_t wraps, so the
+    // first matching syscall would fall through instead of reaching ALLOW.
+    if (allowedSyscalls.size() > std::numeric_limits<std::uint8_t>::max()) {
+        return {};
+    }
     const auto numSyscalls = static_cast<std::uint32_t>(allowedSyscalls.size());
 
     std::vector<sock_filter> program;
@@ -138,6 +144,10 @@ ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
 
     const std::vector<sock_filter> program{
         buildSyscallAllowlistProgram(legacyBpfAllowedSyscalls())};
+    if (program.empty()) {
+        LOG_ERROR(<< "Seccomp BPF program generation failed");
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
+    }
 
     struct sock_fprog prog = {.len = static_cast<unsigned short>(program.size()),
                               .filter = const_cast<sock_filter*>(program.data())};
