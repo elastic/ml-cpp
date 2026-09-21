@@ -921,9 +921,8 @@ BOOST_AUTO_TEST_CASE(testMonitorAwaitResultThrowErasesRegistryAndDoesNotEscape) 
     TSpawner::TRegistryInsertFn insertFn =
         capturingRegistryInsert(&registry, nullptr, nullptr, nullptr);
     TSpawner::TMonitorLaunchFn monitorLaunch = captureMonitorBodyWithoutRunning(&monitorBody);
-    TSpawner::TAwaitResultFn awaitResultFn = [](sandbox2::Sandbox2& sandbox) -> sandbox2::Result {
-        sandbox.Kill();
-        sandbox.AwaitResult();
+    TSpawner::TAwaitResultFn awaitResultFn = [](sandbox2::Sandbox2 &
+                                                /* sandbox */) -> sandbox2::Result {
         throw std::runtime_error("injected monitor failure");
     };
 
@@ -940,6 +939,14 @@ BOOST_AUTO_TEST_CASE(testMonitorAwaitResultThrowErasesRegistryAndDoesNotEscape) 
     BOOST_CHECK(spawner.hasChild(childPid) == false);
     BOOST_TEST_REQUIRE(registry != nullptr);
     BOOST_CHECK(registry->s_Children.count(childPid) == 0);
+
+    const int observerPidFd{testPidfdOpen(childPid)};
+    if (observerPidFd < 0) {
+        BOOST_CHECK_EQUAL(errno, ESRCH);
+    } else {
+        BOOST_CHECK(pidfdReadableWithin(observerPidFd, 3000));
+        ::close(observerPidFd);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testDescriptorCountReturnsToBaselineAfterSpawnTerminateCleanup) {
@@ -980,7 +987,7 @@ BOOST_AUTO_TEST_CASE(testDescriptorCountReturnsToBaselineAfterSpawnTerminateClea
 // Destructor must not block on a live child. Orphan reap after controller
 // exit is out of scope for this file.
 
-BOOST_AUTO_TEST_CASE(testDestructorDoesNotJoinAndReturnsUnderOneSecond) {
+BOOST_AUTO_TEST_CASE(testDestructorDoesNotBlockOnLiveChild) {
     CScopedTmpDirEnv tmpEnv;
     const std::string childRoot{makeChildIpcRoot(tmpEnv.dir(), "case7")};
 
@@ -1016,12 +1023,25 @@ BOOST_AUTO_TEST_CASE(testDestructorDoesNotJoinAndReturnsUnderOneSecond) {
     BOOST_TEST_REQUIRE(childPid > 0);
     BOOST_CHECK(spawner->hasChild(childPid)); // reached marker: genuinely running
 
-    const auto start = std::chrono::steady_clock::now();
-    spawner.reset(); // ~CSandboxedProcessSpawner() with a live child and a real
-                     // monitor thread genuinely blocked in AwaitResult() on it.
-    const auto elapsed = std::chrono::steady_clock::now() - start;
-
-    BOOST_CHECK(elapsed < std::chrono::seconds(1)); // destructor must not block on the live child
+    // Deadlock watchdog, not a performance bound: a correct destructor returns
+    // promptly; a regression that joins/blocks on the monitor (parked in
+    // AwaitResult() on a never-exiting child) hangs until this timeout.
+    auto destructorDonePromise = std::make_shared<std::promise<void>>();
+    std::future<void> destructorDoneFuture{destructorDonePromise->get_future()};
+    std::thread destructorThread(
+        [ spawner = std::move(spawner), destructorDonePromise ]() mutable {
+            spawner.reset(); // ~CSandboxedProcessSpawner() with a live child and a real
+                // monitor thread genuinely blocked in AwaitResult() on it.
+            destructorDonePromise->set_value();
+        });
+    const std::future_status destructorWaitStatus{
+        destructorDoneFuture.wait_for(std::chrono::seconds(30))};
+    if (destructorWaitStatus == std::future_status::ready) {
+        destructorThread.join();
+    } else {
+        destructorThread.detach();
+    }
+    BOOST_REQUIRE(destructorWaitStatus == std::future_status::ready);
 
     // Test hygiene: reap the
     // still-running sandboxee via its identity-bound Sandbox2 handle

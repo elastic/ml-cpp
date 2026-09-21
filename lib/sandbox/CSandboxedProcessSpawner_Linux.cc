@@ -15,6 +15,7 @@
 
 #include <cerrno>
 #include <exception>
+#include <memory>
 #include <sstream>
 #include <thread>
 #include <utility>
@@ -130,10 +131,12 @@ private:
 };
 
 //! Close a pidfd that a registry entry owns, tolerating an already-released
-//! (-1) value.
-void closePidFdIfOpen(int pidFd) {
+//! (-1) value. Clears \p pidFd to -1 after a successful close so a stale map
+//! entry cannot retain a recycled descriptor number.
+void closePidFdIfOpen(int& pidFd) {
     if (pidFd >= 0) {
         ::close(pidFd);
+        pidFd = -1;
     }
 }
 
@@ -268,16 +271,25 @@ CSandboxedProcessSpawner::SPidFdAcquisitionResult defaultPidFdOpen(core::CProces
 }
 
 //! Production default for the monitor-thread creation/detach seam:
-//! construct a std::thread running monitorBody and detach it, converting
-//! any std::system_error from either step into a false return instead
-//! of letting it propagate as an exception - the caller (spawn()) treats a
-//! false return the same way regardless of which step failed.
+//! construct a std::thread running monitorBody and detach it. Construction
+//! failure returns false (spawn() treats that as monitor handoff failure).
+//! After construction succeeds the thread is already running: detach() failure
+//! must not return false (spawn() would Kill/reap while the monitor is also
+//! awaiting) and must not unwind through a joinable ~std::thread (std::terminate).
 bool defaultMonitorLaunch(std::function<void()> monitorBody) {
+    std::unique_ptr<std::thread> monitor;
     try {
-        std::thread monitor{std::move(monitorBody)};
-        monitor.detach();
-        return true;
+        monitor = std::make_unique<std::thread>(std::move(monitorBody));
     } catch (const std::exception&) { return false; }
+    try {
+        monitor->detach();
+        return true;
+    } catch (const std::exception&) {
+        // Thread is running; returning false would double-reap. Leak the joinable
+        // std::thread handle rather than std::terminate on unwind.
+        (void)monitor.release();
+        return true;
+    }
 }
 
 //! Log how a sandboxed pytorch_inference terminated. Runs on the monitor
@@ -608,10 +620,18 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
             } catch (const std::exception& e) {
                 LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
                           << sandboxPid << " failed: " << e.what());
+                try {
+                    sandbox->Kill();
+                    sandbox->AwaitResult();
+                } catch (...) {}
                 eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
             } catch (...) {
                 LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
                           << sandboxPid << " failed with a non-standard exception");
+                try {
+                    sandbox->Kill();
+                    sandbox->AwaitResult();
+                } catch (...) {}
                 eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
             }
         };
