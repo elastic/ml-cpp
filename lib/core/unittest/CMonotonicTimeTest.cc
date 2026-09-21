@@ -50,17 +50,16 @@ BOOST_AUTO_TEST_CASE(testMilliseconds) {
     std::uint64_t reference(static_cast<std::uint64_t>(
         std::chrono::duration_cast<std::chrono::milliseconds>(referenceEnd - referenceStart)
             .count()));
-    LOG_DEBUG(<< "The monotonic millisecond timer advanced by " << diff
-              << " milliseconds; reference clock advanced by " << reference
-              << " milliseconds");
+    LOG_DEBUG(<< "The monotonic millisecond timer advanced by " << diff << " milliseconds; reference clock advanced by "
+              << reference << " milliseconds");
 
     // The monotonic timer must never run backwards or stand still over a real
     // elapsed interval.
     BOOST_TEST_REQUIRE(diff > 0U);
     // Both clocks measured the same real interval, so they must agree closely.
     double allowedError{static_cast<double>(reference) * MONOTONIC_TIMER_TOLERANCE};
-    BOOST_TEST_REQUIRE(std::abs(static_cast<double>(diff) - static_cast<double>(reference)) <
-                       allowedError);
+    BOOST_TEST_REQUIRE(std::abs(static_cast<double>(diff) -
+                                static_cast<double>(reference)) < allowedError);
 }
 
 BOOST_AUTO_TEST_CASE(testNanoseconds) {
@@ -78,17 +77,16 @@ BOOST_AUTO_TEST_CASE(testNanoseconds) {
     std::uint64_t reference(static_cast<std::uint64_t>(
         std::chrono::duration_cast<std::chrono::nanoseconds>(referenceEnd - referenceStart)
             .count()));
-    LOG_DEBUG(<< "The monotonic nanosecond timer advanced by " << diff
-              << " nanoseconds; reference clock advanced by " << reference
-              << " nanoseconds");
+    LOG_DEBUG(<< "The monotonic nanosecond timer advanced by " << diff << " nanoseconds; reference clock advanced by "
+              << reference << " nanoseconds");
 
     // The monotonic timer must never run backwards or stand still over a real
     // elapsed interval.
     BOOST_TEST_REQUIRE(diff > 0U);
     // Both clocks measured the same real interval, so they must agree closely.
     double allowedError{static_cast<double>(reference) * MONOTONIC_TIMER_TOLERANCE};
-    BOOST_TEST_REQUIRE(std::abs(static_cast<double>(diff) - static_cast<double>(reference)) <
-                       allowedError);
+    BOOST_TEST_REQUIRE(std::abs(static_cast<double>(diff) -
+                                static_cast<double>(reference)) < allowedError);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
