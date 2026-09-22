@@ -42,6 +42,15 @@ if(TARGET sandbox2::sandbox2)
     # against the alias name from outside this cache variable.
     target_link_libraries(MlSandbox PUBLIC sandbox2::sandbox2)
     target_link_libraries(MlSandbox PUBLIC "-Wl,--no-as-needed,-lz,--as-needed")
+    # The Sandbox2/Abseil/protobuf headers are pulled in as normal (-I)
+    # includes - deliberately not -isystem, so they stay ahead of PyTorch's
+    # bundled protobuf in the search path - and are not warning-clean under
+    # ml-cpp's strict flags (-Wconversion, -Wunused-parameter, ...). Under the
+    # debug CI build's CMAKE_COMPILE_WARNING_AS_ERROR=ON those header warnings
+    # would fail this target's compilation. Keep them visible but non-fatal
+    # for MlSandbox only; every other ml-cpp target still treats warnings as
+    # errors.
+    set_target_properties(MlSandbox PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
     message(STATUS "MlSandbox: Sandbox2 enabled and linked")
   endif()
 else()
