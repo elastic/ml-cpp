@@ -10,9 +10,9 @@
  */
 
 #include <core/CLogger.h>
-#include <core/Constants.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
