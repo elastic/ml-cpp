@@ -77,6 +77,15 @@ endif()
 
 ml_add_test_executable(sandbox ${SRCS})
 
+if(TARGET sandbox2::sandbox2 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  # This test target includes Sandbox2/Abseil/protobuf headers, which are not
+  # warning-clean under ml-cpp's strict flags. Under the debug CI build's
+  # CMAKE_COMPILE_WARNING_AS_ERROR=ON those header warnings would fail the
+  # build. Keep them visible but non-fatal for this target only; see the
+  # matching note on MlSandbox in ../CMakeLists.txt.
+  set_target_properties(ml_test_sandbox PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
+endif()
+
 if(TARGET sandbox2_smoke_payload)
   add_dependencies(ml_test_sandbox sandbox2_smoke_payload)
   target_compile_definitions(ml_test_sandbox PRIVATE
