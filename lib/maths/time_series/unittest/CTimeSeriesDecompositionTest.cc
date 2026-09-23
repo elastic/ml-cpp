@@ -38,6 +38,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <fstream>
 #include <utility>
 #include <vector>
@@ -153,6 +154,20 @@ private:
     static maths::time_series::CSeasonalComponent&
     seasonalComponent(maths::time_series::CTimeSeriesDecomposition& decomposition) {
         return decomposition.m_Components.m_Seasonal->m_Components[0];
+    }
+};
+
+//! \brief Inspects the change point test's window.
+class CChangePointWindowInspector {
+public:
+    //! Get the number of values the change point test is holding.
+    static std::size_t
+    valueCount(const maths::time_series::CTimeSeriesDecomposition& decomposition) {
+        const auto& window = decomposition.m_ChangePointTest.m_Window;
+        return static_cast<std::size_t>(
+            std::count_if(window.begin(), window.end(), [](const auto& bucket) {
+                return maths::common::CBasicStatistics::count(bucket) > 0.0;
+            }));
     }
 };
 
@@ -2411,6 +2426,58 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
 
     // We should be modelling both seasonalities.
     BOOST_TEST_REQUIRE(2, decomposition.seasonalComponents().size());
+}
+
+BOOST_FIXTURE_TEST_CASE(testLevelChangeWithSeasonalOnset, CTestFixture) {
+
+    // Test we retain the values we need to detect a level change when detecting
+    // seasonality is triggered by the change itself. We used to clear the change
+    // test's window whenever we detected seasonality, which meant we had to
+    // collect a full window of values, i.e. a month at a one day bucket length,
+    // before we could detect the change.
+
+    test::CRandomNumbers rng;
+
+    core_t::TTime changeTime{8 * WEEK};
+    auto trend = [changeTime](core_t::TTime time) {
+        double weekly[]{1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5};
+        return (time < changeTime ? 3300.0 : 9900.0) *
+               weekly[static_cast<std::size_t>((time % WEEK) / DAY)];
+    };
+
+    maths::time_series::CTimeSeriesDecomposition decomposition(0.012, DAY);
+    CDebugGenerator debug;
+
+    std::size_t valueCountAfterChange{0};
+
+    TDoubleVec noise;
+    for (core_t::TTime time = 0; time < 12 * WEEK; time += DAY) {
+        rng.generateNormalSamples(0.0, 10000.0, 1, noise);
+        double value{trend(time) + noise[0]};
+
+        // Use the count weight the anomaly detector model applies since it
+        // affects how fast the trend absorbs a change.
+        maths_t::TDoubleWeightsAry weights{maths_t::CUnitWeights::UNIT};
+        maths_t::setCount(decomposition.countWeight(time), weights);
+        decomposition.addPoint(time, value,
+                               core::CMemoryCircuitBreakerStub::instance(), weights);
+        debug.addValue(time, value);
+
+        double prediction{decomposition.value(time, 0.0, false).mean()};
+        debug.addPrediction(time, prediction, value - prediction);
+
+        if (time == changeTime + 3 * DAY) {
+            valueCountAfterChange = CChangePointWindowInspector::valueCount(decomposition);
+        }
+    }
+
+    // We detect the weekly component shortly after the change at this bucket
+    // length, which is the case we care about here.
+    BOOST_REQUIRE_EQUAL(1, decomposition.seasonalComponents().size());
+
+    // The window must still hold the values from before the change.
+    LOG_DEBUG(<< "value count = " << valueCountAfterChange);
+    BOOST_TEST_REQUIRE(valueCountAfterChange > 20);
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonNegative, CTestFixture) {
