@@ -170,6 +170,21 @@ function(install_libs _target _source_dir _prefix _postfix)
   message(STATUS "_target=${_target} _source_dir=${_source_dir} _prefix=${_prefix} _postfix=${_postfix} LIBRARIES=${LIBRARIES}")
 
 
+  # Each requested library must be found in its own right. A coarse
+  # "did the source directory contain anything matching *${_prefix}*${_postfix}?"
+  # guard is not enough: an unrelated library that happens to share the prefix
+  # and suffix (e.g. libmkl_scalapack_lp64.so.2 when every library actually
+  # requested has moved to .so.3) satisfies it, and every individual library is
+  # then skipped silently. That ships a distribution whose binaries cannot
+  # resolve their NEEDED libraries, and the only symptom is the dynamic loader
+  # killing the process with exit code 127 before it can log anything.
+  foreach(LIBRARY ${LIBRARIES})
+    file(GLOB _CHECK_LIBS ${_source_dir}/*${_prefix}${LIBRARY}*${_postfix})
+    if(NOT _CHECK_LIBS)
+      message(FATAL_ERROR "${_target}: no library matching '${_prefix}${LIBRARY}*${_postfix}' found in ${_source_dir}")
+    endif()
+  endforeach()
+
   file(GLOB _LIBS ${_source_dir}/*${_prefix}*${_postfix})
 
   if(_LIBS)
