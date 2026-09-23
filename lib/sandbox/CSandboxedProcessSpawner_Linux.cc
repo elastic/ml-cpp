@@ -520,8 +520,17 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
 
     // E_Launched.
     if (!sandbox->RunAsync()) {
-        sandbox->AwaitResult();
-        LOG_ERROR(<< "Sandbox2 failed to start " << processPath);
+        // Report what Sandbox2 itself said went wrong. This is a
+        // fail-closed path with no legacy fallback, so the deployment start
+        // fails outright, and the router's sandbox2_launch signal can only
+        // say mode="fail_closed" - it has no room for a cause. Without the
+        // status/reason from the Result below, an operator sees a launch
+        // that failed for no stated reason, and the only remaining evidence
+        // (the sandboxee's own stderr) is gone with the sandboxee.
+        const sandbox2::Result result{sandbox->AwaitResult()};
+        LOG_ERROR(<< "Sandbox2 failed to start " << processPath << ": status="
+                  << sandbox2::Result::StatusEnumToString(result.final_status())
+                  << " reason=" << result.reason_code() << " (" << result.ToString() << ')');
         return false;
     }
 
