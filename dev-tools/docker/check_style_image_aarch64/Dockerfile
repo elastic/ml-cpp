@@ -30,22 +30,24 @@ RUN apk update && \
         tar \
         xz
 
-# Build clang-format 5.0.1 from LLVM source
+# Build clang-format from LLVM source
 # We need to build from source since Alpine 3.8 doesn't have clang-format 5.0.1 for aarch64
 ARG LLVM_VERSION=5.0.1
 ARG BUILD_DIR=/tmp/llvm-build
 
 RUN mkdir -p ${BUILD_DIR} && \
     cd ${BUILD_DIR} && \
-    # Download LLVM 5.0.1 source from official releases (using the old repository structure before monorepo)
+    # Download LLVM source from official releases (using the old repository structure before monorepo)
     # LLVM and Clang were separate repositories for version 5.0.1
-    wget -q https://releases.llvm.org/5.0.1/llvm-5.0.1.src.tar.xz && \
-    tar -xJf llvm-5.0.1.src.tar.xz && \
-    mv llvm-5.0.1.src llvm && \
+    wget -q https://releases.llvm.org/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz && \
+    echo "5fa7489fc0225b11821cab0362f5813a05f2bcf2533e8a4ea9c9c860168807b0  llvm-${LLVM_VERSION}.src.tar.xz" | sha256sum -c - && \
+    tar -xJf llvm-${LLVM_VERSION}.src.tar.xz && \
+    mv llvm-${LLVM_VERSION}.src llvm && \
     cd llvm/tools && \
-    wget -q https://releases.llvm.org/5.0.1/cfe-5.0.1.src.tar.xz && \
-    tar -xJf cfe-5.0.1.src.tar.xz && \
-    mv cfe-5.0.1.src clang && \
+    wget -q https://releases.llvm.org/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz && \
+    echo "135f6c9b0cd2da1aff2250e065946258eb699777888df39ca5a5b4fe5e23d0ff  cfe-${LLVM_VERSION}.src.tar.xz" | sha256sum -c - && \
+    tar -xJf cfe-${LLVM_VERSION}.src.tar.xz && \
+    mv cfe-${LLVM_VERSION}.src clang && \
     cd ../.. && \
     # Configure and build only clang-format (minimal build)
     mkdir build && \
@@ -68,10 +70,12 @@ RUN mkdir -p ${BUILD_DIR} && \
     # libstdc++ and libgcc_s are required for C++ runtime
     apk add --no-cache libstdc++ libgcc && \
     # Remove build-only dependencies (keep runtime libraries installed above)
-    apk del build-base cmake ninja python3 wget tar xz
+    apk del build-base cmake ninja python3 wget tar xz libc-dev linux-headers
 
 # Verify clang-format version
-RUN clang-format --version | grep -q "5.0.1" || (echo "ERROR: clang-format version mismatch" && exit 1)
+ARG LLVM_VERSION=5.0.1
+RUN FOUND=$(clang-format --version | sed -n 's/.* version \([0-9.]*\).*/\1/p' | head -1) && \
+    test "$FOUND" = "${LLVM_VERSION}" || (echo "ERROR: clang-format version mismatch (expected ${LLVM_VERSION}, got ${FOUND})" && exit 1)
 
 WORKDIR /ml-cpp
 ENV CPP_SRC_HOME=/ml-cpp

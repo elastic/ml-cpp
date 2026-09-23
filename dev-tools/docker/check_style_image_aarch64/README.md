@@ -16,7 +16,7 @@ If you're on an aarch64 machine or have buildx configured:
 
 ```bash
 cd dev-tools/docker
-docker build --no-cache -t ml-check-style-aarch64:local check_style_image_aarch64
+docker build --platform linux/arm64 --no-cache -t ml-check-style-aarch64:local check_style_image_aarch64
 ```
 
 This will:
@@ -83,7 +83,7 @@ cat /tmp/test_format.cc
 
 ### 3. Test Formatting Files from Recent Commits
 
-Test the complete workflow that will be used in the VS Code task:
+Test formatting over a range of commits:
 
 ```bash
 # From the repository root
@@ -114,52 +114,7 @@ docker run --rm \
   bash -c 'cd /ml-cpp && git diff --name-only --diff-filter=ACMRT HEAD~20 HEAD | grep -E "\.(cc|h)$" | grep -v "^3rd_party" | grep -v "^build-setup"'
 ```
 
-### 5. Test the VS Code Task Command
-
-You can test the exact command that will be used in the VS Code task:
-
-```bash
-cd /path/to/ml-cpp
-
-docker run --rm \
-  -v $(pwd):/ml-cpp \
-  -u $(id -u):$(id -g) \
-  ml-check-style-aarch64:local \
-  bash -c 'cd /ml-cpp && git diff --name-only --diff-filter=ACMRT HEAD~20 HEAD | grep -E "\.(cc|h)$" | grep -v "^3rd_party" | grep -v "^build-setup" | xargs -r clang-format -i'
-```
-
-## Using in VS Code
-
-### Setting Up the Task
-
-1. Create or edit `.vscode/tasks.json` in your workspace root:
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Format changed files (last 20 commits)",
-      "type": "shell",
-      "command": "docker run --rm -v ${workspaceFolder}:/ml-cpp -u $(id -u):$(id -g) ml-check-style-aarch64:local bash -c 'cd /ml-cpp && git diff --name-only --diff-filter=ACMRT HEAD~20 HEAD | grep -E \"\\.(cc|h)$\" | grep -v \"^3rd_party\" | grep -v \"^build-setup\" | xargs -r clang-format -i'",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    }
-  ]
-}
-```
-
-**Note**: Change `ml-check-style-aarch64:local` to `docker.elastic.co/ml-dev/ml-check-style-aarch64:1` if using the official registry image.
-
-### Running the Task
-
-1. Open Command Palette (`Cmd+Shift+P` on macOS, `Ctrl+Shift+P` on Linux/Windows)
-2. Type "Tasks: Run Task"
-3. Select "Format changed files (last 20 commits)"
-4. The task will format all `.cc` and `.h` files changed in the last 20 commits
+For day-to-day formatting from the repo root, use `dev-tools/docker/run_docker_clang_format.sh` (set `CPP_SRC_HOME` to your checkout). On Apple Silicon it uses `docker.elastic.co/ml-dev/ml-check-style-aarch64:1` after that image is published. VS Code task setup is documented in [build-setup/vscode/using_vscode.md](../../../build-setup/vscode/using_vscode.md).
 
 ## Troubleshooting
 
@@ -202,7 +157,6 @@ docker run --rm ml-check-style-aarch64:local ls -la /usr/local/bin/clang-format
 
 Once the container is built and tested:
 1. Test formatting on a few files manually
-2. Add the VS Code task to your workspace
-3. Run the task to format files from recent commits
-4. Review the changes with `git diff` before committing
+2. Run `dev-tools/docker/run_docker_clang_format.sh` or add the VS Code task from [using_vscode.md](../../../build-setup/vscode/using_vscode.md)
+3. Review the changes with `git diff` before committing
 
