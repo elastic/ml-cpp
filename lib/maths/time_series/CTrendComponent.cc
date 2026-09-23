@@ -363,12 +363,23 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
     }
 
     double scaledTime{scaleTime(time, m_RegressionOrigin)};
+
+    // A regression model which has seen fewer values than it has parameters is
+    // not identified and its "prediction" is arbitrary. Folding those errors
+    // into the model selection MSEs permanently swamps them when there are few
+    // values per unit of decay time, i.e. at long bucket lengths, which stops
+    // us ever selecting a higher order model.
+    bool identified{common::CBasicStatistics::count(m_ValueMoments) >=
+                    static_cast<double>(TRegression::N)};
+
     for (auto& model : m_TrendModels) {
         TVector3x1 mse;
         for (std::size_t order = 1; order <= TRegression::N; ++order) {
             mse(order - 1) = value - model.s_Regression.predict(order, scaledTime, MAX_CONDITION);
         }
-        model.s_Mse.add(mse * mse, weight);
+        if (identified) {
+            model.s_Mse.add(mse * mse, weight);
+        }
         model.s_Regression.add(scaledTime, value, weight);
     }
     m_ValueMoments.add(value, weight);
