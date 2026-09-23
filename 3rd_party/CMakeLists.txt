@@ -62,6 +62,17 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(_saved_CMAKE_UNITY_BUILD ${CMAKE_UNITY_BUILD})
   set(CMAKE_UNITY_BUILD OFF)
 
+  # The top-level build applies ml-cpp's strict warning set (including
+  # -Wconversion, see cmake/compiler/*.cmake) to every target via
+  # add_compile_options(${ML_CXX_FLAGS}), and the debug Linux CI build sets
+  # CMAKE_COMPILE_WARNING_AS_ERROR=ON. Both are inherited by any vendored
+  # third-party sources compiled in this block, whose own diagnostics we do
+  # not control and should not gate our build on. Keep the warnings visible
+  # but non-fatal for this third-party subtree only; ml-cpp's own targets are
+  # unaffected and continue to treat warnings as errors.
+  set(_saved_CMAKE_COMPILE_WARNING_AS_ERROR ${CMAKE_COMPILE_WARNING_AS_ERROR})
+  set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
+
   set(ABSL_PROPAGATE_CXX_STD ON CACHE INTERNAL "" FORCE)
   set(ABSL_USE_EXTERNAL_GOOGLETEST OFF CACHE INTERNAL "" FORCE)
   set(ABSL_FIND_GOOGLETEST OFF CACHE INTERNAL "" FORCE)
@@ -156,4 +167,5 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(BUILD_TESTING ${_saved_BUILD_TESTING} CACHE BOOL "" FORCE)
   set(BUILD_SHARED_LIBS ${_saved_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
   set(CMAKE_UNITY_BUILD ${_saved_CMAKE_UNITY_BUILD})
+  set(CMAKE_COMPILE_WARNING_AS_ERROR ${_saved_CMAKE_COMPILE_WARNING_AS_ERROR})
 endif()
