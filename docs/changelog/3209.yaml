@@ -1,6 +1,5 @@
 area: Machine Learning
-issues:
- - 2730
+issues: []
 pr: 3209
 summary: Detect level changes which coincide with detecting new seasonality
 type: bug
