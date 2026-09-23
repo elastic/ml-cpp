@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <set>
+#include <vector>
 
 #ifdef __linux__
 
@@ -231,8 +232,12 @@ BOOST_AUTO_TEST_CASE(testSandbox2ExplicitSyscallsCarriedForwardFromPr2873) {
     // #2873's enhancement/sandbox2 branch already had a dedicated
     // sandbox2ExplicitSyscalls() list for exactly this; this regression test
     // keeps a future rewrite from dropping it again the same way.
-    const std::set<int> explicitGrants{ml::seccomp::sandbox2ExplicitSyscalls().begin(),
-                                       ml::seccomp::sandbox2ExplicitSyscalls().end()};
+    // sandbox2ExplicitSyscalls() returns by value, so it must be called once:
+    // taking begin() and end() from two separate calls pairs iterators from
+    // two different temporaries, which is undefined behaviour that passes or
+    // crashes depending on heap layout.
+    const std::vector<int> explicitSyscalls{ml::seccomp::sandbox2ExplicitSyscalls()};
+    const std::set<int> explicitGrants{explicitSyscalls.begin(), explicitSyscalls.end()};
 
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_getaffinity) == 1);
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_setaffinity) == 1);
@@ -243,7 +248,7 @@ BOOST_AUTO_TEST_CASE(testSandbox2ExplicitSyscallsCarriedForwardFromPr2873) {
     // Sandbox2, either explicitly or via a PolicyBuilder helper - otherwise a
     // future addition to legacyBpfAllowedSyscalls() silently regresses
     // Sandbox2 support without either declaration noticing.
-    BOOST_TEST_REQUIRE(ml::seccomp::pytorch_inference::sandbox2AllowsAllLegacySyscalls());
+    BOOST_TEST_REQUIRE(ml::seccomp::sandbox2AllowsAllLegacySyscalls());
 }
 
 #endif // __linux__
