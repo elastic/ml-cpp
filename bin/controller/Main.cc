@@ -51,6 +51,8 @@
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
+
 #include <ver/CBuildInfo.h>
 
 #include "CBlockingCallCancellingStreamMonitor.h"
@@ -156,6 +158,15 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
+
+    // One-time Sandbox2 environment self-check. Logged unconditionally at
+    // controller start rather than lazily on the first --requireSandbox
+    // launch: an operator deciding whether to turn
+    // xpack.ml.trained_models.sandbox_enabled on needs to know whether this
+    // host can honour it *before* a deployment fails closed, and a launch
+    // that fails inside Sandbox2 reports only an opaque
+    // SETUP_ERROR/FAILED_SUBPROCESS with no room for a cause.
+    ml::sandbox::logSandbox2EnvironmentSelfCheck();
 
     // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
     if (makeProcessNonDumpable() == false) {

@@ -27,6 +27,7 @@ set(ML_LINK_LIBRARIES
 set(SRCS
   CMlSandboxAvailability.cc
   CPytorchInferenceSandboxPolicy.cc
+  CSandbox2Diagnostics_Linux.cc
   CSandboxedProcessSpawner_Linux.cc
   )
 

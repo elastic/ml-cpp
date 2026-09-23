@@ -14,6 +14,7 @@ project("ML Sandbox unit tests")
 set(SRCS
   Main.cc
   CMlSandboxAvailabilityTest.cc
+  CSandbox2DiagnosticsTest.cc
   )
 
 set(ML_LINK_LIBRARIES
