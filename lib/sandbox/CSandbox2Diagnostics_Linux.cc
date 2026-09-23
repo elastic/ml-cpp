@@ -83,6 +83,7 @@ void logSandbox2EnvironmentSelfCheck() {
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/types.h>
@@ -152,6 +153,17 @@ bool writeOnce(const char* path, const std::string& content) {
 //! forkserver, whose proc mount likewise happens in a process that is
 //! already inside the new pid namespace. Never returns.
 [[noreturn]] void runNamespaceProbe(const std::string& scratchDir, uid_t uid, gid_t gid) {
+    // The controller marks itself non-dumpable (PR_SET_DUMPABLE=0) to harden
+    // against same-uid /proc/<pid>/mem writes, and a forked child inherits
+    // that. A non-dumpable process's /proc/self files are owned by root, so
+    // open("/proc/self/uid_map") fails with EACCES and the probe would
+    // misreport E_IdMapWriteDenied on a host that fully supports Sandbox2.
+    // Sandbox2 itself is unaffected because its forkserver is freshly
+    // exec()ed, which resets dumpability; restore the same state here. Safe:
+    // this is a throwaway child that only probes and _exit()s, and the
+    // caller's own dumpability is untouched.
+    ::prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
+
     // unshare(CLONE_NEWUSER) requires a single-threaded caller; we are in a
     // freshly forked child, so that holds however many threads the
     // controller itself is running.

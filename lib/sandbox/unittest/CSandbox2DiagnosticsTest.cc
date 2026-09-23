@@ -21,6 +21,7 @@
 #ifdef Linux
 #include <glob.h>
 #include <sched.h>
+#include <sys/prctl.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -150,6 +151,34 @@ BOOST_AUTO_TEST_CASE(testProbeIsRepeatableAndLeaksNoScratchDirectories) {
     const std::size_t leftovers{globStatus == 0 ? globResult.gl_pathc : 0};
     ::globfree(&globResult);
     BOOST_REQUIRE_EQUAL(leftovers, 0);
+}
+
+BOOST_AUTO_TEST_CASE(testProbeIsUnaffectedByANonDumpableCaller) {
+    if (ml::sandbox::CMlSandboxAvailability::isCompiledIn() == false) {
+        return;
+    }
+
+    // The controller calls PR_SET_DUMPABLE=0 on itself early in startup, and
+    // a non-dumpable process cannot open its own /proc/self/uid_map. The
+    // probe must therefore give the same verdict whether its caller is
+    // dumpable or not - otherwise a routing decision taken after startup
+    // would disagree with the self-check logged before it, which is exactly
+    // how a Sandbox2-capable host once got silently downgraded.
+    const ml::sandbox::ESandbox2Capability dumpableVerdict{
+        ml::sandbox::probeSandbox2Capability()};
+
+    const pid_t child{::fork()};
+    BOOST_TEST_REQUIRE(child >= 0);
+    if (child == 0) {
+        ::prctl(PR_SET_DUMPABLE, 0, 0, 0, 0);
+        ::_exit(static_cast<int>(ml::sandbox::probeSandbox2Capability()));
+    }
+    int status{0};
+    BOOST_TEST_REQUIRE(::waitpid(child, &status, 0) == child);
+    BOOST_TEST_REQUIRE(WIFEXITED(status));
+
+    BOOST_TEST_MESSAGE("dumpable caller: " << ml::sandbox::describe(dumpableVerdict));
+    BOOST_REQUIRE_EQUAL(WEXITSTATUS(status), static_cast<int>(dumpableVerdict));
 }
 
 #endif // Linux
