@@ -21,8 +21,8 @@
 #ifdef Linux
 #include <glob.h>
 #include <sched.h>
-#include <sys/prctl.h>
 #include <stdlib.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -67,6 +67,148 @@ BOOST_AUTO_TEST_CASE(testProbeReportsUnsupportedWithoutSandbox2) {
     }
 }
 
+// decideConfinement(), fullSandboxRemedy(), noConfinementMessage() and
+// landlockFallbackMessage() are pure functions of their arguments - declared
+// unconditionally in the header, and defined in the portable (non-Linux-only)
+// part of CSandbox2Diagnostics_Linux.cc - so they are testable on every
+// platform without a host that actually has (or lacks) either capability.
+
+BOOST_AUTO_TEST_CASE(testDecideConfinementLadder) {
+    using ml::sandbox::EConfinementLevel;
+    using ml::sandbox::ESandbox2Capability;
+    using ml::sandbox::decideConfinement;
+
+    struct SCase {
+        ESandbox2Capability s_Sandbox2;
+        int s_LandlockAbi;
+        EConfinementLevel s_Expected;
+    };
+
+    const SCase cases[]{
+        // E_Available always wins the top rung, whatever Landlock reports -
+        // a working Sandbox2 is never downgraded because of it.
+        {ESandbox2Capability::E_Available, 5, EConfinementLevel::E_Sandbox2},
+        {ESandbox2Capability::E_Available, 0, EConfinementLevel::E_Sandbox2},
+        {ESandbox2Capability::E_Available, -1, EConfinementLevel::E_Sandbox2},
+
+        // E_ProbeUnsupported (no Sandbox2 support compiled in) never reaches
+        // the Landlock rung either, even when Landlock itself is available -
+        // the router refuses such a build's sandboxed route outright before
+        // the ladder is ever consulted.
+        {ESandbox2Capability::E_ProbeUnsupported, 5, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_ProbeUnsupported, 1, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_ProbeUnsupported, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_ProbeUnsupported, -1, EConfinementLevel::E_Unavailable},
+
+        // Every other Sandbox2 denial steps down to Landlock iff the ABI is
+        // supported (>= 1), and to E_Unavailable otherwise (kernel too old,
+        // abi == 0; or blocked by seccomp/LSM, abi == -1).
+        {ESandbox2Capability::E_UserNamespaceDenied, 1, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_UserNamespaceDenied, 2, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_UserNamespaceDenied, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_UserNamespaceDenied, -1, EConfinementLevel::E_Unavailable},
+
+        {ESandbox2Capability::E_IdMapWriteDenied, 1, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_IdMapWriteDenied, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_IdMapWriteDenied, -1, EConfinementLevel::E_Unavailable},
+
+        {ESandbox2Capability::E_MountOrPidNamespaceDenied, 1, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_MountOrPidNamespaceDenied, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_MountOrPidNamespaceDenied, -1, EConfinementLevel::E_Unavailable},
+
+        {ESandbox2Capability::E_TmpfsMountDenied, 1, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_TmpfsMountDenied, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_TmpfsMountDenied, -1, EConfinementLevel::E_Unavailable},
+
+        {ESandbox2Capability::E_ProcMountDenied, 1, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_ProcMountDenied, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_ProcMountDenied, -1, EConfinementLevel::E_Unavailable},
+
+        // E_ProbeFailed (the probe itself could not run) is treated the same
+        // as any other denial - explicitly required, since attempting
+        // Sandbox2 anyway on an unknown-capability host could deadlock in
+        // the forkserver's namespace setup.
+        {ESandbox2Capability::E_ProbeFailed, 1, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_ProbeFailed, 2, EConfinementLevel::E_Landlock},
+        {ESandbox2Capability::E_ProbeFailed, 0, EConfinementLevel::E_Unavailable},
+        {ESandbox2Capability::E_ProbeFailed, -1, EConfinementLevel::E_Unavailable},
+    };
+
+    for (const auto& testCase : cases) {
+        BOOST_TEST_MESSAGE("sandbox2=" << ml::sandbox::describe(testCase.s_Sandbox2)
+                                       << " landlockAbi=" << testCase.s_LandlockAbi);
+        BOOST_REQUIRE(decideConfinement(testCase.s_Sandbox2, testCase.s_LandlockAbi) ==
+                      testCase.s_Expected);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testFullSandboxRemedyDistinguishesSysctlFromContainerRuntime) {
+    // kernel.unprivileged_userns_clone=0 and a container runtime that blocks
+    // CLONE_NEWUSER look identical to the probe (both are
+    // E_UserNamespaceDenied) but need different fixes, and only the sysctl
+    // value tells them apart - the whole reason fullSandboxRemedy() takes the
+    // full host struct rather than just the capability enum.
+    ml::sandbox::SHostConfinement sysctlDenies;
+    sysctlDenies.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    sysctlDenies.s_UnprivilegedUsernsClone = "0";
+    const std::string sysctlRemedy{ml::sandbox::fullSandboxRemedy(sysctlDenies)};
+    BOOST_TEST_REQUIRE(sysctlRemedy.find("kernel.unprivileged_userns_clone=1") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(sysctlRemedy.find("system administrator") != std::string::npos);
+
+    ml::sandbox::SHostConfinement runtimeDenies;
+    runtimeDenies.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    runtimeDenies.s_UnprivilegedUsernsClone = "1";
+    runtimeDenies.s_MaxUserNamespaces = "65536";
+    const std::string runtimeRemedy{ml::sandbox::fullSandboxRemedy(runtimeDenies)};
+    BOOST_TEST_REQUIRE(runtimeRemedy.find("container runtime") != std::string::npos);
+    // The sysctl is fine on this host, so the remedy must not tell the
+    // administrator to set it - that would send them to change a value that
+    // is already correct.
+    BOOST_TEST_REQUIRE(runtimeRemedy.find("=1") == std::string::npos);
+
+    ml::sandbox::SHostConfinement available;
+    available.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_Available;
+    BOOST_TEST_REQUIRE(ml::sandbox::fullSandboxRemedy(available).empty());
+}
+
+BOOST_AUTO_TEST_CASE(testNoConfinementMessageExplainsAndTellsTheOperatorWhatToDo) {
+    ml::sandbox::SHostConfinement tooOld;
+    tooOld.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    tooOld.s_LandlockAbi = 0;
+    const std::string tooOldMessage{ml::sandbox::noConfinementMessage(
+        tooOld, "/usr/share/elasticsearch/bin/pytorch_inference")};
+    BOOST_TEST_REQUIRE(tooOldMessage.find("xpack.ml.trained_models.sandbox_enabled") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(tooOldMessage.find("deactivate") != std::string::npos);
+    BOOST_TEST_REQUIRE(tooOldMessage.find("too old") != std::string::npos);
+
+    ml::sandbox::SHostConfinement blocked;
+    blocked.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    blocked.s_LandlockAbi = -1;
+    const std::string blockedMessage{ml::sandbox::noConfinementMessage(
+        blocked, "/usr/share/elasticsearch/bin/pytorch_inference")};
+    BOOST_TEST_REQUIRE(blockedMessage.find("xpack.ml.trained_models.sandbox_enabled") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(blockedMessage.find("deactivate") != std::string::npos);
+    BOOST_TEST_REQUIRE(blockedMessage.find("blocked") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testLandlockFallbackMessageNamesThePathAndDoesNotOverclaim) {
+    ml::sandbox::SHostConfinement host;
+    host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    host.s_LandlockAbi = 1;
+    const std::string processPath{"/usr/share/elasticsearch/bin/pytorch_inference"};
+    const std::string message{ml::sandbox::landlockFallbackMessage(host, processPath)};
+
+    BOOST_TEST_REQUIRE(message.find(processPath) != std::string::npos);
+    BOOST_TEST_REQUIRE(message.find("Landlock") != std::string::npos);
+    // Landlock confines the filesystem only - the message must be honest
+    // that it does not give process/mount/network isolation, so an operator
+    // never mistakes the fallback for full Sandbox2 isolation.
+    BOOST_TEST_REQUIRE(message.find("does not isolate") != std::string::npos);
+}
+
 #ifdef Linux
 
 BOOST_AUTO_TEST_CASE(testProbeAgreesWithAnIndependentUnshareAttempt) {
@@ -94,10 +236,8 @@ BOOST_AUTO_TEST_CASE(testProbeAgreesWithAnIndependentUnshareAttempt) {
     BOOST_TEST_REQUIRE(WIFEXITED(status));
     usernsPermitted = (WEXITSTATUS(status) == 0);
 
-    const ml::sandbox::ESandbox2Capability capability{
-        ml::sandbox::probeSandbox2Capability()};
-    BOOST_TEST_MESSAGE("Sandbox2 capability on this host: "
-                       << ml::sandbox::describe(capability));
+    const ml::sandbox::ESandbox2Capability capability{ml::sandbox::probeSandbox2Capability()};
+    BOOST_TEST_MESSAGE("Sandbox2 capability on this host: " << ml::sandbox::describe(capability));
 
     if (usernsPermitted) {
         BOOST_REQUIRE(capability != ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied);

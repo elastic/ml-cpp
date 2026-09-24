@@ -42,7 +42,8 @@ bool CCmdLineParser::parse(int argc,
                            bool& validElasticLicenseKeyConfirmed,
                            bool& lowPriority,
                            bool& useImmediateExecutor,
-                           bool& skipModelValidation) {
+                           bool& skipModelValidation,
+                           bool& restrictFilesystem) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -77,6 +78,7 @@ bool CCmdLineParser::parse(int argc,
             ("useImmediateExecutor", "Execute requests on the main thread. This mode should only used for "
             "benchmarking purposes to ensure requests are processed in order)")
             ("skipModelValidation", "Skip TorchScript model graph validation. WARNING: disables security checks on model operations.")
+            ("restrictFilesystem", "Confine filesystem access with a Landlock ruleset before loading the model. Used on the Sandbox2 route when the host forbids the user namespaces Sandbox2 needs.")
         ;
         // clang-format on
 
@@ -152,6 +154,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("skipModelValidation") > 0) {
             skipModelValidation = true;
+        }
+        if (vm.count("restrictFilesystem") > 0) {
+            restrictFilesystem = true;
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

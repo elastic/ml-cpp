@@ -14,6 +14,8 @@
 #include <core/CSetEnv.h>
 #include <core/CUnSetEnv.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
+
 #include "../CProcessSpawnerRouter.h"
 
 #include <boost/filesystem.hpp>
@@ -630,5 +632,176 @@ BOOST_AUTO_TEST_CASE(testLegacyOnlyRouterNeedsNoSandboxedSpawner) {
         BOOST_REQUIRE_EQUAL(false, router.terminateChild(0));
     }
 }
+
+#if defined(SANDBOX2_AVAILABLE) && !defined(Windows)
+
+// These tests inject a fixed sandbox::SHostConfinement via
+// CProcessSpawnerRouter's TConfinementFn constructor argument, so every rung
+// of the ladder (E_Sandbox2/E_Landlock/E_Unavailable) can be exercised
+// deterministically regardless of what this host actually supports. Gated on
+// SANDBOX2_AVAILABLE && !Windows because the confinement ladder is only ever
+// consulted inside spawn()'s SANDBOX2_AVAILABLE branch for a sandboxed
+// process path (see CProcessSpawnerRouter::spawn()), and PROCESS_PATH/
+// SHELL_FLAG above assume a POSIX shell.
+
+BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinement) {
+    // Inject a confinement whose ladder rung is E_Landlock (as
+    // decideConfinement() would return for, say, E_UserNamespaceDenied with
+    // Landlock ABI >= 1), so this is deterministic regardless of whether this
+    // host can actually run Sandbox2.
+    ml::sandbox::SHostConfinement injectedHost;
+    injectedHost.s_Level = ml::sandbox::EConfinementLevel::E_Landlock;
+    injectedHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    injectedHost.s_LandlockAbi = 1;
+    injectedHost.s_UnprivilegedUsernsClone = "0";
+    injectedHost.s_MaxUserNamespaces = "0";
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{
+        permittedPaths, sandboxedPaths, [injectedHost] { return injectedHost; }};
+
+    const std::string outputFile{"router_test_landlock_rung.txt"};
+    std::remove(outputFile.c_str());
+
+    // With sh -c, the token the router appends after args becomes $0, so the
+    // first line the script writes is the appended token - proving it reached
+    // the spawned process's argv, not merely that spawn() returned true.
+    ml::controller::CProcessSpawnerRouter::TStrVec args{
+        SHELL_FLAG, "printf '%s\\n' \"$0\" > " + outputFile};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                               PROCESS_PATH, args, childPid));
+    })};
+    BOOST_TEST_REQUIRE(childPid != 0);
+
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::ifstream ifs{outputFile};
+    BOOST_TEST_REQUIRE(ifs.is_open());
+    std::string firstLine;
+    std::getline(ifs, firstLine);
+    ifs.close();
+    std::remove(outputFile.c_str());
+    BOOST_REQUIRE_EQUAL(ml::controller::CProcessSpawnerRouter::RESTRICT_FILESYSTEM_TOKEN,
+                        firstLine);
+
+    // sandbox2_launch signal: mode "landlock" (not "enforced" - no Sandbox2
+    // was established), and the router's own failure reason empty (success).
+    BOOST_REQUIRE(logged.find("\"event\":\"sandbox2_launch\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"mode\":\"landlock\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"sandbox2_established\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().empty());
+
+    // The fallback is explained to the operator, and (s_UnprivilegedUsernsClone
+    // == "0") the explanation carries the sysctl remedy, not the
+    // container-runtime one. The message is logged at INFO (a supported,
+    // deliberate degradation, not a warning); that severity is covered by the
+    // CSandbox2Diagnostics message tests and verified end to end in the log,
+    // rather than re-asserted here - the router-emitted record does not survive
+    // this suite's severity-filtered capture reliably.
+    BOOST_REQUIRE(logged.find("Landlock filesystem confinement") != std::string::npos);
+    BOOST_REQUIRE(logged.find("kernel.unprivileged_userns_clone=1") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testSandbox2RouteFailsClosedWithInjectedUnavailableConfinement) {
+    // Inject a confinement whose ladder rung is E_Unavailable (neither
+    // Sandbox2 nor Landlock), deterministically regardless of this host's
+    // real capabilities.
+    ml::sandbox::SHostConfinement injectedHost;
+    injectedHost.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
+    injectedHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    injectedHost.s_LandlockAbi = 0;
+    injectedHost.s_UnprivilegedUsernsClone = "0";
+    injectedHost.s_MaxUserNamespaces = "0";
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{
+        permittedPaths, sandboxedPaths, [injectedHost] { return injectedHost; }};
+
+    // A marker file the child would have written had anything actually been
+    // spawned - the router must refuse before ever reaching a backend.
+    const std::string markerFile{"router_test_unavailable_marker.txt"};
+    std::remove(markerFile.c_str());
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{
+        SHELL_FLAG, "printf '%s\\n' \"$0\" > " + markerFile};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                PROCESS_PATH, args, childPid));
+    })};
+
+    BOOST_REQUIRE_EQUAL(ml::core::CProcess::TPid{0}, childPid);
+
+    // The operator-facing refusal is delivered to Elasticsearch through
+    // lastSpawnFailureReason() (CCommandProcessor returns it as the command's
+    // failure reason), not only to the log - so assert it there, where it is
+    // a deterministic return value rather than a captured side effect. It
+    // must name the setting to deactivate.
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().find("xpack.ml.trained_models.sandbox_enabled") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().find("deactivate") !=
+                       std::string::npos);
+
+    // The sandbox2_launch signal reports mode "fail_closed" (the request was
+    // refused, no child ran), never "enforced" or "landlock".
+    BOOST_REQUIRE(logged.find("\"event\":\"sandbox2_launch\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"mode\":\"fail_closed\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"sandbox2_established\":false") != std::string::npos);
+
+    // No child was ever spawned: give the same grace period the other tests
+    // in this file use, then confirm the marker file the shell script would
+    // have produced does not exist.
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::ifstream ifs{markerFile};
+    BOOST_REQUIRE_EQUAL(false, ifs.is_open());
+    std::remove(markerFile.c_str());
+}
+
+BOOST_AUTO_TEST_CASE(testLastSpawnFailureReasonClearedByALaterSuccessfulSpawn) {
+    // A stale failure reason from an earlier, unrelated spawn() call must
+    // never leak into a later, successful one - a caller reading
+    // lastSpawnFailureReason() after success must see it empty.
+    ml::sandbox::SHostConfinement unavailableHost;
+    unavailableHost.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
+    unavailableHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_ProbeFailed;
+    unavailableHost.s_LandlockAbi = 0;
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{
+        permittedPaths, sandboxedPaths,
+        [unavailableHost] { return unavailableHost; }};
+
+    ml::controller::CProcessSpawnerRouter::TStrVec failArgs{SHELL_FLAG, "true"};
+    ml::core::CProcess::TPid failedPid{0};
+    captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                PROCESS_PATH, failArgs, failedPid));
+    });
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().empty() == false);
+
+    const std::string outputFile{"router_test_clears_failure_reason.txt"};
+    std::remove(outputFile.c_str());
+    ml::controller::CProcessSpawnerRouter::TStrVec okArgs{
+        SHELL_FLAG, copyArgsScript(outputFile)};
+    ml::core::CProcess::TPid okPid{0};
+    captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Legacy,
+                                               PROCESS_PATH, okArgs, okPid));
+    });
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::remove(outputFile.c_str());
+
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().empty());
+}
+
+#endif // SANDBOX2_AVAILABLE && !Windows
+
+// appended probe
 
 BOOST_AUTO_TEST_SUITE_END()

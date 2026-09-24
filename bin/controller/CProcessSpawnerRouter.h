@@ -14,8 +14,10 @@
 #include <core/CDetachedProcessSpawner.h>
 #include <core/CProcess.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
 #include <sandbox/CSandboxedProcessSpawner.h>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -81,12 +83,23 @@ public:
     };
 
 public:
-    CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
-                          const TStrVec& sandboxedProcessPaths);
+    //! Supplies this host's confinement options. Production code leaves it
+    //! empty, which means sandbox::hostConfinement() - the cached verdict the
+    //! startup self-check also logs. Tests inject a fixed value so every rung
+    //! of the ladder can be exercised on any machine.
+    using TConfinementFn = std::function<sandbox::SHostConfinement()>;
 
-    //! Dispatch a spawn request per the already-decided \p route. Returns
-    //! false immediately on a Sandbox2 failure - never retries via the
-    //! legacy spawner ("no automatic fallback").
+public:
+    CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
+                          const TStrVec& sandboxedProcessPaths,
+                          TConfinementFn confinementFn = TConfinementFn{});
+
+    //! Dispatch a spawn request per the already-decided \p route. On the
+    //! Sandbox2 route the host's confinement decides the backend: Sandbox2
+    //! when available, otherwise the legacy spawner under a Landlock ruleset
+    //! (the child is told via RESTRICT_FILESYSTEM_TOKEN), otherwise refusal.
+    //! That step down is decided before launching and logged; a Sandbox2
+    //! launch that *fails* is never retried under Landlock or unconfined.
     //! \param legacyReason provenance of an E_Legacy \p route, for the
     //!        `sandbox2_launch` signal only - never used to dispatch. Must be E_NotLegacy
     //!        (the default) when \p route is E_Sandbox2.
@@ -113,6 +126,20 @@ public:
     //! emission.
     bool isSandboxedProcessPath(const std::string& processPath) const;
 
+    //! Why the most recent spawn() returned false, when the router itself
+    //! refused the launch (rather than a backend failing), phrased for the
+    //! user: CCommandProcessor returns it to Elasticsearch as the command's
+    //! failure reason. Empty after a successful spawn() and after a backend
+    //! failure, which each backend logs itself.
+    const std::string& lastSpawnFailureReason() const;
+
+    //! Token appended to a child's argv when the Sandbox2 route degrades to
+    //! the Landlock fallback, telling pytorch_inference to confine its own
+    //! filesystem access before reading any model bytes. Reserved for the
+    //! router: CCommandProcessor rejects a start command that already
+    //! contains it, so its presence always means the router chose Landlock.
+    static const std::string RESTRICT_FILESYSTEM_TOKEN;
+
 private:
     //! Emit the `sandbox2_launch` structured once-per-launch signal for a
     //! Sandbox2-eligible spawn() call,
@@ -125,11 +152,16 @@ private:
     //!        once by spawn() *before* dispatch - never re-derived here, so
     //!        the value in this signal cannot disagree with the value the
     //!        dispatch decision was made against.
+    //! \param landlockFallback true when \p route was E_Sandbox2 but this
+    //!        host cannot run Sandbox2, so the child was launched via the
+    //!        legacy spawner under a Landlock ruleset instead. Reported as
+    //!        mode "landlock", never as "enforced".
     void emitLaunchSignal(ERoute route,
                           ELegacyReason legacyReason,
                           const std::string& deploymentId,
                           const TStrVec& args,
-                          bool spawnSucceeded) const;
+                          bool spawnSucceeded,
+                          bool landlockFallback) const;
 
 private:
     core::CDetachedProcessSpawner m_LegacySpawner;
@@ -172,6 +204,13 @@ private:
     std::unique_ptr<sandbox::CSandboxedProcessSpawner> m_SandboxSpawner;
 
     TStrVec m_SandboxedProcessPaths;
+
+    //! See TConfinementFn. Neither member's size depends on
+    //! SANDBOX2_AVAILABLE, preserving the layout invariant described above.
+    TConfinementFn m_ConfinementFn;
+
+    //! See lastSpawnFailureReason().
+    std::string m_LastSpawnFailureReason;
 };
 
 } // namespace controller
