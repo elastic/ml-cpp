@@ -247,7 +247,6 @@ public:
     class MATHS_TIME_SERIES_EXPORT CChangePointTest : public CHandler {
     public:
         static constexpr double CHANGE_COUNT_WEIGHT{0.1};
-        static constexpr double LARGE_ERROR_FRACTION_TO_RETAIN_WINDOW{0.1};
         static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH{core::constants::HOUR};
 
     public:

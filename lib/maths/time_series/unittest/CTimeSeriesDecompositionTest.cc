@@ -2478,6 +2478,88 @@ BOOST_FIXTURE_TEST_CASE(testLevelChangeWithSeasonalOnset, CTestFixture) {
     // The window must still hold the values from before the change.
     LOG_DEBUG(<< "value count = " << valueCountAfterChange);
     BOOST_TEST_REQUIRE(valueCountAfterChange > 20);
+
+    // We should also actually pick up the level shift itself, and quickly:
+    // check the model has converged on the new level within three weeks of
+    // the change (it used to take a month or more to refill the window from
+    // scratch at this bucket length).
+    TMeanAccumulator meanAbsoluteRelativeErrorAfterChange;
+    TDoubleVec noise_;
+    for (core_t::TTime time = changeTime + 7 * DAY;
+         time < changeTime + 21 * DAY; time += DAY) {
+        double prediction{decomposition.value(time, 0.0, false).mean()};
+        double relativeError{std::fabs(prediction - trend(time)) / trend(time)};
+        meanAbsoluteRelativeErrorAfterChange.add(relativeError);
+    }
+    LOG_DEBUG(<< "mean absolute relative error after change = "
+              << maths::common::CBasicStatistics::mean(meanAbsoluteRelativeErrorAfterChange));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(
+                           meanAbsoluteRelativeErrorAfterChange) < 0.2);
+}
+
+BOOST_FIXTURE_TEST_CASE(testNoFalseChangeAtStartupForSquareWaves, CTestFixture) {
+
+    // We used to always clear the change test's window whenever a new
+    // seasonal component was detected. Since we no longer do this we need to
+    // check we don't introduce spurious change detections at startup for
+    // signals dominated by a strong, clean periodic pattern: this is the
+    // scenario the large error fraction check that used to guard the reset
+    // was originally added to protect (see also testLevelChangeWithSeasonalOnset,
+    // which checks the case that check couldn't handle). We test a handful of
+    // representative periods and bucket lengths; other periods behave
+    // similarly since detection doesn't depend on the specific period chosen.
+
+    test::CRandomNumbers rng;
+
+    using TSizeVec = std::vector<std::size_t>;
+
+    struct SSquareWaveCase {
+        std::string s_Name;
+        core_t::TTime s_Period;
+        core_t::TTime s_BucketLength;
+        core_t::TTime s_Duration;
+    };
+
+    TSizeVec falseChangeCounts;
+    for (const auto& test :
+         {SSquareWaveCase{"daily square wave, hourly buckets", DAY, HOUR, 10 * WEEK},
+          SSquareWaveCase{"2 day square wave, hourly buckets", 2 * DAY, HOUR, 10 * WEEK},
+          SSquareWaveCase{"weekly square wave, daily buckets", WEEK, DAY, 20 * WEEK}}) {
+
+        LOG_DEBUG(<< "test = " << test.s_Name);
+
+        std::size_t falseChanges{0};
+        maths_t::TModelAnnotationCallback countChanges{
+            [&falseChanges](const std::string& annotation) {
+                if (annotation.find("level shift") != std::string::npos ||
+                    annotation.find("linear scale") != std::string::npos ||
+                    annotation.find("time shift") != std::string::npos) {
+                    ++falseChanges;
+                }
+            }};
+
+        maths::time_series::CTimeSeriesDecomposition decomposition(0.012, test.s_BucketLength);
+        auto noopComponentChange = [](TFloatMeanAccumulatorVec) {};
+
+        TDoubleVec noise;
+        for (core_t::TTime time = 0; time < test.s_Duration; time += test.s_BucketLength) {
+            double value{(time % test.s_Period) < test.s_Period / 2 ? 100.0 : 20.0};
+            rng.generateNormalSamples(0.0, 0.05 * value * 0.05 * value, 1, noise);
+            decomposition.addPoint(
+                time, value + noise[0], core::CMemoryCircuitBreakerStub::instance(),
+                maths_t::CUnitWeights::UNIT, noopComponentChange, countChanges);
+        }
+
+        LOG_DEBUG(<< "false changes = " << falseChanges);
+        falseChangeCounts.push_back(falseChanges);
+    }
+
+    // None of these clean, strongly periodic signals should trigger a change
+    // detection: they contain no change, and we rely on the window continuing
+    // to hold values collected before the seasonal component was detected.
+    for (auto count : falseChangeCounts) {
+        BOOST_TEST_REQUIRE(count == 0);
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonNegative, CTestFixture) {
