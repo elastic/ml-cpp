@@ -129,6 +129,15 @@ std::string deriveDeploymentId(const ml::controller::CProcessSpawnerRouter::TStr
 namespace ml {
 namespace controller {
 
+// sizeof(sandbox::CSandboxedProcessSpawner) differs between translation units
+// compiled with and without SANDBOX2_AVAILABLE. A by-value member would make
+// sizeof(CProcessSpawnerRouter) depend on that macro; the unique_ptr member
+// must not.
+static_assert(sizeof(CProcessSpawnerRouter) < sizeof(core::CDetachedProcessSpawner) +
+                                                  sizeof(sandbox::CSandboxedProcessSpawner),
+              "CProcessSpawnerRouter must not store a "
+              "sandbox::CSandboxedProcessSpawner by value");
+
 CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
                                              const TStrVec& sandboxedProcessPaths)
     : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths} {

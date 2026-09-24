@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -572,32 +573,11 @@ BOOST_AUTO_TEST_CASE(testH4SignalNoLegacyReasonOnSandbox2Route) {
 
 BOOST_AUTO_TEST_CASE(testRouterLayoutDoesNotDependOnSandbox2Support) {
     // Regression guard for the deterministic Linux teardown crash this
-    // router's first CI run hit. sizeof(sandbox::CSandboxedProcessSpawner)
-    // differs between translation units compiled with and without
-    // SANDBOX2_AVAILABLE, because its m_AwaitResultFn seam only exists under
-    // that macro (include/sandbox/CSandboxedProcessSpawner.h). While this
-    // router held that class *by value*, the difference propagated into
-    // sizeof(CProcessSpawnerRouter) and sizeof(CCommandProcessor), so a
-    // binary that mixed both views of the header - as ml_test_controller did,
-    // its object files being compiled without the macro and its test
-    // translation units with it - had inline constructors and destructors
-    // disagreeing about member offsets, and corrupted memory when a router
-    // was destroyed.
-    //
-    // Holding the sandboxed spawner behind a pointer makes this class's
-    // layout the same size under either view; the assertion below is the
-    // property that guarantees that, and it fails to compile if the member
-    // ever goes back to being stored by value.
-    static_assert(sizeof(ml::controller::CProcessSpawnerRouter) <
-                      sizeof(ml::core::CDetachedProcessSpawner) +
-                          sizeof(ml::sandbox::CSandboxedProcessSpawner),
-                  "CProcessSpawnerRouter must not store a "
-                  "sandbox::CSandboxedProcessSpawner by value - its size "
-                  "depends on SANDBOX2_AVAILABLE, which would make this "
-                  "class's layout (and CCommandProcessor's) depend on it too");
-    BOOST_TEST_REQUIRE(sizeof(ml::controller::CProcessSpawnerRouter) <
-                       sizeof(ml::core::CDetachedProcessSpawner) +
-                           sizeof(ml::sandbox::CSandboxedProcessSpawner));
+    // router's first CI run hit: the sandboxed spawner must stay behind a
+    // pointer so sizeof(CProcessSpawnerRouter) does not depend on
+    // SANDBOX2_AVAILABLE (see the static_assert in CProcessSpawnerRouter.cc).
+    BOOST_TEST_REQUIRE(sizeof(std::unique_ptr<ml::sandbox::CSandboxedProcessSpawner>) ==
+                       sizeof(void*));
 }
 
 BOOST_AUTO_TEST_CASE(testLegacyOnlyRouterNeedsNoSandboxedSpawner) {
