@@ -47,6 +47,8 @@ namespace seccomp {
 #else
 #define ML_NR_rseq __NR_rseq
 #endif
+#else
+#error "ML seccomp syscall allowlists support only x86_64 and aarch64 Linux builds"
 #endif
 #ifndef __NR_clone3
 #define ML_NR_clone3 435
@@ -122,6 +124,110 @@ static_assert(std::size(kLegacyBpfAllowedSyscalls) <= 255,
 inline std::vector<int> legacyBpfAllowedSyscalls() {
     return {kLegacyBpfAllowedSyscalls,
             kLegacyBpfAllowedSyscalls + std::size(kLegacyBpfAllowedSyscalls)};
+}
+
+//! Syscalls that must be explicitly granted (via AllowSyscall()) in
+//! buildPytorchInferenceFilesystemPolicy(), in addition to the
+//! legacyBpfAllowedSyscalls() loop there. Sandbox2's namespace and
+//! threading setup exercises syscalls (scheduling, epoll, pipes,
+//! directory/file management for forecast temp storage) that the simpler
+//! legacy in-process BPF filter never needed a grant for. Carried forward
+//! from PR #2873; see CSeccompFilterBuilderTest.cc.
+inline std::vector<int> sandbox2ExplicitSyscalls() {
+    std::vector<int> syscalls{
+        __NR_sched_yield,
+        __NR_sched_getaffinity,
+        __NR_sched_setaffinity,
+        __NR_sched_getparam,
+        __NR_sched_getscheduler,
+        __NR_clone,
+        ML_NR_clone3,
+        __NR_set_tid_address,
+        __NR_set_robust_list,
+        ML_NR_rseq,
+        __NR_clock_gettime,
+        __NR_clock_getres,
+        __NR_clock_nanosleep,
+        __NR_gettimeofday,
+        __NR_nanosleep,
+        __NR_times,
+        __NR_epoll_create1,
+        __NR_epoll_ctl,
+        __NR_epoll_pwait,
+        __NR_eventfd2,
+        __NR_ppoll,
+        __NR_pselect6,
+        __NR_ioctl,
+        __NR_fcntl,
+        __NR_pipe2,
+        __NR_dup,
+        __NR_dup3,
+        __NR_lseek,
+        __NR_ftruncate,
+        __NR_readlinkat,
+        __NR_faccessat,
+        __NR_getdents64,
+        __NR_getcwd,
+        __NR_unlinkat,
+        __NR_renameat,
+        __NR_mkdirat,
+        __NR_mknodat, // mkfifo() for named pipes (CNamedPipeFactory)
+#ifdef __NR_mknod
+        __NR_mknod, // mkfifo() on x86_64 glibc paths
+#endif
+#ifdef __NR_unlink
+        __NR_unlink,
+#endif
+#ifdef __NR_rmdir
+        __NR_rmdir,
+#endif
+#ifdef __NR_mkdir
+        __NR_mkdir,
+#endif
+#ifdef __NR_rename
+        __NR_rename,
+#endif
+#ifdef __NR_readlink
+        __NR_readlink,
+#endif
+#ifdef __NR_access
+        __NR_access,
+#endif
+#ifdef __NR_dup2
+        __NR_dup2,
+#endif
+        __NR_mprotect,
+        __NR_mremap,
+        __NR_madvise,
+        __NR_munmap,
+        __NR_brk,
+        __NR_sysinfo,
+        __NR_uname,
+        __NR_prlimit64,
+        __NR_getrusage,
+        __NR_prctl,
+#ifdef __NR_arch_prctl
+        __NR_arch_prctl,
+#endif
+        __NR_wait4,
+        __NR_exit,
+        __NR_getuid,
+        __NR_getgid,
+        __NR_geteuid,
+        __NR_getegid,
+        __NR_setpriority,
+        __NR_getpriority,
+        __NR_tgkill,
+        __NR_statfs,
+        __NR_connect, // AF_UNIX connect() while opening named pipes for I/O
+#ifdef __NR_time
+        __NR_time,
+#endif
+#ifdef __NR_getdents
+        __NR_getdents,
+#endif
+    };
+    return syscalls;
 }
 
 #endif // __linux__

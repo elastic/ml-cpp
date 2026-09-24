@@ -206,6 +206,18 @@ task buildZip(type: Zip) {
     exclude "**/core*"
     includeEmptyDirs = false
   }
+  // Publish the controller protocol/capability token at the zip root (not
+  // nested under 3rd_party/) so Elasticsearch can assert against a
+  // well-known top-level path in the -deps zip. Bump the integer inside
+  // 3rd_party/controller-protocol.version (not merely its existence) on any
+  // future breaking change to either (a) the controller's
+  // --disableSandbox/--requireSandbox token semantics (controller-only
+  // metadata, never forwarded to the child), or (b) the per-child IPC route
+  // contract ($TMPDIR/ml-child-ipc/<child-id>, mounted at the same path
+  // inside and outside the sandbox).
+  from("3rd_party") {
+    include "controller-protocol.version"
+  }
 }
 
 task buildZipSymbols(type: Zip) {
@@ -419,6 +431,15 @@ def noDependenciesSpec(source) {
       include "**/date_time_zonespec.csv"
       // Copy licenses
       include "**/licenses/**"
+      // Copy the controller protocol/capability token (published at the
+      // zip root by buildZip - see its comment) into the nodeps zip too:
+      // the controller binary the token makes claims about ships only in
+      // this zip, so a build combining a locally-built nodeps with a
+      // downloaded deps snapshot must not assert the token from a
+      // different ml-cpp revision than the actual controller. dependenciesSpec
+      // above ships it too, via its lack of a matching exclude - this makes
+      // it present in BOTH zips, excluded from neither.
+      include "controller-protocol.version"
       includeEmptyDirs = false
     }
   }

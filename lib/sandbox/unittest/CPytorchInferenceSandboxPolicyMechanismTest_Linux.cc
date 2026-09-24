@@ -150,7 +150,10 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     BOOST_TEST_REQUIRE(validated.s_Ok);
 
     const std::string payloadPath{ML_SANDBOX2_PROBE_PAYLOAD};
-    const std::vector<std::string> probeArgs{payloadPath, "/run/elastic/ml-ipc"};
+    // The IPC root is now mounted at the same path inside and outside the
+    // sandbox (no /run/elastic/ml-ipc remap), so the probe is handed the
+    // same host-visible childRoot path the test itself uses below.
+    const std::vector<std::string> probeArgs{payloadPath, fixture.childRoot()};
 
     auto executor = std::make_unique<sandbox2::Executor>(payloadPath, probeArgs);
     executor->limits()->set_rlimit_cpu(10).set_walltime_limit(absl::Seconds(10));
@@ -177,11 +180,11 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     BOOST_TEST_REQUIRE(result.final_status() == sandbox2::Result::OK);
 
     // The child IPC directory is genuinely shared with the host, so the
-    // probe's results file - written from inside the sandbox to the mapped
-    // /run/elastic/ml-ipc path - is readable here at its host-visible
-    // childRoot path once the sandbox has exited. This IS the "allowed IPC
-    // access" proof, not a separate assertion: if the mount/policy were
-    // wrong, this file would never appear.
+    // probe's results file - written from inside the sandbox to childRoot,
+    // the same path outside it - is readable here once the sandbox has
+    // exited. This IS the "allowed IPC access" proof, not a separate
+    // assertion: if the mount/policy were wrong, this file would never
+    // appear.
     const std::string resultsContent{readFileOrEmpty(fixture.childRoot() + "/results.txt")};
     BOOST_TEST_REQUIRE(resultsContent.empty() == false);
     BOOST_TEST_REQUIRE(resultsContent.find("reached=true") != std::string::npos);
@@ -199,6 +202,11 @@ BOOST_AUTO_TEST_CASE(testMinimizedPolicyEnforcesEveryMechanism) {
     BOOST_TEST_REQUIRE(std::stoi(detailFor(resultsContent, "etc_enumeration")) <= 10);
 
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "pid_namespace"), "namespaced");
+
+    // /proc/self/exe must resolve inside the sandbox - the mount whose
+    // absence broke Intel oneMKL's library dispatcher ("Cannot load
+    // <mkl-loader>"). Guards the /proc entry in fixedMountDecisions().
+    BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "proc_self_exe"), "readable");
     BOOST_REQUIRE_EQUAL(outcomeFor(resultsContent, "loopback_reachable"), "ok");
 }
 

@@ -307,31 +307,60 @@ int main(int argc, char** argv) {
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
-    // Internal switch, not an operator setting: it stays false until the
-    // controller can route around Sandbox2 explicitly and guarantee that a
-    // degraded-mode (no-Sandbox2) launch was a deliberate operator choice
-    // rather than the only option this process has. Flipping it on today
-    // would terminate every launch on a host lacking seccomp BPF, with no
-    // operator fallback to select instead.
+    // Internal switch, deliberately still OFF (log-and-continue on a failed
+    // in-process seccomp installation, exactly as before typed routing).
+    //
+    // Turning it on is only safe once a degraded/legacy-route launch is
+    // guaranteed to be a deliberate decision rather than an unrequested
+    // default. CProcessSpawnerRouter supplies half of that guarantee - it
+    // never falls back to the legacy spawner after a failed Sandbox2
+    // attempt - but the controller's no-token case still always takes the
+    // legacy route (see bin/controller/CCommandProcessor.cc), and a caller
+    // that omits both routing tokens is not necessarily choosing that
+    // deliberately. So an ordinary launch with no explicit token is a
+    // degraded-route launch, and terminating on seccomp-install failure
+    // would fail every launch on a host lacking usable seccomp BPF
+    // (restricted containers, some CI images) with no fallback to select
+    // instead.
+    //
+    // Activate this once every caller that matters (in practice,
+    // Elasticsearch) always sends an explicit --disableSandbox or
+    // --requireSandbox token per launch, so a degraded launch really is
+    // only ever reachable via an explicit, controller-validated
+    // --disableSandbox token, which is what makes hard termination safe
+    // (track: elastic/ml-cpp#3213).
     constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
 
-    const ml::seccomp::ESystemCallFilterInstallOutcome seccompOutcome{
-        ml::seccomp::CSystemCallFilter::installSystemCallFilter()};
+    // The in-process filter belongs to the legacy/non-sandboxed route only.
+    // On the Sandbox2 route the executor's own policy is already the
+    // security boundary and ML_SANDBOXED is exactly "1", so the whole step -
+    // install, degraded-mode decision, attestation marker - is skipped.
+    // Attempting it from inside an already-sandboxed environment would
+    // either fail (which would terminate every enforced-route launch once
+    // hard termination above is activated) or succeed and emit the
+    // legacy-route attestation marker on a launch the controller's
+    // sandbox2_launch signal reports as "route":"sandbox2".
+    const bool sandbox2Launched{ml::seccomp::sandbox2LaunchedChild()};
+    const ml::seccomp::SInProcessFilterResult seccompResult{ml::seccomp::applyInProcessSeccompFilter(
+        sandbox2Launched, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE,
+        [] { return ml::seccomp::CSystemCallFilter::installSystemCallFilter(); })};
 
-    if (ml::seccomp::decideDegradedModeAction(seccompOutcome, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE) ==
-        ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
-        LOG_FATAL(<< "Seccomp installation " << ml::seccomp::describe(seccompOutcome)
+    if (seccompResult.s_Attempted == false) {
+        LOG_DEBUG(<< "ML_SANDBOXED=1: skipping in-process system call filter "
+                     "installation; the Sandbox2 executor policy applies");
+    } else if (seccompResult.s_Action == ml::seccomp::EDegradedModeAction::E_TerminateBeforeIo) {
+        LOG_FATAL(<< "Seccomp installation "
+                  << ml::seccomp::describe(seccompResult.s_Outcome)
                   << "; terminating before untrusted model processing");
         return EXIT_FAILURE;
     }
 
     // Explicit structured attestation the controller/Elasticsearch can
     // assert on directly, rather than inferring readiness from the absence
-    // of a fatal log line above.
-    const std::string degradedModeMarker{
-        ml::seccomp::degradedModeAttestationMarker(seccompOutcome)};
-    if (degradedModeMarker.empty() == false) {
-        LOG_INFO(<< degradedModeMarker);
+    // of a fatal log line above. Empty (never emitted) on the Sandbox2
+    // route, which installs no in-process filter to attest.
+    if (seccompResult.s_AttestationMarker.empty() == false) {
+        LOG_INFO(<< seccompResult.s_AttestationMarker);
     }
 
     if (ioMgr.initIo() == false) {

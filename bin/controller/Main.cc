@@ -51,6 +51,8 @@
 #include <core/CStringUtils.h>
 #include <core/CThread.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
+
 #include <ver/CBuildInfo.h>
 
 #include "CBlockingCallCancellingStreamMonitor.h"
@@ -157,6 +159,15 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
 
+    // One-time Sandbox2 environment self-check. Logged unconditionally at
+    // controller start rather than lazily on the first --requireSandbox
+    // launch: an operator deciding whether to turn
+    // xpack.ml.trained_models.sandbox_enabled on needs to know whether this
+    // host can honour it *before* a deployment fails closed, and a launch
+    // that fails inside Sandbox2 reports only an opaque
+    // SETUP_ERROR/FAILED_SUBPROCESS with no room for a cause.
+    ml::sandbox::logSandbox2EnvironmentSelfCheck();
+
     // Harden against same-UID /proc/<pid>/mem writes before accepting commands.
     if (makeProcessNonDumpable() == false) {
         LOG_FATAL(<< "Could not mark ML controller non-dumpable");
@@ -206,8 +217,18 @@ int main(int argc, char** argv) {
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
         "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
         "./pytorch_inference"};
+    // Unconditional on every platform, deliberately: this list only
+    // nominates which process path the --disableSandbox/--requireSandbox
+    // controller tokens are meaningful for; it does not by itself launch
+    // Sandbox2. A no-token launch of ./pytorch_inference always takes the
+    // legacy route and never fails for that reason alone. An explicit
+    // --requireSandbox on a build without Sandbox2 support fails closed by
+    // design; Elasticsearch emits the routing tokens only on Linux
+    // (PyTorchBuilder), so macOS/Windows never send --requireSandbox here.
+    ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
+    ml::controller::CCommandProcessor processor{
+        permittedProcessPaths, sandboxedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();
