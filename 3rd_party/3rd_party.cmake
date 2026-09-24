@@ -251,9 +251,23 @@ install_libs("Intel MKL libraries" ${MKL_LOCATION} "${MKL_PREFIX}" "${MKL_EXTENS
 # though the dependency sits right beside it. The native controller has its
 # environment cleared by Elasticsearch's Spawner, so RPATH is the sole resolution
 # mechanism - there is no LD_LIBRARY_PATH fallback.
+#
+# The one exception is Intel MKL, which must be left exactly as Intel ships it.
+# Rewriting its RPATH makes pytorch_inference die with SIGSEGV during the first
+# inference of real models (ELSER, E5) on hosts with glibc 2.34 (Amazon Linux
+# 2023, the ES integration test agents), while tiny test models and newer glibc
+# versions are unaffected. The libraries also do not need it: libmkl_core,
+# libmkl_intel_lp64 and libmkl_gnu_thread are NEEDED by libtorch_cpu, which already
+# has an $ORIGIN RPATH, and the CPU-specific kernels MKL dlopen()s later only NEED
+# libmkl_core, which is resolved by SONAME because it is already loaded.
 if (GCC_RT_LOCATION)
   execute_process(COMMAND find . -type f COMMAND egrep -v "^core|-debug$|libMl" COMMAND xargs COMMAND sed -e "s/ /;/g" OUTPUT_VARIABLE FOUND_LIBRARIES WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
   foreach(LIBRARY ${FOUND_LIBRARIES})
+    get_filename_component(LIBRARY_NAME ${LIBRARY} NAME)
+    if(LIBRARY_NAME MATCHES "^libmkl_")
+      message(STATUS "Leaving RPATH of Intel MKL library ${LIBRARY} unchanged")
+      continue()
+    endif()
     # Only ELF objects can carry an RPATH. patchelf --print-rpath exits non-zero
     # on anything else, so use it to skip non-ELF files without failing the build.
     execute_process(COMMAND patchelf --print-rpath ${LIBRARY} RESULT_VARIABLE IS_ELF_RESULT OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${INSTALL_DIR}")
