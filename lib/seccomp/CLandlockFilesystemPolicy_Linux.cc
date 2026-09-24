@@ -80,6 +80,9 @@ struct SLandlockPathBeneathAttr {
     std::int32_t s_ParentFd;
 } __attribute__((packed));
 
+static_assert(sizeof(SLandlockPathBeneathAttr) == 12,
+              "landlock_path_beneath_attr UAPI size (kernel build_check_abi)");
+
 long landlockCreateRuleset(const SLandlockRulesetAttr* attr, std::size_t size, std::uint32_t flags) {
     return ::syscall(ML_NR_landlock_create_ruleset, attr, size, flags);
 }

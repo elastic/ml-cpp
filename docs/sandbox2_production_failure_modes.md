@@ -1,4 +1,4 @@
-#Sandbox2 production failure modes
+# Sandbox2 production failure modes
 
 This document tracks the operational log vocabulary the controller and
 `pytorch_inference` emit around the Sandbox2 rollout. This schema is itself
@@ -31,8 +31,7 @@ single-line JSON object.
 | `deployment_id`         | string  | `SChildIpcLaunchSpec::s_ChildId`, from a single `sandbox::validateChildIpcLaunchSpec()` call made **once per `spawn()`, before dispatch**, so the value cannot disagree with the state the dispatch decision was taken against and is populated on the `degraded`/`fail_closed` modes too. Empty string (`""`, explicit, never omitted) only when no path-bearing launch option (`input`/`output`/`restore`/`logPipe`) was present at all. Control characters, quotes and backslashes are JSON-escaped so the line stays single-line JSON. |
 | `model_id`              | string  | Scanned from a `--modelid=<value>` launch argument, using the same linear string-prefix scan style as the controller's `--disableSandbox` token scan. Empty string if absent. Escaped as for `deployment_id`. |
 | `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect (a validated `--requireSandbox` token on a configured sandboxed path). `"legacy"` when the controller selected `E_Legacy` via the operator kill-switch (`--disableSandbox`) or the no-token default (see "No-token default" below). **`route` alone does not mean full Sandbox2 isolation** - read `mode` and `sandbox2_established` (a Landlock fallback still reports `"route":"sandbox2"`). |
-| `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`);
-**omitted entirely** - never `""`, never `null` - on `route == "sandbox2"` (including `mode == "enforced"`, `mode == "landlock"`, and `mode == "fail_closed"`). `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"no_token_default"` when neither routing token was present. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
+| `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`); **omitted entirely** - never `""`, never `null` - on `route == "sandbox2"` (including `mode == "enforced"`, `mode == "landlock"`, and `mode == "fail_closed"`). `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"no_token_default"` when neither routing token was present. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
 | `sandbox2_established`  | boolean | JSON boolean (`true`/`false`, never the string `"y"`/`"n"`). `true` iff `mode == "enforced"`, else `false`. |
 | `mode`                  | string  | One of `"enforced"`, `"landlock"`, `"fail_closed"`, `"degraded"` - see mapping below. |
 | `sandbox2_compiled_in`  | boolean | JSON boolean. Sourced from `sandbox::CMlSandboxAvailability::isCompiledIn()`, computed once (a build-time-constant fact, not per-launch state) and included on **every** emitted line, unlike `legacy_reason` which is conditional on route. Lets a consumer distinguish "Sandbox2 supported but no routing token sent" (`route == "legacy"`, `legacy_reason == "no_token_default"`, `sandbox2_compiled_in == true`) from "built without Sandbox2 support at all" (`sandbox2_compiled_in == false`) - both otherwise emit identical `legacy`/`no_token_default`/`degraded` signals for every plain launch. |
@@ -100,78 +99,46 @@ name which token (if any) decided the route - the router itself only ever
 sees an already-decided route and never claims a token that was not
 present.
 
-### In-process seccomp is legacy-route only
+### In-process seccomp on legacy and Landlock routes
 
 `pytorch_inference` installs its own in-process seccomp filter - and emits
-`{
-    "ml_sandbox2_route" : "legacy", "event" : "seccomp_installed"
-}
-` or, on the Landlock rung, `"ml_sandbox2_route"
-    : "landlock"` -
-      only when `ML_SANDBOXED` is * * not**exactly `1`.On a Sandbox2 -
-      launched
-      child(`ML_SANDBOXED = 1`, set by `CSandboxedProcessSpawner`),
-    the installation,
-    the hard -
-        termination decision and the attestation marker are all skipped entirely
-    : the executor's own policy is the security boundary, an install attempt
-          from inside the sandbox could fail and terminate an otherwise -
-      healthy enforced launch,
-    and emitting the marker would attest a legacy -
-        route filter on a launch `sandbox2_launch` reports as `"route"
-    : "sandbox2"`.So a
-`"route" : "sandbox2"` launch never carries a `seccomp_installed` marker,
-    and that absence is expected,
-    not a missing signal.
+`{"ml_sandbox2_route":"legacy","event":"seccomp_installed"}` on the legacy
+route, or `{"ml_sandbox2_route":"landlock","event":"seccomp_installed"}` when
+the router appended `--restrictFilesystem` for the Landlock rung - only when
+`ML_SANDBOXED` is **not** exactly `1`. On a Sandbox2-launched child
+(`ML_SANDBOXED=1`, set by `CSandboxedProcessSpawner`), the installation, the
+hard-termination decision and the attestation marker are all skipped
+entirely: the executor's own policy is the security boundary, an install
+attempt from inside the sandbox could fail and terminate an otherwise-healthy
+enforced launch, and emitting the marker would attest a legacy-route filter
+on a launch `sandbox2_launch` reports as `"route":"sandbox2"`. So a
+`"route":"sandbox2"` launch with `mode == "enforced"` never carries a
+`seccomp_installed` marker, and that absence is expected, not a missing
+signal. A `"route":"sandbox2"` launch with `mode == "landlock"` **does**
+carry `seccomp_installed` with `"ml_sandbox2_route":"landlock"`.
 
-`ML_SANDBOXED` is a fail - open marker,
-    so it is stripped from the environment of every child the legacy spawner
-            launches(`lib / core / CDetachedProcessSpawner.cc`, `detail::buildChildEnvironment()`) -
-            an inherited
-        or externally injected `ML_SANDBOXED =
-        1` in the controller's own environment can therefore never suppress a legacy
-        - route child's mandatory in
-        - process filter.Only `CSandboxedProcessSpawner` sets it,
-                               and only on real sandboxees.
+`ML_SANDBOXED` is a fail-open marker, so it is stripped from the environment
+of every child the legacy spawner launches
+(`lib/core/CDetachedProcessSpawner.cc`, `detail::buildChildEnvironment()`) -
+an inherited or externally injected `ML_SANDBOXED=1` in the controller's own
+environment can therefore never suppress a legacy-route child's mandatory
+in-process filter. Only `CSandboxedProcessSpawner` sets it, and only on real
+sandboxees.
 
-                                   Hard termination on a failed in
-                                   - process seccomp installation(`TERMINATE_ON_DEGRADED_SECCOMP_FAILURE` in
-`bin / pytorch_inference / Main.cc`) is deliberately **off ** : an ordinary launch with no explicit routing token is a degraded - route launch
-    ,
-                               so terminating would fail every launch on a host without usable seccomp
-                                   BPF.It becomes safe to activate once every caller that matters always sends an
-                                   explicit
+Hard termination on a failed in-process seccomp installation
+(`TERMINATE_ON_DEGRADED_SECCOMP_FAILURE` in
+`bin/pytorch_inference/Main.cc`) is deliberately **off**: an ordinary launch
+with no explicit routing token is a degraded-route launch, so terminating
+would fail every launch on a host without usable seccomp BPF. It becomes
+safe to activate once every caller that matters always sends an explicit
 `--disableSandbox` or `--requireSandbox` token per launch.
 
-                                   Example :
+Example:
 
-```json{
-            "event" : "sandbox2_launch",
-            "deployment_id" : "a1b2c3",
-            "model_id" : "my-model",
-            "route" : "sandbox2",
-            "sandbox2_established" : true,
-            "mode" : "enforced",
-            "sandbox2_compiled_in" : true
-                                   } {
-                                       "event" : "sandbox2_launch",
-                                       "deployment_id" : "a1b2c3",
-                                       "model_id" : "my-model",
-                                       "route" : "sandbox2",
-                                       "sandbox2_established" : false,
-                                       "mode" : "landlock",
-                                       "sandbox2_compiled_in" : true
-                                   } {
-    "event" : "sandbox2_launch",
-              "deployment_id" : "a1b2c3",
-                                "model_id" : "my-model",
-                                             "route" : "legacy",
-                                                       "legacy_reason"
-        : "no_token_default",
-          "sandbox2_established" : false,
-                                   "mode" : "degraded",
-                                            "sandbox2_compiled_in" : true
-}
+```json
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"sandbox2","sandbox2_established":true,"mode":"enforced","sandbox2_compiled_in":true}
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"sandbox2","sandbox2_established":false,"mode":"landlock","sandbox2_compiled_in":true}
+{"event":"sandbox2_launch","deployment_id":"a1b2c3","model_id":"my-model","route":"legacy","legacy_reason":"no_token_default","sandbox2_established":false,"mode":"degraded","sandbox2_compiled_in":true}
 ```
 
 Emission site: `bin/controller/CProcessSpawnerRouter.cc`,
