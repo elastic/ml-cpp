@@ -105,9 +105,9 @@ enum class EChildIpcDirectoryOutcome {
                      //!< there was no directory to create.
                      //!< validateChildIpcLaunchSpec() still runs and reports
                      //!< the precise rejection reason for such an argument.
-    E_CreationFailed //!< mkdir() failed for a reason other than "already
-                     //!< exists" (permissions, ENOSPC, a non-directory in
-                     //!< the way, ...).
+    E_CreationFailed //!< mkdir() failed, or an existing path at the target
+                     //!< is not an owner-only mode-0700 directory (regular
+                     //!< file, symlink, looser permissions, wrong owner, ...).
 };
 
 //! Create $TMPDIR/ml-child-ipc/<child-id> (mode 0700) for the single
@@ -123,6 +123,12 @@ enum class EChildIpcDirectoryOutcome {
 //! spawn() and CProcessSpawnerRouter::spawn() (via deriveDeploymentId(), for
 //! the sandbox2_launch signal, which runs even on the legacy route) - must
 //! call this first.
+//!
+//! The per-child directory is not removed here: it is keyed by deployment
+//! id, reused across controller/process restarts for the same id, and is
+//! empty once pytorch_inference has unlinked its FIFOs. Removing it is the
+//! caller's responsibility once the deployment ends (see elastic/ml-cpp issues
+//! filed for ml-child-ipc directory cleanup).
 //!
 //! Idempotent: an already-existing directory is E_Ready, not an error, so a
 //! retry/restart that reuses the same child-id never fails here. Uses only

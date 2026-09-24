@@ -56,15 +56,19 @@ namespace {
 //! job is confirming the *ambient environment* lacks userns capability, not
 //! masking a broken test harness (missing build artifact, CMake wiring
 //! regression) as that same "expected absence" result.
-enum class EProbeOutcome { E_Success, E_StagedFailure, E_ExecFailure };
+enum class EProbeOutcome {
+    E_Success,
+    E_StagedFailure,
+    E_ExecFailure,
+    E_Crashed
+};
 
 //! Forks/execs the userns probe payload directly (no Sandbox2 involved) and
 //! classifies the result. POSIX convention: an exec failure surfaces as
 //! exit code 126 (found but not executable) or 127 (not found/exec
 //! otherwise failed) - the payload's own staged-failure exit code is
-//! EXIT_FAILURE (1), which never collides with 126/127. A signal death, or
-//! any other non-zero exit, is treated as a staged failure: only 126/127
-//! are reserved here for "the child never ran the probe's own logic".
+//! EXIT_FAILURE (1), which never collides with 126/127. A signal death is
+//! E_Crashed (harness broken), not a staged probe result.
 EProbeOutcome runProbe() {
     const std::string payloadPath{ML_SANDBOX2_USERNS_PROBE_PAYLOAD};
 
@@ -84,10 +88,7 @@ EProbeOutcome runProbe() {
     BOOST_TEST_REQUIRE(::waitpid(child, &status, 0) == child);
 
     if (WIFEXITED(status) == 0) {
-        // Killed by a signal: not a meaningful staged result, but also not
-        // the specific exec-failure signature (126/127) - treat as a
-        // staged failure rather than a hard harness-broken failure.
-        return EProbeOutcome::E_StagedFailure;
+        return EProbeOutcome::E_Crashed;
     }
 
     const int exitStatus = WEXITSTATUS(status);
@@ -115,6 +116,10 @@ BOOST_AUTO_TEST_CASE(testMatchesRequiredMode) {
         BOOST_FAIL("ml_sandbox_userns_probe payload could not be exec'd "
                    "(exit 126/127) - test harness is broken, not a "
                    "genuine probe result");
+    }
+    if (outcome == EProbeOutcome::E_Crashed) {
+        BOOST_FAIL("ml_sandbox_userns_probe payload was killed by a signal - "
+                   "test harness is broken, not a genuine probe result");
     }
 
     const bool probeSucceeded = outcome == EProbeOutcome::E_Success;

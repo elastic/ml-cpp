@@ -147,8 +147,9 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
 
     // degraded is decided purely by route, regardless of the legacy
     // spawn's own success/failure;
-    // enforced/fail_closed are only decided for the no-token Sandbox2
-    // route, keyed off the spawn outcome itself.
+    // enforced/fail_closed apply when route == E_Sandbox2, keyed off the
+    // spawn outcome (failed Sandbox2 launch, or no Sandbox2 support on a
+    // --requireSandbox launch).
     std::string mode;
     if (isLegacyRoute) {
         mode = "degraded";
@@ -268,7 +269,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         spawned = false;
 #endif
     } else {
-        // Not a sandboxed process path: unrelated processes always go via
+        // Not a sandboxed process path: ERoute::E_Sandbox2 is the processor's
+        // default enum value but is not a routing decision here - always use
         // the legacy spawner, unchanged from today's behaviour.
         spawned = m_LegacySpawner.spawn(processPath, args, childPid);
     }

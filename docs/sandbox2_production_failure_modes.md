@@ -30,7 +30,7 @@ single-line JSON object.
 | `event`                 | string  | Always `"sandbox2_launch"`. |
 | `deployment_id`         | string  | `SChildIpcLaunchSpec::s_ChildId`, from a single `sandbox::validateChildIpcLaunchSpec()` call made **once per `spawn()`, before dispatch**, so the value cannot disagree with the state the dispatch decision was taken against and is populated on the `degraded`/`fail_closed` modes too. Empty string (`""`, explicit, never omitted) only when no path-bearing launch option (`input`/`output`/`restore`/`logPipe`) was present at all. Control characters, quotes and backslashes are JSON-escaped so the line stays single-line JSON. |
 | `model_id`              | string  | Scanned from a `--modelid=<value>` launch argument, using the same linear string-prefix scan style as the controller's `--disableSandbox` token scan. Empty string if absent. Escaped as for `deployment_id`. |
-| `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect, `"legacy"` when the controller selected `E_Legacy` - either via the operator kill-switch (`--disableSandbox`), the operator opt-in (`--requireSandbox`) selecting Sandbox2 instead, or the no-token default (see "No-token default" below). |
+| `route`                 | string  | `"sandbox2"` when `CProcessSpawnerRouter::ERoute::E_Sandbox2` was in effect (a validated `--requireSandbox` token on a configured sandboxed path). `"legacy"` when the controller selected `E_Legacy` via the operator kill-switch (`--disableSandbox`) or the no-token default (see "No-token default" below). |
 | `legacy_reason`         | string  | **Only present when `route == "legacy"`** (equivalently, `mode == "degraded"`); **omitted entirely** - never `""`, never `null` - on `route == "sandbox2"`, i.e. on both `enforced` and `fail_closed`. `"kill_switch"` when a validated `--disableSandbox` token selected the legacy route, `"no_token_default"` when neither routing token was present. Provenance is passed in by `CCommandProcessor` (the only place it is known); the router never derives it from `args`. |
 | `sandbox2_established`  | boolean | JSON boolean (`true`/`false`, never the string `"y"`/`"n"`). `true` iff `mode == "enforced"`, else `false`. |
 | `mode`                  | string  | One of `"enforced"`, `"fail_closed"`, `"degraded"` - see mapping below. |
@@ -45,10 +45,9 @@ additive: `event`/`deployment_id`/`model_id`/`route`/
 
 **`mode` mapping** (binding rule):
 
-- `enforced` - `route == "sandbox2"` (a validated `--requireSandbox` token,
-  or - historically, before that token existed - the no-token default with
-  the now-removed internal enforcement seam) and the Sandbox2 spawn returned
-  `true`.
+- `enforced` - `route == "sandbox2"` and the Sandbox2 spawn returned
+  `true` (typically after a validated `--requireSandbox` token; the
+  no-token default selects `E_Legacy`/`degraded` instead).
 - `fail_closed` - `route == "sandbox2"` and the spawn returned `false`
   (includes the build/deployment contradiction case where `processPath` is
   configured as sandboxed but this build has no Sandbox2 support).

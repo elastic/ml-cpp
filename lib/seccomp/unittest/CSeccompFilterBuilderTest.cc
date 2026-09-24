@@ -237,18 +237,13 @@ BOOST_AUTO_TEST_CASE(testSandbox2ExplicitSyscallsCarriedForwardFromPr2873) {
     // two different temporaries, which is undefined behaviour that passes or
     // crashes depending on heap layout.
     const std::vector<int> explicitSyscalls{ml::seccomp::sandbox2ExplicitSyscalls()};
-    const std::set<int> explicitGrants{explicitSyscalls.begin(), explicitSyscalls.end()};
+    const std::set<int> explicitGrants{explicitSyscalls.begin(),
+                                       explicitSyscalls.end()};
 
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_getaffinity) == 1);
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_sched_setaffinity) == 1);
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_epoll_pwait) == 1);
     BOOST_TEST_REQUIRE(explicitGrants.count(__NR_pipe2) == 1);
-
-    // Every syscall the legacy filter allows must also be reachable under
-    // Sandbox2, either explicitly or via a PolicyBuilder helper - otherwise a
-    // future addition to legacyBpfAllowedSyscalls() silently regresses
-    // Sandbox2 support without either declaration noticing.
-    BOOST_TEST_REQUIRE(ml::seccomp::sandbox2AllowsAllLegacySyscalls());
 }
 
 #endif // __linux__

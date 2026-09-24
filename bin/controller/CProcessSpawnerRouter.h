@@ -50,10 +50,11 @@ public:
     //! of this class (by CCommandProcessor). This router never derives a
     //! route itself from \p args or from \p processPath alone.
     enum class ERoute {
-        //! Use Sandbox2 for processes listed in sandboxedProcessPaths (when
-        //! this build has Sandbox2 support); every other permitted process
-        //! is unaffected and always goes via the legacy spawner, exactly
-        //! like today's CDetachedProcessSpawner-only paths.
+        //! Default route enum value from CCommandProcessor. For configured
+        //! sandboxed paths with a validated --requireSandbox token this
+        //! selects Sandbox2 (when compiled in). For every other permitted
+        //! process path the router ignores the enum and always uses the
+        //! legacy spawner - the value carries no routing decision there.
         E_Sandbox2,
         //! Operator kill-switch route: the caller has already validated the
         //! disableSandbox token against this exact processPath and stripped

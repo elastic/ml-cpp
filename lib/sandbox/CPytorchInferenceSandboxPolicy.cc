@@ -15,7 +15,8 @@
 #include <stdlib.h> // _fullpath, _MAX_PATH
 #else
 #include <limits.h>   // PATH_MAX
-#include <sys/stat.h> // mkdir
+#include <sys/stat.h> // mkdir, lstat
+#include <unistd.h>   // geteuid
 #endif
 
 #include <cerrno>
@@ -184,12 +185,31 @@ bool childIpcRootHasExpectedShape(const std::string& childIpcRoot) {
 
 #endif // SANDBOX2_AVAILABLE
 
-//! mkdir(dir, 0700), tolerating "already exists" as success (a retry/
-//! restart reusing the same child-id must not fail here) so callers can
-//! treat this as idempotent "ensure this directory exists with the right
-//! mode" rather than a one-shot creation. Any other failure (permissions,
-//! ENOSPC, a non-directory already occupying \p dir, a missing parent, ...)
-//! is reported back to the caller rather than silently ignored.
+//! mkdir(dir, 0700), tolerating an existing directory only when it is owned
+//! by this uid, is a directory, and has no group/other permissions (mode
+//! 0700). A retry/restart reusing the same child-id must not fail here.
+//! Any other failure (permissions, ENOSPC, a regular file or symlink at
+//! \p dir, a directory with looser permissions, ...) is reported back to
+//! the caller rather than silently ignored.
+#ifndef _WIN32
+bool existingChildIpcDirectoryAcceptable(const std::string& dir) {
+    struct stat pathStat {};
+    if (::lstat(dir.c_str(), &pathStat) != 0) {
+        return false;
+    }
+    if (S_ISDIR(pathStat.st_mode) == false) {
+        return false;
+    }
+    if (static_cast<uid_t>(pathStat.st_uid) != ::geteuid()) {
+        return false;
+    }
+    if ((pathStat.st_mode & 077) != 0) {
+        return false;
+    }
+    return true;
+}
+#endif
+
 bool makeChildIpcDirectory(const std::string& dir) {
 #ifdef _WIN32
     // Nothing wires this up on Windows today (Sandbox2 is Linux-only), but
@@ -204,7 +224,10 @@ bool makeChildIpcDirectory(const std::string& dir) {
     if (::mkdir(dir.c_str(), 0700) == 0) {
         return true;
     }
-    return errno == EEXIST;
+    if (errno == EEXIST) {
+        return existingChildIpcDirectoryAcceptable(dir);
+    }
+    return false;
 #endif
 }
 } // namespace
@@ -474,6 +497,9 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     // grant (listed ops only). AllowSyscall(__NR_futex) would append
     // SYSCALL(futex, ALLOW) because AllowFutexOp uses AddPolicyOnSyscall and
     // does not insert into handled_syscalls_.
+    // This loop is what keeps the Sandbox2 policy from granting strictly less
+    // than the legacy in-process BPF filter: every legacyBpfAllowedSyscalls()
+    // entry is mirrored here (except __NR_futex, handled via AllowFutexOp).
     for (int syscallNr : seccomp::legacyBpfAllowedSyscalls()) {
 #ifdef __linux__
         if (syscallNr == __NR_futex) {
@@ -539,6 +565,7 @@ buildPytorchInferenceFilesystemPolicy(const std::string& binDir,
     }
 
     for (const char* devFile : {"/dev/null", "/dev/urandom", "/dev/random"}) {
+        // Only /dev/null is writable; urandom/random are read-only RNG sources.
         policyBuilder.AddFile(devFile, /*is_ro=*/std::strcmp(devFile, "/dev/null") != 0);
     }
 

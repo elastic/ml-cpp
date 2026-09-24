@@ -20,8 +20,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <climits>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fcntl.h>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -369,6 +371,34 @@ BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryFailsClosedOnCreationFailure) {
 
     // Restore write permission so the fixture destructor can clean up.
     ::chmod(fixture.canonicalTrustedBase().c_str(), 0700);
+}
+
+BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryRejectsRegularFileInTheWay) {
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/child-ensure-1"};
+    BOOST_TEST_REQUIRE(
+        ::mkdir((fixture.canonicalTrustedBase() + "/ml-child-ipc").c_str(), 0700) == 0);
+    FILE* file{::fopen(childRoot.c_str(), "w")};
+    BOOST_TEST_REQUIRE(file != nullptr);
+    ::fclose(file);
+
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_CreationFailed);
+
+    ::unlink(childRoot.c_str());
+}
+
+BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryRejectsLoosePermissionsOnExistingDirectory) {
+    CTrustedBaseOnlyFixture fixture;
+    const std::string mlChildIpc{fixture.canonicalTrustedBase() + "/ml-child-ipc"};
+    const std::string childRoot{mlChildIpc + "/child-ensure-1"};
+    BOOST_TEST_REQUIRE(::mkdir(mlChildIpc.c_str(), 0700) == 0);
+    BOOST_TEST_REQUIRE(::mkdir(childRoot.c_str(), 0755) == 0);
+
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_CreationFailed);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

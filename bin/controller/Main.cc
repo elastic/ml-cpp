@@ -219,11 +219,12 @@ int main(int argc, char** argv) {
         "./pytorch_inference"};
     // Unconditional on every platform, deliberately: this list only
     // nominates which process path the --disableSandbox/--requireSandbox
-    // controller tokens are meaningful for, it does not by itself require
-    // Sandbox2 for that path. A plain (no-token) launch of
-    // ./pytorch_inference always takes the legacy route (see
-    // CCommandProcessor), so listing it here fails nothing on macOS,
-    // Windows, or a Linux build without Sandbox2 support.
+    // controller tokens are meaningful for; it does not by itself launch
+    // Sandbox2. A no-token launch of ./pytorch_inference always takes the
+    // legacy route and never fails for that reason alone. An explicit
+    // --requireSandbox on a build without Sandbox2 support fails closed by
+    // design; Elasticsearch emits the routing tokens only on Linux
+    // (PyTorchBuilder), so macOS/Windows never send --requireSandbox here.
     ml::controller::CCommandProcessor::TStrVec sandboxedProcessPaths{"./pytorch_inference"};
 
     ml::controller::CCommandProcessor processor{

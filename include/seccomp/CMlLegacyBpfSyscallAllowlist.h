@@ -15,7 +15,6 @@
 #include <vector>
 
 #ifdef __linux__
-#include <set>
 #include <sys/syscall.h>
 #endif
 
@@ -48,6 +47,8 @@ namespace seccomp {
 #else
 #define ML_NR_rseq __NR_rseq
 #endif
+#else
+#error "ML seccomp syscall allowlists support only x86_64 and aarch64 Linux builds"
 #endif
 #ifndef __NR_clone3
 #define ML_NR_clone3 435
@@ -125,18 +126,13 @@ inline std::vector<int> legacyBpfAllowedSyscalls() {
             kLegacyBpfAllowedSyscalls + std::size(kLegacyBpfAllowedSyscalls)};
 }
 
-//! Syscalls that must be explicitly granted (via AllowSyscall()) in the Sandbox2
-//! policy built by buildPytorchInferencePolicy(), on top of what Sandbox2's own
-//! PolicyBuilder helpers (AllowRead/AllowWrite/AllowOpen/etc., see
-//! sandbox2HelperCoveredSyscalls() below) already cover. Sandbox2's namespace and
-//! threading setup make pytorch_inference exercise syscalls (scheduling, epoll,
-//! pipes, directory/file management for forecast temp storage) that the simpler
-//! legacy in-process BPF filter never needed a grant for, so this list is NOT a
-//! subset check against legacyBpfAllowedSyscalls() - it is carried forward from
-//! PR #2873's enhancement/sandbox2 branch (CMlLegacyBpfSyscallAllowlist.h,
-//! appendSandbox2ExplicitSyscalls()), which this clean rebuild's Sandbox2 policy
-//! builder omitted; see CSeccompFilterBuilderTest.cc for the regression test that
-//! keeps it from being silently dropped again.
+//! Syscalls that must be explicitly granted (via AllowSyscall()) in
+//! buildPytorchInferenceFilesystemPolicy(), in addition to the
+//! legacyBpfAllowedSyscalls() loop there. Sandbox2's namespace and
+//! threading setup exercises syscalls (scheduling, epoll, pipes,
+//! directory/file management for forecast temp storage) that the simpler
+//! legacy in-process BPF filter never needed a grant for. Carried forward
+//! from PR #2873; see CSeccompFilterBuilderTest.cc.
 inline std::vector<int> sandbox2ExplicitSyscalls() {
     std::vector<int> syscalls{
         __NR_sched_yield,
@@ -175,9 +171,9 @@ inline std::vector<int> sandbox2ExplicitSyscalls() {
         __NR_unlinkat,
         __NR_renameat,
         __NR_mkdirat,
-        __NR_mknodat,
+        __NR_mknodat, // mkfifo() for named pipes (CNamedPipeFactory)
 #ifdef __NR_mknod
-        __NR_mknod,
+        __NR_mknod, // mkfifo() on x86_64 glibc paths
 #endif
 #ifdef __NR_unlink
         __NR_unlink,
@@ -223,7 +219,7 @@ inline std::vector<int> sandbox2ExplicitSyscalls() {
         __NR_getpriority,
         __NR_tgkill,
         __NR_statfs,
-        __NR_connect,
+        __NR_connect, // AF_UNIX connect() while opening named pipes for I/O
 #ifdef __NR_time
         __NR_time,
 #endif
@@ -232,78 +228,6 @@ inline std::vector<int> sandbox2ExplicitSyscalls() {
 #endif
     };
     return syscalls;
-}
-
-//! Syscalls covered by Sandbox2 PolicyBuilder helpers (AllowRead/AllowWrite/
-//! AllowOpen/etc. in buildPytorchInferencePolicy()) that are also present in
-//! legacyBpfAllowedSyscalls() - tracked so sandbox2AllowsAllLegacySyscalls() can
-//! assert Sandbox2 never grants strictly less than the legacy filter without
-//! requiring every one of these to be repeated in sandbox2ExplicitSyscalls().
-inline std::vector<int> sandbox2HelperCoveredSyscalls() {
-    std::vector<int> syscalls{
-        __NR_read,
-        __NR_write,
-        __NR_writev,
-        __NR_openat,
-#ifdef __NR_open
-        __NR_open,
-#endif
-#ifdef __NR_stat
-        __NR_stat,
-#endif
-#ifdef __NR_lstat
-        __NR_lstat,
-#endif
-        __NR_close,
-        __NR_mmap,
-        __NR_munmap,
-        __NR_mprotect,
-        __NR_mremap,
-        __NR_madvise,
-        __NR_brk,
-        __NR_futex,
-        __NR_clone,
-        ML_NR_clone3,
-        __NR_set_robust_list,
-        ML_NR_rseq,
-        __NR_rt_sigaction,
-        __NR_rt_sigreturn,
-        __NR_rt_sigprocmask,
-        __NR_getpid,
-        __NR_getrandom,
-        __NR_exit,
-        __NR_exit_group,
-        __NR_newfstatat,
-        __NR_fstat,
-        __NR_getuid,
-        __NR_getgid,
-        __NR_geteuid,
-        __NR_getegid,
-        ML_NR_statx,
-    };
-    return syscalls;
-}
-
-//! Returns true when every legacy BPF syscall is also granted by the Sandbox2
-//! policy, either explicitly (sandbox2ExplicitSyscalls()) or via a PolicyBuilder
-//! helper (sandbox2HelperCoveredSyscalls()). A regression here means a future
-//! addition to legacyBpfAllowedSyscalls() was not carried over to the Sandbox2
-//! side, which is exactly the class of gap that dropped sandbox2ExplicitSyscalls()
-//! from this rebuild in the first place.
-inline bool sandbox2AllowsAllLegacySyscalls() {
-    std::set<int> allowed;
-    for (int nr : sandbox2ExplicitSyscalls()) {
-        allowed.insert(nr);
-    }
-    for (int nr : sandbox2HelperCoveredSyscalls()) {
-        allowed.insert(nr);
-    }
-    for (int nr : legacyBpfAllowedSyscalls()) {
-        if (allowed.find(nr) == allowed.end()) {
-            return false;
-        }
-    }
-    return true;
 }
 
 #endif // __linux__
