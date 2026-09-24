@@ -38,6 +38,7 @@
 namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
 class CComponentsTest;
+class CChangePointWindowInspector;
 }
 
 namespace ml {
@@ -386,6 +387,9 @@ public:
 
         //! The derate to apply to the outlier weight immediately after the last change point.
         COutlierWeightDerate m_LastChangeOutlierWeightDerate;
+
+        //! Befriend a helper class used by the unit tests
+        friend class CTimeSeriesDecompositionTest::CChangePointWindowInspector;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant
