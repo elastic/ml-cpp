@@ -325,8 +325,7 @@ void logSandbox2EnvironmentSelfCheck() {
         // launch if Elasticsearch actually asks for the Sandbox2 route. A
         // node that never sets sandbox_enabled=true runs unaffected, so this
         // is a warning about what *would* happen, not an error that happened.
-        LOG_WARN(<< message
-                 << " - a --requireSandbox launch on this host will fail closed");
+        LOG_WARN(<< message << " - a --requireSandbox launch on this host will fail closed");
     }
 }
 

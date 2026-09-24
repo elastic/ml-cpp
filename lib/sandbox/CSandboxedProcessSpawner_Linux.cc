@@ -529,8 +529,8 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         // (the sandboxee's own stderr) is gone with the sandboxee.
         const sandbox2::Result result{sandbox->AwaitResult()};
         LOG_ERROR(<< "Sandbox2 failed to start " << processPath << ": status="
-                  << sandbox2::Result::StatusEnumToString(result.final_status())
-                  << " reason=" << result.reason_code() << " (" << result.ToString() << ')');
+                  << sandbox2::Result::StatusEnumToString(result.final_status()) << " reason="
+                  << result.reason_code() << " (" << result.ToString() << ')');
         return false;
     }
 

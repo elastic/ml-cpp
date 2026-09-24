@@ -21,8 +21,8 @@
 #ifdef Linux
 #include <glob.h>
 #include <sched.h>
-#include <sys/prctl.h>
 #include <stdlib.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -94,10 +94,8 @@ BOOST_AUTO_TEST_CASE(testProbeAgreesWithAnIndependentUnshareAttempt) {
     BOOST_TEST_REQUIRE(WIFEXITED(status));
     usernsPermitted = (WEXITSTATUS(status) == 0);
 
-    const ml::sandbox::ESandbox2Capability capability{
-        ml::sandbox::probeSandbox2Capability()};
-    BOOST_TEST_MESSAGE("Sandbox2 capability on this host: "
-                       << ml::sandbox::describe(capability));
+    const ml::sandbox::ESandbox2Capability capability{ml::sandbox::probeSandbox2Capability()};
+    BOOST_TEST_MESSAGE("Sandbox2 capability on this host: " << ml::sandbox::describe(capability));
 
     if (usernsPermitted) {
         BOOST_REQUIRE(capability != ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied);
