@@ -44,6 +44,8 @@ class Sandbox2;
 namespace ml {
 namespace sandbox {
 
+class CChildIpcDirectoryReaper;
+
 //! \brief
 //! Spawn and own the lifecycle of processes inside a Sandbox2 isolation
 //! boundary.
@@ -269,6 +271,8 @@ public:
     //! PID that is still live (not yet Reaped or Failed).
     bool hasChild(core::CProcess::TPid pid) const;
 
+    void setChildIpcDirectoryReaper(const std::shared_ptr<CChildIpcDirectoryReaper>& reaper);
+
 private:
     const TPidRegistryPtr m_PidRegistry{std::make_shared<SPidRegistry>()};
 
@@ -282,6 +286,8 @@ private:
 #ifdef SANDBOX2_AVAILABLE
     TAwaitResultFn m_AwaitResultFn;
 #endif
+
+    std::shared_ptr<CChildIpcDirectoryReaper> m_ChildIpcReaper;
 };
 
 } // namespace sandbox

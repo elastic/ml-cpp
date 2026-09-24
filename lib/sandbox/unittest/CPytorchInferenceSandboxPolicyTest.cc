@@ -15,6 +15,7 @@
 // not just Linux - but not Windows, which has none of those APIs; see
 // lib/sandbox/unittest/CMakeLists.txt's NOT WIN32 guard.
 
+#include <sandbox/CChildIpcDirectoryReaper.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 
 #include <boost/test/unit_test.hpp>
@@ -388,6 +389,84 @@ BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryRejectsRegularFileInTheWay) {
 
     ::unlink(childRoot.c_str());
 }
+
+#ifndef _WIN32
+BOOST_AUTO_TEST_CASE(testChildIpcDirectoryReaperRemovesEmptyPerChildDirectory) {
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/reap-empty"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+
+    ml::sandbox::CChildIpcDirectoryReaper reaper;
+    reaper.noteSpawn(1001, childRoot);
+    reaper.onChildExited(1001);
+
+    struct stat childRootStat;
+    BOOST_REQUIRE_EQUAL(-1, ::stat(childRoot.c_str(), &childRootStat));
+    BOOST_REQUIRE_EQUAL(ENOENT, errno);
+
+    struct stat parentStat;
+    BOOST_REQUIRE_EQUAL(
+        0, ::stat((fixture.canonicalTrustedBase() + "/ml-child-ipc").c_str(), &parentStat));
+}
+
+BOOST_AUTO_TEST_CASE(testChildIpcDirectoryReaperKeepsDirectoryWithUnexpectedFile) {
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/reap-nonempty"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+    FILE* file{::fopen((childRoot + "/leftover.txt").c_str(), "w")};
+    BOOST_TEST_REQUIRE(file != nullptr);
+    ::fclose(file);
+
+    ml::sandbox::CChildIpcDirectoryReaper reaper;
+    reaper.noteSpawn(1002, childRoot);
+    reaper.onChildExited(1002);
+
+    struct stat childRootStat;
+    BOOST_REQUIRE_EQUAL(0, ::stat(childRoot.c_str(), &childRootStat));
+    ::unlink((childRoot + "/leftover.txt").c_str());
+}
+
+BOOST_AUTO_TEST_CASE(testChildIpcDirectoryReaperPidGenerationGuard) {
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/reap-gen"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+
+    ml::sandbox::CChildIpcDirectoryReaper reaper;
+    reaper.noteSpawn(2001, childRoot);
+    reaper.noteSpawn(2002, childRoot);
+    reaper.onChildExited(2001);
+
+    struct stat childRootStat;
+    BOOST_REQUIRE_EQUAL(0, ::stat(childRoot.c_str(), &childRootStat));
+
+    reaper.onChildExited(2002);
+    BOOST_REQUIRE_EQUAL(-1, ::stat(childRoot.c_str(), &childRootStat));
+    BOOST_REQUIRE_EQUAL(ENOENT, errno);
+}
+
+BOOST_AUTO_TEST_CASE(testChildIpcDirectoryReaperOnSpawnFailedSkipsLivePid) {
+    CTrustedBaseOnlyFixture fixture;
+    const std::string childRoot{fixture.canonicalTrustedBase() + "/ml-child-ipc/reap-live"};
+    const std::vector<std::string> args{"--input=" + childRoot + "/input.fifo"};
+    BOOST_REQUIRE(ml::sandbox::ensureChildIpcDirectory(fixture.canonicalTrustedBase(), args) ==
+                  ml::sandbox::EChildIpcDirectoryOutcome::E_Ready);
+
+    ml::sandbox::CChildIpcDirectoryReaper reaper;
+    reaper.noteSpawn(3001, childRoot);
+    reaper.onSpawnFailed(childRoot);
+
+    struct stat childRootStat;
+    BOOST_REQUIRE_EQUAL(0, ::stat(childRoot.c_str(), &childRootStat));
+    reaper.onChildExited(3001);
+    BOOST_REQUIRE_EQUAL(-1, ::stat(childRoot.c_str(), &childRootStat));
+}
+#endif // !_WIN32
 
 BOOST_AUTO_TEST_CASE(testEnsureChildIpcDirectoryRejectsLoosePermissionsOnExistingDirectory) {
     CTrustedBaseOnlyFixture fixture;

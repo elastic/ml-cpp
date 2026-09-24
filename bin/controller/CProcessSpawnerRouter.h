@@ -14,6 +14,7 @@
 #include <core/CDetachedProcessSpawner.h>
 #include <core/CProcess.h>
 
+#include <sandbox/CChildIpcDirectoryReaper.h>
 #include <sandbox/CSandbox2Diagnostics.h>
 
 #include <functional>
@@ -212,6 +213,8 @@ private:
 
     //! See lastSpawnFailureReason().
     std::string m_LastSpawnFailureReason;
+
+    std::shared_ptr<sandbox::CChildIpcDirectoryReaper> m_ChildIpcReaper;
 };
 
 } // namespace controller
