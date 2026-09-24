@@ -28,12 +28,13 @@ const std::string EMPTY_STRING;
 //! rejected outright, never resolved by precedence.
 const std::string DISABLE_SANDBOX_TOKEN{"--disableSandbox"};
 
-//! Operator opt-in: forces the Sandbox2 route (E_Sandbox2, no automatic
-//! legacy fallback) for the configured sandboxed process path. Symmetric
-//! counterpart to DISABLE_SANDBOX_TOKEN - together these are the only two
+//! Operator opt-in: requests the strongest confinement this host can provide
+//! for the configured sandboxed process path (Sandbox2 when available,
+//! otherwise Landlock plus seccomp, otherwise refusal). Symmetric counterpart
+//! to DISABLE_SANDBOX_TOKEN - together these are the only two
 //! controller-control tokens the command wire format defines; any other
 //! unrecognised "--" prefixed token is passed through to the spawned
-//! process unchanged.
+//! process unchanged. `--restrictFilesystem` is not a caller token.
 const std::string REQUIRE_SANDBOX_TOKEN{"--requireSandbox"};
 }
 
