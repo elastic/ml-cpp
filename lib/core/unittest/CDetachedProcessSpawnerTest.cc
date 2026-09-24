@@ -17,6 +17,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -171,6 +172,22 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
 }
 
 #ifndef Windows
+BOOST_AUTO_TEST_CASE(testChildExitedCallbackFiresForSpawnedChild) {
+    std::atomic<bool> callbackFired{false};
+    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths{"/bin/true"};
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
+    spawner.setChildIpcDirectoryCallbacks(
+        [&](ml::core::CProcess::TPid) { callbackFired.store(true); },
+        [](ml::core::CProcess::TPid, const std::string&) {});
+
+    ml::core::CProcess::TPid childPid{0};
+    BOOST_TEST_REQUIRE(spawner.spawn(
+        "/bin/true", ml::core::CDetachedProcessSpawner::TStrVec{}, childPid));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    BOOST_TEST_REQUIRE(callbackFired.load());
+}
+
 BOOST_AUTO_TEST_CASE(testMlSandboxedStrippedFromChildEnvironment) {
     // ML_SANDBOXED=1 is the Sandbox2 sandboxee marker
     // (lib/sandbox/CSandboxedProcessSpawner_Linux.cc) and pytorch_inference
