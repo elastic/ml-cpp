@@ -121,11 +121,17 @@ inline EDegradedModeAction decideDegradedModeAction(ESystemCallFilterInstallOutc
 //! is called with terminateOnFailure true (not today's production default).
 //! Logged over the existing per-process log pipe; this is not a new startup
 //! channel.
-inline std::string degradedModeAttestationMarker(ESystemCallFilterInstallOutcome outcome) {
+//!
+//! \param route the controller route this filter belongs to: "legacy", or
+//!        "landlock" when the same in-process filter is stacked under a
+//!        Landlock ruleset because the host cannot run Sandbox2. It must
+//!        match the controller's sandbox2_launch signal for the same launch.
+inline std::string degradedModeAttestationMarker(ESystemCallFilterInstallOutcome outcome,
+                                                 const std::string& route = "legacy") {
     if (outcome != ESystemCallFilterInstallOutcome::E_Installed) {
         return std::string();
     }
-    return R"({"ml_sandbox2_route":"legacy","event":"seccomp_installed"})";
+    return R"({"ml_sandbox2_route":")" + route + R"(","event":"seccomp_installed"})";
 }
 
 //! Pure form of the "was this process launched by the Sandbox2 executor?"
@@ -187,10 +193,12 @@ struct SInProcessFilterResult {
 //! \param terminateOnFailure passed through to decideDegradedModeAction().
 //! \param installer invoked at most once; normally
 //!        CSystemCallFilter::installSystemCallFilter.
+//! \param route passed through to degradedModeAttestationMarker().
 template<typename INSTALLER>
 SInProcessFilterResult applyInProcessSeccompFilter(bool sandbox2Launched,
                                                    bool terminateOnFailure,
-                                                   INSTALLER installer) {
+                                                   INSTALLER installer,
+                                                   const std::string& route = "legacy") {
     SInProcessFilterResult result;
     if (sandbox2Launched) {
         return result;
@@ -198,7 +206,7 @@ SInProcessFilterResult applyInProcessSeccompFilter(bool sandbox2Launched,
     result.s_Attempted = true;
     result.s_Outcome = installer();
     result.s_Action = decideDegradedModeAction(result.s_Outcome, terminateOnFailure);
-    result.s_AttestationMarker = degradedModeAttestationMarker(result.s_Outcome);
+    result.s_AttestationMarker = degradedModeAttestationMarker(result.s_Outcome, route);
     return result;
 }
 

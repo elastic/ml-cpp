@@ -14,6 +14,7 @@
 
 #include <sandbox/CMlSandboxAvailability.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
+#include <sandbox/CSandbox2Diagnostics.h>
 #include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <algorithm>
@@ -139,8 +140,16 @@ static_assert(sizeof(CProcessSpawnerRouter) < sizeof(core::CDetachedProcessSpawn
               "sandbox::CSandboxedProcessSpawner by value");
 
 CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
-                                             const TStrVec& sandboxedProcessPaths)
-    : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths} {
+                                             const TStrVec& sandboxedProcessPaths,
+                                             TConfinementFn confinementFn)
+    : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths},
+      m_ConfinementFn{confinementFn ? std::move(confinementFn) : TConfinementFn{[] {
+          return sandbox::hostConfinement();
+      }}} {
+}
+
+const std::string& CProcessSpawnerRouter::lastSpawnFailureReason() const {
+    return m_LastSpawnFailureReason;
 }
 
 CProcessSpawnerRouter::~CProcessSpawnerRouter() = default;
@@ -154,7 +163,8 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
                                              ELegacyReason legacyReason,
                                              const std::string& deploymentId,
                                              const TStrVec& args,
-                                             bool spawnSucceeded) const {
+                                             bool spawnSucceeded,
+                                             bool landlockFallback) const {
     const bool isLegacyRoute{route == ERoute::E_Legacy};
 
     // degraded is decided purely by route, regardless of the legacy
@@ -165,6 +175,13 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     std::string mode;
     if (isLegacyRoute) {
         mode = "degraded";
+    } else if (landlockFallback) {
+        // A Sandbox2-routed launch that this host could not honour, run
+        // under Landlock instead. Reported distinctly rather than as
+        // "enforced" (no Sandbox2 was established) or "fail_closed" (the
+        // deployment did start): a consumer must be able to tell that the
+        // operator's request was met by something weaker.
+        mode = spawnSucceeded ? "landlock" : "fail_closed";
     } else {
         mode = spawnSucceeded ? "enforced" : "fail_closed";
     }
@@ -215,6 +232,8 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     LOG_INFO(<< signal.str());
 }
 
+const std::string CProcessSpawnerRouter::RESTRICT_FILESYSTEM_TOKEN{"--restrictFilesystem"};
+
 bool CProcessSpawnerRouter::spawn(ERoute route,
                                   const std::string& processPath,
                                   const TStrVec& args,
@@ -236,7 +255,11 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     const std::string deploymentId{sandboxEligible ? deriveDeploymentId(args)
                                                    : std::string()};
 
+    m_LastSpawnFailureReason.clear();
     bool spawned{false};
+    // Set when the Sandbox2 route degraded to the Landlock fallback, so the
+    // signal below reports what actually bounded the child.
+    bool landlockFallback{false};
     if (route == ERoute::E_Legacy) {
         // Legacy route decided upstream: either the operator kill-switch
         // token (validated against this exact processPath and stripped from
@@ -254,21 +277,55 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // route == ERoute::E_Sandbox2, and processPath is configured as
     // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
-        // First - and only - point at which any Sandbox2 machinery is
-        // constructed. A router that never reaches this branch (every
-        // router that never dispatches a validated --requireSandbox token,
-        // and every router in a build without Sandbox2 support) never creates a
-        // CSandboxedProcessSpawner at all, so no Sandbox2 state enters its
-        // construction or teardown path. Single-threaded by the same
-        // contract as the legacy spawner - see the member's declaration.
-        if (m_SandboxSpawner == nullptr) {
-            m_SandboxSpawner = std::make_unique<sandbox::CSandboxedProcessSpawner>();
+        // Decide the rung before constructing or launching anything, from
+        // the one cached verdict the startup self-check also logged - never
+        // an independent probe here, because two probes can disagree (one
+        // once did, when the controller's non-dumpable flag broke the later
+        // one) and then the log says one thing while the route does
+        // another. Deciding first matters: on a host without user
+        // namespaces a Sandbox2 launch fails only after an opaque
+        // SETUP_ERROR, and on one that permits namespaces but denies mounts
+        // inside them the forkserver deadlocks instead of returning.
+        const sandbox::SHostConfinement host{m_ConfinementFn()};
+        switch (host.s_Level) {
+        case sandbox::EConfinementLevel::E_Sandbox2:
+            // First - and only - point at which any Sandbox2 machinery is
+            // constructed. A router that never reaches this case (every
+            // router that never dispatches a validated --requireSandbox
+            // token, every router on a host that cannot run Sandbox2, and
+            // every router in a build without Sandbox2 support) never creates
+            // a CSandboxedProcessSpawner at all, so no Sandbox2 state enters
+            // its construction or teardown path. Single-threaded by the same
+            // contract as the legacy spawner - see the member's declaration.
+            if (m_SandboxSpawner == nullptr) {
+                m_SandboxSpawner = std::make_unique<sandbox::CSandboxedProcessSpawner>();
+            }
+            // No automatic fallback on a Sandbox2 *failure*: a host that can
+            // run Sandbox2 but fails this launch has a problem worth
+            // surfacing, not papering over with a weaker boundary.
+            spawned = m_SandboxSpawner->spawn(processPath, args, childPid);
+            break;
+        case sandbox::EConfinementLevel::E_Landlock: {
+            // A supported, deliberate degradation: INFO, with what an
+            // administrator would change to get full isolation.
+            LOG_INFO(<< sandbox::landlockFallbackMessage(host, processPath));
+            TStrVec landlockArgs{args};
+            landlockArgs.emplace_back(RESTRICT_FILESYSTEM_TOKEN);
+            spawned = m_LegacySpawner.spawn(processPath, landlockArgs, childPid);
+            landlockFallback = true;
+            break;
         }
-
-        // No automatic fallback to the legacy spawner on a Sandbox2
-        // failure: a process that must be sandboxed either
-        // launches inside Sandbox2 or does not launch at all.
-        spawned = m_SandboxSpawner->spawn(processPath, args, childPid);
+        case sandbox::EConfinementLevel::E_Unavailable:
+            // Refuse here, in the controller, rather than launching a child
+            // that would only discover it cannot confine itself: that way
+            // Elasticsearch gets an immediate, explained failure instead of
+            // a pipe-connection timeout, and no untrusted model is ever
+            // started unconfined while the operator asked for a sandbox.
+            m_LastSpawnFailureReason = sandbox::noConfinementMessage(host, processPath);
+            LOG_ERROR(<< m_LastSpawnFailureReason);
+            spawned = false;
+            break;
+        }
 #else
         // Build/deployment contradiction: processPath is configured as
         // sandboxed, but this build has no Sandbox2 support (non-Linux).
@@ -288,7 +345,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     }
 
     if (sandboxEligible) {
-        this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned);
+        this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned, landlockFallback);
     }
 
     return spawned;
