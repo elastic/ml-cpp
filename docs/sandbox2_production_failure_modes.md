@@ -134,14 +134,14 @@ present.
         - process filter.Only `CSandboxedProcessSpawner` sets it,
                                and only on real sandboxees.
 
-                                   Hard termination on a failed in
-                                   - process seccomp installation(`TERMINATE_ON_DEGRADED_SECCOMP_FAILURE` in
-`bin / pytorch_inference / Main.cc`) is deliberately **off ** : an ordinary launch with no explicit routing token is a degraded - route launch
-    ,
-                               so terminating would fail every launch on a host without usable seccomp
-                                   BPF.It becomes safe to activate once every caller that matters always sends an
-                                   explicit
-`--disableSandbox` or `--requireSandbox` token per launch.
+Hard termination on a failed in-process seccomp installation
+(`TERMINATE_ON_DEGRADED_SECCOMP_FAILURE` in `include/seccomp/CSystemCallFilter.h`)
+is **on** for legacy and Landlock launches: if the filter cannot be installed,
+`pytorch_inference` exits before reading untrusted model bytes. Elasticsearch
+sends an explicit `--disableSandbox` or `--requireSandbox` token on every Linux
+production launch; direct controller invocations with no token still take the
+legacy route and fail closed the same way. Sandbox2 children (`ML_SANDBOXED=1`)
+never install this filter.
 
                                    Example :
 
