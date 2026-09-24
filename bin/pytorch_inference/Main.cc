@@ -356,30 +356,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    // Internal switch, deliberately still OFF (log-and-continue on a failed
-    // in-process seccomp installation, exactly as before typed routing).
-    //
-    // Turning it on is only safe once a degraded/legacy-route launch is
-    // guaranteed to be a deliberate decision rather than an unrequested
-    // default. CProcessSpawnerRouter supplies half of that guarantee - it
-    // never falls back to the legacy spawner after a failed Sandbox2
-    // attempt - but the controller's no-token case still always takes the
-    // legacy route (see bin/controller/CCommandProcessor.cc), and a caller
-    // that omits both routing tokens is not necessarily choosing that
-    // deliberately. So an ordinary launch with no explicit token is a
-    // degraded-route launch, and terminating on seccomp-install failure
-    // would fail every launch on a host lacking usable seccomp BPF
-    // (restricted containers, some CI images) with no fallback to select
-    // instead.
-    //
-    // Activate this once every caller that matters (in practice,
-    // Elasticsearch) always sends an explicit --disableSandbox or
-    // --requireSandbox token per launch, so a degraded launch really is
-    // only ever reachable via an explicit, controller-validated
-    // --disableSandbox token, which is what makes hard termination safe
-    // (track: elastic/ml-cpp#3213).
-    constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
-
     // The in-process filter belongs to the legacy/non-sandboxed route only.
     // On the Sandbox2 route the executor's own policy is already the
     // security boundary and ML_SANDBOXED is exactly "1", so the whole step -
@@ -394,7 +370,7 @@ int main(int argc, char** argv) {
     // are meant to stack - so its attestation names that route, matching the
     // controller's sandbox2_launch signal for this launch.
     const ml::seccomp::SInProcessFilterResult seccompResult{ml::seccomp::applyInProcessSeccompFilter(
-        sandbox2Launched, TERMINATE_ON_DEGRADED_SECCOMP_FAILURE,
+        sandbox2Launched, ml::seccomp::TERMINATE_ON_DEGRADED_SECCOMP_FAILURE,
         [] { return ml::seccomp::CSystemCallFilter::installSystemCallFilter(); },
         restrictFilesystem ? "landlock" : "legacy")};
 

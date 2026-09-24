@@ -83,25 +83,21 @@ enum class EDegradedModeAction {
 //! Pure decision function: does this install outcome require terminating
 //! before untrusted IO/model processing?
 //!
-//! terminateOnFailure is an internal switch, not an operator setting. Every
-//! degraded-mode seccomp failure should eventually terminate before
-//! processing, but flipping that on for every call site before the
-//! ml-cpp/Elasticsearch controller protocol can guarantee a degraded-mode
-//! launch was a deliberate operator choice would fail every launch on a
-//! host lacking seccomp BPF, with no operator fallback setting to select
-//! instead. It is only safe to pass true where a degraded-mode launch is
-//! guaranteed to be a deliberate route decision rather than the production
-//! default. bin/controller's CProcessSpawnerRouter provides half of that
-//! guarantee (it never retries a failed Sandbox2 spawn through the legacy
-//! spawner), but while CCommandProcessor's no-token case still always
-//! routes to legacy, and no caller is yet guaranteed to always send an
-//! explicit --disableSandbox/--requireSandbox token, an ordinary launch
-//! *is* a degraded-route launch, so bin/pytorch_inference/Main.cc passes
-//! false. See the comment at TERMINATE_ON_DEGRADED_SECCOMP_FAILURE there
-//! for when it flips.
-//! This decision only ever
-//! applies to a launch that installs its own in-process filter at all - see
-//! sandbox2LaunchedChild() and applyInProcessSeccompFilter() below.
+//! Legacy and Landlock pytorch_inference launches pass this to
+//! applyInProcessSeccompFilter(). When true, a failed in-process filter
+//! installation terminates before untrusted model IO. Elasticsearch sends an
+//! explicit `--disableSandbox` or `--requireSandbox` token on every Linux
+//! production launch; direct controller invocations with no token still take
+//! the legacy route and fail closed here too. Sandbox2 children
+//! (`ML_SANDBOXED=1`) never install this filter regardless of this value.
+inline constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{true};
+
+//! Maps a filter installation outcome to the action the pytorch_inference
+//! startup path must take before model IO. \p terminateOnFailure is normally
+//! TERMINATE_ON_DEGRADED_SECCOMP_FAILURE above.
+//! This decision only ever applies to a launch that installs its own
+//! in-process filter at all - see sandbox2LaunchedChild() and
+//! applyInProcessSeccompFilter() below.
 inline EDegradedModeAction decideDegradedModeAction(ESystemCallFilterInstallOutcome outcome,
                                                     bool terminateOnFailure) {
     if (outcome == ESystemCallFilterInstallOutcome::E_Installed || !terminateOnFailure) {
