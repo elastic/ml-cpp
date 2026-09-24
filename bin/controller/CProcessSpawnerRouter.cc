@@ -105,9 +105,13 @@ std::string jsonEscape(const std::string& s) {
 //! directory and report an empty deployment_id on exactly the degraded and
 //! fail_closed modes the signal exists to make debuggable.
 //! Returns "" when no path-bearing option was present at all.
-std::string deriveDeploymentId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
+std::string trustedTmpDirFromEnvironment() {
     const char* tmpDirEnv{::getenv("TMPDIR")};
-    const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
+    return tmpDirEnv != nullptr ? std::string{tmpDirEnv} : std::string{"/tmp"};
+}
+
+std::string deriveDeploymentId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
+    const std::string trustedTmpDir{trustedTmpDirFromEnvironment()};
     // validateChildIpcLaunchSpec() does live ::realpath() calls, which
     // require $TMPDIR/ml-child-ipc/<child-id> to already exist. This is the
     // *other* production call site that reaches that function (the one
@@ -135,7 +139,15 @@ CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPath
     : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths},
       m_ConfinementFn{confinementFn ? std::move(confinementFn) : TConfinementFn{[] {
           return sandbox::hostConfinement();
-      }}} {
+      }}},
+      m_ChildIpcReaper{std::make_shared<sandbox::CChildIpcDirectoryReaper>()} {
+    m_LegacySpawner.setChildIpcDirectoryCallbacks(
+        [reaper = m_ChildIpcReaper](core::CProcess::TPid pid) {
+            reaper->onChildExited(pid);
+        },
+        [reaper = m_ChildIpcReaper](core::CProcess::TPid pid, const std::string& root) {
+            reaper->noteSpawn(pid, root);
+        });
 }
 
 const std::string& CProcessSpawnerRouter::lastSpawnFailureReason() const {
@@ -242,6 +254,12 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // processes (autodetect etc.) pay no ::realpath() cost.
     const std::string deploymentId{sandboxEligible ? deriveDeploymentId(args)
                                                    : std::string()};
+    const std::string childIpcRoot{
+        sandboxEligible
+            ? sandbox::perChildIpcRootFromArgs(trustedTmpDirFromEnvironment(), args)
+            : std::string()};
+    const std::string* childIpcRootPtr{
+        sandboxEligible && childIpcRoot.empty() == false ? &childIpcRoot : nullptr};
 
     m_LastSpawnFailureReason.clear();
     bool spawned{false};
@@ -260,7 +278,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         // sandbox2_launch signal below can report it.
         LOG_INFO(<< "Launching '" << processPath << "' without Sandbox2 (legacy route selected by the controller); "
                  << "the in-process seccomp filter applies");
-        spawned = m_LegacySpawner.spawn(processPath, args, childPid);
+        spawned = m_LegacySpawner.spawn(processPath, args, childPid, childIpcRootPtr);
     } else if (sandboxEligible) {
     // route == ERoute::E_Sandbox2, and processPath is configured as
     // sandboxed.
@@ -287,6 +305,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
             // contract as the legacy spawner - see the member's declaration.
             if (m_SandboxSpawner == nullptr) {
                 m_SandboxSpawner = std::make_unique<sandbox::CSandboxedProcessSpawner>();
+                m_SandboxSpawner->setChildIpcDirectoryReaper(m_ChildIpcReaper);
             }
             // No automatic fallback on a Sandbox2 *failure*: a host that can
             // run Sandbox2 but fails this launch has a problem worth
@@ -299,7 +318,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
             LOG_INFO(<< sandbox::landlockFallbackMessage(host, processPath));
             TStrVec landlockArgs{args};
             landlockArgs.emplace_back(RESTRICT_FILESYSTEM_TOKEN);
-            spawned = m_LegacySpawner.spawn(processPath, landlockArgs, childPid);
+            spawned = m_LegacySpawner.spawn(processPath, landlockArgs, childPid, childIpcRootPtr);
             landlockFallback = true;
             break;
         }
@@ -334,6 +353,9 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
 
     if (sandboxEligible) {
         this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned, landlockFallback);
+        if (spawned == false && childIpcRoot.empty() == false) {
+            m_ChildIpcReaper->onSpawnFailed(childIpcRoot);
+        }
     }
 
     return spawned;
