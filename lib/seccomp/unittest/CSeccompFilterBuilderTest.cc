@@ -35,6 +35,8 @@
 
 #endif // __linux__
 
+static_assert(ml::seccomp::TERMINATE_ON_DEGRADED_SECCOMP_FAILURE);
+
 BOOST_AUTO_TEST_SUITE(CSeccompFilterBuilderTest)
 
 #ifdef __linux__
