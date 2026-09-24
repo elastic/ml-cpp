@@ -27,6 +27,20 @@ ml_add_executable(controller
   CResponseJsonWriter.cc
   )
 
+# CProcessSpawnerRouter.cc is the only controller source that includes
+# Sandbox2/Abseil/protobuf headers (via CSandboxedProcessSpawner.h). Those
+# headers are not warning-clean under ml-cpp's strict flags; under the debug
+# CI build's CMAKE_COMPILE_WARNING_AS_ERROR=ON they fail compilation if
+# batched into a unity TU with the rest of the controller. Compile this file
+# alone with warnings-as-errors off, matching lib/sandbox/CMakeLists.txt for
+# MlSandbox.
+set_source_files_properties(
+  CProcessSpawnerRouter.cc
+  PROPERTIES
+    SKIP_UNITY_BUILD_INCLUSION ON
+    COMPILE_WARNING_AS_ERROR OFF
+)
+
 # ml_add_executable() also creates an OBJECT library (Mlcontroller) holding
 # the sources above, purely so bin/controller/unittest can link the same
 # object files as the executable. That OBJECT library has no link libraries

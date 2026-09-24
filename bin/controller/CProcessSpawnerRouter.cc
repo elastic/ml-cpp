@@ -14,6 +14,7 @@
 
 #include <sandbox/CMlSandboxAvailability.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
+#include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -132,6 +133,8 @@ CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPath
                                              const TStrVec& sandboxedProcessPaths)
     : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths} {
 }
+
+CProcessSpawnerRouter::~CProcessSpawnerRouter() = default;
 
 bool CProcessSpawnerRouter::isSandboxedProcessPath(const std::string& processPath) const {
     return std::find(m_SandboxedProcessPaths.begin(), m_SandboxedProcessPaths.end(),

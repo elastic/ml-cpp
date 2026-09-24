@@ -14,13 +14,14 @@
 #include <core/CDetachedProcessSpawner.h>
 #include <core/CProcess.h>
 
-#include <sandbox/CSandboxedProcessSpawner.h>
-
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace ml {
+namespace sandbox {
+class CSandboxedProcessSpawner;
+}
 namespace controller {
 
 //! \brief
@@ -83,6 +84,7 @@ public:
 public:
     CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
                           const TStrVec& sandboxedProcessPaths);
+    ~CProcessSpawnerRouter();
 
     //! Dispatch a spawn request per the already-decided \p route. Returns
     //! false immediately on a Sandbox2 failure - never retries via the
