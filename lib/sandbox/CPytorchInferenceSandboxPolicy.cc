@@ -452,6 +452,59 @@ EChildIpcDirectoryOutcome ensureChildIpcDirectory(const std::string& trustedTmpD
     return EChildIpcDirectoryOutcome::E_Ready;
 }
 
+std::string perChildIpcRootFromArgs(const std::string& trustedTmpDir,
+                                    const std::vector<std::string>& args) {
+    const SChildIpcValidationResult validated{validateChildIpcLaunchSpec(trustedTmpDir, args)};
+    if (validated.s_Ok) {
+        return validated.s_Spec.s_ChildIpcRoot;
+    }
+
+    std::string base{trustedTmpDir};
+    while (base.empty() == false && base.back() == '/') {
+        base.pop_back();
+    }
+    const std::string mlChildIpcDir{base + "/ml-child-ipc"};
+    const std::string expectedPrefix{mlChildIpcDir + "/"};
+
+    for (const std::string& arg : args) {
+        const std::size_t eqPos = arg.find('=');
+        if (eqPos == std::string::npos) {
+            continue;
+        }
+
+        std::string optionName{arg.substr(0, eqPos)};
+        while (optionName.empty() == false && optionName[0] == '-') {
+            optionName.erase(0, 1);
+        }
+        if (isPathOptionName(optionName) == false) {
+            continue;
+        }
+
+        const std::string value{eqPos + 1 < arg.size() ? arg.substr(eqPos + 1)
+                                                       : std::string{}};
+        if (value.empty() || value[0] != '/') {
+            continue;
+        }
+
+        const std::vector<std::string> components{splitPathComponents(value)};
+        if (containsDotDot(components) || components.size() < 2) {
+            continue;
+        }
+
+        const std::size_t lastSlash = value.rfind('/');
+        const std::string literalParent{value.substr(0, lastSlash)};
+        if (literalParent.compare(0, expectedPrefix.size(), expectedPrefix) != 0) {
+            continue;
+        }
+        const std::string candidateChildId{literalParent.substr(expectedPrefix.size())};
+        if (candidateChildId.empty() || candidateChildId.find('/') != std::string::npos) {
+            continue;
+        }
+        return mlChildIpcDir + "/" + candidateChildId;
+    }
+    return std::string();
+}
+
 #ifdef SANDBOX2_AVAILABLE
 
 absl::StatusOr<sandbox2::PolicyBuilder>

@@ -17,6 +17,7 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <functional>
 #include <set>
 
 #include <errno.h>
@@ -126,6 +127,11 @@ public:
     //! Mutex is accessible so the code outside the class can avoid race
     //! conditions.
     CMutex& mutex() { return m_Mutex; }
+
+    void setOnChildExited(std::function<void(CProcess::TPid)> onChildExited) {
+        CScopedLock lock(m_Mutex);
+        m_OnChildExited = std::move(onChildExited);
+    }
 
     //! Add a PID to track.
     void addPid(CProcess::TPid pid) {
@@ -243,6 +249,9 @@ private:
                     }
                 }
                 m_Pids.erase(pid);
+                if (m_OnChildExited) {
+                    m_OnChildExited(pid);
+                }
             }
         }
     }
@@ -250,6 +259,7 @@ private:
 private:
     bool m_Shutdown;
     TPidSet m_Pids;
+    std::function<void(CProcess::TPid)> m_OnChildExited;
     mutable CMutex m_Mutex;
     CCondition m_Condition;
 };
@@ -269,6 +279,12 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     }
 }
 
+void CDetachedProcessSpawner::setChildIpcDirectoryCallbacks(TChildExitedCallback onChildExited,
+                                                            TChildSpawnedIpcCallback onChildSpawnedWithIpc) {
+    m_OnChildSpawnedWithIpc = std::move(onChildSpawnedWithIpc);
+    m_TrackerThread->setOnChildExited(std::move(onChildExited));
+}
+
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
@@ -277,6 +293,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    const std::string* childIpcRoot) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
@@ -348,6 +371,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             return false;
         }
 
+        if (childIpcRoot != nullptr && childIpcRoot->empty() == false && m_OnChildSpawnedWithIpc) {
+            m_OnChildSpawnedWithIpc(childPid, *childIpcRoot);
+        }
         m_TrackerThread->addPid(childPid);
     }
 

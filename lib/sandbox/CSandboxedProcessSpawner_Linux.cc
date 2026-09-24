@@ -11,6 +11,7 @@
 #include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <core/CLogger.h>
+#include <sandbox/CChildIpcDirectoryReaper.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 
 #include <cerrno>
@@ -398,6 +399,11 @@ CSandboxedProcessSpawner::CSandboxedProcessSpawner(TPidFdOpenFn pidFdOpenFn,
 
 CSandboxedProcessSpawner::~CSandboxedProcessSpawner() = default;
 
+void CSandboxedProcessSpawner::setChildIpcDirectoryReaper(
+    const std::shared_ptr<CChildIpcDirectoryReaper>& reaper) {
+    m_ChildIpcReaper = reaper;
+}
+
 bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                                      const TStrVec& args,
                                      core::CProcess::TPid& childPid) {
@@ -450,6 +456,18 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // false must fail the spawn outright - never fall back to a
     // partially-built policy.
     const SChildIpcValidationResult validated{validateChildIpcLaunchSpec(trustedTmpDir, args)};
+    const std::string childIpcRoot{validated.s_Spec.s_ChildIpcRoot};
+    const auto notifySpawnFailed = [this, &trustedTmpDir, &args, &childIpcRoot]() {
+        if (m_ChildIpcReaper == nullptr) {
+            return;
+        }
+        const std::string root{childIpcRoot.empty()
+                                   ? perChildIpcRootFromArgs(trustedTmpDir, args)
+                                   : childIpcRoot};
+        if (root.empty() == false) {
+            m_ChildIpcReaper->onSpawnFailed(root);
+        }
+    };
     if (validated.s_Ok == false) {
         std::ostringstream rejected;
         for (const SRejectedChildIpcPath& r : validated.s_Rejected) {
@@ -458,6 +476,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         }
         LOG_ERROR(<< "Rejected pytorch_inference child-IPC launch spec for "
                   << processPath << ':' << rejected.str());
+        notifySpawnFailed();
         return false;
     }
 
@@ -484,6 +503,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     if (!built.ok()) {
         LOG_ERROR(<< "Failed to build Sandbox2 policy for " << processPath
                   << ": " << built.status());
+        notifySpawnFailed();
         return false;
     }
     sandbox2::PolicyBuilder policyBuilder{std::move(*built)};
@@ -491,6 +511,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     auto policyResult = policyBuilder.TryBuild();
     if (!policyResult.ok()) {
         LOG_ERROR(<< "Failed to build Sandbox2 policy for " << processPath);
+        notifySpawnFailed();
         return false;
     }
 
@@ -515,6 +536,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to take shared ownership of a sandboxee for "
                   << processPath << ": " << e.what());
+        notifySpawnFailed();
         return false;
     }
 
@@ -531,6 +553,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         LOG_ERROR(<< "Sandbox2 failed to start " << processPath << ": status="
                   << sandbox2::Result::StatusEnumToString(result.final_status()) << " reason="
                   << result.reason_code() << " (" << result.ToString() << ')');
+        notifySpawnFailed();
         return false;
     }
 
@@ -539,6 +562,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         sandbox->AwaitResult();
         childPid = 0;
         LOG_ERROR(<< "Sandbox2 returned an invalid PID for " << processPath);
+        notifySpawnFailed();
         return false;
     }
 
@@ -573,6 +597,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                   << pidFdResult.s_Errno << " (" << ::strerror(pidFdResult.s_Errno)
                   << "); refusing to register a child with an undefined termination fallback");
         childPid = 0;
+        notifySpawnFailed();
         return false; // killAndReapGuard fires here; pidFdGuard closes any fd on unwind.
     }
 
@@ -592,6 +617,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         LOG_ERROR(<< "Failed to register sandboxed process " << processPath
                   << " (PID " << sandboxPid << "): " << e.what());
         childPid = 0;
+        notifySpawnFailed();
         return false; // killAndReapGuard fires here; pidFdGuard still owns the fd.
     }
     // E_Registered. The registry entry now owns the pidfd; do not double-
@@ -635,13 +661,21 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     try {
         const TPidRegistryPtr registry{m_PidRegistry};
         const TAwaitResultFn awaitResultFn{m_AwaitResultFn};
-        auto monitorBody = [sandboxPid, registry, sandbox, generation, awaitResultFn]() {
+        const std::shared_ptr<CChildIpcDirectoryReaper> childIpcReaper{m_ChildIpcReaper};
+        auto monitorBody = [sandboxPid, registry, sandbox, generation,
+                            awaitResultFn, childIpcReaper]() {
             // Detached threads must not let exceptions escape: std::terminate().
+            const auto notifyChildExited = [&]() {
+                if (childIpcReaper) {
+                    childIpcReaper->onChildExited(sandboxPid);
+                }
+            };
             try {
                 const sandbox2::Result result{awaitResultFn ? awaitResultFn(*sandbox)
                                                             : sandbox->AwaitResult()};
                 if (completeMonitorRegistryCleanup(registry, sandboxPid, generation)) {
                     logSandboxeeTermination(sandboxPid, result);
+                    notifyChildExited();
                 }
             } catch (const std::exception& e) {
                 LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
@@ -651,6 +685,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                     sandbox->AwaitResult();
                 } catch (...) {}
                 eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
+                notifyChildExited();
             } catch (...) {
                 LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
                           << sandboxPid << " failed with a non-standard exception");
@@ -659,6 +694,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                     sandbox->AwaitResult();
                 } catch (...) {}
                 eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
+                notifyChildExited();
             }
         };
 
@@ -670,6 +706,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         LOG_ERROR(<< "Failed to launch monitor thread for sandboxed process "
                   << processPath << " (PID " << sandboxPid << "): " << e.what());
         childPid = 0;
+        notifySpawnFailed();
         return false; // killAndReapGuard fires here.
     }
 
@@ -681,6 +718,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         LOG_ERROR(<< "Failed to start monitor thread for sandboxed process "
                   << processPath << " (PID " << sandboxPid << ")");
         childPid = 0;
+        notifySpawnFailed();
         return false; // killAndReapGuard fires here.
     }
 
@@ -688,6 +726,10 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // succeeded, so the monitor thread now owns calling AwaitResult() and
     // removing the registry entry. Disarm - the guard must not also reap.
     killAndReapGuard.disarm();
+
+    if (m_ChildIpcReaper && childIpcRoot.empty() == false) {
+        m_ChildIpcReaper->noteSpawn(sandboxPid, childIpcRoot);
+    }
 
     // Record E_Monitoring under the lock, generation-matched. Only advance
     // from E_Registered so a racing terminator is not overwritten.

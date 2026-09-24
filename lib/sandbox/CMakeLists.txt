@@ -25,6 +25,7 @@ set(ML_LINK_LIBRARIES
   )
 
 set(SRCS
+  CChildIpcDirectoryReaper.cc
   CMlSandboxAvailability.cc
   CPytorchInferenceSandboxPolicy.cc
   CSandbox2Diagnostics_Linux.cc
