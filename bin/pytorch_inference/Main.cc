@@ -327,7 +327,8 @@ int main(int argc, char** argv) {
     // Elasticsearch) always sends an explicit --disableSandbox or
     // --requireSandbox token per launch, so a degraded launch really is
     // only ever reachable via an explicit, controller-validated
-    // --disableSandbox token, which is what makes hard termination safe.
+    // --disableSandbox token, which is what makes hard termination safe
+    // (track: elastic/ml-cpp#3213).
     constexpr bool TERMINATE_ON_DEGRADED_SECCOMP_FAILURE{false};
 
     // The in-process filter belongs to the legacy/non-sandboxed route only.

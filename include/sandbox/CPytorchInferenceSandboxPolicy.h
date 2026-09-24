@@ -127,8 +127,7 @@ enum class EChildIpcDirectoryOutcome {
 //! The per-child directory is not removed here: it is keyed by deployment
 //! id, reused across controller/process restarts for the same id, and is
 //! empty once pytorch_inference has unlinked its FIFOs. Removing it is the
-//! caller's responsibility once the deployment ends (see elastic/ml-cpp issues
-//! filed for ml-child-ipc directory cleanup).
+//! caller's responsibility once the deployment ends (elastic/ml-cpp#3214).
 //!
 //! Idempotent: an already-existing directory is E_Ready, not an error, so a
 //! retry/restart that reuses the same child-id never fails here. Uses only
