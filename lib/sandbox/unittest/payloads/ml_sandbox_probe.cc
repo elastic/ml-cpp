@@ -141,6 +141,20 @@ int main(int argc, char** argv) {
     report("pid_namespace", (::getpid() <= 2) ? "namespaced" : "not_namespaced",
            std::to_string(::getpid()));
 
+    // /proc must be mounted inside the sandbox rootfs. Intel oneMKL's
+    // runtime dispatcher reads /proc/self/exe to self-locate and dlopen its
+    // CPU-specific libmkl_*.so.3 kernels; if /proc is absent this readlink
+    // fails with ENOENT and MKL aborts with "Cannot load <mkl-loader>",
+    // killing every sandboxed pytorch_inference. This guards the /proc mount
+    // in fixedMountDecisions().
+    char exePath[4096];
+    const ssize_t exeLen = ::readlink("/proc/self/exe", exePath, sizeof(exePath) - 1);
+    if (exeLen > 0) {
+        report("proc_self_exe", "readable", "");
+    } else {
+        report("proc_self_exe", "unreadable", std::strerror(errno));
+    }
+
     // External egress denial (negative control): an outbound connect to
     // a guaranteed non-routable test address (TEST-NET-1, RFC 5737) must
     // fail - Sandbox2's network namespace has no route out. Using a
