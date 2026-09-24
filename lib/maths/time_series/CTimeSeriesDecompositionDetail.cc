@@ -647,9 +647,15 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSea
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::reset(core_t::TTime time) {
-    if (m_Window.empty() == false) {
-        m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
-    }
+    // We don't clear the window: it holds raw values and predictions are removed
+    // using the predictor as it is when we test, so they remain usable after a
+    // new component is added to the decomposition. This matters most for long
+    // bucket lengths, where refilling the window takes weeks and where a change
+    // is itself a common trigger for detecting new seasonality.
+    //
+    // We do reset the error moments because errors made before the new component
+    // was added, e.g. before we'd modelled seasonality, would otherwise inflate
+    // largeError() and reduce our sensitivity to a genuine change.
     m_ResidualMoments = TMeanVarAccumulator{};
     m_LargeErrorFraction = 0.0;
     m_TotalCountWeightAdjustment = 0.0;
