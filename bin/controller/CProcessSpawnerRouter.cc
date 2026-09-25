@@ -14,9 +14,11 @@
 
 #include <sandbox/CMlSandboxAvailability.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
+#include <sandbox/CSandbox2Diagnostics.h>
 #include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <memory>
 #include <sstream>
@@ -92,36 +94,39 @@ std::string jsonEscape(const std::string& s) {
     return out;
 }
 
-//! Derive the per-launch deployment_id (SChildIpcLaunchSpec::s_ChildId) from
-//! the path-bearing launch options in \p args, exactly as
-//! CSandboxedProcessSpawner_Linux.cc does before constructing a Sandbox2
-//! policy (same trustedTmpDir derivation - getenv("TMPDIR"), defaulting to
-//! "/tmp"). Called once per spawn(), *before* either backend runs, so the
-//! sandbox2_launch signal and the dispatch decision see one and the same
-//! filesystem
-//! state: validateChildIpcLaunchSpec() does live ::realpath() calls, and a
-//! post-spawn second call could observe a different (or, on the
-//! legacy/degraded and failed-Sandbox2 paths, an absent) per-child IPC
-//! directory and report an empty deployment_id on exactly the degraded and
-//! fail_closed modes the signal exists to make debuggable.
-//! Returns "" when no path-bearing option was present at all.
-std::string deriveDeploymentId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
+struct SPreparedChildIpcLaunch {
+    ml::sandbox::EChildIpcDirectoryOutcome s_DirectoryOutcome{
+        ml::sandbox::EChildIpcDirectoryOutcome::E_NoPathOptions};
+    ml::sandbox::SChildIpcValidationResult s_Validation;
+};
+
+std::string trustedTmpDirFromEnvironment() {
     const char* tmpDirEnv{::getenv("TMPDIR")};
-    const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
-    // validateChildIpcLaunchSpec() does live ::realpath() calls, which
-    // require $TMPDIR/ml-child-ipc/<child-id> to already exist. This is the
-    // *other* production call site that reaches that function (the one
-    // inside CSandboxedProcessSpawner_Linux.cc::spawn() is the other), and
-    // it runs strictly before spawn() dispatches to either backend - on the
-    // legacy route just as much as the Sandbox2 route, since the signal
-    // below always wants a real deployment_id. Ensure the directory exists
-    // here too, rather than relying on the Sandbox2 spawner (which may not
-    // even run on this route) to have already done it. A creation failure
-    // is not logged again here: an empty deployment_id in the signal is
-    // itself the observable symptom, and the Sandbox2 spawner (when that
-    // route is actually taken) logs the failure with detail.
-    ml::sandbox::ensureChildIpcDirectory(trustedTmpDir, args);
-    return ml::sandbox::validateChildIpcLaunchSpec(trustedTmpDir, args).s_Spec.s_ChildId;
+    return tmpDirEnv != nullptr ? std::string{tmpDirEnv} : std::string{"/tmp"};
+}
+
+//! Create the per-child IPC directory and validate the launch spec once per
+//! spawn(), *before* either backend runs, so the sandbox2_launch signal and
+//! the Landlock dispatch decision see one filesystem state. Same checks as
+//! CSandboxedProcessSpawner_Linux.cc::spawn() (which re-runs them on the
+//! Sandbox2 route).
+SPreparedChildIpcLaunch
+prepareChildIpcLaunch(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
+    const std::string trustedTmpDir{trustedTmpDirFromEnvironment()};
+    SPreparedChildIpcLaunch prepared;
+    prepared.s_DirectoryOutcome = ml::sandbox::ensureChildIpcDirectory(trustedTmpDir, args);
+    prepared.s_Validation = ml::sandbox::validateChildIpcLaunchSpec(trustedTmpDir, args);
+    return prepared;
+}
+
+std::string rejectedChildIpcLaunchSpecMessage(const std::string& processPath,
+                                              const ml::sandbox::SChildIpcValidationResult& validated) {
+    std::ostringstream rejected;
+    for (const ml::sandbox::SRejectedChildIpcPath& r : validated.s_Rejected) {
+        rejected << " [" << r.s_Arg << ": reason=" << static_cast<int>(r.s_Reason) << ']';
+    }
+    return std::string{"Rejected pytorch_inference child-IPC launch spec for "} +
+           processPath + ':' + rejected.str();
 }
 
 } // namespace
@@ -139,8 +144,16 @@ static_assert(sizeof(CProcessSpawnerRouter) < sizeof(core::CDetachedProcessSpawn
               "sandbox::CSandboxedProcessSpawner by value");
 
 CProcessSpawnerRouter::CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
-                                             const TStrVec& sandboxedProcessPaths)
-    : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths} {
+                                             const TStrVec& sandboxedProcessPaths,
+                                             TConfinementFn confinementFn)
+    : m_LegacySpawner{permittedProcessPaths}, m_SandboxedProcessPaths{sandboxedProcessPaths},
+      m_ConfinementFn{confinementFn ? std::move(confinementFn) : TConfinementFn{[] {
+          return sandbox::hostConfinement();
+      }}} {
+}
+
+const std::string& CProcessSpawnerRouter::lastSpawnFailureReason() const {
+    return m_LastSpawnFailureReason;
 }
 
 CProcessSpawnerRouter::~CProcessSpawnerRouter() = default;
@@ -154,7 +167,8 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
                                              ELegacyReason legacyReason,
                                              const std::string& deploymentId,
                                              const TStrVec& args,
-                                             bool spawnSucceeded) const {
+                                             bool spawnSucceeded,
+                                             bool landlockFallback) const {
     const bool isLegacyRoute{route == ERoute::E_Legacy};
 
     // degraded is decided purely by route, regardless of the legacy
@@ -165,6 +179,13 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     std::string mode;
     if (isLegacyRoute) {
         mode = "degraded";
+    } else if (landlockFallback) {
+        // A Sandbox2-routed launch that this host could not honour, run
+        // under Landlock instead. Reported distinctly rather than as
+        // "enforced" (no Sandbox2 was established) or "fail_closed" (the
+        // deployment did start): a consumer must be able to tell that the
+        // operator's request was met by something weaker.
+        mode = spawnSucceeded ? "landlock" : "fail_closed";
     } else {
         mode = spawnSucceeded ? "enforced" : "fail_closed";
     }
@@ -215,6 +236,8 @@ void CProcessSpawnerRouter::emitLaunchSignal(ERoute route,
     LOG_INFO(<< signal.str());
 }
 
+const std::string CProcessSpawnerRouter::RESTRICT_FILESYSTEM_TOKEN{"--restrictFilesystem"};
+
 bool CProcessSpawnerRouter::spawn(ERoute route,
                                   const std::string& processPath,
                                   const TStrVec& args,
@@ -233,10 +256,16 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // post-spawn second derivation is not equivalent. Skipped entirely for
     // processes that can never emit the signal, so unrelated permitted
     // processes (autodetect etc.) pay no ::realpath() cost.
-    const std::string deploymentId{sandboxEligible ? deriveDeploymentId(args)
-                                                   : std::string()};
+    const SPreparedChildIpcLaunch prepared{
+        sandboxEligible ? prepareChildIpcLaunch(args) : SPreparedChildIpcLaunch{}};
+    const std::string deploymentId{
+        sandboxEligible ? prepared.s_Validation.s_Spec.s_ChildId : std::string()};
 
+    m_LastSpawnFailureReason.clear();
     bool spawned{false};
+    // Set when the Sandbox2 route degraded to the Landlock fallback, so the
+    // signal below reports what actually bounded the child.
+    bool landlockFallback{false};
     if (route == ERoute::E_Legacy) {
         // Legacy route decided upstream: either the operator kill-switch
         // token (validated against this exact processPath and stripped from
@@ -254,21 +283,72 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // route == ERoute::E_Sandbox2, and processPath is configured as
     // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
-        // First - and only - point at which any Sandbox2 machinery is
-        // constructed. A router that never reaches this branch (every
-        // router that never dispatches a validated --requireSandbox token,
-        // and every router in a build without Sandbox2 support) never creates a
-        // CSandboxedProcessSpawner at all, so no Sandbox2 state enters its
-        // construction or teardown path. Single-threaded by the same
-        // contract as the legacy spawner - see the member's declaration.
-        if (m_SandboxSpawner == nullptr) {
-            m_SandboxSpawner = std::make_unique<sandbox::CSandboxedProcessSpawner>();
+        // Decide the rung before constructing or launching anything, from
+        // the one cached verdict the startup self-check also logged - never
+        // an independent probe here, because two probes can disagree (one
+        // once did, when the controller's non-dumpable flag broke the later
+        // one) and then the log says one thing while the route does
+        // another. Deciding first matters: on a host without user
+        // namespaces a Sandbox2 launch fails only after an opaque
+        // SETUP_ERROR, and on one that permits namespaces but denies mounts
+        // inside them the forkserver deadlocks instead of returning.
+        const sandbox::SHostConfinement host{m_ConfinementFn()};
+        switch (host.s_Level) {
+        case sandbox::EConfinementLevel::E_Sandbox2:
+            // First - and only - point at which any Sandbox2 machinery is
+            // constructed. A router that never reaches this case (every
+            // router that never dispatches a validated --requireSandbox
+            // token, every router on a host that cannot run Sandbox2, and
+            // every router in a build without Sandbox2 support) never creates
+            // a CSandboxedProcessSpawner at all, so no Sandbox2 state enters
+            // its construction or teardown path. Single-threaded by the same
+            // contract as the legacy spawner - see the member's declaration.
+            if (m_SandboxSpawner == nullptr) {
+                m_SandboxSpawner = std::make_unique<sandbox::CSandboxedProcessSpawner>();
+            }
+            // No automatic fallback on a Sandbox2 *failure*: a host that can
+            // run Sandbox2 but fails this launch has a problem worth
+            // surfacing, not papering over with a weaker boundary.
+            spawned = m_SandboxSpawner->spawn(processPath, args, childPid);
+            break;
+        case sandbox::EConfinementLevel::E_Landlock: {
+            landlockFallback = true;
+            if (prepared.s_DirectoryOutcome ==
+                sandbox::EChildIpcDirectoryOutcome::E_CreationFailed) {
+                m_LastSpawnFailureReason =
+                    std::string{"Failed to create the per-child IPC directory under "} +
+                    trustedTmpDirFromEnvironment() + "/ml-child-ipc for " +
+                    processPath + ": " + ::strerror(errno);
+                LOG_ERROR(<< m_LastSpawnFailureReason);
+                spawned = false;
+                break;
+            }
+            if (prepared.s_Validation.s_Ok == false) {
+                m_LastSpawnFailureReason = rejectedChildIpcLaunchSpecMessage(
+                    processPath, prepared.s_Validation);
+                LOG_ERROR(<< m_LastSpawnFailureReason);
+                spawned = false;
+                break;
+            }
+            // A supported, deliberate degradation: INFO, with what an
+            // administrator would change to get full isolation.
+            LOG_INFO(<< sandbox::landlockFallbackMessage(host, processPath));
+            TStrVec landlockArgs{args};
+            landlockArgs.emplace_back(RESTRICT_FILESYSTEM_TOKEN);
+            spawned = m_LegacySpawner.spawn(processPath, landlockArgs, childPid);
+            break;
         }
-
-        // No automatic fallback to the legacy spawner on a Sandbox2
-        // failure: a process that must be sandboxed either
-        // launches inside Sandbox2 or does not launch at all.
-        spawned = m_SandboxSpawner->spawn(processPath, args, childPid);
+        case sandbox::EConfinementLevel::E_Unavailable:
+            // Refuse here, in the controller, rather than launching a child
+            // that would only discover it cannot confine itself: that way
+            // Elasticsearch gets an immediate, explained failure instead of
+            // a pipe-connection timeout, and no untrusted model is ever
+            // started unconfined while the operator asked for a sandbox.
+            m_LastSpawnFailureReason = sandbox::noConfinementMessage(host, processPath);
+            LOG_ERROR(<< m_LastSpawnFailureReason);
+            spawned = false;
+            break;
+        }
 #else
         // Build/deployment contradiction: processPath is configured as
         // sandboxed, but this build has no Sandbox2 support (non-Linux).
@@ -288,7 +368,7 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     }
 
     if (sandboxEligible) {
-        this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned);
+        this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned, landlockFallback);
     }
 
     return spawned;

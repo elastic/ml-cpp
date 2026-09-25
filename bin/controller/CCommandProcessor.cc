@@ -28,12 +28,13 @@ const std::string EMPTY_STRING;
 //! rejected outright, never resolved by precedence.
 const std::string DISABLE_SANDBOX_TOKEN{"--disableSandbox"};
 
-//! Operator opt-in: forces the Sandbox2 route (E_Sandbox2, no automatic
-//! legacy fallback) for the configured sandboxed process path. Symmetric
-//! counterpart to DISABLE_SANDBOX_TOKEN - together these are the only two
+//! Operator opt-in: requests the strongest confinement this host can provide
+//! for the configured sandboxed process path (Sandbox2 when available,
+//! otherwise Landlock plus seccomp, otherwise refusal). Symmetric counterpart
+//! to DISABLE_SANDBOX_TOKEN - together these are the only two
 //! controller-control tokens the command wire format defines; any other
 //! unrecognised "--" prefixed token is passed through to the spawned
-//! process unchanged.
+//! process unchanged. `--restrictFilesystem` is not a caller token.
 const std::string REQUIRE_SANDBOX_TOKEN{"--requireSandbox"};
 }
 
@@ -46,8 +47,10 @@ const std::string CCommandProcessor::KILL{"kill"};
 
 CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths,
                                      const TStrVec& sandboxedProcessPaths,
-                                     std::ostream& responseStream)
-    : m_Spawner{permittedProcessPaths, sandboxedProcessPaths}, m_ResponseWriter{responseStream} {
+                                     std::ostream& responseStream,
+                                     CProcessSpawnerRouter::TConfinementFn confinementFn)
+    : m_Spawner{permittedProcessPaths, sandboxedProcessPaths, std::move(confinementFn)},
+      m_ResponseWriter{responseStream} {
 }
 
 void CCommandProcessor::processCommands(std::istream& commandStream) {
@@ -127,6 +130,23 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
             }
             ++requireSandboxCount;
         }
+    }
+
+    // --restrictFilesystem tells pytorch_inference that the router chose the
+    // Landlock rung for it. Only the router may add it (see
+    // CProcessSpawnerRouter::RESTRICT_FILESYSTEM_TOKEN): if a caller could
+    // send it, a child could be Landlock-confined on a launch the
+    // sandbox2_launch signal reports as some other mode, and the signal
+    // would stop being a truthful record of what bounded the child.
+    if (std::find(tokens.begin(), tokens.end(),
+                  CProcessSpawnerRouter::RESTRICT_FILESYSTEM_TOKEN) != tokens.end()) {
+        std::string error{"Rejecting command: '" + CProcessSpawnerRouter::RESTRICT_FILESYSTEM_TOKEN +
+                          "' is reserved for the controller and may not be supplied by the "
+                          "caller, for process '" +
+                          processPath + '\''};
+        LOG_ERROR(<< error << " in command with ID " << id);
+        m_ResponseWriter.writeResponse(id, false, error);
+        return false;
     }
 
     if (disableSandboxCount >= 2) {
@@ -233,7 +253,15 @@ bool CCommandProcessor::handleStart(std::uint32_t id, TStrVec tokens) {
 
     core::CProcess::TPid childPid{0};
     if (m_Spawner.spawn(route, processPath, tokens, childPid, legacyReason) == false) {
+        // When the router refused the launch itself it says why, in words
+        // meant for the user (e.g. that this host cannot confine the process
+        // and xpack.ml.trained_models.sandbox_enabled must be deactivated).
+        // Returned as the failure reason, which Elasticsearch includes in the
+        // deployment-start error.
         std::string error{"Failed to start process '" + processPath + '\''};
+        if (m_Spawner.lastSpawnFailureReason().empty() == false) {
+            error += ": " + m_Spawner.lastSpawnFailureReason();
+        }
         LOG_ERROR(<< error << " in command with ID " << id);
         m_ResponseWriter.writeResponse(id, false, error);
         return false;

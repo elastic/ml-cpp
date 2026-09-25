@@ -211,10 +211,10 @@ task buildZip(type: Zip) {
   // well-known top-level path in the -deps zip. Bump the integer inside
   // 3rd_party/controller-protocol.version (not merely its existence) on any
   // future breaking change to either (a) the controller's
-  // --disableSandbox/--requireSandbox token semantics (controller-only
-  // metadata, never forwarded to the child), or (b) the per-child IPC route
-  // contract ($TMPDIR/ml-child-ipc/<child-id>, mounted at the same path
-  // inside and outside the sandbox).
+  // --disableSandbox/--requireSandbox token semantics or the Landlock fallback
+  // ladder they trigger (controller-only metadata, never forwarded to the
+  // child), or (b) the per-child IPC route contract ($TMPDIR/ml-child-ipc/<child-id>,
+  // mounted at the same path inside and outside the sandbox).
   from("3rd_party") {
     include "controller-protocol.version"
   }

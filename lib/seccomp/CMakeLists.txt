@@ -12,6 +12,7 @@
 project("ML Seccomp")
 
 set(SRCS
+  CLandlockFilesystemPolicy.cc
   CSystemCallFilter.cc
   )
 
