@@ -782,6 +782,4 @@ BOOST_AUTO_TEST_CASE(testLastSpawnFailureReasonClearedByALaterSuccessfulSpawn) {
 
 #endif // SANDBOX2_AVAILABLE && !Windows
 
-// appended probe
-
 BOOST_AUTO_TEST_SUITE_END()
