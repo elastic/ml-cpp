@@ -385,4 +385,68 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterUnchangedOnLegacyRoute) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testDegradedModeAttestationMarkerRouteLandlock) {
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::degradedModeAttestationMarker;
+
+    // route must be threaded through verbatim - a controller/Elasticsearch
+    // observer needs the marker's ml_sandbox2_route to agree with the
+    // sandbox2_launch signal's own "route" field for the same launch.
+    BOOST_REQUIRE_EQUAL(
+        std::string("{\"ml_sandbox2_route\":\"landlock\",\"event\":\"seccomp_installed\"}"),
+        degradedModeAttestationMarker(ESystemCallFilterInstallOutcome::E_Installed, "landlock"));
+
+    // Default parameter is unchanged: omitting route still reports "legacy".
+    BOOST_REQUIRE_EQUAL(
+        std::string("{\"ml_sandbox2_route\":\"legacy\",\"event\":\"seccomp_installed\"}"),
+        degradedModeAttestationMarker(ESystemCallFilterInstallOutcome::E_Installed));
+
+    // A failed install attests nothing, regardless of which route asked for
+    // the marker.
+    BOOST_TEST_REQUIRE(degradedModeAttestationMarker(
+                           ESystemCallFilterInstallOutcome::E_MechanismUnavailable, "landlock")
+                           .empty());
+    BOOST_TEST_REQUIRE(degradedModeAttestationMarker(
+                           ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed, "landlock")
+                           .empty());
+    BOOST_TEST_REQUIRE(degradedModeAttestationMarker(
+                           ESystemCallFilterInstallOutcome::E_FilterInstallFailed, "landlock")
+                           .empty());
+}
+
+BOOST_AUTO_TEST_CASE(testApplyInProcessSeccompFilterPassesRouteThrough) {
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
+
+    // Not Sandbox2-launched (legacy/Landlock route child), successful
+    // install, route == "landlock": the resulting marker must carry that
+    // route, not the default "legacy".
+    const auto result = applyInProcessSeccompFilter(
+        false, true, [] { return ESystemCallFilterInstallOutcome::E_Installed; }, "landlock");
+
+    BOOST_REQUIRE_EQUAL(true, result.s_Attempted);
+    BOOST_REQUIRE_EQUAL(std::string("{\"ml_sandbox2_route\":\"landlock\",\"event\":\"seccomp_installed\"}"),
+                        result.s_AttestationMarker);
+}
+
+BOOST_AUTO_TEST_CASE(testApplyInProcessSeccompFilterFailedInstallEmptyMarkerRegardlessOfRoute) {
+    using ml::seccomp::ESystemCallFilterInstallOutcome;
+    using ml::seccomp::applyInProcessSeccompFilter;
+
+    const ESystemCallFilterInstallOutcome failureModes[]{
+        ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
+        ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
+        ESystemCallFilterInstallOutcome::E_FilterInstallFailed};
+    const char* const routes[]{"legacy", "landlock"};
+
+    for (const auto outcome : failureModes) {
+        for (const char* route : routes) {
+            const auto result = applyInProcessSeccompFilter(
+                false, true, [outcome] { return outcome; }, route);
+            BOOST_REQUIRE_EQUAL(true, result.s_Attempted);
+            BOOST_TEST_REQUIRE(result.s_AttestationMarker.empty());
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
