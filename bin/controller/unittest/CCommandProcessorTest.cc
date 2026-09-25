@@ -13,6 +13,8 @@
 #include <core/CProcess.h>
 #include <core/CStringUtils.h>
 
+#include <sandbox/CSandbox2Diagnostics.h>
+
 #include "../CCommandProcessor.h"
 
 #include <boost/make_shared.hpp>
@@ -589,6 +591,105 @@ BOOST_AUTO_TEST_CASE(testStartRejectsDuplicateRequireSandboxTokenOnSandboxedPath
     BOOST_TEST_REQUIRE(response.find("\"id\":23,\"success\":false") != std::string::npos);
     BOOST_TEST_REQUIRE(response.find("specified 2 times") != std::string::npos);
 }
+
+BOOST_AUTO_TEST_CASE(testStartRejectsReservedRestrictFilesystemTokenOnSandboxedPath) {
+    // --restrictFilesystem is reserved for the controller: only the router
+    // may append it, to tell pytorch_inference the launch took the Landlock
+    // rung. If a caller could supply it, a child could be Landlock-confined
+    // on a launch the sandbox2_launch signal reports as some other mode, so
+    // the signal would stop being a truthful record. It must be rejected
+    // before any spawn, whether or not the path is the sandboxed one.
+    const std::string TARGET_FILE{"reserved_token_reject_sandboxed_out.txt"};
+    std::remove(TARGET_FILE.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
+
+        std::string command{startCommand(
+            30, PROCESS_PATH,
+            copyArgs(TARGET_FILE, {"--requireSandbox", "--restrictFilesystem"}))};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    // Rejected before any spawn: the copy must never have happened.
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":30,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("reserved for the controller") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testStartRejectsReservedRestrictFilesystemTokenOnNonSandboxedPath) {
+    // Same reservation, on a path that is merely permitted (not the
+    // configured sandboxed one): the token must be rejected on its own terms,
+    // before and independently of any routing-token validation.
+    const std::string TARGET_FILE{"reserved_token_reject_nonsandboxed_out.txt"};
+    std::remove(TARGET_FILE.c_str());
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{}; // PROCESS_PATH not sandboxed
+        ml::controller::CCommandProcessor processor{permittedPaths, sandboxedPaths,
+                                                    responseStream};
+
+        std::string command{startCommand(
+            31, PROCESS_PATH, copyArgs(TARGET_FILE, {"--restrictFilesystem"}))};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":31,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("reserved for the controller") != std::string::npos);
+}
+
+#ifdef SANDBOX2_AVAILABLE
+BOOST_AUTO_TEST_CASE(testStartFailsWithSettingHintWhenHostCannotConfine) {
+    // A validated --requireSandbox launch on a host that supports neither
+    // Sandbox2 nor Landlock (injected E_Unavailable) must fail with a
+    // response that both fails the command and tells the operator to
+    // deactivate the setting - the controller's noConfinementMessage,
+    // forwarded through CCommandProcessor as the command's failure reason.
+    const std::string TARGET_FILE{"start_unavailable_setting_hint_out.txt"};
+    std::remove(TARGET_FILE.c_str());
+
+    ml::sandbox::SHostConfinement unavailableHost;
+    unavailableHost.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
+    unavailableHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    unavailableHost.s_LandlockAbi = 0;
+
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor::TStrVec sandboxedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{
+            permittedPaths, sandboxedPaths, responseStream,
+            [unavailableHost] { return unavailableHost; }};
+
+        BOOST_REQUIRE_EQUAL(
+            false, processor.handleCommand(startCommand(
+                       32, PROCESS_PATH, copyArgs(TARGET_FILE, {"--requireSandbox"}))));
+    }
+
+    // Refused before any backend ran: no child, no copy.
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    BOOST_REQUIRE_EQUAL(true, fileAbsent(TARGET_FILE));
+    std::remove(TARGET_FILE.c_str());
+
+    std::string response{responseStream.str()};
+    BOOST_TEST_REQUIRE(response.find("\"id\":32,\"success\":false") != std::string::npos);
+    BOOST_TEST_REQUIRE(response.find("xpack.ml.trained_models.sandbox_enabled") !=
+                       std::string::npos);
+}
+#endif // SANDBOX2_AVAILABLE
 
 BOOST_AUTO_TEST_CASE(testStartRejectsRequireSandboxTokenOnNonSandboxedPath) {
     // Symmetric with testStartRejectsDisableSandboxTokenOnNonSandboxedPath:

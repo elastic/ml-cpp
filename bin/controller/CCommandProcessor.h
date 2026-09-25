@@ -69,9 +69,14 @@ public:
     //!        no default that reuses \p permittedProcessPaths, because doing
     //!        so would silently make every permitted process
     //!        sandboxed-eligible.
+    //! \param confinementFn passed to the router - see
+    //!        CProcessSpawnerRouter::TConfinementFn. Production code leaves it
+    //!        empty; tests inject a fixed host confinement.
     CCommandProcessor(const TStrVec& permittedProcessPaths,
                       const TStrVec& sandboxedProcessPaths,
-                      std::ostream& responseStream);
+                      std::ostream& responseStream,
+                      CProcessSpawnerRouter::TConfinementFn confinementFn =
+                          CProcessSpawnerRouter::TConfinementFn{});
 
     //! Action commands read from the supplied \p commandStream until
     //! end-of-file is reached.
