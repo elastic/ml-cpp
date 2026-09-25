@@ -666,7 +666,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::reset(core_t::TTime time)
 void CTimeSeriesDecompositionDetail::CChangePointTest::resetAfterTimeShift(core_t::TTime time) {
     // Samples sit in job-time buckets. After a time shift, testForChange
     // rebuilds those times and subtracts the new shift, so the old samples
-    // no longer match the predictor.                                                               
+    // no longer match the predictor.
     m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
     this->reset(time);
 }
