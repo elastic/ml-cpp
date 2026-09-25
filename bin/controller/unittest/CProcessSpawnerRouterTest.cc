@@ -657,8 +657,7 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinem
     // the spawned process's argv, not merely that spawn() returned true.
     ml::controller::CProcessSpawnerRouter::TStrVec args{
         SHELL_FLAG,
-        "last=\"\"; for a in \"$@\"; do last=\"$a\"; done; printf '%s\\n' \"$last\" > " +
-            outputFile,
+        "last=\"\"; for a in \"$@\"; do last=\"$a\"; done; printf '%s\\n' \"$last\" > " + outputFile,
         childIpcRoot.inputArg()};
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
