@@ -31,6 +31,7 @@
 #include <string>
 #include <thread>
 #ifndef Windows
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -153,6 +154,9 @@ public:
                               .string();
         m_ChildIpcRoot = m_TrustedTmpDir + "/ml-child-ipc/" + childId;
         boost::filesystem::create_directories(m_ChildIpcRoot);
+        // ensureChildIpcDirectory() accepts an existing directory only at mode 0700.
+        BOOST_REQUIRE_EQUAL(0, ::chmod((m_TrustedTmpDir + "/ml-child-ipc").c_str(), 0700));
+        BOOST_REQUIRE_EQUAL(0, ::chmod(m_ChildIpcRoot.c_str(), 0700));
 
         BOOST_REQUIRE_EQUAL(
             0, ml::core::CSetEnv::setEnv("TMPDIR", m_TrustedTmpDir.c_str(), 1));
