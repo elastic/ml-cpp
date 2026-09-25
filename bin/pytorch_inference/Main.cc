@@ -361,8 +361,8 @@ int main(int argc, char** argv) {
     // security boundary and ML_SANDBOXED is exactly "1", so the whole step -
     // install, degraded-mode decision, attestation marker - is skipped.
     // Attempting it from inside an already-sandboxed environment would
-    // either fail (which would terminate every enforced-route launch once
-    // hard termination above is activated) or succeed and emit the
+    // either fail (which would terminate every enforced-route launch when
+    // TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is true) or succeed and emit the
     // legacy-route attestation marker on a launch the controller's
     // sandbox2_launch signal reports as "route":"sandbox2".
     const bool sandbox2Launched{ml::seccomp::sandbox2LaunchedChild()};

@@ -31,6 +31,9 @@ namespace sandbox {
 //! - onChildExited() removes the directory only when the root is still bound to that pid
 //!   (a fast restart reusing the same deployment id updates the binding first).
 //! - onSpawnFailed() removes a root that was created but never got a live pid.
+//! Ownership validation and directory removal run under one lock: a concurrent
+//! noteSpawn() for the same deployment root cannot interleave between unbinding
+//! and unlink/rmdir.
 //!
 //! Controller crash can still leave empty directories; there is no startup sweep because
 //! that would race another controller on the same $TMPDIR.

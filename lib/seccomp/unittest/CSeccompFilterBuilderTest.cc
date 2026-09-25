@@ -286,10 +286,9 @@ BOOST_AUTO_TEST_CASE(testDecideDegradedModeActionFaultInjection) {
                             ESystemCallFilterInstallOutcome::E_Installed, true)));
 
     // Every fault-injected failure class - capability probe failure,
-    // PR_SET_NO_NEW_PRIVS, and filter installation - with the internal
-    // switch off (today's production default), every call site continues;
-    // with it on (the behaviour a later change activates), every one
-    // terminates.
+    // PR_SET_NO_NEW_PRIVS, and filter installation - with terminateOnFailure
+    // false every call site continues; with it true (production default via
+    // TERMINATE_ON_DEGRADED_SECCOMP_FAILURE), every one terminates.
     const ESystemCallFilterInstallOutcome failureModes[]{
         ESystemCallFilterInstallOutcome::E_MechanismUnavailable,
         ESystemCallFilterInstallOutcome::E_PrivilegeRestrictionFailed,
@@ -327,7 +326,7 @@ BOOST_AUTO_TEST_CASE(testInProcessFilterSkippedEntirelyForSandbox2LaunchedChild)
     // termination may be derived and no attestation marker may be produced -
     // and that must hold for every outcome an installation attempt could
     // have returned, including the failure classes that would otherwise
-    // terminate the launch once TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is activated.
+    // terminate the launch when TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is true.
     const ESystemCallFilterInstallOutcome allOutcomes[]{
         ESystemCallFilterInstallOutcome::E_Installed,
         ESystemCallFilterInstallOutcome::E_MechanismUnavailable,

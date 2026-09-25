@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <functional>
 #include <set>
+#include <vector>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -166,27 +167,50 @@ public:
             return false;
         }
 
-        CScopedLock lock(m_Mutex);
-        // Do an extra cycle of waiting for zombies, so we give the most
-        // up-to-date answer possible
-        const_cast<CTrackerThread*>(this)->checkForDeadChildren();
-        return m_Pids.find(pid) != m_Pids.end();
+        std::vector<CProcess::TPid> exitedPids;
+        std::function<void(CProcess::TPid)> onChildExited;
+        bool found{false};
+        {
+            CScopedLock lock(m_Mutex);
+            // Do an extra cycle of waiting for zombies, so we give the most
+            // up-to-date answer possible
+            const_cast<CTrackerThread*>(this)->checkForDeadChildren(exitedPids);
+            onChildExited = m_OnChildExited;
+            found = m_Pids.find(pid) != m_Pids.end();
+        }
+        // The reaper may unlink directories; keep that IO off the tracker mutex
+        // so spawn() is not blocked behind a slow $TMPDIR.
+        for (CProcess::TPid exitedPid : exitedPids) {
+            if (onChildExited) {
+                onChildExited(exitedPid);
+            }
+        }
+        return found;
     }
 
 protected:
     void run() override {
-        CScopedLock lock(m_Mutex);
-
         while (!m_Shutdown) {
-            // Reap zombies every 50ms if child processes are running,
-            // otherwise wait for a child process to start.
-            if (m_Pids.empty()) {
-                m_Condition.wait();
-            } else {
-                m_Condition.wait(50);
-            }
+            std::vector<CProcess::TPid> exitedPids;
+            std::function<void(CProcess::TPid)> onChildExited;
+            {
+                CScopedLock lock(m_Mutex);
+                // Reap zombies every 50ms if child processes are running,
+                // otherwise wait for a child process to start.
+                if (m_Pids.empty()) {
+                    m_Condition.wait();
+                } else {
+                    m_Condition.wait(50);
+                }
 
-            this->checkForDeadChildren();
+                this->checkForDeadChildren(exitedPids);
+                onChildExited = m_OnChildExited;
+            }
+            for (CProcess::TPid exitedPid : exitedPids) {
+                if (onChildExited) {
+                    onChildExited(exitedPid);
+                }
+            }
         }
     }
 
@@ -199,8 +223,9 @@ protected:
 
 private:
     //! Reap zombie child processes and adjust the set of live child PIDs
-    //! accordingly.  MUST be called with m_Mutex locked.
-    void checkForDeadChildren() {
+    //! accordingly.  MUST be called with m_Mutex locked. Appends each reaped
+    //! PID to \p exitedPids for the caller to notify outside the lock.
+    void checkForDeadChildren(std::vector<CProcess::TPid>& exitedPids) {
         int status = 0;
         for (;;) {
             CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
@@ -249,9 +274,7 @@ private:
                     }
                 }
                 m_Pids.erase(pid);
-                if (m_OnChildExited) {
-                    m_OnChildExited(pid);
-                }
+                exitedPids.push_back(pid);
             }
         }
     }

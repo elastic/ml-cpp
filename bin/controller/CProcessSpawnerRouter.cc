@@ -273,8 +273,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
         if (prepared.s_Validation.s_Ok) {
             childIpcRoot = prepared.s_Validation.s_Spec.s_ChildIpcRoot;
         } else {
-            childIpcRoot =
-                sandbox::perChildIpcRootFromArgs(trustedTmpDirFromEnvironment(), args);
+            childIpcRoot = sandbox::perChildIpcRootFromArgs(
+                trustedTmpDirFromEnvironment(), args);
         }
     }
     const std::string* childIpcRootPtr{
@@ -390,6 +390,8 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     if (sandboxEligible) {
         this->emitLaunchSignal(route, legacyReason, deploymentId, args, spawned, landlockFallback);
         if (spawned == false && childIpcRoot.empty() == false) {
+            // Backstop for routes/backends that do not self-notify (legacy,
+            // Landlock, unavailable); Sandbox2 may already have called this.
             m_ChildIpcReaper->onSpawnFailed(childIpcRoot);
         }
     }
