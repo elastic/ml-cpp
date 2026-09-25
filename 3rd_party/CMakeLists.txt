@@ -90,6 +90,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     0002-no-fno-exceptions-propagation.patch
     0003-python3-optional.patch
     0004-forkserver-zlib-static-libstdcxx.patch
+    0005-forkserver-initial-namespaces-no-hang.patch
   )
 
   FetchContent_Declare(
