@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3221
+summary: Clear the change point test window when a calendar rule applies force_time_shift
+type: bug
