@@ -592,7 +592,7 @@ core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
 }
 
 void CTimeSeriesDecomposition::resetChangePointTest(core_t::TTime time) {
-    m_ChangePointTest.reset(time);
+    m_ChangePointTest.resetAfterTimeShift(time);
 }
 
 void CTimeSeriesDecomposition::initializeMediator() {
