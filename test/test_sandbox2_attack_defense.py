@@ -307,32 +307,53 @@ def find_child_pid(controller, process_path, since_offset, timeout=PID_DISCOVERY
 
 
 #! The controller's sandbox2_launch structured once-per-launch signal,
-#! emitted by bin/controller/CProcessSpawnerRouter.cc emitLaunchSignal()
-#! over the same log pipe. Boost.Log escapes the embedded quotes, so the raw
-#! capture is unescaped before matching.
-LAUNCH_SIGNAL_ROUTE_RE = re.compile(r'"event":"sandbox2_launch".*?"route":"(?P<route>[a-z0-9_]+)"')
+#! emitted by bin/controller/CProcessSpawnerRouter.cc emitLaunchSignal() over
+#! the same log pipe. Boost.Log escapes the embedded quotes, so the raw
+#! capture is unescaped before matching. The whole JSON object is captured and
+#! then parsed field-by-field, because the security-relevant distinction is in
+#! the "mode" field, not "route": route is "sandbox2" for BOTH a full-Sandbox2
+#! launch (mode "enforced") and the Landlock fallback the controller takes
+#! when the host cannot run Sandbox2 (mode "landlock"), as well as a refused
+#! launch (mode "fail_closed", where no child ran at all). Matching only on
+#! route would conflate all three.
+LAUNCH_SIGNAL_OBJECT_RE = re.compile(r'\{"event":"sandbox2_launch".*?\}')
+_SIGNAL_FIELD_RE = re.compile(r'"(?P<key>[a-z0-9_]+)":"(?P<value>[a-z0-9_]+)"')
+
+#! Modes in which a child actually ran under a confinement boundary, so a
+#! "the malicious model's target file must not exist" assertion is meaningful.
+CONFINED_MODES = ('enforced', 'landlock')
+#! Mode of an unconfined (seccomp-only) legacy launch.
+UNCONFINED_MODE = 'degraded'
 
 
-def find_launch_route(controller, since_offset, timeout=PID_DISCOVERY_TIMEOUT):
-    """Return the route ("sandbox2" / "legacy") the controller's own
-    sandbox2_launch signal reports for the launch issued after since_offset,
-    or None if no such signal appeared within timeout.
+def find_launch_signal(controller, since_offset, timeout=PID_DISCOVERY_TIMEOUT):
+    """Return (route, mode) from the controller's own sandbox2_launch signal
+    for the launch issued after since_offset, or None if no such signal
+    appeared within timeout.
 
     This is the harness's guard against silently invalidating the security
-    proof: a "sandboxed" case that actually routed to the legacy path would
-    still produce "no target file" for entirely the wrong reason (see
-    run_pytorch_case()).
+    proof: a "sandboxed" case that actually ran unconfined - or did not run at
+    all - would still produce "no target file" for entirely the wrong reason
+    (see run_pytorch_case()). Both route and mode are returned so the caller
+    can tell an enforced Sandbox2 run and a Landlock-confined run (both valid
+    confinement) apart from an unconfined legacy run and a fail_closed refusal
+    (both of which make the negative assertion vacuous).
     """
     log_path = controller.control_dir / 'controller_log_output.txt'
     deadline = time.time() + timeout
     while True:
         raw = _read_new_content(log_path, since_offset).replace('\\"', '"')
-        route = None
-        for match in LAUNCH_SIGNAL_ROUTE_RE.finditer(raw):
+        signal = None
+        for match in LAUNCH_SIGNAL_OBJECT_RE.finditer(raw):
             # Last match wins, consistent with find_child_pid().
-            route = match.group('route')
-        if route is not None:
-            return route
+            fields = {m.group('key'): m.group('value')
+                      for m in _SIGNAL_FIELD_RE.finditer(match.group(0))}
+            route = fields.get('route')
+            mode = fields.get('mode')
+            if route is not None and mode is not None:
+                signal = (route, mode)
+        if signal is not None:
+            return signal
         if time.time() >= deadline:
             return None
         time.sleep(0.1)
@@ -694,7 +715,25 @@ def send_inference_request_with_timeout(input_pipe_path, request, timeout=5):
 
 
 def generate_models(output_dir):
-    """Generate test models using the ported generator script."""
+    """Generate test models using the ported generator script.
+
+    If ML_EVIL_MODELS_DIR is set and already contains the three .pt files,
+    they are copied in instead of regenerated. This lets the harness run in
+    an environment that has the controller/pytorch_inference binaries but no
+    torch (e.g. inside the cloud-ess image, where the models are generated
+    once elsewhere and mounted in) - the models are plain TorchScript
+    archives, independent of where they were traced.
+    """
+    prebuilt = os.environ.get('ML_EVIL_MODELS_DIR')
+    if prebuilt:
+        names = ('model_benign.pt', 'model_exploit.pt', 'model_leak.pt')
+        if all((Path(prebuilt) / n).exists() for n in names):
+            for n in names:
+                shutil.copy(Path(prebuilt) / n, Path(output_dir) / n)
+            return
+        raise RuntimeError(
+            f"ML_EVIL_MODELS_DIR={prebuilt} set but does not contain all of {names}")
+
     script_dir = Path(__file__).parent
     generator_script = script_dir / 'evil_model_generator.py'
     project_root = script_dir.parent
@@ -850,32 +889,46 @@ def run_pytorch_case(controller, pytorch_bin, model_path, tmp_base, command_id, 
             return result, reached, target_file_created, response, leaked_address_seen, pid
         result.info(f"Controller accepted start: {response.get('reason')}")
 
-        # Routing assertion, BEFORE any boundary assertion: the case is only
-        # evidence about Sandbox2 if the controller actually routed this
-        # launch the way the case intends. A sandboxed case that silently
-        # landed on the legacy path (e.g. --requireSandbox not
-        # reaching the controller, or a route-decision regression) would
-        # still show "no target file" - for the wrong reason. Fail loudly
-        # here instead.
-        expected_route = 'legacy' if unsandboxed else 'sandbox2'
-        actual_route = find_launch_route(controller, log_offset)
-        if actual_route is None:
+        # Boundary assertion, BEFORE any target-file assertion: the case is
+        # only evidence about the sandbox if the controller actually confined
+        # this launch the way the case intends. The security-relevant fact is
+        # the signal's "mode", not "route": route is "sandbox2" for a full
+        # Sandbox2 launch (mode "enforced"), for the Landlock fallback the
+        # controller takes when the host cannot run Sandbox2 (mode
+        # "landlock"), AND for a refused launch (mode "fail_closed", where no
+        # child ran). A sandboxed case whose "no target file" would be
+        # meaningful requires a mode in which a child actually ran under a
+        # boundary - enforced or landlock. An unsandboxed control requires the
+        # unconfined "degraded" mode; anything else (including "fail_closed",
+        # where the file's absence proves nothing because nothing executed)
+        # fails loudly here instead of silently passing.
+        signal = find_launch_signal(controller, log_offset)
+        if signal is None:
             result.fail(
                 "No sandbox2_launch signal observed on the controller log within "
                 f"{PID_DISCOVERY_TIMEOUT}s of a successful start response - cannot confirm "
-                f"this launch took the '{expected_route}' route; not asserting on target file")
+                "how this launch was confined; not asserting on target file")
             controller.check_controller_logs()
             return result, reached, target_file_created, response, leaked_address_seen, pid
-        if actual_route != expected_route:
+        actual_route, actual_mode = signal
+        if unsandboxed:
+            mode_ok = actual_mode == UNCONFINED_MODE
+            expected_desc = f'mode "{UNCONFINED_MODE}"'
+        else:
+            mode_ok = actual_mode in CONFINED_MODES
+            expected_desc = 'mode ' + ' or '.join(f'"{m}"' for m in CONFINED_MODES)
+        if not mode_ok:
             result.fail(
-                f"Routing regression: controller's sandbox2_launch signal reports "
-                f"\"route\":\"{actual_route}\" but this case requires "
-                f"\"{expected_route}\". The child was not sandboxed as intended, so any "
-                f"target-file assertion below would prove nothing about Sandbox2; "
-                f"not asserting on target file")
+                f"Confinement regression: controller's sandbox2_launch signal reports "
+                f"\"route\":\"{actual_route}\",\"mode\":\"{actual_mode}\" but this case "
+                f"requires {expected_desc}. The child was not confined as intended (or did "
+                f"not run at all), so any target-file assertion below would prove nothing "
+                f"about the sandbox; not asserting on target file")
             controller.check_controller_logs()
             return result, reached, target_file_created, response, leaked_address_seen, pid
-        result.info(f"sandbox2_launch signal confirms route: {actual_route}")
+        result.info(
+            f"sandbox2_launch signal confirms confinement: "
+            f"route={actual_route} mode={actual_mode}")
 
         pid = find_child_pid(controller, f'./{pytorch_name}', log_offset)
         if pid is None:
