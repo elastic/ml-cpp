@@ -77,6 +77,9 @@ BOOST_AUTO_TEST_CASE(testPerChildIpcDirectoryNegativeCases) {
     // "xml-child-ipc") must NOT match - the comparison must be exact, not a
     // suffix match.
     BOOST_TEST_REQUIRE(perChildIpcDirectory("/tmp/xml-child-ipc/dep-1/logPipe").empty());
+
+    BOOST_TEST_REQUIRE(
+        perChildIpcDirectory("/tmp/foo/../ml-child-ipc/dep-1/logPipe").empty());
 }
 
 #ifdef Linux
@@ -92,7 +95,8 @@ enum EChildExit : int {
     E_ChildGrantedPathUnreadable = 21,
     E_ChildDeniedPathStillReadable = 22,
     E_ChildGrantedDirNotWritable = 23,
-    E_ChildExecRefused = 24
+    E_ChildExecRefused = 24,
+    E_ChildPolicyFailed = 25
 };
 
 //! Run \p body in a forked child and return its exit code, or -1 if the child
@@ -384,6 +388,84 @@ BOOST_AUTO_TEST_CASE(testRealPytorchPolicyDeniesTheExploitTargetWrite) {
 
     boost::system::error_code rmError;
     boost::filesystem::remove_all(scratch, rmError);
+
+    if (childResult == E_ChildNotApplied) {
+        BOOST_TEST_MESSAGE("Landlock unsupported on this kernel - skipping");
+        return;
+    }
+    BOOST_REQUIRE_EQUAL(childResult, static_cast<int>(E_ChildOk));
+}
+
+BOOST_AUTO_TEST_CASE(testMissingPipeDirectoryFailsRulesetApply) {
+    const int childResult{runInChild([] {
+        ml::seccomp::SLandlockPaths paths;
+        paths.s_PipeDirectories.push_back("/tmp/ml-landlock-missing-pipe-dir-XXXXXX");
+
+        const ml::seccomp::ELandlockOutcome outcome{
+            ml::seccomp::applyLandlockFilesystemPolicy(paths)};
+        if (outcome == ml::seccomp::ELandlockOutcome::E_Unsupported) {
+            return static_cast<int>(E_ChildNotApplied);
+        }
+        return outcome == ml::seccomp::ELandlockOutcome::E_Failed
+                   ? static_cast<int>(E_ChildPolicyFailed)
+                   : static_cast<int>(E_ChildGrantedPathUnreadable);
+    })};
+
+    if (childResult == E_ChildNotApplied) {
+        BOOST_TEST_MESSAGE("Landlock unsupported on this kernel - skipping");
+        return;
+    }
+    BOOST_REQUIRE_EQUAL(childResult, static_cast<int>(E_ChildPolicyFailed));
+}
+
+BOOST_AUTO_TEST_CASE(testSymlinkPipeDirectoryFailsRulesetApply) {
+    const std::string scratch{makeScratchDirectory()};
+    BOOST_TEST_REQUIRE(scratch.empty() == false);
+
+    const std::string realDir{scratch + "/real-pipes"};
+    BOOST_TEST_REQUIRE(::mkdir(realDir.c_str(), 0700) == 0);
+    const std::string linkPath{scratch + "/pipe-link"};
+    BOOST_TEST_REQUIRE(::symlink(realDir.c_str(), linkPath.c_str()) == 0);
+
+    const int childResult{runInChild([&] {
+        ml::seccomp::SLandlockPaths paths;
+        paths.s_PipeDirectories.push_back(linkPath);
+
+        const ml::seccomp::ELandlockOutcome outcome{
+            ml::seccomp::applyLandlockFilesystemPolicy(paths)};
+        if (outcome == ml::seccomp::ELandlockOutcome::E_Unsupported) {
+            return static_cast<int>(E_ChildNotApplied);
+        }
+        return outcome == ml::seccomp::ELandlockOutcome::E_Failed
+                   ? static_cast<int>(E_ChildPolicyFailed)
+                   : static_cast<int>(E_ChildGrantedPathUnreadable);
+    })};
+
+    ::unlink(linkPath.c_str());
+    ::rmdir(realDir.c_str());
+    ::rmdir(scratch.c_str());
+
+    if (childResult == E_ChildNotApplied) {
+        BOOST_TEST_MESSAGE("Landlock unsupported on this kernel - skipping");
+        return;
+    }
+    BOOST_REQUIRE_EQUAL(childResult, static_cast<int>(E_ChildPolicyFailed));
+}
+
+BOOST_AUTO_TEST_CASE(testMissingReadOnlyPathStillAppliesRulesetWithoutPipeDirectory) {
+    const int childResult{runInChild([] {
+        ml::seccomp::SLandlockPaths paths;
+        paths.s_ReadOnly.push_back("/tmp/ml-landlock-absent-readonly-path");
+
+        const ml::seccomp::ELandlockOutcome outcome{
+            ml::seccomp::applyLandlockFilesystemPolicy(paths)};
+        if (outcome == ml::seccomp::ELandlockOutcome::E_Unsupported) {
+            return static_cast<int>(E_ChildNotApplied);
+        }
+        return outcome == ml::seccomp::ELandlockOutcome::E_Applied
+                   ? static_cast<int>(E_ChildOk)
+                   : static_cast<int>(E_ChildPolicyFailed);
+    })};
 
     if (childResult == E_ChildNotApplied) {
         BOOST_TEST_MESSAGE("Landlock unsupported on this kernel - skipping");

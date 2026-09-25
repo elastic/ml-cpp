@@ -18,6 +18,7 @@
 #include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <memory>
 #include <sstream>
@@ -93,36 +94,39 @@ std::string jsonEscape(const std::string& s) {
     return out;
 }
 
-//! Derive the per-launch deployment_id (SChildIpcLaunchSpec::s_ChildId) from
-//! the path-bearing launch options in \p args, exactly as
-//! CSandboxedProcessSpawner_Linux.cc does before constructing a Sandbox2
-//! policy (same trustedTmpDir derivation - getenv("TMPDIR"), defaulting to
-//! "/tmp"). Called once per spawn(), *before* either backend runs, so the
-//! sandbox2_launch signal and the dispatch decision see one and the same
-//! filesystem
-//! state: validateChildIpcLaunchSpec() does live ::realpath() calls, and a
-//! post-spawn second call could observe a different (or, on the
-//! legacy/degraded and failed-Sandbox2 paths, an absent) per-child IPC
-//! directory and report an empty deployment_id on exactly the degraded and
-//! fail_closed modes the signal exists to make debuggable.
-//! Returns "" when no path-bearing option was present at all.
-std::string deriveDeploymentId(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
+struct SPreparedChildIpcLaunch {
+    ml::sandbox::EChildIpcDirectoryOutcome s_DirectoryOutcome{
+        ml::sandbox::EChildIpcDirectoryOutcome::E_NoPathOptions};
+    ml::sandbox::SChildIpcValidationResult s_Validation;
+};
+
+std::string trustedTmpDirFromEnvironment() {
     const char* tmpDirEnv{::getenv("TMPDIR")};
-    const std::string trustedTmpDir{tmpDirEnv != nullptr ? tmpDirEnv : "/tmp"};
-    // validateChildIpcLaunchSpec() does live ::realpath() calls, which
-    // require $TMPDIR/ml-child-ipc/<child-id> to already exist. This is the
-    // *other* production call site that reaches that function (the one
-    // inside CSandboxedProcessSpawner_Linux.cc::spawn() is the other), and
-    // it runs strictly before spawn() dispatches to either backend - on the
-    // legacy route just as much as the Sandbox2 route, since the signal
-    // below always wants a real deployment_id. Ensure the directory exists
-    // here too, rather than relying on the Sandbox2 spawner (which may not
-    // even run on this route) to have already done it. A creation failure
-    // is not logged again here: an empty deployment_id in the signal is
-    // itself the observable symptom, and the Sandbox2 spawner (when that
-    // route is actually taken) logs the failure with detail.
-    ml::sandbox::ensureChildIpcDirectory(trustedTmpDir, args);
-    return ml::sandbox::validateChildIpcLaunchSpec(trustedTmpDir, args).s_Spec.s_ChildId;
+    return tmpDirEnv != nullptr ? std::string{tmpDirEnv} : std::string{"/tmp"};
+}
+
+//! Create the per-child IPC directory and validate the launch spec once per
+//! spawn(), *before* either backend runs, so the sandbox2_launch signal and
+//! the Landlock dispatch decision see one filesystem state. Same checks as
+//! CSandboxedProcessSpawner_Linux.cc::spawn() (which re-runs them on the
+//! Sandbox2 route).
+SPreparedChildIpcLaunch
+prepareChildIpcLaunch(const ml::controller::CProcessSpawnerRouter::TStrVec& args) {
+    const std::string trustedTmpDir{trustedTmpDirFromEnvironment()};
+    SPreparedChildIpcLaunch prepared;
+    prepared.s_DirectoryOutcome = ml::sandbox::ensureChildIpcDirectory(trustedTmpDir, args);
+    prepared.s_Validation = ml::sandbox::validateChildIpcLaunchSpec(trustedTmpDir, args);
+    return prepared;
+}
+
+std::string rejectedChildIpcLaunchSpecMessage(const std::string& processPath,
+                                              const ml::sandbox::SChildIpcValidationResult& validated) {
+    std::ostringstream rejected;
+    for (const ml::sandbox::SRejectedChildIpcPath& r : validated.s_Rejected) {
+        rejected << " [" << r.s_Arg << ": reason=" << static_cast<int>(r.s_Reason) << ']';
+    }
+    return std::string{"Rejected pytorch_inference child-IPC launch spec for "} +
+           processPath + ':' + rejected.str();
 }
 
 } // namespace
@@ -252,8 +256,10 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // post-spawn second derivation is not equivalent. Skipped entirely for
     // processes that can never emit the signal, so unrelated permitted
     // processes (autodetect etc.) pay no ::realpath() cost.
-    const std::string deploymentId{sandboxEligible ? deriveDeploymentId(args)
-                                                   : std::string()};
+    const SPreparedChildIpcLaunch prepared{
+        sandboxEligible ? prepareChildIpcLaunch(args) : SPreparedChildIpcLaunch{}};
+    const std::string deploymentId{
+        sandboxEligible ? prepared.s_Validation.s_Spec.s_ChildId : std::string()};
 
     m_LastSpawnFailureReason.clear();
     bool spawned{false};
@@ -306,13 +312,30 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
             spawned = m_SandboxSpawner->spawn(processPath, args, childPid);
             break;
         case sandbox::EConfinementLevel::E_Landlock: {
+            landlockFallback = true;
+            if (prepared.s_DirectoryOutcome ==
+                sandbox::EChildIpcDirectoryOutcome::E_CreationFailed) {
+                m_LastSpawnFailureReason =
+                    std::string{"Failed to create the per-child IPC directory under "} +
+                    trustedTmpDirFromEnvironment() + "/ml-child-ipc for " +
+                    processPath + ": " + ::strerror(errno);
+                LOG_ERROR(<< m_LastSpawnFailureReason);
+                spawned = false;
+                break;
+            }
+            if (prepared.s_Validation.s_Ok == false) {
+                m_LastSpawnFailureReason = rejectedChildIpcLaunchSpecMessage(
+                    processPath, prepared.s_Validation);
+                LOG_ERROR(<< m_LastSpawnFailureReason);
+                spawned = false;
+                break;
+            }
             // A supported, deliberate degradation: INFO, with what an
             // administrator would change to get full isolation.
             LOG_INFO(<< sandbox::landlockFallbackMessage(host, processPath));
             TStrVec landlockArgs{args};
             landlockArgs.emplace_back(RESTRICT_FILESYSTEM_TOKEN);
             spawned = m_LegacySpawner.spawn(processPath, landlockArgs, childPid);
-            landlockFallback = true;
             break;
         }
         case sandbox::EConfinementLevel::E_Unavailable:

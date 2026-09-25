@@ -108,6 +108,18 @@ inline std::string perChildIpcDirectory(const std::string& logPipePath) {
     if (logPipePath.empty() || logPipePath[0] != '/') {
         return std::string{};
     }
+    for (std::size_t start = 1; start < logPipePath.size();) {
+        const std::size_t end{logPipePath.find('/', start)};
+        const std::string component{logPipePath.substr(
+            start, end == std::string::npos ? std::string::npos : end - start)};
+        if (component == "..") {
+            return std::string{};
+        }
+        if (end == std::string::npos) {
+            break;
+        }
+        start = end + 1;
+    }
     const std::size_t fileSlash{logPipePath.rfind('/')};
     if (fileSlash == std::string::npos || fileSlash == 0) {
         return std::string{};

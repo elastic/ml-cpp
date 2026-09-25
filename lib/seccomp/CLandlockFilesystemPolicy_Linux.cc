@@ -125,22 +125,11 @@ constexpr std::uint64_t FILE_APPLICABLE_ACCESS{
     ACCESS_FS_EXECUTE | ACCESS_FS_WRITE_FILE | ACCESS_FS_READ_FILE |
     ACCESS_FS_TRUNCATE | ACCESS_FS_IOCTL_DEV};
 
-//! Grant a path the rights it needs, intersected with what the ruleset
-//! handles. A right granted but not handled is meaningless (Landlock only
-//! restricts what it handles), and a right handled but not granted is what
-//! actually denies access.
-bool addPathRule(int rulesetFd, const std::string& path, std::uint64_t allowed, std::uint64_t handled) {
-    // O_PATH so opening the directory itself needs no read permission and
-    // triggers none of the side effects of a real open.
-    const int pathFd{::open(path.c_str(), O_PATH | O_CLOEXEC)};
-    if (pathFd < 0) {
-        // A path that simply does not exist on this host is not an error:
-        // the fixed list covers several distribution layouts (/lib64 exists
-        // on RHEL-family, is a symlink or absent elsewhere), and a rule for
-        // a missing path grants nothing anyway.
-        LOG_DEBUG(<< "Landlock: skipping absent path " << path << ": " << ::strerror(errno));
-        return true;
-    }
+bool addLandlockRuleFromFd(int rulesetFd,
+                           int pathFd,
+                           const std::string& path,
+                           std::uint64_t allowed,
+                           std::uint64_t handled) {
 
     // Landlock rejects a rule (EINVAL) whose allowed_access names a
     // directory-only right when the file descriptor is not a directory, so a
@@ -160,6 +149,52 @@ bool addPathRule(int rulesetFd, const std::string& path, std::uint64_t allowed, 
         LOG_ERROR(<< "Landlock: could not add rule for " << path << ": "
                   << ::strerror(errno));
     }
+    return ok;
+}
+
+//! Grant optional read-only paths. Missing entries are skipped: several
+//! host paths in pytorchInferenceLandlockPaths() vary by distribution layout
+//! or image, and a rule for an absent path grants nothing anyway.
+bool addOptionalReadOnlyPathRule(int rulesetFd,
+                                 const std::string& path,
+                                 std::uint64_t allowed,
+                                 std::uint64_t handled) {
+    const int pathFd{::open(path.c_str(), O_PATH | O_CLOEXEC)};
+    if (pathFd < 0) {
+        LOG_DEBUG(<< "Landlock: skipping absent path " << path << ": " << ::strerror(errno));
+        return true;
+    }
+    const bool ok{addLandlockRuleFromFd(rulesetFd, pathFd, path, allowed, handled)};
+    ::close(pathFd);
+    return ok;
+}
+
+//! Grant the per-child IPC directory. Must exist, be a real directory owned
+//! by this uid, and must not be reached through a symlink - the same
+//! invariants validateChildIpcLaunchSpec() enforces on the Sandbox2 route.
+bool addMandatoryPipeDirectoryRule(int rulesetFd,
+                                   const std::string& path,
+                                   std::uint64_t allowed,
+                                   std::uint64_t handled) {
+    const int pathFd{::open(path.c_str(), O_PATH | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)};
+    if (pathFd < 0) {
+        LOG_ERROR(<< "Landlock: pipe directory " << path
+                  << " is not usable: " << ::strerror(errno));
+        return false;
+    }
+    struct stat pathStat {};
+    if (::fstat(pathFd, &pathStat) != 0 || S_ISDIR(pathStat.st_mode) == false) {
+        LOG_ERROR(<< "Landlock: pipe directory " << path
+                  << " is not a directory: " << ::strerror(errno));
+        ::close(pathFd);
+        return false;
+    }
+    if (static_cast<uid_t>(pathStat.st_uid) != ::geteuid()) {
+        LOG_ERROR(<< "Landlock: pipe directory " << path << " is not owned by this process");
+        ::close(pathFd);
+        return false;
+    }
+    const bool ok{addLandlockRuleFromFd(rulesetFd, pathFd, path, allowed, handled)};
     ::close(pathFd);
     return ok;
 }
@@ -294,7 +329,7 @@ ELandlockOutcome applyLandlockFilesystemPolicy(const SLandlockPaths& paths) {
     // No EXECUTE: see SLandlockPaths::s_ReadOnly.
     const std::uint64_t readOnlyAccess{ACCESS_FS_READ_FILE | ACCESS_FS_READ_DIR};
     for (const std::string& path : paths.s_ReadOnly) {
-        ok = addPathRule(fd, path, readOnlyAccess, handled) && ok;
+        ok = addOptionalReadOnlyPathRule(fd, path, readOnlyAccess, handled) && ok;
     }
 
     // Exactly what CNamedPipeFactory does in the IPC directory: mkfifo(),
@@ -302,7 +337,7 @@ ELandlockOutcome applyLandlockFilesystemPolicy(const SLandlockPaths& paths) {
     const std::uint64_t pipeDirectoryAccess{ACCESS_FS_MAKE_FIFO | ACCESS_FS_READ_FILE |
                                             ACCESS_FS_WRITE_FILE | ACCESS_FS_REMOVE_FILE};
     for (const std::string& path : paths.s_PipeDirectories) {
-        ok = addPathRule(fd, path, pipeDirectoryAccess, handled) && ok;
+        ok = addMandatoryPipeDirectoryRule(fd, path, pipeDirectoryAccess, handled) && ok;
     }
 
     if (ok == false) {

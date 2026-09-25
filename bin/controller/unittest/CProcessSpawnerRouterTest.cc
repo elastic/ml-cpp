@@ -30,6 +30,9 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#ifndef Windows
+#include <unistd.h>
+#endif
 
 // This file follows CCommandProcessorTest.cc's convention of testing spawn
 // dispatch without a spawner spy: it drives real (non-Linux) dispatch to
@@ -170,6 +173,10 @@ public:
     std::string inputArg() const {
         return "--input=" + m_ChildIpcRoot + "/input";
     }
+
+    const std::string& childIpcRoot() const { return m_ChildIpcRoot; }
+
+    const std::string& trustedTmpDir() const { return m_TrustedTmpDir; }
 
     CScopedChildIpcRoot(const CScopedChildIpcRoot&) = delete;
     CScopedChildIpcRoot& operator=(const CScopedChildIpcRoot&) = delete;
@@ -625,6 +632,7 @@ BOOST_AUTO_TEST_CASE(testLegacyOnlyRouterNeedsNoSandboxedSpawner) {
 // SHELL_FLAG above assume a POSIX shell.
 
 BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinement) {
+    CScopedChildIpcRoot childIpcRoot{"router-landlock-rung"};
     // Inject a confinement whose ladder rung is E_Landlock (as
     // decideConfinement() would return for, say, E_UserNamespaceDenied with
     // Landlock ABI >= 1), so this is deterministic regardless of whether this
@@ -648,7 +656,10 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinem
     // first line the script writes is the appended token - proving it reached
     // the spawned process's argv, not merely that spawn() returned true.
     ml::controller::CProcessSpawnerRouter::TStrVec args{
-        SHELL_FLAG, "printf '%s\\n' \"$0\" > " + outputFile};
+        SHELL_FLAG,
+        "last=\"\"; for a in \"$@\"; do last=\"$a\"; done; printf '%s\\n' \"$last\" > " +
+            outputFile,
+        childIpcRoot.inputArg()};
     ml::core::CProcess::TPid childPid{0};
     std::string logged{captureLogged([&] {
         BOOST_REQUIRE_EQUAL(true, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
@@ -682,6 +693,47 @@ BOOST_AUTO_TEST_CASE(testSandbox2RouteDegradesToLandlockRungWithInjectedConfinem
     // this suite's severity-filtered capture reliably.
     BOOST_REQUIRE(logged.find("Landlock filesystem confinement") != std::string::npos);
     BOOST_REQUIRE(logged.find("kernel.unprivileged_userns_clone=1") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testLandlockRungFailsClosedOnInvalidChildIpcSpec) {
+    CScopedChildIpcRoot childIpcRoot{"router-landlock-invalid-ipc"};
+    const std::string siblingChildRoot{childIpcRoot.trustedTmpDir() + "/ml-child-ipc/other-child-id"};
+    BOOST_TEST_REQUIRE(boost::filesystem::create_directories(siblingChildRoot));
+
+    ml::sandbox::SHostConfinement injectedHost;
+    injectedHost.s_Level = ml::sandbox::EConfinementLevel::E_Landlock;
+    injectedHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    injectedHost.s_LandlockAbi = 1;
+
+    ml::controller::CProcessSpawnerRouter::TStrVec permittedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter::TStrVec sandboxedPaths{PROCESS_PATH};
+    ml::controller::CProcessSpawnerRouter router{
+        permittedPaths, sandboxedPaths, [injectedHost] { return injectedHost; }};
+
+    const std::string markerFile{"router_test_landlock_invalid_ipc.txt"};
+    std::remove(markerFile.c_str());
+
+    ml::controller::CProcessSpawnerRouter::TStrVec args{
+        childIpcRoot.inputArg(), "--output=" + siblingChildRoot + "/output",
+        SHELL_FLAG, "touch " + markerFile};
+    ml::core::CProcess::TPid childPid{0};
+    std::string logged{captureLogged([&] {
+        BOOST_REQUIRE_EQUAL(
+            false, router.spawn(ml::controller::CProcessSpawnerRouter::ERoute::E_Sandbox2,
+                                PROCESS_PATH, args, childPid));
+    })};
+
+    BOOST_REQUIRE_EQUAL(ml::core::CProcess::TPid{0}, childPid);
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().find(
+                           "Rejected pytorch_inference child-IPC") != std::string::npos);
+    BOOST_TEST_REQUIRE(router.lastSpawnFailureReason().find("reason=") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"mode\":\"fail_closed\"") != std::string::npos);
+    BOOST_REQUIRE(logged.find("\"sandbox2_established\":false") != std::string::npos);
+
+    std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::ifstream ifs{markerFile};
+    BOOST_REQUIRE_EQUAL(false, ifs.is_open());
+    std::remove(markerFile.c_str());
 }
 
 BOOST_AUTO_TEST_CASE(testSandbox2RouteFailsClosedWithInjectedUnavailableConfinement) {
