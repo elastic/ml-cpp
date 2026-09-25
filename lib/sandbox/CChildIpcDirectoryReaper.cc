@@ -149,23 +149,19 @@ void CChildIpcDirectoryReaper::onChildExited(core::CProcess::TPid pid) {
     if (pid <= 0) {
         return;
     }
-    std::string root;
-    {
-        std::lock_guard<std::mutex> lock(m_Mutex);
-        const auto pidIt{m_PidToRoot.find(pid)};
-        if (pidIt == m_PidToRoot.end()) {
-            return;
-        }
-        root = pidIt->second;
-        m_PidToRoot.erase(pidIt);
-        const auto rootIt{m_RootToPid.find(root)};
-        if (rootIt != m_RootToPid.end() && rootIt->second == pid) {
-            m_RootToPid.erase(rootIt);
-        } else {
-            // A newer spawn reused this deployment id; do not remove its directory.
-            return;
-        }
+    std::lock_guard<std::mutex> lock(m_Mutex);
+    const auto pidIt{m_PidToRoot.find(pid)};
+    if (pidIt == m_PidToRoot.end()) {
+        return;
     }
+    const std::string root{pidIt->second};
+    m_PidToRoot.erase(pidIt);
+    const auto rootIt{m_RootToPid.find(root)};
+    if (rootIt == m_RootToPid.end() || rootIt->second != pid) {
+        // A newer spawn reused this deployment id; do not remove its directory.
+        return;
+    }
+    m_RootToPid.erase(rootIt);
     tryRemovePerChildIpcDirectory(root);
 }
 
@@ -173,12 +169,10 @@ void CChildIpcDirectoryReaper::onSpawnFailed(const std::string& canonicalChildRo
     if (canonicalChildRoot.empty()) {
         return;
     }
-    {
-        std::lock_guard<std::mutex> lock(m_Mutex);
-        const auto rootIt{m_RootToPid.find(canonicalChildRoot)};
-        if (rootIt != m_RootToPid.end()) {
-            return;
-        }
+    std::lock_guard<std::mutex> lock(m_Mutex);
+    const auto rootIt{m_RootToPid.find(canonicalChildRoot)};
+    if (rootIt != m_RootToPid.end()) {
+        return;
     }
     tryRemovePerChildIpcDirectory(canonicalChildRoot);
 }
