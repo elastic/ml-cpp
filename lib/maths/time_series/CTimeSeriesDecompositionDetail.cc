@@ -663,6 +663,11 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::reset(core_t::TTime time)
     m_LastCandidateChangePointTime = time - 4 * this->maximumIntervalToDetectChange(1.0);
 }
 
+void CTimeSeriesDecompositionDetail::CChangePointTest::resetAfterTimeShift(core_t::TTime time) {
+    m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
+    this->reset(time);
+}
+
 double CTimeSeriesDecompositionDetail::CChangePointTest::countWeight(core_t::TTime) const {
     // We shape the count weight we apply initially using a small weight after
     // detecting a candidate change before switching to a large weight after
