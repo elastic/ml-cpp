@@ -2497,6 +2497,31 @@ BOOST_FIXTURE_TEST_CASE(testLevelChangeWithSeasonalOnset, CTestFixture) {
                            meanAbsoluteRelativeErrorAfterChange) < 0.2);
 }
 
+BOOST_FIXTURE_TEST_CASE(testResetChangePointTestClearsWindow, CTestFixture) {
+
+    // Calendar rules which apply force_time_shift reset the change point test.
+    // Values in its window before the shift are no longer comparable to the
+    // model's predictions on the shifted time basis.
+
+    test::CRandomNumbers rng;
+
+    maths::time_series::CTimeSeriesDecomposition decomposition(0.012, HOUR);
+
+    TDoubleVec noise;
+    for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
+        rng.generateNormalSamples(0.0, 1.0, 1, noise);
+        decomposition.addPoint(time, 100.0 + noise[0],
+                               core::CMemoryCircuitBreakerStub::instance(),
+                               maths_t::CUnitWeights::UNIT);
+    }
+
+    BOOST_TEST_REQUIRE(CChangePointWindowInspector::valueCount(decomposition) > 0);
+
+    decomposition.resetChangePointTest(4 * WEEK);
+
+    BOOST_TEST_REQUIRE(CChangePointWindowInspector::valueCount(decomposition) == 0);
+}
+
 BOOST_FIXTURE_TEST_CASE(testNoFalseChangeAtStartupForSquareWaves, CTestFixture) {
 
     // We used to always clear the change test's window whenever a new
