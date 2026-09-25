@@ -113,8 +113,8 @@ inline EDegradedModeAction decideDegradedModeAction(ESystemCallFilterInstallOutc
 //! before initIo() ran" — with an explicit signal a test or observer can
 //! assert on directly. Returns empty when installation did not succeed so
 //! this marker can never falsely attest a filter that isn't there.
-//! Terminate-before-initIo() applies only when decideDegradedModeAction()
-//! is called with terminateOnFailure true (not today's production default).
+//! Terminate-before-initIo() applies when decideDegradedModeAction() is
+//! called with terminateOnFailure true (TERMINATE_ON_DEGRADED_SECCOMP_FAILURE).
 //! Logged over the existing per-process log pipe; this is not a new startup
 //! channel.
 //!
@@ -184,7 +184,7 @@ struct SInProcessFilterResult {
 //!        marker is produced, regardless of what an installation attempt
 //!        would have returned. Installing an in-process filter from inside
 //!        an already-sandboxed environment can fail (which would kill every
-//!        enforced-route launch once TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is activated) or
+//!        enforced-route launch when TERMINATE_ON_DEGRADED_SECCOMP_FAILURE is true) or
 //!        succeed and mislabel the launch as legacy.
 //! \param terminateOnFailure passed through to decideDegradedModeAction().
 //! \param installer invoked at most once; normally
