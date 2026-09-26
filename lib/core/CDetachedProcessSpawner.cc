@@ -17,7 +17,9 @@
 #include <core/CThread.h>
 
 #include <algorithm>
+#include <functional>
 #include <set>
+#include <vector>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -127,6 +129,11 @@ public:
     //! conditions.
     CMutex& mutex() { return m_Mutex; }
 
+    void setOnChildExited(std::function<void(CProcess::TPid)> onChildExited) {
+        CScopedLock lock(m_Mutex);
+        m_OnChildExited = std::move(onChildExited);
+    }
+
     //! Add a PID to track.
     void addPid(CProcess::TPid pid) {
         CScopedLock lock(m_Mutex);
@@ -160,27 +167,50 @@ public:
             return false;
         }
 
-        CScopedLock lock(m_Mutex);
-        // Do an extra cycle of waiting for zombies, so we give the most
-        // up-to-date answer possible
-        const_cast<CTrackerThread*>(this)->checkForDeadChildren();
-        return m_Pids.find(pid) != m_Pids.end();
+        std::vector<CProcess::TPid> exitedPids;
+        std::function<void(CProcess::TPid)> onChildExited;
+        bool found{false};
+        {
+            CScopedLock lock(m_Mutex);
+            // Do an extra cycle of waiting for zombies, so we give the most
+            // up-to-date answer possible
+            const_cast<CTrackerThread*>(this)->checkForDeadChildren(exitedPids);
+            onChildExited = m_OnChildExited;
+            found = m_Pids.find(pid) != m_Pids.end();
+        }
+        // The reaper may unlink directories; keep that IO off the tracker mutex
+        // so spawn() is not blocked behind a slow $TMPDIR.
+        for (CProcess::TPid exitedPid : exitedPids) {
+            if (onChildExited) {
+                onChildExited(exitedPid);
+            }
+        }
+        return found;
     }
 
 protected:
     void run() override {
-        CScopedLock lock(m_Mutex);
-
         while (!m_Shutdown) {
-            // Reap zombies every 50ms if child processes are running,
-            // otherwise wait for a child process to start.
-            if (m_Pids.empty()) {
-                m_Condition.wait();
-            } else {
-                m_Condition.wait(50);
-            }
+            std::vector<CProcess::TPid> exitedPids;
+            std::function<void(CProcess::TPid)> onChildExited;
+            {
+                CScopedLock lock(m_Mutex);
+                // Reap zombies every 50ms if child processes are running,
+                // otherwise wait for a child process to start.
+                if (m_Pids.empty()) {
+                    m_Condition.wait();
+                } else {
+                    m_Condition.wait(50);
+                }
 
-            this->checkForDeadChildren();
+                this->checkForDeadChildren(exitedPids);
+                onChildExited = m_OnChildExited;
+            }
+            for (CProcess::TPid exitedPid : exitedPids) {
+                if (onChildExited) {
+                    onChildExited(exitedPid);
+                }
+            }
         }
     }
 
@@ -193,8 +223,9 @@ protected:
 
 private:
     //! Reap zombie child processes and adjust the set of live child PIDs
-    //! accordingly.  MUST be called with m_Mutex locked.
-    void checkForDeadChildren() {
+    //! accordingly.  MUST be called with m_Mutex locked. Appends each reaped
+    //! PID to \p exitedPids for the caller to notify outside the lock.
+    void checkForDeadChildren(std::vector<CProcess::TPid>& exitedPids) {
         int status = 0;
         for (;;) {
             CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
@@ -243,6 +274,7 @@ private:
                     }
                 }
                 m_Pids.erase(pid);
+                exitedPids.push_back(pid);
             }
         }
     }
@@ -250,6 +282,7 @@ private:
 private:
     bool m_Shutdown;
     TPidSet m_Pids;
+    std::function<void(CProcess::TPid)> m_OnChildExited;
     mutable CMutex m_Mutex;
     CCondition m_Condition;
 };
@@ -269,6 +302,12 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     }
 }
 
+void CDetachedProcessSpawner::setChildIpcDirectoryCallbacks(TChildExitedCallback onChildExited,
+                                                            TChildSpawnedIpcCallback onChildSpawnedWithIpc) {
+    m_OnChildSpawnedWithIpc = std::move(onChildSpawnedWithIpc);
+    m_TrackerThread->setOnChildExited(std::move(onChildExited));
+}
+
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
@@ -277,6 +316,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    const std::string* childIpcRoot) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
@@ -348,6 +394,9 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
             return false;
         }
 
+        if (childIpcRoot != nullptr && childIpcRoot->empty() == false && m_OnChildSpawnedWithIpc) {
+            m_OnChildSpawnedWithIpc(childPid, *childIpcRoot);
+        }
         m_TrackerThread->addPid(childPid);
     }
 

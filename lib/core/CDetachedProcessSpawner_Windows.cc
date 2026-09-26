@@ -206,6 +206,12 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     }
 }
 
+void CDetachedProcessSpawner::setChildIpcDirectoryCallbacks(TChildExitedCallback onChildExited,
+                                                            TChildSpawnedIpcCallback onChildSpawnedWithIpc) {
+    m_OnChildSpawnedWithIpc = std::move(onChildSpawnedWithIpc);
+    // Per-child ml-child-ipc directories are a Linux controller contract only.
+}
+
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
@@ -214,6 +220,13 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                                     const TStrVec& args,
                                     CProcess::TPid& childPid) {
+    return this->spawn(processPath, args, childPid, nullptr);
+}
+
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid,
+                                    const std::string* /* childIpcRoot */) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
                   processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
