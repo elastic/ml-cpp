@@ -90,12 +90,29 @@ if [ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ] ; then
     # Create the output artifacts
     cd build/distribution
     mkdir -p ../distributions
+    # Publish the controller protocol/capability marker at the bundle root so
+    # Elasticsearch's verifyControllerProtocolVersion gate can assert against it
+    # in the -nodeps bundle. The Gradle buildZip task already does this for the
+    # macOS/Gradle packaging path; this is the equivalent for the Linux Docker
+    # packaging path, which is what CI's Elasticsearch Java integration tests
+    # (and create_dra.sh) actually resolve. 'set -e' above means a missing
+    # marker source fails the build here rather than downstream.
+    cp "$CPP_SRC_HOME/3rd_party/controller-protocol.version" .
     ZIP_LEVEL=${ZIP_COMPRESSION_LEVEL:-9}
     echo "Zip compression level: ${ZIP_LEVEL}"
     # Exclude import libraries, test support libraries, debug files and core dumps
     zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
     # Include only debug files
     zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
+    # Fail fast if the marker did not make it into the platform bundle, rather
+    # than letting it surface as an opaque downstream Java integration-test
+    # failure. Guarded on 'unzip' so images without it still build.
+    if command -v unzip >/dev/null 2>&1 ; then
+        if ! unzip -l ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip | grep -q 'controller-protocol\.version' ; then
+            echo "ERROR: controller-protocol.version missing from $ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip" >&2
+            exit 1
+        fi
+    fi
     cd ../..
 fi
 

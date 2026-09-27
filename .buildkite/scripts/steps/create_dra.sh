@@ -54,7 +54,11 @@ done
 cd build/temp
 zip ../distributions/ml-cpp-${VERSION}.zip -r platform
 
-# Create a zip excluding dependencies from combined platform-specific C++ distributions
+# Create a zip excluding dependencies from combined platform-specific C++ distributions.
+# controller-protocol.version is staged at the bundle root by the packaging step
+# (dev-tools/docker/docker_entrypoint.sh and the Gradle buildZip task); it must
+# ship in the -nodeps bundle alongside the controller it makes claims about so
+# Elasticsearch's verifyControllerProtocolVersion gate can assert against it.
 find . \( -path "**/libMl*" -o \
        -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
        -path "**/platform/linux*/bin/*" -o \
@@ -62,6 +66,7 @@ find . \( -path "**/libMl*" -o \
        -path "**/ml-en.dict" -o \
        -path "**/Info.plist" -o \
        -path "**/date_time_zonespec.csv" -o \
+       -path "**/controller-protocol.version" -o \
        -path "**/licenses/**" \) -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-nodeps.zip
 
 # Create a zip of dependencies only from combined platform-specific C++ distributions
@@ -75,6 +80,14 @@ find . \( -path "**/libMl*" -o \
           -path "**/licenses/**" \) -prune -o -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-deps.zip
 
 cd -
+
+# Fail fast if the controller protocol marker is absent from the -nodeps bundle:
+# Elasticsearch's verifyControllerProtocolVersion gate rejects such a bundle, and
+# a silent omission here would only surface downstream in the Elasticsearch build.
+if ! unzip -l build/distributions/ml-cpp-${VERSION}-nodeps.zip | grep -q 'controller-protocol\.version' ; then
+  echo "ERROR: controller-protocol.version missing from ml-cpp-${VERSION}-nodeps.zip" >&2
+  exit 1
+fi
 
 # Create a CSV report on 3rd party dependencies we redistribute.
 # This step runs on a JDK image without cmake, so use the bash script
