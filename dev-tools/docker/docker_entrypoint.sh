@@ -29,6 +29,9 @@ cd "$MY_DIR/../.."
 # Set a consistent environment
 . ./set_env.sh
 
+# Shared helper asserting the controller-protocol.version marker is packaged.
+. ./dev-tools/verify_controller_protocol_version.sh
+
 # Note: no need to clean due to the .dockerignore file
 
 # Configure the build
@@ -54,10 +57,19 @@ ARTIFACT_NAME=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^artifactName' | aw
 # Create the output artifacts
 cd build/distribution
 mkdir -p ../distributions
+# Publish the controller protocol/capability marker at the bundle root so
+# Elasticsearch's verifyControllerProtocolVersion gate can assert against it
+# in the -nodeps bundle. The Gradle buildZip task already does this for the
+# macOS/Gradle packaging path; this is the equivalent for the Linux Docker
+# packaging path, which is what CI's Elasticsearch Java integration tests
+# (and create_dra.sh) actually resolve. 'set -e' above means a missing
+# marker source fails the build here rather than downstream.
+cp "$CPP_SRC_HOME/3rd_party/controller-protocol.version" .
 # Exclude import libraries, test support libraries, debug files and core dumps
 zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
 # Include only debug files
 zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
+verify_controller_protocol_version ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip || exit 1
 cd ../..
 
 if [ "x$1" = "x--test" ] ; then
