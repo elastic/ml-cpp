@@ -50,12 +50,32 @@ You can use [user tasks](https://code.visualstudio.com/docs/editor/tasks) to int
 example, re-format the project using a the docker container with correct clang-format version or build just certain parts of
 the project.
 
+### Format changed C++ files (clang-format 5.0.1)
+
+`ml-cpp` requires clang-format **5.0.1**. On Apple Silicon (and other `arm64`/`aarch64` hosts), use the native Linux
+aarch64 image `docker.elastic.co/ml-dev/ml-check-style-aarch64:1` (or a locally built `ml-check-style-aarch64:local`
+from `dev-tools/docker/check_style_image_aarch64`). On x86_64 Linux, CI and local Docker formatting use
+`docker.elastic.co/ml-dev/ml-check-style:2`.
+
+From a shell you can run `CPP_SRC_HOME=${workspaceFolder} dev-tools/docker/run_docker_clang_format.sh`, which selects
+the image for your CPU architecture.
+
 Here is an example of user tasks specified in `tasks.json`:
 
 ```json
 {
 	"version": "2.0.0",
 	"tasks": [
+		{
+			"label": "Format changed files (last 20 commits)",
+			"type": "shell",
+			"command": "docker run --rm -v ${workspaceFolder}:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style-aarch64:1 bash -c 'cd /ml-cpp && git diff --name-only --diff-filter=ACMRT HEAD~20 HEAD | grep -E \"\\.(cc|h)$\" | grep -v \"^3rd_party\" | grep -v \"^build-setup\" | xargs -r clang-format -i'",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
 		{
 			"label": "CMake relwithdebinfo build",
 			"type": "shell",
