@@ -29,6 +29,9 @@ cd "$MY_DIR/../.."
 # Set a consistent environment
 . ./set_env.sh
 
+# Shared helper asserting the controller-protocol.version marker is packaged.
+. ./dev-tools/verify_controller_protocol_version.sh
+
 # Set up sccache with GCS backend if credentials are available.
 # SCCACHE_GCS_BUCKET is exported by the Buildkite post-checkout hook.
 if [ -n "${SCCACHE_GCS_BUCKET:-}" ]; then
@@ -104,15 +107,7 @@ if [ "${SKIP_ARTIFACT_UPLOAD:-false}" != "true" ] ; then
     zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
     # Include only debug files
     zip -${ZIP_LEVEL} ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-debug-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
-    # Fail fast if the marker did not make it into the platform bundle, rather
-    # than letting it surface as an opaque downstream Java integration-test
-    # failure. Guarded on 'unzip' so images without it still build.
-    if command -v unzip >/dev/null 2>&1 ; then
-        if ! unzip -l ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip | grep -q 'controller-protocol\.version' ; then
-            echo "ERROR: controller-protocol.version missing from $ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip" >&2
-            exit 1
-        fi
-    fi
+    verify_controller_protocol_version ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip || exit 1
     cd ../..
 fi
 

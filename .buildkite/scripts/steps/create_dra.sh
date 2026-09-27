@@ -18,6 +18,9 @@
 # 4. Combine the platform-specific non 3rd party dependencies into a 'deps' bundle
 # 4. Create a dependency report containing licensing info on the 3rd party dependencies.
 
+# Shared helper asserting the controller-protocol.version marker is packaged.
+. "${REPO_ROOT}/dev-tools/verify_controller_protocol_version.sh"
+
 rm -rf build/distributions
 
 # Default to a snapshot build
@@ -81,13 +84,7 @@ find . \( -path "**/libMl*" -o \
 
 cd -
 
-# Fail fast if the controller protocol marker is absent from the -nodeps bundle:
-# Elasticsearch's verifyControllerProtocolVersion gate rejects such a bundle, and
-# a silent omission here would only surface downstream in the Elasticsearch build.
-if ! unzip -l build/distributions/ml-cpp-${VERSION}-nodeps.zip | grep -q 'controller-protocol\.version' ; then
-  echo "ERROR: controller-protocol.version missing from ml-cpp-${VERSION}-nodeps.zip" >&2
-  exit 1
-fi
+verify_controller_protocol_version build/distributions/ml-cpp-${VERSION}-nodeps.zip || exit 1
 
 # Create a CSV report on 3rd party dependencies we redistribute.
 # This step runs on a JDK image without cmake, so use the bash script
