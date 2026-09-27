@@ -26,7 +26,17 @@ verify_controller_protocol_version() {
         echo "WARNING: unzip not available; skipping controller-protocol.version check for ${zip_file}" >&2
         return 0
     fi
-    if ! unzip -l "$zip_file" | grep -q 'controller-protocol\.version' ; then
+    # Capture the full listing before matching. Piping 'unzip -l' straight into
+    # 'grep -q' lets grep close the pipe as soon as it matches, which can deliver
+    # SIGPIPE to 'unzip'; under 'set -o pipefail' (used by several callers) that
+    # makes the pipeline non-zero and a present marker gets reported as missing.
+    # A here-string avoids the pipe entirely.
+    local listing
+    if ! listing=$(unzip -l "$zip_file") ; then
+        echo "ERROR: failed to list ${zip_file}" >&2
+        return 1
+    fi
+    if ! grep -q 'controller-protocol\.version' <<< "$listing" ; then
         echo "ERROR: controller-protocol.version missing from ${zip_file}" >&2
         return 1
     fi

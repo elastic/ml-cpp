@@ -55,7 +55,11 @@ for it in darwin-aarch64 darwin-x86_64 linux-aarch64 linux-x86_64 windows-x86_64
   unzip -o build/distributions/ml-cpp-${VERSION}-${it}.zip -d build/temp;
 done
 cd build/temp
-zip ../distributions/ml-cpp-${VERSION}.zip -r platform
+# Include controller-protocol.version at the zip root alongside 'platform' so the
+# all-platform uber zip carries the marker too, matching the Gradle buildUberZip
+# task (which pulls it in via buildZip). Each platform zip stages the marker at
+# its root, so unzipping above leaves a copy at build/temp/.
+zip ../distributions/ml-cpp-${VERSION}.zip -r platform controller-protocol.version
 
 # Create a zip excluding dependencies from combined platform-specific C++ distributions.
 # controller-protocol.version is staged at the bundle root by the packaging step
@@ -84,6 +88,7 @@ find . \( -path "**/libMl*" -o \
 
 cd -
 
+verify_controller_protocol_version build/distributions/ml-cpp-${VERSION}.zip || exit 1
 verify_controller_protocol_version build/distributions/ml-cpp-${VERSION}-nodeps.zip || exit 1
 
 # Create a CSV report on 3rd party dependencies we redistribute.
