@@ -18,6 +18,9 @@
 # 4. Combine the platform-specific non 3rd party dependencies into a 'deps' bundle
 # 4. Create a dependency report containing licensing info on the 3rd party dependencies.
 
+# Shared helper asserting the controller-protocol.version marker is packaged.
+. "${REPO_ROOT}/dev-tools/verify_controller_protocol_version.sh"
+
 rm -rf build/distributions
 
 # Default to a snapshot build
@@ -52,9 +55,17 @@ for it in darwin-aarch64 darwin-x86_64 linux-aarch64 linux-x86_64 windows-x86_64
   unzip -o build/distributions/ml-cpp-${VERSION}-${it}.zip -d build/temp;
 done
 cd build/temp
-zip ../distributions/ml-cpp-${VERSION}.zip -r platform
+# Include controller-protocol.version at the zip root alongside 'platform' so the
+# all-platform uber zip carries the marker too, matching the Gradle buildUberZip
+# task (which pulls it in via buildZip). Each platform zip stages the marker at
+# its root, so unzipping above leaves a copy at build/temp/.
+zip ../distributions/ml-cpp-${VERSION}.zip -r platform controller-protocol.version
 
-# Create a zip excluding dependencies from combined platform-specific C++ distributions
+# Create a zip excluding dependencies from combined platform-specific C++ distributions.
+# controller-protocol.version is staged at the bundle root by the packaging step
+# (dev-tools/docker/docker_entrypoint.sh and the Gradle buildZip task); it must
+# ship in the -nodeps bundle alongside the controller it makes claims about so
+# Elasticsearch's verifyControllerProtocolVersion gate can assert against it.
 find . \( -path "**/libMl*" -o \
        -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
        -path "**/platform/linux*/bin/*" -o \
@@ -62,6 +73,7 @@ find . \( -path "**/libMl*" -o \
        -path "**/ml-en.dict" -o \
        -path "**/Info.plist" -o \
        -path "**/date_time_zonespec.csv" -o \
+       -path "**/controller-protocol.version" -o \
        -path "**/licenses/**" \) -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-nodeps.zip
 
 # Create a zip of dependencies only from combined platform-specific C++ distributions
@@ -75,6 +87,9 @@ find . \( -path "**/libMl*" -o \
           -path "**/licenses/**" \) -prune -o -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-deps.zip
 
 cd -
+
+verify_controller_protocol_version build/distributions/ml-cpp-${VERSION}.zip || exit 1
+verify_controller_protocol_version build/distributions/ml-cpp-${VERSION}-nodeps.zip || exit 1
 
 # Create a CSV report on 3rd party dependencies we redistribute.
 # This step runs on a JDK image without cmake, so use the bash script
