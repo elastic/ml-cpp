@@ -76,7 +76,11 @@ find . \( -path "**/libMl*" -o \
        -path "**/controller-protocol.version" -o \
        -path "**/licenses/**" \) -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-nodeps.zip
 
-# Create a zip of dependencies only from combined platform-specific C++ distributions
+# Create a zip of dependencies only from combined platform-specific C++ distributions.
+# controller-protocol.version must be pruned here so it ships only in the -nodeps bundle:
+# it is not a 3rd-party dependency, and leaving it in both bundles makes Elasticsearch's
+# ml plugin bundle merge (which unzips -deps and -nodeps together) fail with a duplicate
+# 'controller-protocol.version' entry.
 find . \( -path "**/libMl*" -o \
           -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
           -path "**/platform/linux*/bin/*" -o \
@@ -84,6 +88,7 @@ find . \( -path "**/libMl*" -o \
           -path "**/ml-en.dict" -o \
           -path "**/Info.plist" -o \
           -path "**/date_time_zonespec.csv" -o \
+          -path "**/controller-protocol.version" -o \
           -path "**/licenses/**" \) -prune -o -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-deps.zip
 
 cd -
