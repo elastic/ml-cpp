@@ -189,24 +189,19 @@ std::string selfCheckFacts(const SHostConfinement& host,
 std::string selfCheckConclusion(const SHostConfinement& host) {
     switch (host.s_Level) {
     case EConfinementLevel::E_Sandbox2:
-        return ". Models launched with xpack.ml.trained_models.sandbox_enabled=true "
-               "will run with full Sandbox2 isolation.";
+        return ". pytorch_inference will run with full Sandbox2 isolation on this host.";
     case EConfinementLevel::E_Landlock:
-        return ". Models launched with xpack.ml.trained_models.sandbox_enabled=true "
-               "will run with Landlock filesystem confinement, because full Sandbox2 "
-               "isolation is not available on this host. " +
+        return ". pytorch_inference will run with Landlock filesystem confinement on this "
+               "host because full Sandbox2 isolation is not available. " +
                fullSandboxRemedy(host);
     case EConfinementLevel::E_Unavailable: {
         const std::string landlockWhy{
             host.s_LandlockAbi == 0
                 ? "Landlock is not supported by this kernel"
                 : "Landlock is " + describeLandlock(host.s_LandlockAbi)};
-        std::string conclusion{
-            ". This host supports neither Sandbox2 nor Landlock (" + landlockWhy +
-            "). While xpack.ml.trained_models.sandbox_enabled is false (the default), "
-            "pytorch_inference runs with the in-process seccomp filter only. If that setting "
-            "is true, launches on this node are refused rather than running without the "
-            "requested sandbox."};
+        std::string conclusion{". Sandboxed pytorch_inference launches are refused on this "
+                               "host because neither Sandbox2 nor Landlock is available (" +
+                               landlockWhy + ")."};
         const std::string hint{unavailableHostCapabilityHint(host)};
         if (hint.empty() == false) {
             conclusion += " " + hint;
@@ -215,10 +210,6 @@ std::string selfCheckConclusion(const SHostConfinement& host) {
     }
     }
     return std::string{};
-}
-
-bool selfCheckLogsAtWarningLevel(const SHostConfinement& /*host*/) {
-    return false;
 }
 
 #if !defined(__linux__) || !defined(SANDBOX2_AVAILABLE)
@@ -232,10 +223,9 @@ const SHostConfinement& hostConfinement() {
     return host;
 }
 
-void logSandbox2EnvironmentSelfCheck() {
-    // Deliberately silent rather than logging "not applicable" on every
-    // controller start: a build with no Sandbox2 support never routes to it,
-    // so the line would be noise on every non-Linux node.
+void logSandbox2EnvironmentSelfCheck(const SHostConfinement& /*host*/) {
+    // Deliberately silent: a build with no Sandbox2 support never routes to
+    // the sandboxed pytorch_inference path.
 }
 
 #endif // !__linux__ || !SANDBOX2_AVAILABLE
@@ -469,15 +459,7 @@ const SHostConfinement& hostConfinement() {
     return host;
 }
 
-void logSandbox2EnvironmentSelfCheck() {
-    static bool logged{false};
-    if (logged) {
-        return;
-    }
-    logged = true;
-
-    const SHostConfinement& host{hostConfinement()};
-
+void logSandbox2EnvironmentSelfCheck(const SHostConfinement& host) {
     // The passive sysctl values are what the frozen prior art (ml-cpp#2873's
     // CSandbox2Diagnostics) reported on its own. They never decide anything
     // - both are host-global and are inherited unchanged by a container whose
@@ -490,9 +472,6 @@ void logSandbox2EnvironmentSelfCheck() {
                                              pathHasNoexecFlag(tmpDir.c_str())) +
                               selfCheckConclusion(host)};
 
-    // Logged at controller start, before any launch, and regardless of
-    // xpack.ml.trained_models.sandbox_enabled (which the controller only
-    // learns per launch).
     LOG_INFO(<< message);
 }
 

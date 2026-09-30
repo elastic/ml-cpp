@@ -194,35 +194,34 @@ BOOST_AUTO_TEST_CASE(testNoConfinementMessageExplainsAndTellsTheOperatorWhatToDo
     BOOST_TEST_REQUIRE(blockedMessage.find("blocked") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(testSelfCheckConclusionForUnavailableHostIsConditionalOnTheSetting) {
-    ml::sandbox::SHostConfinement host;
-    host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
-    host.s_LandlockAbi = 0;
-    host.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
-
-    const std::string conclusion{ml::sandbox::selfCheckConclusion(host)};
-    BOOST_TEST_REQUIRE(conclusion.find("xpack.ml.trained_models.sandbox_enabled is false") !=
+BOOST_AUTO_TEST_CASE(testSelfCheckConclusionDescribesEachConfinementLevel) {
+    ml::sandbox::SHostConfinement sandbox2Host;
+    sandbox2Host.s_Level = ml::sandbox::EConfinementLevel::E_Sandbox2;
+    sandbox2Host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_Available;
+    const std::string sandbox2Conclusion{ml::sandbox::selfCheckConclusion(sandbox2Host)};
+    BOOST_TEST_REQUIRE(sandbox2Conclusion.find("full Sandbox2 isolation") !=
                        std::string::npos);
-    BOOST_TEST_REQUIRE(conclusion.find("If that setting is true") != std::string::npos);
-    BOOST_TEST_REQUIRE(conclusion.find("CONFIG_SECURITY_LANDLOCK") != std::string::npos);
-    BOOST_TEST_REQUIRE(conclusion.find("every model deployment") == std::string::npos);
-    BOOST_TEST_REQUIRE(conclusion.find("deactivate that setting") == std::string::npos);
-}
 
-BOOST_AUTO_TEST_CASE(testSelfCheckNeverUsesWarningLevel) {
-    const std::vector<ml::sandbox::EConfinementLevel> levels{
-        ml::sandbox::EConfinementLevel::E_Sandbox2, ml::sandbox::EConfinementLevel::E_Landlock,
-        ml::sandbox::EConfinementLevel::E_Unavailable};
+    ml::sandbox::SHostConfinement landlockHost;
+    landlockHost.s_Level = ml::sandbox::EConfinementLevel::E_Landlock;
+    landlockHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    landlockHost.s_LandlockAbi = 1;
+    landlockHost.s_UnprivilegedUsernsClone = "0";
+    const std::string landlockConclusion{ml::sandbox::selfCheckConclusion(landlockHost)};
+    BOOST_TEST_REQUIRE(landlockConclusion.find("Landlock filesystem confinement") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(landlockConclusion.find("kernel.unprivileged_userns_clone=1") !=
+                       std::string::npos);
 
-    for (const auto level : levels) {
-        ml::sandbox::SHostConfinement host;
-        host.s_Level = level;
-        host.s_Sandbox2 = level == ml::sandbox::EConfinementLevel::E_Sandbox2
-                              ? ml::sandbox::ESandbox2Capability::E_Available
-                              : ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
-        host.s_LandlockAbi = level == ml::sandbox::EConfinementLevel::E_Unavailable ? 0 : 1;
-        BOOST_TEST_REQUIRE(ml::sandbox::selfCheckLogsAtWarningLevel(host) == false);
-    }
+    ml::sandbox::SHostConfinement unavailableHost;
+    unavailableHost.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
+    unavailableHost.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    unavailableHost.s_LandlockAbi = 0;
+    const std::string unavailableConclusion{ml::sandbox::selfCheckConclusion(unavailableHost)};
+    BOOST_TEST_REQUIRE(unavailableConclusion.find("launches are refused") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(unavailableConclusion.find("CONFIG_SECURITY_LANDLOCK") !=
+                       std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(testLandlockFallbackMessageNamesThePathAndDoesNotOverclaim) {
