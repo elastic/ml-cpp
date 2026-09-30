@@ -127,8 +127,9 @@ struct SHostConfinement {
 EConfinementLevel decideConfinement(ESandbox2Capability sandbox2, int landlockAbi);
 
 //! This host's confinement, probed at most once per process and cached - the
-//! single source of truth for both the startup self-check and every routing
-//! decision, for the same reason as sandbox2Capability().
+//! single source of truth for the first --requireSandbox self-check log and
+//! every routing decision on that route, for the same reason as
+//! sandbox2Capability().
 const SHostConfinement& hostConfinement();
 
 //! Human-readable form of a landlockAbiVersion() result.
@@ -152,11 +153,24 @@ std::string landlockFallbackMessage(const SHostConfinement& host,
 //! such a host that is the only way to run models at all.
 std::string noConfinementMessage(const SHostConfinement& host, const std::string& processPath);
 
-//! Log a one-time Sandbox2 environment self-check at INFO level, combining
-//! the active capability probe above with the passive host facts that help
-//! interpret it. No-op after the first call, and on platforms without
-//! Sandbox2 support.
-void logSandbox2EnvironmentSelfCheck();
+//! The passive host facts line logged by the Sandbox2 environment self-check
+//! (TMPDIR writability and noexec are supplied by the caller because they
+//! depend on the live environment).
+std::string selfCheckFacts(const SHostConfinement& host,
+                           const std::string& tmpDir,
+                           bool tmpDirWritable,
+                           bool tmpDirNoexec);
+
+//! The conclusion sentence(s) appended after \p selfCheckFacts() for a
+//! sandboxed (--requireSandbox) launch. Pure function of \p host.s_Level and
+//! probe results.
+std::string selfCheckConclusion(const SHostConfinement& host);
+
+//! Log the Sandbox2 environment self-check at INFO for \p host. The
+//! controller calls this once, on the first --requireSandbox launch; callers
+//! must not invoke it at startup. No-op on platforms without Sandbox2
+//! support.
+void logSandbox2EnvironmentSelfCheck(const SHostConfinement& host);
 
 } // namespace sandbox
 } // namespace ml
