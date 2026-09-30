@@ -152,6 +152,25 @@ std::string landlockFallbackMessage(const SHostConfinement& host,
 //! such a host that is the only way to run models at all.
 std::string noConfinementMessage(const SHostConfinement& host, const std::string& processPath);
 
+//! The passive host facts line logged by the startup self-check (TMPDIR
+//! writability and noexec are supplied by the caller because they depend on
+//! the live environment).
+std::string selfCheckFacts(const SHostConfinement& host,
+                           const std::string& tmpDir,
+                           bool tmpDirWritable,
+                           bool tmpDirNoexec);
+
+//! The conclusion sentence(s) appended after \p selfCheckFacts() for the
+//! startup self-check. Pure function of \p host.s_Level and probe results;
+//! does not read xpack.ml.trained_models.sandbox_enabled (the controller
+//! learns that only per launch).
+std::string selfCheckConclusion(const SHostConfinement& host);
+
+//! The startup self-check always logs at INFO: it reports host capability
+//! before any launch and must not WARN on every controller start when the
+//! operator setting is still at its default (false).
+bool selfCheckLogsAtWarningLevel(const SHostConfinement& host);
+
 //! Log a one-time Sandbox2 environment self-check at INFO level, combining
 //! the active capability probe above with the passive host facts that help
 //! interpret it. No-op after the first call, and on platforms without

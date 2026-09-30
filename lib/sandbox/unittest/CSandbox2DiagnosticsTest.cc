@@ -194,6 +194,37 @@ BOOST_AUTO_TEST_CASE(testNoConfinementMessageExplainsAndTellsTheOperatorWhatToDo
     BOOST_TEST_REQUIRE(blockedMessage.find("blocked") != std::string::npos);
 }
 
+BOOST_AUTO_TEST_CASE(testSelfCheckConclusionForUnavailableHostIsConditionalOnTheSetting) {
+    ml::sandbox::SHostConfinement host;
+    host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+    host.s_LandlockAbi = 0;
+    host.s_Level = ml::sandbox::EConfinementLevel::E_Unavailable;
+
+    const std::string conclusion{ml::sandbox::selfCheckConclusion(host)};
+    BOOST_TEST_REQUIRE(conclusion.find("xpack.ml.trained_models.sandbox_enabled is false") !=
+                       std::string::npos);
+    BOOST_TEST_REQUIRE(conclusion.find("If that setting is true") != std::string::npos);
+    BOOST_TEST_REQUIRE(conclusion.find("CONFIG_SECURITY_LANDLOCK") != std::string::npos);
+    BOOST_TEST_REQUIRE(conclusion.find("every model deployment") == std::string::npos);
+    BOOST_TEST_REQUIRE(conclusion.find("deactivate that setting") == std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(testSelfCheckNeverUsesWarningLevel) {
+    const std::vector<ml::sandbox::EConfinementLevel> levels{
+        ml::sandbox::EConfinementLevel::E_Sandbox2, ml::sandbox::EConfinementLevel::E_Landlock,
+        ml::sandbox::EConfinementLevel::E_Unavailable};
+
+    for (const auto level : levels) {
+        ml::sandbox::SHostConfinement host;
+        host.s_Level = level;
+        host.s_Sandbox2 = level == ml::sandbox::EConfinementLevel::E_Sandbox2
+                              ? ml::sandbox::ESandbox2Capability::E_Available
+                              : ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
+        host.s_LandlockAbi = level == ml::sandbox::EConfinementLevel::E_Unavailable ? 0 : 1;
+        BOOST_TEST_REQUIRE(ml::sandbox::selfCheckLogsAtWarningLevel(host) == false);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testLandlockFallbackMessageNamesThePathAndDoesNotOverclaim) {
     ml::sandbox::SHostConfinement host;
     host.s_Sandbox2 = ml::sandbox::ESandbox2Capability::E_UserNamespaceDenied;
