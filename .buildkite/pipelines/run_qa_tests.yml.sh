@@ -61,6 +61,15 @@ cat <<EOL
 EOL
 fi
 
+# ES_COMMIT (issue #3226): pin the ES checkout to an exact commit so an old
+# ml-cpp can be tested against a contemporaneous ES build (passes the
+# verifyControllerProtocolVersion gate). Emitted only when set.
+if [ "${ES_COMMIT:-}" != "" ]; then
+cat <<EOL
+        ES_COMMIT: "${ES_COMMIT}"
+EOL
+fi
+
 if [ "${STACK_VERSION}" != "" ]; then
 cat <<EOL
         STACK_VERSION: "${STACK_VERSION}"
