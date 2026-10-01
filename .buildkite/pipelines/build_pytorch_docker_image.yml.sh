@@ -8,6 +8,15 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+# ES_COMMIT (issue #3226): pin the Elasticsearch commit the QA harness builds
+# from, so an old ml-cpp can be tested against a contemporaneous ES (avoids the
+# verifyControllerProtocolVersion gate). Buildkite downstream builds do not
+# inherit env automatically, so thread it (when set) through the pr-builds trigger.
+ES_COMMIT_LINE=""
+if [ -n "${ES_COMMIT:-}" ]; then
+    ES_COMMIT_LINE="        ES_COMMIT: \"${ES_COMMIT}\""
+fi
+
 cat <<EOL
 ---
 steps:
@@ -33,4 +42,5 @@ steps:
         GITHUB_PR_COMMENT_VAR_ARCH: "x86_64"
         GITHUB_PR_COMMENT_VAR_ACTION: "run_pytorch_tests"
         GITHUB_PR_TRIGGER_COMMENT: ""
+${ES_COMMIT_LINE}
 EOL
