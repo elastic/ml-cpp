@@ -42,6 +42,16 @@ cat <<EOL
 EOL
 fi
 
+# Optionally pin the Elasticsearch checkout to an exact commit SHA. qaf-tests
+# honours ES_COMMIT (ElasticsearchRepoTask) and checks out that commit after
+# cloning the branch, letting us test ml-cpp against a contemporaneous ES build
+# instead of the moving tip of ES_BRANCH.
+if [ "${ES_COMMIT:-}" != "" ]; then
+cat <<EOL
+        ES_COMMIT: "${ES_COMMIT}"
+EOL
+fi
+
 if [ "${STACK_VERSION}" != "" ]; then
 cat <<EOL
         STACK_VERSION: "${STACK_VERSION}"
