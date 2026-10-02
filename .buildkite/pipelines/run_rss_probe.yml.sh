@@ -41,14 +41,17 @@ PROBE_INPUT_MODE="${RSS_PROBE_INPUT_MODE:-file}"
 ELSER_URL="${RSS_PROBE_MODEL_URL:-https://ml-models.elastic.co/elser_model_2_linux-x86_64.pt}"
 
 # Distribution source: prebuilt (cross-build) vs this pipeline's build step.
+# The probe body lives in a committed script (dev-tools/run_rss_probe_ci.sh) and
+# is driven purely by the env: block below. We deliberately keep ALL shell
+# variables out of the YAML command, because `buildkite-agent pipeline upload`
+# interpolates ${VAR} in the pipeline at upload time and would blank out values
+# meant to be resolved at runtime.
 if [ -n "${RSS_PROBE_DIST_BUILD:-}" ]; then
     DEPENDS_BLOCK=""
-    DOWNLOAD_CMD="buildkite-agent artifact download \"build/distributions/ml-cpp-*-SNAPSHOT-linux-x86_64.zip\" . --build \"${RSS_PROBE_DIST_BUILD}\""
-    DIST_NOTE="prebuilt distribution from build ${RSS_PROBE_DIST_BUILD}"
+    DIST_BUILD_ENV="      RSS_PROBE_DIST_BUILD: \"${RSS_PROBE_DIST_BUILD}\""
 else
     DEPENDS_BLOCK="    depends_on: \"build_test_linux-x86_64-RelWithDebInfo\""
-    DOWNLOAD_CMD="buildkite-agent artifact download \"build/distributions/ml-cpp-*-SNAPSHOT-linux-x86_64.zip\" . --step build_test_linux-x86_64-RelWithDebInfo"
-    DIST_NOTE="distribution from this pipeline's x86_64 build"
+    DIST_BUILD_ENV="      RSS_PROBE_DIST_STEP: \"build_test_linux-x86_64-RelWithDebInfo\""
 fi
 
 cat <<EOL
@@ -63,6 +66,7 @@ ${DEPENDS_BLOCK}
       memory: "64G"
       image: "${PROBE_IMAGE}"
     env:
+${DIST_BUILD_ENV}
       RSS_PROBE_NUM_REQUESTS: "${PROBE_NUM_REQUESTS}"
       RSS_PROBE_BATCH_SIZE: "${PROBE_BATCH_SIZE}"
       RSS_PROBE_NUM_TOKENS: "${PROBE_NUM_TOKENS}"
@@ -71,38 +75,7 @@ ${DEPENDS_BLOCK}
       RSS_PROBE_MAX_SECONDS: "${PROBE_MAX_SECONDS}"
       RSS_PROBE_INPUT_MODE: "${PROBE_INPUT_MODE}"
       RSS_PROBE_MODEL_URL: "${ELSER_URL}"
-    command: |
-      set -euo pipefail
-      echo "--- Obtaining linux-x86_64 distribution (${DIST_NOTE})"
-      DL_DIR="\${PWD}/_dist_dl"
-      DIST_DIR="\${PWD}/_dist"
-      rm -rf "\${DL_DIR}" "\${DIST_DIR}"
-      mkdir -p "\${DL_DIR}" "\${DIST_DIR}"
-      ( cd "\${DL_DIR}" && ${DOWNLOAD_CMD} )
-      DIST_ZIP=\$(find "\${DL_DIR}" -type f -name "ml-cpp-*-SNAPSHOT-linux-x86_64.zip" ! -name "*debug*" | head -1)
-      echo "distribution: \${DIST_ZIP}"
-      if [ -z "\${DIST_ZIP}" ]; then
-        echo "ERROR: distribution zip not found after download; contents of \${DL_DIR}:"
-        find "\${DL_DIR}" -maxdepth 4 -type f | head -50
-        exit 1
-      fi
-      unzip -q -o "\${DIST_ZIP}" -d "\${DIST_DIR}"
-      PYTORCH_BIN=\$(find "\${DIST_DIR}" -type f -name pytorch_inference | head -1)
-      echo "pytorch_inference: \${PYTORCH_BIN}"
-      if [ -z "\${PYTORCH_BIN}" ]; then
-        echo "ERROR: pytorch_inference binary not found in distribution; contents of \${DIST_DIR}:"
-        find "\${DIST_DIR}" -maxdepth 4 -type f | head -50
-        exit 1
-      fi
-      LIB_DIR=\$(dirname \$(dirname "\${PYTORCH_BIN}"))/lib
-      export LD_LIBRARY_PATH="\${LIB_DIR}:\${LD_LIBRARY_PATH:-}"
-      echo "--- Downloading ELSER model"
-      curl -fL --retry 5 --retry-delay 5 -o elser.pt "\${RSS_PROBE_MODEL_URL}" || wget -O elser.pt "\${RSS_PROBE_MODEL_URL}"
-      ls -la elser.pt
-      echo "--- Running RSS probe"
-      python3 dev-tools/pytorch_inference_rss_probe.py --app "\${PYTORCH_BIN}" --model elser.pt --num-requests "\${RSS_PROBE_NUM_REQUESTS}" --batch-size "\${RSS_PROBE_BATCH_SIZE}" --num-tokens "\${RSS_PROBE_NUM_TOKENS}" --num-threads-per-allocation "\${RSS_PROBE_THREADS_PER_ALLOCATION}" --num-allocations "\${RSS_PROBE_ALLOCATIONS}" --max-seconds "\${RSS_PROBE_MAX_SECONDS}" --input-mode "\${RSS_PROBE_INPUT_MODE}" --label "\${BUILDKITE_BRANCH}" --csv rss_probe.csv | tee rss_probe.log
-      buildkite-agent artifact upload "rss_probe.csv"
-      buildkite-agent artifact upload "rss_probe.log"
+    command: "bash dev-tools/run_rss_probe_ci.sh"
     notify:
       - github_commit_status:
           context: "RSS probe (pytorch_inference OOM)"
