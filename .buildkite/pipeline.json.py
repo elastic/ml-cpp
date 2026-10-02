@@ -36,6 +36,15 @@ def main():
     config = buildConfig.Config()
     config.parse()
 
+    # Prebuilt-distribution RSS probe (issue #3226): probe an already-built
+    # linux-x86_64 distribution from another build (RSS_PROBE_DIST_BUILD) instead
+    # of compiling here. No build/test/analytics steps are needed in that case.
+    rss_probe_prebuilt = config.run_rss_probe and bool(os.environ.get("RSS_PROBE_DIST_BUILD"))
+    if rss_probe_prebuilt:
+        config.build_windows = False
+        config.build_macos = False
+        config.build_linux = False
+
     # Compute which build step keys will exist so that analytics steps
     # can emit a correct depends_on list (not all platforms are built
     # for every PR, depending on labels/comments).
@@ -125,10 +134,16 @@ def main():
             pipeline_steps.append(pipeline_steps.generate_step("Upload serverless QA deploy pipeline",
                                                                ".buildkite/pipelines/deploy_serverless_qa.yml.sh"))
 
+    # Prebuilt-distribution probe: nothing was built here, so just emit the probe.
+    if rss_probe_prebuilt:
+        pipeline_steps.append(pipeline_steps.generate_step("Upload RSS probe runner pipeline",
+                                                           ".buildkite/pipelines/run_rss_probe.yml.sh"))
+
     # Check for build timing regressions against nightly baseline
-    pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
-                                                       ".buildkite/pipelines/check_build_regression.yml.sh",
-                                                       soft_fail=True))
+    if not rss_probe_prebuilt:
+        pipeline_steps.append(pipeline_steps.generate_step("Check build timing regressions",
+                                                           ".buildkite/pipelines/check_build_regression.yml.sh",
+                                                           soft_fail=True))
 
     # Validate the PyTorch allowlist against HuggingFace models when
     # triggered from the PyTorch edge pipeline.  Runs in a python:3

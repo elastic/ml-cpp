@@ -20,7 +20,8 @@ fi
 RSS_PROBE_ENV_LINES=""
 for probe_var in RSS_PROBE_NUM_REQUESTS RSS_PROBE_BATCH_SIZE RSS_PROBE_NUM_TOKENS \
                  RSS_PROBE_THREADS_PER_ALLOCATION RSS_PROBE_ALLOCATIONS \
-                 RSS_PROBE_MAX_SECONDS RSS_PROBE_INPUT_MODE RSS_PROBE_MODEL_URL; do
+                 RSS_PROBE_MAX_SECONDS RSS_PROBE_INPUT_MODE RSS_PROBE_MODEL_URL \
+                 RSS_PROBE_DIST_BUILD RSS_PROBE_DIST_PIPELINE; do
     probe_val="${!probe_var:-}"
     if [ -n "${probe_val}" ]; then
         RSS_PROBE_ENV_LINES="${RSS_PROBE_ENV_LINES}
@@ -28,9 +29,13 @@ for probe_var in RSS_PROBE_NUM_REQUESTS RSS_PROBE_BATCH_SIZE RSS_PROBE_NUM_TOKEN
     fi
 done
 
+echo "---"
+echo "steps:"
+
+# In prebuilt-probe mode we reuse an already-built distribution downstream, so
+# there is no need to (re)build the libtorch Docker image here.
+if [ -z "${RSS_PROBE_DIST_BUILD:-}" ]; then
 cat <<EOL
----
-steps:
   - label: "Build PyTorch Docker Image"
     key: "build_pytorch_docker_image"
     command: "./dev-tools/docker/build_pytorch_linux_build_image.sh"
@@ -41,6 +46,10 @@ steps:
       - github_commit_status:
           context: "Build PyTorch Docker image"
   - wait
+EOL
+fi
+
+cat <<EOL
   - trigger: ml-cpp-pr-builds
     async: false
     build:
