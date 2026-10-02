@@ -86,6 +86,9 @@ def parse_arguments():
                              'caching allocator the way the QA OOM does.')
     parser.add_argument('--min-tokens', type=int, default=1,
                         help='Minimum sequence length when --vary-tokens is set (default 1)')
+    parser.add_argument('--token-skew', choices=['uniform', 'long'], default='uniform',
+                        help='Length distribution for --vary-tokens: uniform (flat) or '
+                             'long (biased toward the maximum, like a real corpus)')
     parser.add_argument('--seed', type=int, default=1234,
                         help='RNG seed for --vary-tokens (default 1234, for reproducibility)')
     parser.add_argument('--num-threads-per-allocation', type=int, default=None,
@@ -150,13 +153,25 @@ def make_mem_request(request_num):
 
 
 def make_token_len_fn(args):
-    '''Return a callable mapping request index -> sequence length.'''
-    if args.vary_tokens:
-        rng = random.Random(args.seed)
-        low = max(1, args.min_tokens)
-        high = max(low, args.num_tokens)
-        return lambda i: rng.randint(low, high)
-    return lambda i: args.num_tokens
+    '''Return a callable mapping request index -> sequence length.
+
+    With --vary-tokens the length is drawn from [min_tokens, num_tokens]. The
+    --token-skew control shapes that draw: "uniform" (default) is flat, while
+    "long" biases heavily toward the maximum length, which better matches a real
+    corpus such as wikipedia where many documents hit the 512-token cap.
+    '''
+    if not args.vary_tokens:
+        return lambda i: args.num_tokens
+    rng = random.Random(args.seed)
+    low = max(1, args.min_tokens)
+    high = max(low, args.num_tokens)
+    if args.token_skew == 'long':
+        # Beta(5,1.5) concentrates mass near 1.0 -> lengths near the max.
+        def _long(i):
+            frac = rng.betavariate(5.0, 1.5)
+            return low + int(round(frac * (high - low)))
+        return _long
+    return lambda i: rng.randint(low, high)
 
 
 def write_requests(sink, num_requests, batch_size, token_len_fn, mem_every):
@@ -263,8 +278,8 @@ def parse_model_memory(output_path):
 
 def _tokens_desc(args):
     if args.vary_tokens:
-        return '{}-{} tokens (varied, seed {})'.format(
-            max(1, args.min_tokens), args.num_tokens, args.seed)
+        return '{}-{} tokens ({}-varied, seed {})'.format(
+            max(1, args.min_tokens), args.num_tokens, args.token_skew, args.seed)
     return '{} tokens'.format(args.num_tokens)
 
 

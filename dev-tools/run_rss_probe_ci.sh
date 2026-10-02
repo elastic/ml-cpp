@@ -43,6 +43,7 @@ BATCH_SIZE="${RSS_PROBE_BATCH_SIZE:-16}"
 NUM_TOKENS="${RSS_PROBE_NUM_TOKENS:-512}"
 VARY_TOKENS="${RSS_PROBE_VARY_TOKENS:-true}"
 MIN_TOKENS="${RSS_PROBE_MIN_TOKENS:-1}"
+TOKEN_SKEW="${RSS_PROBE_TOKEN_SKEW:-uniform}"
 THREADS="${RSS_PROBE_THREADS_PER_ALLOCATION:-4}"
 ALLOCATIONS="${RSS_PROBE_ALLOCATIONS:-8}"
 MAX_SECONDS="${RSS_PROBE_MAX_SECONDS:-3600}"
@@ -104,6 +105,7 @@ python3 dev-tools/pytorch_inference_rss_probe.py \
     --num-tokens "${NUM_TOKENS}" \
     ${VARY_FLAG} \
     --min-tokens "${MIN_TOKENS}" \
+    --token-skew "${TOKEN_SKEW}" \
     --num-threads-per-allocation "${THREADS}" \
     --num-allocations "${ALLOCATIONS}" \
     --max-seconds "${MAX_SECONDS}" \
