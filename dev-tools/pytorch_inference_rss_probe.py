@@ -228,19 +228,19 @@ class RssWatcher(threading.Thread):
         self._csv_path = csv_path
         self._interval = interval
         self._label = label
-        self._stop = threading.Event()
+        self._stop_event = threading.Event()
         self.peak_rss_kb = 0
         self.peak_hwm_kb = 0
 
     def stop(self):
-        self._stop.set()
+        self._stop_event.set()
 
     def run(self):
         start = time.monotonic()
         last_log = 0.0
         with open(self._csv_path, 'w') as csv:
             csv.write('label,elapsed_s,vmrss_mb,vmhwm_mb\n')
-            while not self._stop.is_set():
+            while not self._stop_event.is_set():
                 rss, hwm = read_proc_rss_kb(self._pid)
                 if rss is not None:
                     elapsed = time.monotonic() - start
@@ -255,7 +255,7 @@ class RssWatcher(threading.Thread):
                         print('  [rss] t={:6.1f}s  VmRSS={:8.1f} MiB  VmHWM={:8.1f} MiB'.format(
                             elapsed, rss / 1024.0, (hwm or 0) / 1024.0), flush=True)
                         last_log = elapsed
-                self._stop.wait(self._interval)
+                self._stop_event.wait(self._interval)
 
 
 def parse_model_memory(output_path):
