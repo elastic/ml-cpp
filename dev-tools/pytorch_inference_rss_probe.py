@@ -52,6 +52,7 @@ import argparse
 import json
 import os
 import platform
+import random
 import subprocess
 import sys
 import threading
@@ -75,7 +76,18 @@ def parse_arguments():
     parser.add_argument('--batch-size', type=int, default=16,
                         help='Documents per inference request (default 16)')
     parser.add_argument('--num-tokens', type=int, default=512,
-                        help='Padded sequence length per document (default 512)')
+                        help='Padded sequence length per document (default 512); '
+                             'with --vary-tokens this is the maximum length')
+    parser.add_argument('--vary-tokens', action='store_true',
+                        help='Randomise the per-request sequence length in '
+                             '[--min-tokens, --num-tokens]. This mimics a real '
+                             'variable-length corpus (e.g. wikipedia) and exercises '
+                             'many distinct tensor shapes, which stresses the '
+                             'caching allocator the way the QA OOM does.')
+    parser.add_argument('--min-tokens', type=int, default=1,
+                        help='Minimum sequence length when --vary-tokens is set (default 1)')
+    parser.add_argument('--seed', type=int, default=1234,
+                        help='RNG seed for --vary-tokens (default 1234, for reproducibility)')
     parser.add_argument('--num-threads-per-allocation', type=int, default=None,
                         help='LibTorch intra-op threads (pytorch_inference default if unset)')
     parser.add_argument('--num-allocations', type=int, default=None,
@@ -137,11 +149,21 @@ def make_mem_request(request_num):
     return {'request_id': 'mem_{}'.format(request_num), 'control': 2}
 
 
-def write_requests(sink, num_requests, batch_size, num_tokens, mem_every):
+def make_token_len_fn(args):
+    '''Return a callable mapping request index -> sequence length.'''
+    if args.vary_tokens:
+        rng = random.Random(args.seed)
+        low = max(1, args.min_tokens)
+        high = max(low, args.num_tokens)
+        return lambda i: rng.randint(low, high)
+    return lambda i: args.num_tokens
+
+
+def write_requests(sink, num_requests, batch_size, token_len_fn, mem_every):
     '''Serialise all requests (plus interleaved memory probes) to an open stream.'''
     json.dump(make_mem_request(0), sink)
     for i in range(1, num_requests + 1):
-        json.dump(make_inference_request(i, batch_size, num_tokens), sink)
+        json.dump(make_inference_request(i, batch_size, token_len_fn(i)), sink)
         if mem_every and i % mem_every == 0:
             json.dump(make_mem_request(i), sink)
     json.dump(make_mem_request(num_requests + 1), sink)
@@ -239,18 +261,25 @@ def parse_model_memory(output_path):
     return peak
 
 
-def run_file_mode(args, command, input_path):
+def _tokens_desc(args):
+    if args.vary_tokens:
+        return '{}-{} tokens (varied, seed {})'.format(
+            max(1, args.min_tokens), args.num_tokens, args.seed)
+    return '{} tokens'.format(args.num_tokens)
+
+
+def run_file_mode(args, command, input_path, token_len_fn):
     with open(input_path, 'w') as input_file:
-        print('writing {} requests (batch {} x {} tokens) to {}'.format(
-            args.num_requests, args.batch_size, args.num_tokens, input_path), flush=True)
+        print('writing {} requests (batch {} x {}) to {}'.format(
+            args.num_requests, args.batch_size, _tokens_desc(args), input_path), flush=True)
         write_requests(input_file, args.num_requests, args.batch_size,
-                       args.num_tokens, args.mem_every)
+                       token_len_fn, args.mem_every)
     size_mb = os.stat(input_path).st_size / (1024.0 * 1024.0)
     print('input file is {:.1f} MiB'.format(size_mb), flush=True)
     return subprocess.Popen(command)
 
 
-def run_pipe_mode(args, command, input_path):
+def run_pipe_mode(args, command, input_path, token_len_fn):
     if os.path.exists(input_path):
         os.remove(input_path)
     os.mkfifo(input_path)
@@ -261,7 +290,7 @@ def run_pipe_mode(args, command, input_path):
     def stream():
         try:
             write_requests(writer, args.num_requests, args.batch_size,
-                           args.num_tokens, args.mem_every)
+                           token_len_fn, args.mem_every)
         except BrokenPipeError:
             pass
         finally:
@@ -291,12 +320,14 @@ def main():
     command = build_command(args, restore_path, input_path, output_path)
     print('launching: {}'.format(' '.join(command)), flush=True)
 
+    token_len_fn = make_token_len_fn(args)
+
     start = time.monotonic()
     try:
         if args.input_mode == 'pipe':
-            proc = run_pipe_mode(args, command, input_path)
+            proc = run_pipe_mode(args, command, input_path, token_len_fn)
         else:
-            proc = run_file_mode(args, command, input_path)
+            proc = run_file_mode(args, command, input_path, token_len_fn)
 
         watcher = RssWatcher(proc.pid, args.csv, args.sample_interval, args.label)
         watcher.start()
@@ -334,8 +365,8 @@ def main():
     print('==================== RSS PROBE SUMMARY ====================', flush=True)
     if args.label:
         print('label                : {}'.format(args.label), flush=True)
-    print('requests             : {} (batch {} x {} tokens)'.format(
-        args.num_requests, args.batch_size, args.num_tokens), flush=True)
+    print('requests             : {} (batch {} x {})'.format(
+        args.num_requests, args.batch_size, _tokens_desc(args)), flush=True)
     print('threads/alloc        : {}'.format(args.num_threads_per_allocation), flush=True)
     print('allocations          : {}'.format(args.num_allocations), flush=True)
     print('wall time            : {:.1f}s'.format(elapsed), flush=True)

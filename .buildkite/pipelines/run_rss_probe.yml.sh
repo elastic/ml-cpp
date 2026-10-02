@@ -31,11 +31,16 @@
 PROBE_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/ml-dev/ml-linux-build:34}"
 
 # Probe parameters (overridable via the triggering build environment).
-PROBE_NUM_REQUESTS="${RSS_PROBE_NUM_REQUESTS:-3000}"
+# Defaults chase the QA OOM: a large, variable-length (wikipedia-like) request
+# stream across many parallel allocations, which exercises many distinct tensor
+# shapes and is the workload that drives unbounded RSS growth.
+PROBE_NUM_REQUESTS="${RSS_PROBE_NUM_REQUESTS:-20000}"
 PROBE_BATCH_SIZE="${RSS_PROBE_BATCH_SIZE:-16}"
 PROBE_NUM_TOKENS="${RSS_PROBE_NUM_TOKENS:-512}"
+PROBE_VARY_TOKENS="${RSS_PROBE_VARY_TOKENS:-true}"
+PROBE_MIN_TOKENS="${RSS_PROBE_MIN_TOKENS:-1}"
 PROBE_THREADS="${RSS_PROBE_THREADS_PER_ALLOCATION:-4}"
-PROBE_ALLOCATIONS="${RSS_PROBE_ALLOCATIONS:-1}"
+PROBE_ALLOCATIONS="${RSS_PROBE_ALLOCATIONS:-8}"
 PROBE_MAX_SECONDS="${RSS_PROBE_MAX_SECONDS:-3600}"
 PROBE_INPUT_MODE="${RSS_PROBE_INPUT_MODE:-file}"
 ELSER_URL="${RSS_PROBE_MODEL_URL:-https://ml-models.elastic.co/elser_model_2_linux-x86_64.pt}"
@@ -70,6 +75,8 @@ ${DIST_BUILD_ENV}
       RSS_PROBE_NUM_REQUESTS: "${PROBE_NUM_REQUESTS}"
       RSS_PROBE_BATCH_SIZE: "${PROBE_BATCH_SIZE}"
       RSS_PROBE_NUM_TOKENS: "${PROBE_NUM_TOKENS}"
+      RSS_PROBE_VARY_TOKENS: "${PROBE_VARY_TOKENS}"
+      RSS_PROBE_MIN_TOKENS: "${PROBE_MIN_TOKENS}"
       RSS_PROBE_THREADS_PER_ALLOCATION: "${PROBE_THREADS}"
       RSS_PROBE_ALLOCATIONS: "${PROBE_ALLOCATIONS}"
       RSS_PROBE_MAX_SECONDS: "${PROBE_MAX_SECONDS}"

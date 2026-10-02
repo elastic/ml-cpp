@@ -38,15 +38,22 @@
 
 set -euo pipefail
 
-NUM_REQUESTS="${RSS_PROBE_NUM_REQUESTS:-3000}"
+NUM_REQUESTS="${RSS_PROBE_NUM_REQUESTS:-20000}"
 BATCH_SIZE="${RSS_PROBE_BATCH_SIZE:-16}"
 NUM_TOKENS="${RSS_PROBE_NUM_TOKENS:-512}"
+VARY_TOKENS="${RSS_PROBE_VARY_TOKENS:-true}"
+MIN_TOKENS="${RSS_PROBE_MIN_TOKENS:-1}"
 THREADS="${RSS_PROBE_THREADS_PER_ALLOCATION:-4}"
-ALLOCATIONS="${RSS_PROBE_ALLOCATIONS:-1}"
+ALLOCATIONS="${RSS_PROBE_ALLOCATIONS:-8}"
 MAX_SECONDS="${RSS_PROBE_MAX_SECONDS:-3600}"
 INPUT_MODE="${RSS_PROBE_INPUT_MODE:-file}"
 MODEL_URL="${RSS_PROBE_MODEL_URL:-https://ml-models.elastic.co/elser_model_2_linux-x86_64.pt}"
 DIST_STEP="${RSS_PROBE_DIST_STEP:-build_test_linux-x86_64-RelWithDebInfo}"
+
+VARY_FLAG=""
+case "${VARY_TOKENS}" in
+    1|true|TRUE|yes|on) VARY_FLAG="--vary-tokens" ;;
+esac
 
 REPO_ROOT="${PWD}"
 DL_DIR="${REPO_ROOT}/_dist_dl"
@@ -95,6 +102,8 @@ python3 dev-tools/pytorch_inference_rss_probe.py \
     --num-requests "${NUM_REQUESTS}" \
     --batch-size "${BATCH_SIZE}" \
     --num-tokens "${NUM_TOKENS}" \
+    ${VARY_FLAG} \
+    --min-tokens "${MIN_TOKENS}" \
     --num-threads-per-allocation "${THREADS}" \
     --num-allocations "${ALLOCATIONS}" \
     --max-seconds "${MAX_SECONDS}" \
