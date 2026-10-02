@@ -6,5 +6,7 @@ torch==2.7.1
 # dev/CI-only tool. We additionally default trust_remote_code=False (see
 # torchscript_utils.load_and_trace_hf_model) to neutralise that class of issue.
 transformers>=4.40.0,<5.0.0
-sentencepiece>=0.2.0
+# 0.2.1 fixes CVE-2026-1260 (heap overflow parsing a malicious precompiled
+# normalization model).
+sentencepiece>=0.2.1
 protobuf>=5.0.0
