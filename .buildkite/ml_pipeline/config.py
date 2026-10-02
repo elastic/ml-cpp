@@ -64,6 +64,7 @@ class Config:
     run_pytorch_tests: bool = False
     run_serverless_tests: bool = False
     deploy_serverless_qa: bool = False
+    run_rss_probe: bool = False
     skip_version_bump_pr_ci: bool = False
     action: str = "build"
 
@@ -91,7 +92,10 @@ class Config:
             self.run_pytorch_tests = self.action == "run_pytorch_tests"
             self.run_serverless_tests = self.action == "run_serverless_tests"
             self.deploy_serverless_qa = self.action == "deploy_serverless_qa"
-            if self.run_pytorch_tests or self.run_qa_tests or self.run_serverless_tests or self.deploy_serverless_qa:
+            # RSS probe (issue #3226): a standalone pytorch_inference OOM repro
+            # that reuses the linux x86_64 build but skips the ES/QA suites.
+            self.run_rss_probe = self.action == "run_rss_probe"
+            if self.run_pytorch_tests or self.run_qa_tests or self.run_serverless_tests or self.deploy_serverless_qa or self.run_rss_probe:
                 self.action = "build"
 
             self._apply_serverless_kv_from_comment()
@@ -120,7 +124,7 @@ class Config:
                     self.build_aarch64 = "--build-aarch64"
                 elif each == "x86_64":
                     self.build_x86_64 = "--build-x86_64"
-        elif self.run_qa_tests or self.run_pytorch_tests:
+        elif self.run_qa_tests or self.run_pytorch_tests or self.run_rss_probe:
             self.build_x86_64 = "--build-x86_64"
         elif self.run_serverless_tests or self.deploy_serverless_qa:
             self.build_aarch64 = "--build-aarch64"
@@ -142,7 +146,7 @@ class Config:
                     self.build_macos = True
                 elif each == "linux":
                     self.build_linux = True
-        elif self.run_qa_tests or self.run_pytorch_tests or self.run_serverless_tests or self.deploy_serverless_qa:
+        elif self.run_qa_tests or self.run_pytorch_tests or self.run_serverless_tests or self.deploy_serverless_qa or self.run_rss_probe:
             self.build_linux = True
         else:
             self.build_windows = True

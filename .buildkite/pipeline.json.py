@@ -75,7 +75,12 @@ def main():
         pipeline_steps.append(build_linux)
 
         if config.build_x86_64:
-            if not config.skip_version_bump_pr_ci:
+            # The RSS probe (issue #3226) is a standalone pytorch_inference OOM
+            # repro that only needs the x86_64 build; skip the ES/Java suites.
+            if config.run_rss_probe:
+                pipeline_steps.append(pipeline_steps.generate_step("Upload RSS probe runner pipeline",
+                                                                   ".buildkite/pipelines/run_rss_probe.yml.sh"))
+            if not config.skip_version_bump_pr_ci and not config.run_rss_probe:
                 pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
                                                                    ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
                 pipeline_steps.append(pipeline_steps.generate_step("Upload ES inference tests x86_64 runner pipeline",
