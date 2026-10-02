@@ -74,12 +74,26 @@ ${DEPENDS_BLOCK}
     command: |
       set -euo pipefail
       echo "--- Obtaining linux-x86_64 distribution (${DIST_NOTE})"
-      ${DOWNLOAD_CMD}
-      DIST_ZIP=\$(find build/distributions -name "ml-cpp-*-SNAPSHOT-linux-x86_64.zip" ! -name "*debug*" | head -1)
+      DL_DIR="\${PWD}/_dist_dl"
+      DIST_DIR="\${PWD}/_dist"
+      rm -rf "\${DL_DIR}" "\${DIST_DIR}"
+      mkdir -p "\${DL_DIR}" "\${DIST_DIR}"
+      ( cd "\${DL_DIR}" && ${DOWNLOAD_CMD} )
+      DIST_ZIP=\$(find "\${DL_DIR}" -type f -name "ml-cpp-*-SNAPSHOT-linux-x86_64.zip" ! -name "*debug*" | head -1)
       echo "distribution: \${DIST_ZIP}"
-      mkdir -p dist && (cd dist && unzip -q -o "../\${DIST_ZIP}")
-      PYTORCH_BIN=\$(find dist -type f -name pytorch_inference | head -1)
+      if [ -z "\${DIST_ZIP}" ]; then
+        echo "ERROR: distribution zip not found after download; contents of \${DL_DIR}:"
+        find "\${DL_DIR}" -maxdepth 4 -type f | head -50
+        exit 1
+      fi
+      unzip -q -o "\${DIST_ZIP}" -d "\${DIST_DIR}"
+      PYTORCH_BIN=\$(find "\${DIST_DIR}" -type f -name pytorch_inference | head -1)
       echo "pytorch_inference: \${PYTORCH_BIN}"
+      if [ -z "\${PYTORCH_BIN}" ]; then
+        echo "ERROR: pytorch_inference binary not found in distribution; contents of \${DIST_DIR}:"
+        find "\${DIST_DIR}" -maxdepth 4 -type f | head -50
+        exit 1
+      fi
       LIB_DIR=\$(dirname \$(dirname "\${PYTORCH_BIN}"))/lib
       export LD_LIBRARY_PATH="\${LIB_DIR}:\${LD_LIBRARY_PATH:-}"
       echo "--- Downloading ELSER model"
