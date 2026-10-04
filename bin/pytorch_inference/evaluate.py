@@ -440,15 +440,16 @@ def memory_usage(args):
         # first get memory request
         request_sizes.insert(0, 0)
 
-        print(f"num items in request, memory_max_rss, inference time (ms)")
+        print(f"num items in request, memory_rss, memory_max_rss, inference time (ms)")
         for result in result_docs:            
             if 'result' in result:
                 inference_count = inference_count +1
                 last_time = result['time_ms']                
                 continue
 
-            if 'process_stats' in result:
-                print(f"{request_sizes[stats_count]},{result['process_stats']['memory_max_rss']},{last_time}")
+            if 'stats' in result:
+                stats = result['stats']
+                print(f"{request_sizes[stats_count]},{stats['memory_rss']},{stats.get('memory_max_rss')},{last_time}")
                 stats_count = stats_count +1
                 continue
 

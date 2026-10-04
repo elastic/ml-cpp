@@ -237,7 +237,7 @@ def main(args):
             "env": {
               **common_env,
               "ML_DEBUG": "1",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DML_FAST_DEBUG=ON -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake -DML_FAST_DEBUG=ON -DCMAKE_UNITY_BUILD=ON -DML_PCH=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON",
               "RUN_TESTS": "false",
               "SKIP_ARTIFACT_UPLOAD": "true",
             },
