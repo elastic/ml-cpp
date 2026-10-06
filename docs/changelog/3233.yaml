@@ -1,0 +1,5 @@
+area: Machine Learning
+issues: []
+pr: 3233
+summary: Retry 3rd-party git clones and propagate clone failures
+type: enhancement
