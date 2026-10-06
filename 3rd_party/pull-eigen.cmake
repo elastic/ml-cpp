@@ -36,15 +36,33 @@ else()
 endif()
 
 if(PULL_EIGEN)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E rm -rf eigen
-    )
-  execute_process(
-    COMMAND git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git
-    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    RESULT_VARIABLE GIT_RESULT
-    )
+  # The GitLab host that serves Eigen is prone to transient "unable to handle
+  # this request due to load" failures. A single failed clone used to take out
+  # the whole build, so retry a few times with a short, increasing backoff
+  # before giving up. Each attempt starts from a clean slate because a failed
+  # clone can leave a partial directory behind.
+  set(EIGEN_CLONE_MAX_ATTEMPTS 5)
+  set(EIGEN_CLONE_BACKOFF_SECONDS 5)
+  set(GIT_RESULT 1)
+  foreach(attempt RANGE 1 ${EIGEN_CLONE_MAX_ATTEMPTS})
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E rm -rf eigen
+      )
+    execute_process(
+      COMMAND git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+      RESULT_VARIABLE GIT_RESULT
+      )
+    if(GIT_RESULT EQUAL 0)
+      break()
+    endif()
+    if(attempt LESS ${EIGEN_CLONE_MAX_ATTEMPTS})
+      math(EXPR backoff "${attempt} * ${EIGEN_CLONE_BACKOFF_SECONDS}")
+      message(WARNING "Failed to clone Eigen (attempt ${attempt}/${EIGEN_CLONE_MAX_ATTEMPTS}): git exited with ${GIT_RESULT}. Retrying in ${backoff}s.")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E sleep ${backoff})
+    endif()
+  endforeach()
   if(NOT GIT_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to clone Eigen from https://gitlab.com/libeigen/eigen.git: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
+    message(FATAL_ERROR "Failed to clone Eigen from https://gitlab.com/libeigen/eigen.git after ${EIGEN_CLONE_MAX_ATTEMPTS} attempts: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
   endif()
 endif()
