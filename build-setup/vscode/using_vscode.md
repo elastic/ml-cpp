@@ -52,13 +52,12 @@ the project.
 
 ### Format changed C++ files (clang-format 5.0.1)
 
-`ml-cpp` requires clang-format **5.0.1**. On Apple Silicon (and other `arm64`/`aarch64` hosts), use the native Linux
-aarch64 image `docker.elastic.co/ml-dev/ml-check-style-aarch64:1` (or a locally built `ml-check-style-aarch64:local`
-from `dev-tools/docker/check_style_image_aarch64`). On x86_64 Linux, CI and local Docker formatting use
-`docker.elastic.co/ml-dev/ml-check-style:2`.
+`ml-cpp` requires clang-format **5.0.1**. Docker images are `docker.elastic.co/ml-dev/ml-check-style:2` (amd64) and
+`docker.elastic.co/ml-dev/ml-check-style-aarch64:1` (arm64). Building or testing images locally is documented in
+[dev-tools/docker/check_style/README.md](../../dev-tools/docker/check_style/README.md).
 
-From a shell you can run `CPP_SRC_HOME=${workspaceFolder} dev-tools/docker/run_docker_clang_format.sh`, which selects
-the image for your CPU architecture.
+From a shell or VS Code task, run `dev-tools/docker/run_docker_clang_format.sh` with `CPP_SRC_HOME` set to your
+checkout; the script selects the image for your CPU architecture.
 
 Here is an example of user tasks specified in `tasks.json`:
 
@@ -67,13 +66,18 @@ Here is an example of user tasks specified in `tasks.json`:
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Format changed files (last 20 commits)",
+			"label": "Format ml-cpp (clang-format via Docker)",
 			"type": "shell",
-			"command": "docker run --rm -v ${workspaceFolder}:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style-aarch64:1 bash -c 'cd /ml-cpp && git diff --name-only --diff-filter=ACMRT HEAD~20 HEAD | grep -E \"\\.(cc|h)$\" | grep -v \"^3rd_party\" | grep -v \"^build-setup\" | xargs -r clang-format -i'",
+			"command": "CPP_SRC_HOME=${workspaceFolder} dev-tools/docker/run_docker_clang_format.sh",
 			"problemMatcher": [],
 			"presentation": {
 				"reveal": "always",
 				"panel": "shared"
+			},
+			"options": {
+				"env": {
+					"CPP_SRC_HOME": "${workspaceFolder}"
+				}
 			}
 		},
 		{
