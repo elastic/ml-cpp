@@ -66,6 +66,14 @@ function(ml_clone_git_dependency)
   endforeach()
 
   if(NOT GIT_RESULT EQUAL 0)
+    # Remove any partial checkout left by the final failed attempt so that a
+    # subsequent configure re-attempts the clone instead of seeing a leftover
+    # directory, skipping the clone, and failing much later with a cryptic
+    # missing-header compile error.
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E rm -rf ${CLONE_DESTINATION}
+      WORKING_DIRECTORY ${CLONE_WORKING_DIRECTORY}
+      )
     message(FATAL_ERROR "Failed to clone ${CLONE_NAME} from ${CLONE_URL} after ${CLONE_MAX_ATTEMPTS} attempts: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
   endif()
 endfunction()
