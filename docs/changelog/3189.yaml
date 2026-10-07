@@ -1,0 +1,6 @@
+area: Machine Learning
+issues:
+ - 2772
+pr: 3189
+summary: Stabilize uncertain trend forecasts
+type: bug
