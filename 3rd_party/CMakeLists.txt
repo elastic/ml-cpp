@@ -27,10 +27,15 @@ execute_process(
 )
 
 # Pull the Eigen repo as part of the configuration step
-# thus avoiding any race conditions with parallel builds
+# thus avoiding any race conditions with parallel builds.
+# COMMAND_ERROR_IS_FATAL ANY propagates a FATAL_ERROR raised inside the child
+# script: without it the failure is logged but configure continues, leaving an
+# empty 3rd_party/eigen and surfacing as a cryptic "Eigen/Core: No such file"
+# compile error much later.
 execute_process(
     COMMAND ${CMAKE_COMMAND} -P ./pull-eigen.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND_ERROR_IS_FATAL ANY
 )
 
 # Pull the Valijson repo as part of the configuration step
@@ -38,6 +43,7 @@ execute_process(
 execute_process(
     COMMAND ${CMAKE_COMMAND} -P ./pull-valijson.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND_ERROR_IS_FATAL ANY
 )
 
 # Build Abseil and Sandbox2 on Linux only. MlSandbox (lib/sandbox) is a
