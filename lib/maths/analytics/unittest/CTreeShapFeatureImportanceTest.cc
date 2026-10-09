@@ -24,6 +24,7 @@
 #include <boost/math/special_functions/binomial.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <cmath>
 #include <numeric>
 #include <set>
 #include <string>
@@ -138,6 +139,59 @@ struct SFixtureSingleTree {
     std::size_t s_NumberRows{4};
     TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
     TTreeShapFeatureImportanceUPtr s_TopTreeFeatureImportance;
+    TEncoderUPtr s_Encoder;
+    mutable TTreeVec s_Trees;
+};
+
+struct SFixtureZeroSampleInnerNode {
+    SFixtureZeroSampleInnerNode() : s_Trees(1) {
+
+        // Node 4 and its children have no samples. The counts are set directly so
+        // that rows can pass through node 4, as rows which weren't counted can when
+        // the model is used for inference. Each row of data takes a different path:
+        // it never reaches node 4, it reaches node 4's sibling, it passes through
+        // node 4 to either of its leaves, or it never reaches node 4 but its second
+        // feature alone routes it there. The last is the only case for rows which
+        // were counted.
+        TDoubleVecVec data{{0.7, 0.3}, {0.3, 0.3}, {0.3, 0.7}, {0.1, 0.7}, {0.7, 0.7}};
+
+        s_Frame = core::makeMainStorageDataFrame(s_NumberFeatures, s_NumberRows).first;
+        s_Frame->columnNames(columnNames(s_NumberFeatures));
+        for (std::size_t i = 0; i < s_NumberRows; ++i) {
+            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j < s_NumberFeatures; ++j, ++column) {
+                    *column = data[i][j];
+                }
+            });
+        }
+        s_Frame->finishWritingRows();
+
+        CStubMakeDataFrameCategoryEncoder stubParameters{1, *s_Frame, 0};
+        s_Encoder = std::make_unique<maths::analytics::CDataFrameCategoryEncoder>(stubParameters);
+
+        auto& tree = s_Trees[0];
+        tree.resize(1);
+        tree[0].split(0, 0.5, true, 0.0, 0.0, 0.0, tree);
+        tree[1].split(1, 0.5, true, 0.0, 0.0, 0.0, tree);
+        tree[4].split(0, 0.2, true, 0.0, 0.0, 0.0, tree);
+        tree[2].value(toVector(20.0));
+        tree[3].value(toVector(10.0));
+        tree[5].value(toVector(7.0));
+        tree[6].value(toVector(9.0));
+
+        TSizeVec numberSamples{4, 2, 2, 2, 0, 0, 0};
+        for (std::size_t i = 0; i < tree.size(); ++i) {
+            tree[i].numberSamples(numberSamples[i]);
+        }
+
+        s_TreeFeatureImportance = std::make_unique<maths::analytics::CTreeShapFeatureImportance>(
+            1, *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures);
+    }
+
+    TDataFrameUPtr s_Frame;
+    std::size_t s_NumberFeatures{2};
+    std::size_t s_NumberRows{5};
+    TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
     TEncoderUPtr s_Encoder;
     mutable TTreeVec s_Trees;
 };
@@ -479,6 +533,83 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShap, SFixtureSingleTree) {
                 });
         }
     });
+}
+
+BOOST_FIXTURE_TEST_CASE(testZeroSampleInnerNodeExpectedNodeValues, SFixtureZeroSampleInnerNode) {
+
+    // A node with no samples has zero weight in its parent so it doesn't change the
+    // expected value. Its own value is the unweighted mean of its children, which
+    // matches the even split TreeSHAP uses for it.
+    TDoubleVec expectedValues{15.0, 10.0, 20.0, 10.0, 8.0, 7.0, 9.0};
+    const auto& tree = s_Trees[0];
+    for (std::size_t i = 0; i < tree.size(); ++i) {
+        BOOST_TEST_REQUIRE(tree[i].value()(0) == expectedValues[i]);
+    }
+    BOOST_TEST_REQUIRE(s_TreeFeatureImportance->baseline()(0) == 15.0);
+}
+
+BOOST_FIXTURE_TEST_CASE(testZeroSampleInnerNodeShap, SFixtureZeroSampleInnerNode) {
+
+    // The expected values are the Shapley values of the path-dependent value function
+    // v(S), computed by hand: v({}) = 15, v({f1}) = 20 or 10, v({f2}) = 15 for f2 = 0.3
+    // and 0.5 * 20 + 0.5 * (0.5 * 7 + 0.5 * 9) = 14 for f2 = 0.7, and v({f1, f2}) is
+    // the prediction. For each row they sum to the prediction minus the baseline.
+    TDoubleVecVec expectedPhi{
+        {5.0, 0.0}, {-5.0, 0.0}, {-5.0, -1.0}, {-6.0, -2.0}, {5.5, -0.5}};
+
+    s_Frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            s_TreeFeatureImportance->shap(
+                *row, [&](const TSizeVec& indices, const TStrVec&, const TVectorVec& shap) {
+                    BOOST_REQUIRE_EQUAL(indices.size(), row->numberColumns());
+                    for (auto i : indices) {
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][i],
+                                                     shap[i](0), 1e-7);
+                    }
+                });
+        }
+    });
+}
+
+BOOST_FIXTURE_TEST_CASE(testZeroSampleRootIsNotMasked, SFixtureZeroSampleInnerNode) {
+
+    // The root only has no samples if no rows were counted at all. There is then no
+    // sample distribution to compute importance from, so this mustn't be masked by
+    // the even split used for zero-sample nodes below the root.
+    for (auto& node : s_Trees[0]) {
+        node.numberSamples(0);
+    }
+    maths::analytics::CTreeShapFeatureImportance treeFeatureImportance{
+        1, *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures};
+
+    BOOST_TEST_REQUIRE(std::isnan(treeFeatureImportance.baseline()(0)));
+    s_Frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            treeFeatureImportance.shap(*row, [&](const TSizeVec& indices, const TStrVec&,
+                                                 const TVectorVec& shap) {
+                BOOST_REQUIRE_EQUAL(indices.size(), row->numberColumns());
+                for (auto i : indices) {
+                    BOOST_TEST_REQUIRE(std::isnan(shap[i](0)));
+                }
+            });
+        }
+    });
+}
+
+BOOST_FIXTURE_TEST_CASE(testInconsistentSampleCountsAreNotMasked, SFixtureZeroSampleInnerNode) {
+
+    // Counts computed from data always add up: a node's count is the sum of its
+    // children's. Here node 4 has samples but its children have none. Only a node
+    // which itself has no samples gets the even split, as in shapRecursive, so this
+    // mustn't produce a plausible looking baseline.
+    TSizeVec numberSamples{4, 2, 2, 0, 2, 0, 0};
+    for (std::size_t i = 0; i < s_Trees[0].size(); ++i) {
+        s_Trees[0][i].numberSamples(numberSamples[i]);
+    }
+    maths::analytics::CTreeShapFeatureImportance treeFeatureImportance{
+        1, *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures};
+
+    BOOST_TEST_REQUIRE(std::isnan(treeFeatureImportance.baseline()(0)));
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultipleTreesShap, SFixtureMultipleTrees) {
