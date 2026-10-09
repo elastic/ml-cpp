@@ -1,0 +1,25 @@
+diff --git a/cmake/SapiDeps.cmake b/cmake/SapiDeps.cmake
+index 2e595c6..3ee7514 100644
+--- a/cmake/SapiDeps.cmake
++++ b/cmake/SapiDeps.cmake
+@@ -104,8 +104,18 @@ if(SAPI_ENABLE_CLANG_TOOL)
+ else()
+   # Find Python 3 and add its location to the cache so that its available in
+   # the add_sapi_library() macro in embedding projects.
+-  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+-  set(SAPI_PYTHON3_EXECUTABLE "${Python3_EXECUTABLE}" CACHE INTERNAL "" FORCE)
++  #
++  # ml-cpp patch: made optional. Python3 is only needed for protobuf code
++  # generation; a missing interpreter should not fail configuration when
++  # protobuf sources are already generated or unused by the caller.
++  find_package(Python3 QUIET COMPONENTS Interpreter)
++  if(Python3_Interpreter_FOUND)
++    set(SAPI_PYTHON3_EXECUTABLE "${Python3_EXECUTABLE}" CACHE INTERNAL "" FORCE)
++  else()
++    set(SAPI_PYTHON3_EXECUTABLE "" CACHE INTERNAL "" FORCE)
++    message(STATUS "Python3 interpreter not found - continuing without it "
++      "(protobuf code generation via add_sapi_library() will be unavailable)")
++  endif()
+ endif()
+ 
+ # Undo global changes
