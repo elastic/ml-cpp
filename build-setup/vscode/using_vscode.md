@@ -50,12 +50,36 @@ You can use [user tasks](https://code.visualstudio.com/docs/editor/tasks) to int
 example, re-format the project using a the docker container with correct clang-format version or build just certain parts of
 the project.
 
+### Format changed C++ files (clang-format 5.0.1)
+
+`ml-cpp` requires clang-format **5.0.1**. Docker images are `docker.elastic.co/ml-dev/ml-check-style:2` (amd64) and
+`docker.elastic.co/ml-dev/ml-check-style-aarch64:1` (arm64). Building or testing images locally is documented in
+[dev-tools/docker/check_style/README.md](../../dev-tools/docker/check_style/README.md).
+
+From a shell or VS Code task, run `dev-tools/docker/run_docker_clang_format.sh` with `CPP_SRC_HOME` set to your
+checkout; the script selects the image for your CPU architecture.
+
 Here is an example of user tasks specified in `tasks.json`:
 
 ```json
 {
 	"version": "2.0.0",
 	"tasks": [
+		{
+			"label": "Format ml-cpp (clang-format via Docker)",
+			"type": "shell",
+			"command": "CPP_SRC_HOME=${workspaceFolder} dev-tools/docker/run_docker_clang_format.sh",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"options": {
+				"env": {
+					"CPP_SRC_HOME": "${workspaceFolder}"
+				}
+			}
+		},
 		{
 			"label": "CMake relwithdebinfo build",
 			"type": "shell",
