@@ -1,0 +1,102 @@
+#!/usr/bin/env bpftrace
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
+ */
+
+/*
+ * Trace every filesystem access a pytorch_inference process makes, with its
+ * result, from exec() onwards. This is the evidence source for deriving and
+ * verifying the Landlock ruleset the ML controller applies to
+ * pytorch_inference when it cannot use full Sandbox2 isolation
+ * (lib/seccomp/CLandlockFilesystemPolicy_Linux.cc). See
+ * dev-tools/README-trace-pytorch-fs.md for how to run and read this.
+ *
+ * Why trace rather than read the code: a Landlock ruleset that is too tight
+ * does not necessarily make inference fail. Intel oneMKL selects a
+ * CPU-specific kernel at runtime by dlopen()ing it and by reading
+ * /proc/cpuinfo; if the ruleset denies one of those, MKL silently falls back
+ * to a slower or lower-precision path and inference still returns a
+ * (subtly different) result. Only an execution trace shows the true set of
+ * paths that must be granted.
+ *
+ * What is traced: the path-based operations Landlock actually mediates -
+ * open/openat/openat2/creat, mkdir/mkdirat, mknod/mknodat, unlink/unlinkat,
+ * rmdir, rename/renameat/renameat2, link/linkat, symlink/symlinkat, and
+ * truncate. stat/access/readlink are deliberately omitted: Landlock does not
+ * mediate them, so granting or denying them is not a ruleset decision.
+ *
+ * Output columns (one line per completed syscall):
+ *   <nsecs> <pid> <tid> <op> flags=0x<hex> ret=<n> <path>
+ * ret >= 0 is success; ret < 0 is -errno (e.g. ret=-13 is EACCES, the code
+ * Landlock returns for a denied access). Lines with EXEC mark a new process,
+ * and LANDLOCK_RESTRICT_SELF marks the exact point the ruleset takes effect -
+ * only accesses AFTER that line are subject to it (see the README).
+ *
+ * bpftrace matches on comm, which the kernel truncates to 15 characters, so
+ * the process name to match is "pytorch_inferen" (no trailing 'ce').
+ */
+
+tracepoint:sched:sched_process_exec /comm == "pytorch_inferen"/ {
+  @tracked[pid] = 1;
+  printf("%llu %d EXEC %s\n", nsecs, pid, str(args->filename));
+}
+tracepoint:sched:sched_process_exit /@tracked[pid] && tid == pid/ {
+  delete(@tracked[pid]);
+}
+
+/*
+ * Marker: landlock_restrict_self() is the syscall that makes the ruleset take
+ * effect. Everything a tracked process does before this line was unconfined;
+ * everything after is subject to Landlock. The ruleset-derivation workflow in
+ * the README uses this line to split the trace.
+ */
+tracepoint:syscalls:sys_exit_landlock_restrict_self /@tracked[pid]/ {
+  printf("%llu %d %d LANDLOCK_RESTRICT_SELF ret=%d\n", nsecs, pid, tid, args->ret);
+}
+
+/*
+ * Enter probes stash the path, flags and a short op name per thread; the
+ * matching exit probe below prints them together with the return value. Both
+ * the *at (openat, unlinkat, ...) and the legacy non-at (open, unlink, ...)
+ * forms are covered because glibc uses whichever the running kernel provides.
+ */
+tracepoint:syscalls:sys_enter_openat    /@tracked[pid]/ { @path[tid] = str(args->filename); @fl[tid] = args->flags; @op[tid] = "open"; }
+tracepoint:syscalls:sys_enter_open      /@tracked[pid]/ { @path[tid] = str(args->filename); @fl[tid] = args->flags; @op[tid] = "open"; }
+tracepoint:syscalls:sys_enter_openat2   /@tracked[pid]/ { @path[tid] = str(args->filename); @fl[tid] = 0; @op[tid] = "open2"; }
+tracepoint:syscalls:sys_enter_creat     /@tracked[pid]/ { @path[tid] = str(args->pathname); @fl[tid] = args->mode; @op[tid] = "creat"; }
+tracepoint:syscalls:sys_enter_mknodat   /@tracked[pid]/ { @path[tid] = str(args->filename); @fl[tid] = args->mode; @op[tid] = "mknod"; }
+tracepoint:syscalls:sys_enter_mknod     /@tracked[pid]/ { @path[tid] = str(args->filename); @fl[tid] = args->mode; @op[tid] = "mknod"; }
+tracepoint:syscalls:sys_enter_mkdirat   /@tracked[pid]/ { @path[tid] = str(args->pathname); @fl[tid] = args->mode; @op[tid] = "mkdir"; }
+tracepoint:syscalls:sys_enter_mkdir     /@tracked[pid]/ { @path[tid] = str(args->pathname); @fl[tid] = args->mode; @op[tid] = "mkdir"; }
+tracepoint:syscalls:sys_enter_unlinkat  /@tracked[pid]/ { @path[tid] = str(args->pathname); @fl[tid] = args->flag; @op[tid] = "unlink"; }
+tracepoint:syscalls:sys_enter_unlink    /@tracked[pid]/ { @path[tid] = str(args->pathname); @fl[tid] = 0; @op[tid] = "unlink"; }
+tracepoint:syscalls:sys_enter_rmdir     /@tracked[pid]/ { @path[tid] = str(args->pathname); @fl[tid] = 0; @op[tid] = "rmdir"; }
+tracepoint:syscalls:sys_enter_renameat2 /@tracked[pid]/ { @path[tid] = str(args->oldname); @fl[tid] = 0; @op[tid] = "rename"; }
+tracepoint:syscalls:sys_enter_renameat  /@tracked[pid]/ { @path[tid] = str(args->oldname); @fl[tid] = 0; @op[tid] = "rename"; }
+tracepoint:syscalls:sys_enter_rename    /@tracked[pid]/ { @path[tid] = str(args->oldname); @fl[tid] = 0; @op[tid] = "rename"; }
+tracepoint:syscalls:sys_enter_linkat    /@tracked[pid]/ { @path[tid] = str(args->newname); @fl[tid] = 0; @op[tid] = "link"; }
+tracepoint:syscalls:sys_enter_link      /@tracked[pid]/ { @path[tid] = str(args->newname); @fl[tid] = 0; @op[tid] = "link"; }
+tracepoint:syscalls:sys_enter_symlinkat /@tracked[pid]/ { @path[tid] = str(args->newname); @fl[tid] = 0; @op[tid] = "symlink"; }
+tracepoint:syscalls:sys_enter_symlink   /@tracked[pid]/ { @path[tid] = str(args->newname); @fl[tid] = 0; @op[tid] = "symlink"; }
+tracepoint:syscalls:sys_enter_truncate  /@tracked[pid]/ { @path[tid] = str(args->path); @fl[tid] = 0; @op[tid] = "truncate"; }
+
+tracepoint:syscalls:sys_exit_openat, tracepoint:syscalls:sys_exit_open, tracepoint:syscalls:sys_exit_openat2,
+tracepoint:syscalls:sys_exit_creat, tracepoint:syscalls:sys_exit_mknodat, tracepoint:syscalls:sys_exit_mknod,
+tracepoint:syscalls:sys_exit_mkdirat, tracepoint:syscalls:sys_exit_mkdir, tracepoint:syscalls:sys_exit_unlinkat,
+tracepoint:syscalls:sys_exit_unlink, tracepoint:syscalls:sys_exit_rmdir, tracepoint:syscalls:sys_exit_renameat2,
+tracepoint:syscalls:sys_exit_renameat, tracepoint:syscalls:sys_exit_rename, tracepoint:syscalls:sys_exit_linkat,
+tracepoint:syscalls:sys_exit_link, tracepoint:syscalls:sys_exit_symlinkat, tracepoint:syscalls:sys_exit_symlink,
+tracepoint:syscalls:sys_exit_truncate
+/has_key(@path, tid)/ {
+  printf("%llu %d %d %s flags=0x%x ret=%d %s\n", nsecs, pid, tid, @op[tid], @fl[tid], args->ret, @path[tid]);
+  delete(@path[tid]); delete(@fl[tid]); delete(@op[tid]);
+}
+
+END { clear(@tracked); clear(@path); clear(@fl); clear(@op); }
