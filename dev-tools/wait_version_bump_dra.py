@@ -39,7 +39,7 @@ if str(_SCRIPT_DIR) not in sys.path:
 import version_bump_validation as vbu
 
 POLL_SECONDS = 30
-TIMEOUT_SECONDS = 240 * 60
+TIMEOUT_SECONDS = 480 * 60
 PROGRESS_LOG_EVERY = 1
 
 STAGING_TMPL = "https://artifacts-staging.elastic.co/ml-cpp/latest/{branch}.json"
