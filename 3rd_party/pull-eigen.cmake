@@ -16,6 +16,8 @@
 
 # This cmake script is expected to be called from a target or custom command with WORKING_DIRECTORY set to this file's location
 
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/clone_git_dependency.cmake)
+
 # This is the file where Eigen stores its version
 set(VERSION_FILE "eigen/Eigen/src/Core/util/Macros.h")
 
@@ -36,15 +38,11 @@ else()
 endif()
 
 if(PULL_EIGEN)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E rm -rf eigen
-    )
-  execute_process(
-    COMMAND git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git
+  ml_clone_git_dependency(
+    NAME Eigen
+    URL https://gitlab.com/libeigen/eigen.git
+    BRANCH 3.4.0
+    DESTINATION eigen
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    RESULT_VARIABLE GIT_RESULT
     )
-  if(NOT GIT_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to clone Eigen from https://gitlab.com/libeigen/eigen.git: git exited with ${GIT_RESULT}. Check network connectivity, proxy settings, and git availability.")
-  endif()
 endif()
