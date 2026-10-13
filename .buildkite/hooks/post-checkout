@@ -18,17 +18,32 @@ export PATH=$PATH:~/google-cloud-sdk/bin
 # 5xx) on an otherwise-valid read. A single such failure previously left
 # BUILDKITE_ANALYTICS_TOKEN unset, which in turn made the test-collector
 # plugin's pre-exit hook fail an otherwise-green test job. Echoes the field
-# value on success, or an empty string if every attempt fails.
+# value on stdout on success, or an empty string if every attempt fails.
+#
+# Any Vault error from each failed attempt is captured and logged to stderr
+# (never swallowed) so the build log shows the real cause -- e.g. a 403
+# permission-denied versus a connection/timeout error -- which is essential
+# for diagnosing why a read failed. The field value is only ever written to
+# stdout, keeping it clean for the caller's command substitution.
 vault_read_field_with_retry() {
   local path="$1" field="$2"
-  local attempts=5 delay=2 attempt value
+  local attempts=5 delay=2 attempt value errfile
+  errfile=$(mktemp)
   for ((attempt = 1; attempt <= attempts; attempt++)); do
-    if value=$(vault read -field="${field}" "${path}" 2>/dev/null) && [ -n "${value}" ]; then
+    if value=$(vault read -field="${field}" "${path}" 2>"${errfile}") && [ -n "${value}" ]; then
       printf '%s' "${value}"
+      rm -f "${errfile}"
       return 0
+    fi
+    if [ -s "${errfile}" ]; then
+      echo "post-checkout: Vault read of field '${field}' from '${path}' failed (attempt ${attempt}/${attempts}): $(tr '\n' ' ' <"${errfile}")" >&2
+    else
+      echo "post-checkout: Vault read of field '${field}' from '${path}' returned an empty value (attempt ${attempt}/${attempts})" >&2
     fi
     [ "${attempt}" -lt "${attempts}" ] && sleep "${delay}"
   done
+  echo "post-checkout: WARNING: all ${attempts} Vault reads of field '${field}' from '${path}' failed; proceeding with an empty value" >&2
+  rm -f "${errfile}"
   return 0
 }
 
