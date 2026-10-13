@@ -13,18 +13,46 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
+# Read a single field from a Vault KV path, retrying on transient failures.
+# Vault occasionally returns an intermittent error (e.g. a spurious 403 or a
+# 5xx) on an otherwise-valid read. A single such failure previously left
+# BUILDKITE_ANALYTICS_TOKEN unset, which in turn made the test-collector
+# plugin's pre-exit hook fail an otherwise-green test job. Echoes the field
+# value on success, or an empty string if every attempt fails.
+vault_read_field_with_retry() {
+  local path="$1" field="$2"
+  local attempts=5 delay=2 attempt value
+  for ((attempt = 1; attempt <= attempts; attempt++)); do
+    if value=$(vault read -field="${field}" "${path}" 2>/dev/null) && [ -n "${value}" ]; then
+      printf '%s' "${value}"
+      return 0
+    fi
+    [ "${attempt}" -lt "${attempts}" ] && sleep "${delay}"
+  done
+  return 0
+}
+
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
-  if [[ "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo" || "$BUILDKITE_STEP_KEY" == "test_linux-x86_64-RelWithDebInfo-debug" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "test_linux-aarch64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "test_macos-aarch64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_aarch64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "test_macos-x86_64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_x86_64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "test_Windows-x86_64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
+
+  # Map the test step to its Buildkite Test Analytics suite token in Vault.
+  # The read is retried so a transient Vault failure does not leave
+  # BUILDKITE_ANALYTICS_TOKEN unset and fail an otherwise-green test job.
+  analytics_suite=""
+  case "$BUILDKITE_STEP_KEY" in
+    test_linux-x86_64-RelWithDebInfo | test_linux-x86_64-RelWithDebInfo-debug)
+      analytics_suite="linux_x86_64" ;;
+    test_linux-aarch64-RelWithDebInfo)
+      analytics_suite="linux_aarch64" ;;
+    test_macos-aarch64-RelWithDebInfo)
+      analytics_suite="macos_aarch64" ;;
+    test_macos-x86_64-RelWithDebInfo)
+      analytics_suite="macos_x86_64" ;;
+    test_Windows-x86_64-RelWithDebInfo)
+      analytics_suite="windows_x86_64" ;;
+  esac
+  if [ -n "$analytics_suite" ]; then
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault_read_field_with_retry "secret/ci/elastic-ml-cpp/buildkite/test_analytics/${analytics_suite}" token)
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "analyze_build_timings" || "$BUILDKITE_STEP_KEY" == "ingest_build_timings" || "$BUILDKITE_STEP_KEY" == "check_build_regression" ]]; then
