@@ -56,16 +56,16 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "analyze_build_timings" || "$BUILDKITE_STEP_KEY" == "ingest_build_timings" || "$BUILDKITE_STEP_KEY" == "check_build_regression" ]]; then
-    export BUILDKITE_API_READ_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/buildkite/api_read_token 2>/dev/null || echo "")
-    export ES_ENDPOINT=$(vault read -field=endpoint secret/ci/elastic-ml-cpp/elasticsearch/ci_analytics 2>/dev/null || echo "")
-    export ES_API_KEY=$(vault read -field=api_key secret/ci/elastic-ml-cpp/elasticsearch/ci_analytics 2>/dev/null || echo "")
+    export BUILDKITE_API_READ_TOKEN=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/buildkite/api_read_token token)
+    export ES_ENDPOINT=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/elasticsearch/ci_analytics endpoint)
+    export ES_API_KEY=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/elasticsearch/ci_analytics api_key)
   fi
 
   # GCS service account — inject credentials for build and Java IT steps.
   # Build steps use it for sccache; Java IT steps use it for the Gradle
   # build cache.  The key is stored in Vault.
   if [[ "$BUILDKITE_STEP_KEY" == build_test_* || "$BUILDKITE_STEP_KEY" == java_integration_tests_* || "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then
-    SCCACHE_GCS_KEY_JSON=$(vault read -field=key secret/ci/elastic-ml-cpp/sccache/gcs_service_account 2>/dev/null || echo "")
+    SCCACHE_GCS_KEY_JSON=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/sccache/gcs_service_account key)
     if [ -n "$SCCACHE_GCS_KEY_JSON" ]; then
       export SCCACHE_GCS_BUCKET="elastic-ml-cpp-sccache"
       export SCCACHE_GCS_KEY_FILE=$(mktemp)
@@ -77,15 +77,15 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "validate_pytorch_allowlist" ]]; then
-    HF_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/huggingface/hf_token 2>/dev/null || echo "")
+    HF_TOKEN=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/huggingface/hf_token token)
     if [ -n "$HF_TOKEN" ]; then
       export HF_TOKEN
     fi
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then
-    export DOCKER_REGISTRY_USERNAME=$(vault read --field=username  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
-    export DOCKER_REGISTRY_PASSWORD=$(vault read --field=password  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
+    export DOCKER_REGISTRY_USERNAME=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/prod_docker_registry_credentials username)
+    export DOCKER_REGISTRY_PASSWORD=$(vault_read_field_with_retry secret/ci/elastic-ml-cpp/prod_docker_registry_credentials password)
   fi
 
 fi
