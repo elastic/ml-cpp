@@ -284,15 +284,19 @@ bool CProcessSpawnerRouter::spawn(ERoute route,
     // sandboxed.
 #ifdef SANDBOX2_AVAILABLE
         // Decide the rung before constructing or launching anything, from
-        // the one cached verdict the startup self-check also logged - never
-        // an independent probe here, because two probes can disagree (one
-        // once did, when the controller's non-dumpable flag broke the later
-        // one) and then the log says one thing while the route does
-        // another. Deciding first matters: on a host without user
+        // the one cached verdict also logged on the first --requireSandbox
+        // launch - never an independent probe here, because two probes can
+        // disagree (one once did, when the controller's non-dumpable flag
+        // broke the later one) and then the log says one thing while the
+        // route does another. Deciding first matters: on a host without user
         // namespaces a Sandbox2 launch fails only after an opaque
         // SETUP_ERROR, and on one that permits namespaces but denies mounts
         // inside them the forkserver deadlocks instead of returning.
         const sandbox::SHostConfinement host{m_ConfinementFn()};
+        if (m_SelfCheckLogged == false) {
+            m_SelfCheckLogged = true;
+            sandbox::logSandbox2EnvironmentSelfCheck(host);
+        }
         switch (host.s_Level) {
         case sandbox::EConfinementLevel::E_Sandbox2:
             // First - and only - point at which any Sandbox2 machinery is

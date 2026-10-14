@@ -85,9 +85,9 @@ public:
     };
 
     //! Supplies this host's confinement options. Production code leaves it
-    //! empty, which means sandbox::hostConfinement() - the cached verdict the
-    //! startup self-check also logs. Tests inject a fixed value so every rung
-    //! of the ladder can be exercised on any machine.
+    //! empty, which means sandbox::hostConfinement() - the cached verdict
+    //! logged on the first --requireSandbox launch. Tests inject a fixed
+    //! value so every rung of the ladder can be exercised on any machine.
     using TConfinementFn = std::function<sandbox::SHostConfinement()>;
 
     CProcessSpawnerRouter(const TStrVec& permittedProcessPaths,
@@ -209,6 +209,10 @@ private:
     //! See TConfinementFn. Neither member's size depends on
     //! SANDBOX2_AVAILABLE, preserving the layout invariant described above.
     TConfinementFn m_ConfinementFn;
+
+    //! True after the first Sandbox2-route spawn has emitted the environment
+    //! self-check for this controller process.
+    bool m_SelfCheckLogged{false};
 
     //! See lastSpawnFailureReason().
     std::string m_LastSpawnFailureReason;
