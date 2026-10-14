@@ -74,7 +74,7 @@ def main():
             "command": [
                 "python3 dev-tools/wait_version_bump_dra.py",
             ],
-            "timeout_in_minutes": 240,
+            "timeout_in_minutes": 480,
             "retry": {
                 "automatic": [{"exit_status": "*", "limit": 2}],
                 "manual": {"permit_on_passed": True},
