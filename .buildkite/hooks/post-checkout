@@ -48,6 +48,13 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
     fi
   fi
 
+  if [[ "$BUILDKITE_STEP_KEY" == "snyk_sbom_scan" ]]; then
+    SNYK_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/snyk/api_token 2>/dev/null || echo "")
+    if [ -n "$SNYK_TOKEN" ]; then
+      export SNYK_TOKEN
+    fi
+  fi
+
   if [[ "$BUILDKITE_STEP_KEY" == "validate_pytorch_allowlist" ]]; then
     HF_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/huggingface/hf_token 2>/dev/null || echo "")
     if [ -n "$HF_TOKEN" ]; then
