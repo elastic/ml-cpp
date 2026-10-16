@@ -11,6 +11,7 @@
 #include <sandbox/CSandboxedProcessSpawner.h>
 
 #include <core/CLogger.h>
+#include <sandbox/CChildIpcDirectoryReaper.h>
 #include <sandbox/CPytorchInferenceSandboxPolicy.h>
 
 #include <cerrno>
@@ -398,6 +399,11 @@ CSandboxedProcessSpawner::CSandboxedProcessSpawner(TPidFdOpenFn pidFdOpenFn,
 
 CSandboxedProcessSpawner::~CSandboxedProcessSpawner() = default;
 
+void CSandboxedProcessSpawner::setChildIpcDirectoryReaper(
+    const std::shared_ptr<CChildIpcDirectoryReaper>& reaper) {
+    m_ChildIpcReaper = reaper;
+}
+
 bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
                                      const TStrVec& args,
                                      core::CProcess::TPid& childPid) {
@@ -450,6 +456,18 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // false must fail the spawn outright - never fall back to a
     // partially-built policy.
     const SChildIpcValidationResult validated{validateChildIpcLaunchSpec(trustedTmpDir, args)};
+    const std::string childIpcRoot{validated.s_Spec.s_ChildIpcRoot};
+    const auto notifySpawnFailed = [this, &trustedTmpDir, &args, &childIpcRoot]() {
+        if (m_ChildIpcReaper == nullptr) {
+            return;
+        }
+        const std::string root{childIpcRoot.empty()
+                                   ? perChildIpcRootFromArgs(trustedTmpDir, args)
+                                   : childIpcRoot};
+        if (root.empty() == false) {
+            m_ChildIpcReaper->onSpawnFailed(root);
+        }
+    };
     if (validated.s_Ok == false) {
         std::ostringstream rejected;
         for (const SRejectedChildIpcPath& r : validated.s_Rejected) {
@@ -458,6 +476,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         }
         LOG_ERROR(<< "Rejected pytorch_inference child-IPC launch spec for "
                   << processPath << ':' << rejected.str());
+        notifySpawnFailed();
         return false;
     }
 
@@ -484,6 +503,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     if (!built.ok()) {
         LOG_ERROR(<< "Failed to build Sandbox2 policy for " << processPath
                   << ": " << built.status());
+        notifySpawnFailed();
         return false;
     }
     sandbox2::PolicyBuilder policyBuilder{std::move(*built)};
@@ -491,6 +511,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     auto policyResult = policyBuilder.TryBuild();
     if (!policyResult.ok()) {
         LOG_ERROR(<< "Failed to build Sandbox2 policy for " << processPath);
+        notifySpawnFailed();
         return false;
     }
 
@@ -515,6 +536,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to take shared ownership of a sandboxee for "
                   << processPath << ": " << e.what());
+        notifySpawnFailed();
         return false;
     }
 
@@ -531,6 +553,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         LOG_ERROR(<< "Sandbox2 failed to start " << processPath << ": status="
                   << sandbox2::Result::StatusEnumToString(result.final_status()) << " reason="
                   << result.reason_code() << " (" << result.ToString() << ')');
+        notifySpawnFailed();
         return false;
     }
 
@@ -539,6 +562,7 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
         sandbox->AwaitResult();
         childPid = 0;
         LOG_ERROR(<< "Sandbox2 returned an invalid PID for " << processPath);
+        notifySpawnFailed();
         return false;
     }
 
@@ -554,140 +578,170 @@ bool CSandboxedProcessSpawner::spawn(const std::string& processPath,
     // monitor-launch-span throw, monitor-launch-seam false - independent of
     // when `sandbox`/`child.s_Sandbox` themselves get destroyed during
     // stack unwinding.
-    CKillAndReapGuard killAndReapGuard{sandbox, m_AwaitResultFn};
-
-    const SPidFdAcquisitionResult pidFdResult{
-        m_PidFdOpenFn ? m_PidFdOpenFn(sandboxPid) : defaultPidFdOpen(sandboxPid)};
-    CScopedPidFd pidFdGuard{pidFdResult.s_Fd};
-    const EPidFdOutcome pidFdOutcome{classifyPidFdOutcome(pidFdResult)};
-
-    // An errno other than ENOSYS (ESRCH, EMFILE, ENFILE, ...) is a
-    // resource/identity error, not "no kernel support" for pidfd - it must
-    // never be treated the same as E_KernelUnsupported. Fail registration
-    // outright rather than register a child whose termination would need an
-    // undefined fallback. pidFdGuard closes any fd this path somehow still
-    // holds; killAndReapGuard (still armed) Kill()s/awaits the sandboxee.
-    if (pidFdOutcome == EPidFdOutcome::E_Failed) {
-        LOG_ERROR(<< "pidfd_open failed for sandboxed process " << processPath
-                  << " (PID " << sandboxPid << ") with errno "
-                  << pidFdResult.s_Errno << " (" << ::strerror(pidFdResult.s_Errno)
-                  << "); refusing to register a child with an undefined termination fallback");
-        childPid = 0;
-        return false; // killAndReapGuard fires here; pidFdGuard closes any fd on unwind.
-    }
-
-    SSandboxedChild child;
-    child.s_State = EChildLifecycleState::E_IdentityCaptured;
-    child.s_Sandbox = sandbox;
-    child.s_PidFd = pidFdGuard.get();
-    child.s_PidFdOutcome = pidFdOutcome;
-    child.s_Outcome = std::make_shared<CCasOutcomeLatch>();
-
+    bool removeIpcAfterKillAndReap{false};
+    bool monitorHandoffSucceeded{false};
     std::uint64_t generation{0};
-    try {
-        generation = m_RegistryInsertFn
-                         ? m_RegistryInsertFn(*m_PidRegistry, sandboxPid, child)
-                         : defaultRegistryInsert(*m_PidRegistry, sandboxPid, child);
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to register sandboxed process " << processPath
-                  << " (PID " << sandboxPid << "): " << e.what());
-        childPid = 0;
-        return false; // killAndReapGuard fires here; pidFdGuard still owns the fd.
-    }
-    // E_Registered. The registry entry now owns the pidfd; do not double-
-    // close it via pidFdGuard's destructor on this path.
-    pidFdGuard.release();
+    {
+        CKillAndReapGuard killAndReapGuard{sandbox, m_AwaitResultFn};
 
-    // Erase the registry entry this call just inserted, matching by
-    // generation (in case a racing call already replaced it). Shared by
-    // every failure path between a successful registry insertion and a
-    // successful monitor handoff, since no monitor thread exists on any of
-    // those paths to ever perform that erase itself.
-    const auto eraseRegistryEntry = [this, sandboxPid, generation]() {
-        std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
-        const auto it = m_PidRegistry->s_Children.find(sandboxPid);
-        if (it != m_PidRegistry->s_Children.end() && it->second.s_Generation == generation) {
-            closePidFdIfOpen(it->second.s_PidFd);
-            m_PidRegistry->s_Children.erase(it);
-        }
-    };
+        const SPidFdAcquisitionResult pidFdResult{
+            m_PidFdOpenFn ? m_PidFdOpenFn(sandboxPid) : defaultPidFdOpen(sandboxPid)};
+        CScopedPidFd pidFdGuard{pidFdResult.s_Fd};
+        const EPidFdOutcome pidFdOutcome{classifyPidFdOutcome(pidFdResult)};
 
-    // The sandboxee is a child of the Sandbox2 forkserver rather than of the
-    // controller, so waitpid() never sees it. Own the sandbox instance on a
-    // dedicated monitor thread that keeps it alive for the lifetime of
-    // pytorch_inference, waits for its result (via the injectable
-    // AwaitResult seam), and removes the registry entry before logging
-    // termination. The thread co-owns the registry and the Sandbox2
-    // shared_ptr rather than capturing this: it can still be waiting on a
-    // live sandboxee when the spawner is destroyed, and a raw pointer
-    // back to the spawner would be dangling by then.
-    //
-    // Everything from copying m_PidRegistry/m_AwaitResultFn through
-    // launching the monitor thread runs inside a try/catch: those copies
-    // and constructing monitorBody's capture list can themselves throw
-    // (e.g. std::bad_alloc copying a std::function), and left unguarded
-    // that exception would otherwise escape spawn() uncaught, leaking the
-    // just-inserted registry entry. Catching here ensures every throw in
-    // this span still erases the registry entry and returns false with
-    // childPid == 0; killAndReapGuard's destructor performs the
-    // Kill()/await half of cleanup on unwind either way.
-    bool monitorStarted{false};
-    try {
-        const TPidRegistryPtr registry{m_PidRegistry};
-        const TAwaitResultFn awaitResultFn{m_AwaitResultFn};
-        auto monitorBody = [sandboxPid, registry, sandbox, generation, awaitResultFn]() {
-            // Detached threads must not let exceptions escape: std::terminate().
+        // An errno other than ENOSYS (ESRCH, EMFILE, ENFILE, ...) is a
+        // resource/identity error, not "no kernel support" for pidfd - it must
+        // never be treated the same as E_KernelUnsupported. Fail registration
+        // outright rather than register a child whose termination would need an
+        // undefined fallback. pidFdGuard closes any fd this path somehow still
+        // holds; killAndReapGuard (still armed) Kill()s/awaits the sandboxee.
+        if (pidFdOutcome == EPidFdOutcome::E_Failed) {
+            LOG_ERROR(<< "pidfd_open failed for sandboxed process "
+                      << processPath << " (PID " << sandboxPid << ") with errno "
+                      << pidFdResult.s_Errno << " (" << ::strerror(pidFdResult.s_Errno)
+                      << "); refusing to register a child with an undefined termination fallback");
+            removeIpcAfterKillAndReap = true;
+        } else {
+            SSandboxedChild child;
+            child.s_State = EChildLifecycleState::E_IdentityCaptured;
+            child.s_Sandbox = sandbox;
+            child.s_PidFd = pidFdGuard.get();
+            child.s_PidFdOutcome = pidFdOutcome;
+            child.s_Outcome = std::make_shared<CCasOutcomeLatch>();
+
             try {
-                const sandbox2::Result result{awaitResultFn ? awaitResultFn(*sandbox)
-                                                            : sandbox->AwaitResult()};
-                if (completeMonitorRegistryCleanup(registry, sandboxPid, generation)) {
-                    logSandboxeeTermination(sandboxPid, result);
-                }
+                generation = m_RegistryInsertFn
+                                 ? m_RegistryInsertFn(*m_PidRegistry, sandboxPid, child)
+                                 : defaultRegistryInsert(*m_PidRegistry, sandboxPid, child);
             } catch (const std::exception& e) {
-                LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
-                          << sandboxPid << " failed: " << e.what());
-                try {
-                    sandbox->Kill();
-                    sandbox->AwaitResult();
-                } catch (...) {}
-                eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
-            } catch (...) {
-                LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
-                          << sandboxPid << " failed with a non-standard exception");
-                try {
-                    sandbox->Kill();
-                    sandbox->AwaitResult();
-                } catch (...) {}
-                eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
+                LOG_ERROR(<< "Failed to register sandboxed process " << processPath
+                          << " (PID " << sandboxPid << "): " << e.what());
+                removeIpcAfterKillAndReap = true;
             }
-        };
 
-        monitorStarted = m_MonitorLaunchFn
-                             ? m_MonitorLaunchFn(std::move(monitorBody))
-                             : defaultMonitorLaunch(std::move(monitorBody));
-    } catch (const std::exception& e) {
-        eraseRegistryEntry();
-        LOG_ERROR(<< "Failed to launch monitor thread for sandboxed process "
-                  << processPath << " (PID " << sandboxPid << "): " << e.what());
-        childPid = 0;
-        return false; // killAndReapGuard fires here.
+            if (removeIpcAfterKillAndReap == false) {
+                // E_Registered. The registry entry now owns the pidfd; do not double-
+                // close it via pidFdGuard's destructor on this path.
+                pidFdGuard.release();
+
+                // Erase the registry entry this call just inserted, matching by
+                // generation (in case a racing call already replaced it). Shared by
+                // every failure path between a successful registry insertion and a
+                // successful monitor handoff, since no monitor thread exists on any of
+                // those paths to ever perform that erase itself.
+                const auto eraseRegistryEntry = [this, sandboxPid, generation]() {
+                    std::lock_guard<std::mutex> lock(m_PidRegistry->s_Mutex);
+                    const auto it = m_PidRegistry->s_Children.find(sandboxPid);
+                    if (it != m_PidRegistry->s_Children.end() &&
+                        it->second.s_Generation == generation) {
+                        closePidFdIfOpen(it->second.s_PidFd);
+                        m_PidRegistry->s_Children.erase(it);
+                    }
+                };
+
+                // The sandboxee is a child of the Sandbox2 forkserver rather than of the
+                // controller, so waitpid() never sees it. Own the sandbox instance on a
+                // dedicated monitor thread that keeps it alive for the lifetime of
+                // pytorch_inference, waits for its result (via the injectable
+                // AwaitResult seam), and removes the registry entry before logging
+                // termination. The thread co-owns the registry and the Sandbox2
+                // shared_ptr rather than capturing this: it can still be waiting on a
+                // live sandboxee when the spawner is destroyed, and a raw pointer
+                // back to the spawner would be dangling by then.
+                //
+                // Everything from copying m_PidRegistry/m_AwaitResultFn through
+                // launching the monitor thread runs inside a try/catch: those copies
+                // and constructing monitorBody's capture list can themselves throw
+                // (e.g. std::bad_alloc copying a std::function), and left unguarded
+                // that exception would otherwise escape spawn() uncaught, leaking the
+                // just-inserted registry entry. Catching here ensures every throw in
+                // this span still erases the registry entry and returns false with
+                // childPid == 0; killAndReapGuard's destructor performs the
+                // Kill()/await half of cleanup on unwind either way.
+                bool monitorStarted{false};
+                try {
+                    const TPidRegistryPtr registry{m_PidRegistry};
+                    const TAwaitResultFn awaitResultFn{m_AwaitResultFn};
+                    const std::shared_ptr<CChildIpcDirectoryReaper> childIpcReaper{m_ChildIpcReaper};
+                    auto monitorBody = [sandboxPid, registry, sandbox, generation,
+                                        awaitResultFn, childIpcReaper, childIpcRoot]() {
+                        // Detached threads must not let exceptions escape: std::terminate().
+                        if (childIpcReaper && childIpcRoot.empty() == false) {
+                            childIpcReaper->noteSpawn(sandboxPid, childIpcRoot);
+                        }
+                        const auto notifyChildExited = [&]() {
+                            if (childIpcReaper) {
+                                childIpcReaper->onChildExited(sandboxPid);
+                            }
+                        };
+                        try {
+                            const sandbox2::Result result{
+                                awaitResultFn ? awaitResultFn(*sandbox)
+                                              : sandbox->AwaitResult()};
+                            if (completeMonitorRegistryCleanup(registry, sandboxPid, generation)) {
+                                logSandboxeeTermination(sandboxPid, result);
+                                notifyChildExited();
+                            }
+                        } catch (const std::exception& e) {
+                            LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
+                                      << sandboxPid << " failed: " << e.what());
+                            try {
+                                sandbox->Kill();
+                                sandbox->AwaitResult();
+                            } catch (...) {}
+                            eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
+                            notifyChildExited();
+                        } catch (...) {
+                            LOG_ERROR(<< "Monitor thread for sandboxed pytorch_inference PID "
+                                      << sandboxPid << " failed with a non-standard exception");
+                            try {
+                                sandbox->Kill();
+                                sandbox->AwaitResult();
+                            } catch (...) {}
+                            eraseRegistryEntryOnMonitorFailure(registry, sandboxPid, generation);
+                            notifyChildExited();
+                        }
+                    };
+
+                    monitorStarted = m_MonitorLaunchFn
+                                         ? m_MonitorLaunchFn(std::move(monitorBody))
+                                         : defaultMonitorLaunch(std::move(monitorBody));
+                } catch (const std::exception& e) {
+                    eraseRegistryEntry();
+                    LOG_ERROR(<< "Failed to launch monitor thread for sandboxed process " << processPath
+                              << " (PID " << sandboxPid << "): " << e.what());
+                    removeIpcAfterKillAndReap = true;
+                }
+
+                if (removeIpcAfterKillAndReap == false && monitorStarted == false) {
+                    // Monitor handoff failed: no thread is running to ever erase
+                    // this registry entry or call AwaitResult(), so this frame owns
+                    // both. killAndReapGuard's destructor Kill()s/awaits the sandboxee.
+                    eraseRegistryEntry();
+                    LOG_ERROR(<< "Failed to start monitor thread for sandboxed process "
+                              << processPath << " (PID " << sandboxPid << ")");
+                    removeIpcAfterKillAndReap = true;
+                }
+
+                if (removeIpcAfterKillAndReap == false) {
+                    // E_Monitoring: registry insertion and monitor handoff both
+                    // succeeded, so the monitor thread now owns calling AwaitResult() and
+                    // removing the registry entry. Disarm - the guard must not also reap.
+                    killAndReapGuard.disarm();
+                    monitorHandoffSucceeded = true;
+                }
+            }
+        }
     }
-
-    if (monitorStarted == false) {
-        // Monitor handoff failed: no thread is running to ever erase
-        // this registry entry or call AwaitResult(), so this frame owns
-        // both. killAndReapGuard's destructor Kill()s/awaits the sandboxee.
-        eraseRegistryEntry();
-        LOG_ERROR(<< "Failed to start monitor thread for sandboxed process "
-                  << processPath << " (PID " << sandboxPid << ")");
+    if (removeIpcAfterKillAndReap) {
+        notifySpawnFailed();
         childPid = 0;
-        return false; // killAndReapGuard fires here.
+        return false;
     }
-
-    // E_Monitoring: registry insertion and monitor handoff both
-    // succeeded, so the monitor thread now owns calling AwaitResult() and
-    // removing the registry entry. Disarm - the guard must not also reap.
-    killAndReapGuard.disarm();
+    if (monitorHandoffSucceeded == false) {
+        childPid = 0;
+        return false;
+    }
 
     // Record E_Monitoring under the lock, generation-matched. Only advance
     // from E_Registered so a racing terminator is not overwritten.

@@ -14,6 +14,7 @@
 #include <core/CProcess.h>
 #include <core/ImportExport.h>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -154,6 +155,25 @@ public:
     //! started.
     bool spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid);
 
+    //! As above. When \p childIpcRoot is non-null and non-empty, invokes the
+    //! child-spawned IPC callback (see setChildIpcDirectoryCallbacks()) with
+    //! the new pid and root before the tracker mutex is released, so a fast
+    //! child exit cannot be observed before the binding exists.
+    bool spawn(const std::string& processPath,
+               const TStrVec& args,
+               CProcess::TPid& childPid,
+               const std::string* childIpcRoot);
+
+    //! Optional hooks for CChildIpcDirectoryReaper wiring from the controller
+    //! router. The exit callback is invoked from the tracker thread after a
+    //! reaped pid is removed from the live set; it must not call back into
+    //! this spawner.
+    using TChildExitedCallback = std::function<void(CProcess::TPid)>;
+    using TChildSpawnedIpcCallback =
+        std::function<void(CProcess::TPid, const std::string&)>;
+    void setChildIpcDirectoryCallbacks(TChildExitedCallback onChildExited,
+                                       TChildSpawnedIpcCallback onChildSpawnedWithIpc);
+
     //! Kill the child process with the specified PID.  If there is a
     //! process running with the specified PID that was not spawned by this
     //! object then it will NOT be killed.
@@ -170,6 +190,8 @@ private:
     //! Thread to track which processes that have been created are still
     //! alive.
     TTrackerThreadP m_TrackerThread;
+
+    TChildSpawnedIpcCallback m_OnChildSpawnedWithIpc;
 
 #ifndef Windows
     //! On *nix testing which files need to be closed when spawning a process
