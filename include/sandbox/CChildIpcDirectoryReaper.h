@@ -12,7 +12,6 @@
 #define INCLUDED_ml_sandbox_CChildIpcDirectoryReaper_h
 
 #include <core/CProcess.h>
-#include <core/ImportExport.h>
 
 #include <map>
 #include <mutex>
@@ -37,7 +36,7 @@ namespace sandbox {
 //!
 //! Controller crash can still leave empty directories; there is no startup sweep because
 //! that would race another controller on the same $TMPDIR.
-class CORE_EXPORT CChildIpcDirectoryReaper {
+class CChildIpcDirectoryReaper {
 public:
     void noteSpawn(core::CProcess::TPid pid, const std::string& canonicalChildRoot);
 

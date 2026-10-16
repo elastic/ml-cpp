@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
 #ifndef Windows
 BOOST_AUTO_TEST_CASE(testChildExitedCallbackFiresForSpawnedChild) {
     std::atomic<bool> callbackFired{false};
-    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths{"/bin/true"};
+    ml::core::CDetachedProcessSpawner::TStrVec permittedPaths{"/bin/sh"};
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
     spawner.setChildIpcDirectoryCallbacks(
         [&](ml::core::CProcess::TPid) { callbackFired.store(true); },
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testChildExitedCallbackFiresForSpawnedChild) {
 
     ml::core::CProcess::TPid childPid{0};
     BOOST_TEST_REQUIRE(spawner.spawn(
-        "/bin/true", ml::core::CDetachedProcessSpawner::TStrVec{}, childPid));
+        "/bin/sh", ml::core::CDetachedProcessSpawner::TStrVec{"-c", "true"}, childPid));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     BOOST_TEST_REQUIRE(callbackFired.load());
