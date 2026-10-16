@@ -1,0 +1,4 @@
+area: Machine Learning
+pr: 3244
+summary: Stop linking and shipping the unused libxml2 library
+type: enhancement
