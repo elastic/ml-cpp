@@ -18,7 +18,6 @@ set (SRCS
 
 set(ML_LINK_LIBRARIES
   ${Boost_LIBRARIES_WITH_UNIT_TEST}
-  ${LIBXML2_LIBRARIES}
   MlCore
   MlVer
   MlTest

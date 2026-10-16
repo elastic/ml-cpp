@@ -13,7 +13,6 @@ project("ML Core")
 
 set(ML_LINK_LIBRARIES
   ${ZLIB_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
   ${Boost_LIBRARIES})
 
 ml_add_library(MlCore SHARED
