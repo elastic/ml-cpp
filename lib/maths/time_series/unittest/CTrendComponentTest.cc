@@ -562,6 +562,46 @@ BOOST_AUTO_TEST_CASE(testForecastIsAffineInvariant) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testForecastLinearTrendAtDailyBucketLength) {
+    // Regression for elastic/ml-cpp#2740: a clean linear ramp sampled once per
+    // day must not be forecast in the opposite direction.
+
+    const core_t::TTime bucketLength{core::constants::DAY};
+    const double slope{17.0};
+    const std::size_t days{120};
+
+    test::CRandomNumbers rng;
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, 100.0, days, noise);
+
+    maths::time_series::CTrendComponent component{0.012};
+    core_t::TTime time{0};
+    for (std::size_t i = 0; i < days; ++i, time += bucketLength) {
+        component.add(time, 100000.0 + slope * static_cast<double>(i) + noise[i]);
+        component.propagateForwardsByTime(bucketLength);
+    }
+    component.shiftOrigin(time);
+
+    LOG_DEBUG(<< component.print());
+
+    TDouble3VecVec forecast;
+    component.forecast(time, time + 30 * core::constants::DAY, bucketLength, 95.0,
+                       false, [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
+                       [&forecast](core_t::TTime, const TDouble3Vec& value) {
+                           forecast.push_back(value);
+                       });
+
+    BOOST_REQUIRE_EQUAL(forecast.size(), 30);
+    for (std::size_t i = 0; i < forecast.size(); i += 5) {
+        LOG_DEBUG(<< "day " << i << " forecast = " << forecast[i][1]);
+    }
+
+    double forecastSlope{(forecast.back()[1] - forecast.front()[1]) /
+                         static_cast<double>(forecast.size() - 1)};
+    LOG_DEBUG(<< "actual slope = " << slope << ", forecast slope = " << forecastSlope);
+    BOOST_TEST_REQUIRE(forecastSlope > 0.0);
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that serialization is idempotent.
 
