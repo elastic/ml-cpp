@@ -169,6 +169,12 @@ void CTreeShapFeatureImportance::computeInternalNodeValues(TTree& tree, std::siz
         auto& rightChild = tree[node.rightChildIndex()];
         double leftWeight{static_cast<double>(leftChild.numberSamples())};
         double rightWeight{static_cast<double>(rightChild.numberSamples())};
+        if (node.numberSamples() == 0 && nodeIndex != 0) {
+            // No counted rows reach this node so its parent gives it zero weight
+            // and its value doesn't change the expected value. Use the unweighted
+            // mean, which matches the even split shapRecursive uses for it.
+            leftWeight = rightWeight = 1.0;
+        }
         node.value((leftWeight * leftChild.value() + rightWeight * rightChild.value()) /
                    (leftWeight + rightWeight));
     }
@@ -249,12 +255,21 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             unwindPath(splitPath, pathIndex, nextIndex);
         }
 
-        double hotFractionZero{incomingFractionZero *
-                               static_cast<double>(tree[hotIndex].numberSamples()) /
-                               static_cast<double>(tree[nodeIndex].numberSamples())};
-        double coldFractionZero{incomingFractionZero *
-                                static_cast<double>(tree[coldIndex].numberSamples()) /
-                                static_cast<double>(tree[nodeIndex].numberSamples())};
+        // A node below the root which no counted rows reach leaves the child
+        // fractions as 0 / 0. An even split keeps them summing to one and doesn't
+        // change the expected value, since the fraction leading into the node is
+        // zero. It does affect the attributions of any row which some subset of its
+        // features routes into the node, for which it is the neutral choice. The
+        // root only has no samples if no rows were counted at all, which mustn't be
+        // masked. TreeInferenceModel in Elasticsearch must use the same rule.
+        double numberSamples{static_cast<double>(tree[nodeIndex].numberSamples())};
+        bool evenSplit{numberSamples == 0.0 && nodeIndex != 0};
+        double hotFractionZero{
+            incomingFractionZero *
+            (evenSplit ? 0.5 : static_cast<double>(tree[hotIndex].numberSamples()) / numberSamples)};
+        double coldFractionZero{
+            incomingFractionZero *
+            (evenSplit ? 0.5 : static_cast<double>(tree[coldIndex].numberSamples()) / numberSamples)};
         this->shapRecursive(tree, encodedRow, hotIndex, hotFractionZero, incomingFractionOne,
                             splitFeature, splitPath, nextIndex, shap);
         this->shapRecursive(tree, encodedRow, coldIndex, coldFractionZero, 0.0,
