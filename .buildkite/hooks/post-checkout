@@ -13,22 +13,116 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
+# Re-authenticate to Vault, refreshing VAULT_TOKEN in place.
+#
+# The agent's environment hook mints VAULT_TOKEN once, at the very start of the
+# job. On a very slow checkout -- e.g. macOS/Orka agents when GitHub transfer
+# rates collapse to ~100 KiB/s and a clone takes 20+ minutes -- that token can
+# expire before post-checkout runs, after which every secret read fails with
+# "permission denied / invalid token". Minting a fresh token here, using the
+# same OIDC/JWT flow as the agent (elastic/vault-buildkite-plugin), makes the
+# subsequent reads succeed regardless of how long the clone took.
+#
+# Best-effort: returns non-zero (leaving VAULT_TOKEN untouched) if anything is
+# unavailable, so callers can carry on rather than fail the job.
+vault_reauth() {
+  command -v buildkite-agent >/dev/null 2>&1 || return 1
+  command -v vault >/dev/null 2>&1 || return 1
+  [ -n "${BUILDKITE_ORGANIZATION_SLUG:-}" ] && [ -n "${BUILDKITE_PIPELINE_SLUG:-}" ] || return 1
+  local oidc pset tok
+  oidc=$(buildkite-agent oidc request-token --lifetime 10 \
+         --audience "https://buildkite.com/${BUILDKITE_ORGANIZATION_SLUG}" 2>/dev/null) || return 1
+  [ -n "${oidc}" ] || return 1
+  pset="${BUILDKITE_ORGANIZATION_SLUG}-${BUILDKITE_PIPELINE_SLUG}-pipeline"
+  tok=$(vault write -field=token auth/buildkite-oidc/login role="${pset}" jwt="${oidc}" 2>/dev/null) || return 1
+  [ -n "${tok}" ] || return 1
+  export VAULT_TOKEN="${tok}"
+  return 0
+}
+
+# Read a single field from a Vault KV path into a named variable, retrying on
+# transient failures.
+# Vault occasionally returns an intermittent error (e.g. a spurious 403 or a
+# 5xx) on an otherwise-valid read. A single such failure previously left
+# BUILDKITE_ANALYTICS_TOKEN unset, which in turn made the test-collector
+# plugin's pre-exit hook fail an otherwise-green test job.
+#
+# Usage: vault_read_field_with_retry <output-var> <path> <field>
+# The field value is assigned to the variable named by <output-var> (via
+# printf -v), or an empty string if every attempt fails. Crucially the function
+# must be called in the parent shell -- NOT inside a $(...) command substitution
+# -- so that a VAULT_TOKEN refreshed by vault_reauth propagates back to the hook
+# (and to subsequent reads, which then reuse the fresh token instead of
+# re-authenticating once per field).
+#
+# Any Vault error from each failed attempt is captured and logged to stderr
+# (never swallowed) so the build log shows the real cause -- e.g. a 403
+# permission-denied versus a connection/timeout error -- which is essential
+# for diagnosing why a read failed.
+#
+# If a read fails because VAULT_TOKEN has expired ("invalid token") -- the
+# symptom of a slow checkout outliving the token's TTL -- a fresh token is
+# minted via vault_reauth before the next attempt.
+vault_read_field_with_retry() {
+  local __outvar="$1" path="$2" field="$3"
+  local attempts=5 delay=2 attempt value errfile reauthed=0
+  errfile=$(mktemp)
+  for ((attempt = 1; attempt <= attempts; attempt++)); do
+    if value=$(vault read -field="${field}" "${path}" 2>"${errfile}") && [ -n "${value}" ]; then
+      printf -v "${__outvar}" '%s' "${value}"
+      rm -f "${errfile}"
+      return 0
+    fi
+    if [ -s "${errfile}" ]; then
+      echo "post-checkout: Vault read of field '${field}' from '${path}' failed (attempt ${attempt}/${attempts}): $(tr '\n' ' ' <"${errfile}")" >&2
+      # A slow checkout can outlive VAULT_TOKEN's TTL; refresh it once and retry.
+      # As this runs in the parent shell, the refreshed VAULT_TOKEN persists.
+      if [ "${reauthed}" -eq 0 ] && grep -q "invalid token" "${errfile}"; then
+        reauthed=1
+        if vault_reauth; then
+          echo "post-checkout: refreshed an expired VAULT_TOKEN; retrying the read" >&2
+          continue
+        fi
+        echo "post-checkout: WARNING: failed to refresh an expired VAULT_TOKEN" >&2
+      fi
+    else
+      echo "post-checkout: Vault read of field '${field}' from '${path}' returned an empty value (attempt ${attempt}/${attempts})" >&2
+    fi
+    [ "${attempt}" -lt "${attempts}" ] && sleep "${delay}"
+  done
+  echo "post-checkout: WARNING: all ${attempts} Vault reads of field '${field}' from '${path}' failed; proceeding with an empty value" >&2
+  printf -v "${__outvar}" '%s' ""
+  rm -f "${errfile}"
+  return 0
+}
+
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
-  if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-aarch64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_macos-aarch64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_aarch64 | awk '/^token/ {print $2;}')
-  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_macos-x86_64-RelWithDebInfo" ]]; then
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_x86_64 | awk '/^token/ {print $2;}')
-  else [[ "$BUILDKITE_STEP_KEY" == "build_test_Windows-x86_64-RelWithDebInfo" ]]
-    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
+
+  # Map the build/test step to its Buildkite Test Analytics suite token in
+  # Vault.  The read is retried so a transient Vault failure does not leave
+  # BUILDKITE_ANALYTICS_TOKEN unset and fail an otherwise-green test job.
+  analytics_suite=""
+  case "$BUILDKITE_STEP_KEY" in
+    build_test_linux-x86_64-RelWithDebInfo)
+      analytics_suite="linux_x86_64" ;;
+    build_test_linux-aarch64-RelWithDebInfo)
+      analytics_suite="linux_aarch64" ;;
+    build_test_macos-aarch64-RelWithDebInfo)
+      analytics_suite="macos_aarch64" ;;
+    build_test_macos-x86_64-RelWithDebInfo)
+      analytics_suite="macos_x86_64" ;;
+    build_test_Windows-x86_64-RelWithDebInfo)
+      analytics_suite="windows_x86_64" ;;
+  esac
+  if [ -n "$analytics_suite" ]; then
+    vault_read_field_with_retry BUILDKITE_ANALYTICS_TOKEN "secret/ci/elastic-ml-cpp/buildkite/test_analytics/${analytics_suite}" token
+    export BUILDKITE_ANALYTICS_TOKEN
   fi
 
   if [[ "$BUILDKITE_STEP_KEY" == "build_pytorch_docker_image" ]]; then
-    export DOCKER_REGISTRY_USERNAME=$(vault read --field=username  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
-    export DOCKER_REGISTRY_PASSWORD=$(vault read --field=password  secret/ci/elastic-ml-cpp/prod_docker_registry_credentials)
+    vault_read_field_with_retry DOCKER_REGISTRY_USERNAME secret/ci/elastic-ml-cpp/prod_docker_registry_credentials username
+    vault_read_field_with_retry DOCKER_REGISTRY_PASSWORD secret/ci/elastic-ml-cpp/prod_docker_registry_credentials password
+    export DOCKER_REGISTRY_USERNAME DOCKER_REGISTRY_PASSWORD
   fi
 fi
