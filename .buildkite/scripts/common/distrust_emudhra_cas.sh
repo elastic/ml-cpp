@@ -45,20 +45,47 @@ if [ "$(uname -s)" = Darwin ]; then
     # macOS (curl/SecureTransport, Safari, etc.) trusts the Keychain.  Mark the
     # two roots as denied in the admin trust settings; the certificates are
     # read from the system roots keychain by the names macOS gives them.
+    #
+    # Changing admin trust settings needs an authorization that a headless CI
+    # session cannot answer ("authorization was denied since no user interaction
+    # was possible"), even as root.  If that happens, temporarily allow the
+    # com.apple.trust-settings.admin right (restoring it afterwards) and retry.
+    # Acceptable on the ephemeral CI VMs this runs on.
+    TRUST_RIGHT=com.apple.trust-settings.admin
+    right_backup=""
+    deny_trust() {
+        $SUDO security add-trusted-cert -d -r deny -k /Library/Keychains/System.keychain "$1" 2>&1
+    }
     for name in "AAA Certificate Services" "emSign ECC Root CA - G3"; do
         pem=$(mktemp -t distrust_emudhra)
         security find-certificate -a -c "$name" -p /System/Library/Keychains/SystemRootCertificates.keychain > "$pem" 2>/dev/null
         if [ -s "$pem" ]; then
-            if $SUDO security add-trusted-cert -d -r deny -k /Library/Keychains/System.keychain "$pem"; then
+            out=$(deny_trust "$pem"); rc=$?
+            if [ $rc -ne 0 ] && echo "$out" | grep -q "no user interaction"; then
+                if [ -z "$right_backup" ]; then
+                    right_backup=$(mktemp -t distrust_right)
+                    $SUDO security authorizationdb read "$TRUST_RIGHT" > "$right_backup" 2>/dev/null
+                    $SUDO security authorizationdb write "$TRUST_RIGHT" allow >/dev/null 2>&1
+                fi
+                out=$(deny_trust "$pem"); rc=$?
+            fi
+            if [ $rc -eq 0 ]; then
                 echo "distrust_emudhra_cas: macOS denied trust for '$name'"
             else
-                echo "distrust_emudhra_cas: WARNING: could not deny trust for '$name'"
+                echo "distrust_emudhra_cas: WARNING: could not deny trust for '$name': $out"
             fi
         else
             echo "distrust_emudhra_cas: '$name' not in the system roots, skipping"
         fi
         rm -f "$pem"
     done
+    if [ -n "$right_backup" ]; then
+        # Restore the original authorization rule.
+        if [ -s "$right_backup" ]; then
+            $SUDO security authorizationdb write "$TRUST_RIGHT" < "$right_backup" >/dev/null 2>&1
+        fi
+        rm -f "$right_backup"
+    fi
 elif [ -d /etc/pki/ca-trust/source ]; then
     # RHEL family.  The directory is "blacklist" up to RHEL 8 and "blocklist"
     # from RHEL 9.  The root PEMs are taken from the installed bundle.
