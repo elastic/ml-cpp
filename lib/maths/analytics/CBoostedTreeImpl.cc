@@ -1517,9 +1517,16 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
                     set.reserve(m_NumberSplitsPerFeature + 2);
                 }
                 for (auto row = beginRows; row != endRows; ++row) {
+                    auto encodedRow = m_Encoder->encode(*row);
                     for (std::size_t i = 0; i < features.size(); ++i) {
                         if (state[i].size() <= m_NumberSplitsPerFeature + 1) {
-                            state[i].insert(m_Encoder->encode(*row)[features[i]]);
+                            // Missing values are NaN, which never compares equal to
+                            // itself, so each one would otherwise count as a distinct
+                            // value and corrupt the sorted candidate splits.
+                            double value{encodedRow[features[i]]};
+                            if (core::CDataFrame::isMissing(value) == false) {
+                                state[i].insert(value);
+                            }
                         }
                     }
                 }
@@ -1538,7 +1545,10 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
 
     TDoubleVec values;
     for (std::size_t i = 0; i < features.size(); ++i) {
-        if (uniques[i].size() <= m_NumberSplitsPerFeature) {
+        // We need at least two distinct values to split. Since missing values are
+        // skipped there may be none, for example if the encoding was computed on a
+        // different data set.
+        if (uniques[i].size() > 1 && uniques[i].size() <= m_NumberSplitsPerFeature) {
             values.assign(uniques[i].begin(), uniques[i].end());
             std::sort(values.begin(), values.end());
             auto& featureCandidateSplits = m_FixedCandidateSplits[features[i]];
