@@ -13,7 +13,9 @@
 # CA trust store still trusts the compromised eMudhra intermediates (InfoSec
 # incident "Intrepid Falcon", https://emudhra.we-have-a-problem.com/).
 #
-# The steps are soft-fail: a FAIL shows as a warning against the image that
+# These run after the post-checkout hook, which applies the runtime mitigation
+# (distrust_emudhra_cas.sh), so a PASS means the mitigation took effect.  The
+# steps are soft-fail: a FAIL shows as a warning against the image that
 # needs its CA store updated, without blocking the PR.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
@@ -50,7 +52,7 @@ cat <<EOL
     command:
       - "${CHECK}"
       - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
-      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts/steps:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 bash /ci/check_ca_trust.sh"
+      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 bash -c 'bash /ci/common/distrust_emudhra_cas.sh; bash /ci/steps/check_ca_trust.sh'"
     soft_fail: true
     timeout_in_minutes: 15
     agents:

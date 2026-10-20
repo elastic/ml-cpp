@@ -97,6 +97,13 @@ vault_read_field_with_retry() {
 }
 
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
+  # Temporary mitigation for the eMudhra intermediate CA compromise (InfoSec
+  # incident "Intrepid Falcon"): distrust the affected roots in this
+  # environment's CA store until the images carry fixed ca-certificates
+  # packages.  Best-effort and idempotent; must run before the Vault reads
+  # below, which are TLS connections.
+  bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
+
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
 
   # Map the test step to its Buildkite Test Analytics suite token in Vault.
