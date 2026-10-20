@@ -9,11 +9,12 @@
 # limitation.
 #
 # Runs .buildkite/scripts/steps/check_ca_trust.sh in each Docker image (and on
-# the aarch64 build host) that CI builds or tests with, to check whether its
+# the aarch64 build host and the macOS agent), and check_ca_trust.ps1 on the
+# Windows agent, that CI builds or tests with, to check whether its
 # CA trust store still trusts the compromised eMudhra intermediates (InfoSec
 # incident "Intrepid Falcon", https://emudhra.we-have-a-problem.com/).
 #
-# These run after the post-checkout hook, which applies the runtime mitigation
+# The Linux steps run after the post-checkout hook, which applies the runtime mitigation
 # (distrust_emudhra_cas.sh), so a PASS means the mitigation took effect.  The
 # steps are soft-fail: a FAIL shows as a warning against the image that
 # needs its CA store updated, without blocking the PR.
@@ -61,4 +62,34 @@ cat <<EOL
       imagePrefix: "core-almalinux-8-aarch64"
       diskSizeGb: "100"
       diskName: "/dev/xvda"
+EOL
+
+# macOS builds run natively on Orka VMs (there is no macOS image), using the
+# same agent as .buildkite/pipelines/build_macos.json.py.  This only checks;
+# there is no runtime mitigation for macOS yet.
+cat <<EOL
+  - label: "CA trust check: macOS aarch64 agent"
+    key: "check_ca_trust_macos_aarch64"
+    command: "${CHECK}"
+    soft_fail: true
+    timeout_in_minutes: 10
+    agents:
+      provider: "orka"
+      image: "ml-macos-14-arm-003.orkasi"
+EOL
+
+# Windows builds run natively on GCP VMs, using the same agent as
+# .buildkite/pipelines/build_windows.json.py.  This only checks; there is no
+# runtime mitigation for Windows yet.
+cat <<'EOL'
+  - label: "CA trust check: Windows x86_64 agent"
+    key: "check_ca_trust_windows_x86_64"
+    command: '& .buildkite\scripts\steps\check_ca_trust.ps1'
+    soft_fail: true
+    timeout_in_minutes: 10
+    agents:
+      provider: "gcp"
+      machineType: "c2-standard-16"
+      minCpuPlatform: "Intel Cascade Lake"
+      image: "family/ml-cpp-5-windows-2022"
 EOL
