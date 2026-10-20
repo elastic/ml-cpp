@@ -20,7 +20,7 @@ same tag - pytorch_viable_strict - for the image.
 
 ## Repository: ml-linux-dependency-builder
 
-### Latest version: 4
+### Latest version: 5
 
 ### Comments
 A Docker image that can be used to compile the dependencies of
@@ -91,6 +91,10 @@ This image is not intended to be built regularly. If changing the *Dockerfile* i
 
  1. Increment the version
  2. Build a new image
+
+Note: a version 4 of this image was pushed to the registry in 2023 without the
+version being recorded here. It was left untouched, so use a version greater
+than 5 for the next build, and check the registry for the next free tag first.
 
 ### Build script: dev-tools/docker/build_linux_jdk.sh
 
