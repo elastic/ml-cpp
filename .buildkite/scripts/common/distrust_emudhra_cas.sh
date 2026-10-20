@@ -86,6 +86,33 @@ if [ "$(uname -s)" = Darwin ]; then
         fi
         rm -f "$right_backup"
     fi
+
+    # The built-in /usr/bin/curl does not use the Keychain: it reads its CA list
+    # from /etc/ssl/cert.pem, so drop the two roots from that file too.  The
+    # file is a series of "=== <subject>" blocks (text dump + PEM).
+    BUNDLE=/etc/ssl/cert.pem
+    PATTERN='^=== .*CN=(AAA Certificate Services|emSign ECC Root CA - G3)$'
+    if [ -f "$BUNDLE" ] && grep -Eq "$PATTERN" "$BUNDLE"; then
+        filtered=$(mktemp -t distrust_bundle)
+        awk -v pat="$PATTERN" '
+            $0 ~ pat { skip = 1 }
+            skip { if ($0 ~ /^-----END CERTIFICATE-----$/) skip = 0; next }
+            { print }' "$BUNDLE" > "$filtered"
+        before=$(grep -c "BEGIN CERTIFICATE" "$BUNDLE")
+        after=$(grep -c "BEGIN CERTIFICATE" "$filtered")
+        # Only replace the bundle if exactly the expected certificates were removed.
+        if [ "$after" -gt 0 ] && [ "$after" -lt "$before" ] && [ $((before - after)) -le 2 ]; then
+            [ -e "$BUNDLE.pre-emudhra" ] || $SUDO cp -p "$BUNDLE" "$BUNDLE.pre-emudhra"
+            if $SUDO sh -c "cat '$filtered' > '$BUNDLE'"; then
+                echo "distrust_emudhra_cas: removed $((before - after)) root(s) from $BUNDLE"
+            else
+                echo "distrust_emudhra_cas: WARNING: could not update $BUNDLE"
+            fi
+        else
+            echo "distrust_emudhra_cas: WARNING: unexpected result filtering $BUNDLE ($before -> $after certificates), left unchanged"
+        fi
+        rm -f "$filtered"
+    fi
 elif [ -d /etc/pki/ca-trust/source ]; then
     # RHEL family.  The directory is "blacklist" up to RHEL 8 and "blocklist"
     # from RHEL 9.  The root PEMs are taken from the installed bundle.
