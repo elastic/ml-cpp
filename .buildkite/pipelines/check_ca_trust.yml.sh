@@ -41,8 +41,15 @@ EOL
 
 image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:34"
 image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest"
-image_step check_style "check-style image" "docker.elastic.co/ml-dev/ml-check-style:2"
-image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:3"
+# The JDK 17 images run the DRA steps as uid 1000 (imageUID), where the runtime
+# mitigation cannot apply, so a FAIL here means the image itself needs fixing.
+# :3 creates the DRA artifacts (buildkite-agent artifact transfer); :2 uploads
+# them to S3 (Vault credentials and a Gradle upload, which uses the Java trust
+# store that the mitigation also updates when it can run as root).
+image_step jdk17 "JDK 17 DRA image (create)" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:3"
+image_step jdk17_s3 "JDK 17 DRA image (S3 upload)" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+# Not checked: ml-check-style only runs clang-format on the checkout (no network
+# use) and has neither curl nor python3 to run the check with.
 image_step python "python:3.11-bookworm image" "python:3.11-bookworm"
 
 # aarch64 builds run on an AlmaLinux 8 VM host, and tests run inside the

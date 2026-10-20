@@ -20,17 +20,17 @@
 #
 # Idempotent, and best-effort: it never fails the job.  Run
 # check_ca_trust.sh afterwards to confirm it took effect.  Needs root (or
-# passwordless sudo); on non-Linux hosts it does nothing.
+# passwordless sudo); on hosts other than Linux and macOS it does nothing.
 
 set -u
 
 ROOT_LABELS=("Comodo AAA Services root" "emSign ECC Root CA - G3")
 ROOT_FILES=("Comodo_AAA_Services_root.crt" "emSign_ECC_Root_CA_-_G3.crt")
 
-if [ "$(uname -s)" != Linux ]; then
-    echo "distrust_emudhra_cas: not Linux, nothing to do"
-    exit 0
-fi
+case "$(uname -s)" in
+    Linux|Darwin) ;;
+    *) echo "distrust_emudhra_cas: not Linux or macOS, nothing to do"; exit 0 ;;
+esac
 
 if [ "$(id -u)" -eq 0 ]; then
     SUDO=""
@@ -41,7 +41,25 @@ else
     exit 0
 fi
 
-if [ -d /etc/pki/ca-trust/source ]; then
+if [ "$(uname -s)" = Darwin ]; then
+    # macOS (curl/SecureTransport, Safari, etc.) trusts the Keychain.  Mark the
+    # two roots as denied in the admin trust settings; the certificates are
+    # read from the system roots keychain by the names macOS gives them.
+    for name in "AAA Certificate Services" "emSign ECC Root CA - G3"; do
+        pem=$(mktemp -t distrust_emudhra)
+        security find-certificate -a -c "$name" -p /System/Library/Keychains/SystemRootCertificates.keychain > "$pem" 2>/dev/null
+        if [ -s "$pem" ]; then
+            if $SUDO security add-trusted-cert -d -r deny -k /Library/Keychains/System.keychain "$pem"; then
+                echo "distrust_emudhra_cas: macOS denied trust for '$name'"
+            else
+                echo "distrust_emudhra_cas: WARNING: could not deny trust for '$name'"
+            fi
+        else
+            echo "distrust_emudhra_cas: '$name' not in the system roots, skipping"
+        fi
+        rm -f "$pem"
+    done
+elif [ -d /etc/pki/ca-trust/source ]; then
     # RHEL family.  The directory is "blacklist" up to RHEL 8 and "blocklist"
     # from RHEL 9.  The root PEMs are taken from the installed bundle.
     BUNDLE=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
