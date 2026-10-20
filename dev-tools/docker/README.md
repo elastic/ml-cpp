@@ -81,7 +81,7 @@ or 3rd party components required to build the machine learning C++ code:
 
 ## Repository: ml_cpp_linux_x86_64_jdk17
 
-### Latest version: 3
+### Latest version: 4
 
 ### Comments
 A Docker image that can be used to run a subset of the ES
