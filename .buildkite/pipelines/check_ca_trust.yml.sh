@@ -8,16 +8,11 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Runs .buildkite/scripts/steps/check_ca_trust.sh in each Docker image (and on
-# the aarch64 build host and the macOS agent), and check_ca_trust.ps1 on the
-# Windows agent, that CI builds or tests with, to check whether its
-# CA trust store still trusts the compromised eMudhra intermediates (InfoSec
-# incident "Intrepid Falcon", https://emudhra.we-have-a-problem.com/).
-#
-# The Linux steps run after the post-checkout hook, which applies the runtime mitigation
-# (distrust_emudhra_cas.sh), so a PASS means the mitigation took effect.  The
-# steps are soft-fail: a FAIL shows as a warning against the image that
-# needs its CA store updated, without blocking the PR.
+# Runs check_ca_trust.sh in each CI Docker image, on the aarch64 build host and
+# on the macOS agent, and check_ca_trust.ps1 on the Windows agent, to check
+# whether they trust the compromised eMudhra CAs (InfoSec incident "Intrepid
+# Falcon").  The steps run after the post-checkout mitigation, so PASS means
+# it took effect.  They are soft-fail: a FAIL is a warning, not a blocker.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
 
@@ -41,20 +36,13 @@ EOL
 
 image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:34"
 image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest"
-# The JDK 17 DRA steps run as uid 1000 (imageUID), where the runtime mitigation
-# cannot apply, so the image itself must carry the fix.  Version 6 is Ubuntu
-# 22.04, whose ca-certificates package removes the compromised roots (version 5,
-# Ubuntu 20.04 with the roots distrusted at build time, is the fallback).  It is
-# used by both create_dra (buildkite-agent artifact transfer) and
-# upload_dra_to_s3 (Vault credentials and a Gradle upload, which uses the Java
-# trust store).
+# The DRA steps run as non-root (imageUID 1000), so the mitigation can't apply:
+# the image itself must be fixed (version 6 is Ubuntu 22.04).
 image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6"
-# Not checked: ml-check-style only runs clang-format on the checkout (no network
-# use) and has neither curl nor python3 to run the check with.
 image_step python "python:3.11-bookworm image" "python:3.11-bookworm"
 
-# aarch64 builds run on an AlmaLinux 8 VM host, and tests run inside the
-# aarch64 native build image via "docker run", so check both.
+# aarch64 builds run on an AlmaLinux 8 host and tests in this image via
+# "docker run", so check both.  (ml-check-style is not checked: no TLS use.)
 cat <<EOL
   - label: "CA trust check: Linux aarch64 build host and native build image"
     key: "check_ca_trust_linux_aarch64"
@@ -72,9 +60,7 @@ cat <<EOL
       diskName: "/dev/xvda"
 EOL
 
-# macOS builds run natively on Orka VMs (there is no macOS image), using the
-# same agent as .buildkite/pipelines/build_macos.json.py.  This only checks;
-# there is no runtime mitigation for macOS yet.
+# macOS builds run natively on Orka VMs (same agent as build_macos.json.py).
 cat <<EOL
   - label: "CA trust check: macOS aarch64 agent"
     key: "check_ca_trust_macos_aarch64"
@@ -86,9 +72,8 @@ cat <<EOL
       image: "ml-macos-14-arm-003.orkasi"
 EOL
 
-# Windows builds run natively on GCP VMs, using the same agent as
-# .buildkite/pipelines/build_windows.json.py.  This only checks; there is no
-# runtime mitigation for Windows yet.
+# Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
+# Check only: Microsoft has already distrusted the CAs.
 cat <<'EOL'
   - label: "CA trust check: Windows x86_64 agent"
     key: "check_ca_trust_windows_x86_64"

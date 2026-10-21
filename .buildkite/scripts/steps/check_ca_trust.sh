@@ -8,21 +8,14 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Checks whether the CA trust store of the environment this runs in still
-# trusts the compromised eMudhra intermediate CAs (InfoSec incident "Intrepid
-# Falcon", disclosed 2026-10-20, https://emudhra.we-have-a-problem.com/).
+# Checks whether this environment's CA store still trusts the compromised
+# eMudhra intermediate CAs (InfoSec incident "Intrepid Falcon",
+# https://emudhra.we-have-a-problem.com/).  The test hosts serve chains issued
+# by those CAs, so a fixed client rejects them: certificate error = PASS,
+# connection succeeds = FAIL, any other error = INCONCLUSIVE.
 #
-# The test hosts serve certificate chains issued by the compromised
-# intermediates.  A client that has the fix REJECTS the certificate, so for
-# each host:
-#   - TLS verification failure  -> PASS (the CA store distrusts the CAs)
-#   - connection succeeds       -> FAIL (the CA store is still vulnerable)
-#   - any other error           -> INCONCLUSIVE (e.g. no network/DNS)
-#
-# Self-contained on purpose: it runs inside every build image, so it must not
-# depend on the repo's own tooling.  Uses curl if present, else python3.
-#
-# Exit status: 0 = all pass, 1 = at least one FAIL, 2 = inconclusive only.
+# Self-contained (curl, else python3) as it runs inside every CI image.
+# Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only.
 
 set -u
 
@@ -34,21 +27,21 @@ fi
 echo "--- Environment"
 uname -a
 cat /etc/os-release 2>/dev/null | grep -E '^(PRETTY_NAME|VERSION_ID)=' || true
-# Report the CA bundle package version for whichever package manager exists.
+# CA bundle package version.
 (rpm -q ca-certificates 2>/dev/null ||
  dpkg-query -W -f='ca-certificates ${Version}\n' ca-certificates 2>/dev/null ||
  apk info -v ca-certificates 2>/dev/null) | head -1 || true
 python3 -c 'import certifi; print("certifi", certifi.__version__)' 2>/dev/null || true
 command -v curl >/dev/null 2>&1 && curl --version | head -1
 
-# Prints PASS/FAIL/INCONCLUSIVE for a host; the return code is 0/1/2.
+# Probes return 0 = PASS, 1 = FAIL, 2 = INCONCLUSIVE.
 probe_with_curl() {
     local out rc
     out=$(curl -sS -m 30 -o /dev/null "https://$1/" 2>&1)
     rc=$?
     case $rc in
         0)  return 1 ;;
-        # 60: peer certificate cannot be authenticated; 51: host verification
+        # Certificate verification errors.
         60|51|58|77|83) return 0 ;;
         *)  echo "    curl exit $rc: $out"; return 2 ;;
     esac

@@ -33,8 +33,7 @@ def main():
                                                        ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
-    # Temporary: check each build image's CA store against the compromised
-    # eMudhra intermediate CAs (InfoSec incident "Intrepid Falcon").
+    # Temporary: check CI environments for trust of the compromised eMudhra CAs.
     pipeline_steps.append(pipeline_steps.generate_step("Upload CA trust checks",
                                                        ".buildkite/pipelines/check_ca_trust.yml.sh"))
     config = buildConfig.Config()

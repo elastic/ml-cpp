@@ -7,20 +7,10 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Windows counterpart of check_ca_trust.sh: checks whether this machine's
-# certificate store still trusts the compromised eMudhra intermediate CAs
-# (InfoSec incident "Intrepid Falcon", https://emudhra.we-have-a-problem.com/).
-#
-# The test hosts serve chains issued by the compromised intermediates, so a
-# client with the fix REJECTS them:
-#   - certificate validation errors -> PASS
-#   - validation succeeds           -> FAIL (still trusts the compromised CAs)
-#   - connection error              -> INCONCLUSIVE
-#
-# Uses .NET SslStream with a validation callback (Schannel on Windows) so the
-# result reflects the OS trust store, and reports why validation failed.
-#
-# Exit status: 0 = all pass, 1 = at least one FAIL, 2 = inconclusive only.
+# Windows counterpart of check_ca_trust.sh (see there): validation errors =
+# PASS, validation succeeds = FAIL, connection error = INCONCLUSIVE.  Uses .NET
+# SslStream (Schannel on Windows) so the result reflects the OS trust store.
+# Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only.
 
 param(
     [string[]]$Hosts = @("dv-g3b-emudhra.we-have-a-problem.com", "dv-g3b-aaa-emudhra.we-have-a-problem.com")
@@ -32,8 +22,7 @@ Write-Output "--- Environment"
 Write-Output ([System.Environment]::OSVersion.VersionString)
 Write-Output "PowerShell $($PSVersionTable.PSVersion)"
 
-# The TLS validation callback must be compiled code: a PowerShell scriptblock
-# used as a .NET delegate is invoked on a thread without a runspace and hangs.
+# The validation callback must be compiled: a scriptblock delegate hangs.
 Add-Type -TypeDefinition @"
 using System;
 using System.Net.Security;
@@ -53,8 +42,7 @@ public static class EmudhraTrustProbe {
                     chainStatus += (chainStatus.Length > 0 ? "," : "") + st.Status;
                 }
             }
-            // Accept either way so the handshake completes; the verdict is
-            // taken from the policy errors, not from the handshake result.
+            // Always accept: the verdict comes from the policy errors.
             return true;
         };
         try {

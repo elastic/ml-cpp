@@ -8,19 +8,15 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Runtime mitigation for the eMudhra intermediate CA compromise (InfoSec
+# Temporary mitigation for the eMudhra intermediate CA compromise (InfoSec
 # incident "Intrepid Falcon", https://emudhra.we-have-a-problem.com/).
 #
-# Distrusts the two roots the compromised intermediates chain to ("Comodo AAA
-# Services root" and "emSign ECC Root CA - G3") in the system CA store of the
-# environment it runs in, for images whose ca-certificates package has not yet
-# been updated.  This is deliberately broad - it removes the roots, not just
-# the eight intermediates - so it is a stop-gap: remove it once the images
-# carry fixed ca-certificates packages.
+# Distrusts the two roots the compromised intermediates chain to in the system
+# CA store.  Deliberately broad (roots, not the eight intermediates): remove once
+# the images carry fixed ca-certificates packages.
 #
-# Idempotent, and best-effort: it never fails the job.  Run
-# check_ca_trust.sh afterwards to confirm it took effect.  Needs root (or
-# passwordless sudo); on hosts other than Linux and macOS it does nothing.
+# Idempotent and best-effort (never fails the job).  Needs root or passwordless
+# sudo; does nothing except on Linux and macOS.  Verify with check_ca_trust.sh.
 
 set -u
 
@@ -42,15 +38,9 @@ else
 fi
 
 if [ "$(uname -s)" = Darwin ]; then
-    # macOS (curl/SecureTransport, Safari, etc.) trusts the Keychain.  Mark the
-    # two roots as denied in the admin trust settings; the certificates are
-    # read from the system roots keychain by the names macOS gives them.
-    #
-    # Changing admin trust settings needs an authorization that a headless CI
-    # session cannot answer ("authorization was denied since no user interaction
-    # was possible"), even as root.  If that happens, temporarily allow the
-    # com.apple.trust-settings.admin right (restoring it afterwards) and retry.
-    # Acceptable on the ephemeral CI VMs this runs on.
+    # Deny the roots in the admin trust settings (the Keychain).  A headless CI
+    # session can't answer the authorization prompt, even as root, so on that
+    # error temporarily allow the trust-settings right, retry, then restore it.
     TRUST_RIGHT=com.apple.trust-settings.admin
     right_backup=""
     deny_trust() {
@@ -80,16 +70,14 @@ if [ "$(uname -s)" = Darwin ]; then
         rm -f "$pem"
     done
     if [ -n "$right_backup" ]; then
-        # Restore the original authorization rule.
         if [ -s "$right_backup" ]; then
             $SUDO security authorizationdb write "$TRUST_RIGHT" < "$right_backup" >/dev/null 2>&1
         fi
         rm -f "$right_backup"
     fi
 
-    # The built-in /usr/bin/curl does not use the Keychain: it reads its CA list
-    # from /etc/ssl/cert.pem, so drop the two roots from that file too.  The
-    # file is a series of "=== <subject>" blocks (text dump + PEM).
+    # The built-in /usr/bin/curl reads /etc/ssl/cert.pem, not the Keychain, so
+    # drop the roots from it too (it is a series of "=== <subject>" blocks).
     BUNDLE=/etc/ssl/cert.pem
     PATTERN='^=== .*CN=(AAA Certificate Services|emSign ECC Root CA - G3)$'
     if [ -f "$BUNDLE" ] && grep -Eq "$PATTERN" "$BUNDLE"; then
@@ -100,7 +88,7 @@ if [ "$(uname -s)" = Darwin ]; then
             { print }' "$BUNDLE" > "$filtered"
         before=$(grep -c "BEGIN CERTIFICATE" "$BUNDLE")
         after=$(grep -c "BEGIN CERTIFICATE" "$filtered")
-        # Only replace the bundle if exactly the expected certificates were removed.
+        # Only replace the bundle if just the expected certificates were removed.
         if [ "$after" -gt 0 ] && [ "$after" -lt "$before" ] && [ $((before - after)) -le 2 ]; then
             [ -e "$BUNDLE.pre-emudhra" ] || $SUDO cp -p "$BUNDLE" "$BUNDLE.pre-emudhra"
             if $SUDO sh -c "cat '$filtered' > '$BUNDLE'"; then
@@ -114,8 +102,7 @@ if [ "$(uname -s)" = Darwin ]; then
         rm -f "$filtered"
     fi
 elif [ -d /etc/pki/ca-trust/source ]; then
-    # RHEL family.  The directory is "blacklist" up to RHEL 8 and "blocklist"
-    # from RHEL 9.  The root PEMs are taken from the installed bundle.
+    # RHEL family: blocklist the roots (directory is "blacklist" up to RHEL 8).
     BUNDLE=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
     if [ -d /etc/pki/ca-trust/source/blocklist ] || [ -e /usr/share/doc/ca-certificates/blocklist ]; then
         DIR=/etc/pki/ca-trust/source/blocklist
@@ -125,19 +112,18 @@ elif [ -d /etc/pki/ca-trust/source ]; then
     $SUDO mkdir -p "$DIR" || exit 0
     for label in "${ROOT_LABELS[@]}"; do
         out="$DIR/$(echo "$label" | tr ' ' '_').pem"
-        # Already blocklisted by an earlier run (the root is then no longer in
-        # the extracted bundle, so it can't be extracted again).
+        # Already blocklisted by an earlier run.
         [ -s "$out" ] && continue
         awk -v l="# $label" '$0==l{f=1;next} f&&/BEGIN CERT/{p=1} p{print} p&&/END CERT/{exit}' \
             "$BUNDLE" 2>/dev/null | $SUDO tee "$out" >/dev/null
         if ! grep -q "BEGIN CERT" "$out" 2>/dev/null; then
-            # Not in the bundle (e.g. a ca-certificates update already removed it).
+            # Not in the bundle (already removed by an update).
             $SUDO rm -f "$out"
         fi
     done
     $SUDO update-ca-trust extract && echo "distrust_emudhra_cas: RHEL-family CA store updated"
 elif [ -f /etc/ca-certificates.conf ]; then
-    # Debian, Ubuntu and Alpine: a leading "!" disables an entry.
+    # Debian, Ubuntu, Alpine: a leading "!" disables an entry.
     for f in "${ROOT_FILES[@]}"; do
         $SUDO sed -i "s#^mozilla/${f}\$#!mozilla/${f}#" /etc/ca-certificates.conf
     done
