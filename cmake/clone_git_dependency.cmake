@@ -29,13 +29,15 @@
 #   NAME              human-readable dependency name used in log messages
 #   URL               git repository URL to clone
 #   BRANCH            branch or tag to check out (shallow, --depth=1)
+#   COMMIT            optional full commit SHA the checkout must be at; the clone
+#                     fails (without retrying) if it is not
 #   DESTINATION       directory the repo is cloned into
 #   WORKING_DIRECTORY directory in which the clone is performed
 #   MAX_ATTEMPTS      optional number of attempts (default 5)
 #   BACKOFF_SECONDS   optional base backoff, multiplied by the attempt number (default 5)
 #
 function(ml_clone_git_dependency)
-  cmake_parse_arguments(CLONE "" "NAME;URL;BRANCH;DESTINATION;WORKING_DIRECTORY;MAX_ATTEMPTS;BACKOFF_SECONDS" "" ${ARGN})
+  cmake_parse_arguments(CLONE "" "NAME;URL;BRANCH;COMMIT;DESTINATION;WORKING_DIRECTORY;MAX_ATTEMPTS;BACKOFF_SECONDS" "" ${ARGN})
 
   if(NOT CLONE_MAX_ATTEMPTS)
     set(CLONE_MAX_ATTEMPTS 5)
@@ -56,6 +58,23 @@ function(ml_clone_git_dependency)
       RESULT_VARIABLE GIT_RESULT
       )
     if(GIT_RESULT EQUAL 0)
+      if(CLONE_COMMIT)
+        # A tag can be moved or intercepted: check what was actually cloned.
+        execute_process(
+          COMMAND git rev-parse HEAD
+          WORKING_DIRECTORY ${CLONE_WORKING_DIRECTORY}/${CLONE_DESTINATION}
+          OUTPUT_VARIABLE CLONE_ACTUAL_COMMIT
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          RESULT_VARIABLE REV_PARSE_RESULT
+          )
+        if(NOT REV_PARSE_RESULT EQUAL 0 OR NOT CLONE_ACTUAL_COMMIT STREQUAL CLONE_COMMIT)
+          execute_process(
+            COMMAND ${CMAKE_COMMAND} -E rm -rf ${CLONE_DESTINATION}
+            WORKING_DIRECTORY ${CLONE_WORKING_DIRECTORY}
+            )
+          message(FATAL_ERROR "${CLONE_NAME} ${CLONE_BRANCH} from ${CLONE_URL} is at commit '${CLONE_ACTUAL_COMMIT}', expected ${CLONE_COMMIT}")
+        endif()
+      endif()
       break()
     endif()
     if(attempt LESS ${CLONE_MAX_ATTEMPTS})

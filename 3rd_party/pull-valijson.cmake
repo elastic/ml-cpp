@@ -22,6 +22,7 @@ if ( NOT EXISTS valijson )
     NAME Valijson
     URL https://github.com/tristanpenman/valijson.git
     BRANCH v1.0.2
+    COMMIT 0b4771e273a065d437814baf426bcfcafec0f434
     DESTINATION valijson
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     )
