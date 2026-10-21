@@ -20,7 +20,7 @@ same tag - pytorch_viable_strict - for the image.
 
 ## Repository: ml-linux-dependency-builder
 
-### Latest version: 5
+### Latest version: 6
 
 ### Comments
 A Docker image that can be used to compile the dependencies of
@@ -92,9 +92,13 @@ This image is not intended to be built regularly. If changing the *Dockerfile* i
  1. Increment the version
  2. Build a new image
 
-Note: a version 4 of this image was pushed to the registry in 2023 without the
-version being recorded here. It was left untouched, so use a version greater
-than 5 for the next build, and check the registry for the next free tag first.
+Notes:
+
+ - A version 4 of this image was pushed to the registry in 2023 without the
+   version being recorded here. It was left untouched. Check the registry for the
+   next free tag before building a new version.
+ - Version 5 was Ubuntu 20.04 with the eMudhra roots distrusted at build time.
+   Version 6 moved to Ubuntu 22.04, whose ca-certificates package carries the fix.
 
 ### Build script: dev-tools/docker/build_linux_jdk.sh
 
