@@ -42,8 +42,9 @@ probe_with_curl() {
     rc=$?
     case $rc in
         0)  return 1 ;;
-        # Certificate verification errors.
-        60|51|58|77|83) return 0 ;;
+        # 60: peer certificate not trusted.  Other TLS errors (e.g. 77: CA bundle
+        # unreadable, 51: hostname mismatch on curl < 7.62) say nothing about trust.
+        60) return 0 ;;
         *)  echo "    curl exit $rc: $out"; return 2 ;;
     esac
 }
