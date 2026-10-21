@@ -3,8 +3,8 @@
 # https://emudhra.we-have-a-problem.com/) in the image.  Remove once the base
 # image and Homebrew carry the fix.
 #
-#   early   before install.sh: Keychain and /etc/ssl/cert.pem, so everything the
-#           image build downloads is fetched with the roots distrusted
+#   early   before install.sh (no python3 yet): Keychain and /etc/ssl/cert.pem, so
+#           everything the image build downloads is fetched with the roots distrusted
 #   late    after the installs: JDK cacerts, Homebrew and certifi bundles
 #   verify  fail unless every store is clean
 #
@@ -16,7 +16,7 @@ SUDO="${SUDO-sudo}"
 ROOT_NAMES=("AAA Certificate Services" "emSign ECC Root CA - G3")
 ROOT_SHA256="d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4 86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b"
 TEST_HOSTS="dv-g3b-emudhra.we-have-a-problem.com dv-g3b-aaa-emudhra.we-have-a-problem.com"
-SYSTEM_BUNDLE=/etc/ssl/cert.pem
+SYSTEM_BUNDLE="${SYSTEM_BUNDLE:-/etc/ssl/cert.pem}"
 
 # pem_bundle count|remove FILE: print how many compromised roots a PEM bundle
 # holds; "remove" also rewrites it without them and their header/comment lines.
@@ -79,6 +79,30 @@ deny_in_keychain() {
     fi
 }
 
+# Remove the roots from the system bundle using only awk: python3 may not exist
+# yet when "early" runs.  The bundle is a series of "=== <subject>" blocks.
+strip_system_bundle() {
+    local pattern='^=== .*CN=(AAA Certificate Services|emSign ECC Root CA - G3)$' tmp before after rc=0
+    grep -Eq "$pattern" "$SYSTEM_BUNDLE" || rc=$?
+    [ $rc -ne 1 ] || return 0      # grep exit 1: the roots are not in the bundle
+    [ $rc -eq 0 ] || return $rc    # any other exit: grep itself failed
+    tmp=$(mktemp -t bundle)
+    awk -v pat="$pattern" '
+        $0 ~ pat { skip = 1 }
+        skip { if ($0 ~ /^-----END CERTIFICATE-----$/) skip = 0; next }
+        { print }' "$SYSTEM_BUNDLE" > "$tmp"
+    before=$(grep -c "BEGIN CERTIFICATE" "$SYSTEM_BUNDLE")
+    after=$(grep -c "BEGIN CERTIFICATE" "$tmp")
+    # Only replace the bundle if just the expected certificates were removed.
+    if [ "$after" -gt 0 ] && [ $((before - after)) -le 2 ]; then
+        $SUDO sh -c "cat '$tmp' > '$SYSTEM_BUNDLE'"
+        echo "Removed $((before - after)) root(s) from $SYSTEM_BUNDLE"
+    else
+        rm -f "$tmp"; echo "Unexpected result filtering $SYSTEM_BUNDLE ($before -> $after certificates)"; return 1
+    fi
+    rm -f "$tmp"
+}
+
 # Bundles that exist once the installs are done: Homebrew's, and every certifi
 # copy (Python's and pip's vendored one) in the known site-packages locations.
 late_bundles() {
@@ -98,7 +122,7 @@ java_homes() { ls -d /Library/Java/JavaVirtualMachines/*/Contents/Home 2>/dev/nu
 
 early() {
     deny_in_keychain
-    [ "$(pem_bundle count "$SYSTEM_BUNDLE")" = 0 ] || pem_bundle remove "$SYSTEM_BUNDLE" >/dev/null
+    strip_system_bundle
 }
 
 late() {

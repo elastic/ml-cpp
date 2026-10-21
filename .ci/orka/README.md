@@ -11,7 +11,7 @@
 - `install.sh` The script that does the software installs on the image
 - `distrust_emudhra_cas.sh` Distrusts the compromised eMudhra roots (InfoSec incident "Intrepid Falcon"); run before and after the installs
 - `orka3-macos-14-arm.pkr.hcl` The packer definition for the MacOS 14 ARM builder image (Orka 3)
-- `orka-macos-14-arm.pkr.hcl` The previous (Orka 2) definition, no longer used
+- `orka-macos-14-arm.pkr.hcl` The Orka 2 definition that built `ml-macos-14-arm-003.orkasi`, the image CI uses today (migrated to Orka 3 by MacStadium rather than rebuilt, see #3026); new images are built from the Orka 3 definition
 
 
 ## Set Up Packer
@@ -40,7 +40,7 @@ The name of the resulting images are hard-coded (currently), and end in a sequen
 
 ## Source Images
 
-We make use of an image - `generic-14-sonoma-arm` - that is configured such that it:
+We make use of an image - `generic-14-sonoma-arm` (the Orka 3 definition also adds the passwordless `sudo` entry itself) - that is configured such that it:
 
     * Adds passwordless `sudo` for the default `admin` user
     * Configures `the admin` user to be automatically logged in
