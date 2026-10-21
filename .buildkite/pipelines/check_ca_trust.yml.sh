@@ -42,11 +42,13 @@ EOL
 image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:34"
 image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest"
 # The JDK 17 DRA steps run as uid 1000 (imageUID), where the runtime mitigation
-# cannot apply, so the image itself has the roots distrusted at build time
-# (version 5; earlier versions trust the compromised CAs).  :5 is used by both
-# create_dra (buildkite-agent artifact transfer) and upload_dra_to_s3 (Vault
-# credentials and a Gradle upload, which uses the Java trust store).
-image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:5"
+# cannot apply, so the image itself must carry the fix.  Version 6 is Ubuntu
+# 22.04, whose ca-certificates package removes the compromised roots (version 5,
+# Ubuntu 20.04 with the roots distrusted at build time, is the fallback).  It is
+# used by both create_dra (buildkite-agent artifact transfer) and
+# upload_dra_to_s3 (Vault credentials and a Gradle upload, which uses the Java
+# trust store).
+image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6"
 # Not checked: ml-check-style only runs clang-format on the checkout (no network
 # use) and has neither curl nor python3 to run the check with.
 image_step python "python:3.11-bookworm image" "python:3.11-bookworm"
