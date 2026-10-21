@@ -18,7 +18,7 @@ CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
 
 # Emits a step that runs the check inside the given Docker image.
 image_step() {
-    local key="$1" label="$2" image="$3"
+    local key="$1" label="$2" image="$3" uid="${4:-}"
     cat <<STEP
   - label: "CA trust check: ${label}"
     key: "check_ca_trust_${key}"
@@ -28,6 +28,9 @@ image_step() {
     agents:
       image: "${image}"
 STEP
+    if [ -n "${uid}" ]; then
+        echo "      imageUID: \"${uid}\""
+    fi
 }
 
 cat <<EOL
@@ -38,7 +41,7 @@ image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml
 image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest"
 # The DRA steps run as non-root (imageUID 1000), so the mitigation can't apply:
 # the image itself must be fixed (version 6 is Ubuntu 22.04).
-image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6"
+image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6" 1000
 image_step python "python:3.11-bookworm image" "python:3.11-bookworm"
 
 # aarch64 builds run on an AlmaLinux 8 host and tests in this image via

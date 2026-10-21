@@ -26,6 +26,7 @@ fi
 
 echo "--- Environment"
 uname -a
+id
 cat /etc/os-release 2>/dev/null | grep -E '^(PRETTY_NAME|VERSION_ID)=' || true
 # CA bundle package version.
 (rpm -q ca-certificates 2>/dev/null ||
