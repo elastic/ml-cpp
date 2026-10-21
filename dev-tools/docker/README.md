@@ -20,7 +20,7 @@ same tag - pytorch_viable_strict - for the image.
 
 ## Repository: ml-linux-dependency-builder
 
-### Latest version: 6
+### Latest version: 4
 
 ### Comments
 A Docker image that can be used to compile the dependencies of
@@ -81,7 +81,7 @@ or 3rd party components required to build the machine learning C++ code:
 
 ## Repository: ml_cpp_linux_x86_64_jdk17
 
-### Latest version: 4
+### Latest version: 6
 
 ### Comments
 A Docker image that can be used to run a subset of the ES
