@@ -7,6 +7,9 @@ repositories {
   mavenCentral()
 }
 
+// These dependencies are checksum-verified (gradle/verification-metadata.xml).
+// After changing them, regenerate it with:
+//   ./gradlew --write-verification-metadata sha256 help
 dependencies {
   compileOnly gradleApi()
   compileOnly localGroovy()
