@@ -44,15 +44,16 @@ image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-d
 image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6" 1000
 image_step python "python:3.11-bookworm image" "python:3.11-bookworm"
 
-# aarch64 builds run on an AlmaLinux 8 host and tests in this image via
-# "docker run", so check both.  (ml-check-style is not checked: no TLS use.)
+# aarch64 builds run on an AlmaLinux 8 host (mitigated by post-checkout) and
+# tests in this image via "docker run", which runs unmitigated, so this reports
+# the image as-is.  (ml-check-style is not checked: no TLS use.)
 cat <<EOL
   - label: "CA trust check: Linux aarch64 build host and native build image"
     key: "check_ca_trust_linux_aarch64"
     command:
       - "${CHECK}"
       - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
-      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 bash -c 'bash /ci/common/distrust_emudhra_cas.sh; bash /ci/steps/check_ca_trust.sh'"
+      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 bash /ci/steps/check_ca_trust.sh"
     soft_fail: true
     timeout_in_minutes: 15
     agents:
