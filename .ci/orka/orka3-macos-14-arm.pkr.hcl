@@ -16,7 +16,7 @@ locals {
 
 source "macstadium-orka" "image" {
   source_image     = "generic-14-sonoma-arm"
-  image_name       = "ml-macos-14-arm"
+  image_name       = "ml-macos-14-arm-004"
   orka_endpoint    = local.orka_endpoint
   orka_auth_token  = local.orka_auth_token
   ssh_username     = local.ssh_username
@@ -38,6 +38,10 @@ build {
     ]
   }
   provisioner "file" {
+    source = "distrust_emudhra_cas.sh"
+    destination = "/tmp/distrust_emudhra_cas.sh"
+  }
+  provisioner "file" {
     source = "install.sh"
     destination = "/tmp/install.sh"
   }
@@ -53,6 +57,13 @@ build {
     source = "gobld-bootstrap.plist"
     destination = "/tmp/gobld-bootstrap.plist"
   }
+  # Distrust the compromised eMudhra roots before anything is downloaded.
+  provisioner "shell" {
+    inline = [
+      "chmod u+x /tmp/distrust_emudhra_cas.sh",
+      "/tmp/distrust_emudhra_cas.sh early",
+    ]
+  }
   provisioner "shell" {
     inline = [
       "chmod u+x /tmp/install.sh",
@@ -64,6 +75,13 @@ build {
     inline = [
       "chmod u+x /tmp/third_party_deps.sh",
       "/tmp/third_party_deps.sh",
+    ]
+  }
+  # The JDK, Homebrew and certifi bundles exist only now.
+  provisioner "shell" {
+    inline = [
+      "/tmp/distrust_emudhra_cas.sh late",
+      "/tmp/distrust_emudhra_cas.sh verify",
     ]
   }
 }
