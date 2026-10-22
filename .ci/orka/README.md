@@ -36,7 +36,7 @@ packer build orka3-macos-14-arm.pkr.hcl
 
 ## Versioning
 
-The name of the resulting images are hard-coded (currently), and end in a sequence number (e.g., `001`).  When creating a new image, bump the sequence number, otherwise you won't be able to create an image if it already exists.
+The name of the resulting images are hard-coded (currently), and end in a sequence number (e.g., `001`).  When creating a new image, bump the sequence number in `image_name`: building an existing name succeeds, but pushing it to the registry fails.
 
 ## Source Images
 
