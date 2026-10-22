@@ -98,7 +98,7 @@ Notes:
    version being recorded here. It was left untouched. Check the registry for the
    next free tag before building a new version.
  - Version 5 was Ubuntu 20.04 with the eMudhra roots distrusted at build time.
-   Version 6 moved to Ubuntu 22.04, whose ca-certificates package carries the fix.
+ - Version 6 moved to Ubuntu 22.04, whose ca-certificates package carries the fix.
 
 ### Build script: dev-tools/docker/build_linux_jdk.sh
 
