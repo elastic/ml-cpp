@@ -12,9 +12,21 @@
 # on the macOS agent, and check_ca_trust.ps1 on the Windows agent, to check
 # whether they trust the compromised eMudhra CAs (InfoSec incident "Intrepid
 # Falcon").  The steps run after the post-checkout mitigation, so PASS means
-# it took effect.  They are soft-fail: a FAIL is a warning, not a blocker.
+# it took effect.  Exit 1 (a store still trusts them) fails the build; exit 2
+# (inconclusive, e.g. the test site is unreachable) only warns.  The two known
+# gaps below are soft-fail until fixed.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
+
+SOFT_FAIL_INCONCLUSIVE='    soft_fail:
+      - exit_status: 2'
+
+AARCH64_AGENTS='    agents:
+      provider: "aws"
+      instanceType: "m6g.2xlarge"
+      imagePrefix: "core-almalinux-8-aarch64"
+      diskSizeGb: "100"
+      diskName: "/dev/xvda"'
 
 # Emits a step that runs the check inside the given Docker image.
 image_step() {
@@ -23,7 +35,7 @@ image_step() {
   - label: "CA trust check: ${label}"
     key: "check_ca_trust_${key}"
     command: "${CHECK}"
-    soft_fail: true
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
     agents:
       image: "${image}"
@@ -44,27 +56,33 @@ image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-d
 image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6" 1000
 image_step python "python:3.11-bookworm image" "python:3.11-bookworm"
 
-# aarch64 builds run on an AlmaLinux 8 host (mitigated by post-checkout) and
-# tests in this image via "docker run", which runs unmitigated, so this reports
-# the image as-is.  (ml-check-style is not checked: no TLS use.)
+# aarch64 builds run on an AlmaLinux 8 host, which post-checkout mitigates.
 cat <<EOL
-  - label: "CA trust check: Linux aarch64 build host and native build image"
+  - label: "CA trust check: Linux aarch64 build host"
     key: "check_ca_trust_linux_aarch64"
+    command: "${CHECK}"
+${SOFT_FAIL_INCONCLUSIVE}
+    timeout_in_minutes: 10
+${AARCH64_AGENTS}
+EOL
+
+# The aarch64 tests run in this image via "docker run", unmitigated, so this
+# reports the image as-is.  A known, low-risk gap (it only runs unit tests), so
+# soft-fail for now.  (ml-check-style is not checked: no TLS use.)
+cat <<EOL
+  - label: "CA trust check: Linux aarch64 native build image (test container)"
+    key: "check_ca_trust_linux_aarch64_image"
     command:
-      - "${CHECK}"
       - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
       - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 bash /ci/steps/check_ca_trust.sh"
     soft_fail: true
     timeout_in_minutes: 15
-    agents:
-      provider: "aws"
-      instanceType: "m6g.2xlarge"
-      imagePrefix: "core-almalinux-8-aarch64"
-      diskSizeGb: "100"
-      diskName: "/dev/xvda"
+${AARCH64_AGENTS}
 EOL
 
 # macOS builds run natively on Orka VMs (same agent as build_macos.json.py).
+# Soft-fail for now: Homebrew's Python uses a CA bundle the runtime mitigation
+# doesn't touch, so the python3 probe fails until the Orka image is rebuilt.
 cat <<EOL
   - label: "CA trust check: macOS aarch64 agent"
     key: "check_ca_trust_macos_aarch64"
@@ -78,11 +96,11 @@ EOL
 
 # Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
 # Check only: Microsoft has already distrusted the CAs.
-cat <<'EOL'
+cat <<EOL
   - label: "CA trust check: Windows x86_64 agent"
     key: "check_ca_trust_windows_x86_64"
     command: '& .buildkite\scripts\steps\check_ca_trust.ps1'
-    soft_fail: true
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
     agents:
       provider: "gcp"
