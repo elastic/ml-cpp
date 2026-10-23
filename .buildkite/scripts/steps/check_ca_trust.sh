@@ -52,6 +52,9 @@ probe_with_curl() {
     esac
 }
 
+# The script exits 0 if the certificate is rejected, 10 if accepted and anything
+# else (including a crash) is inconclusive.  Python < 3.7 has no
+# ssl.SSLCertVerificationError, so match the message.
 probe_with_python() {
     python3 - "$1" <<'PYEOF'
 import socket, ssl, sys
@@ -60,13 +63,21 @@ try:
     with socket.create_connection((host, 443), timeout=30) as sock:
         with ssl.create_default_context().wrap_socket(sock, server_hostname=host):
             pass
-except ssl.SSLCertVerificationError:
-    sys.exit(0)
+except ssl.SSLError as e:
+    if "CERTIFICATE_VERIFY_FAILED" in str(e):
+        sys.exit(0)
+    print("    python error: %r" % (e,))
+    sys.exit(2)
 except Exception as e:
     print("    python error: %r" % (e,))
     sys.exit(2)
-sys.exit(1)
+sys.exit(10)
 PYEOF
+    case $? in
+        0)  return 0 ;;
+        10) return 1 ;;
+        *)  return 2 ;;
+    esac
 }
 
 echo "--- Probing for trust of the compromised eMudhra intermediates"
