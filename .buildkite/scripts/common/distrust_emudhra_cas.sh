@@ -43,6 +43,18 @@ if [ "$(uname -s)" = Darwin ]; then
     # error temporarily allow the trust-settings right, retry, then restore it.
     TRUST_RIGHT=com.apple.trust-settings.admin
     right_backup=""
+    # Restore the right on any exit or signal, so it can't be left open.
+    restore_right() {
+        [ -n "$right_backup" ] || return 0
+        if [ -s "$right_backup" ]; then
+            $SUDO security authorizationdb write "$TRUST_RIGHT" < "$right_backup" >/dev/null 2>&1
+        fi
+        rm -f "$right_backup"
+        right_backup=""
+    }
+    trap restore_right EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
     deny_trust() {
         $SUDO security add-trusted-cert -d -r deny -k /Library/Keychains/System.keychain "$1" 2>&1
     }
@@ -69,12 +81,7 @@ if [ "$(uname -s)" = Darwin ]; then
         fi
         rm -f "$pem"
     done
-    if [ -n "$right_backup" ]; then
-        if [ -s "$right_backup" ]; then
-            $SUDO security authorizationdb write "$TRUST_RIGHT" < "$right_backup" >/dev/null 2>&1
-        fi
-        rm -f "$right_backup"
-    fi
+    restore_right
 
     # The built-in /usr/bin/curl reads /etc/ssl/cert.pem, not the Keychain, so
     # drop the roots from it too (it is a series of "=== <subject>" blocks).
