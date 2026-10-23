@@ -14,7 +14,10 @@
 # by those CAs, so a fixed client rejects them: certificate error = PASS,
 # connection succeeds = FAIL, any other error = INCONCLUSIVE.
 #
-# Self-contained (curl, else python3) as it runs inside every CI image.
+# Self-contained, as it runs inside every CI image.  Probes with each of curl
+# and python3 found, as they can use different trust stores.  A tool that does
+# not accept an ordinary host (GitHub) is inconclusive, so a broken CA bundle
+# cannot look like a PASS.
 # Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only.
 
 set -u
@@ -67,24 +70,55 @@ PYEOF
 }
 
 echo "--- Probing for trust of the compromised eMudhra intermediates"
-if command -v curl >/dev/null 2>&1; then
-    probe=probe_with_curl
-elif command -v python3 >/dev/null 2>&1; then
-    probe=probe_with_python
-else
+CONTROL_HOST=github.com
+
+probe() {  # probe TOOL HOST
+    case "$1" in
+        curl) probe_with_curl "$2" ;;
+        python3) probe_with_python "$2" ;;
+    esac
+}
+
+tools=""
+command -v curl >/dev/null 2>&1 && tools="$tools curl"
+command -v python3 >/dev/null 2>&1 && tools="$tools python3"
+if [ -z "$tools" ]; then
     echo "Neither curl nor python3 is available: cannot run the check"
     exit 2
 fi
 
+usable=""
+unusable=""
+for tool in $tools; do
+    probe "$tool" "$CONTROL_HOST"
+    if [ $? -eq 1 ]; then
+        usable="$usable $tool"
+    else
+        unusable="$unusable $tool"
+        echo "    $tool does not accept $CONTROL_HOST, so it cannot vouch for the result"
+    fi
+done
+
 status=0
 for host in "${HOSTS[@]}"; do
-    $probe "$host"
-    case $? in
-        0) echo "PASS: $host rejected (compromised CA is not trusted)" ;;
-        1) echo "FAIL: $host ACCEPTED - this environment still trusts the compromised CAs"
-           status=1 ;;
-        *) echo "INCONCLUSIVE: $host (could not complete the check)"
-           [ $status -eq 0 ] && status=2 ;;
-    esac
+    accepted=""
+    incomplete="$unusable"
+    for tool in $usable; do
+        probe "$tool" "$host"
+        case $? in
+            0) ;;
+            1) accepted="$accepted $tool" ;;
+            *) incomplete=yes ;;
+        esac
+    done
+    if [ -n "$accepted" ]; then
+        echo "FAIL: $host ACCEPTED by${accepted} - this environment still trusts the compromised CAs"
+        status=1
+    elif [ -n "$incomplete" ]; then
+        echo "INCONCLUSIVE: $host (could not complete the check)"
+        [ $status -eq 0 ] && status=2
+    else
+        echo "PASS: $host rejected by${usable} (compromised CA is not trusted)"
+    fi
 done
 exit $status
