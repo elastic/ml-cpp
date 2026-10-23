@@ -13,8 +13,8 @@
 # whether they trust the compromised eMudhra CAs (InfoSec incident "Intrepid
 # Falcon").  The steps run after the post-checkout mitigation, so PASS means
 # it took effect.  Exit 1 (a store still trusts them) fails the build; exit 2
-# (inconclusive, e.g. the test site is unreachable) only warns.  The two known
-# gaps below are soft-fail until fixed.
+# (inconclusive, e.g. the test site is unreachable) only warns.  The aarch64
+# test container, a known gap, is soft-fail until fixed.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
 
@@ -81,13 +81,11 @@ ${AARCH64_AGENTS}
 EOL
 
 # macOS builds run natively on Orka VMs (same agent as build_macos.json.py).
-# Soft-fail for now: Homebrew's Python uses a CA bundle the runtime mitigation
-# doesn't touch, so the python3 probe fails until the Orka image is rebuilt.
 cat <<EOL
   - label: "CA trust check: macOS aarch64 agent"
     key: "check_ca_trust_macos_aarch64"
     command: "${CHECK}"
-    soft_fail: true
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
     agents:
       provider: "orka"
