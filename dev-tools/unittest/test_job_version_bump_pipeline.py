@@ -22,7 +22,9 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _PIPELINE_PHASE1 = _REPO_ROOT / ".buildkite" / "job-version-bump.json.py"
 _PIPELINE_PHASE2 = _REPO_ROOT / ".buildkite" / "job-version-bump-phase2.json.py"
-_PIPELINE_PHASE2_MINOR = _REPO_ROOT / ".buildkite" / "job-version-bump-phase2-minor.json.py"
+_PIPELINE_PHASE2_MINOR = (
+    _REPO_ROOT / ".buildkite" / "job-version-bump-phase2-minor.json.py"
+)
 
 
 def _run_phase1(extra_env: dict[str, str] | None = None) -> dict:
@@ -42,6 +44,7 @@ def _run_phase1(extra_env: dict[str, str] | None = None) -> dict:
 def _run_phase2_minor(extra_env: dict[str, str] | None = None) -> dict:
     env = os.environ.copy()
     env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    env.setdefault("NEW_VERSION", "9.6.0")
     if extra_env:
         env.update(extra_env)
     out = subprocess.check_output(
@@ -56,6 +59,7 @@ def _run_phase2_minor(extra_env: dict[str, str] | None = None) -> dict:
 def _run_phase2(extra_env: dict[str, str] | None = None) -> dict:
     env = os.environ.copy()
     env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    env.setdefault("NEW_VERSION", "9.5.4")
     if extra_env:
         env.update(extra_env)
     out = subprocess.check_output(
@@ -65,6 +69,47 @@ def _run_phase2(extra_env: dict[str, str] | None = None) -> dict:
         text=True,
     )
     return json.loads(out)
+
+
+def _run_phase2_raw(
+    extra_env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess:
+    """Like _run_phase2, but for asserting on a failing run.
+
+    _run_phase2 uses check_output, which raises on a non-zero exit instead of
+    letting the test inspect it. Used to verify the NEW_VERSION fail-fast guard
+    actually fails loudly rather than silently uploading plugins.version="".
+    """
+    env = os.environ.copy()
+    env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    env.pop("NEW_VERSION", None)
+    if extra_env:
+        env.update(extra_env)
+    return subprocess.run(
+        [sys.executable, str(_PIPELINE_PHASE2)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _run_phase2_minor_raw(
+    extra_env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess:
+    """_run_phase2_minor's counterpart to _run_phase2_raw, see its docstring."""
+    env = os.environ.copy()
+    env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    env.pop("NEW_VERSION", None)
+    if extra_env:
+        env.update(extra_env)
+    return subprocess.run(
+        [sys.executable, str(_PIPELINE_PHASE2_MINOR)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+    )
 
 
 def _step_by_key(pipeline: dict, key: str) -> dict:
@@ -98,7 +143,9 @@ def test_phase1_schedule_uses_wolfi_image_like_validate() -> None:
     """Schedule step needs buildkite-agent for meta-data and pipeline upload."""
     pipeline = _run_phase1()
     validate_img = _step_by_key(pipeline, "validate-version-bump")["agents"]["image"]
-    sched_img = _step_by_key(pipeline, "schedule-version-bump-follow-up")["agents"]["image"]
+    sched_img = _step_by_key(pipeline, "schedule-version-bump-follow-up")["agents"][
+        "image"
+    ]
     assert sched_img == validate_img
     assert "wolfi" in sched_img
 
@@ -115,12 +162,46 @@ def test_phase2_bump_respects_merge_auto_override_false() -> None:
     assert bump["env"]["VERSION_BUMP_MERGE_AUTO"] == "false"
 
 
-def test_phase2_dra_uses_wait_script_not_meta_in_if() -> None:
-    pipeline = _run_phase2()
+def test_phase2_dra_uses_version_bump_dra_plugin() -> None:
+    pipeline = _run_phase2({"NEW_VERSION": "9.5.4", "WORKFLOW": "patch"})
     dra = _step_by_key(pipeline, "fetch-dra-artifacts")
     assert "if" not in dra
-    assert "plugins" not in dra
-    assert dra["command"] == ["python3 dev-tools/wait_version_bump_dra.py"]
+    assert "command" not in dra
+    config = dra["plugins"][0]["elastic/version-bump-dra#v1.0.0"]
+    assert config == {"product": "ml-cpp", "version": "9.5.4", "workflow": "patch"}
+
+
+def test_phase2_dra_skipped_for_sandbox_branch() -> None:
+    pipeline = _run_phase2({"BRANCH": "testing-9.5", "NEW_VERSION": "9.5.4"})
+    keys = [s.get("key") for s in pipeline["steps"]]
+    assert "fetch-dra-artifacts" not in keys
+
+
+def test_phase2_dra_sandbox_skip_logs_reason() -> None:
+    """The step vanishing silently would look like a broken pipeline; it must explain itself."""
+    env = os.environ.copy()
+    env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    env["BRANCH"] = "testing-9.5"
+    env["NEW_VERSION"] = "9.5.4"
+    proc = subprocess.run(
+        [sys.executable, str(_PIPELINE_PHASE2)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0
+    assert (
+        "Sandbox release branch 'testing-9.5' — not scheduling the Fetch DRA "
+        "artifact step" in proc.stderr
+    )
+
+
+def test_phase2_fails_fast_when_new_version_unset() -> None:
+    """Generation must fail loudly rather than upload a plugin config with version=''."""
+    proc = _run_phase2_raw()
+    assert proc.returncode != 0
+    assert "NEW_VERSION must be set" in proc.stderr
 
 
 def test_phase2_order_bump_then_slack_then_dra() -> None:
@@ -240,8 +321,42 @@ def test_phase2_minor_order_group_then_slack_then_dra() -> None:
     )
 
 
-def test_phase2_minor_dra_command_is_single_shell_line() -> None:
-    """Buildkite runs each command array element as a separate shell line."""
-    pipeline = _run_phase2_minor()
+def test_phase2_minor_dra_uses_version_bump_dra_plugin() -> None:
+    pipeline = _run_phase2_minor({"NEW_VERSION": "9.6.0"})
     dra = _step_by_key(pipeline, "fetch-dra-artifacts")
-    assert dra["command"] == ["python3 dev-tools/wait_version_bump_dra.py"]
+    config = dra["plugins"][0]["elastic/version-bump-dra#v1.0.0"]
+    assert config == {"product": "ml-cpp", "version": "9.6.0", "workflow": "minor"}
+
+
+def test_phase2_minor_dra_skipped_for_sandbox_branch() -> None:
+    pipeline = _run_phase2_minor({"BRANCH": "testing-9.5", "NEW_VERSION": "9.5.0"})
+    keys = [s.get("key") for s in pipeline["steps"]]
+    assert "fetch-dra-artifacts" not in keys
+
+
+def test_phase2_minor_dra_sandbox_skip_logs_reason() -> None:
+    """The step vanishing silently would look like a broken pipeline; it must explain itself."""
+    env = os.environ.copy()
+    env.pop("VERSION_BUMP_MERGE_AUTO", None)
+    env["BRANCH"] = "testing-9.5"
+    env["NEW_VERSION"] = "9.5.0"
+    proc = subprocess.run(
+        [sys.executable, str(_PIPELINE_PHASE2_MINOR)],
+        cwd=str(_REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0
+    assert (
+        "Sandbox release branch 'testing-9.5' — not scheduling the Fetch DRA "
+        "artifact step" in proc.stderr
+    )
+
+
+def test_phase2_minor_fails_fast_when_new_version_unset() -> None:
+    """Generation must fail loudly rather than upload a plugin config with version=''."""
+    proc = _run_phase2_minor_raw()
+    assert proc.returncode != 0
+    assert "NEW_VERSION must be set" in proc.stderr
+
