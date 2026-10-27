@@ -86,6 +86,7 @@ def main():
                     "image": WOLFI_IMAGE,
                     "cpu": "250m",
                     "memory": "512Mi",
+                    "ephemeralStorage": "1Gi",
                 },
                 "plugins": [
                     {

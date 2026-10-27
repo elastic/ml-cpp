@@ -92,7 +92,10 @@ def main():
                 "label": "Fetch DRA Artifacts",
                 "key": "fetch-dra-artifacts",
                 "depends_on": "queue-slack-notify",
-                "agents": dict(wolfi_agent),
+                "agents": {
+                    **wolfi_agent,
+                    "ephemeralStorage": "1Gi",
+                },
                 "plugins": [
                     {
                         "elastic/version-bump-dra#v1.0.0": {
