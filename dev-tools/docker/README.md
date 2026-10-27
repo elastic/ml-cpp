@@ -100,7 +100,7 @@ or 3rd party components required to build the machine learning C++ code:
 
 ## Repository: ml_cpp_linux_x86_64_jdk17
 
-### Latest version: 3
+### Latest version: 6
 
 ### Comments
 A Docker image that can be used to run a subset of the ES
@@ -110,6 +110,14 @@ This image is not intended to be built regularly. If changing the *Dockerfile* i
 
  1. Increment the version
  2. Build a new image
+
+Notes:
+
+ - A version 4 of this image was pushed to the registry in 2023 without the
+   version being recorded here. It was left untouched. Check the registry for the
+   next free tag before building a new version.
+ - Version 5 was Ubuntu 20.04 with the eMudhra roots distrusted at build time.
+ - Version 6 moved to Ubuntu 22.04, whose ca-certificates package carries the fix.
 
 ### Build script: dev-tools/docker/build_linux_jdk.sh
 
