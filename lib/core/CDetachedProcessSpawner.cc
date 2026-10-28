@@ -38,6 +38,11 @@ namespace {
 //! Maximum number of newly opened files between calls to setupFileActions().
 const int MAX_NEW_OPEN_FILES{10};
 
+//! Environment variable name (without '=') that must never be inherited by a
+//! child spawned by this class. See
+//! ml::core::detail::isStrippedChildEnvEntry().
+const char* SANDBOXEE_MARKER_ENV_NAME{"ML_SANDBOXED"};
+
 //! Attempt to close all file descriptors except the standard ones.  The
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process.  Returns false and sets errno if the actions cannot be initialised
@@ -85,6 +90,31 @@ bool setupFileActions(posix_spawn_file_actions_t* fileActions, int& maxFdHint) {
 namespace ml {
 namespace core {
 namespace detail {
+
+bool isStrippedChildEnvEntry(const char* entry) {
+    if (entry == nullptr) {
+        return false;
+    }
+    const std::size_t nameLength{::strlen(SANDBOXEE_MARKER_ENV_NAME)};
+    // Exact name match only: "ML_SANDBOXED=..." is stripped,
+    // "ML_SANDBOXED_FOO=..." (a different variable that merely shares the
+    // prefix) is not.
+    return ::strncmp(entry, SANDBOXEE_MARKER_ENV_NAME, nameLength) == 0 &&
+           entry[nameLength] == '=';
+}
+
+std::vector<char*> buildChildEnvironment(char** parentEnvironment) {
+    std::vector<char*> childEnvironment;
+    if (parentEnvironment != nullptr) {
+        for (char** entry = parentEnvironment; *entry != nullptr; ++entry) {
+            if (isStrippedChildEnvEntry(*entry) == false) {
+                childEnvironment.push_back(*entry);
+            }
+        }
+    }
+    childEnvironment.push_back(static_cast<char*>(nullptr));
+    return childEnvironment;
+}
 
 class CTrackerThread : public CThread {
 public:
@@ -287,6 +317,20 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     }
     ::posix_spawnattr_setflags(&spawnAttributes, POSIX_SPAWN_SETPGROUP);
 
+    // The child inherits this process's environment with ML_SANDBOXED
+    // removed. That variable is the Sandbox2 sandboxee marker
+    // (lib/sandbox/CSandboxedProcessSpawner_Linux.cc sets ML_SANDBOXED=1 on
+    // the children it launches) and pytorch_inference skips its mandatory
+    // in-process seccomp filter when it sees ML_SANDBOXED=1
+    // (include/seccomp/CSystemCallFilter.h sandbox2LaunchedChild()). A child
+    // spawned here is by definition *not* inside Sandbox2, so inheriting the
+    // marker - however it got into this process's own environment, e.g.
+    // injected by an orchestration layer - would fail open: the child would
+    // run untrusted model code with neither the executor policy nor its own
+    // filter. Stripping it here makes the legacy route's filter installation
+    // unconditional regardless of the spawning process's environment.
+    std::vector<char*> childEnvironment{detail::buildChildEnvironment(environ)};
+
     {
         // Hold the tracker thread mutex until the PID is added to the tracker
         // to avoid a race condition if the process is started but dies really
@@ -294,7 +338,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         CScopedLock lock(m_TrackerThread->mutex());
 
         int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions,
-                              &spawnAttributes, &argv[0], environ));
+                              &spawnAttributes, &argv[0], &childEnvironment[0]));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);

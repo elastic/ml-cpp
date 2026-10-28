@@ -1,0 +1,2 @@
+name,version,revision,url,license,copyright,sourceURL
+sandboxed-api,v20241008,9e07542a03fefa2cf982ba093b099805362df05d,https://developers.google.com/code-sandboxing/sandboxed-api,Apache License 2.0,,https://github.com/google/sandboxed-api

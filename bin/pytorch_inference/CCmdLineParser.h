@@ -53,7 +53,8 @@ public:
                       bool& validElasticLicenseKeyConfirmed,
                       bool& lowPriority,
                       bool& useImmediateExecutor,
-                      bool& skipModelValidation);
+                      bool& skipModelValidation,
+                      bool& restrictFilesystem);
 
 private:
     static const std::string DESCRIPTION;
