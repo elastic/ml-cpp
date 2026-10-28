@@ -120,19 +120,20 @@ status=0
 for host in "${HOSTS[@]}"; do
     accepted=""
     incomplete="$unusable"
+    results=""
     for tool in $usable; do
         probe "$tool" "$host"
         case $? in
-            0) ;;
-            1) accepted="$accepted $tool" ;;
-            *) incomplete=yes ;;
+            0) results="$results $tool:rejected" ;;
+            1) results="$results $tool:ACCEPTED"; accepted="$accepted $tool" ;;
+            *) results="$results $tool:inconclusive"; incomplete=yes ;;
         esac
     done
     if [ -n "$accepted" ]; then
         echo "FAIL: $host ACCEPTED by${accepted} - this environment still trusts the compromised CAs"
         status=1
     elif [ -n "$incomplete" ]; then
-        echo "INCONCLUSIVE: $host (could not complete the check)"
+        echo "INCONCLUSIVE: $host (could not complete the check;${results:- no usable tool})"
         [ $status -eq 0 ] && status=2
     else
         echo "PASS: $host rejected by${usable} (compromised CA is not trusted)"
