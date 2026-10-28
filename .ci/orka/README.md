@@ -40,7 +40,7 @@ The name of the resulting images are hard-coded (currently), and end in a sequen
 
 ## Source Images
 
-We make use of an image - `generic-14-sonoma-arm` (the Orka 3 definition also adds the passwordless `sudo` entry itself) - that is configured such that it:
+We make use of an image - `generic-14-sonoma-arm-001.orkasi` (the Orka 3 definition also adds the passwordless `sudo` entry itself) - that is configured such that it:
 
     * Adds passwordless `sudo` for the default `admin` user
     * Configures `the admin` user to be automatically logged in
