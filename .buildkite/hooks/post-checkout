@@ -97,6 +97,16 @@ vault_read_field_with_retry() {
 }
 
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
+  # Temporary mitigation for the eMudhra CA compromise ("Intrepid Falcon"):
+  # distrust the affected roots.  Must run before the Vault reads below.
+  bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
+
+  # pip < 24.2 uses a vendored CA bundle that ignores the OS store (and the
+  # mitigation above): point it at the OS bundle.
+  for bundle in /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem; do
+    if [ -s "$bundle" ]; then export PIP_CERT="${PIP_CERT:-$bundle}"; break; fi
+  done
+
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
 
   # Map the test step to its Buildkite Test Analytics suite token in Vault.
