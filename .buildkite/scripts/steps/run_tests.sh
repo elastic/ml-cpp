@@ -49,7 +49,7 @@ TEST_OUTCOME=0
 
 if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = Linux ]]; then
     # --- Linux aarch64: run tests inside Docker container from base image ---
-    BASE_IMAGE="docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
+    BASE_IMAGE="docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:18"
 
 . ./dev-tools/docker/prefetch_docker_image.sh
     prefetch_docker_image "$BASE_IMAGE"
