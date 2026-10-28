@@ -99,7 +99,8 @@ vault_read_field_with_retry() {
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Temporary mitigation for the eMudhra CA compromise ("Intrepid Falcon"):
   # distrust the affected roots.  Must run before the Vault reads below.
-  bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
+  # TEMPORARY isolation test: skip on macOS to check the image alone is clean.
+  [ "$(uname -s)" = Darwin ] || bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
 
   # pip < 24.2 uses a vendored CA bundle that ignores the OS store (and the
   # mitigation above): point it at the OS bundle.
