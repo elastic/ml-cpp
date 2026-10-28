@@ -27,11 +27,11 @@ struct SCheckedHandle {
 };
 }
 
-void CSystemCallFilter::installSystemCallFilter() {
+ESystemCallFilterInstallOutcome CSystemCallFilter::installSystemCallFilter() {
     HANDLE job = CreateJobObject(nullptr, nullptr);
     if (job == nullptr) {
         LOG_ERROR(<< "Failed to create Job Object: " << ml::core::CWindowsError());
-        return;
+        return ESystemCallFilterInstallOutcome::E_MechanismUnavailable;
     }
 
     // The job is not destroyed until the handle is closed
@@ -44,7 +44,7 @@ void CSystemCallFilter::installSystemCallFilter() {
     if (QueryInformationJobObject(job, JobObjectBasicLimitInformation, &limits,
                                   sizeof(limits), nullptr) == 0) {
         LOG_ERROR(<< "Error querying Job Object information: " << ml::core::CWindowsError());
-        return;
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     }
 
     // Limit the number of active processes to 1 and
@@ -54,16 +54,18 @@ void CSystemCallFilter::installSystemCallFilter() {
     if (SetInformationJobObject(job, JobObjectBasicLimitInformation, &limits,
                                 sizeof(limits)) == 0) {
         LOG_ERROR(<< "Error setting Job information: " << ml::core::CWindowsError());
-        return;
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     }
 
     // Assign current process to the job
     if (AssignProcessToJobObject(job, GetCurrentProcess()) == 0) {
         LOG_ERROR(<< "Error assigning process to Job Object: " << ml::core::CWindowsError());
-        return;
+        return ESystemCallFilterInstallOutcome::E_FilterInstallFailed;
     }
 
     LOG_DEBUG(<< "ActiveProcessLimit set to 1 for new Job Object");
+    LOG_INFO(<< "ml.seccomp.installed");
+    return ESystemCallFilterInstallOutcome::E_Installed;
 }
 }
 }

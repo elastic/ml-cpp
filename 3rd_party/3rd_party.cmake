@@ -170,6 +170,21 @@ function(install_libs _target _source_dir _prefix _postfix)
   message(STATUS "_target=${_target} _source_dir=${_source_dir} _prefix=${_prefix} _postfix=${_postfix} LIBRARIES=${LIBRARIES}")
 
 
+  # Each requested library must be found in its own right. A coarse
+  # "did the source directory contain anything matching *${_prefix}*${_postfix}?"
+  # guard is not enough: an unrelated library that happens to share the prefix
+  # and suffix (e.g. libmkl_scalapack_lp64.so.2 when every library actually
+  # requested has moved to .so.3) satisfies it, and every individual library is
+  # then skipped silently. That ships a distribution whose binaries cannot
+  # resolve their NEEDED libraries, and the only symptom is the dynamic loader
+  # killing the process with exit code 127 before it can log anything.
+  foreach(LIBRARY ${LIBRARIES})
+    file(GLOB _CHECK_LIBS ${_source_dir}/*${_prefix}${LIBRARY}*${_postfix})
+    if(NOT _CHECK_LIBS)
+      message(FATAL_ERROR "${_target}: no library matching '${_prefix}${LIBRARY}*${_postfix}' found in ${_source_dir}")
+    endif()
+  endforeach()
+
   file(GLOB _LIBS ${_source_dir}/*${_prefix}*${_postfix})
 
   if(_LIBS)
@@ -224,22 +239,47 @@ install_libs("zlib" ${ZLIB_LOCATION} "" "${ZLIB_EXTENSION}" "zlib")
 install_libs("Torch libraries" ${TORCH_LOCATION} "" "${TORCH_EXTENSION}" "${TORCH_LIBRARIES}")
 install_libs("Intel MKL libraries" ${MKL_LOCATION} "${MKL_PREFIX}" "${MKL_EXTENSION}" "${MKL_LIBRARIES}")
 
-# On Linux, replace the RPATH for 3rd party libraries that already have one.
+# On Linux, set the RPATH of every bundled 3rd party library to $ORIGIN.
 # (Only Linux targets will have a location for the gcc runtime library.)
+#
+# These libraries are all installed flat into the same directory, so $ORIGIN lets
+# each one find its siblings at runtime. This must be done unconditionally rather
+# than only for libraries that already declare an RPATH: some prebuilt libraries
+# (notably Boost, depending on how it was built) ship with no RPATH at all, and
+# because DT_RUNPATH is not inherited transitively, a library with a sibling
+# dependency (e.g. libboost_log -> libboost_atomic) fails to load at runtime even
+# though the dependency sits right beside it. The native controller has its
+# environment cleared by Elasticsearch's Spawner, so RPATH is the sole resolution
+# mechanism - there is no LD_LIBRARY_PATH fallback.
+#
+# The one exception is Intel MKL, which must be left exactly as Intel ships it.
+# Rewriting its RPATH makes pytorch_inference die with SIGSEGV during the first
+# inference of real models (ELSER, E5) on hosts with glibc 2.34 (Amazon Linux
+# 2023, the ES integration test agents), while tiny test models and newer glibc
+# versions are unaffected. The libraries also do not need it: libmkl_core,
+# libmkl_intel_lp64 and libmkl_gnu_thread are NEEDED by libtorch_cpu, which already
+# has an $ORIGIN RPATH, and the CPU-specific kernels MKL dlopen()s later only NEED
+# libmkl_core, which is resolved by SONAME because it is already loaded.
 if (GCC_RT_LOCATION)
   execute_process(COMMAND find . -type f COMMAND egrep -v "^core|-debug$|libMl" COMMAND xargs COMMAND sed -e "s/ /;/g" OUTPUT_VARIABLE FOUND_LIBRARIES WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
   foreach(LIBRARY ${FOUND_LIBRARIES})
-    execute_process(COMMAND patchelf --print-rpath ${LIBRARY} COMMAND grep lib OUTPUT_VARIABLE RPATH_VAR ERROR_VARIABLE RPATH_ERR WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(RPATH_VAR)
-      message(STATUS "Attempting to overwrite existing RPATH ${RPATH_VAR} in ${LIBRARY}")
-      execute_process(COMMAND patchelf --force-rpath --set-rpath "$ORIGIN" ${LIBRARY} OUTPUT_VARIABLE SET_RPATH_OUT ERROR_VARIABLE SET_RPATH_ERR WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
+    get_filename_component(LIBRARY_NAME ${LIBRARY} NAME)
+    if(LIBRARY_NAME MATCHES "^libmkl_")
+      message(STATUS "Leaving RPATH of Intel MKL library ${LIBRARY} unchanged")
+      continue()
+    endif()
+    # Only ELF objects can carry an RPATH. patchelf --print-rpath exits non-zero
+    # on anything else, so use it to skip non-ELF files without failing the build.
+    execute_process(COMMAND patchelf --print-rpath ${LIBRARY} RESULT_VARIABLE IS_ELF_RESULT OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${INSTALL_DIR}")
+    if(IS_ELF_RESULT EQUAL 0)
+      execute_process(COMMAND patchelf --force-rpath --set-rpath "$ORIGIN" ${LIBRARY} ERROR_VARIABLE SET_RPATH_ERR WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
       if(SET_RPATH_ERR)
         message(FATAL_ERROR "Error setting RPATH in ${LIBRARY}: ${SET_RPATH_ERR}")
       else()
-        message(STATUS "Set RPATH in ${LIBRARY}")
+        message(STATUS "Set RPATH to $ORIGIN in ${LIBRARY}")
       endif()
     else()
-      message(STATUS "Did not set RPATH in ${LIBRARY}")
+      message(STATUS "Skipping non-ELF file ${LIBRARY}")
     endif()
   endforeach()
 endif()

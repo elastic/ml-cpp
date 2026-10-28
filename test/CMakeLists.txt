@@ -17,6 +17,7 @@ ml_add_test(lib/model/unittest model)
 ml_add_test(lib/api/unittest api)
 ml_add_test(lib/ver/unittest ver)
 ml_add_test(lib/seccomp/unittest seccomp)
+ml_add_test(lib/sandbox/unittest sandbox)
 ml_add_test(bin/controller/unittest controller)
 ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
 

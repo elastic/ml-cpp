@@ -49,12 +49,21 @@ TEST_OUTCOME=0
 
 if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = Linux ]]; then
     # --- Linux aarch64: run tests inside Docker container from base image ---
+    # aarch64 Buildkite k8s pods are the only runners here with userns
+    # capability (mount("proc", ...) succeeds), so this is the only branch
+    # that can exercise ML_SANDBOX2_REQUIRE=enforced - and it runs only that
+    # mode: aarch64 is pinned to enforced, x86_64 stays fail-closed. A
+    # second fail_closed pass on this same host/kernel would assert the
+    # absence of the very userns capability the enforced pass just proved
+    # present, so exactly one of the two could ever pass.
+    export ML_SANDBOX2_REQUIRE=enforced
+
     BASE_IMAGE="docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
 
 . ./dev-tools/docker/prefetch_docker_image.sh
     prefetch_docker_image "$BASE_IMAGE"
 
-    echo "--- Running tests (Docker)"
+    echo "--- Running tests (Docker, ML_SANDBOX2_REQUIRE=${ML_SANDBOX2_REQUIRE})"
     docker run --rm \
         -v "$(pwd)/${BUILD_DIR}:/ml-cpp/${BUILD_DIR}" \
         -v "$(pwd)/build:/ml-cpp/build" \
@@ -64,6 +73,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
         -v "$(pwd)/set_env.sh:/ml-cpp/set_env.sh:ro" \
         -v "$(pwd)/gradle.properties:/ml-cpp/gradle.properties:ro" \
         -e BOOST_TEST_OUTPUT_FORMAT_FLAGS="${BOOST_TEST_OUTPUT_FORMAT_FLAGS:-}" \
+        -e ML_SANDBOX2_REQUIRE="${ML_SANDBOX2_REQUIRE}" \
         ${TEST_TIMEOUT:+-e TEST_TIMEOUT="${TEST_TIMEOUT}"} \
         -w /ml-cpp \
         $BASE_IMAGE bash -c '
@@ -87,6 +97,15 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "${CPP_CROSS_COMPILE:-}" && "$(uname)" = 
 
 else
     # --- Linux x86_64 / macOS: run tests directly ---
+    # x86_64 Buildkite k8s pods get EPERM on mount("proc", ...) - there is no
+    # userns-capable x86_64 CI runner today, so this is an accepted gap in
+    # enforced-mode coverage on that architecture. Only fail_closed runs
+    # here; do not add an enforced pass to this branch. This
+    # also covers aarch64 cross-compile builds, which fall through to this
+    # same branch via the "-z ${CPP_CROSS_COMPILE:-}" condition above, so
+    # they get fail_closed coverage too rather than being skipped entirely.
+    export ML_SANDBOX2_REQUIRE=fail_closed
+
     . ./set_env.sh
 
     find ${BUILD_DIR}/test -name "ml_test_*" -type f -exec chmod +x {} \;
@@ -101,7 +120,7 @@ else
         export DYLD_LIBRARY_PATH="${LIB_DIRS}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
     fi
 
-    echo "--- Running tests"
+    echo "--- Running tests (ML_SANDBOX2_REQUIRE=${ML_SANDBOX2_REQUIRE})"
     cmake \
         -DSOURCE_DIR="$(pwd)" \
         -DBUILD_DIR="$(pwd)/${BUILD_DIR}" \
