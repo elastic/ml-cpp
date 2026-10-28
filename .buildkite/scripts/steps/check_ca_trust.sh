@@ -91,6 +91,11 @@ probe() {  # probe TOOL HOST
     esac
 }
 
+# python.org's Python on macOS has no CA bundle of its own: use the system one.
+if [ "$(uname)" = Darwin ] && [ -r /etc/ssl/cert.pem ]; then
+    export SSL_CERT_FILE=/etc/ssl/cert.pem
+fi
+
 tools=""
 command -v curl >/dev/null 2>&1 && tools="$tools curl"
 command -v python3 >/dev/null 2>&1 && tools="$tools python3"
