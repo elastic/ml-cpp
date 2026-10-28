@@ -69,6 +69,16 @@ function Test-HostTrust([string]$HostName) {
 }
 
 Write-Output "--- Probing for trust of the compromised eMudhra intermediates"
+
+# The control host must be accepted (Probe reports that as "FAIL"), otherwise
+# validation is not working here and a rejection proves nothing.
+$ControlHost = "github.com"
+$c = Test-HostTrust $ControlHost
+if ($c.Result -ne "FAIL") {
+    Write-Output "INCONCLUSIVE: control host $ControlHost was not accepted, so this environment cannot vouch for the result [$($c.Detail)]"
+    exit 2
+}
+
 $status = 0
 foreach ($h in $Hosts) {
     $r = Test-HostTrust $h
