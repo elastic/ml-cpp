@@ -8,21 +8,21 @@ packer {
 }
 
 locals {
-  orka_endpoint = vault("secret/security-sre-team/ci/orka3", "orka_endpoint")
-  orka_auth_token = vault("secret/security-sre-team/ci/orka3", "packer_service_account_token")
-  ssh_username = vault("secret/security-sre-team/ci/orka", "ssh_username")
-  ssh_password = vault("secret/security-sre-team/ci/orka", "ssh_password")
+  orka_endpoint   = vault("secret/ci/elastic-ml-cpp/orka3", "orka_endpoint")
+  orka_auth_token = vault("secret/ci/elastic-ml-cpp/orka3", "packer_service_account_token")
+  ssh_username    = vault("secret/ci/elastic-ml-cpp/orka3", "ssh_username")
+  ssh_password    = vault("secret/ci/elastic-ml-cpp/orka3", "ssh_password")
 }
 
 source "macstadium-orka" "image" {
-  source_image     = "generic-14-sonoma-arm"
-  image_name       = "ml-macos-14-arm-004"
-  orka_endpoint    = local.orka_endpoint
-  orka_auth_token  = local.orka_auth_token
-  ssh_username     = local.ssh_username
-  ssh_password     = local.ssh_password
-  orka_vm_cpu_core = 4
-  no_delete_vm     = false
+  source_image      = "generic-14-sonoma-arm-001.orkasi"
+  image_name        = "ml-macos-14-arm-004.orkasi"
+  orka_endpoint     = local.orka_endpoint
+  orka_auth_token   = local.orka_auth_token
+  ssh_username      = local.ssh_username
+  ssh_password      = local.ssh_password
+  orka_vm_cpu_core  = 4
+  no_delete_vm      = false
   image_description = "macOS 14 Sonoma image for ML CI testing"
 }
 
@@ -38,23 +38,23 @@ build {
     ]
   }
   provisioner "file" {
-    source = "distrust_emudhra_cas.sh"
+    source      = "distrust_emudhra_cas.sh"
     destination = "/tmp/distrust_emudhra_cas.sh"
   }
   provisioner "file" {
-    source = "install.sh"
+    source      = "install.sh"
     destination = "/tmp/install.sh"
   }
   provisioner "file" {
-    source = "third_party_deps.sh"
+    source      = "third_party_deps.sh"
     destination = "/tmp/third_party_deps.sh"
   }
   provisioner "file" {
-    source = "gobld-bootstrap.sh"
+    source      = "gobld-bootstrap.sh"
     destination = "/tmp/gobld-bootstrap.sh"
   }
   provisioner "file" {
-    source = "gobld-bootstrap.plist"
+    source      = "gobld-bootstrap.plist"
     destination = "/tmp/gobld-bootstrap.plist"
   }
   # Distrust the compromised eMudhra roots before anything is downloaded.
