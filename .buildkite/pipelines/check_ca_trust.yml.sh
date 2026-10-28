@@ -89,7 +89,7 @@ ${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
     agents:
       provider: "orka"
-      image: "ml-macos-14-arm-003.orkasi"
+      image: "ml-macos-14-arm-004.orkasi"
 EOL
 
 # Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
