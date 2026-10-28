@@ -206,3 +206,8 @@ RUN \
   dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \
   dnf clean all && \
   rm -rf /var/cache/dnf /tmp/*
+
+# Fail the build if the compromised eMudhra roots are still trusted.
+RUN anchors=$(trust list --filter=ca-anchors) && \
+  [ "$(echo "$anchors" | grep -c '^pkcs11:')" -gt 50 ] && \
+  ! echo "$anchors" | grep -q -E 'label: (Comodo AAA Services root|AAA Certificate Services|emSign ECC Root CA - G3)$'
