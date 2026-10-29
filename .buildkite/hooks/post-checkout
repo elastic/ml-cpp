@@ -99,7 +99,12 @@ vault_read_field_with_retry() {
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Temporary mitigation for the eMudhra CA compromise ("Intrepid Falcon"):
   # distrust the affected roots.  Must run before the Vault reads below.
-  bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
+  # EMUDHRA_SKIP_MITIGATION=true lets the image checks report an image as-is.
+  if [ "${EMUDHRA_SKIP_MITIGATION:-}" = true ]; then
+    echo "eMudhra mitigation skipped (EMUDHRA_SKIP_MITIGATION=true)"
+  else
+    bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
+  fi
 
   # pip < 24.2 and requests/huggingface_hub (certifi) ignore the OS store (and
   # the mitigation above): point them at the OS bundle.
