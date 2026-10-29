@@ -337,6 +337,15 @@ def test_phase2_minor_dra_skipped_for_sandbox_branch() -> None:
     assert "fetch-dra-artifacts" not in keys
 
 
+def test_phase2_minor_dra_skipped_for_dry_run() -> None:
+    """bump_main_minor_freeze.sh never opens a real PR on a DRY_RUN so there is
+    nothing for the plugin to wait on; scheduling it anyway would poll real
+    production DRA manifests for a dry run."""
+    pipeline = _run_phase2_minor({"DRY_RUN": "true", "NEW_VERSION": "9.5.0"})
+    keys = [s.get("key") for s in pipeline["steps"]]
+    assert "fetch-dra-artifacts" not in keys
+
+
 def test_phase2_minor_dra_sandbox_skip_logs_reason() -> None:
     """The step vanishing silently would look like a broken pipeline; it must explain itself."""
     env = os.environ.copy()

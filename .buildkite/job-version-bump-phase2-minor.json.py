@@ -86,6 +86,11 @@ def main():
             "step (no real pipeline run will publish artifacts for it).",
             file=sys.stderr,
         )
+    elif os.environ.get("DRY_RUN") == "true":
+        print(
+            "DRY_RUN=true — not scheduling the Fetch DRA artifact step.",
+            file=sys.stderr,
+        )
     else:
         pipeline_steps.append(
             {
