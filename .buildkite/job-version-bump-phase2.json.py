@@ -77,31 +77,24 @@ def main():
             file=sys.stderr,
         )
     else:
+        # bump_version.sh only knows ml_cpp_version_bump_changed after it runs,
+        # which happens after this upload — so the decision to schedule the
+        # actual DRA-wait step is made at runtime by that script, not here.
         pipeline_steps.append(
             {
-                "label": "Fetch DRA Artifacts",
-                "key": "fetch-dra-artifacts",
+                "label": "Check if DRA wait is needed",
+                "key": "maybe-schedule-dra-wait",
                 "depends_on": "queue-slack-notify",
                 "agents": {
+                    # Same reasoning as queue-slack-notify above: needs
+                    # buildkite-agent for meta-data get / pipeline upload.
                     "image": WOLFI_IMAGE,
                     "cpu": "250m",
                     "memory": "512Mi",
-                    "ephemeralStorage": "1Gi",
                 },
-                "plugins": [
-                    {
-                        "elastic/version-bump-dra#v1.0.0": {
-                            "product": "ml-cpp",
-                            "version": new_version,
-                            "workflow": os.environ.get("WORKFLOW", "patch"),
-                        }
-                    }
+                "command": [
+                    "dev-tools/maybe_schedule_dra_wait.sh",
                 ],
-                "timeout_in_minutes": 480,
-                "retry": {
-                    "automatic": [{"exit_status": "*", "limit": 2}],
-                    "manual": {"permit_on_passed": True},
-                },
             }
         )
 
