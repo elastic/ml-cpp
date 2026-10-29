@@ -180,6 +180,15 @@ def test_phase2_dra_skipped_for_sandbox_branch() -> None:
     assert "fetch-dra-artifacts" not in keys
 
 
+def test_phase2_dra_skipped_for_dry_run() -> None:
+    """A direct/local generator run under DRY_RUN should omit the check step
+    itself, not just rely on maybe_schedule_dra_wait.sh exiting early at
+    runtime — see test_maybe_schedule_dra_wait.py for that script's own test."""
+    pipeline = _run_phase2({"DRY_RUN": "true", "NEW_VERSION": "9.5.4"})
+    keys = [s.get("key") for s in pipeline["steps"]]
+    assert "maybe-schedule-dra-wait" not in keys
+
+
 def test_phase2_dra_sandbox_skip_logs_reason() -> None:
     """The step vanishing silently would look like a broken pipeline; it must explain itself."""
     env = os.environ.copy()

@@ -76,6 +76,11 @@ def main():
             "step (no real pipeline run will publish artifacts for it).",
             file=sys.stderr,
         )
+    elif os.environ.get("DRY_RUN") == "true":
+        print(
+            "DRY_RUN=true — not scheduling the Check if DRA wait is needed step.",
+            file=sys.stderr,
+        )
     else:
         # bump_version.sh only knows ml_cpp_version_bump_changed after it runs,
         # which happens after this upload — so the decision to schedule the
