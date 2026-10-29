@@ -21,6 +21,9 @@
 set -u
 
 ROOT_LABELS=("Comodo AAA Services root" "emSign ECC Root CA - G3")
+# SHA-256 of the two roots' DER (lowercase hex).
+ROOT_SHA256=(d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4
+             86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b)
 ROOT_FILES=("Comodo_AAA_Services_root.crt" "emSign_ECC_Root_CA_-_G3.crt")
 
 case "$(uname -s)" in
@@ -117,17 +120,17 @@ elif [ -d /etc/pki/ca-trust/source ]; then
         DIR=/etc/pki/ca-trust/source/blacklist
     fi
     $SUDO mkdir -p "$DIR" || exit 0
-    for label in "${ROOT_LABELS[@]}"; do
-        out="$DIR/$(echo "$label" | tr ' ' '_').pem"
-        # Already blocklisted by an earlier run.
-        [ -s "$out" ] && continue
-        awk -v l="# $label" '$0==l{f=1;next} f&&/BEGIN CERT/{p=1} p{print} p&&/END CERT/{exit}' \
-            "$BUNDLE" 2>/dev/null | $SUDO tee "$out" >/dev/null
-        if ! grep -q "BEGIN CERT" "$out" 2>/dev/null; then
-            # Not in the bundle (already removed by an update).
-            $SUDO rm -f "$out"
-        fi
+    # Match by SHA-256 fingerprint, not the bundle's label comments.
+    tmp=$(mktemp -d)
+    awk -v d="$tmp" '/BEGIN CERT/{n++; p=1} p{print > d"/c" n ".pem"} /END CERT/{p=0}' "$BUNDLE" 2>/dev/null
+    for pem in "$tmp"/c*.pem; do
+        [ -e "$pem" ] || continue
+        fp=$(awk '/BEGIN CERT/{p=1;next} /END CERT/{exit} p' "$pem" | base64 -d 2>/dev/null | sha256sum | cut -d' ' -f1)
+        case " ${ROOT_SHA256[*]} " in
+            *" $fp "*) $SUDO cp "$pem" "$DIR/emudhra-${fp:0:12}.pem" ;;
+        esac
     done
+    rm -rf "$tmp"
     $SUDO update-ca-trust extract && echo "distrust_emudhra_cas: RHEL-family CA store updated"
 elif [ -f /etc/ca-certificates.conf ]; then
     # Debian, Ubuntu, Alpine: a leading "!" disables an entry.
