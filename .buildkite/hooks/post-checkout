@@ -101,10 +101,15 @@ if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # distrust the affected roots.  Must run before the Vault reads below.
   bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
 
-  # pip < 24.2 uses a vendored CA bundle that ignores the OS store (and the
-  # mitigation above): point it at the OS bundle.
+  # pip < 24.2 and requests/huggingface_hub (certifi) ignore the OS store (and
+  # the mitigation above): point them at the OS bundle.
   for bundle in /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem; do
-    if [ -s "$bundle" ]; then export PIP_CERT="${PIP_CERT:-$bundle}"; break; fi
+    if [ -s "$bundle" ]; then
+      export PIP_CERT="${PIP_CERT:-$bundle}"
+      export REQUESTS_CA_BUNDLE="${REQUESTS_CA_BUNDLE:-$bundle}"
+      export SSL_CERT_FILE="${SSL_CERT_FILE:-$bundle}"
+      break
+    fi
   done
 
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
