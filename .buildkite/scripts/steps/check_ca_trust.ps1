@@ -10,7 +10,9 @@
 # Windows counterpart of check_ca_trust.sh (see there): validation errors =
 # PASS, validation succeeds = FAIL, connection error = INCONCLUSIVE.  Uses .NET
 # SslStream (Schannel on Windows) so the result reflects the OS trust store.
-# Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only.
+# Also checks the JDK's own cacerts (what Gradle uses; Schannel cannot see it).
+# Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only, 3 = only the
+# JDK's cacerts trusts them (soft-failed until the image's JDK is updated).
 
 param(
     [string[]]$Hosts = @("dv-g3b-emudhra.we-have-a-problem.com", "dv-g3b-aaa-emudhra.we-have-a-problem.com")
@@ -68,6 +70,52 @@ function Test-HostTrust([string]$HostName) {
     return @{ Result = $parts[0]; Detail = $parts[1] }
 }
 
+# SHA-256 of the two roots, as keytool prints them.
+$BadFingerprints = @(
+    "D7:A7:A0:FB:5D:7E:27:31:D7:71:E9:48:4E:BC:DE:F7:1D:5F:0C:3E:0A:29:48:78:2B:C8:3E:E0:EA:69:9E:F4",
+    "86:A1:EC:BA:08:9C:4A:8D:3B:BE:27:34:C6:12:BA:34:1D:81:3E:04:3C:F9:E8:A8:62:CD:5C:57:A3:6B:BE:6B"
+)
+
+# The JDK Gradle would use (JAVA_HOME, else PATH): "PASS", "FAIL" or "INCONCLUSIVE".
+function Test-JavaTrust {
+    $keytool = $null
+    if ($env:JAVA_HOME -and (Test-Path (Join-Path $env:JAVA_HOME "bin\keytool.exe"))) {
+        $keytool = Join-Path $env:JAVA_HOME "bin\keytool.exe"
+    } else {
+        $cmd = Get-Command keytool -ErrorAction SilentlyContinue
+        if ($cmd) { $keytool = $cmd.Source }
+    }
+    if (-not $keytool) {
+        return @{ Result = "INCONCLUSIVE"; Detail = "keytool not found (JAVA_HOME unset, not on PATH)" }
+    }
+    $ErrorActionPreference = "Continue"   # keytool writes warnings to stderr
+    $out = & $keytool -list -v -cacerts -storepass changeit 2>&1 | ForEach-Object { "$_" }
+    if ($LASTEXITCODE -ne 0) {
+        return @{ Result = "INCONCLUSIVE"; Detail = "keytool failed: $($out | Select-Object -First 1)" }
+    }
+    $fps = @($out | ForEach-Object { if ($_ -match "SHA256:\s*([0-9A-F:]+)") { $Matches[1] } })
+    if ($fps.Count -lt 50) {
+        return @{ Result = "INCONCLUSIVE"; Detail = "only $($fps.Count) certificates listed by $keytool" }
+    }
+    $found = @($fps | Where-Object { $BadFingerprints -contains $_ })
+    if ($found.Count -gt 0) {
+        return @{ Result = "FAIL"; Detail = "$keytool lists $($found.Count) of the roots" }
+    }
+    return @{ Result = "PASS"; Detail = "$keytool, $($fps.Count) certificates" }
+}
+
+Write-Output "--- Probing the JDK's cacerts"
+$j = Test-JavaTrust
+$javaFailed = $false
+switch ($j.Result) {
+    "PASS" { Write-Output "PASS: Java cacerts does not trust the compromised roots [$($j.Detail)]" }
+    "FAIL" {
+        Write-Output "FAIL: Java cacerts TRUSTS the compromised roots [$($j.Detail)] (known gap)"
+        $javaFailed = $true
+    }
+    default { Write-Output "INCONCLUSIVE: Java cacerts ($($j.Detail))" }
+}
+
 Write-Output "--- Probing for trust of the compromised eMudhra intermediates"
 
 # The control host must be accepted (Probe reports that as "FAIL"), otherwise
@@ -76,7 +124,7 @@ $ControlHost = "github.com"
 $c = Test-HostTrust $ControlHost
 if ($c.Result -ne "FAIL") {
     Write-Output "INCONCLUSIVE: control host $ControlHost was not accepted, so this environment cannot vouch for the result [$($c.Detail)]"
-    exit 2
+    exit $(if ($javaFailed) { 3 } else { 2 })
 }
 
 $status = 0
@@ -96,4 +144,5 @@ foreach ($h in $Hosts) {
         }
     }
 }
+if ($javaFailed -and $status -ne 1) { $status = 3 }
 exit $status

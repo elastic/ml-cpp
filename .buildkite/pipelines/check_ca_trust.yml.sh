@@ -101,12 +101,16 @@ ${SOFT_FAIL_INCONCLUSIVE}
 EOL
 
 # Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
-# Check only: Microsoft has already distrusted the CAs.
+# Check only: Microsoft has already distrusted the CAs.  Exit 3 (only the JDK's
+# cacerts trusts them) soft-fails too, as a known gap until the image's JDK is
+# updated.
 cat <<EOL
   - label: "CA trust check: Windows x86_64 agent"
     key: "check_ca_trust_windows_x86_64"
     command: '& .buildkite\scripts\steps\check_ca_trust.ps1'
-${SOFT_FAIL_INCONCLUSIVE}
+    soft_fail:
+      - exit_status: 2
+      - exit_status: 3
     timeout_in_minutes: 10
     agents:
       provider: "gcp"
