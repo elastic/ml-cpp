@@ -32,6 +32,11 @@ else
     cd "${ROOT}"
 fi
 
+if [[ "${DRY_RUN:-}" == "true" ]]; then
+    echo "DRY_RUN=true — not scheduling the DRA wait."
+    exit 0
+fi
+
 if ! command -v buildkite-agent >/dev/null 2>&1; then
     echo "ERROR: buildkite-agent not found; cannot check version-bump status." >&2
     exit 1

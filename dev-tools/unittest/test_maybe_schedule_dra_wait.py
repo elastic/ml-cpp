@@ -97,3 +97,13 @@ def test_skips_dra_wait_when_version_bump_changed_meta_data_missing(tmp_path: Pa
     assert proc.returncode == 0, proc.stderr + proc.stdout
     assert not upload_file.exists()
     assert "no PR opened; skipping DRA wait" in proc.stderr
+
+
+def test_skips_dra_wait_when_dry_run(tmp_path: Path) -> None:
+    """DRY_RUN must short-circuit before the meta-data check — bump_version.sh
+    simulates ml_cpp_version_bump_changed=true under DRY_RUN, which would
+    otherwise schedule a real poll against production DRA manifests."""
+    proc, upload_file = _run(tmp_path, "true", extra_env={"DRY_RUN": "true"})
+    assert proc.returncode == 0, proc.stderr + proc.stdout
+    assert not upload_file.exists()
+    assert "DRY_RUN=true" in proc.stdout
