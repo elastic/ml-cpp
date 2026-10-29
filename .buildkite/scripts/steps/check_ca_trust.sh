@@ -45,16 +45,20 @@ probe_with_curl() {
     rc=$?
     case $rc in
         0)  return 1 ;;
-        # 60: certificate rejected.  On curl >= 7.62 that includes a hostname
-        # mismatch, which we accept: the test hosts' certificates match their names.
-        # Other errors (e.g. 77: CA bundle unreadable) say nothing about trust.
-        60) return 0 ;;
+        # 60: certificate rejected: the chain, or (curl >= 7.62) the hostname.
+        # A hostname mismatch says nothing about the chain.  Other errors (e.g.
+        # 77: CA bundle unreadable, 51: hostname mismatch on curl < 7.62) are
+        # inconclusive.  (%{ssl_verify_result} is not usable: it is always 0 on NSS.)
+        60) if echo "$out" | grep -q -i -E "does not match|no alternative certificate subject name|hostname mismatch|WRONG_PRINCIPAL"; then
+                echo "    curl: hostname mismatch only: $out"; return 2
+            fi
+            return 0 ;;
         *)  echo "    curl exit $rc: $out"; return 2 ;;
     esac
 }
 
-# The script exits 0 if the certificate is rejected, 10 if accepted and anything
-# else (including a crash) is inconclusive.  Python < 3.7 has no
+# The script exits 0 if the chain is rejected, 10 if accepted and anything else
+# (including a crash or a hostname mismatch) is inconclusive.  Python < 3.7 has no
 # ssl.SSLCertVerificationError, so match the message.
 probe_with_python() {
     python3 - "$1" <<'PYEOF'
@@ -65,6 +69,10 @@ try:
         with ssl.create_default_context().wrap_socket(sock, server_hostname=host):
             pass
 except ssl.SSLError as e:
+    # verify_code 62: the hostname did not match, which says nothing about the chain.
+    if getattr(e, "verify_code", None) == 62 or "Hostname mismatch" in str(e):
+        print("    python: hostname mismatch only: %s" % (e,))
+        sys.exit(2)
     if "CERTIFICATE_VERIFY_FAILED" in str(e):
         sys.exit(0)
     print("    python error: %r" % (e,))

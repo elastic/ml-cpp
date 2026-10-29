@@ -60,6 +60,10 @@ public static class EmudhraTrustProbe {
             return "INCONCLUSIVE|" + ex.Message;
         }
         if (errors == SslPolicyErrors.None) { return "FAIL|"; }
+        // A hostname mismatch alone says nothing about the chain.
+        if (errors == SslPolicyErrors.RemoteCertificateNameMismatch) {
+            return "INCONCLUSIVE|hostname mismatch only";
+        }
         return "PASS|" + errors + "; chain: " + chainStatus;
     }
 }
