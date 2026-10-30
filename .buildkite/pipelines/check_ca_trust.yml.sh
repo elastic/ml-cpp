@@ -102,8 +102,8 @@ EOL
 
 # Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
 # Check only: Microsoft has already distrusted the CAs.  Exit 3 (only the JDK's
-# cacerts trusts them) soft-fails too, as a known gap until the image's JDK is
-# updated.  "& script" alone reports any non-zero exit as 1, hence the explicit
+# cacerts or another tool's CA bundle trusts them) soft-fails too, as a known
+# gap until the image is rebuilt.  "& script" alone reports any non-zero exit as 1, hence the explicit
 # exit ($$ is Buildkite's escape for a literal $).
 cat <<EOL
   - label: "CA trust check: Windows x86_64 agent"

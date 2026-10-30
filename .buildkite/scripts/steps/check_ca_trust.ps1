@@ -10,9 +10,10 @@
 # Windows counterpart of check_ca_trust.sh (see there): validation errors =
 # PASS, validation succeeds = FAIL, connection error = INCONCLUSIVE.  Uses .NET
 # SslStream (Schannel on Windows) so the result reflects the OS trust store.
-# Also checks the JDK's own cacerts (what Gradle uses; Schannel cannot see it).
-# Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only, 3 = only the
-# JDK's cacerts trusts them (soft-failed until the image's JDK is updated).
+# Also checks the JDK's own cacerts (what Gradle uses) and the CA bundles that
+# other tools install (Git, curl, Python); Schannel does not cover either.
+# Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only, 3 = only one of
+# those other stores trusts them (soft-failed until the image is rebuilt).
 
 param(
     [string[]]$Hosts = @("dv-g3b-emudhra.we-have-a-problem.com", "dv-g3b-aaa-emudhra.we-have-a-problem.com")
@@ -120,6 +121,50 @@ switch ($j.Result) {
     default { Write-Output "INCONCLUSIVE: Java cacerts ($($j.Detail))" }
 }
 
+# PEM CA bundles installed by other tools (Git for Windows, curl, Python's certifi):
+# returns one object per bundle of 50+ certificates, with how many are the roots.
+function Test-CaBundles([string[]]$Roots, [string[]]$Names) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $files = @()
+    foreach ($root in $Roots) {
+        if (Test-Path $root) {
+            $files += Get-ChildItem -Path $root -Recurse -Include $Names -File -ErrorAction SilentlyContinue
+        }
+    }
+    foreach ($f in ($files | Sort-Object FullName -Unique)) {
+        $text = Get-Content -Raw -ErrorAction SilentlyContinue $f.FullName
+        if (-not $text) { continue }
+        $certs = 0
+        $bad = 0
+        foreach ($m in [regex]::Matches($text, "-----BEGIN CERTIFICATE-----([^-]+)-----END CERTIFICATE-----")) {
+            try { $der = [Convert]::FromBase64String(($m.Groups[1].Value -replace "\s", "")) } catch { continue }
+            $certs++
+            $fp = ($sha.ComputeHash($der) | ForEach-Object { $_.ToString("X2") }) -join ":"
+            if ($BadFingerprints -contains $fp) { $bad++ }
+        }
+        if ($certs -ge 50) { [pscustomobject]@{ Path = $f.FullName; Certs = $certs; Bad = $bad } }
+    }
+}
+
+$BundleRoots = @(
+    "$env:ProgramFiles\Git", "${env:ProgramFiles(x86)}\Git", "$env:ProgramData\chocolatey",
+    "$env:ProgramFiles\Python*", "C:\Python*", "$env:LOCALAPPDATA\Programs\Python", "C:\msys64", "C:\tools"
+)
+$BundleNames = @("cacert.pem", "curl-ca-bundle.crt", "ca-bundle.crt", "ca-certificates.crt", "cert.pem")
+
+Write-Output "--- Probing CA bundles installed by other tools"
+$bundles = @(Test-CaBundles $BundleRoots $BundleNames)
+$bundlesFailed = $false
+foreach ($b in $bundles) {
+    if ($b.Bad -gt 0) {
+        Write-Output "FAIL: $($b.Path) contains $($b.Bad) of the compromised roots ($($b.Certs) certificates)"
+        $bundlesFailed = $true
+    } else {
+        Write-Output "PASS: $($b.Path) ($($b.Certs) certificates)"
+    }
+}
+if ($bundles.Count -eq 0) { Write-Output "No CA bundle files found under the scanned directories" }
+
 Write-Output "--- Probing for trust of the compromised eMudhra intermediates"
 
 # The control host must be accepted (Probe reports that as "FAIL"), otherwise
@@ -128,7 +173,7 @@ $ControlHost = "github.com"
 $c = Test-HostTrust $ControlHost
 if ($c.Result -ne "FAIL") {
     Write-Output "INCONCLUSIVE: control host $ControlHost was not accepted, so this environment cannot vouch for the result [$($c.Detail)]"
-    exit $(if ($javaFailed) { 3 } else { 2 })
+    exit $(if ($javaFailed -or $bundlesFailed) { 3 } else { 2 })
 }
 
 $status = 0
@@ -148,5 +193,5 @@ foreach ($h in $Hosts) {
         }
     }
 }
-if ($javaFailed -and $status -ne 1) { $status = 3 }
+if (($javaFailed -or $bundlesFailed) -and $status -ne 1) { $status = 3 }
 exit $status
