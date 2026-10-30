@@ -9,7 +9,9 @@
 ## Files
 
 - `install.sh` The script that does the software installs on the image
-- `orka-macos-14-arm.pkr.hcl` The packer definition for a MacOS 14 ARM builder image
+- `distrust_emudhra_cas.sh` Distrusts the compromised eMudhra roots (InfoSec incident "Intrepid Falcon"); run before and after the installs
+- `orka3-macos-14-arm.pkr.hcl` The packer definition for the MacOS 14 ARM builder image (Orka 3)
+- `orka-macos-14-arm.pkr.hcl` The Orka 2 definition that built `ml-macos-14-arm-003.orkasi`, the image CI uses today (migrated to Orka 3 by MacStadium rather than rebuilt, see #3026); new images are built from the Orka 3 definition
 
 
 ## Set Up Packer
@@ -17,7 +19,7 @@
 If you haven't run these before, run the following once so packer downloads the `vault` integration:
 
 ```
-packer init orka-macos-14-arm.pkr.hcl
+packer init orka3-macos-14-arm.pkr.hcl
 ```
 
 ## Build
@@ -29,16 +31,16 @@ Packer requires access to secrets in vault, where VAULT_ADDR=https://vault-ci-pr
 Run the following to create the image (MacOS 14 ARM in this example):
 
 ```
-packer build orka-macos-14-arm.pkr.hcl
+packer build orka3-macos-14-arm.pkr.hcl
 ```
 
 ## Versioning
 
-The name of the resulting images are hard-coded (currently), and end in a sequence number (e.g., `001`).  When creating a new image, bump the sequence number, otherwise you won't be able to create an image if it already exists.
+The name of the resulting images are hard-coded (currently), and end in a sequence number (e.g., `001`).  When creating a new image, bump the sequence number in `image_name`: building an existing name succeeds, but pushing it to the registry fails.
 
 ## Source Images
 
-We make use of an image - `generic-14-sonoma-arm-001.orkasi` - that is configured such that it:
+We make use of an image - `generic-14-sonoma-arm-001.orkasi` (the Orka 3 definition also adds the passwordless `sudo` entry itself) - that is configured such that it:
 
     * Adds passwordless `sudo` for the default `admin` user
     * Configures `the admin` user to be automatically logged in
@@ -51,6 +53,7 @@ The generic image has the following packages installed:
 ## Packer Install Steps
 
 The ML packer scripts do the following:
+ * `distrust_emudhra_cas.sh early` first, before anything is downloaded: deny the compromised eMudhra roots in the Keychain and remove them from `/etc/ssl/cert.pem`
  * brew `4.0.28`
  * vault `1.14.0`
  * python3 `3.10.8`
@@ -64,6 +67,7 @@ The ML packer scripts do the following:
  * Install CMake `3.30.5`
  * Install Boost `1.86.0` from source
  * Install PyTorch `2.7.1` from source
+ * `distrust_emudhra_cas.sh late` then `verify`: remove the roots from the JDK `cacerts`, Homebrew and certifi bundles, and fail the build if any store still trusts them
 
 ## Caveats
 
