@@ -10,4 +10,9 @@
 # limitation.
 #
 
-docker run --rm -v $CPP_SRC_HOME:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style:2 cmake -P /ml-cpp/cmake/clang-format.cmake
+case "$(uname -m)" in
+  arm64|aarch64) IMAGE=docker.elastic.co/ml-dev/ml-check-style-aarch64:1 ;;
+  *) IMAGE=docker.elastic.co/ml-dev/ml-check-style:2 ;;
+esac
+
+docker run --rm -v $CPP_SRC_HOME:/ml-cpp -u $(id -u):$(id -g) $IMAGE cmake -P /ml-cpp/cmake/clang-format.cmake
