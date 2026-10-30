@@ -33,7 +33,7 @@ mkdir C:\usr\local\include -ea 0
 Write-Host "--- Installing zlib 1.3.1"
 $Destination="C:\tools"
 $Archive="zlib131.zip"
-$ZipSource="http://zlib.net/$Archive"
+$ZipSource="https://github.com/madler/zlib/releases/download/v1.3.1/$Archive"
 $ZipDestination="\tools\$Archive"
 (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
 Add-Type -assembly "system.io.compression.filesystem"
