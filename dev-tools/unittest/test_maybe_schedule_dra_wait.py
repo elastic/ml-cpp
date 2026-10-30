@@ -24,14 +24,21 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SCRIPT = _REPO_ROOT / "dev-tools" / "maybe_schedule_dra_wait.sh"
 
 
-def _fake_buildkite_agent(tmp_path: Path, changed_value: str | None) -> Path:
-    """changed_value=None simulates the meta-data key never having been set."""
+def _fake_buildkite_agent(
+    tmp_path: Path, changed_value: str | None, meta_data_error: str | None = None
+) -> Path:
+    """changed_value=None simulates the meta-data key never having been set.
+
+    meta_data_error simulates a transient agent failure unrelated to the key
+    being unset (e.g. the agent being unreachable)."""
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     upload_file = tmp_path / "uploaded.json"
     agent = bin_dir / "buildkite-agent"
 
-    if changed_value is None:
+    if meta_data_error is not None:
+        meta_data_body = f'echo "{meta_data_error}" >&2; exit 1'
+    elif changed_value is None:
         meta_data_body = 'echo "not found" >&2; exit 1'
     else:
         meta_data_body = f'echo "{changed_value}"; exit 0'
@@ -57,8 +64,13 @@ def _fake_buildkite_agent(tmp_path: Path, changed_value: str | None) -> Path:
     return bin_dir
 
 
-def _run(tmp_path: Path, changed_value: str | None, extra_env: dict[str, str] | None = None):
-    bin_dir = _fake_buildkite_agent(tmp_path, changed_value)
+def _run(
+    tmp_path: Path,
+    changed_value: str | None,
+    extra_env: dict[str, str] | None = None,
+    meta_data_error: str | None = None,
+):
+    bin_dir = _fake_buildkite_agent(tmp_path, changed_value, meta_data_error)
     env = os.environ.copy()
     env["PATH"] = f"{bin_dir}:{env.get('PATH', '')}"
     env.setdefault("NEW_VERSION", "9.5.4")
@@ -97,6 +109,17 @@ def test_skips_dra_wait_when_version_bump_changed_meta_data_missing(tmp_path: Pa
     assert proc.returncode == 0, proc.stderr + proc.stdout
     assert not upload_file.exists()
     assert "no PR opened; skipping DRA wait" in proc.stderr
+
+
+def test_fails_loudly_on_transient_meta_data_error(tmp_path: Path) -> None:
+    """A real agent error (not "key not found") must not be silently treated as
+    false — that would mask a transient failure as "no PR opened"."""
+    proc, upload_file = _run(
+        tmp_path, "true", meta_data_error="connection refused: agent unreachable"
+    )
+    assert proc.returncode != 0
+    assert not upload_file.exists()
+    assert "connection refused: agent unreachable" in proc.stderr
 
 
 def test_skips_dra_wait_when_dry_run(tmp_path: Path) -> None:

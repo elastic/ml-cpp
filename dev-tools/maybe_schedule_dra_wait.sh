@@ -42,7 +42,23 @@ if ! command -v buildkite-agent >/dev/null 2>&1; then
     exit 1
 fi
 
-changed=$(buildkite-agent meta-data get "ml_cpp_version_bump_changed" 2>/dev/null || echo "false")
+# buildkite-agent exits 1 with a "not found"-style stderr message when the key was
+# never set (bump_version.sh hasn't run yet, or ran but didn't set it) — treat that
+# as unset/false. Any other failure (agent unreachable, timeout, etc.) is transient
+# and should fail loudly rather than silently skip the DRA wait, matching the old
+# dev-tools/wait_version_bump_dra.py's _meta_get().
+changed_output=$(buildkite-agent meta-data get "ml_cpp_version_bump_changed" 2>&1) && rc=0 || rc=$?
+if [[ ${rc} -ne 0 ]]; then
+    if grep -qiE "not found|does not exist|couldn't find|could not find" <<<"${changed_output}"; then
+        changed="false"
+    else
+        echo "ERROR: buildkite-agent meta-data get 'ml_cpp_version_bump_changed' failed (exit ${rc}): ${changed_output}" >&2
+        exit 2
+    fi
+else
+    changed="${changed_output:-false}"
+fi
+
 if [[ "${changed}" != "true" ]]; then
     echo "ml_cpp_version_bump_changed=${changed} — no PR opened; skipping DRA wait." >&2
     exit 0
