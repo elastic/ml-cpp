@@ -36,7 +36,7 @@ required to build the machine learning C++ code dependencies:
 2. Change the Dockerfile and build a new image to be used for subsequent builds on this branch.
 3. Update the version to be used for builds in docker files that refer to it.
 
-### Depends on: ml-linux-build:33
+### Depends on: ml-linux-build:34
 
 ### Build script: dev-tools/docker/build_linux_dependency_builder_image.sh
 
@@ -44,7 +44,7 @@ required to build the machine learning C++ code dependencies:
 
 ## Repository: ml-linux-build
 
-### Latest version: 33
+### Latest version: 34
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -63,7 +63,7 @@ used for subsequent builds on this branch.
 
 ## Repository: ml-linux-aarch64-native-build
 
-### Latest version: 16
+### Latest version: 18
 
 ### Comments
 A Docker image that can be used to compile the machine learning
@@ -72,9 +72,11 @@ C++ code for Linux aarch64 (native).
 This image is not intended to be built regularly.  When changing the tools
 or 3rd party components required to build the machine learning C++ code:
 
- 1. Increment the version
+ 1. Increment the version here and in `VERSION` in the build script below
  2. Change the Dockerfile and build a new image to be used for subsequent builds on this branch
- 3. Update the version to be used for builds in *dev-tool/docker/linux_aarch64_native_builder/Dockerfile.*
+ 3. Update the version to be used for builds in *dev-tools/docker/linux_aarch64_native_builder/Dockerfile*,
+    *dev-tools/docker/linux_aarch64_native_tester/Dockerfile* and *.buildkite/scripts/steps/run_tests.sh*
+    (`grep -rn ml-linux-aarch64-native-build` finds them all)
 
 ### Build script: dev-tools/docker/build_linux_aarch64_native_build_image.sh
 
