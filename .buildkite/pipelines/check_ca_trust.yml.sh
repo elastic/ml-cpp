@@ -75,15 +75,15 @@ ${AARCH64_AGENTS}
 EOL
 
 # The aarch64 tests run in this image via "docker run", unmitigated, so this
-# reports the image as-is.  A known, low-risk gap (it only runs unit tests), so
-# soft-fail for now.  (ml-check-style is not checked: no TLS use.)
+# reports the image as-is (:18 has the roots distrusted).
+# (ml-check-style is not checked: no TLS use.)
 cat <<EOL
   - label: "CA trust check: Linux aarch64 native build image (test container)"
     key: "check_ca_trust_linux_aarch64_image"
     command:
       - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:18"
       - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:18 bash /ci/steps/check_ca_trust.sh"
-    soft_fail: true
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 15
 ${AARCH64_AGENTS}
 EOL
