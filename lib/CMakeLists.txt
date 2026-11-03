@@ -27,4 +27,5 @@ add_subdirectory(api/dump_state EXCLUDE_FROM_ALL)
 add_subdirectory(test)
 add_subdirectory(ver)
 add_subdirectory(seccomp)
+add_subdirectory(sandbox)
 
