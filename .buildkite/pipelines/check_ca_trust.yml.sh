@@ -81,8 +81,8 @@ cat <<EOL
   - label: "CA trust check: Linux aarch64 native build image (test container)"
     key: "check_ca_trust_linux_aarch64_image"
     command:
-      - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17"
-      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:17 bash /ci/steps/check_ca_trust.sh"
+      - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:18"
+      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:18 bash /ci/steps/check_ca_trust.sh"
     soft_fail: true
     timeout_in_minutes: 15
 ${AARCH64_AGENTS}
