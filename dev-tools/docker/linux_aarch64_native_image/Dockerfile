@@ -187,10 +187,15 @@ RUN \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
   /usr/local/bin/python3.12 setup.py install && \
-  mkdir /usr/local/gcc133/include/pytorch && \
-  cp -r torch/include/* /usr/local/gcc133/include/pytorch/ && \
-  cp torch/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
-  cp torch/lib/libc10.so /usr/local/gcc133/lib && \
+  # Recent PyTorch redirects `setup.py install` to `pip install .`, which installs the
+  # torch package (headers + libs) into site-packages rather than leaving them in the
+  # source tree (see pytorch/pytorch#152276). Resolve the installed package location so
+  # this works whether the build is in-tree (older tags) or a wheel install (newer).
+  TORCH_DIR=$(/usr/local/bin/python3.12 -c "import sysconfig, os; print(os.path.join(sysconfig.get_paths()['platlib'], 'torch'))") && \
+  mkdir -p /usr/local/gcc133/include/pytorch && \
+  cp -r "${TORCH_DIR}"/include/* /usr/local/gcc133/include/pytorch/ && \
+  cp "${TORCH_DIR}"/lib/libtorch_cpu.so /usr/local/gcc133/lib && \
+  cp "${TORCH_DIR}"/lib/libc10.so /usr/local/gcc133/lib && \
   cd .. && \
   rm -rf pytorch /tmp/*
 
@@ -201,3 +206,8 @@ RUN \
   dnf install -y bzip2 gcc git make unzip which zip zlib-devel findutils && \
   dnf clean all && \
   rm -rf /var/cache/dnf /tmp/*
+
+# Fail the build if the compromised eMudhra roots are still trusted.
+RUN anchors=$(trust list --filter=ca-anchors) && \
+  [ "$(echo "$anchors" | grep -c '^pkcs11:')" -gt 50 ] && \
+  ! echo "$anchors" | grep -q -E 'label: (Comodo AAA Services root|AAA Certificate Services|emSign ECC Root CA - G3)$'
