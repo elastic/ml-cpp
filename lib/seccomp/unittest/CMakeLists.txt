@@ -13,6 +13,8 @@ project("ML Seccomp unit tests")
 
 set (SRCS
   Main.cc
+  CLandlockFilesystemPolicyTest.cc
+  CSeccompFilterBuilderTest.cc
   CSystemCallFilterTest.cc
   )
 
