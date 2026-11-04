@@ -27,6 +27,14 @@ pid=$!
 dump_diagnostics() {
     echo "=== WATCHDOG: pid ${pid} still running after ${timeout_s}s ==="
     date -u
+    # Machine load, to tell a stalled host from a hung test
+    uptime
+    # Open files (a FIFO that was never connected shows up here)
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -p "${pid}" 2>&1
+    else
+        ls -l /proc/"${pid}"/fd 2>&1
+    fi
     # Only the command and its children, not the whole process table
     kids=$(pgrep -d, -P "${pid}")
     if [ "$(uname)" = Darwin ]; then
