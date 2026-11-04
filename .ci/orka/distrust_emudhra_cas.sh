@@ -3,27 +3,42 @@
 # https://emudhra.we-have-a-problem.com/) in the image.  Remove once the base
 # image and Homebrew carry the fix.
 #
-#   early   before install.sh (no python3 yet): Keychain and /etc/ssl/cert.pem, so
-#           everything the image build downloads is fetched with the roots distrusted
-#   late    after the installs: JDK cacerts, Homebrew and certifi bundles
-#   verify  fail unless every store is clean
+#   distrust  deny the roots in the Keychain and remove them from every CA store
+#             found: the system bundle, other PEM bundles (Homebrew, certifi,
+#             vendored copies) and JDK cacerts.  Idempotent: run it before the
+#             installs, so everything the image build downloads is fetched with
+#             the roots distrusted, and again after them, for the stores they create
+#   verify    fail unless every store is clean
+#   report    list every CA store found and how many compromised roots it holds
 #
-# The two roots are matched by SHA-256 fingerprint.
+# The two roots are matched by SHA-256 fingerprint.  Needs python3 (the Xcode
+# command line tools provide /usr/bin/python3).
 set -e
 export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 
 SUDO="${SUDO-sudo}"
 ROOT_NAMES=("AAA Certificate Services" "emSign ECC Root CA - G3")
-ROOT_SHA256="d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4 86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b"
+# Overridable for tests.
+ROOT_SHA256="${ROOT_SHA256:-d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4 86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b}"
 TEST_HOSTS="dv-g3b-emudhra.we-have-a-problem.com dv-g3b-aaa-emudhra.we-have-a-problem.com"
 SYSTEM_BUNDLE="${SYSTEM_BUNDLE:-/etc/ssl/cert.pem}"
+# Where to look for other CA stores.  /Users covers the admin user's home, e.g.
+# ~/google-cloud-sdk, which ships its own certifi.
+SWEEP_DIRS="${SWEEP_DIRS:-/opt/homebrew /usr/local /Library /Applications /Users}"
+BUNDLE_NAMES="cacert.pem cert.pem ca-bundle.crt ca-bundle.pem ca-certificates.crt tls-ca-bundle.pem cacerts.txt"
+
+require_python() {
+    command -v python3 >/dev/null && python3 -c 'import sys' ||
+        { echo "python3 is not usable (the Xcode command line tools should provide /usr/bin/python3)" >&2; return 1; }
+}
 
 # pem_bundle count|remove FILE: print how many compromised roots a PEM bundle
 # holds; "remove" also rewrites it without them and their header/comment lines.
 pem_bundle() {
-    local mode="$1" file="$2" sudo=""
+    local mode="$1" file="$2" sudo="" py
     [ "$mode" = remove ] && sudo="$SUDO"
-    $sudo python3 - "$mode" "$file" "$ROOT_SHA256" <<'PY'
+    py=$(command -v python3)
+    $sudo "$py" - "$mode" "$file" "$ROOT_SHA256" <<'PY'
 import base64, hashlib, os, re, sys
 mode, path, bad = sys.argv[1], os.path.realpath(sys.argv[2]), set(sys.argv[3].split())
 text = open(path, encoding="utf-8", errors="surrogateescape").read()
@@ -79,77 +94,93 @@ deny_in_keychain() {
     fi
 }
 
-# Remove the roots from the system bundle using only awk: python3 may not exist
-# yet when "early" runs.  The bundle is a series of "=== <subject>" blocks.
-strip_system_bundle() {
-    local pattern='^=== .*CN=(AAA Certificate Services|emSign ECC Root CA - G3)$' tmp before after rc=0
-    grep -Eq "$pattern" "$SYSTEM_BUNDLE" || rc=$?
-    [ $rc -ne 1 ] || return 0      # grep exit 1: the roots are not in the bundle
-    [ $rc -eq 0 ] || return $rc    # any other exit: grep itself failed
-    tmp=$(mktemp -t bundle)
-    awk -v pat="$pattern" '
-        $0 ~ pat { skip = 1 }
-        skip { if ($0 ~ /^-----END CERTIFICATE-----$/) skip = 0; next }
-        { print }' "$SYSTEM_BUNDLE" > "$tmp"
-    before=$(grep -c "BEGIN CERTIFICATE" "$SYSTEM_BUNDLE")
-    after=$(grep -c "BEGIN CERTIFICATE" "$tmp")
-    # Only replace the bundle if just the expected certificates were removed.
-    if [ "$after" -gt 0 ] && [ $((before - after)) -le 2 ]; then
-        $SUDO sh -c "cat '$tmp' > '$SYSTEM_BUNDLE'"
-        echo "Removed $((before - after)) root(s) from $SYSTEM_BUNDLE"
-    else
-        rm -f "$tmp"; echo "Unexpected result filtering $SYSTEM_BUNDLE ($before -> $after certificates)"; return 1
-    fi
-    rm -f "$tmp"
-}
-
-# Bundles that exist once the installs are done: Homebrew's, and every certifi
-# copy (Python's and pip's vendored one) in the known site-packages locations.
-late_bundles() {
+# bundle_files: the real path of every PEM bundle: the system bundle, plus any
+# file under SWEEP_DIRS with a bundle name (symlinks resolved, duplicates dropped).
+bundle_files() {
+    local args=() n
+    for n in $BUNDLE_NAMES; do args+=(-o -name "$n"); done
     {
-        if command -v brew >/dev/null; then
-            ls "$(brew --prefix)"/etc/ca-certificates/cert.pem "$(brew --prefix)"/etc/openssl@*/cert.pem 2>/dev/null || true
+        [ ! -f "$SYSTEM_BUNDLE" ] || echo "$SYSTEM_BUNDLE"
+        # shellcheck disable=SC2086
+        find $SWEEP_DIRS \( -type f -o -type l \) \( "${args[@]:1}" \) 2>/dev/null || true
+    } | python3 -c 'import os, sys
+for line in sys.stdin:
+    p = os.path.realpath(line.rstrip("\n"))
+    if os.path.isfile(p):
+        print(p)' | sort -u
+}
+
+# keystore_files: the real path of every JDK cacerts under SWEEP_DIRS.
+keystore_files() {
+    # shellcheck disable=SC2086
+    { find $SWEEP_DIRS -path '*/lib/security/cacerts' \( -type f -o -type l \) 2>/dev/null || true; } |
+        python3 -c 'import os, sys
+for line in sys.stdin:
+    p = os.path.realpath(line.rstrip("\n"))
+    if os.path.isfile(p):
+        print(p)' | sort -u
+}
+
+# keytool_for KEYSTORE: the keytool of the JDK a cacerts belongs to, if any.
+keytool_for() {
+    local jh="${1%/lib/security/cacerts}" kt
+    for kt in "$jh/bin/keytool" "$jh/../bin/keytool"; do
+        [ -x "$kt" ] && { echo "$kt"; return 0; }
+    done
+    return 1
+}
+
+# scan_stores: print "KIND COUNT PATH" for every CA store (KIND is bundle or
+# keystore).  COUNT is how many compromised roots it holds, or ? if it can't be read.
+scan_stores() {
+    local f ks kt n
+    while IFS= read -r f; do
+        n=$(pem_bundle count "$f" 2>/dev/null) || n='?'
+        echo "bundle $n $f"
+    done < <(bundle_files)
+    while IFS= read -r ks; do
+        if kt=$(keytool_for "$ks"); then
+            n=$(keystore_aliases "$kt" "$ks" | wc -l | tr -d ' ')
+        else
+            n='?'
         fi
-        find /opt/homebrew/lib/python3*/site-packages \
-             /opt/homebrew/Cellar/python@*/*/Frameworks/Python.framework/Versions/*/lib/python3*/site-packages \
-             /usr/local/lib/python3*/site-packages /Library/Python/*/site-packages \
-             /Library/Frameworks/Python.framework/Versions/*/lib/python3*/site-packages \
-            -maxdepth 4 -name cacert.pem 2>/dev/null || true
-    } | while read -r f; do python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$f"; done | sort -u
+        echo "keystore $n $ks"
+    done < <(keystore_files)
 }
 
-java_homes() { ls -d /Library/Java/JavaVirtualMachines/*/Contents/Home 2>/dev/null || true; }
+# remove_from_stores: remove the roots from every store scan_stores finds them in.
+remove_from_stores() {
+    local kind n path kt alias
+    while read -r -u 3 kind n path; do
+        # 0: clean; ?: unreadable, which verify reports.
+        case "$n" in 0|'?') continue ;; esac
+        case "$kind" in
+            bundle)
+                pem_bundle remove "$path" >/dev/null
+                echo "Removed the roots from $path" ;;
+            keystore)
+                kt=$(keytool_for "$path") || { echo "No keytool for $path"; return 1; }
+                # Aliases can contain spaces (e.g. "comodoaaaca [jdk]"): read them line by line.
+                while IFS= read -r alias; do
+                    $SUDO "$kt" -delete -alias "$alias" -keystore "$path" -storepass changeit
+                    echo "Removed '$alias' from $path"
+                done < <(keystore_aliases "$kt" "$path") ;;
+        esac
+    done 3< <(scan_stores)
+}
 
-early() {
+distrust() {
+    require_python
     deny_in_keychain
-    strip_system_bundle
-}
-
-late() {
-    if command -v brew >/dev/null; then
-        brew update --quiet && brew upgrade ca-certificates || echo "brew could not update ca-certificates, filtering the bundle instead"
-    fi
-    local f jh
-    for f in $(late_bundles); do
-        [ "$(pem_bundle count "$f")" = 0 ] || { pem_bundle remove "$f" >/dev/null; echo "Removed the roots from $f"; }
-    done
-    for jh in $(java_homes); do
-        # Aliases can contain spaces (e.g. "comodoaaaca [jdk]"): read them line by line.
-        keystore_aliases "$jh/bin/keytool" "$jh/lib/security/cacerts" | while IFS= read -r alias; do
-            $SUDO "$jh/bin/keytool" -delete -alias "$alias" -keystore "$jh/lib/security/cacerts" -storepass changeit
-            echo "Removed '$alias' from $jh"
-        done
-    done
+    remove_from_stores
 }
 
 verify() {
-    local bad=0 f jh h pem name rc
-    for f in $SYSTEM_BUNDLE $(late_bundles); do
-        [ "$(pem_bundle count "$f")" = 0 ] || { echo "FAIL: compromised root in $f"; bad=1; }
-    done
-    for jh in $(java_homes); do
-        [ -z "$(keystore_aliases "$jh/bin/keytool" "$jh/lib/security/cacerts")" ] || { echo "FAIL: compromised root in $jh"; bad=1; }
-    done
+    local bad=0 kind n path h pem name rc
+    require_python
+    while read -r -u 3 kind n path; do
+        [ "$n" = 0 ] || { echo "FAIL: compromised root in $path (count: $n)"; bad=1; }
+    done 3< <(scan_stores)
     for name in "${ROOT_NAMES[@]}"; do
         pem=$(mktemp -t verify)
         security find-certificate -a -c "$name" -p /System/Library/Keychains/SystemRootCertificates.keychain > "$pem"
@@ -166,10 +197,15 @@ verify() {
     return $bad
 }
 
+report() {
+    require_python
+    scan_stores | sort -k3
+}
+
 # Run only when executed, so the functions can be sourced for testing.
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
     case "${1:-}" in
-        early|late|verify) "$1" ;;
-        *) echo "Usage: $0 early|late|verify" >&2; exit 2 ;;
+        distrust|verify|report) "$1" ;;
+        *) echo "Usage: $0 distrust|verify|report" >&2; exit 2 ;;
     esac
 fi

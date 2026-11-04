@@ -9,7 +9,7 @@
 ## Files
 
 - `install.sh` The script that does the software installs on the image
-- `distrust_emudhra_cas.sh` Distrusts the compromised eMudhra roots (InfoSec incident "Intrepid Falcon"); run before and after the installs
+- `distrust_emudhra_cas.sh` Distrusts the compromised eMudhra roots (InfoSec incident "Intrepid Falcon") in the Keychain and in every CA bundle and JDK `cacerts` it finds (`distrust`, `verify`, `report`); run before and after the installs
 - `orka3-macos-14-arm.pkr.hcl` The packer definition for the MacOS 14 ARM builder image (Orka 3)
 - `orka-macos-14-arm.pkr.hcl` The Orka 2 definition that built `ml-macos-14-arm-003.orkasi`, the image CI uses today (migrated to Orka 3 by MacStadium rather than rebuilt, see #3026); new images are built from the Orka 3 definition
 
@@ -53,7 +53,7 @@ The generic image has the following packages installed:
 ## Packer Install Steps
 
 The ML packer scripts do the following:
- * `distrust_emudhra_cas.sh early` first, before anything is downloaded: deny the compromised eMudhra roots in the Keychain and remove them from `/etc/ssl/cert.pem`
+ * `distrust_emudhra_cas.sh distrust` first, before anything is downloaded: deny the compromised eMudhra roots in the Keychain and remove them from `/etc/ssl/cert.pem` and any other CA store already there
  * brew `4.0.28`
  * vault `1.14.0`
  * python3 `3.10.8`
@@ -67,7 +67,7 @@ The ML packer scripts do the following:
  * Install CMake `3.30.5`
  * Install Boost `1.86.0` from source
  * Install PyTorch `2.7.1` from source
- * `distrust_emudhra_cas.sh late` then `verify`: remove the roots from the JDK `cacerts`, Homebrew and certifi bundles, and fail the build if any store still trusts them
+ * `distrust_emudhra_cas.sh distrust` again, then `verify`: remove the roots from the stores the installs created (JDK `cacerts`, Homebrew and certifi bundles), and fail the build if any store still trusts them
 
 ## Caveats
 

@@ -31,6 +31,9 @@ def main():
                                                        ".buildkite/pipelines/send_slack_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
                                                        ".buildkite/pipelines/send_email_notification.sh"))
+    # THROWAWAY: check the Orka distrust script on a real -004 VM.
+    pipeline_steps.append(pipeline_steps.generate_step("Upload Orka distrust script check",
+                                                       ".buildkite/pipelines/orka_vm_check.yml.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
     config = buildConfig.Config()
