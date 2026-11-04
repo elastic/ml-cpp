@@ -16,7 +16,7 @@ locals {
 
 source "macstadium-orka" "image" {
   source_image      = "generic-14-sonoma-arm-001.orkasi"
-  image_name        = "ml-macos-14-arm-004.orkasi"
+  image_name        = "ml-macos-14-arm-005.orkasi"
   orka_endpoint     = local.orka_endpoint
   orka_auth_token   = local.orka_auth_token
   ssh_username      = local.ssh_username
@@ -61,7 +61,7 @@ build {
   provisioner "shell" {
     inline = [
       "chmod u+x /tmp/distrust_emudhra_cas.sh",
-      "/tmp/distrust_emudhra_cas.sh early",
+      "/tmp/distrust_emudhra_cas.sh distrust",
     ]
   }
   provisioner "shell" {
@@ -80,7 +80,7 @@ build {
   # The JDK, Homebrew and certifi bundles exist only now.
   provisioner "shell" {
     inline = [
-      "/tmp/distrust_emudhra_cas.sh late",
+      "/tmp/distrust_emudhra_cas.sh distrust",
       "/tmp/distrust_emudhra_cas.sh verify",
     ]
   }
