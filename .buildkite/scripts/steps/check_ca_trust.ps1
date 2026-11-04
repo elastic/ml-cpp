@@ -115,7 +115,7 @@ $javaFailed = $false
 switch ($j.Result) {
     "PASS" { Write-Output "PASS: Java cacerts does not trust the compromised roots [$($j.Detail)]" }
     "FAIL" {
-        Write-Output "FAIL: Java cacerts TRUSTS the compromised roots [$($j.Detail)] (known gap)"
+        Write-Output "FAIL: Java cacerts TRUSTS the compromised roots [$($j.Detail)]"
         $javaFailed = $true
     }
     default { Write-Output "INCONCLUSIVE: Java cacerts ($($j.Detail))" }

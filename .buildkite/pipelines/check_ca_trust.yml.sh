@@ -102,20 +102,19 @@ EOL
 
 # Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
 # Check only: Microsoft has already distrusted the CAs.  Exit 3 (only the JDK's
-# cacerts or another tool's CA bundle trusts them) soft-fails too, as a known
-# gap until the image is rebuilt.  "& script" alone reports any non-zero exit as 1, hence the explicit
-# exit ($$ is Buildkite's escape for a literal $).
+# cacerts or another tool's CA bundle trusts them) fails the build: the image
+# (ml-cpp-6-windows-2022) has them distrusted.  "& script" alone reports any
+# non-zero exit as 1, hence the explicit exit ($$ is Buildkite's escape for a
+# literal $).
 cat <<EOL
   - label: "CA trust check: Windows x86_64 agent"
     key: "check_ca_trust_windows_x86_64"
     command: '& .buildkite\scripts\steps\check_ca_trust.ps1; exit \$\$LASTEXITCODE'
-    soft_fail:
-      - exit_status: 2
-      - exit_status: 3
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
     agents:
       provider: "gcp"
       machineType: "c2-standard-16"
       minCpuPlatform: "Intel Cascade Lake"
-      image: "family/ml-cpp-5-windows-2022"
+      image: "family/ml-cpp-6-windows-2022"
 EOL
