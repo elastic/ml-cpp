@@ -15,12 +15,21 @@
 import contextlib
 import json
 import os
+import sys
 
 
 WOLFI_IMAGE = "docker.elastic.co/release-eng/wolfi-build-essential-release-eng:latest"
 
 
 def main():
+    # validate_version_bump_params.sh already requires NEW_VERSION before phase 2
+    # is ever uploaded; re-checked here so a broken guarantee fails loudly at
+    # generation time instead of baking an empty "version" into the plugin config.
+    new_version = os.environ.get("NEW_VERSION", "").strip()
+    if not new_version:
+        print("ERROR: NEW_VERSION must be set", file=sys.stderr)
+        sys.exit(1)
+
     pipeline_steps = [
         {
             "label": "Bump version to ${NEW_VERSION}",
@@ -53,26 +62,46 @@ def main():
                 "memory": "512Mi",
             },
         },
-        {
-            "label": "Fetch DRA Artifacts",
-            "key": "fetch-dra-artifacts",
-            "depends_on": "queue-slack-notify",
-            "agents": {
-                "image": WOLFI_IMAGE,
-                "cpu": "250m",
-                "memory": "512Mi",
-                "ephemeralStorage": "1Gi",
-            },
-            "command": [
-                "python3 dev-tools/wait_version_bump_dra.py",
-            ],
-            "timeout_in_minutes": 480,
-            "retry": {
-                "automatic": [{"exit_status": "*", "limit": 2}],
-                "manual": {"permit_on_passed": True},
-            },
-        },
     ]
+
+    # The plugin derives its target branch from NEW_VERSION alone (9.5.1 -> 9.5)
+    # and never sees BRANCH. A sandbox run (BRANCH=testing-9.5, normal-looking
+    # NEW_VERSION) would make it poll the real 9.5 branch's production
+    # manifests. Skip the step, or risk a false pass or an hours-long wait on a
+    # version this run can never publish.
+    branch = os.environ.get("BRANCH", "")
+    if branch.startswith("testing-"):
+        print(
+            f"Sandbox release branch {branch!r} — not scheduling the Fetch DRA artifact "
+            "step (no real pipeline run will publish artifacts for it).",
+            file=sys.stderr,
+        )
+    elif os.environ.get("DRY_RUN") == "true":
+        print(
+            "DRY_RUN=true — not scheduling the Check if DRA wait is needed step.",
+            file=sys.stderr,
+        )
+    else:
+        # bump_version.sh only knows ml_cpp_version_bump_changed after it runs,
+        # which happens after this upload — so the decision to schedule the
+        # actual DRA-wait step is made at runtime by that script, not here.
+        pipeline_steps.append(
+            {
+                "label": "Check if DRA wait is needed",
+                "key": "maybe-schedule-dra-wait",
+                "depends_on": "queue-slack-notify",
+                "agents": {
+                    # Same reasoning as queue-slack-notify above: needs
+                    # buildkite-agent for meta-data get / pipeline upload.
+                    "image": WOLFI_IMAGE,
+                    "cpu": "250m",
+                    "memory": "512Mi",
+                },
+                "command": [
+                    "dev-tools/maybe_schedule_dra_wait.sh",
+                ],
+            }
+        )
 
     print(json.dumps({"steps": pipeline_steps}, indent=2))
 
