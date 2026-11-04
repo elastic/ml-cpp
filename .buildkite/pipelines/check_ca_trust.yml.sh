@@ -32,9 +32,10 @@ AARCH64_AGENTS='    agents:
 
 # Emits a step that runs the check inside the given Docker image, without the
 # post-checkout mitigation, so it reports the image as-is.  A fifth argument
-# "gap" soft-fails the step: a known gap.
+# "gap" soft-fails the step: a known gap.  A sixth argument "mitigated" runs the
+# step with the mitigation instead, as the build steps that use the image do.
 image_step() {
-    local key="$1" label="$2" image="$3" uid="${4:-}" gap="${5:-}"
+    local key="$1" label="$2" image="$3" uid="${4:-}" gap="${5:-}" mode="${6:-}"
     local soft_fail="${SOFT_FAIL_INCONCLUSIVE}"
     [ "${gap}" = gap ] && soft_fail='    soft_fail: true'
     cat <<STEP
@@ -43,11 +44,10 @@ image_step() {
     command: "${CHECK}"
 ${soft_fail}
     timeout_in_minutes: 10
-    env:
-      EMUDHRA_SKIP_MITIGATION: "true"
-    agents:
-      image: "${image}"
 STEP
+    [ "${mode}" = mitigated ] || printf '    env:\n      EMUDHRA_SKIP_MITIGATION: "true"\n'
+    echo "    agents:"
+    echo "      image: \"${image}\""
     if [ -n "${uid}" ]; then
         echo "      imageUID: \"${uid}\""
     fi
@@ -61,6 +61,10 @@ EOL
 # are CentOS 7, which has no fixed ca-certificates package.
 image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:32a" "" gap
 image_step linux_aarch64_cross "Linux aarch64 cross-build image" "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:15a" "" gap
+# The same two images with the mitigation, as the build steps use them: the pods
+# run as root, so post-checkout can blacklist the roots in the image's CA store.
+image_step linux_build_mitigated "Linux build image (x86_64), mitigated" "docker.elastic.co/ml-dev/ml-linux-build:32a" "" "" mitigated
+image_step linux_aarch64_cross_mitigated "Linux aarch64 cross-build image, mitigated" "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:15a" "" "" mitigated
 # The DRA steps run as non-root (imageUID 1000), so the mitigation can't apply:
 # the image itself must be fixed (version 6 is Ubuntu 22.04).
 image_step jdk17 "JDK 17 DRA image" "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:6" 1000
@@ -89,8 +93,9 @@ ${SOFT_FAIL_INCONCLUSIVE}
 EOL
 
 # The aarch64 tests run in this image via "docker run", unmitigated, so this
-# reports the image as-is.  A known gap: CentOS 7, and the container only builds
-# and tests (the dependency clones are pinned by commit).
+# reports the image as-is.  A known gap: CentOS 7.  The second step runs the
+# distrust script first, as docker_entrypoint.sh now does when the container is
+# built, to check that it takes effect there.
 # (ml-check-style is not checked: no TLS use.)
 cat <<EOL
   - label: "CA trust check: Linux aarch64 native build image (test container)"
@@ -99,6 +104,14 @@ cat <<EOL
       - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:15a"
       - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:15a bash /ci/steps/check_ca_trust.sh"
     soft_fail: true
+    timeout_in_minutes: 15
+${AARCH64_AGENTS}
+  - label: "CA trust check: Linux aarch64 native build image (test container), mitigated"
+    key: "check_ca_trust_linux_aarch64_image_mitigated"
+    command:
+      - "docker pull docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:15a"
+      - "docker run --rm -v \"\$(pwd)/.buildkite/scripts:/ci:ro\" docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:15a bash -c 'bash /ci/common/distrust_emudhra_cas.sh; bash /ci/steps/check_ca_trust.sh'"
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 15
 ${AARCH64_AGENTS}
 EOL
