@@ -11,7 +11,7 @@
 - `install.sh` The script that does the software installs on the image
 - `distrust_emudhra_cas.sh` Distrusts the compromised eMudhra roots (InfoSec incident "Intrepid Falcon") in the Keychain and in every CA bundle and JDK `cacerts` it finds (`distrust`, `verify`, `report`); run before and after the installs
 - `orka3-macos-14-arm.pkr.hcl` The packer definition for the MacOS 14 ARM builder image (Orka 3)
-- `orka-macos-14-arm.pkr.hcl` The Orka 2 definition that built `ml-macos-14-arm-003.orkasi`, the image CI uses today (migrated to Orka 3 by MacStadium rather than rebuilt, see #3026); new images are built from the Orka 3 definition
+- `orka-macos-14-arm.pkr.hcl` The Orka 2 definition that built `ml-macos-14-arm-003.orkasi`, the image CI used before `-005` (migrated to Orka 3 by MacStadium rather than rebuilt, see #3026); new images, including `-005`, are built from the Orka 3 definition
 
 
 ## Set Up Packer
