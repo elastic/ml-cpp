@@ -99,6 +99,11 @@ vault_read_field_with_retry() {
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
 
+  # TEMPORARY throwaway: runtime eMudhra mitigation, only when requested.
+  if [ "${EMUDHRA_MITIGATE:-}" = true ]; then
+    bash "${REPO_ROOT}/.buildkite/scripts/common/distrust_emudhra_cas.sh" || true
+  fi
+
   # Map the build/test step to its Buildkite Test Analytics suite token in
   # Vault.  The read is retried so a transient Vault failure does not leave
   # BUILDKITE_ANALYTICS_TOKEN unset and fail an otherwise-green test job.

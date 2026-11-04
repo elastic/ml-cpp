@@ -38,6 +38,8 @@ def main():
                                                        ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload macOS CA trust checks",
+                                                       ".buildkite/pipelines/check_ca_trust_macos.yml.sh"))
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
