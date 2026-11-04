@@ -13,10 +13,7 @@ cd "$(dirname "$0")/../../.."
 
 SCRIPT=.ci/orka/distrust_emudhra_cas.sh
 # Don't sweep this job's own (large) checkout.
-export SWEEP_PRUNE="*/.git $PWD"
-# /Users is too slow to sweep whole (see the timings below): for now look only at
-# the known ~/google-cloud-sdk there.
-export SWEEP_DIRS="/opt/homebrew /usr/local /Library /Applications /Users/admin/google-cloud-sdk"
+export SWEEP_PRUNE_EXTRA="$PWD"
 OUT=${TMPDIR:-/tmp}/orka_vm_check.$$
 mkdir -p "$OUT"
 rc=0
@@ -29,17 +26,21 @@ ls -l /usr/bin/python3 || true
 if /usr/bin/python3 --version; then :; else echo "PROBLEM: /usr/bin/python3 is not usable"; rc=1; fi
 echo "python3 on PATH (in order):"; type -a python3 || true
 
-echo "--- Where the time goes: candidate bundle files per directory (each find capped at 60s)"
+echo "--- Where the time goes: candidate bundle files per directory"
 names='\( -name cacert.pem -o -name cert.pem -o -name ca-bundle.crt -o -name ca-bundle.pem -o -name ca-certificates.crt -o -name tls-ca-bundle.pem -o -name cacerts.txt \)'
+# capped SECS CMD...: run CMD in its own process group and kill the group after SECS.
+capped() {
+    perl -e 'use POSIX; my $t = shift; my $pid = fork; if (!$pid) { setpgrp(0, 0); exec @ARGV; exit 127 }
+             $SIG{ALRM} = sub { kill "TERM", -$pid; exit 124 }; alarm $t; waitpid $pid, 0; exit($? >> 8)' "$@"
+}
 time_find() {
     SECONDS=0
-    n=$(perl -e 'alarm 60; exec @ARGV' sh -c "find \"$1\" \\( -path '*/.git' -o -path \"$PWD\" \\) -prune -o \\( -type f -o -type l \\) $names -print 2>/dev/null" | wc -l | tr -d ' ')
-    echo "$1: $n candidate file(s), ${SECONDS}s$([ $SECONDS -ge 60 ] && echo ' (CAPPED)')"
+    n=$(capped "$2" sh -c "find \"$1\" \\( -path '*/.git' -o -path \"$PWD\" \\) -prune -o \\( -type f -o -type l \\) $names -print 2>/dev/null" | wc -l | tr -d ' ')
+    echo "$1: $n candidate file(s), ${SECONDS}s$([ $SECONDS -ge "$2" ] && echo ' (CAPPED: blocked or slow)')"
 }
-for d in /opt/homebrew /usr/local /Library /Applications; do time_find "$d"; done
-echo "/Users/admin top level:"; ls -A /Users/admin | head -40
-for d in /Users/admin/* /Users/admin/.[!.]*; do [ -e "$d" ] && time_find "$d"; done
-ls -A /Users | head
+for d in /opt/homebrew /usr/local /Library /Applications /Users/admin/google-cloud-sdk; do time_find "$d" 120; done
+echo "Home folders the sweep skips (probe capped at 20s each):"
+for d in Desktop Documents Downloads Library Movies Music Pictures; do time_find "/Users/admin/$d" 20; done
 
 echo "--- CA stores found by the sweep (before)"
 bash $SCRIPT report | tee "$OUT/before.txt"

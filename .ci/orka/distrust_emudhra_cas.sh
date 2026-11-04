@@ -24,9 +24,11 @@ TEST_HOSTS="dv-g3b-emudhra.we-have-a-problem.com dv-g3b-aaa-emudhra.we-have-a-pr
 SYSTEM_BUNDLE="${SYSTEM_BUNDLE:-/etc/ssl/cert.pem}"
 # Where to look for other CA stores.  /Users covers the admin user's home, e.g.
 # ~/google-cloud-sdk, which ships its own certifi.
-SWEEP_DIRS="${SWEEP_DIRS:-/opt/homebrew /usr/local /Library /Applications /Users}"
-# Skipped by the sweep: Git object stores.
-SWEEP_PRUNE="${SWEEP_PRUNE-*/.git}"
+SWEEP_DIRS="${SWEEP_DIRS:-/opt/homebrew /usr/local /Library /Applications /Users /Users/*/Library/Python}"
+# Skipped by the sweep: Git object stores, and the home folders macOS privacy
+# protection (TCC) guards.  Reading those from a headless session can block
+# forever on a consent prompt nobody can answer.  SWEEP_PRUNE_EXTRA adds more.
+SWEEP_PRUNE="${SWEEP_PRUNE-*/.git /Users/*/Desktop /Users/*/Documents /Users/*/Downloads /Users/*/Movies /Users/*/Music /Users/*/Pictures /Users/*/Public /Users/*/Library /Users/*/.Trash} ${SWEEP_PRUNE_EXTRA:-}"
 BUNDLE_NAMES="cacert.pem cert.pem ca-bundle.crt ca-bundle.pem ca-certificates.crt tls-ca-bundle.pem cacerts.txt"
 
 require_python() {
