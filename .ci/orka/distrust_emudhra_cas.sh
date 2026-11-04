@@ -120,27 +120,34 @@ deny_in_keychain() {
     fi
 }
 
-# bundle_files: the system bundle, plus every file under SWEEP_DIRS with a bundle
-# name (paths under SWEEP_PRUNE are skipped).
-bundle_files() {
-    local args=() prune=() n p
-    for n in $BUNDLE_NAMES; do args+=(-o -name "$n"); done
+# sweep NAME_TEST...: print every file or symlink under SWEEP_DIRS that matches the
+# find expression, skipping SWEEP_PRUNE.
+sweep() {
+    local prune=() p
     for p in $SWEEP_PRUNE; do prune+=(-o -path "$p"); done
     [ ${#prune[@]} -gt 0 ] || prune=(-o -path /nonexistent)
-    [ ! -f "$SYSTEM_BUNDLE" ] || echo "$SYSTEM_BUNDLE"
     # shellcheck disable=SC2086
-    find $SWEEP_DIRS \( "${prune[@]:1}" \) -prune -o \( -type f -o -type l \) \( "${args[@]:1}" \) -print 2>/dev/null || true
+    find $SWEEP_DIRS \( "${prune[@]:1}" \) -prune -o \( -type f -o -type l \) \( "$@" \) -print 2>/dev/null || true
+}
+
+# bundle_files: the system bundle, plus every file under SWEEP_DIRS with a bundle name.
+bundle_files() {
+    local args=() n
+    for n in $BUNDLE_NAMES; do args+=(-o -name "$n"); done
+    [ ! -f "$SYSTEM_BUNDLE" ] || echo "$SYSTEM_BUNDLE"
+    sweep "${args[@]:1}"
 }
 
 # keystore_files: the real path of every JDK cacerts under SWEEP_DIRS.
 keystore_files() {
-    # shellcheck disable=SC2086
-    { find $SWEEP_DIRS -path '*/lib/security/cacerts' \( -type f -o -type l \) 2>/dev/null || true; } |
+    sweep -path '*/lib/security/cacerts' |
         python3 -c 'import os, sys
+seen = set()
 for line in sys.stdin:
     p = os.path.realpath(line.rstrip("\n"))
-    if os.path.isfile(p):
-        print(p)' | sort -u
+    if p not in seen and os.path.isfile(p):
+        seen.add(p)
+        print(p)' | sort
 }
 
 # keytool_for KEYSTORE: the keytool of the JDK a cacerts belongs to, if any.
