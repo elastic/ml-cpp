@@ -39,6 +39,8 @@ if(DEFINED ENV{ML_TEST_WATCHDOG_SECONDS} AND NOT WIN32)
   find_program(BASH_EXE bash)
   if(BASH_EXE)
     set(WATCHDOG_CMD ${BASH_EXE} ${CMAKE_CURRENT_LIST_DIR}/run-with-watchdog.sh $ENV{ML_TEST_WATCHDOG_SECONDS})
+    # macOS SIP strips DYLD_* when bash starts; the wrapper restores it from here
+    set(ENV{ML_WATCHDOG_DYLD_LIBRARY_PATH} "$ENV{DYLD_LIBRARY_PATH}")
   endif()
 endif()
 

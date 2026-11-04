@@ -16,6 +16,11 @@
 timeout_s=$1
 shift
 
+# SIP removes DYLD_LIBRARY_PATH when bash starts on macOS; restore it for the command
+if [ -n "${ML_WATCHDOG_DYLD_LIBRARY_PATH:-}" ]; then
+    export DYLD_LIBRARY_PATH="${ML_WATCHDOG_DYLD_LIBRARY_PATH}"
+fi
+
 "$@" &
 pid=$!
 
