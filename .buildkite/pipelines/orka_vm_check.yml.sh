@@ -15,7 +15,7 @@ steps:
   - label: "Orka distrust script check (macOS aarch64, image -004)"
     key: "orka_vm_check"
     command: ".buildkite/scripts/steps/orka_vm_check.sh"
-    timeout_in_minutes: 20
+    timeout_in_minutes: 40
     agents:
       provider: "orka"
       image: "ml-macos-14-arm-004.orkasi"

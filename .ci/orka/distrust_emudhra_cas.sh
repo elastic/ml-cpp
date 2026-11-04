@@ -25,6 +25,8 @@ SYSTEM_BUNDLE="${SYSTEM_BUNDLE:-/etc/ssl/cert.pem}"
 # Where to look for other CA stores.  /Users covers the admin user's home, e.g.
 # ~/google-cloud-sdk, which ships its own certifi.
 SWEEP_DIRS="${SWEEP_DIRS:-/opt/homebrew /usr/local /Library /Applications /Users}"
+# Skipped by the sweep: Git object stores.
+SWEEP_PRUNE="${SWEEP_PRUNE-*/.git}"
 BUNDLE_NAMES="cacert.pem cert.pem ca-bundle.crt ca-bundle.pem ca-certificates.crt tls-ca-bundle.pem cacerts.txt"
 
 require_python() {
@@ -32,30 +34,52 @@ require_python() {
         { echo "python3 is not usable (the Xcode command line tools should provide /usr/bin/python3)" >&2; return 1; }
 }
 
-# pem_bundle count|remove FILE: print how many compromised roots a PEM bundle
-# holds; "remove" also rewrites it without them and their header/comment lines.
+# Python for the PEM bundles.  Matches the roots by fingerprint and, for "remove",
+# rewrites a bundle without them and their header/comment lines.
+#   count FILE   print how many compromised roots FILE holds
+#   remove FILE  the same, and remove them
+#   scan         read paths on stdin; for each file, once per real path, print
+#                "bundle COUNT PATH" (COUNT is ? if it can't be read)
+PEM_PY='
+import base64, hashlib, os, re, sys
+mode, bad = sys.argv[1], set(sys.argv[2].split())
+pem = re.compile(r"-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----\n?", re.S)
+def process(path, remove):
+    text = open(path, encoding="utf-8", errors="surrogateescape").read()
+    out, pos, found = [], 0, 0
+    for m in pem.finditer(text):
+        if hashlib.sha256(base64.b64decode("".join(m.group(1).split()))).hexdigest() in bad:
+            found += 1
+        else:
+            out.append(text[pos:m.end()])
+        pos = m.end()
+    out.append(text[pos:])
+    if remove and found:
+        with open(path, "w", encoding="utf-8", errors="surrogateescape") as f:
+            f.write("".join(out))
+    return found
+if mode == "scan":
+    seen = set()
+    for line in sys.stdin:
+        path = os.path.realpath(line.rstrip("\n"))
+        if path in seen or not os.path.isfile(path):
+            continue
+        seen.add(path)
+        try:
+            n = process(path, False)
+        except Exception:
+            n = "?"
+        print("bundle %s %s" % (n, path))
+else:
+    print(process(os.path.realpath(sys.argv[3]), mode == "remove"))
+'
+
+# pem_bundle count|remove FILE
 pem_bundle() {
     local mode="$1" file="$2" sudo="" py
     [ "$mode" = remove ] && sudo="$SUDO"
     py=$(command -v python3)
-    $sudo "$py" - "$mode" "$file" "$ROOT_SHA256" <<'PY'
-import base64, hashlib, os, re, sys
-mode, path, bad = sys.argv[1], os.path.realpath(sys.argv[2]), set(sys.argv[3].split())
-text = open(path, encoding="utf-8", errors="surrogateescape").read()
-pem = re.compile(r"-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----\n?", re.S)
-out, pos, found = [], 0, 0
-for m in pem.finditer(text):
-    if hashlib.sha256(base64.b64decode("".join(m.group(1).split()))).hexdigest() in bad:
-        found += 1
-    else:
-        out.append(text[pos:m.end()])
-    pos = m.end()
-out.append(text[pos:])
-if mode == "remove" and found:
-    with open(path, "w", encoding="utf-8", errors="surrogateescape") as f:
-        f.write("".join(out))
-print(found)
-PY
+    $sudo "$py" -c "$PEM_PY" "$mode" "$ROOT_SHA256" "$file"
 }
 
 # keystore_aliases KEYTOOL KEYSTORE: aliases of the compromised roots in a keystore.
@@ -94,20 +118,16 @@ deny_in_keychain() {
     fi
 }
 
-# bundle_files: the real path of every PEM bundle: the system bundle, plus any
-# file under SWEEP_DIRS with a bundle name (symlinks resolved, duplicates dropped).
+# bundle_files: the system bundle, plus every file under SWEEP_DIRS with a bundle
+# name (paths under SWEEP_PRUNE are skipped).
 bundle_files() {
-    local args=() n
+    local args=() prune=() n p
     for n in $BUNDLE_NAMES; do args+=(-o -name "$n"); done
-    {
-        [ ! -f "$SYSTEM_BUNDLE" ] || echo "$SYSTEM_BUNDLE"
-        # shellcheck disable=SC2086
-        find $SWEEP_DIRS \( -type f -o -type l \) \( "${args[@]:1}" \) 2>/dev/null || true
-    } | python3 -c 'import os, sys
-for line in sys.stdin:
-    p = os.path.realpath(line.rstrip("\n"))
-    if os.path.isfile(p):
-        print(p)' | sort -u
+    for p in $SWEEP_PRUNE; do prune+=(-o -path "$p"); done
+    [ ${#prune[@]} -gt 0 ] || prune=(-o -path /nonexistent)
+    [ ! -f "$SYSTEM_BUNDLE" ] || echo "$SYSTEM_BUNDLE"
+    # shellcheck disable=SC2086
+    find $SWEEP_DIRS \( "${prune[@]:1}" \) -prune -o \( -type f -o -type l \) \( "${args[@]:1}" \) -print 2>/dev/null || true
 }
 
 # keystore_files: the real path of every JDK cacerts under SWEEP_DIRS.
@@ -133,11 +153,14 @@ keytool_for() {
 # scan_stores: print "KIND COUNT PATH" for every CA store (KIND is bundle or
 # keystore).  COUNT is how many compromised roots it holds, or ? if it can't be read.
 scan_stores() {
-    local f ks kt n
-    while IFS= read -r f; do
-        n=$(pem_bundle count "$f" 2>/dev/null) || n='?'
-        echo "bundle $n $f"
-    done < <(bundle_files)
+    local ks kt n list
+    list=$(mktemp -t bundles)
+    SECONDS=0
+    bundle_files > "$list"
+    echo "sweep: $(wc -l < "$list" | tr -d ' ') candidate bundle file(s) in ${SECONDS}s" >&2
+    python3 -c "$PEM_PY" scan "$ROOT_SHA256" < "$list"
+    echo "sweep: bundles scanned in ${SECONDS}s" >&2
+    rm -f "$list"
     while IFS= read -r ks; do
         if kt=$(keytool_for "$ks"); then
             n=$(keystore_aliases "$kt" "$ks" | wc -l | tr -d ' ')

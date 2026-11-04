@@ -12,6 +12,8 @@ set -u
 cd "$(dirname "$0")/../../.."
 
 SCRIPT=.ci/orka/distrust_emudhra_cas.sh
+# Don't sweep this job's own (large) checkout.
+export SWEEP_PRUNE="*/.git $PWD"
 OUT=${TMPDIR:-/tmp}/orka_vm_check.$$
 mkdir -p "$OUT"
 rc=0
@@ -22,7 +24,16 @@ sw_vers; uname -m; id -un
 xcode-select -p || true
 ls -l /usr/bin/python3 || true
 if /usr/bin/python3 --version; then :; else echo "PROBLEM: /usr/bin/python3 is not usable"; rc=1; fi
-echo "python3 on PATH (in order):"; command -v -a python3 || true
+echo "python3 on PATH (in order):"; type -a python3 || true
+
+echo "--- Where the time goes: candidate bundle files per sweep directory"
+for d in /opt/homebrew /usr/local /Library /Applications /Users; do
+    SECONDS=0
+    n=$(find "$d" \( -path '*/.git' -o -path "$PWD" \) -prune -o \( -type f -o -type l \) \
+        \( -name cacert.pem -o -name cert.pem -o -name ca-bundle.crt -o -name ca-bundle.pem \
+           -o -name ca-certificates.crt -o -name tls-ca-bundle.pem -o -name cacerts.txt \) -print 2>/dev/null | wc -l | tr -d ' ')
+    echo "$d: $n candidate file(s), ${SECONDS}s"
+done
 
 echo "--- CA stores found by the sweep (before)"
 bash $SCRIPT report | tee "$OUT/before.txt"
