@@ -13,8 +13,7 @@
 # whether they trust the compromised eMudhra CAs (InfoSec incident "Intrepid
 # Falcon").  The steps run after the post-checkout mitigation, so PASS means
 # it took effect.  Exit 1 (a store still trusts them) fails the build; exit 2
-# (inconclusive, e.g. the test site is unreachable) only warns.  The aarch64
-# test container, a known gap, is soft-fail until fixed.
+# (inconclusive, e.g. the test site is unreachable) only warns.
 
 CHECK=".buildkite/scripts/steps/check_ca_trust.sh"
 
@@ -29,17 +28,14 @@ AARCH64_AGENTS='    agents:
       diskName: "/dev/xvda"'
 
 # Emits a step that runs the check inside the given Docker image, without the
-# post-checkout mitigation, so it reports the image as-is.  A fifth argument
-# "gap" soft-fails the step: a known gap until the image is rebuilt.
+# post-checkout mitigation, so it reports the image as-is.
 image_step() {
-    local key="$1" label="$2" image="$3" uid="${4:-}" gap="${5:-}"
-    local soft_fail="${SOFT_FAIL_INCONCLUSIVE}"
-    [ "${gap}" = gap ] && soft_fail='    soft_fail: true'
+    local key="$1" label="$2" image="$3" uid="${4:-}"
     cat <<STEP
   - label: "CA trust check: ${label}"
     key: "check_ca_trust_${key}"
     command: "${CHECK}"
-${soft_fail}
+${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
     env:
       EMUDHRA_SKIP_MITIGATION: "true"
@@ -55,9 +51,8 @@ cat <<EOL
 steps:
 EOL
 
-# ml-linux-build:34 trusts the roots as-is (Rocky 8, ca-certificates 2024): a
-# known gap until the image is rebuilt.
-image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:34" "" gap
+# ml-linux-build:35 is rebuilt with the fixed Rocky 8 ca-certificates (#3265).
+image_step linux_build "Linux build image (x86_64)" "docker.elastic.co/ml-dev/ml-linux-build:35"
 image_step pytorch_dependency "PyTorch dependency image" "docker.elastic.co/ml-dev/ml-linux-dependency-build:pytorch_latest"
 # The DRA steps run as non-root (imageUID 1000), so the mitigation can't apply:
 # the image itself must be fixed (version 6 is Ubuntu 22.04).
