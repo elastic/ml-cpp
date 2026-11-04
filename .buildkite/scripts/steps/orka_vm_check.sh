@@ -14,6 +14,9 @@ cd "$(dirname "$0")/../../.."
 SCRIPT=.ci/orka/distrust_emudhra_cas.sh
 # Don't sweep this job's own (large) checkout.
 export SWEEP_PRUNE="*/.git $PWD"
+# /Users is too slow to sweep whole (see the timings below): for now look only at
+# the known ~/google-cloud-sdk there.
+export SWEEP_DIRS="/opt/homebrew /usr/local /Library /Applications /Users/admin/google-cloud-sdk"
 OUT=${TMPDIR:-/tmp}/orka_vm_check.$$
 mkdir -p "$OUT"
 rc=0
@@ -26,14 +29,17 @@ ls -l /usr/bin/python3 || true
 if /usr/bin/python3 --version; then :; else echo "PROBLEM: /usr/bin/python3 is not usable"; rc=1; fi
 echo "python3 on PATH (in order):"; type -a python3 || true
 
-echo "--- Where the time goes: candidate bundle files per sweep directory"
-for d in /opt/homebrew /usr/local /Library /Applications /Users; do
+echo "--- Where the time goes: candidate bundle files per directory (each find capped at 60s)"
+names='\( -name cacert.pem -o -name cert.pem -o -name ca-bundle.crt -o -name ca-bundle.pem -o -name ca-certificates.crt -o -name tls-ca-bundle.pem -o -name cacerts.txt \)'
+time_find() {
     SECONDS=0
-    n=$(find "$d" \( -path '*/.git' -o -path "$PWD" \) -prune -o \( -type f -o -type l \) \
-        \( -name cacert.pem -o -name cert.pem -o -name ca-bundle.crt -o -name ca-bundle.pem \
-           -o -name ca-certificates.crt -o -name tls-ca-bundle.pem -o -name cacerts.txt \) -print 2>/dev/null | wc -l | tr -d ' ')
-    echo "$d: $n candidate file(s), ${SECONDS}s"
-done
+    n=$(perl -e 'alarm 60; exec @ARGV' sh -c "find \"$1\" \\( -path '*/.git' -o -path \"$PWD\" \\) -prune -o \\( -type f -o -type l \\) $names -print 2>/dev/null" | wc -l | tr -d ' ')
+    echo "$1: $n candidate file(s), ${SECONDS}s$([ $SECONDS -ge 60 ] && echo ' (CAPPED)')"
+}
+for d in /opt/homebrew /usr/local /Library /Applications; do time_find "$d"; done
+echo "/Users/admin top level:"; ls -A /Users/admin | head -40
+for d in /Users/admin/* /Users/admin/.[!.]*; do [ -e "$d" ] && time_find "$d"; done
+ls -A /Users | head
 
 echo "--- CA stores found by the sweep (before)"
 bash $SCRIPT report | tee "$OUT/before.txt"
