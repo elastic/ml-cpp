@@ -13,7 +13,7 @@
 # Also checks the JDK's own cacerts (what Gradle uses) and the CA bundles that
 # other tools install (Git, curl, Python); Schannel does not cover either.
 # Exit status: 0 = all pass, 1 = any FAIL, 2 = inconclusive only, 3 = only one of
-# those other stores trusts them (soft-failed until the image is rebuilt).
+# those other stores trusts them.
 
 param(
     [string[]]$Hosts = @("dv-g3b-emudhra.we-have-a-problem.com", "dv-g3b-aaa-emudhra.we-have-a-problem.com")
