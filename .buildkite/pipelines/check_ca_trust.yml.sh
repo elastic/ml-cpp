@@ -117,19 +117,17 @@ ${AARCH64_AGENTS}
 EOL
 
 # macOS builds run natively on Orka VMs (same agent as build_macos.json.py).  The
-# macOS 12 image (-002) has the roots distrusted in the image, so this reports it
-# as-is.
+# macOS 12 image trusts the roots as shipped; the post-checkout mitigation is
+# what makes this pass.
 cat <<EOL
   - label: "CA trust check: macOS aarch64 agent"
     key: "check_ca_trust_macos_aarch64"
     command: "${CHECK}"
 ${SOFT_FAIL_INCONCLUSIVE}
     timeout_in_minutes: 10
-    env:
-      EMUDHRA_SKIP_MITIGATION: "true"
     agents:
       provider: "orka"
-      image: "ml-macos-12-arm-002.orkasi"
+      image: "ml-macos-12-arm-001.orkasi"
 EOL
 
 # Windows builds run natively on GCP VMs (same agent as build_windows.json.py).
