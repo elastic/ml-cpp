@@ -18,7 +18,8 @@
 #   ml-linux-aarch64-cross-build:15a  -> ml-linux-aarch64-cross-build:15b
 #
 # The toolchain is not rebuilt, so this takes minutes.  This script is not
-# intended to be run regularly.  It never overwrites an existing tag.
+# intended to be run regularly.  It never overwrites an existing tag.  Set
+# NO_PUSH=true to build the images without logging in or pushing them.
 
 if [ `uname -m` != x86_64 ] ; then
     echo "Native build images must be built on the correct hardware architecture"
@@ -51,6 +52,14 @@ for image in $IMAGES; do
     cp $SCRIPT $CONTEXT/distrust_emudhra_cas.sh
     docker build --no-cache --build-arg BASE_IMAGE=$BASE -t $NEW $CONTEXT
 done
+
+if [ -n "$NO_PUSH" ] ; then
+    echo "NO_PUSH is set: built but did not push. To push, after docker login $HOST:"
+    for image in $IMAGES; do
+        echo "  docker push $HOST/$ACCOUNT/`echo $image | cut -d: -f1`:`echo $image | cut -d: -f3`"
+    done
+    exit 0
+fi
 
 # Get a username and password for this by visiting
 # https://docker-auth.elastic.co and allowing it to authenticate against your
