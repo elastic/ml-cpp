@@ -21,7 +21,7 @@ locals {
 
 source "macstadium-orka" "image" {
   source_image      = "ml-macos-12-arm-001.orkasi"
-  image_name        = "ml-macos-12-arm-002.orkasi"
+  image_name        = "ml-macos-12-arm-003.orkasi"
   orka_endpoint     = local.orka_endpoint
   orka_auth_token   = local.orka_auth_token
   ssh_username      = local.ssh_username

@@ -11,7 +11,7 @@
 - `install.sh` The script that does the software installs on the image
 - `orka-macos-12-arm.pkr.hcl` The packer definition for a MacOS 12 ARM builder image (Orka 2); built `ml-macos-12-arm-001.orkasi`
 - `distrust_emudhra_cas.sh` Distrusts the compromised eMudhra roots (InfoSec incident "Intrepid Falcon") in the Keychain and in every CA bundle and JDK `cacerts` it finds (`distrust`, `verify`, `report`)
-- `orka3-macos-12-arm-distrust.pkr.hcl` The Orka 3 packer definition for `ml-macos-12-arm-002.orkasi`: `-001` plus `distrust_emudhra_cas.sh`
+- `orka3-macos-12-arm-distrust.pkr.hcl` The Orka 3 packer definition for `ml-macos-12-arm-003.orkasi`: `-001` plus `distrust_emudhra_cas.sh`
 
 
 ## Set Up Packer
@@ -69,7 +69,7 @@ The packer script does the following:
 
 * As of version 8.18 support for macos x86_64 builds has been dropped. It is necessary to checkout and work on previous branches in order to maintain x86_64 Orka VMs.
 
-## Distrust overlay (`ml-macos-12-arm-002.orkasi`)
+## Distrust overlay (`ml-macos-12-arm-003.orkasi`)
 
 `ml-macos-12-arm-001.orkasi` trusts the compromised eMudhra roots in the Keychain and in the CA bundles that Homebrew, the Google Cloud SDK, Python and the command line tools ship. `-002` is `-001` with `distrust_emudhra_cas.sh distrust` run over it, and `verify` fails the build if any store still trusts them. The toolchain is unchanged: Homebrew no longer supports macOS 12, so rebuilding from the base image with `install.sh` is avoided.
 
@@ -78,4 +78,4 @@ packer init orka3-macos-12-arm-distrust.pkr.hcl
 packer build orka3-macos-12-arm-distrust.pkr.hcl
 ```
 
-It reads the Orka 3 endpoint, token and SSH credentials from `secret/ci/elastic-ml-cpp/orka3`, and needs the Orka VPN. Building an image name that already exists succeeds but pushing it fails, so bump the sequence number in `image_name` for a new image.
+It reads the Orka 3 endpoint, token and SSH credentials from `secret/ci/elastic-ml-cpp/orka3`, and needs the Orka VPN. Saving an image whose name already exists on the cluster fails after provisioning (`images.orka.macstadium.com "..." already exists`; `ml-macos-12-arm-002` existed already, from an ad-hoc build), so check `orka3 image list` for the next free number and use it in `image_name`.
