@@ -30,6 +30,7 @@ Add-Type -TypeDefinition @"
 using System;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 public static class EmudhraTrustProbe {
@@ -54,7 +55,9 @@ public static class EmudhraTrustProbe {
                     return "INCONCLUSIVE|connect timed out";
                 }
                 using (SslStream ssl = new SslStream(client.GetStream(), false, cb)) {
-                    ssl.AuthenticateAsClient(host);
+                    // Ask for TLS 1.2: .NET Framework on Windows Server 2016 defaults to
+                    // TLS 1.0, which github.com and the test hosts refuse.
+                    ssl.AuthenticateAsClient(host, null, SslProtocols.Tls12, false);
                 }
             }
         } catch (Exception ex) {
