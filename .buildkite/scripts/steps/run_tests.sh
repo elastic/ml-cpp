@@ -32,6 +32,12 @@ fi
 
 cd "${REPO_ROOT:-.}"
 
+# Slowest passing batch seen is ~150s, so fail a hung one in 15 minutes rather
+# than 45.  Debug builds are slower and keep the default.
+if [[ "${ML_DEBUG:-0}" == "0" ]]; then
+    export TEST_TIMEOUT="${TEST_TIMEOUT:-900}"
+fi
+
 echo "--- Downloading test bundle"
 if [ -n "${BUILD_STEP_KEY:-}" ]; then
     buildkite-agent artifact download "${TEST_BUNDLE}" . --step "${BUILD_STEP_KEY}"
